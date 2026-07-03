@@ -1,5 +1,7 @@
 import datetime
-from unittest.mock import MagicMock
+import sys
+from types import ModuleType
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -13,6 +15,7 @@ from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile, ObjectType
 from dcim.models import Rack, Site
 from extras.models import ScriptModule
+from netbox.authentication import LDAPBackend
 from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
 from users.constants import TOKEN_PREFIX
@@ -560,6 +563,43 @@ class LDAPMirrorGroupsTestCase(TestCase):
             ['Group 1'],
             list(self.user.groups.values_list('name', flat=True))
         )
+
+
+class LDAPBackendTest(SimpleTestCase):
+    """The LDAP backend reads ldap_config.py from the active configuration directory."""
+
+    def test_backend_loads_ldap_config_from_configuration_dir(self):
+        with override_settings(CONFIGURATION_DIR='/srv/netbox/conf', NETBOX_INSTALL_MODE='checkout'):
+            backend, loader = self._build_backend()
+        loader.assert_called_once_with('/srv/netbox/conf', allow_legacy_fallback=True)
+        self.assertEqual(backend.settings.SERVER_URI, 'ldaps://example')
+
+    def test_backend_disables_legacy_fallback_for_wheel_installs(self):
+        with override_settings(CONFIGURATION_DIR='/opt/netbox/conf', NETBOX_INSTALL_MODE='wheel'):
+            backend, loader = self._build_backend()
+        loader.assert_called_once_with('/opt/netbox/conf', allow_legacy_fallback=False)
+        self.assertEqual(backend.settings.SERVER_URI, 'ldaps://example')
+
+    def _build_backend(self):
+        fake_ldap = ModuleType('ldap')
+        fake_ldap.set_option = MagicMock()
+        backend_module = ModuleType('django_auth_ldap.backend')
+        backend_module.LDAPSettings = type('LDAPSettings', (), {'_prefix': 'AUTH_LDAP_'})
+        package = ModuleType('django_auth_ldap')
+        package.backend = backend_module
+        ldap_config = ModuleType('netbox.ldap_config')
+        ldap_config.AUTH_LDAP_SERVER_URI = 'ldaps://example'
+        with (
+            patch.dict(sys.modules, {
+                'ldap': fake_ldap,
+                'django_auth_ldap': package,
+                'django_auth_ldap.backend': backend_module,
+            }),
+            patch('netbox.authentication.NBLDAPBackend', MagicMock(), create=True),
+            patch('netbox.authentication.load_ldap_config', return_value=ldap_config) as loader,
+        ):
+            backend = LDAPBackend()
+        return backend, loader
 
 
 class ObjectPermissionAPIViewTestCase(TestCase):

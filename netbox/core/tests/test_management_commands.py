@@ -9,6 +9,7 @@ from django.test import TestCase, override_settings
 from core.choices import DataSourceStatusChoices
 from core.management.commands import nbshell
 from core.management.commands.rqworker import DEFAULT_QUEUES
+from utilities.upgrade_tasks import _docs_source_root
 
 
 class MakeMigrationsTestCase(TestCase):
@@ -315,3 +316,59 @@ class SyncDataSourceTestCase(TestCase):
         self.assertIn('[1] Syncing source-a', out.getvalue())
         self.assertIn('[2] Syncing source-b', out.getvalue())
         self.assertIn('Finished.', out.getvalue())
+
+
+class UpgradeCommandTest(TestCase):
+    """The upgrade command orchestrates the application task sequence for installs and upgrades."""
+
+    def _run(self, **kwargs):
+        with (
+            patch('utilities.upgrade_tasks.call_command') as cc,
+            patch('utilities.upgrade_tasks.subprocess.run') as sub,
+        ):
+            call_command('upgrade', stdout=StringIO(), **kwargs)
+        return [c.args[0] for c in cc.call_args_list], cc, sub
+
+    def test_full_sequence_order(self):
+        seq, _, sub = self._run()
+        self.assertEqual(seq, [
+            'migrate', 'trace_paths',
+            'collectstatic', 'remove_stale_contenttypes', 'reindex', 'clearsessions',
+        ])
+        sub.assert_not_called()  # docs not built by default
+
+    def test_readonly_skips_all_tasks_including_static(self):
+        seq, _, sub = self._run(readonly=True)
+        self.assertEqual(seq, [])
+        sub.assert_not_called()
+
+    def test_skip_flags(self):
+        seq, _, _ = self._run(skip_migrations=True, skip_static=True, skip_reindex=True)
+        self.assertEqual(
+            seq,
+            ['trace_paths', 'remove_stale_contenttypes', 'clearsessions'],
+        )
+
+    def test_build_docs_invokes_zensical_when_sources_present(self):
+        with patch('utilities.upgrade_tasks._docs_source_root', return_value='/repo'):
+            _, _, sub = self._run(build_docs=True)
+        sub.assert_called_once()
+        self.assertEqual(sub.call_args.args[0], ['zensical', 'build'])
+
+    def test_build_docs_skipped_when_sources_absent(self):
+        with patch('utilities.upgrade_tasks._docs_source_root', return_value=None):
+            _, _, sub = self._run(build_docs=True)
+        sub.assert_not_called()
+
+    def test_readonly_with_build_docs_skips_docs(self):
+        with patch('utilities.upgrade_tasks._docs_source_root', return_value='/repo'):
+            _, _, sub = self._run(readonly=True, build_docs=True)
+        sub.assert_not_called()
+
+    def test_docs_source_root_found_when_mkdocs_present(self):
+        with patch('utilities.upgrade_tasks.os.path.isfile', return_value=True):
+            self.assertIsNotNone(_docs_source_root())
+
+    def test_docs_source_root_none_when_mkdocs_absent(self):
+        with patch('utilities.upgrade_tasks.os.path.isfile', return_value=False):
+            self.assertIsNone(_docs_source_root())

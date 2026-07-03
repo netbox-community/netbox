@@ -1,14 +1,19 @@
 # See PEP 518 for the spec of this file
 # https://www.python.org/dev/peps/pep-0518/
 
+[build-system]
+requires = ["hatchling>=1.27", "packaging"]
+build-backend = "hatchling.build"
+
 [project]
 name = "netbox"
-version = "4.6.4"
+dynamic = ["version", "dependencies"]
 requires-python = ">=3.12"
 description = "The premier source of truth powering network automation."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
+authors = [{ name = "NetBox Community" }]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Framework :: Django",
@@ -19,6 +24,39 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
+
+[project.optional-dependencies]
+ldap = ["django-auth-ldap"]
+saml2 = ["python3-saml"]
+remote-auth = ["django-auth-ldap", "python3-saml"]
+sentry = ["sentry-sdk"]
+swift = ["django-storage-swift"]
+s3 = ["boto3"]
+git = ["dulwich"]
+# NetBox Labs plugins (proprietary, opt-in). Minor-bounded to the tested series.
+branching = ["netboxlabs-netbox-branching>=1.1.0,<1.2.0"]
+custom-objects = ["netboxlabs-netbox-custom-objects>=0.5.0,<0.6.0"]
+# Convenience aggregate of the recommended NetBox Labs plugins (NOT a catch-all of every extra).
+# The component pins are duplicated literally, as remote-auth duplicates ldap and saml2;
+# scripts/verify_wheel_metadata.py verifies in CI that this aggregate equals the union of the
+# branching and custom-objects extras, guarding the duplication against drift.
+recommended-plugins = [
+    "netboxlabs-netbox-branching>=1.1.0,<1.2.0",
+    "netboxlabs-netbox-custom-objects>=0.5.0,<0.6.0",
+]
+dev = [
+    "build",
+    "coverage",
+    "packaging",
+    "pre-commit",
+    "ruff==0.15.10",
+    "tblib",
+    "twine",
+    "uv",
+]
+
+[project.scripts]
+netbox = "netbox.cli:main"
 
 [project.urls]
 Homepage = "https://netboxlabs.com/products/netbox/"
@@ -42,10 +80,97 @@ omit = [
     "netbox/scripts/*",  # SCRIPTS_ROOT: user/generated scripts
     "*/netbox/configuration*.py",  # settings/config files (template, testing, local)
     "*/netbox/wsgi.py",  # WSGI entrypoint
+    "*/netbox/__main__.py",  # `python -m netbox` entry point
     "*/generate_secret_key.py",  # standalone CLI helper
     "*/utilities/debug.py",  # debug-toolbar hook, active only when DEBUG=True
     "*/extras/management/commands/housekeeping.py",  # deprecated; will not be tested
 ]
+
+[tool.hatch.metadata.hooks.custom]
+# Implemented in scripts/packaging/hatch_metadata.py; computes a PEP 440 version from
+# netbox/release.yaml (version + optional designation) and runtime deps from requirements.txt.
+path = "scripts/packaging/hatch_metadata.py"
+
+[tool.hatch.build.targets.wheel]
+sources = ["netbox"]
+packages = [
+    "netbox/account",
+    "netbox/circuits",
+    "netbox/core",
+    "netbox/dcim",
+    "netbox/extras",
+    "netbox/ipam",
+    "netbox/netbox",
+    "netbox/tenancy",
+    "netbox/users",
+    "netbox/utilities",
+    "netbox/virtualization",
+    "netbox/vpn",
+    "netbox/wireless",
+]
+
+# Never ship a live or local configuration file: configuration.py holds SECRET_KEY
+# and database credentials, ldap_config.py holds LDAP bind credentials, and developers
+# often keep ad-hoc configuration*.py copies in this directory. Exclude both sets, then
+# re-include only the two tracked templates. (verify_wheel_contents.py enforces this in CI.)
+exclude = [
+    "netbox/netbox/configuration*.py",
+    "netbox/netbox/ldap_config*.py",
+]
+
+# Bundle runtime data inside the installed netbox package at netbox/_data/.
+# Destinations carry an extra leading "netbox/" because the wheel `sources`
+# setting above strips one "netbox/" prefix from every path (including these
+# force-include targets); after stripping they resolve to netbox/_data/...
+[tool.hatch.build.targets.wheel.force-include]
+"netbox/templates" = "netbox/netbox/_data/templates"
+"netbox/translations" = "netbox/netbox/_data/translations"
+"netbox/project-static/dist" = "netbox/netbox/_data/project-static/dist"
+"netbox/project-static/img" = "netbox/netbox/_data/project-static/img"
+"netbox/project-static/js" = "netbox/netbox/_data/project-static/js"
+"netbox/release.yaml" = "netbox/netbox/_data/release.yaml"
+"contrib/gunicorn.py" = "netbox/netbox/_data/examples/gunicorn.py"
+# The canonical contrib files are bundled as-is; `netbox setup` adapts the systemd units for
+# a pip install at render time (see _PIP_TRANSFORMS in netbox/netbox/scaffold.py).
+"contrib/netbox.service" = "netbox/netbox/_data/examples/netbox.service"
+"contrib/netbox-rq.service" = "netbox/netbox/_data/examples/netbox-rq.service"
+"contrib/nginx.conf" = "netbox/netbox/_data/examples/nginx.conf"
+"contrib/apache.conf" = "netbox/netbox/_data/examples/apache.conf"
+"contrib/netbox.env" = "netbox/netbox/_data/examples/netbox.env"
+# Force the two tracked config templates in over the configuration*.py exclude above.
+"netbox/netbox/configuration_example.py" = "netbox/netbox/configuration_example.py"
+"netbox/netbox/configuration_testing.py" = "netbox/netbox/configuration_testing.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/.github/workflows/release.yml",
+    "/CHANGELOG.md",
+    "/LICENSE.txt",
+    "/README.md",
+    "/base_requirements.txt",
+    "/contrib",
+    "/docs",
+    "/mkdocs.yml",
+    "/netbox",
+    "/pyproject.toml",
+    "/requirements.txt",
+    "/scripts",
+    "/upgrade.sh",
+]
+# Keep live/local configuration*.py and ldap_config*.py out of the sdist (same rule as the
+# wheel, keeping only the two tracked templates), and drop the local netbox/configuration.py
+# symlink that otherwise breaks `python -m build --sdist` with an AbsoluteLinkError.
+exclude = [
+    "netbox/netbox/configuration*.py",
+    "netbox/netbox/ldap_config*.py",
+    "netbox/configuration.py",
+    "netbox/ldap_config.py",
+]
+
+[tool.hatch.build.targets.sdist.force-include]
+# Force the two tracked config templates in over the configuration*.py exclude above.
+"netbox/netbox/configuration_example.py" = "netbox/netbox/configuration_example.py"
+"netbox/netbox/configuration_testing.py" = "netbox/netbox/configuration_testing.py"
 
 [tool.pyright]
 include = ["netbox"]

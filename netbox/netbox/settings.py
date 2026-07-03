@@ -18,6 +18,7 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from netbox.settings_utils import configuration_dir, load_configuration
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
@@ -30,8 +31,25 @@ from .monkey import get_unique_validators
 
 RELEASE = load_release_data()
 VERSION = RELEASE.full_version  # Retained for backward compatibility
-# Set the base directory two levels up
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Settings package directory (settings.py lives here in both checkout & wheel).
+_SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# In a wheel install, package data is bundled under netbox/_data. In a checkout,
+# the data directories remain siblings of the settings package's parent.
+_BUNDLED_DATA = os.path.join(_SETTINGS_DIR, '_data')
+if os.path.isdir(_BUNDLED_DATA):
+    BASE_DIR = _BUNDLED_DATA  # pragma: no cover
+    NETBOX_INSTALL_MODE = 'wheel'  # pragma: no cover
+else:
+    BASE_DIR = os.path.dirname(_SETTINGS_DIR)
+    NETBOX_INSTALL_MODE = 'checkout'
+
+# Instance root for wheel installs (holds conf/, media/, reports/, scripts/, static/, units);
+# equals BASE_DIR in a checkout so archive/git behavior is unchanged.
+if NETBOX_INSTALL_MODE == 'wheel':
+    NETBOX_ROOT = os.path.abspath(os.environ.get('NETBOX_ROOT', '/opt/netbox'))  # pragma: no cover
+else:
+    NETBOX_ROOT = BASE_DIR
 
 # Validate the Python version
 if sys.version_info < (3, 12):  # noqa: UP036
@@ -43,17 +61,15 @@ if sys.version_info < (3, 12):  # noqa: UP036
 # Configuration import
 #
 
-# Import the configuration module
-config_path = os.getenv('NETBOX_CONFIGURATION', 'netbox.configuration')
-try:
-    configuration = importlib.import_module(config_path)
-except ModuleNotFoundError as e:
-    if getattr(e, 'name') == config_path:
-        raise ImproperlyConfigured(
-            f"Specified configuration module ({config_path}) not found. Please define netbox/netbox/configuration.py "
-            f"per the documentation, or specify an alternate module in the NETBOX_CONFIGURATION environment variable."
-        )
-    raise
+# Import the configuration module (wheel mode prefers NETBOX_ROOT/conf/configuration.py).
+configuration = load_configuration(
+    install_mode=NETBOX_INSTALL_MODE,
+    install_root=NETBOX_ROOT,
+    environ=os.environ,
+)
+
+# The directory holding the active configuration.py; ldap_config.py lives beside it.
+CONFIGURATION_DIR = configuration_dir(configuration)
 
 # Check for missing/conflicting required configuration parameters
 for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
@@ -119,7 +135,10 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
+_DEFAULT_DOCS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'docs')
+if not os.path.isdir(_DEFAULT_DOCS_ROOT):
+    _DEFAULT_DOCS_ROOT = None  # pragma: no cover
+DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', _DEFAULT_DOCS_ROOT)
 EMAIL = getattr(configuration, 'EMAIL', {})
 STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
@@ -150,7 +169,7 @@ LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 LOGIN_FORM_HIDDEN = getattr(configuration, 'LOGIN_FORM_HIDDEN', False)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
-MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
@@ -175,7 +194,7 @@ REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_
 REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
 REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
 # Required by extras/migrations/0109_script_models.py
-REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
+REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(NETBOX_ROOT, 'reports')).rstrip('/')
 RQ = getattr(configuration, 'RQ', {})
 if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWorker':
     warnings.warn(
@@ -187,7 +206,7 @@ else:
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
 RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
-SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')  # Required
 SECURE_HSTS_INCLUDE_SUBDOMAINS = getattr(configuration, 'SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
@@ -594,14 +613,21 @@ USE_X_FORWARDED_HOST = True
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = BASE_DIR + '/static'
+# STATIC_ROOT is deliberately not a configuration parameter; static files are collected to <NETBOX_ROOT>/static.
+STATIC_ROOT = os.path.join(NETBOX_ROOT, 'static')
 STATIC_URL = f'/{BASE_PATH}static/'
-STATICFILES_DIRS = (
+_STATIC_DOCS_ROOT = os.path.join(BASE_DIR, 'project-static', 'docs')
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'project-static', 'dist'),
     os.path.join(BASE_DIR, 'project-static', 'img'),
     os.path.join(BASE_DIR, 'project-static', 'js'),
-    ('docs', os.path.join(BASE_DIR, 'project-static', 'docs')),  # Prefix with /docs
-)
+]
+# Checkout installs keep the docs entry even when the directory does not exist yet:
+# `manage.py upgrade --build-docs` builds the docs AFTER settings are imported, and the
+# in-process collectstatic must still pick them up. Wheels never ship the docs sources.
+if NETBOX_INSTALL_MODE == 'checkout' or os.path.isdir(_STATIC_DOCS_ROOT):
+    STATICFILES_DIRS.append(('docs', _STATIC_DOCS_ROOT))  # Prefix with /docs
+STATICFILES_DIRS = tuple(STATICFILES_DIRS)
 
 # Media URL
 MEDIA_URL = f'/{BASE_PATH}media/'
