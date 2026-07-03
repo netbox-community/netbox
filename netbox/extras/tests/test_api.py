@@ -19,7 +19,7 @@ from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
-from users.models import Group, Token, User
+from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -445,7 +445,24 @@ class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
             custom_link.object_types.set([site_type])
 
 
-class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
+class SharedObjectAPITestMixin:
+    """
+    Helpers for testing the shared/owner visibility enforced on SavedFilter and TableConfig.
+    """
+    def _grant_view_permission_and_authenticate(self, user, model):
+        """
+        Grant `user` an unconstrained view permission on `model`, create an API token, and return the
+        corresponding authentication header.
+        """
+        obj_perm = ObjectPermission(name=f'{model._meta.model_name} view', actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
+        token = Token.objects.create(user=user)
+        return {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+
+class SavedFilterTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = SavedFilter
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -554,8 +571,18 @@ class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
         returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
         self.assertNotIn(private_filter.pk, returned_ids)
 
+        # The owner, however, must still be able to access their own private filter
+        owner_header = self._grant_view_permission_and_authenticate(owner, SavedFilter)
+        response = self.client.get(self._get_detail_url(private_filter), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
+        self.assertIn(private_filter.pk, returned_ids)
 
-class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
+
+class TableConfigTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = TableConfig
     brief_fields = ['description', 'display', 'id', 'name', 'object_type', 'table', 'url']
     bulk_update_data = {
@@ -665,6 +692,16 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
         data = json.loads(response.content)
         returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
         self.assertNotIn(private_config.pk, returned_ids)
+
+        # The owner, however, must still be able to access their own private table config
+        owner_header = self._grant_view_permission_and_authenticate(owner, TableConfig)
+        response = self.client.get(self._get_detail_url(private_config), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
+        self.assertIn(private_config.pk, returned_ids)
 
 
 class BookmarkTestCase(

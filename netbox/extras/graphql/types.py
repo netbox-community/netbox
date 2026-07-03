@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from strawberry.scalars import JSON
+from strawberry.types import Info
 
 from core.graphql.mixins import SyncedDataMixin
 from extras import models
@@ -54,7 +55,7 @@ class SharedObjectMixin:
     This mirrors the visibility enforced in the UI (extras.utils.SharedObjectViewMixin) and the REST API.
     """
     @classmethod
-    def get_queryset(cls, queryset, info, **kwargs):
+    def get_queryset(cls, queryset, info: Info, **kwargs):
         queryset = super().get_queryset(queryset, info, **kwargs)
         return queryset.restrict_to_shared(info.context.request.user)
 
