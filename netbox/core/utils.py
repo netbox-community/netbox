@@ -1,7 +1,8 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError, connection
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
-from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
+from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection, get_scheduler
 from django_rq.settings import get_queues_list, get_queues_map
 from django_rq.utils import get_jobs, stop_jobs
 from rq import requeue_job
@@ -22,9 +23,36 @@ __all__ = (
     'get_db_schema',
     'get_rq_jobs',
     'get_rq_jobs_from_status',
+    'get_scheduler_pid',
     'requeue_rq_job',
     'stop_rq_job',
 )
+
+
+def get_scheduler_pid(queue):
+    """
+    Return the PID of the RQ scheduler holding the lock on the given queue, False if the external
+    rq-scheduler is in use, or None if no scheduler lock is present.
+
+    This is a patched replacement for django_rq.utils.get_scheduler_pid() which resolves the PID via
+    RQ's Queue.scheduler_pid property. The implementation shipped in django-rq 4.1.0 casts the
+    scheduler lock value directly to an integer, which fails under RQ 2.10+ where the lock stores the
+    scheduler's (hex) name rather than its PID. See #22598.
+    """
+    try:
+        # Succeeds only when the external rq-scheduler is installed, in which case the PID cannot be
+        # determined without a costly Redis keys() scan
+        get_scheduler(queue.name)
+        return False
+    except ImproperlyConfigured:
+        # The external rq-scheduler is not installed; resolve the PID via RQ's built-in scheduler.
+        # Guard against Redis errors (e.g. ConnectionError) so they don't propagate to the caller.
+        try:
+            return queue.scheduler_pid
+        except Exception:
+            return None
+    except Exception:
+        return None
 
 
 def get_rq_jobs():

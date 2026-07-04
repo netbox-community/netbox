@@ -21,8 +21,11 @@ class CoreConfig(AppConfig):
     name = "core"
 
     def ready(self):
+        import django_rq.utils
+
         from core.api import schema  # noqa: F401
         from core.checks import check_duplicate_indexes, check_postgresql_version, check_redis_version  # noqa: F401
+        from core.utils import get_scheduler_pid
         from netbox import context_managers  # noqa: F401
         from netbox.models.features import register_models
 
@@ -30,6 +33,11 @@ class CoreConfig(AppConfig):
 
         # Register models
         register_models(*self.get_models())
+
+        # Patch django-rq's get_scheduler_pid() to fix scheduler PID resolution under RQ 2.10+, where
+        # the scheduler lock stores a hex name rather than an integer PID (see #22598).
+        # TODO: Remove once django-rq ships a release incorporating the upstream fix.
+        django_rq.utils.get_scheduler_pid = get_scheduler_pid
 
         # Register core events
         EventType(OBJECT_CREATED, _('Object created')).register()

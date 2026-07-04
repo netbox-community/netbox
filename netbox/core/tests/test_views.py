@@ -12,9 +12,11 @@ from django_rq.workers import get_worker
 from rq.job import Job as RQ_Job
 from rq.job import JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
+from rq.scheduler import SCHEDULER_KEY_TEMPLATE, RQScheduler
 
 from core.choices import ObjectChangeActionChoices
 from core.models import *
+from core.utils import get_scheduler_pid
 from dcim.models import Site
 from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
@@ -299,6 +301,21 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         self.assertIn('default', str(response.content))
         self.assertIn('high', str(response.content))
         self.assertIn('low', str(response.content))
+
+    def test_background_queue_list_with_scheduler_lock(self):
+        """
+        The queue list view must not crash when an RQ 2.10+ scheduler lock is present. RQ 2.10 stores
+        the scheduler's hex name (rather than an integer PID) under the lock key, which the previous
+        PID resolution attempted to cast to an int. See #22598.
+        """
+        queue = get_queue('default')
+        scheduler_name = uuid.uuid4().hex
+        queue.connection.set(RQScheduler.get_locking_key(queue.name), scheduler_name)
+        queue.connection.hset(SCHEDULER_KEY_TEMPLATE % scheduler_name, 'pid', 12345)
+
+        response = self.client.get(reverse('core:background_queue_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(get_scheduler_pid(queue), 12345)
 
     def test_background_tasks_list_default(self):
         queue = get_queue('default')
