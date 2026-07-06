@@ -1,3 +1,5 @@
+from contextlib import redirect_stderr, redirect_stdout
+from io import StringIO
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
@@ -10,89 +12,87 @@ class CliDispatchTest(SimpleTestCase):
 
     def _main(self, args, argv0='netbox'):
         # prog derives from sys.argv[0] even when argv is passed explicitly, so pin both.
+        stdout, stderr = StringIO(), StringIO()
         with (
             patch.object(cli.sys, 'argv', [argv0, *args]),
             patch('django.core.management.execute_from_command_line') as execute,
+            redirect_stdout(stdout), redirect_stderr(stderr),
         ):
             rc = cli.main(args)
-        return rc, execute
+        return rc, execute, stdout.getvalue(), stderr.getvalue()
 
     def test_version_flag_prints_version_without_django(self):
-        with patch('netbox.cli.version', return_value='4.7.0b1'), patch('builtins.print') as printed:
-            rc, execute = self._main(['--version'])
+        with patch('netbox.cli.version', return_value='4.7.0b1'):
+            rc, execute, out, _ = self._main(['--version'])
         execute.assert_not_called()
-        printed.assert_called_once_with('4.7.0b1')
+        self.assertEqual(out, '4.7.0b1\n')
         self.assertEqual(rc, 0)
 
     def test_version_command_prints_version_without_django(self):
-        with patch('netbox.cli.version', return_value='4.7.0b1'), patch('builtins.print') as printed:
-            rc, execute = self._main(['version'])
+        with patch('netbox.cli.version', return_value='4.7.0b1'):
+            rc, execute, out, _ = self._main(['version'])
         execute.assert_not_called()
-        printed.assert_called_once_with('4.7.0b1')
+        self.assertEqual(out, '4.7.0b1\n')
         self.assertEqual(rc, 0)
 
     def test_version_help(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main(['version', '--help'])
+        rc, execute, out, _ = self._main(['version', '--help'])
         execute.assert_not_called()
         self.assertEqual(rc, 0)
-        self.assertIn('usage: netbox version', printed.call_args_list[0].args[0])
+        self.assertIn('usage: netbox version', out)
 
     def test_version_rejects_unexpected_arguments(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main(['version', 'bogus'])
+        rc, execute, _, err = self._main(['version', 'bogus'])
         execute.assert_not_called()
         self.assertEqual(rc, 2)
-        self.assertIn('unexpected arguments: bogus', printed.call_args.args[0])
-        self.assertIs(printed.call_args.kwargs.get('file'), cli.sys.stderr)
+        self.assertIn('unrecognized arguments: bogus', err)
 
     def test_no_arguments_prints_help_without_django(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main([])
+        rc, execute, out, _ = self._main([])
         execute.assert_not_called()
         self.assertEqual(rc, 0)
-        self.assertIn('Pre-configuration commands', printed.call_args.args[0])
+        self.assertIn('usage: netbox', out)
+        for command in ('version', 'setup', 'secret-key'):
+            self.assertIn(command, out)
 
     def test_help_flags_print_help_without_django(self):
         for flag in ('-h', '--help'):
-            with self.subTest(flag=flag), patch('builtins.print') as printed:
-                rc, execute = self._main([flag])
+            with self.subTest(flag=flag):
+                rc, execute, out, _ = self._main([flag])
                 execute.assert_not_called()
                 self.assertEqual(rc, 0)
-                self.assertIn('usage: netbox', printed.call_args.args[0])
+                self.assertIn('usage: netbox', out)
+                for command in ('version', 'setup', 'secret-key'):
+                    self.assertIn(command, out)
 
     def test_secret_key_prints_50_char_key_without_django(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main(['secret-key'])
+        rc, execute, out, _ = self._main(['secret-key'])
         execute.assert_not_called()
         self.assertEqual(rc, 0)
-        self.assertEqual(len(printed.call_args.args[0]), 50)
+        self.assertEqual(len(out.strip()), 50)
 
     def test_secret_key_help(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main(['secret-key', '--help'])
+        rc, execute, out, _ = self._main(['secret-key', '--help'])
         execute.assert_not_called()
         self.assertEqual(rc, 0)
-        self.assertIn('usage: netbox secret-key', printed.call_args_list[0].args[0])
+        self.assertIn('usage: netbox secret-key', out)
 
     def test_secret_key_rejects_unexpected_arguments(self):
-        with patch('builtins.print') as printed:
-            rc, execute = self._main(['secret-key', 'bogus'])
+        rc, execute, _, err = self._main(['secret-key', 'bogus'])
         execute.assert_not_called()
         self.assertEqual(rc, 2)
-        self.assertIn('unexpected arguments: bogus', printed.call_args.args[0])
-        self.assertIs(printed.call_args.kwargs.get('file'), cli.sys.stderr)
+        self.assertIn('unrecognized arguments: bogus', err)
 
     def test_setup_dispatches_to_scaffold_with_prog(self):
         with patch('netbox.scaffold.main', return_value=0) as setup_main:
-            rc, execute = self._main(['setup', '--target', '/srv/netbox'])
+            rc, execute, _, _ = self._main(['setup', '--target', '/srv/netbox'])
         execute.assert_not_called()
         setup_main.assert_called_once_with(['--target', '/srv/netbox'], prog='netbox setup')
         self.assertEqual(rc, 0)
 
     def test_setup_return_code_propagates(self):
         with patch('netbox.scaffold.main', return_value=3):
-            rc, execute = self._main(['setup'])
+            rc, execute, _, _ = self._main(['setup'])
         execute.assert_not_called()
         self.assertEqual(rc, 3)
 
@@ -109,7 +109,7 @@ class CliDispatchTest(SimpleTestCase):
         self.assertEqual(rc, 0)
 
     def test_subcommand_help_falls_through_to_django(self):
-        rc, execute = self._main(['migrate', '--help'])
+        rc, execute, _, _ = self._main(['migrate', '--help'])
         execute.assert_called_once_with(['netbox', 'migrate', '--help'])
         self.assertEqual(rc, 0)
 
@@ -119,12 +119,13 @@ class CliDispatchTest(SimpleTestCase):
         setup_main.assert_called_once_with([], prog='netbox setup')
 
     def test_prog_falls_back_when_argv_is_empty(self):
+        out = StringIO()
         with (
             patch.object(cli.sys, 'argv', []),
             patch('django.core.management.execute_from_command_line') as execute,
-            patch('builtins.print') as printed,
+            redirect_stdout(out),
         ):
             rc = cli.main([])
         execute.assert_not_called()
         self.assertEqual(rc, 0)
-        self.assertIn('usage: netbox', printed.call_args.args[0])
+        self.assertIn('usage: netbox', out.getvalue())

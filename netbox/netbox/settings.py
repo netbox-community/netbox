@@ -18,7 +18,7 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
-from netbox.settings_utils import configuration_dir, load_configuration
+from netbox.settings_utils import get_configuration_dir, load_configuration, resolve_install_paths, secret_key_hint
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
@@ -34,22 +34,15 @@ VERSION = RELEASE.full_version  # Retained for backward compatibility
 # Settings package directory (settings.py lives here in both checkout & wheel).
 _SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# In a wheel install, package data is bundled under netbox/_data. In a checkout,
-# the data directories remain siblings of the settings package's parent.
-_BUNDLED_DATA = os.path.join(_SETTINGS_DIR, '_data')
-if os.path.isdir(_BUNDLED_DATA):
-    BASE_DIR = _BUNDLED_DATA  # pragma: no cover
-    NETBOX_INSTALL_MODE = 'wheel'  # pragma: no cover
-else:
-    BASE_DIR = os.path.dirname(_SETTINGS_DIR)
-    NETBOX_INSTALL_MODE = 'checkout'
-
-# Instance root for wheel installs (holds conf/, media/, reports/, scripts/, static/, units);
-# equals BASE_DIR in a checkout so archive/git behavior is unchanged.
-if NETBOX_INSTALL_MODE == 'wheel':
-    NETBOX_ROOT = os.path.abspath(os.environ.get('NETBOX_ROOT', '/opt/netbox'))  # pragma: no cover
-else:
-    NETBOX_ROOT = BASE_DIR
+# All wheel-vs-checkout path branching is centralized in resolve_install_paths(): a wheel
+# bundles package data under netbox/_data and keeps mutable instance files under an external
+# instance root (NETBOX_ROOT, default /opt/netbox); a checkout keeps both roots as the project
+# directory, so archive/git behavior is unchanged.
+_PATHS = resolve_install_paths(_SETTINGS_DIR, os.environ)
+NETBOX_INSTALL_MODE = _PATHS.install_mode
+BASE_DIR = _PATHS.base_dir
+# Instance root for wheel installs (holds conf/, media/, reports/, scripts/, static/, units).
+NETBOX_ROOT = _PATHS.netbox_root
 
 # Validate the Python version
 if sys.version_info < (3, 12):  # noqa: UP036
@@ -69,7 +62,7 @@ configuration = load_configuration(
 )
 
 # The directory holding the active configuration.py; ldap_config.py lives beside it.
-CONFIGURATION_DIR = configuration_dir(configuration)
+CONFIGURATION_DIR = get_configuration_dir(configuration)
 
 # Check for missing/conflicting required configuration parameters
 for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
@@ -135,10 +128,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-_DEFAULT_DOCS_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'docs')
-if not os.path.isdir(_DEFAULT_DOCS_ROOT):
-    _DEFAULT_DOCS_ROOT = None  # pragma: no cover
-DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', _DEFAULT_DOCS_ROOT)
+DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', _PATHS.docs_root)
 EMAIL = getattr(configuration, 'EMAIL', {})
 STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
@@ -251,7 +241,7 @@ if type(SECRET_KEY) is not str:
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured(
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
-        f"  python {BASE_DIR}/generate_secret_key.py"
+        f"  {secret_key_hint(NETBOX_INSTALL_MODE, BASE_DIR)}"
     )
 
 # Validate API token peppers
@@ -616,18 +606,13 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 # STATIC_ROOT is deliberately not a configuration parameter; static files are collected to <NETBOX_ROOT>/static.
 STATIC_ROOT = os.path.join(NETBOX_ROOT, 'static')
 STATIC_URL = f'/{BASE_PATH}static/'
-_STATIC_DOCS_ROOT = os.path.join(BASE_DIR, 'project-static', 'docs')
-STATICFILES_DIRS = [
+STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'project-static', 'dist'),
     os.path.join(BASE_DIR, 'project-static', 'img'),
     os.path.join(BASE_DIR, 'project-static', 'js'),
-]
-# Checkout installs keep the docs entry even when the directory does not exist yet:
-# `manage.py upgrade --build-docs` builds the docs AFTER settings are imported, and the
-# in-process collectstatic must still pick them up. Wheels never ship the docs sources.
-if NETBOX_INSTALL_MODE == 'checkout' or os.path.isdir(_STATIC_DOCS_ROOT):
-    STATICFILES_DIRS.append(('docs', _STATIC_DOCS_ROOT))  # Prefix with /docs
-STATICFILES_DIRS = tuple(STATICFILES_DIRS)
+    # May not exist until `manage.py upgrade --build-docs` runs; collectstatic tolerates that.
+    ('docs', _PATHS.static_docs_root),  # Prefix with /docs
+)
 
 # Media URL
 MEDIA_URL = f'/{BASE_PATH}media/'

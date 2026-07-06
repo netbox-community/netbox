@@ -5,10 +5,71 @@ import importlib.util
 import os
 import sys
 import warnings
+from typing import NamedTuple
 
 from django.core.exceptions import ImproperlyConfigured
 
-__all__ = ('configuration_dir', 'load_configuration', 'load_ldap_config')
+__all__ = (
+    'InstallPaths',
+    'get_configuration_dir',
+    'load_configuration',
+    'load_ldap_config',
+    'resolve_install_paths',
+    'secret_key_hint',
+)
+
+
+class InstallPaths(NamedTuple):
+    """Filesystem layout resolved from the install mode (wheel vs. source checkout)."""
+    install_mode: str      # 'wheel' or 'checkout'
+    base_dir: str          # package data root (BASE_DIR)
+    netbox_root: str       # instance root for mutable files (NETBOX_ROOT)
+    docs_root: str         # documentation sources (DOCS_ROOT default)
+    static_docs_root: str  # built documentation, source of the STATICFILES 'docs' prefix
+
+
+def resolve_install_paths(settings_dir, environ):
+    """Resolve the install mode and filesystem roots for this NetBox installation.
+
+    A wheel bundles package data (including the documentation sources and mkdocs.yml)
+    under netbox/_data and keeps mutable instance files under an external instance root
+    (NETBOX_ROOT, default /opt/netbox); a source checkout keeps the historical layout,
+    where both roots are the project directory. All wheel-vs-checkout branching lives
+    here so settings.py stays declarative.
+    """
+    bundled_data = os.path.join(settings_dir, '_data')
+    if os.path.isdir(bundled_data):
+        install_mode = 'wheel'
+        base_dir = bundled_data
+        netbox_root = os.path.abspath(environ.get('NETBOX_ROOT', '/opt/netbox'))
+        docs_root = os.path.join(base_dir, 'docs')
+        # site_dir in mkdocs.yml is netbox/project-static/docs relative to the config
+        # file, which is bundled at _data/mkdocs.yml; the built docs land accordingly.
+        static_docs_root = os.path.join(base_dir, 'netbox', 'project-static', 'docs')
+    else:
+        install_mode = 'checkout'
+        base_dir = os.path.dirname(settings_dir)
+        netbox_root = base_dir
+        docs_root = os.path.join(os.path.dirname(base_dir), 'docs')
+        static_docs_root = os.path.join(base_dir, 'project-static', 'docs')
+    return InstallPaths(
+        install_mode=install_mode,
+        base_dir=base_dir,
+        netbox_root=netbox_root,
+        docs_root=docs_root,
+        static_docs_root=static_docs_root,
+    )
+
+
+def secret_key_hint(install_mode, base_dir):
+    """Return the command to suggest in the SECRET_KEY-too-short error, based on install mode.
+
+    generate_secret_key.py is not packaged in a wheel, so a wheel install points at the
+    `netbox secret-key` console command instead of the (nonexistent) script path.
+    """
+    if install_mode == 'wheel':
+        return 'netbox secret-key'
+    return f'python {base_dir}/generate_secret_key.py'
 
 
 def _import_module(name):
@@ -52,12 +113,13 @@ def _import_from_path(module_name, path):
             del sys.modules[module_name]
         raise
     finally:
-        if module_dir in sys.path:
-            sys.path.remove(module_dir)
+        # Remove only the entry this helper inserted at index 0.
+        if sys.path and sys.path[0] == module_dir:
+            sys.path.pop(0)
     return module
 
 
-def configuration_dir(module):
+def get_configuration_dir(module):
     """Return the directory containing a loaded configuration module (None if unknown)."""
     source = getattr(module, '__file__', None)
     return os.path.dirname(os.path.abspath(source)) if source else None

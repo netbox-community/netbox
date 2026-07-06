@@ -1,3 +1,5 @@
+import os
+import tempfile
 from io import StringIO
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -7,9 +9,8 @@ from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
 from core.choices import DataSourceStatusChoices
-from core.management.commands import nbshell
+from core.management.commands import nbshell, upgrade
 from core.management.commands.rqworker import DEFAULT_QUEUES
-from utilities.upgrade_tasks import _docs_source_root
 
 
 class MakeMigrationsTestCase(TestCase):
@@ -322,15 +323,16 @@ class UpgradeCommandTest(TestCase):
     """The upgrade command orchestrates the application task sequence for installs and upgrades."""
 
     def _run(self, **kwargs):
+        out = StringIO()
         with (
-            patch('utilities.upgrade_tasks.call_command') as cc,
-            patch('utilities.upgrade_tasks.subprocess.run') as sub,
+            patch('core.management.commands.upgrade.call_command') as cc,
+            patch('core.management.commands.upgrade.subprocess.run') as sub,
         ):
-            call_command('upgrade', stdout=StringIO(), **kwargs)
-        return [c.args[0] for c in cc.call_args_list], cc, sub
+            call_command('upgrade', stdout=out, **kwargs)
+        return [c.args[0] for c in cc.call_args_list], cc, sub, out.getvalue()
 
     def test_full_sequence_order(self):
-        seq, _, sub = self._run()
+        seq, _, sub, _ = self._run()
         self.assertEqual(seq, [
             'migrate', 'trace_paths',
             'collectstatic', 'remove_stale_contenttypes', 'reindex', 'clearsessions',
@@ -338,37 +340,62 @@ class UpgradeCommandTest(TestCase):
         sub.assert_not_called()  # docs not built by default
 
     def test_readonly_skips_all_tasks_including_static(self):
-        seq, _, sub = self._run(readonly=True)
+        """--readonly prints a skip message for every task, including the three without dedicated flags."""
+        seq, _, sub, out = self._run(readonly=True)
         self.assertEqual(seq, [])
         sub.assert_not_called()
+        self.assertIn('Skipping database migrations.', out)
+        self.assertIn('Skipping cable path check.', out)
+        self.assertIn('Skipping static file collection.', out)
+        self.assertIn('Skipping stale content type removal.', out)
+        self.assertIn('Skipping search index rebuild.', out)
+        self.assertIn('Skipping expired session cleanup.', out)
 
     def test_skip_flags(self):
-        seq, _, _ = self._run(skip_migrations=True, skip_static=True, skip_reindex=True)
+        seq, _, _, _ = self._run(skip_migrations=True, skip_static=True, skip_reindex=True)
         self.assertEqual(
             seq,
             ['trace_paths', 'remove_stale_contenttypes', 'clearsessions'],
         )
 
     def test_build_docs_invokes_zensical_when_sources_present(self):
-        with patch('utilities.upgrade_tasks._docs_source_root', return_value='/repo'):
-            _, _, sub = self._run(build_docs=True)
+        with patch('core.management.commands.upgrade._docs_source_root', return_value='/repo'):
+            _, _, sub, _ = self._run(build_docs=True)
         sub.assert_called_once()
         self.assertEqual(sub.call_args.args[0], ['zensical', 'build'])
 
     def test_build_docs_skipped_when_sources_absent(self):
-        with patch('utilities.upgrade_tasks._docs_source_root', return_value=None):
-            _, _, sub = self._run(build_docs=True)
+        with patch('core.management.commands.upgrade._docs_source_root', return_value=None):
+            _, _, sub, _ = self._run(build_docs=True)
         sub.assert_not_called()
 
     def test_readonly_with_build_docs_skips_docs(self):
-        with patch('utilities.upgrade_tasks._docs_source_root', return_value='/repo'):
-            _, _, sub = self._run(readonly=True, build_docs=True)
+        with patch('core.management.commands.upgrade._docs_source_root', return_value='/repo'):
+            _, _, sub, _ = self._run(readonly=True, build_docs=True)
         sub.assert_not_called()
 
-    def test_docs_source_root_found_when_mkdocs_present(self):
-        with patch('utilities.upgrade_tasks.os.path.isfile', return_value=True):
-            self.assertIsNotNone(_docs_source_root())
+    def test_docs_source_root_checkout_shaped(self):
+        """mkdocs.yml beside the application root (checkout layout) is found."""
+        with tempfile.TemporaryDirectory() as root:
+            base_dir = os.path.join(root, 'netbox')
+            os.mkdir(base_dir)
+            open(os.path.join(root, 'mkdocs.yml'), 'w').close()
+            with override_settings(BASE_DIR=base_dir):
+                self.assertEqual(upgrade._docs_source_root(), root)
 
-    def test_docs_source_root_none_when_mkdocs_absent(self):
-        with patch('utilities.upgrade_tasks.os.path.isfile', return_value=False):
-            self.assertIsNone(_docs_source_root())
+    def test_docs_source_root_wheel_shaped(self):
+        """mkdocs.yml inside BASE_DIR (bundled package data layout) is found."""
+        with tempfile.TemporaryDirectory() as root:
+            base_dir = os.path.join(root, '_data')
+            os.mkdir(base_dir)
+            open(os.path.join(base_dir, 'mkdocs.yml'), 'w').close()
+            with override_settings(BASE_DIR=base_dir):
+                self.assertEqual(upgrade._docs_source_root(), base_dir)
+
+    def test_docs_source_root_none_when_absent(self):
+        """No mkdocs.yml in either candidate location returns None."""
+        with tempfile.TemporaryDirectory() as root:
+            base_dir = os.path.join(root, 'netbox')
+            os.mkdir(base_dir)
+            with override_settings(BASE_DIR=base_dir):
+                self.assertIsNone(upgrade._docs_source_root())

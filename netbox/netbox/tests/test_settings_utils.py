@@ -118,7 +118,7 @@ class LoadConfigurationTest(SimpleTestCase):
                 settings_utils._import_from_path('netbox_test_noext_cfg', path)
 
     def test_import_from_path_preserves_preexisting_sys_path_entry(self):
-        # remove() drops the first match, i.e. the inserted index-0 copy; a pre-existing entry survives.
+        # Only the index-0 entry this helper inserted is popped; a pre-existing entry survives.
         with tempfile.TemporaryDirectory() as root:
             path = os.path.join(root, 'preexisting_cfg.py')
             with open(path, 'w') as handle:
@@ -157,10 +157,61 @@ class ConfigurationDirTest(SimpleTestCase):
     def test_returns_directory_of_module_file(self):
         module = ModuleType('cfg')
         module.__file__ = '/srv/netbox/conf/configuration.py'
-        self.assertEqual(settings_utils.configuration_dir(module), '/srv/netbox/conf')
+        self.assertEqual(settings_utils.get_configuration_dir(module), '/srv/netbox/conf')
 
     def test_returns_none_without_file(self):
-        self.assertIsNone(settings_utils.configuration_dir(ModuleType('cfg')))
+        self.assertIsNone(settings_utils.get_configuration_dir(ModuleType('cfg')))
+
+
+class ResolveInstallPathsTest(SimpleTestCase):
+    """resolve_install_paths() centralizes wheel-vs-checkout filesystem layout decisions."""
+
+    def test_checkout_roots(self):
+        with tempfile.TemporaryDirectory() as root:
+            settings_dir = os.path.join(root, 'netbox', 'netbox')
+            os.makedirs(settings_dir)
+            base_dir = os.path.join(root, 'netbox')
+            paths = settings_utils.resolve_install_paths(settings_dir, {})
+            self.assertEqual(paths.install_mode, 'checkout')
+            self.assertEqual(paths.base_dir, base_dir)
+            self.assertEqual(paths.netbox_root, base_dir)
+            self.assertEqual(paths.docs_root, os.path.join(root, 'docs'))
+            self.assertEqual(paths.static_docs_root, os.path.join(base_dir, 'project-static', 'docs'))
+
+    def test_wheel_roots_default_netbox_root(self):
+        with tempfile.TemporaryDirectory() as root:
+            settings_dir = os.path.join(root, 'site-packages', 'netbox')
+            base_dir = os.path.join(settings_dir, '_data')
+            os.makedirs(base_dir)
+            paths = settings_utils.resolve_install_paths(settings_dir, {})
+            self.assertEqual(paths.install_mode, 'wheel')
+            self.assertEqual(paths.base_dir, base_dir)
+            self.assertEqual(paths.netbox_root, '/opt/netbox')
+            self.assertEqual(paths.docs_root, os.path.join(base_dir, 'docs'))
+            # zensical's site_dir (netbox/project-static/docs) is relative to the bundled
+            # mkdocs.yml at _data/mkdocs.yml, so the built docs land under _data/netbox/...,
+            # unlike the checkout layout where base_dir already is the netbox/ directory.
+            self.assertEqual(paths.static_docs_root, os.path.join(base_dir, 'netbox', 'project-static', 'docs'))
+
+    def test_netbox_root_env_override_is_abspathed(self):
+        with tempfile.TemporaryDirectory() as root:
+            settings_dir = os.path.join(root, 'site-packages', 'netbox')
+            os.makedirs(os.path.join(settings_dir, '_data'))
+            paths = settings_utils.resolve_install_paths(settings_dir, {'NETBOX_ROOT': 'relative/root'})
+            self.assertEqual(paths.netbox_root, os.path.abspath('relative/root'))
+
+
+class SecretKeyHintTest(SimpleTestCase):
+    """secret_key_hint() picks the SECRET_KEY-too-short hint by install mode."""
+
+    def test_wheel_mode_suggests_console_command(self):
+        self.assertEqual(settings_utils.secret_key_hint('wheel', '/opt/netbox/lib/netbox'), 'netbox secret-key')
+
+    def test_checkout_mode_suggests_generate_secret_key_script(self):
+        self.assertEqual(
+            settings_utils.secret_key_hint('checkout', '/repo/netbox'),
+            'python /repo/netbox/generate_secret_key.py',
+        )
 
 
 class LoadLdapConfigTest(SimpleTestCase):

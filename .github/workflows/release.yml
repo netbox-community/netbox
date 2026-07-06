@@ -13,6 +13,8 @@ on:
       - 'requirements.txt'
       - 'upgrade.sh'
       - 'contrib/**'
+      - 'docs/**'
+      - 'mkdocs.yml'
       - 'netbox/**'
       - 'scripts/packaging/**'
       - 'scripts/verify_*.py'
@@ -129,12 +131,53 @@ jobs:
           python scripts/verify_wheel_metadata.py sdist-wheel/*.whl
           python scripts/verify_wheel_contents.py sdist-wheel/*.whl
 
+  cli-smoke-test:
+    name: Smoke test wheel CLI (no dependencies)
+    runs-on: ubuntu-latest
+    needs: build
+    # The pre-configuration CLI paths are stdlib-only, so a --no-deps install suffices.
+    # Unlike smoke-test, this job also runs on pull requests.
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Install wheel without dependencies
+        run: |
+          python -m venv /tmp/netbox-cli-venv
+          /tmp/netbox-cli-venv/bin/python -m pip install --no-deps dist/*.whl
+
+      - name: Exercise the pre-configuration CLI
+        run: |
+          /tmp/netbox-cli-venv/bin/netbox --version
+          /tmp/netbox-cli-venv/bin/netbox version
+          /tmp/netbox-cli-venv/bin/netbox secret-key | grep -Eq '^.{50}$' || { echo "secret-key not 50 chars"; exit 1; }
+
+      - name: Smoke-test netbox setup from the wheel
+        run: |
+          /tmp/netbox-cli-venv/bin/netbox setup --target /tmp/nbroot
+          for f in /tmp/nbroot/conf/__init__.py /tmp/nbroot/conf/configuration.py /tmp/nbroot/local_requirements.txt; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
+          for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
+            test -s "/tmp/nbroot/contrib/$f" || { echo "missing or empty contrib/$f"; exit 1; }
+          done
+
   smoke-test:
     name: Smoke test wheel install
     runs-on: ubuntu-latest
     needs: build
     # The wheel install + database migration is expensive; only run it for tag
     # pushes and manual dispatch, not on every packaging-related pull request.
+    # cli-smoke-test provides lightweight, dependency-free CLI coverage on every PR instead.
     if: github.event_name != 'pull_request'
 
     services:
@@ -203,33 +246,35 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}/scripts
         run: |
+          # The docs build runs `zensical` as a subprocess, which resolves via PATH;
+          # prepending the venv bin is equivalent to activating it (as upgrade.sh does).
+          export PATH="/tmp/netbox-wheel-venv/bin:$PATH"
           /tmp/netbox-wheel-venv/bin/netbox check
-          /tmp/netbox-wheel-venv/bin/netbox upgrade --no-input
+          upgrade_output=$(/tmp/netbox-wheel-venv/bin/netbox upgrade --no-input --build-docs)
+          echo "$upgrade_output"
+          ! grep -q 'Skipping documentation build' <<< "$upgrade_output" || { echo "documentation build was skipped"; exit 1; }
+          test -f /tmp/netbox-smoketest/static/docs/index.html || { echo "documentation was not collected to STATIC_ROOT"; exit 1; }
 
       - name: Smoke-test netbox setup from the wheel
         run: |
-          /tmp/netbox-wheel-venv/bin/netbox setup --target /tmp/nbroot --systemd-dir /tmp/systemd
-          for f in /tmp/nbroot/conf/configuration.py /tmp/nbroot/gunicorn.py /tmp/nbroot/netbox.env \
-                   /tmp/nbroot/local_requirements.txt /tmp/systemd/netbox.service /tmp/systemd/netbox-rq.service; do
-            test -f "$f" || { echo "missing $f"; exit 1; }
+          /tmp/netbox-wheel-venv/bin/netbox setup --target /tmp/nbroot
+          diff -q /tmp/nbroot/conf/configuration.py netbox/netbox/configuration_example.py
+          for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
+            diff -q "/tmp/nbroot/contrib/$f" "contrib/$f"
           done
-          grep -qx 'NETBOX_ROOT=/tmp/nbroot' /tmp/nbroot/netbox.env || { echo "netbox.env missing active NETBOX_ROOT=/tmp/nbroot"; exit 1; }
-          grep -q '/tmp/nbroot' /tmp/systemd/netbox.service || { echo "service not rendered to target"; exit 1; }
-          ! grep -q '/opt/netbox' /tmp/systemd/netbox.service || { echo "service still references /opt/netbox"; exit 1; }
-          ! grep -q 'pythonpath' /tmp/systemd/netbox.service || { echo "pip unit still passes --pythonpath"; exit 1; }
-          grep -q 'ExecStart=/tmp/nbroot/venv/bin/netbox rqworker high default low' /tmp/systemd/netbox-rq.service || { echo "rq unit not adapted to the console script"; exit 1; }
-          grep -q 'EnvironmentFile=-/tmp/nbroot/netbox.env' /tmp/systemd/netbox.service || { echo "unit missing EnvironmentFile"; exit 1; }
-          /tmp/netbox-wheel-venv/bin/netbox secret-key | grep -Eq '^.{50}$' || { echo "secret-key not 50 chars"; exit 1; }
 
   publish-testpypi:
     name: Publish package to Test PyPI
     runs-on: ubuntu-latest
-    needs: [smoke-test, verify-dependencies, verify-sdist]
+    needs: [smoke-test, cli-smoke-test, verify-dependencies, verify-sdist]
     # Publishing always requires a v* tag ref: a tag push publishes to Test PyPI
     # automatically, and a manual dispatch does the same when the chosen ref is a v* tag.
     # Branch dispatches still run the build, verify, and smoke-test jobs (a useful dry run)
     # but the publish job is skipped. Production PyPI publishing is intentionally absent
     # during the v4.6.x preview; it arrives with the v4.7.0 feature branch.
+    # startsWith() only routes to this job (workflow `if:` expressions cannot regex-match);
+    # the exact tag format (v<release.yaml version>) is enforced below by the "Enforce
+    # release tag format" step and scripts/verify_release_tag.py before any upload.
     if: startsWith(github.ref, 'refs/tags/v') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     environment:
       name: testpypi
@@ -239,6 +284,15 @@ jobs:
       id-token: write
 
     steps:
+      - name: Enforce release tag format
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]] || {
+            echo "Ref '$TAG' is not a release tag of the form vX.Y.Z[-designation]"
+            exit 1
+          }
+
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:

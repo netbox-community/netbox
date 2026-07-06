@@ -49,7 +49,7 @@ dev = [
     "coverage",
     "packaging",
     "pre-commit",
-    "ruff==0.15.10",
+    "ruff==0.15.20",
     "tblib",
     "twine",
     "uv",
@@ -123,20 +123,25 @@ exclude = [
 # setting above strips one "netbox/" prefix from every path (including these
 # force-include targets); after stripping they resolve to netbox/_data/...
 [tool.hatch.build.targets.wheel.force-include]
-"netbox/templates" = "netbox/netbox/_data/templates"
-"netbox/translations" = "netbox/netbox/_data/translations"
 "netbox/project-static/dist" = "netbox/netbox/_data/project-static/dist"
 "netbox/project-static/img" = "netbox/netbox/_data/project-static/img"
 "netbox/project-static/js" = "netbox/netbox/_data/project-static/js"
 "netbox/release.yaml" = "netbox/netbox/_data/release.yaml"
-"contrib/gunicorn.py" = "netbox/netbox/_data/examples/gunicorn.py"
-# The canonical contrib files are bundled as-is; `netbox setup` adapts the systemd units for
-# a pip install at render time (see _PIP_TRANSFORMS in netbox/netbox/scaffold.py).
-"contrib/netbox.service" = "netbox/netbox/_data/examples/netbox.service"
-"contrib/netbox-rq.service" = "netbox/netbox/_data/examples/netbox-rq.service"
-"contrib/nginx.conf" = "netbox/netbox/_data/examples/nginx.conf"
-"contrib/apache.conf" = "netbox/netbox/_data/examples/apache.conf"
-"contrib/netbox.env" = "netbox/netbox/_data/examples/netbox.env"
+"netbox/templates" = "netbox/netbox/_data/templates"
+"netbox/translations" = "netbox/netbox/_data/translations"
+# Documentation sources ship so an instance can build its own docs (`netbox upgrade
+# --build-docs`, using the pinned zensical/mkdocs toolchain); see docs/development/
+# building-the-package.md.
+"docs" = "netbox/netbox/_data/docs"
+"mkdocs.yml" = "netbox/netbox/_data/mkdocs.yml"
+# Deployment examples, bundled verbatim for `netbox setup` (no adaptation).
+"contrib/apache.conf" = "netbox/netbox/_data/contrib/apache.conf"
+"contrib/gunicorn.py" = "netbox/netbox/_data/contrib/gunicorn.py"
+"contrib/netbox-rq.service" = "netbox/netbox/_data/contrib/netbox-rq.service"
+"contrib/netbox.env" = "netbox/netbox/_data/contrib/netbox.env"
+"contrib/netbox.service" = "netbox/netbox/_data/contrib/netbox.service"
+"contrib/nginx.conf" = "netbox/netbox/_data/contrib/nginx.conf"
+"contrib/uwsgi.ini" = "netbox/netbox/_data/contrib/uwsgi.ini"
 # Force the two tracked config templates in over the configuration*.py exclude above.
 "netbox/netbox/configuration_example.py" = "netbox/netbox/configuration_example.py"
 "netbox/netbox/configuration_testing.py" = "netbox/netbox/configuration_testing.py"

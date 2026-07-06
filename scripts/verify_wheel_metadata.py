@@ -99,26 +99,25 @@ def check_version(metadata, root, hatch_metadata):
     return []
 
 
-def check_core_requires(core, root, hatch_metadata):
-    # Parse with the hook's own parser so the verifier cannot drift from the build.
-    pins = hatch_metadata.read_requirements((root / 'requirements.txt').read_text())
+def _diff_errors(expected, actual, label):
+    """Build 'missing'/'unexpected' error messages for the set difference of expected vs actual."""
     errors = []
-    missing = sorted(pin for pin in pins if normalize(pin) not in core)
-    unexpected = sorted(core - {normalize(pin) for pin in pins})
-    if missing:
-        errors.append(f'requirements.txt pins missing from wheel: {missing}')
-    if unexpected:
-        errors.append(f'unexpected core requirements in wheel: {unexpected}')
+    if missing := sorted(expected - actual):
+        errors.append(f'{label} missing from wheel: {missing}')
+    if unexpected := sorted(actual - expected):
+        errors.append(f'unexpected {label} in wheel: {unexpected}')
     return errors
 
 
+def check_core_requires(core, root, hatch_metadata):
+    # Parse with the hook's own parser so the verifier cannot drift from the build.
+    pins = hatch_metadata.read_requirements((root / 'requirements.txt').read_text())
+    return _diff_errors({normalize(pin) for pin in pins}, core, 'core requirements')
+
+
 def check_extras(metadata, by_extra):
-    errors = []
     provided = frozenset(metadata.get_all('Provides-Extra') or [])
-    if missing := sorted(EXPECTED_EXTRAS - provided):
-        errors.append(f'extras missing from wheel: {missing}')
-    if unexpected := sorted(provided - EXPECTED_EXTRAS):
-        errors.append(f'unexpected extras in wheel: {unexpected}')
+    errors = _diff_errors(EXPECTED_EXTRAS, provided, 'extras')
     for aggregate, components in AGGREGATE_EXTRAS.items():
         expected = set().union(*(by_extra[component] for component in components))
         actual = by_extra[aggregate]
