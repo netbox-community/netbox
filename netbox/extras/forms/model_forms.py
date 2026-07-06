@@ -17,15 +17,18 @@ from netbox.forms import NetBoxModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.forms import get_field_value
+from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
+    ChoiceField,
     CommentField,
     ContentTypeChoiceField,
     ContentTypeMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
+    MultipleChoiceField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
@@ -54,6 +57,33 @@ __all__ = (
 
 
 class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=CustomFieldTypeChoices,
+        initial=CustomFieldTypeChoices.TYPE_TEXT,
+        help_text=_(
+            'The type of data stored in this field. For object/multi-object fields, select the related object '
+            'type below.'
+        ),
+    )
+    filter_logic = ChoiceField(
+        label=_('Filter logic'),
+        choices=CustomFieldFilterLogicChoices,
+        initial=CustomFieldFilterLogicChoices.FILTER_LOOSE,
+        help_text=_('Loose matches any instance of a given string; exact matches the entire field.'),
+    )
+    ui_visible = ChoiceField(
+        label=_('UI visible'),
+        choices=CustomFieldUIVisibleChoices,
+        initial=CustomFieldUIVisibleChoices.ALWAYS,
+        help_text=_('Specifies whether the custom field is displayed in the UI'),
+    )
+    ui_editable = ChoiceField(
+        label=_('UI editable'),
+        choices=CustomFieldUIEditableChoices,
+        initial=CustomFieldUIEditableChoices.YES,
+        help_text=_('Specifies whether the custom field value can be edited in the UI'),
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -189,6 +219,12 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
 
 
 class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    base_choices = TypedChoiceField(
+        label=_('Base choices'),
+        choices=add_blank_choice(CustomFieldChoiceSetBaseChoices),
+        required=False,
+        help_text=_('Base set of predefined choices (optional)'),
+    )
     # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
@@ -303,6 +339,12 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
 
 
 class CustomLinkForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    button_class = ChoiceField(
+        label=_('Button class'),
+        choices=CustomLinkButtonClassChoices,
+        initial=CustomLinkButtonClassChoices.DEFAULT,
+        help_text=_('The class of the first link in a group will be used for the dropdown button'),
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
@@ -531,6 +573,11 @@ class SubscriptionForm(forms.ModelForm):
 
 
 class WebhookForm(OwnerMixin, NetBoxModelForm):
+    http_method = ChoiceField(
+        label=_('HTTP method'),
+        choices=WebhookHttpMethodChoices,
+        initial=WebhookHttpMethodChoices.METHOD_POST,
+    )
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Webhook')),
@@ -551,15 +598,20 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
 
 
 class EventRuleForm(OwnerMixin, NetBoxModelForm):
+    action_type = ChoiceField(
+        label=_('Action type'),
+        choices=EventRuleActionChoices,
+        initial=EventRuleActionChoices.WEBHOOK,
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
-    event_types = forms.MultipleChoiceField(
+    event_types = MultipleChoiceField(
         choices=get_event_type_choices(),
         label=_('Event types')
     )
-    action_choice = forms.ChoiceField(
+    action_choice = ChoiceField(
         label=_('Action choice'),
         choices=[]
     )
@@ -893,7 +945,7 @@ class ImageAttachmentForm(forms.ModelForm):
 
 
 class JournalEntryForm(NetBoxModelForm):
-    kind = forms.ChoiceField(
+    kind = ChoiceField(
         label=_('Kind'),
         choices=JournalEntryKindChoices
     )

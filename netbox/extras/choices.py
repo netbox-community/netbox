@@ -3,7 +3,7 @@ import logging
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import ButtonColorChoices
-from utilities.choices import ChoiceSet
+from utilities.choices import Choice, ChoiceSet
 
 #
 # CustomFields
@@ -27,19 +27,23 @@ class CustomFieldTypeChoices(ChoiceSet):
     TYPE_MULTIOBJECT = 'multiobject'
 
     CHOICES = (
-        (TYPE_TEXT, _('Text')),
-        (TYPE_LONGTEXT, _('Text (long)')),
-        (TYPE_INTEGER, _('Integer')),
-        (TYPE_DECIMAL, _('Decimal')),
-        (TYPE_BOOLEAN, _('Boolean (true/false)')),
-        (TYPE_DATE, _('Date')),
-        (TYPE_DATETIME, _('Date & time')),
-        (TYPE_URL, _('URL')),
-        (TYPE_JSON, _('JSON')),
-        (TYPE_SELECT, _('Selection')),
-        (TYPE_MULTISELECT, _('Multiple selection')),
-        (TYPE_OBJECT, _('Object')),
-        (TYPE_MULTIOBJECT, _('Multiple objects')),
+        Choice(TYPE_TEXT, _('Text'), description=_('A single line of text')),
+        Choice(TYPE_LONGTEXT, _('Text (long)'), description=_('Multi-line text with Markdown support')),
+        Choice(TYPE_INTEGER, _('Integer'), description=_('A whole number (positive or negative)')),
+        Choice(TYPE_DECIMAL, _('Decimal'), description=_('A fixed-precision decimal number')),
+        Choice(TYPE_BOOLEAN, _('Boolean'), description=_('A true or false value')),
+        Choice(TYPE_DATE, _('Date'), description=_('A calendar date')),
+        Choice(TYPE_DATETIME, _('Date & time'), description=_('A calendar date and time')),
+        Choice(TYPE_URL, _('URL'), description=_('A hyperlink to an external resource')),
+        Choice(TYPE_JSON, _('JSON'), description=_('Arbitrary data encoded as JSON')),
+        Choice(TYPE_SELECT, _('Selection'), description=_('A single value chosen from a predefined list')),
+        Choice(
+            TYPE_MULTISELECT,
+            _('Multiple selection'),
+            description=_('One or more values chosen from a predefined list')
+        ),
+        Choice(TYPE_OBJECT, _('Object'), description=_('A reference to a single NetBox object')),
+        Choice(TYPE_MULTIOBJECT, _('Multiple objects'), description=_('References to one or more NetBox objects')),
     )
 
 
@@ -50,9 +54,9 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
     FILTER_EXACT = 'exact'
 
     CHOICES = (
-        (FILTER_DISABLED, _('Disabled')),
-        (FILTER_LOOSE, _('Loose')),
-        (FILTER_EXACT, _('Exact')),
+        Choice(FILTER_DISABLED, _('Disabled'), description=_('The field cannot be used for filtering')),
+        Choice(FILTER_LOOSE, _('Loose'), description=_('Match on a partial value (case-insensitive substring)')),
+        Choice(FILTER_EXACT, _('Exact'), description=_('Match on the exact value')),
     )
 
 
@@ -63,9 +67,9 @@ class CustomFieldUIVisibleChoices(ChoiceSet):
     HIDDEN = 'hidden'
 
     CHOICES = (
-        (ALWAYS, _('Always'), 'green'),
-        (IF_SET, _('If set'), 'yellow'),
-        (HIDDEN, _('Hidden'), 'gray'),
+        Choice(ALWAYS, _('Always'), color='green', description=_('Always display the field')),
+        Choice(IF_SET, _('If set'), color='yellow', description=_('Display the field only if it has a value')),
+        Choice(HIDDEN, _('Hidden'), color='gray', description=_('Never display the field')),
     )
 
 
@@ -76,9 +80,9 @@ class CustomFieldUIEditableChoices(ChoiceSet):
     HIDDEN = 'hidden'
 
     CHOICES = (
-        (YES, _('Yes'), 'green'),
-        (NO, _('No'), 'red'),
-        (HIDDEN, _('Hidden'), 'gray'),
+        Choice(YES, _('Yes'), color='green', description=_('The field value can be edited by users')),
+        Choice(NO, _('No'), color='red', description=_('The field is displayed but cannot be edited')),
+        Choice(HIDDEN, _('Hidden'), color='gray', description=_('The field is neither displayed nor editable')),
     )
 
 
@@ -89,9 +93,9 @@ class CustomFieldChoiceSetBaseChoices(ChoiceSet):
     UN_LOCODE = 'UN_LOCODE'
 
     CHOICES = (
-        (IATA, 'IATA (Airport codes)'),
-        (ISO_3166, 'ISO 3166 (Country codes)'),
-        (UN_LOCODE, 'UN/LOCODE (Location codes)'),
+        Choice(IATA, 'IATA (Airport codes)'),
+        Choice(ISO_3166, 'ISO 3166 (Country codes)'),
+        Choice(UN_LOCODE, 'UN/LOCODE (Location codes)'),
     )
 
 
@@ -112,19 +116,19 @@ class CustomFieldChoiceColorChoices(ChoiceSet):
     WHITE = 'white'
 
     CHOICES = (
-        (BLUE, _('Blue'), BLUE),
-        (INDIGO, _('Indigo'), INDIGO),
-        (PURPLE, _('Purple'), PURPLE),
-        (PINK, _('Pink'), PINK),
-        (RED, _('Red'), RED),
-        (ORANGE, _('Orange'), ORANGE),
-        (YELLOW, _('Yellow'), YELLOW),
-        (GREEN, _('Green'), GREEN),
-        (TEAL, _('Teal'), TEAL),
-        (CYAN, _('Cyan'), CYAN),
-        (GRAY, _('Gray'), GRAY),
-        (BLACK, _('Black'), BLACK),
-        (WHITE, _('White'), WHITE),
+        Choice(BLUE, _('Blue'), color=BLUE),
+        Choice(INDIGO, _('Indigo'), color=INDIGO),
+        Choice(PURPLE, _('Purple'), color=PURPLE),
+        Choice(PINK, _('Pink'), color=PINK),
+        Choice(RED, _('Red'), color=RED),
+        Choice(ORANGE, _('Orange'), color=ORANGE),
+        Choice(YELLOW, _('Yellow'), color=YELLOW),
+        Choice(GREEN, _('Green'), color=GREEN),
+        Choice(TEAL, _('Teal'), color=TEAL),
+        Choice(CYAN, _('Cyan'), color=CYAN),
+        Choice(GRAY, _('Gray'), color=GRAY),
+        Choice(BLACK, _('Black'), color=BLACK),
+        Choice(WHITE, _('White'), color=WHITE),
     )
 
 
@@ -138,7 +142,7 @@ class CustomLinkButtonClassChoices(ButtonColorChoices):
 
     CHOICES = (
         *ButtonColorChoices.CHOICES,
-        (LINK, _('Link')),
+        Choice(LINK, _('Link'), description=_('Render the button as a borderless text link')),
     )
 
 
@@ -154,10 +158,10 @@ class BookmarkOrderingChoices(ChoiceSet):
     ORDERING_ALPHABETICAL_ZA = '-name'
 
     CHOICES = (
-        (ORDERING_NEWEST, _('Newest')),
-        (ORDERING_OLDEST, _('Oldest')),
-        (ORDERING_ALPHABETICAL_AZ, _('Alphabetical (A-Z)')),
-        (ORDERING_ALPHABETICAL_ZA, _('Alphabetical (Z-A)')),
+        Choice(ORDERING_NEWEST, _('Newest')),
+        Choice(ORDERING_OLDEST, _('Oldest')),
+        Choice(ORDERING_ALPHABETICAL_AZ, _('Alphabetical (A-Z)')),
+        Choice(ORDERING_ALPHABETICAL_ZA, _('Alphabetical (Z-A)')),
     )
 
 
@@ -174,10 +178,10 @@ class JournalEntryKindChoices(ChoiceSet):
     KIND_DANGER = 'danger'
 
     CHOICES = [
-        (KIND_INFO, _('Info'), 'cyan'),
-        (KIND_SUCCESS, _('Success'), 'green'),
-        (KIND_WARNING, _('Warning'), 'yellow'),
-        (KIND_DANGER, _('Danger'), 'red'),
+        Choice(KIND_INFO, _('Info'), color='cyan', description=_('An informational entry')),
+        Choice(KIND_SUCCESS, _('Success'), color='green', description=_('A record of a successful outcome')),
+        Choice(KIND_WARNING, _('Warning'), color='yellow', description=_('A cautionary note requiring attention')),
+        Choice(KIND_DANGER, _('Danger'), color='red', description=_('A record of a critical issue or failure')),
     ]
 
 
@@ -194,11 +198,11 @@ class LogLevelChoices(ChoiceSet):
     LOG_FAILURE = 'failure'
 
     CHOICES = (
-        (LOG_DEBUG, _('Debug'), 'teal'),
-        (LOG_INFO, _('Info'), 'cyan'),
-        (LOG_SUCCESS, _('Success'), 'green'),
-        (LOG_WARNING, _('Warning'), 'yellow'),
-        (LOG_FAILURE, _('Failure'), 'red'),
+        Choice(LOG_DEBUG, _('Debug'), color='teal'),
+        Choice(LOG_INFO, _('Info'), color='cyan'),
+        Choice(LOG_SUCCESS, _('Success'), color='green'),
+        Choice(LOG_WARNING, _('Warning'), color='yellow'),
+        Choice(LOG_FAILURE, _('Failure'), color='red'),
 
     )
 
@@ -224,11 +228,11 @@ class WebhookHttpMethodChoices(ChoiceSet):
     METHOD_DELETE = 'DELETE'
 
     CHOICES = (
-        (METHOD_GET, 'GET'),
-        (METHOD_POST, 'POST'),
-        (METHOD_PUT, 'PUT'),
-        (METHOD_PATCH, 'PATCH'),
-        (METHOD_DELETE, 'DELETE'),
+        Choice(METHOD_GET, 'GET'),
+        Choice(METHOD_POST, 'POST'),
+        Choice(METHOD_PUT, 'PUT'),
+        Choice(METHOD_PATCH, 'PATCH'),
+        Choice(METHOD_DELETE, 'DELETE'),
     )
 
 
@@ -252,19 +256,19 @@ class DashboardWidgetColorChoices(ChoiceSet):
     WHITE = 'white'
 
     CHOICES = (
-        (BLUE, _('Blue')),
-        (INDIGO, _('Indigo')),
-        (PURPLE, _('Purple')),
-        (PINK, _('Pink')),
-        (RED, _('Red')),
-        (ORANGE, _('Orange')),
-        (YELLOW, _('Yellow')),
-        (GREEN, _('Green')),
-        (TEAL, _('Teal')),
-        (CYAN, _('Cyan')),
-        (GRAY, _('Gray')),
-        (BLACK, _('Black')),
-        (WHITE, _('White')),
+        Choice(BLUE, _('Blue')),
+        Choice(INDIGO, _('Indigo')),
+        Choice(PURPLE, _('Purple')),
+        Choice(PINK, _('Pink')),
+        Choice(RED, _('Red')),
+        Choice(ORANGE, _('Orange')),
+        Choice(YELLOW, _('Yellow')),
+        Choice(GREEN, _('Green')),
+        Choice(TEAL, _('Teal')),
+        Choice(CYAN, _('Cyan')),
+        Choice(GRAY, _('Gray')),
+        Choice(BLACK, _('Black')),
+        Choice(WHITE, _('White')),
     )
 
 
@@ -279,7 +283,11 @@ class EventRuleActionChoices(ChoiceSet):
     NOTIFICATION = 'notification'
 
     CHOICES = (
-        (WEBHOOK, _('Webhook')),
-        (SCRIPT, _('Script')),
-        (NOTIFICATION, _('Notification')),
+        Choice(WEBHOOK, _('Webhook'), description=_('Send an outgoing HTTP request to a remote endpoint')),
+        Choice(SCRIPT, _('Script'), description=_('Execute a custom script')),
+        Choice(
+            NOTIFICATION,
+            _('Notification'),
+            description=_('Generate a notification for one or more users or groups')
+        ),
     )

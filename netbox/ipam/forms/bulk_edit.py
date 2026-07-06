@@ -12,6 +12,7 @@ from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditFor
 from tenancy.models import Tenant
 from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
@@ -203,7 +204,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(PrefixStatusChoices),
         required=False
@@ -247,7 +248,7 @@ class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPRangeStatusChoices),
         required=False
@@ -294,12 +295,12 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False
     )
-    role = forms.ChoiceField(
+    role = ChoiceField(
         label=_('Role'),
         choices=add_blank_choice(IPAddressRoleChoices),
         required=False
@@ -321,7 +322,7 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
+    protocol = ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(FHRPGroupProtocolChoices),
         required=False
@@ -331,7 +332,7 @@ class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label=_('Group ID')
     )
-    auth_type = forms.ChoiceField(
+    auth_type = ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
         label=_('Authentication type')
@@ -415,7 +416,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VLANStatusChoices),
         required=False
@@ -425,7 +426,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
-    qinq_role = forms.ChoiceField(
+    qinq_role = ChoiceField(
         label=_('Q-in-Q role'),
         choices=add_blank_choice(VLANQinQRoleChoices),
         required=False
@@ -475,7 +476,7 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
+    protocol = ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False

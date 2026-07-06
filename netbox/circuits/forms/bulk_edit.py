@@ -16,6 +16,7 @@ from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditFor
 from tenancy.models import Tenant
 from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
+    ChoiceField,
     ColorField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
@@ -124,7 +125,7 @@ class CircuitBulkEditForm(PrimaryModelBulkEditForm):
             'provider': '$provider'
         }
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,
@@ -157,7 +158,7 @@ class CircuitBulkEditForm(PrimaryModelBulkEditForm):
         min_value=0,
         required=False
     )
-    distance_unit = forms.ChoiceField(
+    distance_unit = ChoiceField(
         label=_('Distance unit'),
         choices=add_blank_choice(DistanceUnitChoices),
         required=False,
@@ -232,7 +233,7 @@ class CircuitGroupAssignmentBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Circuit.objects.all(),
         required=False
     )
-    priority = forms.ChoiceField(
+    priority = ChoiceField(
         label=_('Priority'),
         choices=add_blank_choice(CircuitPriorityChoices),
         required=False
@@ -274,7 +275,7 @@ class VirtualCircuitBulkEditForm(PrimaryModelBulkEditForm):
         queryset=VirtualCircuitType.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,
@@ -297,7 +298,7 @@ class VirtualCircuitBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class VirtualCircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
-    role = forms.ChoiceField(
+    role = ChoiceField(
         label=_('Role'),
         choices=add_blank_choice(VirtualCircuitTerminationRoleChoices),
         required=False,

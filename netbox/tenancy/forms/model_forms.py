@@ -2,7 +2,14 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from tenancy.choices import ContactPriorityChoices
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import (
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    SlugField,
+    TypedChoiceField,
+)
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 
 from ..models import *
@@ -118,6 +125,11 @@ class ContactForm(PrimaryModelForm):
 
 
 class ContactAssignmentForm(NetBoxModelForm):
+    priority = TypedChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(ContactPriorityChoices),
+        required=False,
+    )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=ContactGroup.objects.all(),

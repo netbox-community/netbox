@@ -195,9 +195,10 @@ def get_selected_values(form, field_name):
 
 def add_blank_choice(choices):
     """
-    Add a blank choice to the beginning of a choices list.
+    Add a blank choice to the beginning of a choices list. Any Choice objects are preserved (rather than reduced to
+    plain tuples) so that description-aware fields can still reference their descriptions.
     """
-    return ((None, '---------'),) + tuple(choices)
+    return ((None, '---------'), *choices)
 
 
 def form_from_model(model, fields):

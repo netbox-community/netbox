@@ -3,13 +3,14 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from users.preferences import UserPreference
+from utilities.choices import Choice
 from utilities.constants import CSV_DELIMITERS
 from utilities.paginator import EnhancedPaginator
 
 
 def get_page_lengths():
     return [
-        (v, str(v)) for v in EnhancedPaginator.default_page_lengths
+        Choice(v, str(v)) for v in EnhancedPaginator.default_page_lengths
     ]
 
 
@@ -19,7 +20,7 @@ def get_csv_delimiters():
         label = _(k.title())
         if v.strip():
             label = f'{label} ({v})'
-        choices.append((k, label))
+        choices.append(Choice(k, label))
     return choices
 
 
