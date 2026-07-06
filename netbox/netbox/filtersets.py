@@ -108,9 +108,18 @@ class BaseFilterSet(django_filters.FilterSet):
         # Apply any referenced SavedFilters
         if data and ('filter' in data or 'filter_id' in data):
             data = data.copy()  # Get a mutable copy
+
+            # Coerce filter_id values to integers, ignoring any which are not valid (see #22568)
+            filter_ids = []
+            for f_id in data.pop('filter_id', []):
+                try:
+                    filter_ids.append(int(f_id))
+                except (ValueError, TypeError):
+                    pass
+
             saved_filters = SavedFilter.objects.filter(
                 Q(slug__in=data.pop('filter', [])) |
-                Q(pk__in=data.pop('filter_id', []))
+                Q(pk__in=filter_ids)
             )
             for sf in saved_filters:
                 for key, value in sf.parameters.items():
