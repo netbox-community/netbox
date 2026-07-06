@@ -807,6 +807,8 @@ By default, a token can be used to perform all actions via the API that a user w
 
 Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
 
+The client IP address is determined from the HTTP headers configured by [`HTTP_CLIENT_IP_HEADERS`](../configuration/system.md#http_client_ip_headers); see the security note there regarding header trust.
+
 #### Creating Tokens for Other Users
 
 It is possible to provision authentication tokens for other users via the REST API. To do, so the requesting user must have the `users.grant_token` permission assigned. While all users have inherent permission by default to create their own tokens, this permission is required to enable the creation of tokens for other users.
