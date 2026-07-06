@@ -3,7 +3,6 @@ import csv
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ForeignKey
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -748,6 +747,53 @@ class ViewTestCases:
                         message=data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_update_objects_without_change_permission(self):
+            # Bulk import rows carrying an object ID update existing objects. This must require the 'change'
+            # permission, matching the REST API; the 'add' permission alone must not permit updates.
+            if not hasattr(self, 'csv_update_data'):
+                raise NotImplementedError(_("The test must define csv_update_data."))
+
+            initial_count = self._get_queryset().count()
+            array, csv_data = self._get_update_csv_data()
+            data = {
+                'format': ImportFormatChoices.CSV,
+                'data': csv_data,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
+            }
+
+            # Assign only the 'add' permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Take a snapshot of the objects targeted for update
+            reader = csv.DictReader(array, delimiter=',')
+            check_data = list(reader)
+            before = {
+                line['id']: self.model.objects.get(id=line['id'])
+                for line in check_data
+            }
+
+            # The import must be rejected with a permissions error (form re-rendered) and no object modified
+            response = self.client.post(self._get_url('bulk_import'), data)
+            self.assertHttpStatus(response, 200)
+            self.assertContains(response, 'Remove the ID column to create new objects instead.')
+            self.assertEqual(initial_count, self._get_queryset().count())
+            for line in check_data:
+                obj = self.model.objects.get(id=line['id'])
+                for attr in line:
+                    if attr == 'id':
+                        continue
+                    # Skip relational fields (FK/M2M), consistent with test_bulk_update_objects_with_permission
+                    if self.model._meta.get_field(attr).is_relation:
+                        continue
+                    self.assertEqual(getattr(obj, attr), getattr(before[line['id']], attr))
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_update_objects_with_permission(self):
             if not hasattr(self, 'csv_update_data'):
                 raise NotImplementedError(_("The test must define csv_update_data."))
@@ -760,10 +806,10 @@ class ViewTestCases:
                 'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
-            # Assign model-level permission
+            # Updating existing objects requires both 'add' (to reach the view) and 'change' (to update)
             obj_perm = ObjectPermission(
                 name='Test permission',
-                actions=['add']
+                actions=['add', 'change']
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
@@ -773,17 +819,25 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
             self.assertEqual(initial_count, self._get_queryset().count())
 
+            # Verify that each object was actually updated to match the value specified in the CSV
             reader = csv.DictReader(array, delimiter=',')
             check_data = list(reader)
             for line in check_data:
                 obj = self.model.objects.get(id=line["id"])
-                for attr, value in line.items():
-                    if attr != "id":
-                        field = self.model._meta.get_field(attr)
-                        value = getattr(obj, attr)
-                        # cannot verify FK fields as don't know what name the CSV maps to
-                        if value is not None and not isinstance(field, ForeignKey):
-                            self.assertEqual(value, value)
+                for attr, expected in line.items():
+                    if attr == "id":
+                        continue
+                    field = self.model._meta.get_field(attr)
+                    # Skip relational fields (FK/M2M): the CSV value can't be mapped to a comparable attribute
+                    if field.is_relation:
+                        continue
+                    actual = getattr(obj, attr)
+                    # Only verify simple scalar values against the raw CSV string; skip lists and other complex
+                    # representations that the import form transforms (e.g. choice-set extra_choices).
+                    if not isinstance(actual, (str, int, float)):
+                        continue
+                    # Compare case-insensitively to tolerate values normalized on save (e.g. MAC addresses)
+                    self.assertEqual(str(actual).lower(), str(expected).lower())
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_bulk_import_objects_with_constrained_permission(self, post_import_callback=None):
