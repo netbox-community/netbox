@@ -12,6 +12,7 @@ import uuid
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.test import RequestFactory
 from rest_framework import status
 
 from core.choices import JobStatusChoices
@@ -19,6 +20,7 @@ from core.exceptions import JobFailed
 from core.models import Job, ObjectChange
 from dcim.models import DeviceType, Manufacturer, Region
 from users.models import ObjectPermission
+from utilities.request import copy_safe_request
 from utilities.testing.api import APITestCase
 from utilities.testing.mixins import RQQueueTestMixin
 
@@ -98,6 +100,25 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         # (the worker carries the request's scheme/host forward), not hardcoded localhost.
         for obj in job.data['data']:
             self.assertTrue(obj['url'].startswith('http://testserver/'), obj['url'])
+
+    def test_background_bulk_create_invalid_deferred(self):
+        # Validation is deferred to the worker: an invalid bulk create is accepted with 202 and
+        # fails at execution time (capturing the 400 in job.data), rather than being rejected
+        # synchronously. All-or-nothing semantics still leave nothing persisted.
+        self.grant('add', 'view')
+        payload = [
+            {'name': 'Region A', 'slug': 'region-a'},
+            {'name': 'Region B', 'slug': ''},  # invalid: blank slug
+        ]
+        response = self.client.post(
+            '/api/dcim/regions/?background=true', payload, format='json', **self.header
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(job.error)
+        self.assertFalse(Region.objects.filter(slug='region-a').exists())
 
     # ------------------------------------------------------------------ update
 
@@ -206,16 +227,21 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
 
     # ------------------------------------------------------------------ contract guards
 
-    def test_synchronous_rejection_no_job(self):
-        # Malformed payload (missing required id) must 400 synchronously, with no Job created.
+    def test_invalid_payload_deferred_to_job(self):
+        # Validation is deferred to the worker: a malformed payload (missing required id) is
+        # accepted with 202, and the job fails at execution time capturing the 400 in job.data
+        # (rather than being rejected synchronously).
         self.grant('change', 'view')
         response = self.client.patch(
             '/api/dcim/regions/?background=true',
             [{'description': 'no id'}],
             format='json', **self.header
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Job.objects.count(), 0)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(job.error)
 
     def test_if_match_with_background_rejected(self):
         self.grant('change', 'view')
@@ -255,6 +281,31 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Job.objects.count(), 0)
 
+    def test_background_request_snapshot_excludes_cookies(self):
+        # The request snapshot pickled into the job payload must not carry session cookies: the
+        # worker bypasses authentication and never reads them, so retaining them would be a
+        # needless exposure of session data in Redis.
+        self.grant('change', 'view')
+        self.client.cookies['sessionid'] = 'super-secret-session'
+
+        captured = {}
+        import netbox.jobs as jobs_module
+        orig_enqueue = jobs_module.AsyncAPIJob.enqueue.__func__
+
+        def _capture(cls, *args, **kwargs):
+            captured.update(kwargs)
+            return orig_enqueue(cls, *args, **kwargs)
+
+        with patch.object(jobs_module.AsyncAPIJob, 'enqueue', classmethod(_capture)):
+            self.client.patch(
+                '/api/dcim/regions/?background=true',
+                [{'id': self.regions[0].pk, 'description': 'x'}],
+                format='json', **self.header,
+            )
+
+        self.assertIn('request', captured)
+        self.assertEqual(captured['request'].COOKIES, {})
+
     # ------------------------------------------------------------------ enqueue scheduling
 
     def test_non_immediate_enqueue_creates_pending_job(self):
@@ -289,6 +340,11 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.user.is_active = False
         self.user.save()
 
+        factory = RequestFactory()
+        raw_request = factory.patch('/api/dcim/regions/', data=[], content_type='application/json')
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
         job = Job.objects.create(name='Bulk update regions', user=self.user, job_id=uuid.uuid4())
         with self.assertRaises(JobFailed):
             AsyncAPIJob(job).run(
@@ -296,8 +352,8 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
                 action='bulk_update',
                 payload=[{'id': self.regions[0].pk, 'description': 'x'}],
                 user_pk=self.user.pk,
-                request_id='',
-                method='PATCH',
+                request=request_copy,
+                scheme='http',
                 action_kwargs={'partial': True},
             )
         job.refresh_from_db()
@@ -308,16 +364,21 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
     # ------------------------------------------------------------------ host parsing
 
     def test_ipv6_host_builds_correct_request(self):
-        # A bracketed IPv6 host:port must not be split on its inner colons. Assert directly on
-        # the request the worker reconstructs: get_host() must round-trip the bracketed host,
-        # and SERVER_NAME/SERVER_PORT must be the IPv6 literal and port (a host.partition(':')
-        # implementation would yield SERVER_NAME='[' here).
+        # A bracketed IPv6 host:port must round-trip through the request snapshot without being
+        # split on its inner colons. copy_safe_request() carries SERVER_NAME/SERVER_PORT/HTTP_HOST
+        # verbatim (already separated when the original request was received), so _build_request()
+        # needs no host parsing of its own.
         from netbox.jobs import AsyncAPIJob
 
-        request = AsyncAPIJob._build_request(
-            payload=[], method='PATCH', request_id=str(uuid.uuid4()),
-            scheme='https', host='[::1]:8443',
+        factory = RequestFactory()
+        raw_request = factory.patch(
+            '/api/dcim/regions/', data=[], content_type='application/json',
+            SERVER_NAME='::1', SERVER_PORT='8443', HTTP_HOST='[::1]:8443',
         )
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
+        request = AsyncAPIJob._build_request(request_copy, payload=[], scheme='https')
         self.assertEqual(request.get_host(), '[::1]:8443')
         self.assertEqual(request.META['SERVER_NAME'], '::1')
         self.assertEqual(request.META['SERVER_PORT'], '8443')

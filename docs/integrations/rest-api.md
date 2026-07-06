@@ -744,7 +744,7 @@ http://netbox/api/dcim/sites/ \
 
 Bulk write operations (creating, updating, or deleting multiple objects via a model's list endpoint) can optionally be processed as a [background job](../features/background-jobs.md) rather than synchronously. This is useful for large batches that would otherwise hold the connection open long enough to risk a proxy or gateway timeout.
 
-To request background processing, append the `background=true` query parameter to a bulk write request. NetBox validates the request immediately and, if it is well-formed and authorized, enqueues a job and returns an `HTTP 202 Accepted` response containing the job's ID and URL. The actual write is performed later by a worker, running the same logic (and preserving the same all-or-none transaction semantics) as the synchronous path.
+To request background processing, append the `background=true` query parameter to a bulk write request. NetBox enqueues a job and returns an `HTTP 202 Accepted` response containing the job's ID and URL. The actual write is performed later by a worker, running the same logic (and preserving the same all-or-none transaction semantics) as the synchronous path. Note that the request payload is **not** validated before the job is enqueued; validation is deferred to the worker (see below).
 
 ```no-highlight
 curl -s -X PATCH \
@@ -779,7 +779,7 @@ Poll the job's URL to track its progress. When the job reaches a terminal status
 
 A failed job records the equivalent error response, for instance `{"status_code": 400, "data": {"slug": ["This field may not be blank."]}}`, with a short summary also placed in the job's `error` field.
 
-A `202` response indicates that the request was accepted and queued, not that it succeeded: object-level validation and the database write occur when the job runs. Always inspect the job's final status to confirm the outcome. Because the result is stored on the job, any user permitted to view jobs (`core.view_job`, subject to object permissions) can read the serialized objects it contains.
+A `202` response indicates that the request was accepted and queued, not that it succeeded: validation (including malformed or invalid payloads) and the database write all occur when the job runs. A rejected payload is therefore reported as a failed job rather than a synchronous error response. Always inspect the job's final status to confirm the outcome. Because the result is stored on the job, any user permitted to view jobs (`core.view_job`, subject to object permissions) can read the serialized objects it contains.
 
 Background processing applies only to bulk operations (a JSON list) on a model's list endpoint. For a single-object write the `background` parameter is ignored and the request is processed synchronously. It cannot be combined with an [`If-Match`](#if-match) precondition (which cannot be evaluated reliably once execution is deferred); such a request is rejected with an `HTTP 400` response. If no background worker is running to service the queue, the request is rejected with an `HTTP 503` response rather than enqueuing a job that would never run.
 
