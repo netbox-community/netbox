@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
 from netbox.ui.panels import (
     CommentsPanel,
     NestedGroupObjectPanel,
@@ -43,6 +44,12 @@ class TenantGroupListView(generic.ObjectListView):
 class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = TenantGroup.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('tenancy:tenantgroup_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             NestedGroupObjectPanel(),
             TagsPanel(),
@@ -142,8 +149,15 @@ class TenantListView(generic.ObjectListView):
 
 @register_model_view(Tenant)
 class TenantView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Tenant.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.group.get_ancestors(include_self=True) if o.group else [],
+                url=filtered_list_url('tenancy:tenant_list', 'group_id'),
+            ),
+        ],
         left_panels=[
             panels.TenantPanel(),
             CustomFieldsPanel(),
@@ -214,8 +228,15 @@ class ContactGroupListView(generic.ObjectListView):
 
 @register_model_view(ContactGroup)
 class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ContactGroup.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('tenancy:contactgroup_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             NestedGroupObjectPanel(),
             TagsPanel(),

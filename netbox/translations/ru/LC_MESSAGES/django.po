@@ -17,6 +17,7 @@
 # Alevtina Karashokova, 2025
 # Artem Kotik, 2026
 # Vladimir Tananko, 2026
+# Vladislav Shchukin, 2026
 # Jeremy Stretch, 2026
 # 
 #, fuzzy
@@ -24,7 +25,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 06:46+0000\n"
+"POT-Creation-Date: 2026-06-27 06:10+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
@@ -59,9 +60,9 @@ msgstr "Ваш пароль успешно изменен."
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:204
-#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:1969
-#: netbox/dcim/choices.py:2027 netbox/dcim/choices.py:2094
-#: netbox/dcim/choices.py:2116 netbox/virtualization/choices.py:20
+#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:1971
+#: netbox/dcim/choices.py:2029 netbox/dcim/choices.py:2096
+#: netbox/dcim/choices.py:2118 netbox/virtualization/choices.py:20
 #: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 #: netbox/vpn/choices.py:281
 msgid "Planned"
@@ -75,8 +76,8 @@ msgstr "Выделение ресурсов"
 #: netbox/core/tables/tasks.py:23 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:103 netbox/dcim/choices.py:155
 #: netbox/dcim/choices.py:203 netbox/dcim/choices.py:256
-#: netbox/dcim/choices.py:2026 netbox/dcim/choices.py:2093
-#: netbox/dcim/choices.py:2115 netbox/extras/tables/tables.py:648
+#: netbox/dcim/choices.py:2028 netbox/dcim/choices.py:2095
+#: netbox/dcim/choices.py:2117 netbox/extras/tables/tables.py:648
 #: netbox/extras/ui/panels.py:441 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
 #: netbox/ipam/choices.py:154 netbox/users/forms/bulk_edit.py:41
@@ -87,8 +88,8 @@ msgid "Active"
 msgstr "Активный"
 
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:202
-#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:2025
-#: netbox/dcim/choices.py:2095 netbox/dcim/choices.py:2114
+#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:2027
+#: netbox/dcim/choices.py:2097 netbox/dcim/choices.py:2116
 #: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr "Не в сети"
@@ -101,7 +102,7 @@ msgstr "Выделение резервов"
 msgid "Decommissioned"
 msgstr "Списан"
 
-#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2038
+#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2040
 #: netbox/dcim/tables/devices.py:1238
 #: netbox/templates/dcim/interface/attrs/mac_address.html:3
 #: netbox/tenancy/choices.py:17
@@ -115,7 +116,7 @@ msgstr "Вторичный"
 
 #: netbox/circuits/choices.py:92 netbox/tenancy/choices.py:19
 msgid "Tertiary"
-msgstr "Высшее образование"
+msgstr "Третичный"
 
 #: netbox/circuits/choices.py:93 netbox/tenancy/choices.py:20
 msgid "Inactive"
@@ -125,7 +126,7 @@ msgstr "Неактивный"
 #: netbox/templates/dcim/panels/interface_wireless.html:12
 #: netbox/vpn/choices.py:63
 msgid "Peer"
-msgstr "Peer"
+msgstr "Сосед"
 
 #: netbox/circuits/choices.py:108 netbox/vpn/choices.py:64
 msgid "Hub"
@@ -154,7 +155,7 @@ msgstr "Регион (ID)"
 #: netbox/dcim/filtersets.py:549 netbox/dcim/filtersets.py:1304
 #: netbox/dcim/filtersets.py:1666 netbox/dcim/filtersets.py:1773
 #: netbox/dcim/filtersets.py:2561 netbox/dcim/filtersets.py:2909
-#: netbox/dcim/filtersets.py:2970 netbox/extras/filtersets.py:716
+#: netbox/dcim/filtersets.py:2970 netbox/extras/filtersets.py:718
 #: netbox/ipam/filtersets.py:1012 netbox/virtualization/filtersets.py:225
 #: netbox/vpn/filtersets.py:397
 msgid "Region (slug)"
@@ -179,7 +180,7 @@ msgstr "Группа площадок (ID)"
 #: netbox/dcim/filtersets.py:1317 netbox/dcim/filtersets.py:1679
 #: netbox/dcim/filtersets.py:1786 netbox/dcim/filtersets.py:2574
 #: netbox/dcim/filtersets.py:2922 netbox/dcim/filtersets.py:2983
-#: netbox/extras/filtersets.py:722 netbox/ipam/filtersets.py:268
+#: netbox/extras/filtersets.py:724 netbox/ipam/filtersets.py:268
 #: netbox/ipam/filtersets.py:1025 netbox/virtualization/filtersets.py:238
 msgid "Site group (slug)"
 msgstr "Группа площадок (подстрока)"
@@ -205,7 +206,7 @@ msgstr "Группа площадок (подстрока)"
 #: netbox/dcim/tables/devices.py:157 netbox/dcim/tables/power.py:26
 #: netbox/dcim/tables/power.py:90 netbox/dcim/tables/racks.py:135
 #: netbox/dcim/tables/racks.py:222 netbox/dcim/tables/sites.py:102
-#: netbox/extras/filtersets.py:732 netbox/ipam/forms/bulk_edit.py:419
+#: netbox/extras/filtersets.py:734 netbox/ipam/forms/bulk_edit.py:419
 #: netbox/ipam/forms/bulk_import.py:515 netbox/ipam/forms/filtersets.py:176
 #: netbox/ipam/forms/filtersets.py:256 netbox/ipam/forms/filtersets.py:487
 #: netbox/ipam/forms/filtersets.py:594 netbox/ipam/forms/model_forms.py:694
@@ -230,7 +231,7 @@ msgstr "Площадка"
 #: netbox/circuits/filtersets.py:74 netbox/circuits/filtersets.py:254
 #: netbox/circuits/filtersets.py:340 netbox/dcim/base_filtersets.py:56
 #: netbox/dcim/filtersets.py:275 netbox/dcim/filtersets.py:416
-#: netbox/dcim/filtersets.py:536 netbox/extras/filtersets.py:738
+#: netbox/dcim/filtersets.py:536 netbox/extras/filtersets.py:740
 #: netbox/ipam/filtersets.py:279 netbox/ipam/filtersets.py:1037
 #: netbox/virtualization/filtersets.py:250 netbox/vpn/filtersets.py:407
 msgid "Site (slug)"
@@ -316,9 +317,9 @@ msgstr "Точка подключения A (ID)"
 #: netbox/extras/filtersets.py:198 netbox/extras/filtersets.py:252
 #: netbox/extras/filtersets.py:283 netbox/extras/filtersets.py:324
 #: netbox/extras/filtersets.py:379 netbox/extras/filtersets.py:459
-#: netbox/extras/filtersets.py:503 netbox/extras/filtersets.py:560
-#: netbox/extras/filtersets.py:621 netbox/extras/filtersets.py:660
-#: netbox/extras/filtersets.py:693 netbox/extras/filtersets.py:867
+#: netbox/extras/filtersets.py:503 netbox/extras/filtersets.py:562
+#: netbox/extras/filtersets.py:623 netbox/extras/filtersets.py:662
+#: netbox/extras/filtersets.py:695 netbox/extras/filtersets.py:869
 #: netbox/ipam/forms/model_forms.py:515 netbox/netbox/filtersets.py:302
 #: netbox/netbox/forms/filtersets.py:32 netbox/netbox/forms/search.py:20
 #: netbox/templates/htmx/object_selector.html:28
@@ -353,7 +354,7 @@ msgstr "Канал связи"
 #: netbox/dcim/filtersets.py:300 netbox/dcim/filtersets.py:429
 #: netbox/dcim/filtersets.py:575 netbox/dcim/filtersets.py:1342
 #: netbox/dcim/filtersets.py:1705 netbox/dcim/filtersets.py:1812
-#: netbox/extras/filtersets.py:749
+#: netbox/extras/filtersets.py:751
 msgid "Location (slug)"
 msgstr "Локация (подстрока)"
 
@@ -379,7 +380,7 @@ msgstr "Виртуальный канал (ID)"
 
 #: netbox/circuits/filtersets.py:431
 msgid "Provider (name)"
-msgstr "Поставщик (имя)"
+msgstr "Провайдер (имя)"
 
 #: netbox/circuits/filtersets.py:441
 msgid "Circuit group (ID)"
@@ -516,9 +517,10 @@ msgstr "Цвет"
 #: netbox/dcim/forms/object_import.py:114
 #: netbox/dcim/forms/object_import.py:127 netbox/dcim/tables/devices.py:182
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:155
-#: netbox/extras/forms/bulk_import.py:48 netbox/extras/tables/tables.py:515
-#: netbox/extras/tables/tables.py:584 netbox/extras/ui/panels.py:128
-#: netbox/extras/ui/panels.py:377 netbox/netbox/tables/tables.py:358
+#: netbox/extras/forms/bulk_import.py:48 netbox/extras/tables/tables.py:427
+#: netbox/extras/tables/tables.py:515 netbox/extras/tables/tables.py:584
+#: netbox/extras/ui/panels.py:128 netbox/extras/ui/panels.py:377
+#: netbox/netbox/tables/tables.py:390
 #: netbox/templates/core/htmx/system_db_schema.html:70
 #: netbox/templates/dcim/panels/interface_connection.html:68
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:16
@@ -632,7 +634,7 @@ msgstr "Статус"
 #: netbox/dcim/forms/filtersets.py:480 netbox/dcim/forms/filtersets.py:863
 #: netbox/dcim/forms/filtersets.py:1055 netbox/dcim/forms/filtersets.py:1178
 #: netbox/dcim/forms/filtersets.py:1221 netbox/dcim/forms/filtersets.py:1356
-#: netbox/dcim/tables/power.py:85 netbox/extras/filtersets.py:819
+#: netbox/dcim/tables/power.py:85 netbox/extras/filtersets.py:821
 #: netbox/extras/forms/filtersets.py:412 netbox/extras/forms/filtersets.py:491
 #: netbox/ipam/forms/bulk_edit.py:49 netbox/ipam/forms/bulk_edit.py:68
 #: netbox/ipam/forms/bulk_edit.py:101 netbox/ipam/forms/bulk_edit.py:130
@@ -667,7 +669,7 @@ msgstr "Статус"
 #: netbox/wireless/forms/filtersets.py:44
 #: netbox/wireless/forms/filtersets.py:110
 msgid "Tenant"
-msgstr "Арендатор"
+msgstr "Собственник"
 
 #: netbox/circuits/forms/bulk_edit.py:142
 #: netbox/circuits/forms/filtersets.py:199
@@ -741,7 +743,7 @@ msgstr "Параметры Службы"
 #: netbox/ipam/forms/filtersets.py:351 netbox/ipam/forms/filtersets.py:434
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/forms/filtersets.py:546
 #: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:643
-#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:374
+#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:406
 #: netbox/virtualization/forms/filtersets.py:56
 #: netbox/virtualization/forms/filtersets.py:114
 #: netbox/virtualization/forms/filtersets.py:158
@@ -778,7 +780,7 @@ msgstr "Атрибуты"
 #: netbox/vpn/forms/model_forms.py:409 netbox/wireless/forms/model_forms.py:56
 #: netbox/wireless/forms/model_forms.py:171
 msgid "Tenancy"
-msgstr "Аренда"
+msgstr "Владение"
 
 #: netbox/circuits/forms/bulk_edit.py:184
 #: netbox/circuits/forms/bulk_edit.py:332 netbox/dcim/forms/bulk_create.py:37
@@ -825,7 +827,7 @@ msgstr "Тип точки подключения"
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:6
 #: netbox/vpn/forms/bulk_import.py:99 netbox/vpn/forms/filtersets.py:87
 msgid "Termination"
-msgstr "Прекращение"
+msgstr "Подключение"
 
 #: netbox/circuits/forms/bulk_edit.py:203
 msgid "Port speed (Kbps)"
@@ -894,7 +896,7 @@ msgstr "Сеть провайдера"
 #: netbox/dcim/forms/model_forms.py:1781
 #: netbox/dcim/forms/object_import.py:198 netbox/dcim/tables/devices.py:173
 #: netbox/dcim/tables/devices.py:1062 netbox/dcim/tables/devicetypes.py:324
-#: netbox/dcim/tables/racks.py:146 netbox/extras/filtersets.py:759
+#: netbox/dcim/tables/racks.py:146 netbox/extras/filtersets.py:761
 #: netbox/ipam/forms/bulk_edit.py:127 netbox/ipam/forms/bulk_edit.py:214
 #: netbox/ipam/forms/bulk_edit.py:258 netbox/ipam/forms/bulk_edit.py:305
 #: netbox/ipam/forms/bulk_edit.py:446 netbox/ipam/forms/bulk_import.py:142
@@ -975,7 +977,7 @@ msgstr "Операционный статус"
 #: netbox/vpn/forms/bulk_import.py:62 netbox/wireless/forms/bulk_import.py:60
 #: netbox/wireless/forms/bulk_import.py:140
 msgid "Assigned tenant"
-msgstr "Назначенный арендатор"
+msgstr "Назначенный собственник"
 
 #: netbox/circuits/forms/bulk_import.py:139
 msgid "Termination type (app & model)"
@@ -996,7 +998,7 @@ msgstr "Сеть, к которой принадлежит этот виртуа
 
 #: netbox/circuits/forms/bulk_import.py:216
 msgid "Assigned provider account (if any)"
-msgstr "Учетная запись назначенного поставщика (если есть)"
+msgstr "Учетная запись назначенного провайдера (если есть)"
 
 #: netbox/circuits/forms/bulk_import.py:223
 msgid "Type of virtual circuit"
@@ -1056,7 +1058,7 @@ msgstr "Интерфейс"
 #: netbox/dcim/forms/model_forms.py:620 netbox/dcim/forms/model_forms.py:906
 #: netbox/dcim/tables/devices.py:161 netbox/dcim/tables/power.py:30
 #: netbox/dcim/tables/racks.py:131 netbox/dcim/tables/racks.py:227
-#: netbox/extras/filtersets.py:743 netbox/extras/forms/filtersets.py:409
+#: netbox/extras/filtersets.py:745 netbox/extras/forms/filtersets.py:409
 #: netbox/ipam/forms/filtersets.py:261 netbox/ipam/forms/filtersets.py:467
 #: netbox/ipam/forms/filtersets.py:492 netbox/ipam/forms/filtersets.py:570
 #: netbox/templates/dcim/device_edit.html:32
@@ -1171,7 +1173,7 @@ msgstr "Контакты"
 #: netbox/dcim/forms/filtersets.py:2128 netbox/dcim/forms/filtersets.py:2152
 #: netbox/dcim/forms/model_forms.py:131 netbox/dcim/forms/object_create.py:278
 #: netbox/dcim/tables/devices.py:147 netbox/dcim/tables/sites.py:65
-#: netbox/extras/filtersets.py:710 netbox/ipam/forms/bulk_edit.py:409
+#: netbox/extras/filtersets.py:712 netbox/ipam/forms/bulk_edit.py:409
 #: netbox/ipam/forms/filtersets.py:246 netbox/ipam/forms/filtersets.py:477
 #: netbox/ipam/forms/filtersets.py:580 netbox/ipam/ui/panels.py:196
 #: netbox/virtualization/forms/filtersets.py:71
@@ -1190,7 +1192,7 @@ msgstr "Регион"
 #: netbox/dcim/forms/filtersets.py:886 netbox/dcim/forms/filtersets.py:1108
 #: netbox/dcim/forms/filtersets.py:1189 netbox/dcim/forms/filtersets.py:1327
 #: netbox/dcim/forms/filtersets.py:1367 netbox/dcim/forms/object_create.py:286
-#: netbox/extras/filtersets.py:727 netbox/ipam/forms/bulk_edit.py:414
+#: netbox/extras/filtersets.py:729 netbox/ipam/forms/bulk_edit.py:414
 #: netbox/ipam/forms/filtersets.py:171 netbox/ipam/forms/filtersets.py:251
 #: netbox/ipam/forms/filtersets.py:482 netbox/ipam/forms/filtersets.py:585
 #: netbox/virtualization/forms/filtersets.py:76
@@ -1210,7 +1212,7 @@ msgstr "Аккаунт"
 
 #: netbox/circuits/forms/filtersets.py:262
 msgid "Term Side"
-msgstr "Терминология"
+msgstr "Сторона сделки"
 
 #: netbox/circuits/forms/filtersets.py:296 netbox/dcim/forms/bulk_edit.py:1596
 #: netbox/extras/forms/model_forms.py:794 netbox/extras/ui/panels.py:446
@@ -1288,7 +1290,7 @@ msgstr "Группа каналов связи"
 
 #: netbox/circuits/forms/model_forms.py:296
 msgid "Circuit type"
-msgstr "Тип цепи"
+msgstr "Тип канала"
 
 #: netbox/circuits/forms/model_forms.py:307
 msgid "Group Assignment"
@@ -1331,7 +1333,7 @@ msgstr "Уникальный ID канала связи"
 #: netbox/dcim/models/device_components.py:634
 #: netbox/dcim/models/device_components.py:1575
 #: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1261
-#: netbox/dcim/models/modules.py:264 netbox/dcim/models/power.py:95
+#: netbox/dcim/models/modules.py:269 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:329 netbox/dcim/models/racks.py:713
 #: netbox/dcim/models/sites.py:163 netbox/dcim/models/sites.py:287
 #: netbox/ipam/models/ip.py:252 netbox/ipam/models/ip.py:680
@@ -1434,10 +1436,10 @@ msgstr "ID патч-панели и номера порта(-ов)"
 #: netbox/dcim/models/device_components.py:67 netbox/dcim/models/racks.py:730
 #: netbox/extras/models/configs.py:42 netbox/extras/models/configs.py:95
 #: netbox/extras/models/configs.py:286
-#: netbox/extras/models/customfields.py:152 netbox/extras/models/models.py:72
+#: netbox/extras/models/customfields.py:153 netbox/extras/models/models.py:72
 #: netbox/extras/models/models.py:181 netbox/extras/models/models.py:428
 #: netbox/extras/models/models.py:496 netbox/extras/models/models.py:578
-#: netbox/extras/models/models.py:711
+#: netbox/extras/models/models.py:719
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
 #: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
@@ -1466,15 +1468,15 @@ msgstr "Конец цепи должен быть прикреплен к кон
 #: netbox/dcim/models/device_component_templates.py:55
 #: netbox/dcim/models/device_components.py:56
 #: netbox/dcim/models/devices.py:543 netbox/dcim/models/devices.py:1184
-#: netbox/dcim/models/devices.py:1256 netbox/dcim/models/modules.py:35
+#: netbox/dcim/models/devices.py:1256 netbox/dcim/models/modules.py:37
 #: netbox/dcim/models/power.py:39 netbox/dcim/models/power.py:90
 #: netbox/dcim/models/racks.py:290 netbox/dcim/models/sites.py:151
 #: netbox/extras/models/configs.py:37 netbox/extras/models/configs.py:79
 #: netbox/extras/models/configs.py:282
-#: netbox/extras/models/customfields.py:119 netbox/extras/models/models.py:67
+#: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:67
 #: netbox/extras/models/models.py:176 netbox/extras/models/models.py:318
 #: netbox/extras/models/models.py:424 netbox/extras/models/models.py:486
-#: netbox/extras/models/models.py:574 netbox/extras/models/models.py:706
+#: netbox/extras/models/models.py:574 netbox/extras/models/models.py:714
 #: netbox/extras/models/notifications.py:127
 #: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:63
@@ -1610,7 +1612,7 @@ msgstr "точки подключения виртуальных каналов"
 #: netbox/ipam/tables/services.py:16 netbox/ipam/tables/services.py:38
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
-#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:344
+#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:376
 #: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54
@@ -1787,7 +1789,7 @@ msgstr "Назначить группу"
 #: netbox/circuits/ui/panels.py:89
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:5
 msgid "Termination point"
-msgstr "Точка прекращения"
+msgstr "Точка подключения"
 
 #: netbox/circuits/ui/panels.py:94 netbox/dcim/forms/filtersets.py:1488
 #: netbox/dcim/forms/filtersets.py:1528 netbox/dcim/forms/filtersets.py:1568
@@ -1872,7 +1874,7 @@ msgstr "Завершено"
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:21 netbox/core/tables/tasks.py:35
 #: netbox/dcim/choices.py:206 netbox/dcim/choices.py:259
-#: netbox/dcim/choices.py:2028 netbox/dcim/choices.py:2118
+#: netbox/dcim/choices.py:2030 netbox/dcim/choices.py:2120
 #: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr "Неисправно"
@@ -2002,7 +2004,7 @@ msgstr "Информация"
 msgid "Warning"
 msgstr "Предупреждение"
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:594
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:597
 msgid "Error"
 msgstr "Ошибка"
 
@@ -2029,7 +2031,7 @@ msgstr "Пароль"
 
 #: netbox/core/data_backends.py:75
 msgid "Branch"
-msgstr "Ветка"
+msgstr "Филиал"
 
 #: netbox/core/data_backends.py:135
 #, python-brace-format
@@ -2053,8 +2055,8 @@ msgstr ""
 "данных"
 
 #: netbox/core/filtersets.py:65 netbox/extras/filtersets.py:295
-#: netbox/extras/filtersets.py:665 netbox/extras/filtersets.py:841
-#: netbox/extras/filtersets.py:872
+#: netbox/extras/filtersets.py:667 netbox/extras/filtersets.py:843
+#: netbox/extras/filtersets.py:874
 msgid "Data source (ID)"
 msgstr "Источник данных (ID)"
 
@@ -2065,7 +2067,7 @@ msgstr "Источник данных (имя)"
 #: netbox/core/filtersets.py:149 netbox/core/filtersets.py:217
 #: netbox/dcim/filtersets.py:598 netbox/extras/filtersets.py:336
 #: netbox/extras/filtersets.py:392 netbox/extras/filtersets.py:440
-#: netbox/extras/filtersets.py:464 netbox/extras/filtersets.py:532
+#: netbox/extras/filtersets.py:464 netbox/extras/filtersets.py:534
 #: netbox/users/filtersets.py:31 netbox/users/filtersets.py:308
 msgid "User (ID)"
 msgstr "Пользователь (ID)"
@@ -2075,7 +2077,7 @@ msgid "User name"
 msgstr "Имя пользователя"
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:47
-#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2076
+#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2078
 #: netbox/dcim/forms/bulk_edit.py:1151 netbox/dcim/forms/bulk_edit.py:1255
 #: netbox/dcim/forms/bulk_edit.py:1278 netbox/dcim/forms/bulk_edit.py:1442
 #: netbox/dcim/forms/filtersets.py:1687 netbox/dcim/forms/filtersets.py:1780
@@ -2238,7 +2240,7 @@ msgstr "Синхронизация"
 
 #: netbox/core/forms/model_forms.py:61
 msgid "Backend Parameters"
-msgstr "Параметры backend"
+msgstr "Параметры сервиса"
 
 #: netbox/core/forms/model_forms.py:99
 msgid "File Upload"
@@ -2258,7 +2260,7 @@ msgstr "Необходимо загрузить файл или выбрать �
 msgid "Rack Elevations"
 msgstr "Фасады стоек"
 
-#: netbox/core/forms/model_forms.py:151 netbox/dcim/choices.py:1947
+#: netbox/core/forms/model_forms.py:151 netbox/dcim/choices.py:1949
 #: netbox/dcim/forms/bulk_edit.py:990 netbox/dcim/forms/bulk_edit.py:1396
 #: netbox/dcim/forms/bulk_edit.py:1417 netbox/dcim/tables/racks.py:172
 #: netbox/netbox/navigation/menu.py:324 netbox/netbox/navigation/menu.py:328
@@ -2293,7 +2295,7 @@ msgstr "Разбивка на страницы"
 #: netbox/extras/forms/model_forms.py:156
 #: netbox/templates/core/inc/config_data.html:93
 msgid "Validation"
-msgstr "Валидация"
+msgstr "Проверки"
 
 #: netbox/core/forms/model_forms.py:158
 #: netbox/templates/account/preferences.html:6
@@ -2374,7 +2376,7 @@ msgstr ""
 
 #: netbox/core/models/config.py:22 netbox/core/models/data.py:290
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:868 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:927 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
 #: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
 msgid "created"
@@ -2424,7 +2426,7 @@ msgstr "Ревизия конфигурации #{id}"
 #: netbox/dcim/models/device_components.py:858
 #: netbox/dcim/models/device_components.py:1241
 #: netbox/dcim/models/device_components.py:1289
-#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:105
+#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:106
 #: netbox/extras/models/search.py:42
 #: netbox/virtualization/models/clusters.py:57
 #: netbox/virtualization/models/virtualmachines.py:121
@@ -2484,7 +2486,7 @@ msgstr "источники данных"
 #: netbox/core/models/data.py:130
 #, python-brace-format
 msgid "Unknown backend type: {type}"
-msgstr "Неизвестный тип backend: {type}"
+msgstr "Неизвестный тип сервиса: {type}"
 
 #: netbox/core/models/data.py:136
 #, python-brace-format
@@ -2502,7 +2504,7 @@ msgid ""
 "There was an error initializing the backend. A dependency needs to be "
 "installed: "
 msgstr ""
-"Произошла ошибка при инициализации бэкэнда. Необходимо установить "
+"Произошла ошибка при инициализации сервиса. Необходимо установить "
 "зависимость: "
 
 #: netbox/core/models/data.py:294 netbox/core/models/files.py:34
@@ -2510,7 +2512,7 @@ msgstr ""
 msgid "last updated"
 msgstr "последнее обновление"
 
-#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:744
+#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:745
 msgid "path"
 msgstr "путь"
 
@@ -2678,7 +2680,7 @@ msgstr "Полное имя"
 #: netbox/extras/tables/tables.py:518 netbox/extras/tables/tables.py:589
 #: netbox/extras/tables/tables.py:762 netbox/extras/tables/tables.py:803
 #: netbox/extras/tables/tables.py:857 netbox/extras/ui/panels.py:378
-#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:362
+#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:394
 #: netbox/tenancy/tables/contacts.py:87 netbox/vpn/tables/l2vpn.py:64
 msgid "Object"
 msgstr "Объект"
@@ -2703,7 +2705,7 @@ msgstr "Последняя синхронизация"
 
 #: netbox/core/tables/data.py:37
 msgid "Files"
-msgstr "файлы"
+msgstr "Файлы"
 
 #: netbox/core/tables/data.py:61
 msgid "Path"
@@ -2849,7 +2851,7 @@ msgstr "Последняя синхронизация"
 
 #: netbox/core/ui/panels.py:29
 msgid "Backend"
-msgstr "Серверная часть"
+msgstr "Сервисная часть"
 
 #: netbox/core/ui/panels.py:33 netbox/extras/tables/tables.py:238
 #: netbox/extras/tables/tables.py:610 netbox/extras/tables/tables.py:640
@@ -2867,7 +2869,7 @@ msgstr "SHA256 хэш"
 
 #: netbox/core/ui/panels.py:43
 msgid "Content"
-msgstr "Контент"
+msgstr "Содержимое"
 
 #: netbox/core/ui/panels.py:47 netbox/templates/core/rq_task.html:12
 #: netbox/templates/core/rq_task.html:49 netbox/templates/core/rq_task.html:58
@@ -2984,12 +2986,12 @@ msgstr "Режим интерфейса не поддерживает помеч
 msgid "Position (U)"
 msgstr "Позиция (U)"
 
-#: netbox/dcim/api/serializers_/devices.py:178
+#: netbox/dcim/api/serializers_/devices.py:193
 #: netbox/dcim/forms/bulk_import.py:786 netbox/dcim/forms/model_forms.py:819
 msgid "Replicate components"
 msgstr "Репликация компонентов"
 
-#: netbox/dcim/api/serializers_/devices.py:179
+#: netbox/dcim/api/serializers_/devices.py:194
 msgid ""
 "Automatically populate components associated with this module type (default:"
 " true)"
@@ -2997,17 +2999,17 @@ msgstr ""
 "Автоматическое заполнение компонентов, связанных с этим типом модуля (по "
 "умолчанию: true)"
 
-#: netbox/dcim/api/serializers_/devices.py:185
+#: netbox/dcim/api/serializers_/devices.py:200
 #: netbox/dcim/forms/bulk_import.py:791 netbox/dcim/forms/model_forms.py:825
 msgid "Adopt components"
 msgstr "Принять компоненты"
 
-#: netbox/dcim/api/serializers_/devices.py:186
+#: netbox/dcim/api/serializers_/devices.py:201
 #: netbox/dcim/forms/bulk_import.py:793 netbox/dcim/forms/model_forms.py:828
 msgid "Adopt already existing components"
 msgstr "Используйте уже существующие компоненты"
 
-#: netbox/dcim/api/serializers_/devices.py:252 netbox/dcim/forms/common.py:114
+#: netbox/dcim/api/serializers_/devices.py:267 netbox/dcim/forms/common.py:114
 msgid ""
 "Cannot install module with placeholder values in a module bay with no "
 "position defined."
@@ -3015,13 +3017,13 @@ msgstr ""
 "Невозможно установить модуль со значениями-заполнителями в модульном отсеке "
 "без определенного положения."
 
-#: netbox/dcim/api/serializers_/devices.py:263 netbox/dcim/forms/common.py:126
+#: netbox/dcim/api/serializers_/devices.py:278 netbox/dcim/forms/common.py:126
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
 msgstr ""
 "Невозможно принять {model} {name} поскольку оно уже принадлежит модулю"
 
-#: netbox/dcim/api/serializers_/devices.py:271 netbox/dcim/forms/common.py:135
+#: netbox/dcim/api/serializers_/devices.py:286 netbox/dcim/forms/common.py:135
 #, python-brace-format
 msgid "A {model} named {name} already exists"
 msgstr "A {model} названный {name} уже существует"
@@ -3053,8 +3055,8 @@ msgid "Staging"
 msgstr "Подготовка к развертыванию"
 
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:208
-#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:1970
-#: netbox/dcim/choices.py:2119 netbox/virtualization/choices.py:23
+#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:1972
+#: netbox/dcim/choices.py:2121 netbox/virtualization/choices.py:23
 #: netbox/virtualization/choices.py:49 netbox/vpn/choices.py:282
 msgid "Decommissioning"
 msgstr "Вывод из эксплуатации"
@@ -3120,7 +3122,7 @@ msgstr "Выведенный(-ая) из использования"
 msgid "Millimeters"
 msgstr "Миллиметры"
 
-#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1992
+#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1994
 msgid "Inches"
 msgstr "Дюймы"
 
@@ -3136,7 +3138,7 @@ msgstr "Сзади вперед"
 
 #: netbox/dcim/choices.py:156
 msgid "Stale"
-msgstr "Несвежий"
+msgstr "Устаревший"
 
 #: netbox/dcim/choices.py:170 netbox/dcim/forms/bulk_edit.py:87
 #: netbox/dcim/forms/bulk_edit.py:101 netbox/dcim/forms/bulk_edit.py:181
@@ -3156,7 +3158,7 @@ msgstr "Несвежий"
 #: netbox/dcim/tables/devices.py:1082 netbox/dcim/tables/devices.py:1235
 #: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:809
 #: netbox/ipam/tables/fhrp.py:56 netbox/ipam/tables/ip.py:334
-#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:348
+#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:380
 #: netbox/netbox/ui/panels.py:230 netbox/tenancy/forms/bulk_edit.py:33
 #: netbox/tenancy/forms/bulk_edit.py:62 netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -3192,7 +3194,7 @@ msgid "Rear"
 msgstr "Вид сзади"
 
 #: netbox/dcim/choices.py:205 netbox/dcim/choices.py:258
-#: netbox/dcim/choices.py:2117 netbox/virtualization/choices.py:47
+#: netbox/dcim/choices.py:2119 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr "Подготовлен"
 
@@ -3351,7 +3353,7 @@ msgstr "Подключаемые трансиверы"
 
 #: netbox/dcim/choices.py:1361
 msgid "Backplane Ethernet"
-msgstr "Ethernet объединительной платы"
+msgstr "Объединительная плата Ethernet"
 
 #: netbox/dcim/choices.py:1394
 msgid "Cellular"
@@ -3408,7 +3410,7 @@ msgstr "Стандарт IEEE"
 
 #: netbox/dcim/choices.py:1594
 msgid "Passive 24V (2-pair)"
-msgstr "Пассивный режим 24 В (2 пары)"
+msgstr "Пассивное напряжение 24 В (2 пары)"
 
 #: netbox/dcim/choices.py:1595
 msgid "Passive 24V (4-pair)"
@@ -3430,192 +3432,196 @@ msgstr "Медь"
 msgid "Fiber Optic"
 msgstr "Оптоволокно"
 
-#: netbox/dcim/choices.py:1737 netbox/dcim/choices.py:1953
+#: netbox/dcim/choices.py:1737 netbox/dcim/choices.py:1955
 msgid "USB"
 msgstr "USB"
 
-#: netbox/dcim/choices.py:1794
+#: netbox/dcim/choices.py:1795
 msgid "Single"
 msgstr "Одинокий"
 
-#: netbox/dcim/choices.py:1796
-msgid "1C1P"
-msgstr "1 ШТУКА"
-
 #: netbox/dcim/choices.py:1797
-msgid "1C2P"
-msgstr "1С2П"
+msgid "1C1P"
+msgstr "1 к 1"
 
 #: netbox/dcim/choices.py:1798
-msgid "1C4P"
-msgstr "1С4П"
+msgid "1C2P"
+msgstr "1 к 2"
 
 #: netbox/dcim/choices.py:1799
-msgid "1C6P"
-msgstr "16XP"
+msgid "1C4P"
+msgstr "1 к 4"
 
 #: netbox/dcim/choices.py:1800
-msgid "1C8P"
-msgstr "18CP"
+msgid "1C6P"
+msgstr "1 к 6"
 
 #: netbox/dcim/choices.py:1801
-msgid "1C12P"
-msgstr "1X12P"
+msgid "1C8P"
+msgstr "1 к 8"
 
 #: netbox/dcim/choices.py:1802
+msgid "1C12P"
+msgstr "1 к 12"
+
+#: netbox/dcim/choices.py:1803
 msgid "1C16P"
-msgstr "1X16P"
+msgstr "1 к 16"
 
-#: netbox/dcim/choices.py:1806
+#: netbox/dcim/choices.py:1807
 msgid "Trunk"
-msgstr "багажник"
-
-#: netbox/dcim/choices.py:1808
-msgid "2C1P trunk"
-msgstr "Багажник 2C1P"
+msgstr "Жгут"
 
 #: netbox/dcim/choices.py:1809
-msgid "2C2P trunk"
-msgstr "Багажник 2C2P"
+msgid "2C1P trunk"
+msgstr "Жгут 2 к 1"
 
 #: netbox/dcim/choices.py:1810
-msgid "2C4P trunk"
-msgstr "Багажник 2C4P"
+msgid "2C2P trunk"
+msgstr "Жгут 2 к 2"
 
 #: netbox/dcim/choices.py:1811
-msgid "2C4P trunk (shuffle)"
-msgstr "Багажник 2C4P (шаффл)"
+msgid "2C4P trunk"
+msgstr "Жгут 2 к 4"
 
 #: netbox/dcim/choices.py:1812
-msgid "2C6P trunk"
-msgstr "Багажник 2C6P"
+msgid "2C4P trunk (shuffle)"
+msgstr "Жгут 2 к 4 (обратный)"
 
 #: netbox/dcim/choices.py:1813
-msgid "2C8P trunk"
-msgstr "Багажник 2C8P"
+msgid "2C6P trunk"
+msgstr "Жгут 2 к 6"
 
 #: netbox/dcim/choices.py:1814
-msgid "2C12P trunk"
-msgstr "Багажник 2C12P"
+msgid "2C8P trunk"
+msgstr "Жгут 2 к 8"
 
 #: netbox/dcim/choices.py:1815
-msgid "4C1P trunk"
-msgstr "Багажник 4C1P"
+msgid "2C12P trunk"
+msgstr "Жгут 2 к 12"
 
 #: netbox/dcim/choices.py:1816
-msgid "4C2P trunk"
-msgstr "Багажник 4C2P"
+msgid "4C1P trunk"
+msgstr "Жгут 4 к 1"
 
 #: netbox/dcim/choices.py:1817
-msgid "4C4P trunk"
-msgstr "Багажник 4C4P"
+msgid "4C2P trunk"
+msgstr "Жгут 4 к 2"
 
 #: netbox/dcim/choices.py:1818
-msgid "4C4P trunk (shuffle)"
-msgstr "Багажник 4C4P (шаффл)"
+msgid "4C4P trunk"
+msgstr "Жгут 4 к 4"
 
 #: netbox/dcim/choices.py:1819
-msgid "4C6P trunk"
-msgstr "Багажник 4C6P"
+msgid "4C4P trunk (shuffle)"
+msgstr "Жгут 4 к 4 (обратный)"
 
 #: netbox/dcim/choices.py:1820
-msgid "4C8P trunk"
-msgstr "Багажник 4C8P"
+msgid "4C6P trunk"
+msgstr "Жгут 4 к 6"
 
 #: netbox/dcim/choices.py:1821
+msgid "4C8P trunk"
+msgstr "Жгут 4 к 8"
+
+#: netbox/dcim/choices.py:1822
 msgid "8C4P trunk"
-msgstr "Багажник 8C4P"
+msgstr "Жгут 8 к 4"
 
-#: netbox/dcim/choices.py:1825
+#: netbox/dcim/choices.py:1826
 msgid "Breakout"
-msgstr "Прорыв"
-
-#: netbox/dcim/choices.py:1827
-msgid "1C2P:2C1P breakout"
-msgstr "прорыв 1C2P: 2C1P"
+msgstr "Переходник"
 
 #: netbox/dcim/choices.py:1828
-msgid "1C4P:4C1P breakout"
-msgstr "прорыв 1C4P: 4C1P"
+msgid "1C2P:2C1P breakout"
+msgstr "Переходник 1 к 2 : 2 к 1"
 
 #: netbox/dcim/choices.py:1829
-msgid "1C6P:6C1P breakout"
-msgstr "прорыв 1С6П:6К1П"
+msgid "1C4P:4C1P breakout"
+msgstr "Переходник 1 к 4 : 4 к 1"
 
 #: netbox/dcim/choices.py:1830
-msgid "2C4P:8C1P breakout (shuffle)"
-msgstr "Прорыв 2C4P: 8C1P (перемешивание)"
+msgid "1C6P:6C1P breakout"
+msgstr "Переходник 1 к 6 : 6 к 1"
 
-#: netbox/dcim/choices.py:1888
+#: netbox/dcim/choices.py:1831
+msgid "1C8P:8C1P breakout"
+msgstr "Переходник 1 к 8 : 8 к 1"
+
+#: netbox/dcim/choices.py:1832
+msgid "2C4P:8C1P breakout (shuffle)"
+msgstr "Переходник 2 к 4 : 8 к 1 (обратный)"
+
+#: netbox/dcim/choices.py:1890
 msgid "Copper - Twisted Pair (UTP/STP)"
 msgstr "Медь — витая пара (UTP/STP)"
 
-#: netbox/dcim/choices.py:1902
+#: netbox/dcim/choices.py:1904
 msgid "Copper - Twinax (DAC)"
 msgstr "Медь — Twinax (ЦАП)"
 
-#: netbox/dcim/choices.py:1909
+#: netbox/dcim/choices.py:1911
 msgid "Copper - Coaxial"
 msgstr "Медь — коаксиальная"
 
-#: netbox/dcim/choices.py:1924
+#: netbox/dcim/choices.py:1926
 msgid "Fiber - Multimode"
 msgstr "Оптоволокно — многомодовое"
 
-#: netbox/dcim/choices.py:1935
+#: netbox/dcim/choices.py:1937
 msgid "Fiber - Single-mode"
 msgstr "Оптоволокно — одномодовое"
 
-#: netbox/dcim/choices.py:1943
+#: netbox/dcim/choices.py:1945
 msgid "Fiber - Other"
 msgstr "Прочее волокно"
 
-#: netbox/dcim/choices.py:1968 netbox/dcim/forms/filtersets.py:1470
+#: netbox/dcim/choices.py:1970 netbox/dcim/forms/filtersets.py:1470
 msgid "Connected"
 msgstr "Подключено"
 
-#: netbox/dcim/choices.py:1987 netbox/netbox/choices.py:177
+#: netbox/dcim/choices.py:1989 netbox/netbox/choices.py:177
 msgid "Kilometers"
 msgstr "Километры"
 
-#: netbox/dcim/choices.py:1988 netbox/netbox/choices.py:178
+#: netbox/dcim/choices.py:1990 netbox/netbox/choices.py:178
 #: netbox/templates/dcim/cable_trace.html:65
 msgid "Meters"
 msgstr "Метры"
 
-#: netbox/dcim/choices.py:1989
+#: netbox/dcim/choices.py:1991
 msgid "Centimeters"
 msgstr "Сантиметры"
 
-#: netbox/dcim/choices.py:1990 netbox/netbox/choices.py:179
+#: netbox/dcim/choices.py:1992 netbox/netbox/choices.py:179
 msgid "Miles"
 msgstr "Мили"
 
-#: netbox/dcim/choices.py:1991 netbox/netbox/choices.py:180
+#: netbox/dcim/choices.py:1993 netbox/netbox/choices.py:180
 #: netbox/templates/dcim/cable_trace.html:66
 msgid "Feet"
 msgstr "Футы"
 
-#: netbox/dcim/choices.py:2039
+#: netbox/dcim/choices.py:2041
 msgid "Redundant"
 msgstr "Резервный"
 
-#: netbox/dcim/choices.py:2060
+#: netbox/dcim/choices.py:2062
 msgid "Single phase"
 msgstr "Однофазный"
 
-#: netbox/dcim/choices.py:2061
+#: netbox/dcim/choices.py:2063
 msgid "Three-phase"
 msgstr "Трехфазный"
 
-#: netbox/dcim/choices.py:2077 netbox/extras/choices.py:53
+#: netbox/dcim/choices.py:2079 netbox/extras/choices.py:53
 #: netbox/netbox/preferences.py:45 netbox/netbox/preferences.py:70
 #: netbox/templates/extras/customfield/attrs/search_weight.html:1
 #: netbox/vpn/choices.py:20 netbox/wireless/choices.py:27
 msgid "Disabled"
-msgstr "Инвалид"
+msgstr "Деактивирован"
 
-#: netbox/dcim/choices.py:2078
+#: netbox/dcim/choices.py:2080
 msgid "Faulty"
 msgstr "Неисправен"
 
@@ -3703,7 +3709,7 @@ msgstr "Роль (ID)"
 
 #: netbox/dcim/filtersets.py:491 netbox/dcim/filtersets.py:1108
 #: netbox/dcim/filtersets.py:1273 netbox/dcim/filtersets.py:2498
-#: netbox/extras/filtersets.py:765 netbox/ipam/filtersets.py:302
+#: netbox/extras/filtersets.py:767 netbox/ipam/filtersets.py:302
 #: netbox/ipam/filtersets.py:425 netbox/ipam/filtersets.py:542
 #: netbox/ipam/filtersets.py:1061 netbox/virtualization/filtersets.py:265
 msgid "Role (slug)"
@@ -3717,18 +3723,18 @@ msgstr "Стойка (ID)"
 
 #: netbox/dcim/filtersets.py:605 netbox/extras/filtersets.py:343
 #: netbox/extras/filtersets.py:399 netbox/extras/filtersets.py:447
-#: netbox/extras/filtersets.py:470 netbox/extras/filtersets.py:539
+#: netbox/extras/filtersets.py:470 netbox/extras/filtersets.py:541
 #: netbox/users/filtersets.py:142 netbox/users/filtersets.py:223
 msgid "User (name)"
 msgstr "Пользователь (имя)"
 
 #: netbox/dcim/filtersets.py:614
 msgid "Minimum unit count"
-msgstr "Минимальное количество единиц"
+msgstr "Минимальное количество U"
 
 #: netbox/dcim/filtersets.py:619
 msgid "Maximum unit count"
-msgstr "Максимальное количество единиц"
+msgstr "Максимальное количество U"
 
 #: netbox/dcim/filtersets.py:672 netbox/virtualization/filtersets.py:101
 msgid "Default platform (ID)"
@@ -3768,7 +3774,7 @@ msgstr "Имеет порты питания"
 #: netbox/dcim/filtersets.py:1436 netbox/dcim/forms/filtersets.py:641
 #: netbox/dcim/forms/filtersets.py:762 netbox/dcim/forms/filtersets.py:1011
 msgid "Has power outlets"
-msgstr "Имеет розетки"
+msgstr "Имеет электророзетки"
 
 #: netbox/dcim/filtersets.py:707 netbox/dcim/filtersets.py:859
 #: netbox/dcim/filtersets.py:1440 netbox/dcim/forms/filtersets.py:648
@@ -3798,12 +3804,12 @@ msgid "Has inventory items"
 msgstr "Имеет инвентарь"
 
 #: netbox/dcim/filtersets.py:820 netbox/dcim/filtersets.py:1614
-#: netbox/extras/filtersets.py:698
+#: netbox/extras/filtersets.py:700
 msgid "Profile (ID)"
 msgstr "Профиль (ID)"
 
 #: netbox/dcim/filtersets.py:827 netbox/dcim/filtersets.py:1621
-#: netbox/extras/filtersets.py:705
+#: netbox/extras/filtersets.py:707
 msgid "Profile (name)"
 msgstr "Профиль (имя)"
 
@@ -3873,7 +3879,7 @@ msgstr "Родительское устройство (ID)"
 msgid "Platform (ID)"
 msgstr "Платформа (ID)"
 
-#: netbox/dcim/filtersets.py:1291 netbox/extras/filtersets.py:776
+#: netbox/dcim/filtersets.py:1291 netbox/extras/filtersets.py:778
 #: netbox/virtualization/filtersets.py:278
 msgid "Platform (slug)"
 msgstr "Платформа (подстрока)"
@@ -3886,13 +3892,13 @@ msgstr "Название площадки (подстрока)"
 
 #: netbox/dcim/filtersets.py:1353
 msgid "Parent bay (ID)"
-msgstr "Родительский ребенок (ID)"
+msgstr "Родительский отсек(ID)"
 
 #: netbox/dcim/filtersets.py:1358
 msgid "VM cluster (ID)"
 msgstr "Кластер виртуальных машин (ID)"
 
-#: netbox/dcim/filtersets.py:1365 netbox/extras/filtersets.py:798
+#: netbox/dcim/filtersets.py:1365 netbox/extras/filtersets.py:800
 #: netbox/virtualization/filtersets.py:175
 msgid "Cluster group (slug)"
 msgstr "Группа кластеров (подстрока)"
@@ -3937,7 +3943,7 @@ msgstr "Виртуальное шасси (ID)"
 
 #: netbox/dcim/filtersets.py:1415
 msgid "Is a virtual chassis member"
-msgstr "Является членом виртуального шасси"
+msgstr "В составе виртуального шасси"
 
 #: netbox/dcim/filtersets.py:1458
 msgid "OOB IP (ID)"
@@ -3953,7 +3959,7 @@ msgstr "VDC (ID)"
 
 #: netbox/dcim/filtersets.py:1567
 msgid "Device model"
-msgstr "модель устройства"
+msgstr "Модель устройства"
 
 #: netbox/dcim/filtersets.py:1647
 msgid "Module type (model)"
@@ -4008,12 +4014,12 @@ msgstr "Виртуальное шасси"
 #: netbox/dcim/filtersets.py:1887 netbox/dcim/filtersets.py:2593
 #: netbox/tenancy/filtersets.py:271
 msgid "Tenant (ID)"
-msgstr "Арендатор  (ID)"
+msgstr "Собственник (ID)"
 
 #: netbox/dcim/filtersets.py:1894 netbox/dcim/filtersets.py:2600
-#: netbox/extras/filtersets.py:825 netbox/tenancy/filtersets.py:278
+#: netbox/extras/filtersets.py:827 netbox/tenancy/filtersets.py:278
 msgid "Tenant (slug)"
-msgstr "Арендатор (подстрока)"
+msgstr "Собственник (подстрока)"
 
 #: netbox/dcim/filtersets.py:1915
 msgid "Module (ID)"
@@ -4069,7 +4075,7 @@ msgstr "Режим 802.1Q"
 #: netbox/dcim/filtersets.py:2148 netbox/ipam/forms/bulk_import.py:202
 #: netbox/vpn/forms/bulk_import.py:313
 msgid "Assigned VLAN"
-msgstr "Назначенная VLAN"
+msgstr "Назначенный VLAN"
 
 #: netbox/dcim/filtersets.py:2152
 msgid "Assigned VID"
@@ -4131,7 +4137,7 @@ msgstr "L2VPN"
 
 #: netbox/dcim/filtersets.py:2182 netbox/ipam/filtersets.py:1180
 msgid "VLAN Translation Policy (ID)"
-msgstr "Политика трансляции VLAN (ID)"
+msgstr "Политика подмены VLAN (ID)"
 
 #: netbox/dcim/filtersets.py:2189 netbox/dcim/forms/filtersets.py:1726
 #: netbox/dcim/forms/model_forms.py:1636
@@ -4141,7 +4147,7 @@ msgstr "Политика трансляции VLAN (ID)"
 #: netbox/virtualization/forms/filtersets.py:313
 #: netbox/virtualization/forms/model_forms.py:446
 msgid "VLAN Translation Policy"
-msgstr "Политика перевода VLAN"
+msgstr "Политика подмены VLAN"
 
 #: netbox/dcim/filtersets.py:2223
 msgid "Virtual Chassis Interfaces for Device when device is master"
@@ -4197,7 +4203,7 @@ msgstr "Основной MAC-адрес"
 #: netbox/dcim/filtersets.py:2309 netbox/dcim/filtersets.py:2321
 #: netbox/dcim/forms/filtersets.py:1662 netbox/dcim/forms/model_forms.py:1959
 msgid "Virtual Device Context"
-msgstr "Виртуальный контекст"
+msgstr "Виртуальный контекст устройства"
 
 #: netbox/dcim/filtersets.py:2315
 msgid "Virtual Device Context (Identifier)"
@@ -4209,11 +4215,11 @@ msgstr "Беспроводная сеть"
 
 #: netbox/dcim/filtersets.py:2331 netbox/dcim/tables/devices.py:665
 msgid "Wireless link"
-msgstr "Беспроводная связь"
+msgstr "Беспроводное соединение"
 
 #: netbox/dcim/filtersets.py:2341
 msgid "Virtual circuit termination (ID)"
-msgstr "Завершение виртуального канала (ID)"
+msgstr "Точка приема виртуального канала (ID)"
 
 #: netbox/dcim/filtersets.py:2436
 msgid "Parent module bay (ID)"
@@ -4233,7 +4239,7 @@ msgstr "Установленное устройство (имя)"
 
 #: netbox/dcim/filtersets.py:2541
 msgid "Master (ID)"
-msgstr "Мастер (удостоверение личности)"
+msgstr "Мастер (ID)"
 
 #: netbox/dcim/filtersets.py:2548
 msgid "Master (name)"
@@ -4241,11 +4247,11 @@ msgstr "Мастер (имя)"
 
 #: netbox/dcim/filtersets.py:2654 netbox/dcim/forms/filtersets.py:1296
 msgid "Unterminated"
-msgstr "Нерасторгнутый"
+msgstr "Неотключенный"
 
 #: netbox/dcim/filtersets.py:2658
 msgid "Cable bundle (ID)"
-msgstr "Комплект кабелей (ID)"
+msgstr "Кабельный пучок (ID)"
 
 #: netbox/dcim/filtersets.py:2664
 msgid "Cable bundle (name)"
@@ -4260,7 +4266,7 @@ msgstr "Распределительный щит (ID)"
 #: netbox/extras/forms/model_forms.py:779
 #: netbox/extras/forms/model_forms.py:831 netbox/extras/ui/panels.py:103
 #: netbox/netbox/forms/bulk_import.py:27 netbox/netbox/forms/mixins.py:135
-#: netbox/netbox/tables/columns.py:500
+#: netbox/netbox/tables/columns.py:503
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:29
 #: netbox/templates/generic/bulk_edit.html:78
@@ -4508,7 +4514,7 @@ msgstr "Платформа по умолчанию"
 #: netbox/dcim/forms/bulk_edit.py:518 netbox/dcim/forms/bulk_edit.py:589
 #: netbox/dcim/forms/filtersets.py:586 netbox/dcim/forms/filtersets.py:731
 msgid "Part number"
-msgstr "Номер детали"
+msgstr "Артикул"
 
 #: netbox/dcim/forms/bulk_edit.py:522
 msgid "U height"
@@ -4586,7 +4592,7 @@ msgstr "Шаблон конфигурации"
 #: netbox/dcim/forms/bulk_import.py:608 netbox/dcim/forms/filtersets.py:135
 #: netbox/dcim/forms/filtersets.py:1438 netbox/dcim/forms/model_forms.py:661
 #: netbox/dcim/forms/model_forms.py:1048 netbox/dcim/forms/model_forms.py:1065
-#: netbox/extras/filtersets.py:754
+#: netbox/extras/filtersets.py:756
 msgid "Device type"
 msgstr "Тип устройства"
 
@@ -4598,7 +4604,7 @@ msgstr "Роль устройства"
 #: netbox/dcim/forms/bulk_edit.py:714 netbox/dcim/forms/bulk_import.py:614
 #: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/filtersets.py:938
 #: netbox/dcim/forms/model_forms.py:602 netbox/dcim/forms/model_forms.py:674
-#: netbox/dcim/tables/devices.py:191 netbox/extras/filtersets.py:770
+#: netbox/dcim/tables/devices.py:191 netbox/extras/filtersets.py:772
 #: netbox/virtualization/forms/bulk_edit.py:164
 #: netbox/virtualization/forms/bulk_import.py:161
 #: netbox/virtualization/forms/filtersets.py:235
@@ -4610,7 +4616,7 @@ msgstr "Платформа"
 #: netbox/dcim/forms/bulk_edit.py:739 netbox/dcim/forms/bulk_import.py:633
 #: netbox/dcim/forms/filtersets.py:870 netbox/dcim/forms/filtersets.py:1040
 #: netbox/dcim/forms/model_forms.py:683 netbox/dcim/tables/devices.py:211
-#: netbox/extras/filtersets.py:803 netbox/extras/forms/filtersets.py:411
+#: netbox/extras/filtersets.py:805 netbox/extras/forms/filtersets.py:411
 #: netbox/ipam/forms/filtersets.py:468 netbox/ipam/forms/filtersets.py:507
 #: netbox/virtualization/filtersets.py:200
 #: netbox/virtualization/filtersets.py:341
@@ -4682,7 +4688,7 @@ msgstr "Распределительный щит"
 #: netbox/dcim/forms/bulk_edit.py:954 netbox/dcim/forms/bulk_import.py:1771
 #: netbox/dcim/forms/filtersets.py:1406
 msgid "Supply"
-msgstr "Снабжение"
+msgstr "Электропитание"
 
 #: netbox/dcim/forms/bulk_edit.py:960 netbox/dcim/forms/bulk_import.py:1776
 #: netbox/dcim/forms/filtersets.py:1411
@@ -4820,12 +4826,12 @@ msgstr "Удалить тегированные VLAN-ы"
 #: netbox/virtualization/forms/bulk_import.py:238
 #: netbox/virtualization/forms/model_forms.py:431
 msgid "Q-in-Q Service VLAN"
-msgstr "Сервисная VLAN «Q-in-Q»"
+msgstr "Сервисный VLAN «Q-in-Q»"
 
 #: netbox/dcim/forms/bulk_edit.py:1573 netbox/dcim/forms/model_forms.py:1572
 #: netbox/wireless/forms/filtersets.py:26
 msgid "Wireless LAN group"
-msgstr "Беспроводная группа LAN"
+msgstr "Группа беспроводных LAN"
 
 #: netbox/dcim/forms/bulk_edit.py:1578 netbox/dcim/forms/model_forms.py:1577
 #: netbox/dcim/tables/devices.py:671 netbox/dcim/ui/panels.py:568
@@ -4940,7 +4946,7 @@ msgstr "Единица измерения веса стойки"
 
 #: netbox/dcim/forms/bulk_import.py:271
 msgid "Name of assigned tenant"
-msgstr "Имя назначенного арендатора"
+msgstr "Имя назначенного собственника"
 
 #: netbox/dcim/forms/bulk_import.py:274 netbox/dcim/forms/filtersets.py:410
 #: netbox/dcim/forms/filtersets.py:515 netbox/dcim/ui/panels.py:47
@@ -5597,7 +5603,7 @@ msgstr "Модель"
 
 #: netbox/dcim/forms/filtersets.py:976
 msgid "Has an OOB IP"
-msgstr "Имеет IP-адрес OOB"
+msgstr "Имеет IP-адрес сервисного порта"
 
 #: netbox/dcim/forms/filtersets.py:983
 msgid "Virtual chassis member"
@@ -5607,7 +5613,7 @@ msgstr "Элемент виртуального шасси"
 msgid "Has virtual device contexts"
 msgstr "Имеет контексты виртуальных устройств"
 
-#: netbox/dcim/forms/filtersets.py:1045 netbox/extras/filtersets.py:792
+#: netbox/dcim/forms/filtersets.py:1045 netbox/extras/filtersets.py:794
 #: netbox/ipam/forms/filtersets.py:512
 #: netbox/virtualization/forms/filtersets.py:174
 msgid "Cluster group"
@@ -6088,7 +6094,7 @@ msgstr "профиль"
 #: netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/device_component_templates.py:63
 #: netbox/dcim/models/device_components.py:61
-#: netbox/extras/models/customfields.py:138
+#: netbox/extras/models/customfields.py:139
 msgid "label"
 msgstr " лейбл"
 
@@ -6112,42 +6118,42 @@ msgstr "кабель"
 msgid "cables"
 msgstr "кабели"
 
-#: netbox/dcim/models/cables.py:280
+#: netbox/dcim/models/cables.py:281
 msgid "Must specify a unit when setting a cable length"
 msgstr "При настройке длины кабеля необходимо указать единицу измерения"
 
-#: netbox/dcim/models/cables.py:283
+#: netbox/dcim/models/cables.py:284
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 "При создании нового кабеля необходимо определить концевые разъемы A и B."
 
-#: netbox/dcim/models/cables.py:294
+#: netbox/dcim/models/cables.py:295
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 "Невозможно подключить разные типы разъемов к одному и тому же концу кабеля."
 
-#: netbox/dcim/models/cables.py:302
+#: netbox/dcim/models/cables.py:303
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "Несовместимые типы терминации: {type_a} а также {type_b}"
 
-#: netbox/dcim/models/cables.py:312
+#: netbox/dcim/models/cables.py:313
 msgid "A and B terminations cannot connect to the same object."
 msgstr "Окончания A и B не могут подключаться к одному и тому же объекту."
 
-#: netbox/dcim/models/cables.py:529 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:530 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr "конец"
 
-#: netbox/dcim/models/cables.py:600
+#: netbox/dcim/models/cables.py:601
 msgid "cable termination"
 msgstr "точка подключения кабеля"
 
-#: netbox/dcim/models/cables.py:601
+#: netbox/dcim/models/cables.py:602
 msgid "cable terminations"
 msgstr "точки подключения кабеля"
 
-#: netbox/dcim/models/cables.py:614
+#: netbox/dcim/models/cables.py:615
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
@@ -6156,7 +6162,7 @@ msgstr ""
 "Невозможно подключить кабель к {obj_parent} > {obj} потому что оно помечено "
 "как подключенное."
 
-#: netbox/dcim/models/cables.py:631
+#: netbox/dcim/models/cables.py:632
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -6165,63 +6171,63 @@ msgstr ""
 "Обнаружен дубликат подключения для {app_label}.{model} {termination_id}: "
 "кабель {cable_pk}"
 
-#: netbox/dcim/models/cables.py:641
+#: netbox/dcim/models/cables.py:642
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Кабели не могут быть подключены к {type_display} интерфейсов"
 
-#: netbox/dcim/models/cables.py:648
+#: netbox/dcim/models/cables.py:649
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 "Концевые разъемы, подключенные к сети провайдера, могут не подключаться к "
 "кабелям."
 
-#: netbox/dcim/models/cables.py:680
+#: netbox/dcim/models/cables.py:681
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 "Неверная заделка кабеля: назначенный объект оконечной заделки не существует."
 
-#: netbox/dcim/models/cables.py:748 netbox/extras/models/configs.py:100
+#: netbox/dcim/models/cables.py:749 netbox/extras/models/configs.py:100
 msgid "is active"
 msgstr "активен"
 
-#: netbox/dcim/models/cables.py:752
+#: netbox/dcim/models/cables.py:753
 msgid "is complete"
 msgstr "завершен"
 
-#: netbox/dcim/models/cables.py:756
+#: netbox/dcim/models/cables.py:757
 msgid "is split"
 msgstr "разделен"
 
-#: netbox/dcim/models/cables.py:769
+#: netbox/dcim/models/cables.py:770
 msgid "cable path"
 msgstr "кабельная трасса"
 
-#: netbox/dcim/models/cables.py:770
+#: netbox/dcim/models/cables.py:771
 msgid "cable paths"
 msgstr "кабельные трассы"
 
-#: netbox/dcim/models/cables.py:857
+#: netbox/dcim/models/cables.py:858
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 "Все исходные терминалы должны быть прикреплены к одной и той же ссылке"
 
-#: netbox/dcim/models/cables.py:875
+#: netbox/dcim/models/cables.py:876
 msgid "All mid-span terminations must have the same termination type"
 msgstr "Все промежуточные терминалы должны иметь один и тот же тип терминации"
 
-#: netbox/dcim/models/cables.py:883
+#: netbox/dcim/models/cables.py:884
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 "Все терминалы среднего диапазона должны иметь один и тот же родительский "
 "объект"
 
-#: netbox/dcim/models/cables.py:913
+#: netbox/dcim/models/cables.py:914
 msgid "All links must be cable or wireless"
 msgstr "Все каналы должны быть кабельными или беспроводными"
 
-#: netbox/dcim/models/cables.py:915
+#: netbox/dcim/models/cables.py:916
 msgid "All links must match first link type"
 msgstr "Все ссылки должны соответствовать первому типу ссылки"
 
@@ -6834,7 +6840,7 @@ msgid "module bays"
 msgstr "отсеки для модулей"
 
 #: netbox/dcim/models/device_components.py:1413
-#: netbox/dcim/models/modules.py:321
+#: netbox/dcim/models/modules.py:326
 msgid "A module bay cannot belong to a module installed within it."
 msgstr "Отсек для модулей не может принадлежать установленному в нем модулю."
 
@@ -6877,14 +6883,14 @@ msgid "inventory item roles"
 msgstr "роли элементов инвентаря"
 
 #: netbox/dcim/models/device_components.py:1602
-#: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:272
+#: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:277
 #: netbox/dcim/models/racks.py:345
 #: netbox/virtualization/models/virtualmachines.py:221
 msgid "serial number"
 msgstr "серийный номер"
 
 #: netbox/dcim/models/device_components.py:1610
-#: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:279
+#: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:284
 #: netbox/dcim/models/racks.py:352
 msgid "asset tag"
 msgstr "инвентарный номер"
@@ -6935,7 +6941,7 @@ msgstr "производитель"
 msgid "manufacturers"
 msgstr "производители"
 
-#: netbox/dcim/models/devices.py:85 netbox/dcim/models/modules.py:77
+#: netbox/dcim/models/devices.py:85 netbox/dcim/models/modules.py:79
 #: netbox/dcim/models/racks.py:162
 msgid "model"
 msgstr "модель"
@@ -6945,11 +6951,11 @@ msgstr "модель"
 msgid "default platform"
 msgstr "платформа по умолчанию"
 
-#: netbox/dcim/models/devices.py:101 netbox/dcim/models/modules.py:81
+#: netbox/dcim/models/devices.py:101 netbox/dcim/models/modules.py:83
 msgid "part number"
 msgstr "номер модели"
 
-#: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:84
+#: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:86
 msgid "Discrete part number (optional)"
 msgstr "Дискретный номер детали (опционально)"
 
@@ -6988,7 +6994,7 @@ msgstr ""
 "родительскому, ни к дочернему."
 
 #: netbox/dcim/models/devices.py:132 netbox/dcim/models/devices.py:605
-#: netbox/dcim/models/modules.py:87 netbox/dcim/models/racks.py:356
+#: netbox/dcim/models/modules.py:89 netbox/dcim/models/racks.py:356
 msgid "airflow"
 msgstr "воздушный поток"
 
@@ -7084,7 +7090,7 @@ msgstr "Функция, которую выполняет это устройс�
 msgid "Chassis serial number, assigned by the manufacturer"
 msgstr "Серийный номер шасси, присвоенный производителем"
 
-#: netbox/dcim/models/devices.py:561 netbox/dcim/models/modules.py:280
+#: netbox/dcim/models/devices.py:561 netbox/dcim/models/modules.py:285
 msgid "A unique tag used to identify this device"
 msgstr "Уникальный тег, используемый для идентификации этого устройства"
 
@@ -7298,8 +7304,8 @@ msgstr "идентификатор"
 msgid "Numeric identifier unique to the parent device"
 msgstr "Цифровой идентификатор, уникальный для родительского устройства"
 
-#: netbox/dcim/models/devices.py:1295 netbox/extras/models/customfields.py:263
-#: netbox/extras/models/models.py:118 netbox/extras/models/models.py:828
+#: netbox/dcim/models/devices.py:1295 netbox/extras/models/customfields.py:264
+#: netbox/extras/models/models.py:118 netbox/extras/models/models.py:887
 #: netbox/netbox/models/__init__.py:154 netbox/netbox/models/__init__.py:193
 #: netbox/netbox/models/__init__.py:243
 msgid "comments"
@@ -7366,44 +7372,44 @@ msgstr ""
 "Роль беспроводной связи может быть установлена только на беспроводных "
 "интерфейсах."
 
-#: netbox/dcim/models/modules.py:43 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/modules.py:45 netbox/extras/models/configs.py:50
 msgid "schema"
 msgstr "схема"
 
-#: netbox/dcim/models/modules.py:50
+#: netbox/dcim/models/modules.py:52
 msgid "module type profile"
 msgstr "профиль типа модуля"
 
-#: netbox/dcim/models/modules.py:51
+#: netbox/dcim/models/modules.py:53
 msgid "module type profiles"
 msgstr "профили типов модулей"
 
-#: netbox/dcim/models/modules.py:96
+#: netbox/dcim/models/modules.py:98
 msgid "attributes"
 msgstr "атрибуты"
 
-#: netbox/dcim/models/modules.py:153
+#: netbox/dcim/models/modules.py:155
 msgid "module type"
 msgstr "тип модуля"
 
-#: netbox/dcim/models/modules.py:154
+#: netbox/dcim/models/modules.py:156
 msgid "module types"
 msgstr "типы модулей"
 
-#: netbox/dcim/models/modules.py:184
+#: netbox/dcim/models/modules.py:189
 #, python-brace-format
 msgid "Invalid schema: {error}"
 msgstr "Неверная схема: {error}"
 
-#: netbox/dcim/models/modules.py:287
+#: netbox/dcim/models/modules.py:292
 msgid "module"
 msgstr "модуль"
 
-#: netbox/dcim/models/modules.py:288
+#: netbox/dcim/models/modules.py:293
 msgid "modules"
 msgstr "модули"
 
-#: netbox/dcim/models/modules.py:301
+#: netbox/dcim/models/modules.py:306
 #, python-brace-format
 msgid ""
 "Module must be installed within a module bay belonging to the assigned "
@@ -7412,7 +7418,7 @@ msgstr ""
 "Модуль должен быть установлен в модульном отсеке, принадлежащем назначенному"
 " устройству ({device})."
 
-#: netbox/dcim/models/modules.py:311
+#: netbox/dcim/models/modules.py:316
 msgid "Cannot install a module in a disabled module bay."
 msgstr "Невозможно установить модуль в отсек для отключенных модулей."
 
@@ -8531,22 +8537,23 @@ msgstr "Выходные данные визуализированного ша�
 msgid "Changing the type of custom fields is not supported."
 msgstr "Изменение типа настраиваемых полей не поддерживается."
 
-#: netbox/extras/api/serializers_/scripts.py:50
+#: netbox/extras/api/serializers_/scripts.py:45
+#: netbox/extras/api/serializers_/scripts.py:74
+msgid "A script module with this file name already exists."
+msgstr "Модуль сценария с таким именем файла уже существует."
+
+#: netbox/extras/api/serializers_/scripts.py:57
 #: netbox/extras/forms/scripts.py:91 netbox/extras/forms/scripts.py:100
 #, python-brace-format
 msgid "Error loading script: {error}"
 msgstr "Ошибка при загрузке скрипта: {error}"
 
-#: netbox/extras/api/serializers_/scripts.py:67
-msgid "A script module with this file name already exists."
-msgstr "Модуль сценария с таким именем файла уже существует."
-
-#: netbox/extras/api/serializers_/scripts.py:147
-#: netbox/extras/api/serializers_/scripts.py:157
+#: netbox/extras/api/serializers_/scripts.py:158
+#: netbox/extras/api/serializers_/scripts.py:168
 msgid "Scheduling is not enabled for this script."
 msgstr "Для этого сценария планирование отключено."
 
-#: netbox/extras/api/serializers_/scripts.py:149
+#: netbox/extras/api/serializers_/scripts.py:160
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr "Запланированное время должно быть в будущем."
@@ -8901,8 +8908,8 @@ msgstr "Модуль сценария (ID)"
 msgid "Choice colors"
 msgstr "Цвета на выбор"
 
-#: netbox/extras/filtersets.py:300 netbox/extras/filtersets.py:670
-#: netbox/extras/filtersets.py:846 netbox/extras/filtersets.py:877
+#: netbox/extras/filtersets.py:300 netbox/extras/filtersets.py:672
+#: netbox/extras/filtersets.py:848 netbox/extras/filtersets.py:879
 msgid "Data file (ID)"
 msgstr "Файл данных (ID)"
 
@@ -8911,36 +8918,36 @@ msgstr "Файл данных (ID)"
 msgid "Group (name)"
 msgstr "Группа (название)"
 
-#: netbox/extras/filtersets.py:781
+#: netbox/extras/filtersets.py:783
 #: netbox/virtualization/forms/filtersets.py:180
 msgid "Cluster type"
 msgstr "Тип кластера"
 
-#: netbox/extras/filtersets.py:787 netbox/virtualization/filtersets.py:73
+#: netbox/extras/filtersets.py:789 netbox/virtualization/filtersets.py:73
 #: netbox/virtualization/filtersets.py:188
 msgid "Cluster type (slug)"
 msgstr "Тип кластера (подстрока)"
 
-#: netbox/extras/filtersets.py:808 netbox/tenancy/forms/forms.py:17
+#: netbox/extras/filtersets.py:810 netbox/tenancy/forms/forms.py:17
 #: netbox/tenancy/forms/forms.py:41
 msgid "Tenant group"
-msgstr "Группы арендаторов"
+msgstr "Группы собственников"
 
-#: netbox/extras/filtersets.py:814 netbox/tenancy/filtersets.py:212
+#: netbox/extras/filtersets.py:816 netbox/tenancy/filtersets.py:212
 #: netbox/tenancy/filtersets.py:233
 msgid "Tenant group (slug)"
-msgstr "Группа арендаторов (подстрока)"
+msgstr "Группа собственников (подстрока)"
 
-#: netbox/extras/filtersets.py:830 netbox/extras/forms/model_forms.py:677
+#: netbox/extras/filtersets.py:832 netbox/extras/forms/model_forms.py:677
 #: netbox/extras/ui/panels.py:391
 msgid "Tag"
 msgstr "Тег"
 
-#: netbox/extras/filtersets.py:836
+#: netbox/extras/filtersets.py:838
 msgid "Tag (slug)"
 msgstr "Тег (подстрока)"
 
-#: netbox/extras/filtersets.py:905 netbox/extras/forms/filtersets.py:560
+#: netbox/extras/filtersets.py:907 netbox/extras/forms/filtersets.py:560
 msgid "Has local config context data"
 msgstr "Имеет локальные контекстные данные конфигурации"
 
@@ -8962,13 +8969,13 @@ msgstr "Должно быть уникальным"
 
 #: netbox/extras/forms/bulk_edit.py:65 netbox/extras/forms/bulk_import.py:66
 #: netbox/extras/forms/filtersets.py:99
-#: netbox/extras/models/customfields.py:247 netbox/extras/ui/panels.py:155
+#: netbox/extras/models/customfields.py:248 netbox/extras/ui/panels.py:155
 msgid "UI visible"
 msgstr "Видимый пользовательский интерфейс"
 
 #: netbox/extras/forms/bulk_edit.py:70 netbox/extras/forms/bulk_import.py:72
 #: netbox/extras/forms/filtersets.py:104
-#: netbox/extras/models/customfields.py:254 netbox/extras/ui/panels.py:156
+#: netbox/extras/models/customfields.py:255 netbox/extras/ui/panels.py:156
 msgid "UI editable"
 msgstr "Редактируемый UI"
 
@@ -9231,8 +9238,8 @@ msgid "The classification of entry"
 msgstr "Классификация записей"
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
-#: netbox/netbox/tables/tables.py:314 netbox/netbox/tables/tables.py:329
-#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:243
+#: netbox/netbox/tables/tables.py:346 netbox/netbox/tables/tables.py:361
+#: netbox/netbox/tables/tables.py:384 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:100
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -9368,7 +9375,7 @@ msgstr "Кластеры"
 #: netbox/extras/forms/filtersets.py:486
 #: netbox/extras/forms/model_forms.py:769
 msgid "Tenant groups"
-msgstr "Группы арендаторов"
+msgstr "Группы собственников"
 
 #: netbox/extras/forms/model_forms.py:60
 msgid "The type(s) of object that have this custom field"
@@ -9392,7 +9399,7 @@ msgid "Specify query parameters as a JSON object."
 msgstr "Укажите параметры запроса в виде объекта JSON."
 
 #: netbox/extras/forms/model_forms.py:82
-#: netbox/extras/models/customfields.py:233
+#: netbox/extras/models/customfields.py:234
 msgid "A JSON schema definition for validating the custom field value"
 msgstr "Определение схемы JSON для проверки значения настраиваемого поля"
 
@@ -9558,7 +9565,7 @@ msgstr "Контекстный профиль конфигурации"
 #: netbox/extras/forms/model_forms.py:774 netbox/netbox/navigation/menu.py:29
 #: netbox/tenancy/tables/tenants.py:18
 msgid "Tenants"
-msgstr "Арендаторы"
+msgstr "Собственники"
 
 #: netbox/extras/forms/model_forms.py:818
 msgid "Data is populated from the remote source selected below."
@@ -9712,34 +9719,34 @@ msgstr "Шаблон: {name}"
 msgid "Line: {lineno}"
 msgstr "Линия: {lineno}"
 
-#: netbox/extras/models/customfields.py:102
+#: netbox/extras/models/customfields.py:103
 msgid "The object(s) to which this field applies."
 msgstr "Объекты, к которым относится это поле."
 
-#: netbox/extras/models/customfields.py:109
+#: netbox/extras/models/customfields.py:110
 msgid "The type of data this custom field holds"
 msgstr "Тип данных, которые содержит это настраиваемое поле"
 
-#: netbox/extras/models/customfields.py:116
+#: netbox/extras/models/customfields.py:117
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr ""
 "Тип объекта NetBox, которому соответствует это поле (для полей объектов)"
 
-#: netbox/extras/models/customfields.py:122
+#: netbox/extras/models/customfields.py:123
 msgid "Internal field name"
 msgstr "Имя внутреннего поля"
 
-#: netbox/extras/models/customfields.py:126
+#: netbox/extras/models/customfields.py:127
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr "Допустимы только буквенно-цифровые символы и символы подчеркивания."
 
-#: netbox/extras/models/customfields.py:131
+#: netbox/extras/models/customfields.py:132
 msgid "Double underscores are not permitted in custom field names."
 msgstr ""
 "В именах настраиваемых полей недопустимо использовать два подчеркивания "
 "подряд (зарезервировано)."
 
-#: netbox/extras/models/customfields.py:142
+#: netbox/extras/models/customfields.py:143
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
@@ -9747,19 +9754,19 @@ msgstr ""
 "Имя поля, отображаемое пользователям (если оно не указано, будет "
 "использовано имя поля)"
 
-#: netbox/extras/models/customfields.py:146 netbox/extras/models/models.py:339
+#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:339
 msgid "group name"
 msgstr "имя группы"
 
-#: netbox/extras/models/customfields.py:149
+#: netbox/extras/models/customfields.py:150
 msgid "Custom fields within the same group will be displayed together"
 msgstr "Настраиваемые поля в одной группе будут отображаться вместе"
 
-#: netbox/extras/models/customfields.py:157
+#: netbox/extras/models/customfields.py:158
 msgid "required"
 msgstr "Требуется"
 
-#: netbox/extras/models/customfields.py:159
+#: netbox/extras/models/customfields.py:160
 msgid ""
 "This field is required when creating new objects or editing an existing "
 "object."
@@ -9767,19 +9774,19 @@ msgstr ""
 "Это поле необходимо для создания новых объектов или редактирования "
 "существующего объекта."
 
-#: netbox/extras/models/customfields.py:162
+#: netbox/extras/models/customfields.py:163
 msgid "must be unique"
 msgstr "должен быть уникальным"
 
-#: netbox/extras/models/customfields.py:164
+#: netbox/extras/models/customfields.py:165
 msgid "The value of this field must be unique for the assigned object"
 msgstr "Значение этого поля должно быть уникальным для назначенного объекта"
 
-#: netbox/extras/models/customfields.py:167
+#: netbox/extras/models/customfields.py:168
 msgid "search weight"
 msgstr "вес поиска"
 
-#: netbox/extras/models/customfields.py:170
+#: netbox/extras/models/customfields.py:171
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
@@ -9787,11 +9794,11 @@ msgstr ""
 "Взвешивание для поиска. Более низкие значения считаются более важными. Поля "
 "с нулевым весом поиска будут проигнорированы."
 
-#: netbox/extras/models/customfields.py:175
+#: netbox/extras/models/customfields.py:176
 msgid "filter logic"
 msgstr "логика фильтрации"
 
-#: netbox/extras/models/customfields.py:179
+#: netbox/extras/models/customfields.py:180
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire "
 "field."
@@ -9799,11 +9806,11 @@ msgstr ""
 "Loose соответствует любому экземпляру заданной строки; точно соответствует "
 "всему полю."
 
-#: netbox/extras/models/customfields.py:182
+#: netbox/extras/models/customfields.py:183
 msgid "default"
 msgstr "по умолчанию"
 
-#: netbox/extras/models/customfields.py:186
+#: netbox/extras/models/customfields.py:187
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with"
 " double quotes (e.g. \"Foo\")."
@@ -9811,7 +9818,7 @@ msgstr ""
 "Значение по умолчанию для поля (должно быть JSON-значением). Заключайте "
 "строки в двойные кавычки (например, «Foo»)."
 
-#: netbox/extras/models/customfields.py:193
+#: netbox/extras/models/customfields.py:194
 msgid ""
 "Filter the object selection choices using a query_params dict (must be a "
 "JSON value).Encapsulate strings with double quotes (e.g. \"Foo\")."
@@ -9819,35 +9826,35 @@ msgstr ""
 "Отфильтруйте варианты выбора объектов, используя dict query_params (должно "
 "быть значение JSON). Заключайте строки в двойные кавычки (например, «Foo»)."
 
-#: netbox/extras/models/customfields.py:199
+#: netbox/extras/models/customfields.py:200
 msgid "display weight"
 msgstr "вес дисплея"
 
-#: netbox/extras/models/customfields.py:200
+#: netbox/extras/models/customfields.py:201
 msgid "Fields with higher weights appear lower in a form."
 msgstr "Поля с большим весом отображаются в форме ниже."
 
-#: netbox/extras/models/customfields.py:207
+#: netbox/extras/models/customfields.py:208
 msgid "minimum value"
 msgstr "минимальное значение"
 
-#: netbox/extras/models/customfields.py:208
+#: netbox/extras/models/customfields.py:209
 msgid "Minimum allowed value (for numeric fields)"
 msgstr "Минимальное допустимое значение (для числовых полей)"
 
-#: netbox/extras/models/customfields.py:215
+#: netbox/extras/models/customfields.py:216
 msgid "maximum value"
 msgstr "максимальное значение"
 
-#: netbox/extras/models/customfields.py:216
+#: netbox/extras/models/customfields.py:217
 msgid "Maximum allowed value (for numeric fields)"
 msgstr "Максимально допустимое значение (для числовых полей)"
 
-#: netbox/extras/models/customfields.py:222
+#: netbox/extras/models/customfields.py:223
 msgid "validation regex"
 msgstr "регулярное выражение валидации"
 
-#: netbox/extras/models/customfields.py:224
+#: netbox/extras/models/customfields.py:225
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -9858,223 +9865,223 @@ msgstr ""
 " ^ и $ для принудительного сопоставления всей строки. Например, <code>^ "
 "[A-Z]{3}$</code> ограничит значения ровно тремя заглавными буквами."
 
-#: netbox/extras/models/customfields.py:232
+#: netbox/extras/models/customfields.py:233
 msgid "validation schema"
 msgstr "схема валидации"
 
-#: netbox/extras/models/customfields.py:239
+#: netbox/extras/models/customfields.py:240
 msgid "choice set"
 msgstr "набор для выбора"
 
-#: netbox/extras/models/customfields.py:248
+#: netbox/extras/models/customfields.py:249
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr ""
 "Указывает, отображается ли настраиваемое поле в пользовательском интерфейсе"
 
-#: netbox/extras/models/customfields.py:255
+#: netbox/extras/models/customfields.py:256
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr ""
 "Указывает, можно ли редактировать значение настраиваемого поля в "
 "пользовательском интерфейсе"
 
-#: netbox/extras/models/customfields.py:259
+#: netbox/extras/models/customfields.py:260
 msgid "is cloneable"
 msgstr "клонируется"
 
-#: netbox/extras/models/customfields.py:260
+#: netbox/extras/models/customfields.py:261
 msgid "Replicate this value when cloning objects"
 msgstr "Реплицируйте это значение при клонировании объектов"
 
-#: netbox/extras/models/customfields.py:280
+#: netbox/extras/models/customfields.py:281
 msgid "custom field"
 msgstr "настраиваемое поле"
 
-#: netbox/extras/models/customfields.py:281
+#: netbox/extras/models/customfields.py:282
 msgid "custom fields"
 msgstr "настраиваемые поля"
 
-#: netbox/extras/models/customfields.py:388
+#: netbox/extras/models/customfields.py:420
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr "Неверное значение по умолчанию»{value}«: {error}"
 
-#: netbox/extras/models/customfields.py:395
+#: netbox/extras/models/customfields.py:427
 msgid "A minimum value may be set only for numeric fields"
 msgstr "Минимальное значение может быть установлено только для числовых полей"
 
-#: netbox/extras/models/customfields.py:397
+#: netbox/extras/models/customfields.py:429
 msgid "A maximum value may be set only for numeric fields"
 msgstr ""
 "Максимальное значение может быть установлено только для числовых полей"
 
-#: netbox/extras/models/customfields.py:407
+#: netbox/extras/models/customfields.py:439
 msgid ""
 "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 "Проверка регулярных выражений поддерживается только для текстовых полей и "
 "полей URL"
 
-#: netbox/extras/models/customfields.py:413
+#: netbox/extras/models/customfields.py:445
 msgid "JSON schema validation is supported only for JSON fields"
 msgstr "Проверка схемы JSON поддерживается только для полей JSON"
 
-#: netbox/extras/models/customfields.py:419
+#: netbox/extras/models/customfields.py:451
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr "Уникальность не может быть обеспечена для булевых полей"
 
-#: netbox/extras/models/customfields.py:429
+#: netbox/extras/models/customfields.py:461
 msgid "Selection fields must specify a set of choices."
 msgstr "В полях выбора должен быть указан набор вариантов."
 
-#: netbox/extras/models/customfields.py:433
+#: netbox/extras/models/customfields.py:465
 msgid "Choices may be set only on selection fields."
 msgstr "Варианты могут быть заданы только в полях выбора."
 
-#: netbox/extras/models/customfields.py:440
+#: netbox/extras/models/customfields.py:472
 msgid "Object fields must define an object type."
 msgstr "Поля объекта должны определять тип объекта."
 
-#: netbox/extras/models/customfields.py:444
+#: netbox/extras/models/customfields.py:476
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr "{type} поля не могут определять тип объекта."
 
-#: netbox/extras/models/customfields.py:451
+#: netbox/extras/models/customfields.py:483
 msgid "A related object filter can be defined only for object fields."
 msgstr "Фильтр связанных объектов можно определить только для полей объектов."
 
-#: netbox/extras/models/customfields.py:455
+#: netbox/extras/models/customfields.py:487
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr ""
 "Фильтр должен быть определен как словарь, сопоставляющий атрибуты со "
 "значениями."
 
-#: netbox/extras/models/customfields.py:544
+#: netbox/extras/models/customfields.py:576
 msgid "True"
 msgstr "Истина"
 
-#: netbox/extras/models/customfields.py:545
+#: netbox/extras/models/customfields.py:577
 msgid "False"
 msgstr "Ложь"
 
-#: netbox/extras/models/customfields.py:598
-#: netbox/extras/models/customfields.py:651
+#: netbox/extras/models/customfields.py:630
+#: netbox/extras/models/customfields.py:683
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 "Значения должны соответствовать этому регулярному вырагу: "
 "<code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:753
-#: netbox/extras/models/customfields.py:760
+#: netbox/extras/models/customfields.py:785
+#: netbox/extras/models/customfields.py:792
 msgid "Value must be a string."
 msgstr "Значение должно быть строкой."
 
-#: netbox/extras/models/customfields.py:755
-#: netbox/extras/models/customfields.py:762
+#: netbox/extras/models/customfields.py:787
+#: netbox/extras/models/customfields.py:794
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "Значение должно совпадать с регулярным выраженностью '{regex}'"
 
-#: netbox/extras/models/customfields.py:767
+#: netbox/extras/models/customfields.py:799
 msgid "Value must be an integer."
 msgstr "Значение должно быть целым числом."
 
-#: netbox/extras/models/customfields.py:770
-#: netbox/extras/models/customfields.py:785
+#: netbox/extras/models/customfields.py:802
+#: netbox/extras/models/customfields.py:817
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "Значение должно быть не менее {minimum}"
 
-#: netbox/extras/models/customfields.py:774
-#: netbox/extras/models/customfields.py:789
+#: netbox/extras/models/customfields.py:806
+#: netbox/extras/models/customfields.py:821
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "Значение не должно превышать {maximum}"
 
-#: netbox/extras/models/customfields.py:782
+#: netbox/extras/models/customfields.py:814
 msgid "Value must be a decimal."
 msgstr "Значение должно быть десятичным."
 
-#: netbox/extras/models/customfields.py:794
+#: netbox/extras/models/customfields.py:826
 msgid "Value must be true or false."
 msgstr "Значение должно быть истинным или ложным."
 
-#: netbox/extras/models/customfields.py:802
+#: netbox/extras/models/customfields.py:834
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "Значения дат должны быть в формате ISO 8601 (YYYY-MM-DD)."
 
-#: netbox/extras/models/customfields.py:811
+#: netbox/extras/models/customfields.py:843
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 "Значения даты и времени должны быть в формате ISO 8601 (YYYY-MM-DD "
 "HH:MM:SS)."
 
-#: netbox/extras/models/customfields.py:818
+#: netbox/extras/models/customfields.py:850
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "Неверный выбор ({value}2) для выбора набора {choiceset}."
 
-#: netbox/extras/models/customfields.py:828
+#: netbox/extras/models/customfields.py:860
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "Неверный выбор (ы){value}2) для выбора набора {choiceset}."
 
-#: netbox/extras/models/customfields.py:837
+#: netbox/extras/models/customfields.py:869
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "Значение должно быть идентификатором объекта, а не {type}"
 
-#: netbox/extras/models/customfields.py:843
+#: netbox/extras/models/customfields.py:875
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "Значение должно быть списком идентификаторов объектов, а не {type}"
 
-#: netbox/extras/models/customfields.py:847
+#: netbox/extras/models/customfields.py:879
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "Обнаружен неправильный идентификатор объекта: {id}"
 
-#: netbox/extras/models/customfields.py:856
+#: netbox/extras/models/customfields.py:888
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr "Значение не соответствует назначенной схеме: {error}"
 
-#: netbox/extras/models/customfields.py:860
+#: netbox/extras/models/customfields.py:892
 msgid "Required field cannot be empty."
 msgstr "Обязательное поле не может быть пустым."
 
-#: netbox/extras/models/customfields.py:880
+#: netbox/extras/models/customfields.py:912
 msgid "Base set of predefined choices (optional)"
 msgstr "Базовый набор предопределенных вариантов (опционально)"
 
-#: netbox/extras/models/customfields.py:892
+#: netbox/extras/models/customfields.py:924
 msgid "Choices are automatically ordered alphabetically"
 msgstr "Варианты автоматически упорядочены в алфавитном порядке"
 
-#: netbox/extras/models/customfields.py:899
+#: netbox/extras/models/customfields.py:931
 msgid "custom field choice set"
 msgstr "набор вариантов для настраиваемых полей"
 
-#: netbox/extras/models/customfields.py:900
+#: netbox/extras/models/customfields.py:932
 msgid "custom field choice sets"
 msgstr "наборы вариантов для настраиваемых полей"
 
-#: netbox/extras/models/customfields.py:960
+#: netbox/extras/models/customfields.py:992
 msgid "Must define base or extra choices."
 msgstr "Должен определить базовые или дополнительные варианты."
 
-#: netbox/extras/models/customfields.py:966
+#: netbox/extras/models/customfields.py:998
 msgid "Color mappings must be defined as a JSON object."
 msgstr "Цветовые сопоставления должны быть определены как объект JSON."
 
-#: netbox/extras/models/customfields.py:978
+#: netbox/extras/models/customfields.py:1010
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr ""
 "Повторяющееся значение '{value}'встречается в дополнительных вариантах."
 
-#: netbox/extras/models/customfields.py:995
+#: netbox/extras/models/customfields.py:1027
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
@@ -10083,14 +10090,14 @@ msgstr ""
 "Цветовые сопоставления должны ссылаться на существующее значение выбора. "
 "Неверные значения: {values}."
 
-#: netbox/extras/models/customfields.py:1002
+#: netbox/extras/models/customfields.py:1034
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr ""
 "Неверные значения цвета: {colors}. Используйте поддерживаемый именованный "
 "цвет."
 
-#: netbox/extras/models/customfields.py:1025
+#: netbox/extras/models/customfields.py:1057
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -10428,45 +10435,49 @@ msgstr "высота изображения"
 msgid "image width"
 msgstr "ширина изображения"
 
-#: netbox/extras/models/models.py:726
+#: netbox/extras/models/models.py:709
+msgid "image size"
+msgstr "размер изображения"
+
+#: netbox/extras/models/models.py:755
 msgid "image attachment"
 msgstr "прикрепить изображение"
 
-#: netbox/extras/models/models.py:727
+#: netbox/extras/models/models.py:756
 msgid "image attachments"
 msgstr "прикрепленные изображения"
 
-#: netbox/extras/models/models.py:741
+#: netbox/extras/models/models.py:770
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr "Вложенные изображения нельзя присвоить этому типу объекта ({type})."
 
-#: netbox/extras/models/models.py:822
+#: netbox/extras/models/models.py:881
 msgid "kind"
 msgstr "добрый"
 
-#: netbox/extras/models/models.py:837
+#: netbox/extras/models/models.py:896
 msgid "journal entry"
 msgstr "запись в журнале"
 
-#: netbox/extras/models/models.py:838
+#: netbox/extras/models/models.py:897
 msgid "journal entries"
 msgstr "записи в журнале"
 
-#: netbox/extras/models/models.py:856
+#: netbox/extras/models/models.py:915
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr "Ведение журнала не поддерживается для этого типа объектов ({type})."
 
-#: netbox/extras/models/models.py:899
+#: netbox/extras/models/models.py:958
 msgid "bookmark"
 msgstr "закладка"
 
-#: netbox/extras/models/models.py:900
+#: netbox/extras/models/models.py:959
 msgid "bookmarks"
 msgstr "закладки"
 
-#: netbox/extras/models/models.py:916
+#: netbox/extras/models/models.py:975
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr "Закладки нельзя присвоить этому типу объекта ({type})."
@@ -10643,8 +10654,8 @@ msgstr "Схема валидации"
 #: netbox/extras/tables/tables.py:535 netbox/extras/tables/tables.py:565
 #: netbox/extras/tables/tables.py:656 netbox/extras/tables/tables.py:712
 #: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
-#: netbox/netbox/tables/tables.py:311 netbox/netbox/tables/tables.py:326
-#: netbox/netbox/tables/tables.py:341 netbox/templates/generic/object.html:61
+#: netbox/netbox/tables/tables.py:343 netbox/netbox/tables/tables.py:358
+#: netbox/netbox/tables/tables.py:373 netbox/templates/generic/object.html:61
 #: netbox/users/forms/model_forms.py:556
 msgid "Owner"
 msgstr "Владелец"
@@ -12034,8 +12045,8 @@ msgid ""
 "Cannot reassign IP address while it is designated as the OOB IP for the "
 "parent object"
 msgstr ""
-"Невозможно переназначить IP-адрес, если он назначен IP-адресом OOB для "
-"родительского объекта"
+"Невозможно переназначить IP-адрес, если он назначен IP-адресом сервисного "
+"порта для родительского объекта"
 
 #: netbox/ipam/models/ip.py:1172
 msgid "Only IPv6 addresses can be assigned SLAAC status"
@@ -12383,7 +12394,7 @@ msgstr "Основной IP-адрес"
 
 #: netbox/ipam/ui/panels.py:135
 msgid "OOB IP"
-msgstr "ПОДГУЗНИК"
+msgstr "IP Сервисного порта"
 
 #: netbox/ipam/ui/panels.py:191
 msgid "Authentication Type"
@@ -12942,8 +12953,8 @@ msgid "{class_name} must specify a model class."
 msgstr "{class_name} необходимо указать класс модели."
 
 #: netbox/netbox/forms/mixins.py:114
-#: netbox/templates/inc/table_controls_htmx.html:21
-#: netbox/templates/inc/table_controls_htmx.html:22
+#: netbox/templates/inc/table_controls_htmx.html:25
+#: netbox/templates/inc/table_controls_htmx.html:26
 msgid "Saved filter"
 msgstr "Сохраненный фильтр"
 
@@ -12951,8 +12962,8 @@ msgstr "Сохраненный фильтр"
 msgid "Owner group"
 msgstr "Группа владельцев"
 
-#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:307
-#: netbox/netbox/tables/tables.py:322 netbox/netbox/tables/tables.py:337
+#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:339
+#: netbox/netbox/tables/tables.py:354 netbox/netbox/tables/tables.py:369
 #: netbox/users/forms/model_forms.py:544
 msgid "Owner Group"
 msgstr "Группа владельцев"
@@ -13074,7 +13085,7 @@ msgstr "Группы площадок"
 
 #: netbox/netbox/navigation/menu.py:30
 msgid "Tenant Groups"
-msgstr "Группы арендаторов"
+msgstr "Группы собственников"
 
 #: netbox/netbox/navigation/menu.py:37
 msgid "Contact Groups"
@@ -13733,8 +13744,22 @@ msgstr "Выберите {object}"
 msgid "Toggle all"
 msgstr "Переключить все"
 
-#: netbox/netbox/tables/columns.py:321
-#: netbox/templates/inc/table_controls_htmx.html:37
+#: netbox/netbox/tables/columns.py:252
+#: netbox/templates/dcim/inc/panels/inventory_items.html:21
+#: netbox/templates/dcim/panels/component_inventory_items.html:11
+#: netbox/templates/dcim/virtualchassis_add_member.html:27
+#: netbox/templates/dcim/virtualchassis_edit.html:69
+#: netbox/templates/extras/inc/script_list_content.html:36
+#: netbox/templates/generic/object_edit.html:80
+#: netbox/templates/ipam/inc/panels/fhrp_groups.html:27
+#: netbox/templates/ipam/panels/fhrp_groups.html:13
+#: netbox/users/forms/filtersets.py:64 netbox/users/forms/model_forms.py:386
+#: netbox/users/forms/model_forms.py:428 netbox/users/ui/panels.py:50
+msgid "Actions"
+msgstr "Действия"
+
+#: netbox/netbox/tables/columns.py:324
+#: netbox/templates/inc/table_controls_htmx.html:41
 msgid "Toggle Dropdown"
 msgstr "Переключить выпадающий список"
 
@@ -13743,12 +13768,12 @@ msgstr "Переключить выпадающий список"
 msgid "No {model_name} found"
 msgstr "{model_name} не найдены"
 
-#: netbox/netbox/tables/tables.py:367
+#: netbox/netbox/tables/tables.py:399
 #: netbox/templates/generic/bulk_import.html:148
 msgid "Field"
 msgstr "Поле"
 
-#: netbox/netbox/tables/tables.py:370
+#: netbox/netbox/tables/tables.py:402
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:9
 msgid "Value"
 msgstr "Значение"
@@ -14039,8 +14064,8 @@ msgstr "Отменить"
 #: netbox/templates/extras/dashboard/widget_config.html:19
 #: netbox/templates/extras/object_journal.html:27
 #: netbox/templates/generic/object_edit.html:77
-#: netbox/templates/htmx/table.html:27
-#: netbox/templates/inc/table_controls_htmx.html:41
+#: netbox/templates/htmx/table.html:38
+#: netbox/templates/inc/table_controls_htmx.html:45
 #: netbox/templates/users/token_edit.html:34
 #: netbox/utilities/templates/helpers/applied_filters.html:16
 msgid "Save"
@@ -14299,6 +14324,7 @@ msgstr "Текущее значение"
 msgid "New Value"
 msgstr "Новое значение"
 
+#: netbox/templates/core/configrevision_restore.html:39
 #: netbox/templates/core/configrevision_restore.html:50
 msgid "Changed"
 msgstr "Изменено"
@@ -14549,8 +14575,8 @@ msgstr "Фоновые очереди"
 #: netbox/templates/core/rq_worker_list.html:50
 #: netbox/templates/extras/script_result.html:67
 #: netbox/templates/extras/script_result.html:69
-#: netbox/templates/inc/table_controls_htmx.html:32
-#: netbox/templates/inc/table_controls_htmx.html:33
+#: netbox/templates/inc/table_controls_htmx.html:36
+#: netbox/templates/inc/table_controls_htmx.html:37
 msgid "Configure Table"
 msgstr "Настроить таблицу"
 
@@ -15022,6 +15048,10 @@ msgstr "Сопоставления не определены"
 msgid "Wireless Link"
 msgstr "Беспроводная связь"
 
+#: netbox/templates/dcim/panels/interface_wireless.html:9
+msgid "Attribute"
+msgstr "Атрибут"
+
 #: netbox/templates/dcim/panels/interface_wireless.html:24
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:24
 msgid "Channel"
@@ -15140,13 +15170,6 @@ msgstr "Добавить нового участника в виртуально
 #: netbox/templates/dcim/virtualchassis_add_member.html:19
 msgid "Add New Member"
 msgstr "Добавить нового участника"
-
-#: netbox/templates/dcim/virtualchassis_add_member.html:27
-#: netbox/templates/generic/object_edit.html:80
-#: netbox/users/forms/filtersets.py:64 netbox/users/forms/model_forms.py:386
-#: netbox/users/forms/model_forms.py:428 netbox/users/ui/panels.py:50
-msgid "Actions"
-msgstr "Действия"
 
 #: netbox/templates/dcim/virtualchassis_add_member.html:29
 msgid "Save & Add Another"
@@ -15818,6 +15841,15 @@ msgstr ""
 "      Создан %(object_type)s %(object)s\n"
 "    "
 
+#: netbox/templates/htmx/table.html:28
+#, python-format
+msgid "%(count)s result found"
+msgid_plural "%(count)s results found"
+msgstr[0] "%(count)s результат найден"
+msgstr[1] "%(count)s результаты найдены"
+msgstr[2] "%(count)s результаты найдены"
+msgstr[3] "%(count)s результаты найдены"
+
 #: netbox/templates/inc/filter_list.html:40
 #: netbox/utilities/templates/helpers/table_config_form.html:39
 msgid "Reset"
@@ -15881,12 +15913,12 @@ msgstr "На странице"
 msgid "Data is out of sync with upstream file"
 msgstr "Данные не синхронизированы с вышестоящим файлом"
 
-#: netbox/templates/inc/table_controls_htmx.html:7
-#: netbox/templates/inc/table_controls_htmx.html:8
+#: netbox/templates/inc/table_controls_htmx.html:11
+#: netbox/templates/inc/table_controls_htmx.html:12
 msgid "Quick search"
 msgstr "Быстрый поиск"
 
-#: netbox/templates/inc/table_controls_htmx.html:11
+#: netbox/templates/inc/table_controls_htmx.html:15
 msgid "Clear quick search"
 msgstr "Очистить быстрый поиск"
 
@@ -16095,7 +16127,7 @@ msgstr "Добавить контакт"
 
 #: netbox/templates/tenancy/tenantgroup.html:14
 msgid "Add Tenant"
-msgstr "Добавить арендатора"
+msgstr "Добавить собственника"
 
 #: netbox/templates/ui/attrs/address.html:6
 #: netbox/templates/ui/attrs/gps_coordinates.html:6
@@ -16300,23 +16332,23 @@ msgstr "Контактная группа"
 
 #: netbox/tenancy/filtersets.py:192
 msgid "Parent tenant group (ID)"
-msgstr "Родительская группа арендаторов (ID)"
+msgstr "Родительская группа собственников (ID)"
 
 #: netbox/tenancy/filtersets.py:199
 msgid "Parent tenant group (slug)"
-msgstr "Родительская группа арендаторов (подстрока)"
+msgstr "Родительская группа собственников (подстрока)"
 
 #: netbox/tenancy/filtersets.py:205 netbox/tenancy/filtersets.py:226
 msgid "Tenant group (ID)"
-msgstr "Группа арендаторов (ID)"
+msgstr "Группа собственников (ID)"
 
 #: netbox/tenancy/filtersets.py:259
 msgid "Tenant Group (ID)"
-msgstr "Группа арендаторов (ID)"
+msgstr "Группа собственников (ID)"
 
 #: netbox/tenancy/filtersets.py:266
 msgid "Tenant Group (slug)"
-msgstr "Группа арендаторов (подстрока)"
+msgstr "Группа собственников (подстрока)"
 
 #: netbox/tenancy/forms/bulk_edit.py:84
 msgid "Add groups"
@@ -16351,7 +16383,7 @@ msgstr "Назначенный контакт"
 #: netbox/tenancy/forms/model_forms.py:32 netbox/tenancy/tables/columns.py:37
 #: netbox/tenancy/tables/columns.py:47
 msgid "Tenant Group"
-msgstr "Группа арендаторов"
+msgstr "Группа собственников"
 
 #: netbox/tenancy/forms/filtersets.py:76 netbox/tenancy/forms/forms.py:68
 #: netbox/tenancy/forms/model_forms.py:73
@@ -16413,27 +16445,27 @@ msgstr "Контакты не могут быть присвоены этому 
 
 #: netbox/tenancy/models/tenants.py:35
 msgid "tenant group"
-msgstr "группа арендаторов"
+msgstr "группа собственников"
 
 #: netbox/tenancy/models/tenants.py:36
 msgid "tenant groups"
-msgstr "группы арендаторов"
+msgstr "группы собственников"
 
 #: netbox/tenancy/models/tenants.py:71
 msgid "Tenant name must be unique per group."
-msgstr "Имя арендатора должно быть уникальным для каждой группы."
+msgstr "Имя собственника должно быть уникальным для каждой группы."
 
 #: netbox/tenancy/models/tenants.py:81
 msgid "Tenant slug must be unique per group."
-msgstr "Подстрока арендатора должна быть уникальной для каждой группы."
+msgstr "Подстрока собственника должна быть уникальной для каждой группы."
 
 #: netbox/tenancy/models/tenants.py:89
 msgid "tenant"
-msgstr "арендатор"
+msgstr "собственник"
 
 #: netbox/tenancy/models/tenants.py:90
 msgid "tenants"
-msgstr "арендаторы"
+msgstr "собственники"
 
 #: netbox/tenancy/tables/contacts.py:106
 msgid "Contact Title"
@@ -16461,7 +16493,7 @@ msgstr "Описание контакта"
 
 #: netbox/tenancy/views.py:65
 msgid "Add Tenant Group"
-msgstr "Добавить группу арендаторов"
+msgstr "Добавить группу собственников"
 
 #: netbox/tenancy/views.py:238
 msgid "Add Contact Group"
@@ -17332,11 +17364,11 @@ msgstr "(устанавливается автоматически)"
 msgid "Created background job {id}: <a href=\"{url}\">{name}</a>"
 msgstr "Созданное фоновое задание {id}: <a href=\"{url}\">{name}</a>"
 
-#: netbox/utilities/jsonschema.py:162
+#: netbox/utilities/jsonschema.py:167
 msgid "Invalid JSON schema definition"
 msgstr "Неверное определение схемы JSON"
 
-#: netbox/utilities/jsonschema.py:167
+#: netbox/utilities/jsonschema.py:172
 #, python-brace-format
 msgid "Invalid JSON schema definition: {error}"
 msgstr "Неверное определение схемы JSON: {error}"
@@ -17777,7 +17809,7 @@ msgstr "диск"
 msgid "Virtual machine name must be unique per cluster and tenant."
 msgstr ""
 "Имя виртуальной машины должно быть уникальным для каждого кластера и "
-"клиента."
+"собственника."
 
 #: netbox/virtualization/models/virtualmachines.py:264
 msgid "Virtual machine name must be unique per cluster."
@@ -17787,7 +17819,7 @@ msgstr "Имя виртуальной машины должно быть уни�
 msgid "Virtual machine name must be unique per device and tenant."
 msgstr ""
 "Имя виртуальной машины должно быть уникальным для каждого устройства и "
-"клиента."
+"собственника."
 
 #: netbox/virtualization/models/virtualmachines.py:276
 msgid "Virtual machine name must be unique per device."

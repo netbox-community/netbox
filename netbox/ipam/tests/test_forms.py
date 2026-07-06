@@ -8,7 +8,7 @@ from ipam.forms.bulk_import import IPAddressImportForm
 
 
 class PrefixFormTestCase(TestCase):
-    default_dynamic_params = '[{"fieldName":"scope","queryParam":"available_at_site"}]'
+    default_dynamic_params = '[{"fieldName":"scope_object_id","queryParam":"available_at_site"}]'
 
     @classmethod
     def setUpTestData(cls):
@@ -23,8 +23,8 @@ class PrefixFormTestCase(TestCase):
     def test_vlan_field_sets_dynamic_params_for_scope_site(self):
         """data-dynamic-params present when scope type is Site and when scope is specifc site"""
         form = PrefixForm(data={
-            'scope_type': ContentType.objects.get_for_model(Site).id,
-            'scope': self.site,
+            'scope_content_type': ContentType.objects.get_for_model(Site).id,
+            'scope_object_id': self.site.pk,
         })
 
         assert form.fields['vlan'].widget.attrs['data-dynamic-params'] == self.default_dynamic_params
@@ -37,9 +37,10 @@ class PrefixFormTestCase(TestCase):
             SiteGroup(name='Site Group 1', slug='site-group-1'),
         ]
         for case in cases:
+            case.save()
             form = PrefixForm(data={
-                'scope_type': ContentType.objects.get_for_model(case._meta.model).id,
-                'scope': case,
+                'scope_content_type': ContentType.objects.get_for_model(case._meta.model).id,
+                'scope_object_id': case.pk,
             })
 
             assert 'data-dynamic-params' not in form.fields['vlan'].widget.attrs
@@ -64,6 +65,77 @@ class IPAddressImportFormTestCase(TestCase):
             device=cls.device,
             name='eth0',
             type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+
+    def test_import_with_empty_is_primary_column_no_device(self):
+        """
+        Regression test for #22561: importing an IP where the is_primary/is_oob columns are
+        present but empty (and no device/VM specified) should succeed, not raise AttributeError.
+        """
+        form = IPAddressImportForm(data={
+            'address': '172.16.0.1/20',
+            'status': 'active',
+            'device': '',
+            'virtual_machine': '',
+            'interface': '',
+            'is_primary': '',
+            'is_oob': '',
+            'description': 'gateway for group A - Site 01',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        ip = form.save()
+        self.assertEqual(str(ip.address), '172.16.0.1/20')
+
+    def test_import_with_false_is_primary_no_device(self):
+        """
+        Regression test for #22561: importing an IP with an explicit is_primary=false (and no
+        device/VM specified) should succeed as a no-op, not raise AttributeError. An explicit
+        falsy boolean is not caught by clean_is_primary()'s "column absent" check.
+        """
+        form = IPAddressImportForm(data={
+            'address': '172.16.0.1/20',
+            'status': 'active',
+            'is_primary': 'false',
+            'is_oob': 'false',
+            'description': 'no parent specified',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        ip = form.save()
+        self.assertEqual(str(ip.address), '172.16.0.1/20')
+
+    def test_primary_not_cleared_by_subsequent_non_primary_row_with_device(self):
+        """
+        Guard against re-breaking #21440 while fixing #22561: importing a second IP with
+        is_primary=false (device specified) must not clear the primary IP set by a previous
+        row. The save-side parent guard must leave the conservative "only clear if currently
+        primary" behavior intact.
+        """
+        form1 = IPAddressImportForm(data={
+            'address': '10.10.10.1/24',
+            'status': 'active',
+            'device': 'Device 1',
+            'interface': 'eth0',
+            'is_primary': True,
+        })
+        self.assertTrue(form1.is_valid(), form1.errors)
+        ip1 = form1.save()
+
+        self.device.refresh_from_db()
+        self.assertEqual(self.device.primary_ip4, ip1)
+
+        form2 = IPAddressImportForm(data={
+            'address': '10.10.10.2/24',
+            'status': 'active',
+            'device': 'Device 1',
+            'interface': 'eth0',
+            'is_primary': False,
+        })
+        self.assertTrue(form2.is_valid(), form2.errors)
+        form2.save()
+
+        self.device.refresh_from_db()
+        self.assertEqual(
+            self.device.primary_ip4, ip1, "primary IP was incorrectly cleared by a row with is_primary=False"
         )
 
     def test_oob_import_not_cleared_by_subsequent_non_oob_row(self):

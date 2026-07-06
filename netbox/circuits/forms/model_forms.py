@@ -1,30 +1,33 @@
-from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
     CircuitCommitRateChoices,
+    CircuitPriorityChoices,
+    CircuitStatusChoices,
     CircuitTerminationPortSpeedChoices,
+    CircuitTerminationSideChoices,
     VirtualCircuitTerminationRoleChoices,
 )
 from circuits.constants import *
 from circuits.models import *
-from dcim.models import Interface, Site
+from dcim.models import Interface
 from ipam.models import ASN
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import get_field_value
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField,
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    GenericObjectChoiceField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields
-from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
-from utilities.string import title
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
@@ -136,6 +139,16 @@ class CircuitTypeForm(OrganizationalModelForm):
 
 
 class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=CircuitStatusChoices,
+        initial=CircuitStatusChoices.STATUS_ACTIVE,
+    )
+    distance_unit = TypedChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(DistanceUnitChoices),
+        required=False,
+    )
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
@@ -186,30 +199,28 @@ class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
         }
 
 
-class CircuitTerminationForm(NetBoxModelForm):
+class CircuitTerminationForm(GenericObjectFormMixin, NetBoxModelForm):
+    term_side = ChoiceField(
+        label=_('Termination side'),
+        choices=CircuitTerminationSideChoices,
+    )
     circuit = DynamicModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
         selector=True
     )
-    termination_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
-        widget=HTMXSelect(hx_target_id='circuit-termination'),
-        label=_('Termination type')
-    )
-    termination = DynamicModelChoiceField(
+    termination = GenericObjectChoiceField(
         label=_('Termination'),
-        queryset=Site.objects.none(),  # Initial queryset
-        disabled=True,
-        selector=True
+        content_type_queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
+        required=True,
+        selector=True,
+        hx_target_id='circuit-termination',
     )
 
     fieldsets = (
         FieldSet(
-            'circuit', 'term_side', 'description', 'tags',
-            'termination_type', 'termination',
-            'mark_connected', name=_('Circuit Termination'),
-            html_id='circuit-termination',
+            'circuit', 'term_side', 'description', 'tags', 'termination', 'mark_connected',
+            name=_('Circuit Termination'), html_id='circuit-termination',
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
@@ -217,7 +228,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'termination_type', 'mark_connected', 'port_speed', 'upstream_speed',
+            'circuit', 'term_side', 'mark_connected', 'port_speed', 'upstream_speed',
             'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
@@ -228,48 +239,6 @@ class CircuitTerminationForm(NetBoxModelForm):
                 options=CircuitTerminationPortSpeedChoices
             ),
         }
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
-
-        if instance is not None and instance.termination:
-            initial['termination'] = instance.termination
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-
-        if termination_type_id := get_field_value(self, 'termination_type'):
-            try:
-                termination_type = ContentType.objects.get(pk=termination_type_id)
-                model = termination_type.model_class()
-                self.fields['termination'].queryset = model.objects.all()
-                self.fields['termination'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['termination'].disabled = False
-                self.fields['termination'].label = _(title(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
-
-            if self.instance and termination_type_id != self.instance.termination_type_id:
-                self.initial['termination'] = None
-        else:
-            # Clear the initial termination value if termination_type is not set
-            self.initial['termination'] = None
-
-    def clean(self):
-        super().clean()
-
-        termination = self.cleaned_data.get('termination')
-        termination_type = self.cleaned_data.get('termination_type')
-        if termination_type and not termination:
-            raise ValidationError({
-                'termination': _('Please select a {termination_type}.').format(
-                    termination_type=_(title(termination_type.model_class()._meta.verbose_name))
-                )
-            })
-
-        # Assign the selected termination (if any)
-        self.instance.termination = self.cleaned_data.get('termination')
 
 
 class CircuitGroupForm(TenancyForm, OrganizationalModelForm):
@@ -285,28 +254,27 @@ class CircuitGroupForm(TenancyForm, OrganizationalModelForm):
         ]
 
 
-class CircuitGroupAssignmentForm(NetBoxModelForm):
+class CircuitGroupAssignmentForm(GenericObjectFormMixin, NetBoxModelForm):
+    priority = TypedChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(CircuitPriorityChoices),
+        required=False,
+    )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=CircuitGroup.objects.all(),
     )
-    member_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
-        widget=HTMXSelect(hx_target_id='circuit-group-assignment'),
+    member = GenericObjectChoiceField(
+        label=_('Member'),
+        content_type_queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
         required=False,
-        label=_('Circuit type')
-    )
-    member = DynamicModelChoiceField(
-        label=_('Circuit'),
-        queryset=Circuit.objects.none(),  # Initial queryset
-        required=False,
-        disabled=True,
-        selector=True
+        selector=True,
+        hx_target_id='circuit-group-assignment',
     )
 
     fieldsets = (
         FieldSet(
-            'group', 'member_type', 'member', 'priority', 'tags',
+            'group', 'member', 'priority', 'tags',
             name=_('Group Assignment'), html_id='circuit-group-assignment',
         ),
     )
@@ -314,37 +282,8 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     class Meta:
         model = CircuitGroupAssignment
         fields = [
-            'group', 'member_type', 'priority', 'tags',
+            'group', 'priority', 'tags',
         ]
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
-
-        if instance is not None and instance.member:
-            initial['member'] = instance.member
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-
-        if member_type_id := get_field_value(self, 'member_type'):
-            try:
-                model = ContentType.objects.get(pk=member_type_id).model_class()
-                self.fields['member'].queryset = model.objects.all()
-                self.fields['member'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['member'].disabled = False
-                self.fields['member'].label = _(title(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
-
-            if self.instance.pk and member_type_id != self.instance.member_type_id:
-                self.initial['member'] = None
-
-    def clean(self):
-        super().clean()
-
-        # Assign the selected circuit (if any)
-        self.instance.member = self.cleaned_data.get('member')
 
 
 class VirtualCircuitTypeForm(OrganizationalModelForm):
@@ -360,6 +299,11 @@ class VirtualCircuitTypeForm(OrganizationalModelForm):
 
 
 class VirtualCircuitForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=CircuitStatusChoices,
+        initial=CircuitStatusChoices.STATUS_ACTIVE,
+    )
     provider_network = DynamicModelChoiceField(
         label=_('Provider network'),
         queryset=ProviderNetwork.objects.all(),
@@ -397,7 +341,7 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
         queryset=VirtualCircuit.objects.all(),
         selector=True
     )
-    role = forms.ChoiceField(
+    role = ChoiceField(
         choices=VirtualCircuitTerminationRoleChoices,
         label=_('Role')
     )

@@ -5,20 +5,33 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import InterfaceModeChoices
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm
-from utilities.forms import ConfirmationForm, get_field_value
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField
+from utilities.forms import ConfirmationForm, add_blank_choice, get_field_value
+from utilities.forms.fields import (
+    ChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+    SlugField,
+    TypedChoiceField,
+)
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import HTMXSelect
+from virtualization.choices import (
+    ClusterStatusChoices,
+    VirtualMachineStartOnBootChoices,
+    VirtualMachineStatusChoices,
+)
 
 from ..models import *
 
@@ -60,6 +73,11 @@ class ClusterGroupForm(OrganizationalModelForm):
 
 
 class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=ClusterStatusChoices,
+        initial=ClusterStatusChoices.STATUS_ACTIVE,
+    )
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -74,14 +92,14 @@ class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
-        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'owner', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -194,6 +212,16 @@ class VirtualMachineTypeForm(PrimaryModelForm):
 
 
 class VirtualMachineForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VirtualMachineStatusChoices,
+        initial=VirtualMachineStatusChoices.STATUS_ACTIVE,
+    )
+    start_on_boot = ChoiceField(
+        label=_('Start on boot'),
+        choices=VirtualMachineStartOnBootChoices,
+        initial=VirtualMachineStartOnBootChoices.STATUS_OFF,
+    )
     virtual_machine_type = forms.ModelChoiceField(
         label=_('Type'),
         queryset=VirtualMachineType.objects.all(),
@@ -381,6 +409,19 @@ class VMComponentForm(OwnerMixin, NetBoxModelForm):
 
 
 class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
+    mode = TypedChoiceField(
+        label=_('802.1Q Mode'),
+        choices=add_blank_choice(InterfaceModeChoices),
+        required=False,
+        help_text=_('IEEE 802.1Q tagging strategy'),
+    )
+    primary_mac_address = DynamicModelChoiceField(
+        queryset=MACAddress.objects.all(),
+        label=_('Primary MAC address'),
+        required=False,
+        quick_add=True,
+        quick_add_params={'vminterface': '$pk'}
+    )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,

@@ -1,8 +1,0 @@
-{% extends 'generic/object.html' %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% for location in object.get_ancestors %}
-    <li class="breadcrumb-item">{{ location|linkify }}</li>
-  {% endfor %}
-{% endblock %}

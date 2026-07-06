@@ -1,5 +1,5 @@
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -262,14 +262,17 @@ class JobTestCase(TestCase, BaseFilterSetTests):
             Job(
                 name='Job 1', job_id=uuid.uuid4(), user=users[0],
                 notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
+                execution_time=timedelta(seconds=30),
             ),
             Job(
                 name='Job 2', job_id=uuid.uuid4(), user=users[0],
                 notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
+                execution_time=timedelta(seconds=60),
             ),
             Job(
                 name='Job 3', job_id=uuid.uuid4(), user=users[1],
                 notifications=JobNotificationChoices.NOTIFICATION_ON_FAILURE,
+                execution_time=timedelta(seconds=120),
             ),
             Job(
                 name='Job 4', job_id=uuid.uuid4(), user=users[2],
@@ -292,6 +295,15 @@ class JobTestCase(TestCase, BaseFilterSetTests):
             JobNotificationChoices.NOTIFICATION_ON_FAILURE,
         ]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_execution_time(self):
+        """Filter Jobs by execution time (exact value and gte/lte range)."""
+        params = {'execution_time': timedelta(seconds=60)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'execution_time__gte': timedelta(seconds=60)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'execution_time__lte': timedelta(seconds=60)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class ObjectTypeTestCase(TestCase, BaseFilterSetTests):

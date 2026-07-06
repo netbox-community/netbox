@@ -153,8 +153,8 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type': clustertypes[1].pk,
             'status': ClusterStatusChoices.STATUS_OFFLINE,
             'tenant': None,
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[1].pk,
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }

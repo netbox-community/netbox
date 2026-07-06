@@ -100,6 +100,28 @@ When retrieving an object via the REST API, all of its custom data will be inclu
     ...
 ```
 
+Selection and multiple selection fields are returned as objects exposing both the stored value and its human-friendly label, following the same convention used by NetBox's built-in choice fields:
+
+```json
+    "custom_fields": {
+        "site_type": {
+            "value": "datacenter",
+            "label": "Data Center"
+        },
+        "regions": [
+            {
+                "value": "us-east",
+                "label": "US East"
+            },
+            {
+                "value": "us-west",
+                "label": "US West"
+            }
+        ]
+    },
+    ...
+```
+
 To set or change these values, simply include nested JSON data. For example:
 
 ```json
@@ -111,3 +133,5 @@ To set or change these values, simply include nested JSON data. For example:
     }
 }
 ```
+
+As with built-in choice fields, selection custom fields are written by passing the raw value (e.g. `"site_type": "datacenter"`), not the `{value, label}` object returned on read.

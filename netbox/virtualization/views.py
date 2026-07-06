@@ -26,6 +26,7 @@ from netbox.object_actions import (
     EditObject,
 )
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url, object_view_url
 from netbox.ui.panels import (
     CommentsPanel,
     ContextTablePanel,
@@ -233,6 +234,10 @@ class ClusterListView(generic.ObjectListView):
 class ClusterView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Cluster.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('type', url=filtered_list_url('virtualization:cluster_list', 'type_id')),
+            Breadcrumb('group', url=filtered_list_url('virtualization:cluster_list', 'group_id')),
+        ],
         left_panels=[
             panels.ClusterPanel(),
             CommentsPanel(),
@@ -497,8 +502,8 @@ class VirtualMachineView(generic.ObjectView):
                     actions.AddObject(
                         'ipam.Service',
                         url_params={
-                            'parent_object_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
-                            'parent': lambda ctx: ctx['object'].pk,
+                            'parent_content_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                            'parent_object_id': lambda ctx: ctx['object'].pk,
                         },
                     ),
                 ],
@@ -636,8 +641,15 @@ class VMInterfaceListView(generic.ObjectListView):
 
 @register_model_view(VMInterface)
 class VMInterfaceView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VMInterface.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                'virtual_machine',
+                url=object_view_url('virtualization:virtualmachine_interfaces'),
+            ),
+        ],
         left_panels=[
             panels.VMInterfacePanel(),
             TagsPanel(),
@@ -768,8 +780,15 @@ class VirtualDiskListView(generic.ObjectListView):
 
 @register_model_view(VirtualDisk)
 class VirtualDiskView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualDisk.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                'virtual_machine',
+                url=object_view_url('virtualization:virtualmachine_disks'),
+            ),
+        ],
         left_panels=[
             panels.VirtualDiskPanel(),
             TagsPanel(),

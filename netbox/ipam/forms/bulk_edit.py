@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.mixins import ScopedBulkEditForm
@@ -11,17 +10,17 @@ from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice, get_field_value
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField,
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    GenericObjectChoiceField,
     NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import BulkEditNullBooleanSelect, HTMXSelect
-from utilities.templatetags.builtins.filters import bettertitle
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ASNBulkEditForm',
@@ -205,7 +204,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(PrefixStatusChoices),
         required=False
@@ -230,7 +229,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
         FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
     nullable_fields = (
@@ -249,7 +248,7 @@ class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPRangeStatusChoices),
         required=False
@@ -296,12 +295,12 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False
     )
-    role = forms.ChoiceField(
+    role = ChoiceField(
         label=_('Role'),
         choices=add_blank_choice(IPAddressRoleChoices),
         required=False
@@ -323,7 +322,7 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
+    protocol = ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(FHRPGroupProtocolChoices),
         required=False
@@ -333,7 +332,7 @@ class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label=_('Group ID')
     )
-    auth_type = forms.ChoiceField(
+    auth_type = ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
         label=_('Authentication type')
@@ -357,19 +356,13 @@ class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('auth_type', 'auth_key', 'name', 'description', 'comments')
 
 
-class VLANGroupBulkEditForm(OrganizationalModelBulkEditForm):
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
+class VLANGroupBulkEditForm(GenericObjectFormMixin, OrganizationalModelBulkEditForm):
+    scope = GenericObjectChoiceField(
         label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
+        content_type_queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
-        disabled=True,
-        selector=True
+        selector=True,
+        hx_method='post',
     )
     vid_ranges = NumericRangeArrayField(
         label=_('VLAN ID ranges'),
@@ -384,24 +377,10 @@ class VLANGroupBulkEditForm(OrganizationalModelBulkEditForm):
     model = VLANGroup
     fieldsets = (
         FieldSet('site', 'vid_ranges', 'description'),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = ('description', 'scope', 'comments')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
 
 
 class VLANBulkEditForm(PrimaryModelBulkEditForm):
@@ -437,7 +416,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VLANStatusChoices),
         required=False
@@ -447,7 +426,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
-    qinq_role = forms.ChoiceField(
+    qinq_role = ChoiceField(
         label=_('Q-in-Q role'),
         choices=add_blank_choice(VLANQinQRoleChoices),
         required=False
@@ -497,7 +476,7 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
+    protocol = ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(ServiceProtocolChoices),
         required=False

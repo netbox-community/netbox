@@ -80,6 +80,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', 'user', name=_('Creation')
         ),
+        FieldSet('execution_time__gte', 'execution_time__lte', name=_('Execution')),
     )
     object_type_id = ContentTypeChoiceField(
         label=_('Object Type'),
@@ -139,6 +140,16 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         queryset=User.objects.all(),
         required=False,
         label=_('User')
+    )
+    execution_time__gte = forms.DurationField(
+        label=_('Execution time (minimum)'),
+        required=False,
+        help_text=_('Seconds, or HH:MM:SS')
+    )
+    execution_time__lte = forms.DurationField(
+        label=_('Execution time (maximum)'),
+        required=False,
+        help_text=_('Seconds, or HH:MM:SS')
     )
 
 

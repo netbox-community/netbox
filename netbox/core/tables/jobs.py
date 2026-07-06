@@ -7,6 +7,7 @@ from core.constants import JOB_LOG_ENTRY_LEVELS
 from core.models import Job
 from core.tables.columns import BadgeColumn
 from netbox.tables import BaseTable, NetBoxTable, columns
+from utilities.string import humanize_duration
 
 
 class JobTable(NetBoxTable):
@@ -44,6 +45,9 @@ class JobTable(NetBoxTable):
     completed = columns.DateTimeColumn(
         verbose_name=_('Completed'),
     )
+    execution_time = tables.Column(
+        verbose_name=_('Execution Time'),
+    )
     queue_name = tables.Column(
         verbose_name=_('Queue'),
     )
@@ -58,7 +62,7 @@ class JobTable(NetBoxTable):
         model = Job
         fields = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'scheduled', 'interval', 'started',
-            'completed', 'user', 'queue_name', 'log_entries', 'error', 'job_id',
+            'completed', 'user', 'queue_name', 'log_entries', 'error', 'job_id', 'execution_time'
         )
         default_columns = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',
@@ -66,6 +70,9 @@ class JobTable(NetBoxTable):
 
     def render_log_entries(self, value):
         return len(value)
+
+    def render_execution_time(self, value):
+        return humanize_duration(value)
 
 
 class JobLogEntryTable(BaseTable):

@@ -530,8 +530,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[1].pk,
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
@@ -573,6 +573,38 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'is_pool': False,
             'description': 'New description',
         }
+
+    def test_bulk_edit_htmx_dependent_field_refresh_skips_validation(self):
+        """An HTMX content-type change (no _apply) re-renders the bulk-edit form without validation errors."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.0.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            # The client-side hx-on::config-request clears the paired object id on a type change.
+            'scope_object_id': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data, headers={'HX-Request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, 'Please select a site')
+        # The object selector is rebuilt for the new type rather than erroring out.
+        self.assertContains(response, 'name="scope_object_id"')
+        self.assertContains(response, 'data-url="/api/dcim/sites/"')
+
+    def test_bulk_edit_apply_still_validates_incomplete_scope(self):
+        """A real apply with a content type but no object still surfaces the validation error."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.1.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            '_apply': '1',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Please select a site')
 
     def test_bulk_add_ipv4_prefixes(self):
         """Test bulk creating IPv4 prefixes using a pattern."""
@@ -686,6 +718,23 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_prefix_prefixes_add_links_include_scope_params(self):
+        """Child-prefix Add links pre-populate scope via the GenericObjectChoiceField subwidget params."""
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        site = Site.objects.create(name='Scope Site', slug='scope-site')
+        parent = Prefix.objects.create(prefix=IPNetwork('203.0.113.0/24'), scope=site)
+        Prefix.objects.create(prefix=IPNetwork('203.0.113.0/26'), scope=site)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': parent.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        scope_ct = ContentType.objects.get_for_model(Site)
+        # The new GenericObjectChoiceField reads these subwidget-named query params.
+        self.assertContains(response, f'scope_content_type={scope_ct.pk}')
+        self.assertContains(response, f'scope_object_id={site.pk}')
 
     def test_prefix_prefixes_filter_suppresses_available_prefixes(self):
         self.add_permissions('ipam.view_prefix')
@@ -1340,6 +1389,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
             'vid_ranges': '100-199,300-399',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -1367,6 +1418,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
         }
 
     def test_vlans_filter_suppresses_available_vlans(self):
@@ -1868,8 +1921,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-            'parent': device.pk,
+            'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+            'parent_object_id': device.pk,
             'name': 'Service X',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'ports': '104,105',
@@ -1978,8 +2031,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request = {
             'path': self._get_url('add'),
             'data': {
-                'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-                'parent': device.pk,
+                'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+                'parent_object_id': device.pk,
                 'service_template': service_template.pk,
             },
         }

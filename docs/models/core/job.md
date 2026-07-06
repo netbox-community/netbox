@@ -28,6 +28,10 @@ The interval (in minutes) at which a scheduled job should re-execute.
 
 The date and time at which the job completed (if complete).
 
+### Execution Time
+
+The amount of time the job spent executing, calculated as the difference between its start and completion times. This is populated only once a started job has completed.
+
 ### User
 
 The user who created the job.

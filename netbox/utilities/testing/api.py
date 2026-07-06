@@ -10,14 +10,17 @@ from decimal import Decimal
 
 import strawberry
 import strawberry_django
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.test import override_settings
 from django.urls import reverse
+from graphql import GraphQLList, GraphQLNonNull, GraphQLObjectType
 from rest_framework import status
 from rest_framework.test import APIClient
+from strawberry.schema.schema_converter import GraphQLCoreConverter
 from strawberry.types.base import StrawberryList, StrawberryOptional
 from strawberry.types.lazy_type import LazyType
 from strawberry.types.union import StrawberryUnion
@@ -35,6 +38,7 @@ from strawberry_django import (
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from ipam.graphql.types import IPAddressFamilyType
+from netbox.api.exceptions import GraphQLTypeNotFound
 from netbox.graphql.filter_lookups import (
     ArrayLookup,
     BigIntegerLookup,
@@ -49,7 +53,7 @@ from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 
-from .base import ModelTestCase
+from .base import ModelTestCase, TestCase
 from .query_counts import assert_expected_query_count
 from .utils import disable_logging, disable_warnings, get_random_string
 
@@ -642,11 +646,31 @@ class APIViewTestCases:
         # Fail when auto mode is on and no tests were generated.
         graphql_auto_filter_required = True
 
+        # Gate the negative constrained-permission check in the get/list tests; the positive
+        # query still runs. Set False for types not enforcing object permissions (e.g. no BaseObjectType).
+        graphql_object_permission_assertions = True
+
         # Additional explicit-list filter cases as GraphQLFilterTest instances.
         graphql_filter_tests = ()
 
         # Additional full-query cases (e.g. nested filters) as GraphQLQueryTest instances.
         graphql_query_tests = ()
+
+        # GraphQL type under test. Defaults to the type derived from `model` via the naming
+        # convention; set explicitly when the convention does not apply (e.g. plugin types).
+        type_class = None
+
+        # Exclude this test case from GraphQL schema coverage.
+        graphql_test_exempt = False
+
+        @classmethod
+        def get_graphql_type_class(cls):
+            if getattr(cls, 'type_class', None) is not None:
+                return cls.type_class
+            model = getattr(cls, 'model', None)
+            if model is None:
+                return None
+            return get_graphql_type_for_model(model)
 
         def _get_graphql_base_name(self):
             """
@@ -661,7 +685,7 @@ class APIViewTestCases:
             Called by either _build_query or _build_filtered_query - construct the actual
             query given a name and filter string
             """
-            type_class = get_graphql_type_for_model(self.model)
+            type_class = self.get_graphql_type_class()
 
             # Compile list of fields to include
             fields_string = ''
@@ -792,7 +816,7 @@ class APIViewTestCases:
             Subscription) omit ``id`` from the output type; for those, the
             assertion path falls back to length-only comparison.
             """
-            type_class = get_graphql_type_for_model(self.model)
+            type_class = self.get_graphql_type_class()
             strawberry_definition = getattr(type_class, '__strawberry_definition__', None)
             if strawberry_definition is None:
                 return False
@@ -1379,13 +1403,14 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            # Request should succeed but return empty result
-            with disable_logging():
-                response = self.client.post(url, data={'query': query}, format="json", **self.header)
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-            data = json.loads(response.content)
-            self.assertIn('errors', data)
-            self.assertIsNone(data['data'])
+            if self.graphql_object_permission_assertions:
+                # Request should succeed but return empty result
+                with disable_logging():
+                    response = self.client.post(url, data={'query': query}, format="json", **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = json.loads(response.content)
+                self.assertIn('errors', data)
+                self.assertIsNone(data['data'])
 
             # Remove permission constraint
             obj_perm.constraints = None
@@ -1422,12 +1447,13 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            # Request should succeed but return empty results list
-            response = self.client.post(url, data={'query': query}, format="json", **self.header)
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-            data = json.loads(response.content)
-            self.assertNotIn('errors', data)
-            self.assertEqual(len(data['data'][field_name]), 0)
+            if self.graphql_object_permission_assertions:
+                # Request should succeed but return empty results list
+                response = self.client.post(url, data={'query': query}, format="json", **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = json.loads(response.content)
+                self.assertNotIn('errors', data)
+                self.assertEqual(len(data['data'][field_name]), 0)
 
             # Remove permission constraint
             obj_perm.constraints = None
@@ -1535,3 +1561,130 @@ class APIViewTestCases:
         GraphQLTestCase
     ):
         pass
+
+    class GraphQLSchemaCoverageTestCase(TestCase):
+        """
+        Assert every model-backed GraphQL type exposed as a root query field is covered by a
+        concrete GraphQLTestCase subclass. Subclass this in a test module to run the audit.
+
+        Scope is intentionally limited to types reachable as root query fields (e.g. ``site``,
+        ``site_list``); these are exactly the types the detail/list GraphQLTestCase methods can
+        exercise. Types reachable only as nested object fields are out of scope.
+        """
+        # Per-app test submodules to import so their GraphQLTestCase subclasses are defined.
+        graphql_test_modules = ('test_api', 'test_graphql')
+
+        # GraphQL type classes intentionally excluded from coverage.
+        graphql_exempt_type_classes = ()
+
+        def get_graphql_schema(self):
+            # Imported lazily so importing this testing utility does not eagerly build the schema.
+            from netbox.graphql.schema import schema
+            return schema._schema
+
+        def iter_test_module_names(self):
+            # Import test modules only for apps exposing model-backed root query types;
+            # coverage classes are expected to live with the app whose type they cover.
+            app_labels = {model._meta.app_label for model in self.get_schema_type_classes().values()}
+            for app_label in sorted(app_labels):
+                app_config = apps.get_app_config(app_label)
+                for module_name in self.graphql_test_modules:
+                    yield f'{app_config.name}.tests.{module_name}'
+
+        def import_graphql_test_modules(self):
+            for module_name in self.iter_test_module_names():
+                self.import_graphql_test_module(module_name)
+
+        def import_graphql_test_module(self, module_name):
+            try:
+                importlib.import_module(module_name)
+            except ModuleNotFoundError as exc:
+                # A missing test module, or a missing parent package (e.g. `<app>.tests`),
+                # is fine. An import error raised from inside an existing test module
+                # should still fail loudly.
+                if exc.name == module_name or module_name.startswith(f'{exc.name}.'):
+                    return
+                raise
+
+        def unwrap_graphql_type(self, graphql_type):
+            while isinstance(graphql_type, (GraphQLNonNull, GraphQLList)):
+                graphql_type = graphql_type.of_type
+            return graphql_type
+
+        def get_schema_field_type_class(self, field):
+            graphql_type = self.unwrap_graphql_type(field.type)
+            if not isinstance(graphql_type, GraphQLObjectType):
+                return None
+            extensions = getattr(graphql_type, 'extensions', None) or {}
+            definition = extensions.get(GraphQLCoreConverter.DEFINITION_BACKREF)
+            return getattr(definition, 'origin', None)
+
+        def get_graphql_type_model(self, type_class):
+            django_definition = getattr(type_class, '__strawberry_django_definition__', None)
+            return getattr(django_definition, 'model', None)
+
+        def get_schema_type_classes(self):
+            """Return {type_class: model} for every model-backed root query type (cached per instance)."""
+            cached = getattr(self, '_schema_type_classes', None)
+            if cached is not None:
+                return cached
+            type_classes = {}
+            for field in self.get_graphql_schema().query_type.fields.values():
+                type_class = self.get_schema_field_type_class(field)
+                if type_class is None:
+                    continue
+                model = self.get_graphql_type_model(type_class)
+                if model is None:
+                    continue
+                type_classes[type_class] = model
+            self._schema_type_classes = type_classes
+            return type_classes
+
+        def iter_graphql_testcase_classes(self, base_class=None):
+            base_class = base_class or APIViewTestCases.GraphQLTestCase
+            for subclass in base_class.__subclasses__():
+                yield subclass
+                yield from self.iter_graphql_testcase_classes(subclass)
+
+        def get_testcase_type_class(self, testcase):
+            if getattr(testcase, 'graphql_test_exempt', False):
+                return None
+            try:
+                return testcase.get_graphql_type_class()
+            except GraphQLTypeNotFound as exc:
+                model = getattr(testcase, 'model', None)
+                model_label = model._meta.label if model is not None else 'unknown model'
+                self.fail(
+                    f'{testcase.__module__}.{testcase.__name__} sets model = {model_label} '
+                    f'but no GraphQL type could be resolved. Set type_class if the type lives '
+                    f'outside the conventional <app>.graphql.types.<Model>Type path, or set '
+                    f'graphql_test_exempt = True if this test case should not count toward '
+                    f'schema coverage. Original error: {exc}'
+                )
+
+        def get_testcase_type_classes(self):
+            self.import_graphql_test_modules()
+            type_classes = set()
+            for testcase in self.iter_graphql_testcase_classes():
+                type_class = self.get_testcase_type_class(testcase)
+                if type_class is not None:
+                    type_classes.add(type_class)
+            return type_classes
+
+        def format_type_class(self, type_class):
+            model = self.get_graphql_type_model(type_class)
+            label = f' ({model._meta.label})' if model is not None else ''
+            return f'{type_class.__module__}.{type_class.__name__}{label}'
+
+        def test_schema_types_have_graphql_test_coverage(self):
+            """Every model-backed root query type is covered by a GraphQLTestCase."""
+            expected = set(self.get_schema_type_classes())
+            self.assertGreater(
+                len(expected), 0,
+                'No model-backed root query GraphQL types were discovered; schema '
+                'introspection may have broken.'
+            )
+            actual = self.get_testcase_type_classes()
+            exempt = set(self.graphql_exempt_type_classes)
+            missing = sorted(self.format_type_class(tc) for tc in expected - actual - exempt)
+            self.assertEqual(missing, [])

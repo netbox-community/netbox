@@ -1,4 +1,5 @@
 from netbox.registry import registry
+from utilities.choices import Choice
 
 __all__ = (
     'get_data_backend_choices',
@@ -12,7 +13,7 @@ def get_data_backend_choices():
     return [
         (None, '---------'),
         *[
-            (name, cls.label) for name, cls in registry['data_backends'].items()
+            Choice(name, cls.label) for name, cls in registry['data_backends'].items()
         ]
     ]
 

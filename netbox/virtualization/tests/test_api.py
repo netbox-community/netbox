@@ -11,7 +11,7 @@ from dcim.models import Platform, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import VLAN, VRF, Prefix
+from ipam.models import VLAN, VRF, IPAddress, Prefix
 from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.testing import (
@@ -557,6 +557,38 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
                 [ip['address'] for ip in response.data[field]['nat_outside']],
                 [str(nat_ip.address)],
             )
+
+    def test_get_object_includes_dns_name_on_primary_ip(self):
+        virtualmachine = create_test_virtualmachine('dns-vm')
+        interfaces = (
+            VMInterface.objects.create(virtual_machine=virtualmachine, name='eth0'),
+            VMInterface.objects.create(virtual_machine=virtualmachine, name='eth1'),
+        )
+
+        ip4 = IPAddress(address='192.0.2.40/32', dns_name='vm4.example.com')
+        ip4.assigned_object = interfaces[0]
+        ip4.save()
+        ip6 = IPAddress(address='2001:db8::40/128', dns_name='vm6.example.com')
+        ip6.assigned_object = interfaces[1]
+        ip6.save()
+
+        virtualmachine.primary_ip4 = ip4
+        virtualmachine.primary_ip6 = ip6
+        virtualmachine.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(virtualmachine)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['dns_name'], 'vm4.example.com')
+        self.assertEqual(response.data['primary_ip6']['dns_name'], 'vm6.example.com')
+        self.assertIn(
+            response.data['primary_ip']['dns_name'],
+            ('vm4.example.com', 'vm6.example.com'),
+        )
 
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
