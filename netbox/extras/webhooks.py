@@ -8,6 +8,7 @@ from jinja2.exceptions import TemplateError
 
 from netbox.registry import registry
 from utilities.proxy import resolve_proxies
+from utilities.request import get_safe_request_context
 
 from .constants import WEBHOOK_EVENT_TYPES
 
@@ -58,16 +59,9 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'data': data,
     }
     if request:
-        context['request'] = {
-            'id': str(request.id) if request.id else None,
-            'method': request.method,
-            'path': request.path,
-            'user': str(request.user),
-        }
+        context['request'] = get_safe_request_context(request)
     if snapshots:
-        context.update({
-            'snapshots': snapshots
-        })
+        context['snapshots'] = snapshots
 
     # Add any additional context from plugins
     callback_data = {}

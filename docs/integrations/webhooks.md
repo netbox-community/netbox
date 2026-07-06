@@ -30,6 +30,8 @@ The following data is available as context for Jinja2 templates:
     * `request.id` - The UUID associated with the request
     * `request.method` - The HTTP method (e.g. `GET` or `POST`)
     * `request.path` - The URL path (ex: `/dcim/sites/123/edit/`)
+    * `request.path_info` - The URL path below the application script prefix
+    * `request.GET` - The query parameters included in the request
     * `request.user` - The name of the authenticated user who made the request (if available)
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.

@@ -1,8 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase, override_settings
 from netaddr import IPAddress
 
-from utilities.request import copy_safe_request, get_client_ip
+from utilities.request import copy_safe_request, get_client_ip, get_safe_request_context
+
+User = get_user_model()
 
 
 class CopySafeRequestTestCase(TestCase):
@@ -37,6 +40,67 @@ class CopySafeRequestTestCase(TestCase):
         request.META['HTTP_X_CUSTOM_INT'] = 42
         fake = copy_safe_request(request)
         self.assertNotIn('HTTP_X_CUSTOM_INT', fake.META)
+
+    def test_request_attributes_copied(self):
+        """Core request attributes (path, path_info, method) are copied."""
+        request = self.factory.get('/dcim/sites/1/?foo=bar')
+        request.user = AnonymousUser()
+        fake = copy_safe_request(request)
+        self.assertEqual(fake.path, '/dcim/sites/1/')
+        self.assertEqual(fake.path_info, '/dcim/sites/1/')
+        self.assertEqual(fake.method, 'GET')
+        self.assertEqual(fake.GET.get('foo'), 'bar')
+
+
+class GetSafeRequestContextTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_only_safe_keys_returned(self):
+        request = self.factory.get('/dcim/sites/1/?foo=bar')
+        request.user = AnonymousUser()
+        request.COOKIES['sessionid'] = 'secret'
+        request.id = 'abc-123'
+
+        context = get_safe_request_context(request)
+
+        self.assertEqual(set(context.keys()), {'id', 'path', 'path_info', 'method', 'GET', 'user'})
+        self.assertEqual(context['id'], 'abc-123')
+        self.assertEqual(context['path'], '/dcim/sites/1/')
+        self.assertEqual(context['method'], 'GET')
+        self.assertEqual(context['GET'].get('foo'), 'bar')
+
+    def test_user_is_username_string(self):
+        """The exposed user must be the username string, not the User instance."""
+        user = User.objects.create_user(username='testuser')
+        request = self.factory.get('/')
+        request.user = user
+
+        context = get_safe_request_context(request)
+
+        self.assertEqual(context['user'], 'testuser')
+        self.assertNotIsInstance(context['user'], User)
+
+    def test_sensitive_attributes_excluded(self):
+        request = self.factory.get('/')
+        request.user = AnonymousUser()
+
+        context = get_safe_request_context(request)
+
+        self.assertNotIn('COOKIES', context)
+        self.assertNotIn('META', context)
+        self.assertNotIn('session', context)
+
+    def test_missing_id_defaults_to_none(self):
+        request = self.factory.get('/')
+        request.user = AnonymousUser()
+
+        context = get_safe_request_context(request)
+
+        self.assertIsNone(context['id'])
+
+    def test_none_request_returns_none(self):
+        self.assertIsNone(get_safe_request_context(None))
 
 
 class GetClientIPTestCase(TestCase):
