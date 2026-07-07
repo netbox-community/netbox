@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 
 from core.choices import JobNotificationChoices
 from extras.choices import LogLevelChoices
+from extras.constants import SCRIPT_MODULE_NAME_PREFIX
 from extras.models import ScriptModule
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -349,7 +350,12 @@ class BaseScript:
 
     @classproperty
     def module(self):
-        return self.__module__
+        # Strip the internal prefix applied when the module is loaded (see #22566) so that
+        # user-facing names (full_name, logger namespaces) reflect the original script filename.
+        name = self.__module__
+        if name.startswith(SCRIPT_MODULE_NAME_PREFIX):
+            name = name[len(SCRIPT_MODULE_NAME_PREFIX):]
+        return name
 
     @classproperty
     def class_name(self):
@@ -361,7 +367,7 @@ class BaseScript:
 
     @classmethod
     def root_module(cls):
-        return cls.__module__.split(".")[0]
+        return cls.module.split(".")[0]
 
     # Author-defined attributes
 
