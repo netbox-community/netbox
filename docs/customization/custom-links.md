@@ -28,9 +28,12 @@ The following context data is available within the template when rendering a cus
 |-----------|-------------------------------------------------------------------------------------------------------------------|
 | `object`  | The NetBox object being displayed                                                                                 |
 | `debug`   | A boolean indicating whether debugging is enabled                                                                 |
-| `request` | The current WSGI request                                                                                          |
-| `user`    | The current user (if authenticated)                                                                               |
+| `request` | A sanitized subset of the current request (see below)                                                             |
+| `user`    | The current user (if authenticated)                                                                   |
 | `perms`   | The [permissions](https://docs.djangoproject.com/en/stable/topics/auth/default/#permissions) assigned to the user |
+
+!!! note "Changed in NetBox v4.7"
+    For security, `request` no longer exposes the full WSGI request object. Only a safe subset of attributes is available: `request.id`, `request.path`, `request.path_info`, `request.method`, `request.GET` (the query parameters), and `request.user` (the username). Sensitive data such as cookies, headers, and session state is no longer accessible from within a custom link template.
 
 While most of the context variables listed above will have consistent attributes, the object will be an instance of the specific object being viewed when the link is rendered. Different models have different fields and properties, so you may need to some research to determine the attributes available for use within your template for a specific object type.
 

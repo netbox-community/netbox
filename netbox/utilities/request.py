@@ -17,6 +17,7 @@ __all__ = (
     'apply_request_processors',
     'copy_safe_request',
     'get_client_ip',
+    'get_safe_request_context',
     'safe_for_redirect',
 )
 
@@ -63,6 +64,7 @@ def copy_safe_request(request, include_files=True):
         'user': request.user,
         'method': request.method,
         'path': request.path,
+        'path_info': request.path_info,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     }
     if include_files:
@@ -71,6 +73,24 @@ def copy_safe_request(request, include_files=True):
         data['FILES'] = MultiValueDict()
 
     return NetBoxFakeRequest(data)
+
+
+def get_safe_request_context(request):
+    """
+    Return a sanitized subset of an HttpRequest suitable for exposure to user-authored templates
+    (e.g. custom links). Excludes sensitive data such as cookies, headers, and session state. Returns a
+    plain dict; Jinja2 resolves attribute access (e.g. request.path) against it via getitem fallback.
+    """
+    if request is None:
+        return None
+    return {
+        'id': str(request.id) if hasattr(request, 'id') else None,  # UUID assigned by middleware
+        'path': request.path,
+        'path_info': request.path_info,
+        'method': request.method,
+        'GET': request.GET,
+        'user': str(request.user),  # Username only; not the User instance
+    }
 
 
 def get_client_ip(request, additional_headers=()):

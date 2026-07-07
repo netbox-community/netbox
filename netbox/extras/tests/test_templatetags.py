@@ -73,3 +73,58 @@ class CustomLinkTemplateTagTest(TestCase):
         # Re-fetch to clear any cached permissions
         user = User.objects.get(pk=user.pk)
         self.assertIn('Link 1', self.render(user))
+
+
+class CustomLinkRequestSanitizationTest(TestCase):
+    """
+    The custom_links template tag must not expose sensitive request attributes (cookies, headers,
+    session state) to custom link templates (see #22607 / CVE-2026-56715).
+    """
+    SECRET = 'super-secret-session-value'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.user = User.objects.create_superuser(username='admin')
+
+    def render_link(self, link_text):
+        custom_link = CustomLink.objects.create(
+            name=f'Custom Link for {link_text!r}',
+            enabled=True,
+            weight=100,
+            new_window=False,
+            link_text=link_text,
+            link_url='http://example.com/'
+        )
+        custom_link.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        request = RequestFactory().get('/dcim/sites/1/?foo=bar')
+        request.user = self.user
+        request.COOKIES['sessionid'] = self.SECRET
+        context = {
+            'request': request,
+            'user': self.user,
+            'perms': PermWrapper(self.user),
+        }
+        return custom_links(context, self.site)
+
+    def test_cookies_not_exposed(self):
+        # A link interpolating request.COOKIES must not leak the session cookie value.
+        output = self.render_link("{{ request.COOKIES.get('sessionid') }}")
+        self.assertNotIn(self.SECRET, output)
+
+    def test_meta_not_exposed(self):
+        # request.META (which carries cookies, auth headers, etc.) must not be accessible.
+        output = self.render_link('{{ request.META }}')
+        self.assertNotIn(self.SECRET, output)
+
+    def test_headers_not_exposed(self):
+        # request.headers must not be accessible.
+        output = self.render_link('{{ request.headers }}')
+        self.assertNotIn(self.SECRET, output)
+
+    def test_safe_attributes_still_available(self):
+        # Benign attributes remain accessible for backward compatibility.
+        self.assertIn('/dcim/sites/1/', self.render_link('{{ request.path }}'))
+        self.assertIn('bar', self.render_link("{{ request.GET.get('foo') }}"))
+        self.assertIn('admin', self.render_link('{{ request.user }}'))
