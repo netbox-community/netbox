@@ -6,7 +6,7 @@ django-filter==25.2
 django-graphiql-debug-toolbar==0.2.0
 django-htmx==1.27.0
 django-mptt==0.18.0
-django-pglocks==1.0.4
+django-pgware==1.0.0
 django-prometheus==2.4.0
 django-redis==7.0.0
 django-rich==2.2.0
