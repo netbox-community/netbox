@@ -9,8 +9,10 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from social_core.exceptions import AuthFailed
 
-from core.models import ObjectType
+from core.choices import ManagedFileRootPathChoices
+from core.models import ManagedFile, ObjectType
 from dcim.models import Rack, Site
+from extras.models import ScriptModule
 from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
 from users.constants import TOKEN_PREFIX
@@ -743,6 +745,54 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)
+
+
+class ObjectPermissionProxyModelTestCase(TestCase):
+    """
+    Object-level permission checks against proxy models (e.g. extras.ScriptModule proxying
+    core.ManagedFile) must evaluate the permission rather than raise ValueError.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.managed_file = ManagedFile.objects.create(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='proxy_permission_test.py'
+        )
+        cls.script_module = ScriptModule.objects.get(pk=cls.managed_file.pk)
+
+    def _grant_scriptmodule_permission(self, constraints=None):
+        obj_perm = ObjectPermission(name='ScriptModule change', actions=['change'], constraints=constraints)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ScriptModule, for_concrete_model=False))
+
+    def test_has_perm_cross_app_proxy_model(self):
+        """An unconstrained proxy-model permission grants access to a proxy instance."""
+        self._grant_scriptmodule_permission()
+        self.assertTrue(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_cross_app_proxy_model_matching_constraints(self):
+        """A constrained proxy-model permission grants access when the instance matches."""
+        self._grant_scriptmodule_permission(constraints={'file_path': 'proxy_permission_test.py'})
+        self.assertTrue(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_cross_app_proxy_model_nonmatching_constraints(self):
+        """A constrained proxy-model permission denies access when the instance does not match."""
+        self._grant_scriptmodule_permission(constraints={'file_path': 'other.py'})
+        self.assertFalse(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_invalid_permission_object_pair(self):
+        """A permission checked against an object of an unrelated model denies instead of raising."""
+        site = Site.objects.create(name='Proxy Test Site', slug='proxy-test-site')
+        self._grant_scriptmodule_permission()
+        self.assertFalse(self.user.has_perm('extras.change_scriptmodule', site))
+
+    @override_settings(DEFAULT_PERMISSIONS={'extras.change_nosuchmodel': None})
+    def test_has_perm_unknown_model_permission(self):
+        """A permission naming a nonexistent model denies and logs a warning instead of raising."""
+        self._grant_scriptmodule_permission()
+        with self.assertLogs('netbox.auth.ObjectPermissionBackend', level='WARNING'):
+            self.assertFalse(self.user.has_perm('extras.change_nosuchmodel', self.script_module))
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):
