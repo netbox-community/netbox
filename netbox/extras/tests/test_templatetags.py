@@ -73,3 +73,64 @@ class CustomLinkTemplateTagTest(TestCase):
         # Re-fetch to clear any cached permissions
         user = User.objects.get(pk=user.pk)
         self.assertIn('Link 1', self.render(user))
+
+
+class CustomLinkRenderErrorEscapingTest(TestCase):
+    """
+    When CustomLink.render() raises, the exception-fallback markup must escape the (attacker-controllable)
+    CustomLink name before it is returned via mark_safe() (see NB-3004).
+    """
+
+    XSS_NAME = '<img src=x onerror=alert(1)>'
+    ESCAPED_NAME = '&lt;img src=x onerror=alert(1)&gt;'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+
+    def render(self, user):
+        request = RequestFactory().get('/')
+        request.user = user
+        context = {
+            'request': request,
+            'user': user,
+            'perms': PermWrapper(user),
+        }
+        return custom_links(context, self.site)
+
+    def make_user_with_view_permission(self, username):
+        user = User.objects.create_user(username=username)
+        permission = ObjectPermission.objects.create(name=f'{username} custom links', actions=['view'])
+        permission.object_types.set([ObjectType.objects.get_for_model(CustomLink)])
+        permission.users.set([user])
+        # Re-fetch to clear any cached permissions
+        return User.objects.get(pk=user.pk)
+
+    def test_render_error_escapes_name(self):
+        # A CustomLink whose render() raises must have its name escaped in the error fallback.
+        custom_link = CustomLink.objects.create(
+            name=self.XSS_NAME,
+            enabled=True,
+            link_text='{{ 1 / 0 }}',  # Raises ZeroDivisionError during render
+            link_url='http://example.com/',
+        )
+        custom_link.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        rendered = self.render(self.make_user_with_view_permission('user1'))
+        self.assertNotIn(self.XSS_NAME, rendered)
+        self.assertIn(self.ESCAPED_NAME, rendered)
+
+    def test_render_error_escapes_grouped_name(self):
+        # The grouped-link error fallback must likewise escape the name.
+        custom_link = CustomLink.objects.create(
+            name=self.XSS_NAME,
+            enabled=True,
+            group_name='Group 1',
+            link_text='{{ 1 / 0 }}',  # Raises ZeroDivisionError during render
+            link_url='http://example.com/',
+        )
+        custom_link.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        rendered = self.render(self.make_user_with_view_permission('user2'))
+        self.assertNotIn(self.XSS_NAME, rendered)
+        self.assertIn(self.ESCAPED_NAME, rendered)
