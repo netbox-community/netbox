@@ -34,9 +34,7 @@ from .utils import create_cablepaths, rebuild_paths
 def handle_location_site_change(instance, created, **kwargs):
     """
     Cascade a Location's Site assignment down to the Racks, Devices, and PowerPanels it contains
-    (and to descendant Locations). The denormalized cache columns on cable terminations and device
-    components are maintained by PostgreSQL triggers, which fire on these Site/Location/Rack/Device
-    column writes.
+    (and to descendant Locations).
     """
     if not created:
         instance.get_descendants().update(site=instance.site)
@@ -49,8 +47,7 @@ def handle_location_site_change(instance, created, **kwargs):
 @receiver(post_save, sender=Rack)
 def handle_rack_site_change(instance, created, **kwargs):
     """
-    Cascade a Rack's Site/Location assignment down to the Devices it contains. The denormalized cache
-    columns on those devices' components are maintained by PostgreSQL triggers.
+    Cascade a Rack's Site/Location assignment down to the Devices it contains.
     """
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
