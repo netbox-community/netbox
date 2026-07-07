@@ -220,7 +220,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         help_text=_(
             "Jinja2 template for a custom request body. If blank, a JSON object representing the change will be "
             "included. Available context data includes: <code>event</code>, <code>model</code>, "
-            "<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>."
+            "<code>timestamp</code>, <code>request</code>, and <code>data</code>."
         )
     )
     secret = models.CharField(

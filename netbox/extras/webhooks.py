@@ -43,7 +43,7 @@ def generate_signature(request_body, secret):
 
 
 @job('default')
-def send_webhook(event_rule, object_type, event_type, data, timestamp, username, request=None, snapshots=None):
+def send_webhook(event_rule, object_type, event_type, data, timestamp, request=None, snapshots=None):
     """
     Make a POST request to the defined Webhook
     """
@@ -54,8 +54,6 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'event': WEBHOOK_EVENT_TYPES.get(event_type, event_type),
         'timestamp': timestamp,
         'object_type': '.'.join(object_type.natural_key()),
-        'username': username,
-        'request_id': request.id if request else None,
         'data': data,
     }
     if request:
