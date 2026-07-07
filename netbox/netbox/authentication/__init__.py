@@ -1,13 +1,13 @@
 import logging
 from collections import defaultdict
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.backends import RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
-from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import Group, ObjectPermission, User
@@ -137,12 +137,18 @@ class ObjectPermissionMixin:
         if obj is None:
             return True
 
-        # Sanity check: Ensure that the requested permission applies to the specified object
-        model = obj._meta.concrete_model
-        if model._meta.label_lower != '.'.join((app_label, model_name)):
-            raise ValueError(_("Invalid permission {permission} for model {model}").format(
-                permission=perm, model=model
-            ))
+        # Sanity check: the permission must apply to the object's model. Permissions may name proxy
+        # models, so compare concrete models and evaluate constraints via the permission model's manager.
+        try:
+            permission_model = apps.get_model(app_label, model_name)
+        except LookupError:
+            logger = logging.getLogger('netbox.auth.ObjectPermissionBackend')
+            logger.warning(f"Permission {perm} does not reference a valid model")
+            return False
+        if permission_model._meta.concrete_model is not obj._meta.concrete_model:
+            logger = logging.getLogger('netbox.auth.ObjectPermissionBackend')
+            logger.debug(f"Permission {perm} is not valid for {obj._meta.label_lower} objects")
+            return False
 
         # Compile a QuerySet filter that matches all instances of the specified model
         tokens = {
@@ -153,7 +159,7 @@ class ObjectPermissionMixin:
         # Permission to perform the requested action on the object depends on whether the specified object matches
         # the specified constraints. Note that this check is made against the *database* record representing the object,
         # not the instance itself.
-        return model.objects.filter(qs_filter, pk=obj.pk).exists()
+        return permission_model.objects.filter(qs_filter, pk=obj.pk).exists()
 
 
 class ObjectPermissionBackend(ObjectPermissionMixin, ModelBackend):
