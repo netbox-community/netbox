@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 from decimal import Decimal
 from io import StringIO
@@ -719,6 +720,7 @@ class DeviceTypeTestCase(
             'u_height': 2,
             'is_full_depth': True,
             'subdevice_role': None,
+            'end_of_life': datetime.date(2035, 6, 30),
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -728,6 +730,7 @@ class DeviceTypeTestCase(
             'default_platform': platforms[1].pk,
             'u_height': 3,
             'is_full_depth': False,
+            'end_of_life': datetime.date(2030, 1, 1),
         }
 
     def test_devicetype_consoleports(self):
@@ -1269,6 +1272,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'manufacturer': manufacturers[1].pk,
             'model': 'Device Type X',
             'part_number': '123ABC',
+            'end_of_life': datetime.date(2035, 6, 30),
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -1276,11 +1280,12 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'manufacturer': manufacturers[1].pk,
             'part_number': '456DEF',
+            'end_of_life': datetime.date(2030, 1, 1),
         }
 
         cls.csv_data = (
-            "manufacturer,model,part_number,comments,profile",
-            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+            "manufacturer,model,part_number,end_of_life,comments,profile",
+            f"Manufacturer 1,fan0,generic-fan,2035-06-30,,{fan_module_type_profile.name}"
         )
 
         cls.csv_update_data = (

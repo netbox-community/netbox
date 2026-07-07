@@ -29,7 +29,7 @@ from utilities.forms.fields import (
     PositiveBigIntegerField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
-from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
+from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, NumberWithOptions
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -550,6 +550,11 @@ class DeviceTypeBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
+    end_of_life = forms.DateField(
+        label=_('End of life'),
+        required=False,
+        widget=DatePicker()
+    )
 
     model = DeviceType
     fieldsets = (
@@ -558,8 +563,9 @@ class DeviceTypeBulkEditForm(PrimaryModelBulkEditForm):
             'airflow', 'description', name=_('Device Type')
         ),
         FieldSet('weight', 'weight_unit', name=_('Weight')),
+        FieldSet('end_of_life', name=_('Lifecycle')),
     )
-    nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')
+    nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'description', 'comments')
 
 
 class ModuleTypeProfileBulkEditForm(PrimaryModelBulkEditForm):
@@ -606,6 +612,11 @@ class ModuleTypeBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
+    end_of_life = forms.DateField(
+        label=_('End of life'),
+        required=False,
+        widget=DatePicker()
+    )
 
     model = ModuleType
     fieldsets = (
@@ -615,8 +626,9 @@ class ModuleTypeBulkEditForm(PrimaryModelBulkEditForm):
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             name=_('Chassis')
         ),
+        FieldSet('end_of_life', name=_('Lifecycle')),
     )
-    nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'description', 'comments')
+    nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'end_of_life', 'description', 'comments')
 
 
 class DeviceRoleBulkEditForm(NestedGroupModelBulkEditForm):

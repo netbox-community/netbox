@@ -91,6 +91,12 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    end_of_life = models.DateField(
+        verbose_name=_('end of life'),
+        blank=True,
+        null=True,
+        help_text=_('The date after which this module type is no longer supported by the manufacturer')
+    )
     attribute_data = models.JSONField(
         blank=True,
         null=True,
@@ -135,7 +141,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_field='module_type'
     )
 
-    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow')
+    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow', 'end_of_life')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
@@ -199,6 +205,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
             'airflow': self.airflow,
+            'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
             'attribute_data': self.attribute_data,
             'comments': self.comments,
         }

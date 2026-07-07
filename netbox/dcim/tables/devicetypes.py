@@ -151,7 +151,7 @@ class DeviceTypeTable(PrimaryModelTable):
         model = models.DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
-            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
+            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'end_of_life',
             'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (

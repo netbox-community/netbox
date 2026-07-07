@@ -136,6 +136,12 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    end_of_life = models.DateField(
+        verbose_name=_('end of life'),
+        blank=True,
+        null=True,
+        help_text=_('The date after which this device type is no longer supported by the manufacturer')
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -193,7 +199,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     clone_fields = (
         'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-        'weight_unit',
+        'weight_unit', 'end_of_life',
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -245,6 +251,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'airflow': self.airflow,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
             'comments': self.comments,
         }
 

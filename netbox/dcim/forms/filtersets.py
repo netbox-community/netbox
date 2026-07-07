@@ -21,7 +21,7 @@ from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, PositiveBigIntegerField, TagFilterField
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import NumberWithOptions
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import *
@@ -569,6 +569,7 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items', name=_('Components')
         ),
         FieldSet('weight', 'weight_unit', name=_('Weight')),
+        FieldSet('end_of_life__gte', 'end_of_life__lte', name=_('Lifecycle')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
@@ -688,6 +689,16 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
+    end_of_life__gte = forms.DateField(
+        label=_('End of life after'),
+        required=False,
+        widget=DatePicker()
+    )
+    end_of_life__lte = forms.DateField(
+        label=_('End of life before'),
+        required=False,
+        widget=DatePicker()
+    )
 
 
 class ModuleTypeProfileFilterForm(PrimaryModelFilterSetForm):
@@ -713,6 +724,7 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
             'pass_through_ports', 'module_bays', name=_('Components')
         ),
         FieldSet('weight', 'weight_unit', name=_('Weight')),
+        FieldSet('end_of_life__gte', 'end_of_life__lte', name=_('Lifecycle')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
@@ -799,6 +811,16 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         label=_('Weight unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
+    )
+    end_of_life__gte = forms.DateField(
+        label=_('End of life after'),
+        required=False,
+        widget=DatePicker()
+    )
+    end_of_life__lte = forms.DateField(
+        label=_('End of life before'),
+        required=False,
+        widget=DatePicker()
     )
 
 
