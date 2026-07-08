@@ -151,6 +151,9 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'planned',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
     graphql_filter_tests = (
         GraphQLFilterTest(
             name='tenant__name__exact',
@@ -466,6 +469,40 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         }
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_bulk_delete_objects_protected(self):
+        """
+        DELETE a set of objects where one has a protected FK dependency. Verify the structured
+        per-object error response and that no objects are deleted (atomic rollback).
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Site 1 has no dependent Device; Site 2 gets one (Device FK is on_delete=PROTECT)
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        create_test_device('Protected Device', site=site2)
+
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(response.data['results']), 2)
+        # First site (no dependents) would have succeeded
+        self.assertEqual(response.data['results'][0]['id'], site1.pk)
+        self.assertEqual(response.data['results'][0]['status'], 'ok')
+        # Second site (has Device) should have failed
+        self.assertEqual(response.data['results'][1]['id'], site2.pk)
+        self.assertEqual(response.data['results'][1]['status'], 'error')
+        self.assertIn('errors', response.data['results'][1])
+
+        # Verify that no sites were actually deleted (transaction rolled back)
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
 
 
 class LocationTestCase(APIViewTestCases.APIViewTestCase):
@@ -2161,6 +2198,34 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         self.remove_permissions('extras.view_configtemplate')
         response = self.client.post(url, {'config_template_id': override_template.pk}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_bulk_create_objects_validation_error(self):
+        """
+        POST a set of Device objects where all fail validation. DeviceViewSet uses
+        SequentialBulkCreatesMixin, so the response should be the structured per-object error
+        format rather than DRF's default list-of-errors response.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        # Empty objects fail validation (required fields absent)
+        response = self.client.post(self._get_list_url(), [{}, {}], format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any fail validation',
+        )
+        self.assertIn('detail', response.data)
+        self.assertIn('results', response.data)
+        self.assertEqual(len(response.data['results']), 2)
+        for i, result in enumerate(response.data['results']):
+            self.assertEqual(result['index'], i)
+            self.assertEqual(result['status'], 'error')
+            self.assertIn('errors', result)
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):
