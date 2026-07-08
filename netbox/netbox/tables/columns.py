@@ -519,11 +519,10 @@ class CustomFieldColumn(tables.Column):
         kwargs['accessor'] = Accessor(f'custom_field_data__{customfield.name}')
         if 'verbose_name' not in kwargs:
             kwargs['verbose_name'] = customfield.label or customfield.name
-        # We can't logically sort on FK values, nor on multi-value (array) fields
+        # We can't logically sort on FK values
         if customfield.type in (
             CustomFieldTypeChoices.TYPE_OBJECT,
-            CustomFieldTypeChoices.TYPE_MULTIOBJECT,
-            CustomFieldTypeChoices.TYPE_MULTISELECT,
+            CustomFieldTypeChoices.TYPE_MULTIOBJECT
         ):
             kwargs['orderable'] = False
 

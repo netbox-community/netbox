@@ -111,7 +111,7 @@ If enabled, values from this field will be automatically pre-populated when clon
 
 ### Nulls First
 
-When ordering objects by this custom field, controls whether objects with no value (null) are sorted before (enabled, the default) or after (disabled) objects that have a value.
+When ordering objects by this custom field, controls whether objects with no value (null) are sorted before or after objects that have a value. This option is enabled by default.
 
 ### Minimum Value
 
