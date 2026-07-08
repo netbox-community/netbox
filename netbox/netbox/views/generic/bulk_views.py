@@ -489,12 +489,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     def _save_object(self, model_form, request, parent_idx):
         _action = 'Updated' if model_form.instance.pk else 'Created'
 
-        # Save the primary object
+        # Save the primary object. Object-level permissions are enforced in aggregate by
+        # create_and_update_objects() once all records have been processed.
         obj = self.save_object(model_form, request)
-
-        # Enforce object-level permissions
-        if not self.queryset.filter(pk=obj.pk).first():
-            raise PermissionsViolation()
 
         # Iterate through the related object forms (if any), validating and saving each instance.
         for field_name, related_object_form in self.related_object_forms.items():
@@ -640,9 +637,28 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             )
             raise ValidationError(error_msg)
 
+        # A record which references an existing object by ID performs an update rather than a creation. The bulk
+        # import view is gated only on the 'add' permission, but updating an existing object requires 'change' (as
+        # enforced by the REST API). Require the 'change' permission at the model level before permitting any updates,
+        # and restrict the prefetched objects to those the user is permitted to change (object-level enforcement).
+        update_pks = set(prefetch_ids)
+        if prefetch_ids:
+            change_permission = get_permission_for_model(self.queryset.model, 'change')
+            if not request.user.has_perm(change_permission):
+                raise ValidationError(
+                    _(
+                        "This import includes {count} record(s) that reference an existing object by ID and would "
+                        "update it, which requires the {permission} permission. Remove the ID column to create new "
+                        "objects instead."
+                    ).format(count=len(prefetch_ids), permission=change_permission)
+                )
+            change_queryset = self.queryset.model.objects.restrict(request.user, 'change')
+        else:
+            change_queryset = self.queryset.model.objects
+
         prefetched_objects = {
             obj.pk: obj
-            for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
+            for obj in change_queryset.filter(id__in=prefetch_ids)
         } if prefetch_ids else {}
 
         # For MPTT models, delay tree updates until all saves are complete
@@ -651,6 +667,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 saved_objects = self._process_import_records(form, request, records, prefetched_objects)
         else:
             saved_objects = self._process_import_records(form, request, records, prefetched_objects)
+
+        # Enforce object-level permissions in aggregate. Newly created objects are constrained by the 'add'
+        # permission (self.queryset is already restricted to 'add'); updated objects by 'change' (reusing the
+        # queryset built above, so no additional per-record work). This runs inside the caller's atomic
+        # transaction, so any violation rolls back the entire import.
+        created_pks = [obj.pk for obj in saved_objects if obj.pk not in update_pks]
+        if self.queryset.filter(pk__in=created_pks).count() != len(created_pks):
+            raise PermissionsViolation()
+        updated_pks = [obj.pk for obj in saved_objects if obj.pk in update_pks]
+        if updated_pks and change_queryset.filter(pk__in=updated_pks).count() != len(updated_pks):
+            raise PermissionsViolation()
 
         return saved_objects
 
@@ -693,13 +720,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     return redirect(redirect_url)
 
             try:
-                # Iterate through data and bind each record to a new model form instance.
+                # Iterate through data and bind each record to a new model form instance. Object-level
+                # permissions are enforced within create_and_update_objects().
                 with transaction.atomic(using=router.db_for_write(model)):
                     new_objects = self.create_and_update_objects(form, request)
-
-                    # Enforce object-level permissions
-                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objects]).count() != len(new_objects):
-                        raise PermissionsViolation
 
                 msg = _('Imported {count} {object_type}').format(
                     count=len(new_objects),

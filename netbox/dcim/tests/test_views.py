@@ -1303,6 +1303,22 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         # run base test
         super().test_bulk_update_objects_with_permission()
 
+    def test_bulk_update_objects_without_change_permission(self):
+        # ModuleTypeImportView declares these as additional_permissions, so they're required to reach the view
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_update_objects_without_change_permission()
+
     @tag('regression')
     def test_bulk_import_objects_with_permission(self):
         self.add_permissions(
