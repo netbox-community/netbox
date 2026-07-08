@@ -177,6 +177,9 @@ class SequentialBulkCreatesMixin:
             for i, data in enumerate(request.data):
                 serializer = self.get_serializer(data=data)
                 if serializer.is_valid():
+                    # Provisionally create even when a prior item failed, so subsequent
+                    # cross-object validators (e.g. rack space checks) see a realistic state.
+                    # All creates are rolled back together if any item in the batch fails.
                     self.perform_create(serializer)
                     return_data.append(serializer.data)
                     results.append({'index': i, 'status': 'ok'})
@@ -190,7 +193,10 @@ class SequentialBulkCreatesMixin:
             failed_count = sum(1 for r in results if r['status'] == 'error')
             return Response(
                 {
-                    'detail': f'{failed_count} of {len(results)} objects failed validation.',
+                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                        failed_count=failed_count,
+                        total=len(results),
+                    ),
                     'results': results,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -253,7 +259,10 @@ class BulkUpdateModelMixin:
             failed_count = sum(1 for r in results if r['status'] == 'error')
             return Response(
                 {
-                    'detail': f'{failed_count} of {len(results)} objects failed validation.',
+                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                        failed_count=failed_count,
+                        total=len(results),
+                    ),
                     'results': results,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -349,11 +358,14 @@ class BulkDestroyModelMixin:
 
         results = self.perform_bulk_destroy(qs, changelog_messages)
 
-        if results and any(r['status'] == 'error' for r in results):
+        if any(r['status'] == 'error' for r in results):
             failed_count = sum(1 for r in results if r['status'] == 'error')
             return Response(
                 {
-                    'detail': f'{failed_count} of {len(results)} objects could not be deleted.',
+                    'detail': _('{failed_count} of {total} objects could not be deleted.').format(
+                        failed_count=failed_count,
+                        total=len(results),
+                    ),
                     'results': results,
                 },
                 status=status.HTTP_409_CONFLICT,
@@ -378,13 +390,16 @@ class BulkDestroyModelMixin:
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
                     )
                     n = len(protected)
-                    objects_str = ', '.join(f'{o} ({o.pk})' for o in protected[:10])
-                    if n > 10:
-                        objects_str += f', and {n - 10} more'
+                    # Report only the count — not names or PKs — to avoid exposing objects
+                    # the caller may not have permission to view.
                     results.append({
                         'id': pk,
                         'status': 'error',
-                        'errors': {'detail': f'Unable to delete. {n} dependent object(s): {objects_str}'},
+                        'errors': {
+                            'detail': _(
+                                'Unable to delete: {n} dependent object(s) prevent deletion.'
+                            ).format(n=n),
+                        },
                     })
             if any(r['status'] == 'error' for r in results):
                 transaction.set_rollback(True)
