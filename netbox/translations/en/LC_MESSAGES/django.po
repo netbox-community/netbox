@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-07 06:20+0000\n"
+"POT-Creation-Date: 2026-07-08 05:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -401,7 +401,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:142 netbox/dcim/forms/filtersets.py:227
 #: netbox/dcim/forms/model_forms.py:144 netbox/dcim/tables/sites.py:74
 #: netbox/ipam/models/asns.py:164 netbox/ipam/tables/asn.py:37
-#: netbox/ipam/tables/ip.py:126 netbox/ipam/views.py:382
+#: netbox/ipam/tables/ip.py:126 netbox/ipam/views.py:383
 #: netbox/netbox/navigation/menu.py:189 netbox/netbox/navigation/menu.py:192
 msgid "ASNs"
 msgstr ""
@@ -1786,31 +1786,31 @@ msgstr ""
 msgid "This user does not have permission to synchronize this data source."
 msgstr ""
 
-#: netbox/core/apps.py:35
+#: netbox/core/apps.py:42
 msgid "Object created"
 msgstr ""
 
-#: netbox/core/apps.py:36
+#: netbox/core/apps.py:43
 msgid "Object updated"
 msgstr ""
 
-#: netbox/core/apps.py:37
+#: netbox/core/apps.py:44
 msgid "Object deleted"
 msgstr ""
 
-#: netbox/core/apps.py:38
+#: netbox/core/apps.py:45
 msgid "Job started"
 msgstr ""
 
-#: netbox/core/apps.py:39
+#: netbox/core/apps.py:46
 msgid "Job completed"
 msgstr ""
 
-#: netbox/core/apps.py:40
+#: netbox/core/apps.py:47
 msgid "Job failed"
 msgstr ""
 
-#: netbox/core/apps.py:41
+#: netbox/core/apps.py:48
 msgid "Job errored"
 msgstr ""
 
@@ -5924,7 +5924,7 @@ msgstr ""
 
 #: netbox/dcim/forms/object_create.py:312 netbox/dcim/tables/devices.py:1160
 #: netbox/ipam/tables/fhrp.py:31 netbox/ipam/ui/panels.py:185
-#: netbox/ipam/views.py:1583 netbox/templates/dcim/virtualchassis_edit.html:59
+#: netbox/ipam/views.py:1589 netbox/templates/dcim/virtualchassis_edit.html:59
 #: netbox/users/views.py:375
 msgid "Members"
 msgstr ""
@@ -7764,8 +7764,8 @@ msgstr ""
 
 #: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3402
 #: netbox/ipam/forms/model_forms.py:826 netbox/ipam/tables/fhrp.py:28
-#: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:916
-#: netbox/ipam/views.py:1041 netbox/netbox/navigation/menu.py:175
+#: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:922
+#: netbox/ipam/views.py:1047 netbox/netbox/navigation/menu.py:175
 #: netbox/netbox/navigation/menu.py:177 netbox/vpn/tables/tunnels.py:98
 msgid "IP Addresses"
 msgstr ""
@@ -8192,7 +8192,7 @@ msgstr ""
 
 #: netbox/dcim/views.py:3414 netbox/ipam/forms/filtersets.py:469
 #: netbox/ipam/models/vlans.py:308 netbox/ipam/tables/ip.py:121
-#: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1375
+#: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1381
 #: netbox/netbox/navigation/menu.py:210 netbox/netbox/navigation/menu.py:212
 msgid "VLANs"
 msgstr ""
@@ -8757,7 +8757,7 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:165 netbox/extras/forms/bulk_edit.py:384
 #: netbox/extras/forms/filtersets.py:208 netbox/extras/forms/filtersets.py:531
-#: netbox/extras/models/mixins.py:102 netbox/extras/ui/panels.py:238
+#: netbox/extras/models/mixins.py:106 netbox/extras/ui/panels.py:238
 #: netbox/extras/ui/panels.py:464
 msgid "MIME type"
 msgstr ""
@@ -9776,63 +9776,63 @@ msgstr ""
 msgid "dashboards"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:87
+#: netbox/extras/models/mixins.py:91
 msgid "template code"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:88
+#: netbox/extras/models/mixins.py:92
 msgid "Jinja template code."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:91
+#: netbox/extras/models/mixins.py:95
 msgid "environment parameters"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:96
+#: netbox/extras/models/mixins.py:100
 #, python-brace-format
 msgid ""
 "Any <a href=\"{url}\">additional parameters</a> to pass when constructing "
 "the Jinja environment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:103
+#: netbox/extras/models/mixins.py:107
 #, python-brace-format
 msgid "Defaults to <code>{default}</code>"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:108
+#: netbox/extras/models/mixins.py:112
 msgid "Filename to give to the rendered export file"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:111
+#: netbox/extras/models/mixins.py:115
 msgid "file extension"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:114
+#: netbox/extras/models/mixins.py:118
 msgid "Extension to append to the rendered filename"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:117
+#: netbox/extras/models/mixins.py:121
 msgid "as attachment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:119
+#: netbox/extras/models/mixins.py:123
 msgid "Download file as attachment"
 msgstr ""
 
-#: netbox/extras/models/mixins.py:147
+#: netbox/extras/models/mixins.py:151
 #, python-brace-format
 msgid ""
 "The \"{key}\" parameter is deprecated and may not be set on new or modified "
 "templates."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:153
+#: netbox/extras/models/mixins.py:157
 #, python-brace-format
 msgid "\"{key}\" is not a permitted Jinja2 environment parameter."
 msgstr ""
 
-#: netbox/extras/models/mixins.py:161
+#: netbox/extras/models/mixins.py:165
 #, python-brace-format
 msgid ""
 "Invalid value \"{value}\" for parameter \"{key}\". Allowed values are: "
@@ -10212,11 +10212,11 @@ msgstr ""
 msgid "tagged items"
 msgstr ""
 
-#: netbox/extras/scripts.py:499
+#: netbox/extras/scripts.py:505
 msgid "Script Data"
 msgstr ""
 
-#: netbox/extras/scripts.py:506
+#: netbox/extras/scripts.py:512
 msgid "Script Execution Parameters"
 msgstr ""
 
@@ -11001,11 +11001,11 @@ msgstr ""
 msgid "Ports"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:55 netbox/ipam/views.py:71
+#: netbox/ipam/forms/bulk_import.py:55 netbox/ipam/views.py:72
 msgid "Import route targets"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:61 netbox/ipam/views.py:74
+#: netbox/ipam/forms/bulk_import.py:61 netbox/ipam/views.py:75
 msgid "Export route targets"
 msgstr ""
 
@@ -11816,8 +11816,8 @@ msgid "Added"
 msgstr ""
 
 #: netbox/ipam/tables/ip.py:76 netbox/ipam/tables/ip.py:111
-#: netbox/ipam/tables/vlans.py:125 netbox/ipam/views.py:615
-#: netbox/ipam/views.py:1725 netbox/netbox/navigation/menu.py:182
+#: netbox/ipam/tables/vlans.py:125 netbox/ipam/views.py:621
+#: netbox/ipam/views.py:1731 netbox/netbox/navigation/menu.py:182
 #: netbox/netbox/navigation/menu.py:184
 msgid "Prefixes"
 msgstr ""
@@ -12018,76 +12018,76 @@ msgid ""
 "are allowed in DNS names"
 msgstr ""
 
-#: netbox/ipam/views.py:105 netbox/ipam/views.py:1755
+#: netbox/ipam/views.py:106 netbox/ipam/views.py:1761
 msgid "Device Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:110 netbox/ipam/views.py:1773
+#: netbox/ipam/views.py:111 netbox/ipam/views.py:1779
 msgid "VM Interfaces"
 msgstr ""
 
-#: netbox/ipam/views.py:195
+#: netbox/ipam/views.py:196
 msgid "Importing VRFs"
 msgstr ""
 
-#: netbox/ipam/views.py:202
+#: netbox/ipam/views.py:203
 msgid "Exporting VRFs"
 msgstr ""
 
-#: netbox/ipam/views.py:211
+#: netbox/ipam/views.py:212
 msgid "Importing L2VPNs"
 msgstr ""
 
-#: netbox/ipam/views.py:218
+#: netbox/ipam/views.py:219
 msgid "Exporting L2VPNs"
 msgstr ""
 
-#: netbox/ipam/views.py:792
+#: netbox/ipam/views.py:798
 msgid "Duplicate prefixes"
 msgstr ""
 
-#: netbox/ipam/views.py:793 netbox/ipam/views.py:1006 netbox/ipam/views.py:1114
+#: netbox/ipam/views.py:799 netbox/ipam/views.py:1012 netbox/ipam/views.py:1120
 msgid "Parent prefixes"
 msgstr ""
 
-#: netbox/ipam/views.py:845
+#: netbox/ipam/views.py:851
 msgid "Child Prefixes"
 msgstr ""
 
-#: netbox/ipam/views.py:889
+#: netbox/ipam/views.py:895
 msgid "Child Ranges"
 msgstr ""
 
-#: netbox/ipam/views.py:1115
+#: netbox/ipam/views.py:1121
 msgid "Duplicate IPs"
 msgstr ""
 
-#: netbox/ipam/views.py:1119
+#: netbox/ipam/views.py:1125
 msgid "Application services"
 msgstr ""
 
-#: netbox/ipam/views.py:1285
+#: netbox/ipam/views.py:1291
 msgid "Related IPs"
 msgstr ""
 
-#: netbox/ipam/views.py:1426
+#: netbox/ipam/views.py:1432
 msgid "VLAN translation rules"
 msgstr ""
 
-#: netbox/ipam/views.py:1432
+#: netbox/ipam/views.py:1438
 msgid "Add Rule"
 msgstr ""
 
-#: netbox/ipam/views.py:1574
+#: netbox/ipam/views.py:1580
 msgid "Virtual IP addresses"
 msgstr ""
 
-#: netbox/ipam/views.py:1579 netbox/templates/ipam/iprange/ip_addresses.html:8
+#: netbox/ipam/views.py:1585 netbox/templates/ipam/iprange/ip_addresses.html:8
 #: netbox/templates/ipam/prefix/ip_addresses.html:7
 msgid "Add IP Address"
 msgstr ""
 
-#: netbox/ipam/views.py:1738
+#: netbox/ipam/views.py:1744
 msgid "Add a Prefix"
 msgstr ""
 
