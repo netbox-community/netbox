@@ -133,7 +133,7 @@ class Condition:
         """
         if self.op in self.SNAPSHOT_OPERATORS:
             snapshots = data.get('snapshots') if isinstance(data, dict) else None
-            if not snapshots:
+            if snapshots is None:
                 raise InvalidCondition(
                     f"No snapshot data available for '{self.op}' operator. "
                     f"Snapshot operators are only meaningful on update and delete events."
@@ -141,10 +141,7 @@ class Condition:
             result = self.eval_func(snapshots)
             return not result if self.negate else result
 
-        try:
-            value = self._resolve_attr(data)
-        except InvalidCondition:
-            raise
+        value = self._resolve_attr(data)
         try:
             result = self.eval_func(value)
         except TypeError as e:

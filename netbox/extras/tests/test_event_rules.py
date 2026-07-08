@@ -109,6 +109,47 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             Tag(name='Baz', slug='baz'),
         ))
 
+    def test_eventrule_snapshot_changed_condition(self):
+        """
+        An event rule using the 'changed' operator fires only when the attribute
+        transitions to the target value, not on subsequent updates that leave it
+        unchanged.  Exercises the full process_event_rules() path.
+        """
+        webhook = Webhook.objects.get(name='Webhook 1')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+        site_type = ObjectType.objects.get_for_model(Site)
+        event_rule = EventRule.objects.create(
+            name='Status Change Rule',
+            event_types=[OBJECT_UPDATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+            conditions={
+                'and': [
+                    {'attr': 'status.value', 'value': SiteStatusChoices.STATUS_ACTIVE},
+                    {'attr': 'status', 'op': 'changed'},
+                ]
+            }
+        )
+        event_rule.object_types.set([site_type])
+
+        site = Site.objects.create(name='Site Snapshot', slug='site-snapshot', status=SiteStatusChoices.STATUS_PLANNED)
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        self.add_permissions('dcim.change_site')
+
+        # planned → active: the 'changed' condition is satisfied; rule must fire
+        response = self.client.patch(url, {'status': SiteStatusChoices.STATUS_ACTIVE}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        rule_jobs = [j for j in self.queue.jobs if j.kwargs['event_rule'] == event_rule]
+        self.assertEqual(len(rule_jobs), 1, 'Expected rule to fire on status transition to active')
+        self.queue.empty()
+
+        # description update while status stays active: 'changed' condition fails; rule must not fire
+        response = self.client.patch(url, {'description': 'Updated'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        rule_jobs = [j for j in self.queue.jobs if j.kwargs['event_rule'] == event_rule]
+        self.assertEqual(len(rule_jobs), 0, 'Expected rule not to fire when status is unchanged')
+
     def test_eventrule_conditions(self):
         """
         Test evaluation of EventRule conditions.
