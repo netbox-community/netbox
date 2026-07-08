@@ -346,6 +346,13 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(ValueError):
             Condition('status', value='active', op='unchanged')
 
+    def test_snapshot_operator_rejects_snapshot_path_attr(self):
+        """Snapshot operators must not use a snapshots.prechange.* path — that's only for standard operators."""
+        with self.assertRaises(ValueError):
+            Condition('snapshots.prechange.status', op='changed')
+        with self.assertRaises(ValueError):
+            Condition('snapshots.postchange.status', op='unchanged')
+
     def test_standard_operator_requires_value(self):
         with self.assertRaises(ValueError):
             Condition('status', op='eq')
@@ -468,7 +475,7 @@ class SnapshotConditionTestCase(TestCase):
                 ]
             }
         )
-        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site = Site.objects.create(name='Site 2', slug='site-2', status=SiteStatusChoices.STATUS_ACTIVE)
 
         # status changed planned → active: should fire
         data_changed = self._make_condition_data(site, {
@@ -499,7 +506,7 @@ class SnapshotConditionTestCase(TestCase):
                 'value': SiteStatusChoices.STATUS_PLANNED,
             }
         )
-        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site = Site.objects.create(name='Site 3', slug='site-3', status=SiteStatusChoices.STATUS_ACTIVE)
         data = self._make_condition_data(site, {
             'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
             'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},

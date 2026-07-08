@@ -145,7 +145,7 @@ You can also read pre- or post-change values directly using the `snapshots.prech
     Snapshot data uses the **model serializer format**, not the REST API format. Choice fields such as `status` are stored as raw strings (e.g. `"active"`) rather than nested objects (e.g. `{"value": "active", "label": "Active"}`). Use `attr: "snapshots.prechange.status"` — not `"snapshots.prechange.status.value"` — when referencing snapshot attributes. The `changed`/`unchanged` operators compare the same format on both sides, so they are not affected by this distinction.
 
 !!! note "Snapshot availability"
-    Snapshots are only populated for update and delete events. For create events, `prechange` is `null`. Conditions using the `changed` operator on a create event will evaluate to `true` (since the field went from non-existent to its initial value). Conditions using direct `snapshots.prechange.*` paths on a create event will fail and evaluate to `false`.
+    Snapshots are only populated for update and delete events. For create events, `prechange` is `null` — conditions using the `changed` operator on a create event evaluate to `true` (the field transitioned from non-existent to its initial value), while conditions using `snapshots.prechange.*` paths evaluate to `false`. For delete events, `postchange` is `null` — the `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, and `unchanged` evaluates to `false`.
 
 ## Condition Sets
 

@@ -78,6 +78,13 @@ class Condition:
                 raise ValueError(_(
                     "The '{op}' operator compares snapshots and does not accept a value."
                 ).format(op=op))
+            if attr.startswith('snapshots.'):
+                raise ValueError(_(
+                    "The '{op}' operator resolves '{attr}' within each snapshot dict, not the "
+                    "top-level condition context. Use the bare attribute name (e.g. 'status') "
+                    "rather than a snapshot path (e.g. 'snapshots.prechange.status'), which is "
+                    "only valid with standard operators."
+                ).format(op=op, attr=attr))
             self.value = _MISSING
         else:
             if value is _MISSING:
