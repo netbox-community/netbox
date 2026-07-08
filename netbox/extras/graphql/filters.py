@@ -24,7 +24,14 @@ if TYPE_CHECKING:
     )
     from extras.graphql.filter_lookups import ExtraChoicesLookup
     from netbox.graphql.enums import ColorEnum
-    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
+    from netbox.graphql.filter_lookups import (
+        BigIntegerLookup,
+        FloatLookup,
+        IntegerLookup,
+        JSONFilter,
+        StringArrayLookup,
+        TreeNodeFilter,
+    )
     from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
     from users.graphql.filters import GroupFilter, UserFilter
     from virtualization.graphql.filters import ClusterFilter, ClusterGroupFilter, ClusterTypeFilter
@@ -274,6 +281,9 @@ class ImageAttachmentFilter(ChangeLoggedModelFilter):
         strawberry_django.filter_field()
     )
     image_width: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    image_size: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     name: StrFilterLookup | None = strawberry_django.filter_field()

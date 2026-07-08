@@ -1,24 +1,29 @@
-from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
     CircuitCommitRateChoices,
+    CircuitPriorityChoices,
+    CircuitStatusChoices,
     CircuitTerminationPortSpeedChoices,
+    CircuitTerminationSideChoices,
     VirtualCircuitTerminationRoleChoices,
 )
 from circuits.constants import *
 from circuits.models import *
 from dcim.models import Interface
 from ipam.models import ASN
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import GenericObjectFormMixin
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields
@@ -134,6 +139,16 @@ class CircuitTypeForm(OrganizationalModelForm):
 
 
 class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=CircuitStatusChoices,
+        initial=CircuitStatusChoices.STATUS_ACTIVE,
+    )
+    distance_unit = TypedChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(DistanceUnitChoices),
+        required=False,
+    )
     provider = DynamicModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
@@ -185,6 +200,10 @@ class CircuitForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
 
 
 class CircuitTerminationForm(GenericObjectFormMixin, NetBoxModelForm):
+    term_side = ChoiceField(
+        label=_('Termination side'),
+        choices=CircuitTerminationSideChoices,
+    )
     circuit = DynamicModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
@@ -236,6 +255,11 @@ class CircuitGroupForm(TenancyForm, OrganizationalModelForm):
 
 
 class CircuitGroupAssignmentForm(GenericObjectFormMixin, NetBoxModelForm):
+    priority = TypedChoiceField(
+        label=_('Priority'),
+        choices=add_blank_choice(CircuitPriorityChoices),
+        required=False,
+    )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=CircuitGroup.objects.all(),
@@ -275,6 +299,11 @@ class VirtualCircuitTypeForm(OrganizationalModelForm):
 
 
 class VirtualCircuitForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=CircuitStatusChoices,
+        initial=CircuitStatusChoices.STATUS_ACTIVE,
+    )
     provider_network = DynamicModelChoiceField(
         label=_('Provider network'),
         queryset=ProviderNetwork.objects.all(),
@@ -312,7 +341,7 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
         queryset=VirtualCircuit.objects.all(),
         selector=True
     )
-    role = forms.ChoiceField(
+    role = ChoiceField(
         choices=VirtualCircuitTerminationRoleChoices,
         label=_('Role')
     )

@@ -5,6 +5,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
+from netbox.search.backends import search_backend
 from virtualization.models import VMInterface
 
 from .models import (
@@ -21,6 +22,7 @@ from .models import (
     VirtualChassis,
 )
 from .models.cables import trace_paths
+from .search import DeviceIndex
 from .utils import create_cablepaths, rebuild_paths
 
 #
@@ -32,9 +34,7 @@ from .utils import create_cablepaths, rebuild_paths
 def handle_location_site_change(instance, created, **kwargs):
     """
     Cascade a Location's Site assignment down to the Racks, Devices, and PowerPanels it contains
-    (and to descendant Locations). The denormalized cache columns on cable terminations and device
-    components are maintained by PostgreSQL triggers, which fire on these Site/Location/Rack/Device
-    column writes.
+    (and to descendant Locations).
     """
     if not created:
         instance.get_descendants().update(site=instance.site)
@@ -47,8 +47,7 @@ def handle_location_site_change(instance, created, **kwargs):
 @receiver(post_save, sender=Rack)
 def handle_rack_site_change(instance, created, **kwargs):
     """
-    Cascade a Rack's Site/Location assignment down to the Devices it contains. The denormalized cache
-    columns on those devices' components are maintained by PostgreSQL triggers.
+    Cascade a Rack's Site/Location assignment down to the Devices it contains.
     """
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
@@ -68,6 +67,24 @@ def assign_virtualchassis_master(instance, created, **kwargs):
         master.virtual_chassis = instance
         master.vc_position = 1
         master.save()
+
+
+@receiver(post_save, sender=VirtualChassis)
+def update_virtualchassis_member_search_cache(instance, created, raw=False, update_fields=None, **kwargs):
+    """
+    Refresh the search cache for member Devices when a VirtualChassis is renamed. DeviceIndex caches
+    virtual_chassis as its string value, so a rename would otherwise leave stale CachedValue entries.
+    """
+    if raw or created:
+        return
+    # The VC name is the only VC attribute cached on member Devices; skip saves that can't change it.
+    if update_fields is not None and 'name' not in update_fields:
+        return
+    search_backend.cache(
+        Device.objects.filter(virtual_chassis=instance).select_related('virtual_chassis'),
+        indexer=DeviceIndex,
+        remove_existing=True
+    )
 
 
 #

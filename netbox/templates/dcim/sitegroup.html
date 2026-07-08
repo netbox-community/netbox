@@ -1,13 +1,6 @@
 {% extends 'generic/object.html' %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% for sitegroup in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:sitegroup_list' %}?parent_id={{ sitegroup.pk }}">{{ sitegroup }}</a></li>
-  {% endfor %}
-{% endblock %}
-
 {% block extra_controls %}
   {% if perms.dcim.add_site %}
     <a href="{% url 'dcim:site_add' %}?group={{ object.pk }}" class="btn btn-primary">

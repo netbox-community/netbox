@@ -506,7 +506,9 @@ class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ImageAttachment
-        fields = ('id', 'object_type_id', 'object_id', 'name', 'description', 'image_width', 'image_height')
+        fields = (
+            'id', 'object_type_id', 'object_id', 'name', 'description', 'image_width', 'image_height', 'image_size',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -154,9 +154,6 @@ def enqueue_event(queue, instance, request, event_type):
             snapshots=get_snapshots(instance, event_type),
             request=request,
             user=request.user,
-            # Legacy request attributes for backward compatibility
-            username=request.user.username,  # DEPRECATED, will be removed in NetBox v4.7.0
-            request_id=request.id,           # DEPRECATED, will be removed in NetBox v4.7.0
         )
 
     # For delete events, eagerly serialize the payload before the row is gone.
@@ -170,15 +167,11 @@ def process_event_rules(event_rules, object_type, event):
     Process a list of EventRules against an event.
 
     Notes on event sources:
-    - Object change events (created/updated/deleted) are enqueued via
-      enqueue_event() during an HTTP request.
-      These events include a request object and legacy request
-      attributes (e.g. username, request_id) for backward compatibility.
-    - Job lifecycle events (JOB_STARTED/JOB_COMPLETED) are emitted by
-      job_start/job_end signal handlers and may not include a request
-      context.
-      Consumers must not assume that fields like `username` are always
-      present.
+    - Object change events (created/updated/deleted) are enqueued via enqueue_event()
+      during an HTTP request. These events include a request object.
+    - Job lifecycle events (JOB_STARTED/JOB_COMPLETED) are emitted by job_start/job_end
+      signal handlers and may not include a request context. Consumers must not assume
+      that a request is always present.
     """
 
     for event_rule in event_rules:
@@ -215,12 +208,6 @@ def process_event_rules(event_rules, object_type, event):
             queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
             rq_queue = get_queue(queue_name)
 
-            # For job lifecycle events, `username` may be absent because
-            # there is no request context.
-            # Prefer the associated user object when present, falling
-            # back to the legacy username attribute.
-            username = getattr(event.get('user'), 'username', None) or event.get('username')
-
             # Compile the task parameters
             params = {
                 'event_rule': event_rule,
@@ -229,7 +216,6 @@ def process_event_rules(event_rules, object_type, event):
                 'data': event_data,
                 'snapshots': event.get('snapshots'),
                 'timestamp': timezone.now().isoformat(),
-                'username': username,
                 'retry': get_rq_retry(),
             }
             if 'request' in event:

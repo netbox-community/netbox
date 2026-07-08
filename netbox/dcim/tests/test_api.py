@@ -12,7 +12,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate, Tag
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, RIR, VLAN, VRF
+from ipam.models import ASN, RIR, VLAN, VRF, IPAddress
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
@@ -2075,6 +2075,58 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['oob_ip']['nat_inside']['address'], str(real_ip.address))
         self.assertEqual(response.data['oob_ip']['nat_outside'], [])
 
+    def test_get_object_includes_dns_name_on_primary_ip(self):
+        device = create_test_device('dns-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        ip4 = IPAddress(address='192.0.2.10/32', dns_name='device4.example.com')
+        ip4.assigned_object = interfaces[0]
+        ip4.save()
+        ip6 = IPAddress(address='2001:db8::10/128', dns_name='device6.example.com')
+        ip6.assigned_object = interfaces[1]
+        ip6.save()
+
+        device.primary_ip4 = ip4
+        device.primary_ip6 = ip6
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['dns_name'], 'device4.example.com')
+        self.assertEqual(response.data['primary_ip6']['dns_name'], 'device6.example.com')
+        self.assertIn(
+            response.data['primary_ip']['dns_name'],
+            ('device4.example.com', 'device6.example.com'),
+        )
+
+    def test_get_object_includes_dns_name_on_oob_ip(self):
+        device = create_test_device('dns-oob-device')
+        interface = Interface.objects.create(device=device, name='oob0', type='other')
+
+        ip = IPAddress(address='192.0.2.20/32', dns_name='oob.example.com')
+        ip.assigned_object = interface
+        ip.save()
+
+        device.oob_ip = ip
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['oob_ip']['dns_name'], 'oob.example.com')
+
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',
@@ -2828,6 +2880,93 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
         # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
+
+    def test_mac_address_create(self):
+        """
+        Creating an interface with mac_address creates the primary MACAddress in one request.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface MAC Create',
+            'type': '1000base-t',
+            'mac_address': 'AA:BB:CC:DD:EE:FF',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        iface = Interface.objects.get(pk=response.data['id'])
+        self.assertIsNotNone(iface.primary_mac_address)
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:FF')
+        self.assertEqual(iface.primary_mac_address.assigned_object, iface)
+
+    def test_mac_address_update(self):
+        """
+        Patching mac_address creates/updates the primary MACAddress in one request.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+        url = self._get_detail_url(iface)
+
+        # Set a new primary MAC via mac_address shortcut
+        response = self.client.patch(url, {'mac_address': '11:22:33:44:55:66'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertIsNotNone(iface.primary_mac_address)
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), '11:22:33:44:55:66')
+
+        # Update the MAC to a new value
+        response = self.client.patch(url, {'mac_address': 'AA:BB:CC:DD:EE:FF'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:FF')
+
+        # Clear the primary MAC by sending null
+        response = self.client.patch(url, {'mac_address': None}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertIsNone(iface.primary_mac_address)
+
+    def test_mac_address_invalid(self):
+        """
+        Sending an invalid MAC address string returns a 400 error.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface MAC Bad',
+            'type': '1000base-t',
+            'mac_address': 'not-a-mac',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('mac_address', response.data)
+
+    def test_mac_address_find_or_create(self):
+        """
+        Patching mac_address with a MAC that already exists on the interface promotes it to primary
+        without creating a duplicate MACAddress record.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+
+        # Pre-create two MACs assigned to this interface
+        mac1 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:01', assigned_object=iface)
+        mac2 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:02', assigned_object=iface)
+        iface.primary_mac_address = mac1
+        iface.save()
+
+        mac_count_before = iface.mac_addresses.count()
+        url = self._get_detail_url(iface)
+
+        # PATCH with mac2's address — should promote mac2, not create a new record
+        response = self.client.patch(url, {'mac_address': 'CC:DD:EE:FF:00:02'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        iface.refresh_from_db()
+        self.assertEqual(iface.primary_mac_address.pk, mac2.pk)
+        self.assertEqual(iface.mac_addresses.count(), mac_count_before)
 
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
@@ -3862,6 +4001,75 @@ class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
                 # Omit identifier to test uniqueness constraint
             },
         ]
+
+    def test_get_object_includes_nat_on_primary_ip(self):
+        device = create_test_device('vdc-nat-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        real_ip4, nat_ip4 = create_test_nat_ip_pair(
+            real_address='10.0.2.10/32',
+            nat_address='198.51.100.30/32',
+            inside_interface=interfaces[0],
+        )
+        real_ip6, nat_ip6 = create_test_nat_ip_pair(
+            real_address='2001:db8:2::10/128',
+            nat_address='2001:db8:2::20/128',
+            inside_interface=interfaces[1],
+        )
+
+        vdc = VirtualDeviceContext.objects.create(
+            name='VDC NAT', identifier=98, device=device, status='active'
+        )
+        vdc.primary_ip4 = nat_ip4
+        vdc.primary_ip6 = real_ip6
+        vdc.save()
+
+        self.add_permissions('dcim.view_virtualdevicecontext', 'ipam.view_ipaddress')
+        response = self.client.get(self._get_detail_url(vdc), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['nat_inside']['address'], str(real_ip4.address))
+        self.assertEqual(response.data['primary_ip4']['nat_outside'], [])
+        self.assertIsNone(response.data['primary_ip6']['nat_inside'])
+        self.assertCountEqual(
+            [ip['address'] for ip in response.data['primary_ip6']['nat_outside']],
+            [str(nat_ip6.address)],
+        )
+
+    def test_get_object_includes_dns_name_on_primary_ip(self):
+        device = create_test_device('vdc-dns-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        ip4 = IPAddress(address='192.0.2.30/32', dns_name='vdc4.example.com')
+        ip4.assigned_object = interfaces[0]
+        ip4.save()
+        ip6 = IPAddress(address='2001:db8::30/128', dns_name='vdc6.example.com')
+        ip6.assigned_object = interfaces[1]
+        ip6.save()
+
+        vdc = VirtualDeviceContext.objects.create(
+            name='VDC DNS', identifier=99, device=device, status='active'
+        )
+        vdc.primary_ip4 = ip4
+        vdc.primary_ip6 = ip6
+        vdc.save()
+
+        self.add_permissions('dcim.view_virtualdevicecontext', 'ipam.view_ipaddress')
+        response = self.client.get(self._get_detail_url(vdc), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['dns_name'], 'vdc4.example.com')
+        self.assertEqual(response.data['primary_ip6']['dns_name'], 'vdc6.example.com')
+        self.assertIn(
+            response.data['primary_ip']['dns_name'],
+            ('vdc4.example.com', 'vdc6.example.com'),
+        )
 
 
 class MACAddressTestCase(APIViewTestCases.APIViewTestCase):

@@ -15,11 +15,13 @@ from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
     NumericArrayField,
     NumericRangeArrayField,
+    TypedChoiceField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
@@ -203,6 +205,12 @@ class RoleForm(OrganizationalModelForm):
 
 
 class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PrefixStatusChoices,
+        initial=PrefixStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this prefix'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -267,6 +275,12 @@ class PrefixBulkAddForm(PrefixForm):
 
 
 class IPRangeForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPRangeStatusChoices,
+        initial=IPRangeStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this range'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -296,6 +310,18 @@ class IPRangeForm(TenancyForm, PrimaryModelForm):
 
 
 class IPAddressForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPAddressStatusChoices,
+        initial=IPAddressStatusChoices.STATUS_ACTIVE,
+        help_text=_('The operational status of this IP'),
+    )
+    role = TypedChoiceField(
+        label=_('Role'),
+        choices=add_blank_choice(IPAddressRoleChoices),
+        required=False,
+        help_text=_('The functional role of this IP'),
+    )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -483,6 +509,18 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
 
 
 class IPAddressBulkAddForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPAddressStatusChoices,
+        initial=IPAddressStatusChoices.STATUS_ACTIVE,
+        help_text=_('The operational status of this IP'),
+    )
+    role = TypedChoiceField(
+        label=_('Role'),
+        choices=add_blank_choice(IPAddressRoleChoices),
+        required=False,
+        help_text=_('The functional role of this IP'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -515,6 +553,15 @@ class IPAddressAssignForm(forms.Form):
 
 
 class FHRPGroupForm(PrimaryModelForm):
+    protocol = ChoiceField(
+        label=_('Protocol'),
+        choices=FHRPGroupProtocolChoices,
+    )
+    auth_type = TypedChoiceField(
+        label=_('Authentication type'),
+        choices=add_blank_choice(FHRPGroupAuthTypeChoices),
+        required=False,
+    )
 
     # Optionally create a new IPAddress along with the FHRPGroup
     ip_vrf = DynamicModelChoiceField(
@@ -526,7 +573,7 @@ class FHRPGroupForm(PrimaryModelForm):
         required=False,
         label=_('Address')
     )
-    ip_status = forms.ChoiceField(
+    ip_status = ChoiceField(
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False,
         label=_('Status')
@@ -646,6 +693,18 @@ class VLANGroupForm(GenericObjectFormMixin, TenancyForm, OrganizationalModelForm
 
 
 class VLANForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VLANStatusChoices,
+        initial=VLANStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this VLAN'),
+    )
+    qinq_role = TypedChoiceField(
+        label=_('Q-in-Q role'),
+        choices=add_blank_choice(VLANQinQRoleChoices),
+        required=False,
+        help_text=_('Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)'),
+    )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -742,6 +801,10 @@ class VLANTranslationRuleForm(NetBoxModelForm):
 
 
 class ServiceTemplateForm(PrimaryModelForm):
+    protocol = ChoiceField(
+        label=_('Protocol'),
+        choices=ServiceProtocolChoices,
+    )
     ports = NumericArrayField(
         label=_('Ports'),
         base_field=forms.IntegerField(
@@ -761,6 +824,10 @@ class ServiceTemplateForm(PrimaryModelForm):
 
 
 class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
+    protocol = ChoiceField(
+        label=_('Protocol'),
+        choices=ServiceProtocolChoices,
+    )
     parent = GenericObjectChoiceField(
         label=_('Parent'),
         content_type_queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),

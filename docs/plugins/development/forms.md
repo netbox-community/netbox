@@ -210,6 +210,35 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
     options:
       members: false
 
+## Static Choice Fields
+
+These fields render a standard HTML `<select>` element (as opposed to the API-backed widgets used by the dynamic object fields below). They extend Django's built-in choice fields to optionally display a short **description** beneath each option's label.
+
+For choice set-backed fields, descriptions are defined per choice using a `Choice` object in the `ChoiceSet` and are rendered automatically. Pass `show_descriptions=False` to suppress them for a particular field.
+
+```python
+from utilities.choices import Choice, ChoiceSet
+from utilities.forms.fields import ChoiceField
+
+class StatusChoices(ChoiceSet):
+    ACTIVE = 'active'
+    RETIRED = 'retired'
+    CHOICES = (
+        Choice(ACTIVE, 'Active', description='Currently in service'),
+        Choice(RETIRED, 'Retired', description='No longer in service'),
+    )
+
+status = ChoiceField(choices=StatusChoices)
+```
+
+::: utilities.forms.fields.ChoiceField
+    options:
+      members: false
+
+::: utilities.forms.fields.MultipleChoiceField
+    options:
+      members: false
+
 ## Dynamic Object Fields
 
 ::: utilities.forms.fields.DynamicModelChoiceField

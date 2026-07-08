@@ -56,8 +56,14 @@ def widget_type(field):
 
 
 @register.simple_tag
-def render_field_with_aria(field, has_helptext=None):
-    """Render a bound form field with aria-describedby/aria-invalid/aria-label wired up."""
+def render_field_with_aria(field, has_helptext=None, element_id=None):
+    """Render a bound form field with aria-describedby/aria-invalid/aria-label wired up.
+
+    Pass ``element_id`` to override the widget's HTML ``id``. This is needed when the same
+    field is rendered more than once on a page (e.g. the saved-filter selector, which appears
+    both in the list controls and the filter drawer), to keep element IDs unique so that label
+    associations resolve correctly for assistive technology.
+    """
     if has_helptext is None:
         has_helptext = bool(field.help_text)
     widget_attrs = field.field.widget.attrs
@@ -67,6 +73,8 @@ def render_field_with_aria(field, has_helptext=None):
     if has_helptext:
         described_by.append(f'{field.auto_id}_helptext')
     extra_attrs = {}
+    if element_id:
+        extra_attrs['id'] = element_id
     if described_by:
         # Merge with any aria-describedby already set on the widget so we
         # append to (rather than clobber) descriptions defined elsewhere.

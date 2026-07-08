@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 from core.models import ObjectType
 from extras.models import CustomLink
 from netbox.choices import ButtonColorChoices
+from utilities.request import get_safe_request_context
 
 register = template.Library()
 
@@ -33,8 +34,9 @@ def custom_links(context, obj):
     """
     Render all applicable links for the given object.
     """
+    user = context['request'].user
     object_type = ObjectType.objects.get_for_model(obj)
-    custom_links = CustomLink.objects.filter(object_types=object_type, enabled=True)
+    custom_links = CustomLink.objects.restrict(user, 'view').filter(object_types=object_type, enabled=True)
     if not custom_links:
         return ''
 
@@ -42,7 +44,7 @@ def custom_links(context, obj):
     link_context = {
         'object': obj,
         'debug': context.get('debug', False),  # django.template.context_processors.debug
-        'request': context['request'],  # django.template.context_processors.request
+        'request': get_safe_request_context(context['request']),  # Sanitized subset of the request
         'user': context['user'],  # django.contrib.auth.context_processors.auth
         'perms': context['perms'],  # django.contrib.auth.context_processors.auth
     }

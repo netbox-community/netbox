@@ -14,7 +14,7 @@ Some models have fields which are limited to specific choices, such as the `stat
 
 ```no-highlight
 $ curl -s -X OPTIONS \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/ipam/prefixes/ | jq ".actions.POST.status.choices"
 [

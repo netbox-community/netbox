@@ -10,10 +10,17 @@ __all__ = (
 
 @extend_schema_field(serializers.JSONField(allow_null=True, read_only=True))
 class GFKSerializerField(serializers.Field):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._serializer_cache = {}
 
     def to_representation(self, instance, **kwargs):
         if instance is None:
             return None
-        serializer = get_serializer_for_model(instance)
         context = {'request': self.context['request']}
-        return serializer(instance, nested=True, context=context).data
+        if instance.__class__ not in self._serializer_cache:
+            serializer = get_serializer_for_model(instance)(nested=True, context=context)
+            self._serializer_cache[instance.__class__] = serializer
+        else:
+            serializer = self._serializer_cache[instance.__class__]
+        return serializer.to_representation(instance)

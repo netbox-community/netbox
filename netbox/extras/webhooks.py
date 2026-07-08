@@ -8,6 +8,7 @@ from jinja2.exceptions import TemplateError
 
 from netbox.registry import registry
 from utilities.proxy import resolve_proxies
+from utilities.request import get_safe_request_context
 
 from .constants import WEBHOOK_EVENT_TYPES
 
@@ -42,7 +43,7 @@ def generate_signature(request_body, secret):
 
 
 @job('default')
-def send_webhook(event_rule, object_type, event_type, data, timestamp, username, request=None, snapshots=None):
+def send_webhook(event_rule, object_type, event_type, data, timestamp, request=None, snapshots=None):
     """
     Make a POST request to the defined Webhook
     """
@@ -53,21 +54,12 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'event': WEBHOOK_EVENT_TYPES.get(event_type, event_type),
         'timestamp': timestamp,
         'object_type': '.'.join(object_type.natural_key()),
-        'username': username,
-        'request_id': request.id if request else None,
         'data': data,
     }
     if request:
-        context['request'] = {
-            'id': str(request.id) if request.id else None,
-            'method': request.method,
-            'path': request.path,
-            'user': str(request.user),
-        }
+        context['request'] = get_safe_request_context(request)
     if snapshots:
-        context.update({
-            'snapshots': snapshots
-        })
+        context['snapshots'] = snapshots
 
     # Add any additional context from plugins
     callback_data = {}

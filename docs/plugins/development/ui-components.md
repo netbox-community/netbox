@@ -53,6 +53,73 @@ class MyView(generic.ObjectView):
 
 ::: netbox.ui.layout.Column
 
+## Breadcrumbs
+
+Breadcrumbs are rendered at the top of an object's page to convey its position within a hierarchy and to provide quick navigation to related objects. By default, a single breadcrumb linking to the object's list view is shown. To add object-specific breadcrumbs, pass a list of `Breadcrumb` instances to your layout, just as you would its panels.
+
+A `Breadcrumb` typically references an _accessor_ (rather than a static value), which is resolved against the object being viewed when the page is rendered. The accessor may be a dotted attribute path or a callable. (A breadcrumb may instead define a static `label`; see below.)
+
+```python
+from netbox.ui import layout
+from netbox.ui.breadcrumbs import Breadcrumb
+from netbox.views import generic
+
+class MyView(generic.ObjectView):
+    layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site'),
+            Breadcrumb('location'),
+            Breadcrumb('rack'),
+        ],
+        left_panels=[...],
+        right_panels=[...],
+    )
+```
+
+Each breadcrumb renders as a label (the string representation of the resolved object) and an optional link. If no explicit `url` is provided, the object's `get_absolute_url()` is used when available. A breadcrumb whose accessor resolves to `None` (or an empty iterable) renders as an empty string and is omitted, which simplifies conditional breadcrumbs (e.g. where a device may or may not be assigned to a rack).
+
+To link a breadcrumb somewhere other than the related object's own page (for example, to a filtered list view), pass a `url`. A callable `url` receives the resolved object:
+
+```python
+from django.urls import reverse
+
+Breadcrumb('rir', url=lambda rir: f"{reverse('ipam:asn_list')}?rir_id={rir.pk}")
+```
+
+A callable accessor which returns an iterable renders one breadcrumb per object, which is useful for representing a hierarchy of ancestors:
+
+```python
+Breadcrumb(lambda obj: obj.get_ancestors())
+```
+
+To render a breadcrumb that isn't tied to a related object, omit the accessor and pass a `label`. This is useful for linking to a parent view that isn't reachable via an attribute on the object (e.g. a user's personal token list):
+
+```python
+from django.urls import reverse_lazy
+
+Breadcrumb(label=_('My API Tokens'), url=reverse_lazy('account:usertoken_list'))
+```
+
+The `label` may also be a callable, which receives the relevant object (the resolved related object when an accessor is given, otherwise the viewed instance). This is useful for an unlinked descriptive crumb derived from the object:
+
+```python
+Breadcrumb(label=lambda obj: f"{_('Units')} {obj.unit_list}")
+```
+
+The default root breadcrumb (linking to the object's list view) is prepended to the trail automatically. Where that list view isn't an appropriate root—for example, the global token list is admin-only, so a user's personal token page links to their own token list instead—pass `root_breadcrumb=False` to the layout and supply a replacement as the first breadcrumb:
+
+```python
+SimpleLayout(
+    root_breadcrumb=False,
+    breadcrumbs=[
+        Breadcrumb(label=_('My API Tokens'), url=reverse_lazy('account:usertoken_list')),
+    ],
+    ...
+)
+```
+
+::: netbox.ui.breadcrumbs.Breadcrumb
+
 ## Panels
 
 Within each column, related blocks of content are arranged into panels. Each panel has a title and may have a set of associated actions, but the content within is otherwise arbitrary.

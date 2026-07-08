@@ -1226,6 +1226,19 @@ console-ports:
 class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ModuleType
 
+    SCHEMA = {
+        'properties': {
+            'media': {
+                'title': 'Media',
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'enum': ['copper', 'sfp', 'qsfp28'],
+                },
+            },
+        },
+    }
+
     @classmethod
     def setUpTestData(cls):
 
@@ -1235,8 +1248,15 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
+
         module_types = ModuleType.objects.bulk_create([
-            ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
+            ModuleType(
+                model='Module Type 1',
+                manufacturer=manufacturers[0],
+                profile=profile,
+                attribute_data={'media': ['copper', 'qsfp28']},
+            ),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
         ])
@@ -1318,6 +1338,19 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         super().test_bulk_import_objects_with_constrained_permission()
+
+    @tag('regression')
+    def test_get_object_renders_profile_attribute_lists(self):
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.view_moduletypeprofile',
+        )
+        moduletype = ModuleType.objects.first()
+        response = self.client.get(moduletype.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Media')
+        self.assertContains(response, 'copper, qsfp28')
 
     def test_moduletype_consoleports(self):
         self.add_permissions('dcim.view_moduletype', 'dcim.view_consoleporttemplate')
@@ -2558,14 +2591,33 @@ class ModuleTestCase(
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        module_type_profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1')
+        module_type_profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 1',
+            schema={
+                'properties': {
+                    'media': {
+                        'title': 'Media',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['copper', 'sfp', 'qsfp28'],
+                        },
+                    },
+                },
+            },
+        )
         devices = (
             create_test_device('Device 1'),
             create_test_device('Device 2'),
         )
 
         module_types = (
-            ModuleType(manufacturer=manufacturer, model='Module Type 1', profile=module_type_profile),
+            ModuleType(
+                manufacturer=manufacturer,
+                model='Module Type 1',
+                profile=module_type_profile,
+                attribute_data={'media': ['copper', 'qsfp28']},
+            ),
             ModuleType(manufacturer=manufacturer, model='Module Type 2'),
             ModuleType(manufacturer=manufacturer, model='Module Type 3'),
             ModuleType(manufacturer=manufacturer, model='Module Type 4'),
@@ -2633,6 +2685,19 @@ class ModuleTestCase(
         response = self.client.get(self._get_queryset().first().get_absolute_url())
 
         self.assertContains(response, 'Module Type Profile 1')
+
+    @tag('regression')
+    def test_module_detail_renders_module_type_attribute_lists(self):
+        self.add_permissions(
+            'dcim.view_module',
+            'dcim.view_moduletype',
+            'dcim.view_moduletypeprofile',
+        )
+        response = self.client.get(self._get_queryset().first().get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Media')
+        self.assertContains(response, 'copper, qsfp28')
 
     def test_module_component_replication(self):
         self.add_permissions(
@@ -3381,6 +3446,59 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         # On success the view redirects back to the return URL
         self.assertHttpStatus(response, 302)
         self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
+
+    def test_mac_address_shortcut_create(self):
+        """
+        Submitting the Interface form with a mac_address string creates a MACAddress
+        and sets it as primary in one request.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+
+        data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('add'), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        interface = Interface.objects.get(device=data['device'], name=data['name'])
+        self.assertIsNotNone(interface.primary_mac_address)
+        self.assertEqual(str(interface.primary_mac_address.mac_address), 'AA:BB:CC:DD:EE:FF')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_edit(self):
+        """
+        Submitting the Interface edit form with a mac_address string creates a MACAddress
+        and assigns it as primary when none existed before.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        self.assertIsNone(instance.primary_mac_address)
+
+        data = {**self.form_data, 'mac_address': '11:22:33:44:55:66', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNotNone(instance.primary_mac_address)
+        self.assertEqual(str(instance.primary_mac_address.mac_address), '11:22:33:44:55:66')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_clear(self):
+        """
+        Submitting the Interface edit form with an empty mac_address clears the primary MAC.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        data = {**self.form_data, 'mac_address': '', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
 
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -4338,10 +4456,67 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_set_primary(self):
+        """
+        Test that MACAddressSetPrimaryView promotes a non-primary MAC to primary and
+        redirects to the assigned interface's detail page.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        # Use the first MAC fixture which is assigned to an interface but not yet primary
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        self.assertIsNotNone(interface)
+        self.assertIsNone(interface.primary_mac_address)
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_already_primary(self):
+        """
+        Clicking Set as primary on the current primary MAC is a no-op and still
+        redirects to the interface.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        interface.primary_mac_address = mac
+        interface.save()
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_requires_interface_change_permission(self):
+        """
+        Attempting to set a primary MAC without change_interface permission
+        redirects to the MAC's detail page with an error.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        mac.assigned_object.refresh_from_db()
+        self.assertIsNone(mac.assigned_object.primary_mac_address)
+
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):
         """
-        Test creating a MAC address via quick-add modal (e.g., from Interface form).
+        Test creating a MAC address via the quick-add modal mechanism.
         Regression test for issue #20542 where form prefix was missing in POST handler.
         """
         self.add_permissions('dcim.view_macaddress', 'dcim.view_interface', 'extras.view_tag')

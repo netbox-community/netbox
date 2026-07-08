@@ -124,8 +124,8 @@ class MediaViewTestCase(TestCase):
         with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)):
             response = self.client.get(url)
         self.assertHttpStatus(response, 200)
-        self.assertEqual(response['Content-Disposition'], 'attachment')
-        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response['Content-Security-Policy'], "sandbox; default-src 'none'")
+        self.assertEqual(response['X-Content-Type-Options'], "nosniff")
 
     def test_image_attachment_without_permission(self):
         url = reverse('media', kwargs={'path': self.image_attachment.image.name})
@@ -145,8 +145,8 @@ class MediaViewTestCase(TestCase):
         with patch('netbox.views.misc.serve', return_value=HttpResponse(status=200)):
             response = self.client.get(url)
         self.assertHttpStatus(response, 200)
-        self.assertEqual(response['Content-Disposition'], 'attachment')
-        self.assertEqual(response['X-Content-Type-Options'], 'nosniff')
+        self.assertEqual(response['Content-Security-Policy'], "sandbox; default-src 'none'")
+        self.assertEqual(response['X-Content-Type-Options'], "nosniff")
 
     def test_device_type_without_permission(self):
         url = reverse('media', kwargs={'path': self.device_type.front_image.name})

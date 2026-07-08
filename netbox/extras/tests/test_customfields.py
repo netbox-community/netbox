@@ -1,6 +1,7 @@
 import datetime
 import json
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.test import tag
@@ -672,6 +673,47 @@ class CustomFieldTestCase(TestCase):
         site.refresh_from_db()
         self.assertNotIn('field1', site.custom_field_data)
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
+
+    @patch('extras.models.customfields.CUSTOMFIELD_DATA_BATCH_SIZE', 2)
+    def test_batched_object_data_updates(self):
+        """
+        Provisioning, renaming, and removing custom field data is applied in batches. Use a small
+        batch size to ensure the data on every object is updated across multiple batches.
+        """
+        # The existing sites (created in setUpTestData) span multiple batches of size 2
+        site_count = Site.objects.count()
+        self.assertGreater(site_count, 2)
+
+        # Provisioning: a default value is populated onto every existing object
+        cf = CustomField.objects.create(
+            name='batched_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='foo'
+        )
+        cf.object_types.set([self.object_type])
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__batched_field='foo').count(),
+            site_count
+        )
+
+        # Renaming: the key is renamed on every existing object, preserving its value
+        cf.name = 'renamed_field'
+        cf.save()
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__renamed_field='foo').count(),
+            site_count
+        )
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='batched_field').count(),
+            0
+        )
+
+        # Removal: the key is stripped from every existing object when the field is deleted
+        cf.delete()
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
+            0
+        )
 
     def test_default_value_validation(self):
         choiceset = CustomFieldChoiceSet.objects.create(

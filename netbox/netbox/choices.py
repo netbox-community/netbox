@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from utilities.choices import ChoiceSet
+from utilities.choices import Choice, ChoiceSet
 from utilities.constants import CSV_DELIMITERS
 
 __all__ = (
@@ -48,33 +48,33 @@ class ColorChoices(ChoiceSet):
     COLOR_WHITE = 'ffffff'
 
     CHOICES = (
-        (COLOR_DARK_RED, _('Dark Red')),
-        (COLOR_RED, _('Red')),
-        (COLOR_PINK, _('Pink')),
-        (COLOR_ROSE, _('Rose')),
-        (COLOR_FUCHSIA, _('Fuchsia')),
-        (COLOR_PURPLE, _('Purple')),
-        (COLOR_DARK_PURPLE, _('Dark Purple')),
-        (COLOR_INDIGO, _('Indigo')),
-        (COLOR_BLUE, _('Blue')),
-        (COLOR_LIGHT_BLUE, _('Light Blue')),
-        (COLOR_CYAN, _('Cyan')),
-        (COLOR_TEAL, _('Teal')),
-        (COLOR_AQUA, _('Aqua')),
-        (COLOR_DARK_GREEN, _('Dark Green')),
-        (COLOR_GREEN, _('Green')),
-        (COLOR_LIGHT_GREEN, _('Light Green')),
-        (COLOR_LIME, _('Lime')),
-        (COLOR_YELLOW, _('Yellow')),
-        (COLOR_AMBER, _('Amber')),
-        (COLOR_ORANGE, _('Orange')),
-        (COLOR_DARK_ORANGE, _('Dark Orange')),
-        (COLOR_BROWN, _('Brown')),
-        (COLOR_LIGHT_GREY, _('Light Grey')),
-        (COLOR_GREY, _('Grey')),
-        (COLOR_DARK_GREY, _('Dark Grey')),
-        (COLOR_BLACK, _('Black')),
-        (COLOR_WHITE, _('White')),
+        Choice(COLOR_DARK_RED, _('Dark Red')),
+        Choice(COLOR_RED, _('Red')),
+        Choice(COLOR_PINK, _('Pink')),
+        Choice(COLOR_ROSE, _('Rose')),
+        Choice(COLOR_FUCHSIA, _('Fuchsia')),
+        Choice(COLOR_PURPLE, _('Purple')),
+        Choice(COLOR_DARK_PURPLE, _('Dark Purple')),
+        Choice(COLOR_INDIGO, _('Indigo')),
+        Choice(COLOR_BLUE, _('Blue')),
+        Choice(COLOR_LIGHT_BLUE, _('Light Blue')),
+        Choice(COLOR_CYAN, _('Cyan')),
+        Choice(COLOR_TEAL, _('Teal')),
+        Choice(COLOR_AQUA, _('Aqua')),
+        Choice(COLOR_DARK_GREEN, _('Dark Green')),
+        Choice(COLOR_GREEN, _('Green')),
+        Choice(COLOR_LIGHT_GREEN, _('Light Green')),
+        Choice(COLOR_LIME, _('Lime')),
+        Choice(COLOR_YELLOW, _('Yellow')),
+        Choice(COLOR_AMBER, _('Amber')),
+        Choice(COLOR_ORANGE, _('Orange')),
+        Choice(COLOR_DARK_ORANGE, _('Dark Orange')),
+        Choice(COLOR_BROWN, _('Brown')),
+        Choice(COLOR_LIGHT_GREY, _('Light Grey')),
+        Choice(COLOR_GREY, _('Grey')),
+        Choice(COLOR_DARK_GREY, _('Dark Grey')),
+        Choice(COLOR_BLACK, _('Black')),
+        Choice(COLOR_WHITE, _('White')),
     )
 
 
@@ -100,20 +100,20 @@ class ButtonColorChoices(ChoiceSet):
     WHITE = 'white'
 
     CHOICES = (
-        (DEFAULT, _('Default')),
-        (BLUE, _('Blue')),
-        (INDIGO, _('Indigo')),
-        (PURPLE, _('Purple')),
-        (PINK, _('Pink')),
-        (RED, _('Red')),
-        (ORANGE, _('Orange')),
-        (YELLOW, _('Yellow')),
-        (GREEN, _('Green')),
-        (TEAL, _('Teal')),
-        (CYAN, _('Cyan')),
-        (GRAY, _('Gray')),
-        (BLACK, _('Black')),
-        (WHITE, _('White')),
+        Choice(DEFAULT, _('Default')),
+        Choice(BLUE, _('Blue')),
+        Choice(INDIGO, _('Indigo')),
+        Choice(PURPLE, _('Purple')),
+        Choice(PINK, _('Pink')),
+        Choice(RED, _('Red')),
+        Choice(ORANGE, _('Orange')),
+        Choice(YELLOW, _('Yellow')),
+        Choice(GREEN, _('Green')),
+        Choice(TEAL, _('Teal')),
+        Choice(CYAN, _('Cyan')),
+        Choice(GRAY, _('Gray')),
+        Choice(BLACK, _('Black')),
+        Choice(WHITE, _('White')),
     )
 
 
@@ -127,9 +127,9 @@ class ImportMethodChoices(ChoiceSet):
     DATA_FILE = 'datafile'
 
     CHOICES = [
-        (DIRECT, _('Direct')),
-        (UPLOAD, _('Upload')),
-        (DATA_FILE, _('Data file')),
+        Choice(DIRECT, _('Direct'), description=_('Enter data directly into a form field')),
+        Choice(UPLOAD, _('Upload'), description=_('Upload a file from the local filesystem')),
+        Choice(DATA_FILE, _('Data file'), description=_('Reference a file from a synced data source')),
     ]
 
 
@@ -140,10 +140,10 @@ class ImportFormatChoices(ChoiceSet):
     YAML = 'yaml'
 
     CHOICES = [
-        (AUTO, _('Auto-detect')),
-        (CSV, 'CSV'),
-        (JSON, 'JSON'),
-        (YAML, 'YAML'),
+        Choice(AUTO, _('Auto-detect')),
+        Choice(CSV, 'CSV'),
+        Choice(JSON, 'JSON'),
+        Choice(YAML, 'YAML'),
     ]
 
 
@@ -155,11 +155,11 @@ class CSVDelimiterChoices(ChoiceSet):
     TAB = CSV_DELIMITERS['tab']
 
     CHOICES = [
-        (AUTO, _('Auto-detect')),
-        (COMMA, _('Comma')),
-        (SEMICOLON, _('Semicolon')),
-        (PIPE, _('Pipe')),
-        (TAB, _('Tab')),
+        Choice(AUTO, _('Auto-detect')),
+        Choice(COMMA, _('Comma')),
+        Choice(SEMICOLON, _('Semicolon')),
+        Choice(PIPE, _('Pipe')),
+        Choice(TAB, _('Tab')),
     ]
 
 
@@ -174,10 +174,10 @@ class DistanceUnitChoices(ChoiceSet):
     UNIT_FOOT = 'ft'
 
     CHOICES = (
-        (UNIT_KILOMETER, _('Kilometers')),
-        (UNIT_METER, _('Meters')),
-        (UNIT_MILE, _('Miles')),
-        (UNIT_FOOT, _('Feet')),
+        Choice(UNIT_KILOMETER, _('Kilometers')),
+        Choice(UNIT_METER, _('Meters')),
+        Choice(UNIT_MILE, _('Miles')),
+        Choice(UNIT_FOOT, _('Feet')),
     )
 
 
@@ -192,8 +192,8 @@ class WeightUnitChoices(ChoiceSet):
     UNIT_OUNCE = 'oz'
 
     CHOICES = (
-        (UNIT_KILOGRAM, _('Kilograms')),
-        (UNIT_GRAM, _('Grams')),
-        (UNIT_POUND, _('Pounds')),
-        (UNIT_OUNCE, _('Ounces')),
+        Choice(UNIT_KILOGRAM, _('Kilograms')),
+        Choice(UNIT_GRAM, _('Grams')),
+        Choice(UNIT_POUND, _('Pounds')),
+        Choice(UNIT_OUNCE, _('Ounces')),
     )

@@ -409,6 +409,39 @@ class Breakout1C6Px6C1PCableProfile(BaseCableProfile):
     }
 
 
+class Breakout1C8Px8C1PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 8,
+    }
+    b_connectors = {
+        1: 1,
+        2: 1,
+        3: 1,
+        4: 1,
+        5: 1,
+        6: 1,
+        7: 1,
+        8: 1,
+    }
+    _mapping = {
+        (1, 1): (1, 1),
+        (1, 2): (2, 1),
+        (1, 3): (3, 1),
+        (1, 4): (4, 1),
+        (1, 5): (5, 1),
+        (1, 6): (6, 1),
+        (1, 7): (7, 1),
+        (1, 8): (8, 1),
+        (2, 1): (1, 2),
+        (3, 1): (1, 3),
+        (4, 1): (1, 4),
+        (5, 1): (1, 5),
+        (6, 1): (1, 6),
+        (7, 1): (1, 7),
+        (8, 1): (1, 8),
+    }
+
+
 class Trunk2C4PShuffleCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,

@@ -1,14 +1,22 @@
 from django.forms import PasswordInput
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import LinkStatusChoices
 from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, Interface, Location, Site
 from ipam.models import VLAN
+from netbox.choices import DistanceUnitChoices
 from netbox.forms import NestedGroupModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import DynamicModelChoiceField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import ChoiceField, DynamicModelChoiceField, TypedChoiceField
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields
+from wireless.choices import (
+    WirelessAuthCipherChoices,
+    WirelessAuthTypeChoices,
+    WirelessLANStatusChoices,
+)
 from wireless.models import *
 
 __all__ = (
@@ -37,6 +45,21 @@ class WirelessLANGroupForm(NestedGroupModelForm):
 
 
 class WirelessLANForm(ScopedForm, TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=WirelessLANStatusChoices,
+        initial=WirelessLANStatusChoices.STATUS_ACTIVE,
+    )
+    auth_type = TypedChoiceField(
+        label=_('Authentication type'),
+        choices=add_blank_choice(WirelessAuthTypeChoices),
+        required=False,
+    )
+    auth_cipher = TypedChoiceField(
+        label=_('Authentication cipher'),
+        choices=add_blank_choice(WirelessAuthCipherChoices),
+        required=False,
+    )
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
@@ -72,6 +95,26 @@ class WirelessLANForm(ScopedForm, TenancyForm, PrimaryModelForm):
 
 
 class WirelessLinkForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=LinkStatusChoices,
+        initial=LinkStatusChoices.STATUS_CONNECTED,
+    )
+    auth_type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(WirelessAuthTypeChoices),
+        required=False,
+    )
+    auth_cipher = TypedChoiceField(
+        label=_('Cipher'),
+        choices=add_blank_choice(WirelessAuthCipherChoices),
+        required=False,
+    )
+    distance_unit = TypedChoiceField(
+        label=_('Distance unit'),
+        choices=add_blank_choice(DistanceUnitChoices),
+        required=False,
+    )
     site_a = DynamicModelChoiceField(
         queryset=Site.objects.all(),
         required=False,

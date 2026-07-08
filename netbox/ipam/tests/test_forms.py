@@ -67,6 +67,77 @@ class IPAddressImportFormTestCase(TestCase):
             type=InterfaceTypeChoices.TYPE_1GE_FIXED,
         )
 
+    def test_import_with_empty_is_primary_column_no_device(self):
+        """
+        Regression test for #22561: importing an IP where the is_primary/is_oob columns are
+        present but empty (and no device/VM specified) should succeed, not raise AttributeError.
+        """
+        form = IPAddressImportForm(data={
+            'address': '172.16.0.1/20',
+            'status': 'active',
+            'device': '',
+            'virtual_machine': '',
+            'interface': '',
+            'is_primary': '',
+            'is_oob': '',
+            'description': 'gateway for group A - Site 01',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        ip = form.save()
+        self.assertEqual(str(ip.address), '172.16.0.1/20')
+
+    def test_import_with_false_is_primary_no_device(self):
+        """
+        Regression test for #22561: importing an IP with an explicit is_primary=false (and no
+        device/VM specified) should succeed as a no-op, not raise AttributeError. An explicit
+        falsy boolean is not caught by clean_is_primary()'s "column absent" check.
+        """
+        form = IPAddressImportForm(data={
+            'address': '172.16.0.1/20',
+            'status': 'active',
+            'is_primary': 'false',
+            'is_oob': 'false',
+            'description': 'no parent specified',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        ip = form.save()
+        self.assertEqual(str(ip.address), '172.16.0.1/20')
+
+    def test_primary_not_cleared_by_subsequent_non_primary_row_with_device(self):
+        """
+        Guard against re-breaking #21440 while fixing #22561: importing a second IP with
+        is_primary=false (device specified) must not clear the primary IP set by a previous
+        row. The save-side parent guard must leave the conservative "only clear if currently
+        primary" behavior intact.
+        """
+        form1 = IPAddressImportForm(data={
+            'address': '10.10.10.1/24',
+            'status': 'active',
+            'device': 'Device 1',
+            'interface': 'eth0',
+            'is_primary': True,
+        })
+        self.assertTrue(form1.is_valid(), form1.errors)
+        ip1 = form1.save()
+
+        self.device.refresh_from_db()
+        self.assertEqual(self.device.primary_ip4, ip1)
+
+        form2 = IPAddressImportForm(data={
+            'address': '10.10.10.2/24',
+            'status': 'active',
+            'device': 'Device 1',
+            'interface': 'eth0',
+            'is_primary': False,
+        })
+        self.assertTrue(form2.is_valid(), form2.errors)
+        form2.save()
+
+        self.device.refresh_from_db()
+        self.assertEqual(
+            self.device.primary_ip4, ip1, "primary IP was incorrectly cleared by a row with is_primary=False"
+        )
+
     def test_oob_import_not_cleared_by_subsequent_non_oob_row(self):
         """
         Regression test for #21440: importing a second IP with is_oob=False should

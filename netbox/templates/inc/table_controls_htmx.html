@@ -1,5 +1,9 @@
+{% load form_helpers %}
 {% load helpers %}
 {% load i18n %}
+
+{# Live region used to announce updated results (e.g. after a quick search) to assistive technology #}
+<div id="object-list-status" class="visually-hidden" role="status" aria-live="polite"></div>
 
 <div class="row mb-3" id="results">
   <div class="col-auto d-print-none">
@@ -14,14 +18,14 @@
     </div>
   </div>
 
-  {% if filter_form %}
+  {% if filter_form and filter_form.filter_id %}
     <div class="col-auto d-print-none">
       <div class="input-group">
-        <label for="{{ filter_form.filter_id.id_for_label }}" class="input-group-text">
+        <label for="saved-filter-select" class="input-group-text">
           <i class="mdi mdi-filter" title="{% trans "Saved filter" %}" aria-hidden="true"></i>
           <span class="visually-hidden">{% trans "Saved filter" %}</span>
         </label>
-        {{ filter_form.filter_id }}
+        {% render_field_with_aria filter_form.filter_id element_id="saved-filter-select" %}
       </div>
     </div>
   {% endif %}

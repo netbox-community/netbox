@@ -9,9 +9,42 @@ __all__ = (
     'ClearableSelect',
     'ColorSelect',
     'HTMXSelect',
+    'Select',
+    'SelectMultiple',
     'SelectWithPK',
     'SplitMultiSelectWidget',
 )
+
+
+class AttrSelectMixin:
+    """
+    Annotates each rendered <option> with a `data-description` attribute, which is displayed as subtitle text
+    beneath the option's label. Descriptions are sourced from an explicit value-to-description mapping set on
+    `descriptions`.
+    """
+    def __init__(self, *args, descriptions=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.descriptions = descriptions or {}
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+
+        if description := self.descriptions.get(value, ''):
+            option['attrs']['data-description'] = description
+
+        return option
+
+
+class Select(AttrSelectMixin, forms.Select):
+    """
+    A Select widget which renders an optional description beneath each option's label.
+    """
+
+
+class SelectMultiple(AttrSelectMixin, forms.SelectMultiple):
+    """
+    A SelectMultiple widget which renders an optional description beneath each option's label.
+    """
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):

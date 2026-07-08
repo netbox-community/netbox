@@ -437,7 +437,7 @@ Script modules can be uploaded to NetBox via the REST API by sending a `multipar
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Accept: application/json; indent=4" \
 -F "file=@/path/to/myscript.py" \
 http://netbox/api/extras/scripts/upload/
@@ -515,7 +515,7 @@ To run a script via the REST API, issue a POST request to the script's endpoint 
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox/api/extras/scripts/example.MyReport/ \

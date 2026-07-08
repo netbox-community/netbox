@@ -44,7 +44,7 @@ class IsSuperuser(BasePermission):
     Allows access only to superusers.
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_superuser)
+        return bool(request.user and request.user.is_active and request.user.is_superuser)
 
 
 def get_serializer_for_model(model, prefix=''):

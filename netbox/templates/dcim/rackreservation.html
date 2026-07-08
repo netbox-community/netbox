@@ -1,8 +1,0 @@
-{% extends 'generic/object.html' %}
-{% load i18n %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rackreservation_list' %}?rack_id={{ object.rack.pk }}">{{ object.rack }}</a></li>
-  <li class="breadcrumb-item">{% trans "Units" %} {{ object.unit_list }}</li>
-{% endblock %}

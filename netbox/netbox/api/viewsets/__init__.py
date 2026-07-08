@@ -224,8 +224,8 @@ class NetBoxModelViewSet(
 
         This mirrors the except clauses in dispatch(); it is also called by the background
         job runner (netbox.jobs.AsyncAPIJob), which executes action methods directly and so
-        bypasses dispatch(). NOTE: dispatch() does not yet call this helper itself — see the
-        PR description for the proposed consolidation.
+        bypasses dispatch(). NOTE: dispatch() does not yet call this helper itself; the two
+        should be consolidated into a single source of truth in a future change.
         """
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         if isinstance(exc, (ProtectedError, RestrictedError)):
@@ -245,9 +245,9 @@ class NetBoxModelViewSet(
     # Creates
 
     def create(self, request, *args, **kwargs):
-        # If background processing was requested for a bulk (list) create, validate and enqueue.
-        # Single-object creates always run synchronously.
-        if (response := self._maybe_background_bulk_create(request)) is not None:
+        # If background processing was requested for a bulk (list) create, enqueue a job and
+        # return immediately. Single-object creates always run synchronously.
+        if (response := self._handle_background_request(request, 'create')) is not None:
             return response
 
         serializer = self.get_serializer(data=request.data)

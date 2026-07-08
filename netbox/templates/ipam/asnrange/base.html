@@ -1,6 +1,0 @@
-{% extends 'generic/object.html' %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:asnrange_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
-{% endblock breadcrumbs %}

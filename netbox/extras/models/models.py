@@ -220,7 +220,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         help_text=_(
             "Jinja2 template for a custom request body. If blank, a JSON object representing the change will be "
             "included. Available context data includes: <code>event</code>, <code>model</code>, "
-            "<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>."
+            "<code>timestamp</code>, <code>request</code>, and <code>data</code>."
         )
     )
     secret = models.CharField(
@@ -702,6 +702,14 @@ class ImageAttachment(ChangeLoggedModel):
     image_width = models.PositiveSmallIntegerField(
         verbose_name=_('image width'),
     )
+    # Unlike image_height/image_width (populated automatically by ImageField), there is no native size_field, so
+    # this is populated in save(). It is nullable because existing rows predate the field and storage reads can
+    # fail; a null value means "not yet computed" and the size property falls back to reading storage.
+    image_size = models.PositiveBigIntegerField(
+        verbose_name=_('image size'),
+        blank=True,
+        null=True,
+    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=50,
@@ -716,6 +724,27 @@ class ImageAttachment(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = ('object_type', 'object_id')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache an identity for the current image so save() can detect a new/replaced file and recompute the cached
+        # image_size. We combine the file name with the (auto-populated) dimensions: a replacement that reuses the
+        # same name is still caught when its dimensions differ. Read the raw image value from __dict__ to avoid
+        # triggering the ImageField descriptor here (doing so during ORM/GraphQL instantiation can recurse).
+        self._orig_image_key = self._image_identity()
+
+    def _image_identity(self):
+        """
+        Return a tuple identifying the current image file for change detection: its name plus the dimensions Django
+        populates from it. All three are read raw from __dict__ to avoid triggering the ImageField descriptor
+        (accessing `self.image` during ORM/GraphQL instantiation can recurse). Not a content fingerprint: a
+        replacement with an identical name AND identical dimensions is not distinguished (would require reading the
+        file, the storage round-trip this caching avoids).
+        """
+        original = self.__dict__.get('image')
+        name = getattr(original, 'name', original)
+        return (name, self.__dict__.get('image_height'), self.__dict__.get('image_width'))
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
@@ -772,12 +801,15 @@ class ImageAttachment(ChangeLoggedModel):
             alt_text=escape(self.description or self.name),
         ))
 
-    @property
-    def size(self):
+    def _read_image_size(self):
         """
-        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. Also opportunistically
-        catch other exceptions that we know other storage back-ends to throw.
+        Read the image file's size from storage, suppressing an OSError in case the file is inaccessible. Also
+        opportunistically catch other exceptions that we know other storage back-ends to throw. Returns None if the
+        size cannot be determined. This may issue a request to the storage backend (e.g. a HEAD request to S3).
         """
+        if not self.image:
+            return None
+
         expected_exceptions = [OSError]
 
         try:
@@ -790,6 +822,33 @@ class ImageAttachment(ChangeLoggedModel):
             return self.image.size
         except tuple(expected_exceptions):
             return None
+
+    @property
+    def size(self):
+        """
+        Return the size of the image file in bytes. Prefer the cached `image_size` value to avoid a storage request;
+        fall back to reading from storage for legacy rows where `image_size` has not yet been populated.
+        """
+        if self.image_size is not None:
+            return self.image_size
+        return self._read_image_size()
+
+    def save(self, *args, **kwargs):
+        # Populate image_size on creation or when the image file has changed. Reading the size may touch the storage
+        # backend (e.g. a HEAD request to S3), so we only do it when necessary: bulk operations that don't alter the
+        # image (bulk edit, rename) leave the identity unchanged and skip the read entirely. We never overwrite a good
+        # value with None (e.g. on a transient storage error); a failed read while replacing a file keeps the prior
+        # size until the next successful save, which is preferred over storing None.
+        orig_image_key = getattr(self, '_orig_image_key', None)
+        if self._state.adding or self._image_identity() != orig_image_key:
+            size = self._read_image_size()
+            if size is not None:
+                self.image_size = size
+
+        super().save(*args, **kwargs)
+
+        # Refresh the cached identity so subsequent saves on this instance detect further changes correctly.
+        self._orig_image_key = self._image_identity()
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

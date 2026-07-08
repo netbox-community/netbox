@@ -33,9 +33,9 @@ django-htmx
 # NetBox core runtime uses netbox.models.ltree.LtreeModel instead.
 django-mptt
 
-# Context managers for PostgreSQL advisory locks
-# https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
-django-pglocks
+# Context managers for PostgreSQL advisory locks (successor to django-pglocks)
+# https://github.com/Xof/django-pgware
+django-pgware
 
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus/blob/master/CHANGELOG.md

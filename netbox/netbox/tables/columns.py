@@ -21,6 +21,7 @@ from django_tables2.utils import Accessor
 from extras.choices import CustomFieldTypeChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
+from utilities.request import get_safe_request_context
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import get_action_url
 
@@ -250,6 +251,9 @@ class ActionsColumn(tables.Column):
         direct button link and icon (default: True)
     """
     attrs = {
+        'th': {
+            'aria-label': _('Actions'),
+        },
         'td': {
             'class': 'text-end text-nowrap noprint p-1'
         }
@@ -603,9 +607,9 @@ class CustomLinkColumn(tables.Column):
             'debug': settings.DEBUG,
         }
         if request := getattr(table, 'context', {}).get('request'):
-            # If the request is available, include it as context
+            # If the request is available, include a sanitized subset of it as context
             context.update({
-                'request': request,
+                'request': get_safe_request_context(request),
                 **auth(request),
             })
 

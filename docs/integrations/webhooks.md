@@ -17,7 +17,7 @@ For example, you might create a NetBox webhook to [trigger a Slack message](http
 * HTTP method: `POST`
 * URL: Slack incoming webhook URL
 * HTTP content type: `application/json`
-* Body template: `{"text": "IP address {{ data['address'] }} was created by {{ username }}!"}`
+* Body template: `{"text": "IP address {{ data['address'] }} was created by {{ request.user }}!"}`
 
 ### Available Context
 
@@ -30,16 +30,11 @@ The following data is available as context for Jinja2 templates:
     * `request.id` - The UUID associated with the request
     * `request.method` - The HTTP method (e.g. `GET` or `POST`)
     * `request.path` - The URL path (ex: `/dcim/sites/123/edit/`)
+    * `request.path_info` - The URL path below the application script prefix
+    * `request.GET` - The query parameters included in the request
     * `request.user` - The name of the authenticated user who made the request (if available)
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
-* ⚠️ `request_id` - The unique request ID. This may be used to correlate multiple changes associated with a single request.
-* ⚠️ `username` - The name of the user account associated with the change.
-
-!!! warning "Deprecation of legacy keys"
-    The `request_id` and `username` keys in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0.
-
-    Use `request.user` and `request.id` from the `request` object included in the callback context instead.
 
 ### Default Request Body
 
@@ -50,8 +45,6 @@ If no body template is specified, the request body will be populated with a JSON
     "event": "created",
     "timestamp": "2026-03-06T15:11:23.503186+00:00",
     "object_type": "dcim.site",
-    "username": "jstretch",
-    "request_id": "17af32f0-852a-46ca-a7d4-33ecd0c13de6",
     "data": {
         "id": 4,
         "url": "/api/dcim/sites/4/",

@@ -266,6 +266,16 @@ class RenderFieldWithAriaTestCase(TestCase):
         self.assertIn('id_name_errors', html)
         self.assertIn('id_name_helptext', html)
 
+    def test_element_id_overrides_widget_id(self):
+        class TestForm(forms.Form):
+            name = forms.CharField()
+
+        form = TestForm()
+        html = render_field_with_aria(form['name'], element_id='custom-id')
+
+        self.assertIn('id="custom-id"', html)
+        self.assertNotIn('id="id_name"', html)
+
     @override_settings(DEBUG=True)
     def test_missing_label_emits_debug_warning(self):
         class TestForm(forms.Form):

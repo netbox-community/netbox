@@ -4,7 +4,6 @@ from netbox.config import ConfigItem
 
 __all__ = (
     'InstallDenormalizationTrigger',
-    'cached_scope_triggers',
     'custom_deconstruct',
 )
 
@@ -67,6 +66,15 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
     related `source_fk`), and only when at least one of them actually changed. It does not fire on INSERT (a
     newly created source row has no dependents yet) and it does not recurse: the dependent tables carry no
     triggers of their own.
+
+    Example: refresh a CircuitTermination's cached region/sitegroup when its Site's region or group changes::
+
+        InstallDenormalizationTrigger(
+            dependent_table='circuits_circuittermination',
+            source_table='dcim_site',
+            fk_column='_site_id',
+            mappings={'_region_id': 'region_id', '_site_group_id': 'group_id'},
+        )
 
     Note: this is a row-level trigger, so a bulk source update of N rows fires it N times. A statement-level
     trigger with transition tables would batch this, but PostgreSQL forbids transition tables on a trigger
@@ -139,41 +147,3 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
 
     def describe(self):
         return f'Install denormalization trigger on {self.source_table} updating {self.dependent_table}'
-
-
-# Site/region/site-group lookup shared by every CachedScopeMixin-style dependent (see cached_scope_triggers).
-SITE_SCOPE_RELATED_MAPPINGS = (
-    {
-        'table': 'dcim_site',
-        'source_fk': 'site_id',
-        'mappings': {'_region_id': 'region_id', '_site_group_id': 'group_id'},
-    },
-)
-
-
-def cached_scope_triggers(dependent_table):
-    """
-    Return the Site + Location `InstallDenormalizationTrigger` pair for a dependent table carrying the
-    standard cached-scope columns (_site/_location/_region/_site_group) — i.e. any CachedScopeMixin model
-    (Prefix, Cluster, WirelessLAN) plus CircuitTermination, which share the same denormalization shape.
-
-    Region- and SiteGroup-scoped rows need no trigger: their cached FK is the scoped object itself and
-    never changes underneath them. So two triggers fully cover the cache:
-      - dcim_site: region/group changed  -> refresh _region/_site_group on rows scoped to that site
-      - dcim_location: site changed       -> refresh _site (and the new site's region/group)
-    """
-    return [
-        InstallDenormalizationTrigger(
-            dependent_table=dependent_table,
-            source_table='dcim_site',
-            fk_column='_site_id',
-            mappings={'_region_id': 'region_id', '_site_group_id': 'group_id'},
-        ),
-        InstallDenormalizationTrigger(
-            dependent_table=dependent_table,
-            source_table='dcim_location',
-            fk_column='_location_id',
-            mappings={'_site_id': 'site_id'},
-            related_mappings=SITE_SCOPE_RELATED_MAPPINGS,
-        ),
-    ]
