@@ -1,4 +1,8 @@
 import django_tables2 as tables
+from django.middleware.csrf import get_token
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
@@ -1218,6 +1222,42 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, PrimaryModelTable):
         )
 
 
+class MACAddressActionsColumn(columns.ActionsColumn):
+    actions = {
+        **columns.ActionsColumn.actions,
+        'set_primary': columns.ActionsItem('Set as primary', 'star-outline', None, 'warning'),
+    }
+
+    def render(self, record, table, **kwargs):
+        # Always exclude set_primary from the parent's action loop (which renders GET links).
+        # We inject a CSRF-protected POST form for set_primary in the dropdown below.
+        show_set_primary = not record.is_primary and record.assigned_object_id
+        original_actions = self.actions
+        self.actions = {k: v for k, v in original_actions.items() if k != 'set_primary'}
+        try:
+            html = super().render(record, table, **kwargs)
+        finally:
+            self.actions = original_actions
+
+        if show_set_primary and html:
+            request = getattr(table, 'context', {}).get('request')
+            if request:
+                url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
+                form_li = format_html(
+                    '<li><form method="post" action="{}">'
+                    '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+                    '<button type="submit" class="dropdown-item">'
+                    '<i class="mdi mdi-star-outline"></i> {}'
+                    '</button></form></li>',
+                    url, get_token(request), _('Set as primary'),
+                )
+                html_str = str(html)
+                if '</ul>' in html_str:
+                    html = mark_safe(html_str.replace('</ul>', str(form_li) + '</ul>', 1))
+
+        return html
+
+
 class MACAddressTable(PrimaryModelTable):
     mac_address = tables.TemplateColumn(
         template_code=MACADDRESS_LINK,
@@ -1241,7 +1281,8 @@ class MACAddressTable(PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
-    actions = columns.ActionsColumn(
+    actions = MACAddressActionsColumn(
+        actions=('edit', 'delete', 'changelog', 'set_primary'),
         extra_buttons=MACADDRESS_COPY_BUTTON
     )
 

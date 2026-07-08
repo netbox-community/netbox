@@ -1886,13 +1886,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('VRF')
     )
-    primary_mac_address = DynamicModelChoiceField(
-        queryset=MACAddress.objects.all(),
-        label=_('Primary MAC address'),
-        required=False,
-        quick_add=True,
-        quick_add_params={'interface': '$pk'}
-    )
     wwn = forms.CharField(
         empty_value=None,
         required=False,
@@ -1908,7 +1901,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
         ),
-        FieldSet('vrf', 'primary_mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
@@ -1929,7 +1922,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge',
             'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf',
             'owner', 'tags',
         ]
         widgets = {

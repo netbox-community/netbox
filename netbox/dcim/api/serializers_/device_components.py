@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
+from netaddr import EUI, AddrFormatError
 from rest_framework import serializers
 
 from dcim.choices import *
@@ -35,6 +36,7 @@ from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
+from .mixins import _UNSET, MACAddressShortcutMixin
 from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
 
@@ -197,6 +199,7 @@ class PowerOutletSerializer(
 
 
 class InterfaceSerializer(
+    MACAddressShortcutMixin,
     OwnerMixin,
     NetBoxModelSerializer,
     CabledObjectSerializer,
@@ -249,8 +252,9 @@ class InterfaceSerializer(
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    # Maintains backward compatibility with NetBox <v4.2
-    mac_address = serializers.CharField(allow_null=True, read_only=True)
+    # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
+    # create/update the primary MAC address in a single request.
+    mac_address = serializers.CharField(allow_null=True, required=False)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
@@ -270,8 +274,21 @@ class InterfaceSerializer(
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
     def validate(self, data):
+        # Pop mac_address before model validation — it's a cached_property, not a model field,
+        # and passing it to Interface(**attrs) in ValidatedModelSerializer.validate() would raise TypeError.
+        # data may be an Interface instance (not a dict) in some custom field code paths (#18887).
+        mac_address = _UNSET
+        if isinstance(data, dict):
+            mac_address = data.pop('mac_address', _UNSET)
 
-        if not self.nested:
+        if not self.nested and isinstance(data, dict):
+            if mac_address not in (_UNSET, None):
+                try:
+                    EUI(mac_address, version=48)
+                except (AddrFormatError, ValueError, TypeError):
+                    raise serializers.ValidationError({
+                        'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
+                    })
 
             # Validate 802.1q mode and vlan(s)
             mode = None
@@ -329,7 +346,12 @@ class InterfaceSerializer(
                                         f"or it must be global."
                     })
 
-        return super().validate(data)
+        data = super().validate(data)
+
+        if mac_address is not _UNSET:
+            data['mac_address'] = mac_address
+
+        return data
 
 
 class RearPortMappingSerializer(serializers.ModelSerializer):
