@@ -131,7 +131,7 @@ class Condition:
                 else:
                     obj = operator.getitem(obj or {}, key)
             return obj
-        except KeyError:
+        except (KeyError, TypeError):
             return _MISSING
 
     def eval(self, data):
@@ -196,8 +196,11 @@ class Condition:
     # Snapshot comparison operators
     # These resolve self.attr in both the prechange and postchange snapshots and
     # compare the resulting values.  _MISSING is used when a snapshot is absent
-    # or does not contain the attribute, so that two absent values compare equal
-    # (nothing changed) and a present value differs from an absent one (changed).
+    # or does not contain the attribute.
+    #
+    # Fail-closed semantics:
+    #   changed:   False when attr is absent from both snapshots (field never existed)
+    #   unchanged: False when attr is absent from both snapshots (avoids silent pass on typos)
 
     def eval_changed(self, snapshots):
         pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
@@ -207,6 +210,8 @@ class Condition:
     def eval_unchanged(self, snapshots):
         pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
         post = self._resolve_snapshot_attr(snapshots.get('postchange'))
+        if pre is _MISSING and post is _MISSING:
+            return False
         return pre == post
 
 

@@ -404,6 +404,17 @@ class SnapshotConditionTestCase(TestCase):
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
 
+    def test_changed_false_when_path_traverses_scalar(self):
+        # Snapshot choice fields are raw strings, not nested dicts. A path like
+        # 'status.value' hits a TypeError when traversing into the string; both
+        # sides resolve to _MISSING and the operator returns False (no change).
+        c = Condition('status.value', op='changed')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
     def test_changed_negated(self):
         c = Condition('status', op='changed', negate=True)
         snapshots = {
@@ -433,6 +444,16 @@ class SnapshotConditionTestCase(TestCase):
         c = Condition('status', op='unchanged')
         snapshots = {
             'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_unchanged_false_when_both_snapshots_missing_attr(self):
+        # Fail-closed: a typo or non-existent attr resolves to _MISSING on both
+        # sides; unchanged must return False rather than silently passing.
+        c = Condition('statsu', op='unchanged')
+        snapshots = {
+            'prechange': {'status': 'active'},
             'postchange': {'status': 'active'},
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
