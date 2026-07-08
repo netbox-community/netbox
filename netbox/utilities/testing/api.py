@@ -568,6 +568,10 @@ class APIViewTestCases:
                 {'id': id_list[0], **self.bulk_update_data},
                 {'id': id_list[1], **self.bulk_update_invalid_data},
             ]
+
+            # Snapshot field values before the request so we can verify atomicity afterward
+            instance0_before = self._get_queryset().get(pk=id_list[0])
+
             response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
 
             self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
@@ -579,6 +583,17 @@ class APIViewTestCases:
             self.assertEqual(response.data['results'][1]['id'], id_list[1])
             self.assertEqual(response.data['results'][1]['status'], 'error')
             self.assertIn('errors', response.data['results'][1])
+
+            # Verify atomicity: object 0 passed validation but must not have been modified
+            instance0_after = self._get_queryset().get(pk=id_list[0])
+            for field in self.bulk_update_data:
+                if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                    continue
+                self.assertEqual(
+                    getattr(instance0_after, field, None),
+                    getattr(instance0_before, field, None),
+                    f'Field {field!r} of object {id_list[0]} was modified — atomic rollback may be broken',
+                )
 
     class DeleteObjectViewTestCase(APITestCase):
 

@@ -492,13 +492,16 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIn('detail', response.data)
         self.assertIn('results', response.data)
         self.assertEqual(len(response.data['results']), 2)
-        # First site (no dependents) would have succeeded
-        self.assertEqual(response.data['results'][0]['id'], site1.pk)
-        self.assertEqual(response.data['results'][0]['status'], 'ok')
-        # Second site (has Device) should have failed
-        self.assertEqual(response.data['results'][1]['id'], site2.pk)
-        self.assertEqual(response.data['results'][1]['status'], 'error')
-        self.assertIn('errors', response.data['results'][1])
+
+        # Index results by ID to avoid relying on queryset ordering
+        results_by_id = {r['id']: r for r in response.data['results']}
+        self.assertIn(site1.pk, results_by_id)
+        self.assertIn(site2.pk, results_by_id)
+        # Site 1 (no dependents) would have succeeded
+        self.assertEqual(results_by_id[site1.pk]['status'], 'ok')
+        # Site 2 (has Device) should have failed
+        self.assertEqual(results_by_id[site2.pk]['status'], 'error')
+        self.assertIn('errors', results_by_id[site2.pk])
 
         # Verify that no sites were actually deleted (transaction rolled back)
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')

@@ -247,6 +247,8 @@ class BulkUpdateModelMixin:
 
         object_pks, results = self.perform_bulk_update(qs, update_data, partial=partial)
 
+        # perform_bulk_update returns an empty list on full success; non-empty means at least one
+        # object failed validation and the full results list (with per-object status) is populated.
         if results:
             failed_count = sum(1 for r in results if r['status'] == 'error')
             return Response(
@@ -380,7 +382,7 @@ class BulkDestroyModelMixin:
                     if n > 10:
                         objects_str += f', and {n - 10} more'
                     results.append({
-                        'id': obj.pk,
+                        'id': pk,
                         'status': 'error',
                         'errors': {'detail': f'Unable to delete. {n} dependent object(s): {objects_str}'},
                     })
