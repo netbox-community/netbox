@@ -20,6 +20,7 @@ NetBox exists to empower network engineers. Since its release in 2016, it has be
   <a href="#netboxs-role">NetBox's Role</a> |
   <a href="#why-netbox">Why NetBox?</a> |
   <a href="#getting-started">Getting Started</a> |
+  <a href="#plugins">Plugins</a> |
   <a href="#get-involved">Get Involved</a> |
   <a href="#screenshots">Screenshots</a>
 </p>
@@ -84,6 +85,16 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
+
+## Plugins
+
+NetBox's functionality can be extended through plugins, which add new models, views, and integrations on top of the core application. A few of the most popular plugins include:
+
+* [NetBox Branching](https://github.com/netboxlabs/netbox-branching) — Work with isolated, mergeable branches of your NetBox data
+* [NetBox Custom Objects](https://github.com/netboxlabs/netbox-custom-objects) — Define entirely new object types directly in the UI
+* [NetBox DNS](https://github.com/sys4/netbox-plugin-dns) — Manage DNS zones and records as an authoritative source of truth
+* [NetBox BGP](https://github.com/netbox-community/netbox-bgp) — Document and manage BGP sessions and routing policies
+* [Browse all plugins](https://netboxlabs.com/plugins/) — Discover the full catalog of available plugins
 
 ## Get Involved
 
