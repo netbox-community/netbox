@@ -175,6 +175,7 @@ class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'nulls_first': False,
     }
     update_data = {
         'object_types': ['dcim.device'],
@@ -193,7 +194,8 @@ class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
             ),
             CustomField(
                 name='cf2',
-                type='integer'
+                type='integer',
+                nulls_first=False
             ),
             CustomField(
                 name='cf3',

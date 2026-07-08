@@ -109,6 +109,10 @@ Choice sets may optionally define colors for individual values. Colored choices 
 
 If enabled, values from this field will be automatically pre-populated when cloning existing objects.
 
+### Nulls First
+
+When ordering objects by this custom field, controls whether objects with no value (null) are sorted before or after objects that have a value. This option is enabled by default.
+
 ### Minimum Value
 
 For numeric custom fields only. The minimum valid value (optional).

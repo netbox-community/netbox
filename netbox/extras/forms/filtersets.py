@@ -47,7 +47,7 @@ class CustomFieldFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', name=_('Attributes')),
         FieldSet('choice_set_id', 'related_object_type_id', name=_('Type Options')),
-        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
+        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', 'nulls_first', name=_('Behavior')),
         FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -105,6 +105,13 @@ class CustomFieldFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     )
     is_cloneable = forms.NullBooleanField(
         label=_('Is cloneable'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    nulls_first = forms.NullBooleanField(
+        label=_('Nulls first'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

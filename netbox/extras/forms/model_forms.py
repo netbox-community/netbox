@@ -119,7 +119,8 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
             name=_('Custom Field')
         ),
         FieldSet(
-            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
+            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', 'nulls_first',
+            name=_('Behavior')
         ),
     )
 

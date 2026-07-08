@@ -112,6 +112,10 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Is Cloneable'),
         false_mark=None
     )
+    nulls_first = columns.BooleanColumn(
+        verbose_name=_('Nulls First'),
+        false_mark=None
+    )
     validation_minimum = tables.Column(
         verbose_name=_('Minimum Value'),
     )
@@ -135,8 +139,8 @@ class CustomFieldTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'unique', 'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
-            'is_cloneable', 'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'validation_schema', 'comments', 'created', 'last_updated',
+            'is_cloneable', 'nulls_first', 'weight', 'choice_set', 'choices', 'validation_minimum',
+            'validation_maximum', 'validation_regex', 'validation_schema', 'comments', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'unique', 'description',

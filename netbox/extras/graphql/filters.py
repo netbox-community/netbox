@@ -193,6 +193,7 @@ class CustomFieldFilter(ChangeLoggedModelFilter):
         strawberry_django.filter_field()
     )
     is_cloneable: FilterLookup[bool] | None = strawberry_django.filter_field()
+    nulls_first: FilterLookup[bool] | None = strawberry_django.filter_field()
     comments: StrFilterLookup | None = strawberry_django.filter_field()
 
 

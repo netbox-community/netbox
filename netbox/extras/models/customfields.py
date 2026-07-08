@@ -260,6 +260,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         verbose_name=_('is cloneable'),
         help_text=_('Replicate this value when cloning objects')
     )
+    nulls_first = models.BooleanField(
+        default=True,
+        verbose_name=_('nulls first'),
+        help_text=_('Sort null values before non-null values when ordering by this field')
+    )
     comments = models.TextField(
         verbose_name=_('comments'),
         blank=True
@@ -271,6 +276,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
         'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
         'validation_regex', 'validation_schema', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'nulls_first',
     )
 
     class Meta:
