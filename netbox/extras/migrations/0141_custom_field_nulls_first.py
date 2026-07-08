@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("extras", "0139_alter_customfieldchoiceset_extra_choices"),
+        ("extras", "0140_imageattachment_image_size"),
     ]
 
     operations = [
