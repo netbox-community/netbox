@@ -199,7 +199,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     clone_fields = (
         'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-        'weight_unit', 'end_of_life',
+        'weight_unit',
     )
     prerequisite_models = (
         'dcim.Manufacturer',

@@ -141,7 +141,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_field='module_type'
     )
 
-    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow', 'end_of_life')
+    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
