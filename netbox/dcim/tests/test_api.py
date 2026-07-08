@@ -2204,31 +2204,42 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
     def test_bulk_create_objects_validation_error(self):
         """
-        POST a set of Device objects where all fail validation. DeviceViewSet uses
-        SequentialBulkCreatesMixin, so the response should be the structured per-object error
-        format rather than DRF's default list-of-errors response.
+        POST a set of Device objects where the first passes and the second fails validation.
+        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should be the structured
+        per-object format with mixed ok/error statuses, and no objects should be created despite
+        the first item passing (atomic rollback).
         """
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+        self.add_related_view_permissions(self.create_data[0])
+
         initial_count = self._get_queryset().count()
-        # Empty objects fail validation (required fields absent)
-        response = self.client.post(self._get_list_url(), [{}, {}], format='json', **self.header)
+        # First item is valid; second is empty (missing required fields) and will fail
+        response = self.client.post(
+            self._get_list_url(),
+            [self.create_data[0], {}],
+            format='json',
+            **self.header,
+        )
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             self._get_queryset().count(), initial_count,
-            'No objects should be created when any fail validation',
+            'No objects should be created when any sibling fails validation',
         )
         self.assertIn('detail', response.data)
         self.assertIn('results', response.data)
         self.assertEqual(len(response.data['results']), 2)
-        for i, result in enumerate(response.data['results']):
-            self.assertEqual(result['index'], i)
-            self.assertEqual(result['status'], 'error')
-            self.assertIn('errors', result)
+        # First item passed validation
+        self.assertEqual(response.data['results'][0]['index'], 0)
+        self.assertEqual(response.data['results'][0]['status'], 'ok')
+        # Second item failed validation
+        self.assertEqual(response.data['results'][1]['index'], 1)
+        self.assertEqual(response.data['results'][1]['status'], 'error')
+        self.assertIn('errors', response.data['results'][1])
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):
