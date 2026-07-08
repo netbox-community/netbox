@@ -523,6 +523,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
+    channels = attrs.NumericAttr('channels')
     speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
     duplex = attrs.ChoiceAttr('duplex')
     mtu = attrs.NumericAttr('mtu', label=_('MTU'))
@@ -543,6 +544,7 @@ class RelatedInterfacesPanel(panels.ObjectAttributesPanel):
     title = _('Related Interfaces')
 
     parent = attrs.RelatedObjectAttr('parent', linkify=True)
+    channel_id = attrs.NumericAttr('channel_id', label=_('Channel ID'))
     bridge = attrs.RelatedObjectAttr('bridge', linkify=True)
     lag = attrs.RelatedObjectAttr('lag', linkify=True, label=_('LAG'))
 

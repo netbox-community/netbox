@@ -23,7 +23,7 @@ from .models import (
 )
 from .models.cables import trace_paths
 from .search import DeviceIndex
-from .utils import create_cablepaths, rebuild_paths
+from .utils import create_cablepaths, rebuild_cable_paths, rebuild_paths
 
 #
 # Location/rack/device assignment
@@ -156,6 +156,14 @@ def nullify_connected_endpoints(instance, **kwargs):
     model = instance.termination_type.model_class()
     model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
 
+    # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto its channel
+    # subinterfaces. This must happen before the retrace below so that each channel's (now dead) path is torn down
+    # rather than rebuilt from a stale cable reference.
+    if model is Interface:
+        Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
+            cable=None, cable_end='', cable_connector=None, cable_positions=None
+        )
+
     # If the parent Cable is being deleted in this same operation, skip the
     # per-termination retrace; retrace_cable_paths() will retrace each affected
     # path once after the Cable is deleted.
@@ -169,6 +177,66 @@ def nullify_connected_endpoints(instance, **kwargs):
             # Clear _path on the removed origin to prevent stale connection display
             model.objects.filter(pk=instance.termination_id, _path=cablepath.pk).update(_path=None)
         cablepath.retrace()
+
+
+@receiver(post_save, sender=Interface)
+def update_channelized_cable_paths(instance, created, raw=False, **kwargs):
+    """
+    Rebuild cable paths when an interface's channelization changes without the Cable itself being modified: a channel
+    subinterface is added, moved between parents, or has its channel_id changed, or channelization is toggled on an
+    already-cabled interface. (The cable-tracing signals only fire when a Cable is saved.)
+    """
+    if raw:
+        return
+
+    parent_ids = set()
+
+    # A channel subinterface was added, moved between parents, or had its channel_id changed
+    if instance.channel_id or instance._original_channel_id:
+        parent_ids.update(pk for pk in (instance.parent_id, instance._original_parent_id) if pk)
+
+    # Channelization was toggled on this interface while it carries a cable
+    if instance.channels != instance._original_channels and instance.cable_id:
+        parent_ids.add(instance.pk)
+
+    # select_related('cable') avoids a per-parent round-trip to fetch the Cable, which both
+    # propagate_channel_cables() and rebuild_cable_paths() dereference. (Cable.profile is a plain field, not a
+    # relation, so it needs no prefetching.)
+    parents = Interface.objects.filter(pk__in=parent_ids, cable__isnull=False).select_related('cable')
+    for parent in parents:
+        if parent.channels:
+            parent.propagate_channel_cables()
+        rebuild_cable_paths(parent.cable)
+
+    # A channel subinterface whose parent no longer provides a cable must not retain stale mirrored cable attributes
+    if instance.channel_id and instance.cable_id:
+        parent = instance.parent
+        if not (parent and parent.channels and parent.cable_id):
+            Interface.objects.filter(pk=instance.pk).update(
+                cable=None, cable_end='', cable_connector=None, cable_positions=None
+            )
+            for cablepath in CablePath.objects.filter(_nodes__contains=instance):
+                if instance in cablepath.origins:
+                    cablepath.delete()
+
+    # Refresh the cached channelization state so that saving this same in-memory instance again compares against its
+    # current values rather than re-triggering propagation from a stale baseline.
+    instance._original_channels = instance.channels
+    instance._original_channel_id = instance.channel_id
+    instance._original_parent_id = instance.parent_id
+
+
+@receiver(post_delete, sender=Interface)
+def cleanup_channel_subinterface_paths(instance, **kwargs):
+    """
+    When a channel subinterface is deleted, rebuild its channelized parent's cable paths so the removed channel's path
+    is torn down.
+    """
+    if instance.channel_id and instance.parent_id:
+        parent = Interface.objects.filter(pk=instance.parent_id, cable__isnull=False).first()
+        if parent and parent.channels:
+            parent.propagate_channel_cables()
+            rebuild_cable_paths(parent.cable)
 
 
 @receiver(post_save, sender=Interface)

@@ -710,12 +710,12 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
     class Meta(DeviceComponentTable.Meta):
         model = models.Interface
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn',
-            'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer',
-            'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'channels',
+            'channel_id', 'mgmt_only', 'mtu', 'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses',
+            'primary_mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
             'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')

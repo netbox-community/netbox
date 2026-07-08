@@ -540,6 +540,12 @@ class InterfaceFilter(
     type: BaseFilterLookup[Annotated['InterfaceTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    channels: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    channel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
     mgmt_only: FilterLookup[bool] | None = strawberry_django.filter_field()
     speed: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
@@ -629,8 +635,18 @@ class InterfaceTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     type: BaseFilterLookup[Annotated['InterfaceTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    channels: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    channel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     mgmt_only: FilterLookup[bool] | None = strawberry_django.filter_field()
+    parent: Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    parent_id: ID | None = strawberry_django.filter_field()
     bridge: Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

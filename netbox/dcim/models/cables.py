@@ -636,6 +636,14 @@ class CableTermination(ChangeLoggedModel):
                     cable_pk=existing_termination.cable.pk
                 )
             )
+        # A channel subinterface derives its cable from its parent interface and cannot be cabled directly. Checked
+        # ahead of the generic type validation below (channel is a nonconnectable type) to surface the more specific
+        # guidance.
+        if self.termination_type.model == 'interface' and self.termination.channel_id:
+            raise ValidationError(
+                _("Cables cannot be terminated directly to a channel subinterface; cable the parent interface instead.")
+            )
+
         # Validate the interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
             raise ValidationError(
@@ -971,6 +979,12 @@ class CablePath(models.Model):
                     peer_results = cable_profile.get_peer_terminations(term_position_pairs)
                     seen = set()
                     for peer, new_pos in peer_results:
+                        # If the far-end termination is a channelized interface, resolve to the specific channel
+                        # subinterface bound to the mapped connector position (the far end is channelized on the same
+                        # physical connector, so the peer lookup returns the parent rather than the channel). A
+                        # channelized parent is never itself a path endpoint, so an unoccupied position yields no peer.
+                        if new_pos is not None and getattr(peer, 'channels', None):
+                            peer = peer.child_interfaces.filter(channel_id=new_pos).first()
                         # Deduplicate peer terminations by model type & PK.
                         key = None if peer is None else (peer._meta.concrete_model, peer.pk)
                         if key not in seen:

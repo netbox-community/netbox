@@ -19,7 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import create_port_mappings, update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
@@ -1070,7 +1070,9 @@ class Device(
             self._instantiate_components(self.device_type.devicebaytemplates.all())
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
-            # Interface bridges have to be set after interface instantiation
+            # Interface parents & bridges have to be set after interface instantiation. Parents are applied first so
+            # that channel subinterfaces validate against a populated parent.
+            update_interface_parents(self, self.device_type.interfacetemplates.all())
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
 
         # Update Site and Rack assignment for any child Devices

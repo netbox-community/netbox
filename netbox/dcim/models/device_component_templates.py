@@ -454,6 +454,26 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         max_length=50,
         choices=InterfaceTypeChoices
     )
+    channels = models.PositiveSmallIntegerField(
+        verbose_name=_('channels'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The number of channels into which this interface is channelized')
+    )
+    channel_id = models.PositiveSmallIntegerField(
+        verbose_name=_('channel ID'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The channel on the parent interface to which this subinterface is bound')
+    )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
         default=True
@@ -461,6 +481,14 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name=_('management only')
+    )
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.RESTRICT,
+        related_name='child_interfaces',
+        null=True,
+        blank=True,
+        verbose_name=_('parent interface')
     )
     bridge = models.ForeignKey(
         to='self',
@@ -495,11 +523,40 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
     component_model = Interface
 
     class Meta(ModularComponentTemplateModel.Meta):
+        constraints = (
+            *ModularComponentTemplateModel.Meta.constraints,
+            models.UniqueConstraint(
+                fields=('parent', 'channel_id'),
+                name='%(app_label)s_%(class)s_unique_parent_channel_id'
+            ),
+        )
         verbose_name = _('interface template')
         verbose_name_plural = _('interface templates')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original channel count for use by InterfaceValidationMixin.clean() to detect a channel-count
+        # reduction that would orphan a bound subinterface.
+        self._original_channels = self.__dict__.get('channels')
+
     def clean(self):
         super().clean()
+
+        # Self-reference and interface-type restrictions are enforced by InterfaceValidationMixin
+        if self.parent:
+            if self.device_type and self.device_type != self.parent.device_type:
+                raise ValidationError({
+                    'parent': _(
+                        "Parent interface ({parent}) must belong to the same device type"
+                    ).format(parent=self.parent)
+                })
+            if self.module_type and self.module_type != self.parent.module_type:
+                raise ValidationError({
+                    'parent': _(
+                        "Parent interface ({parent}) must belong to the same module type"
+                    ).format(parent=self.parent)
+                })
 
         if self.bridge:
             if self.device_type and self.device_type != self.bridge.device_type:
@@ -520,6 +577,8 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
+            channels=self.channels,
+            channel_id=self.channel_id,
             enabled=self.enabled,
             mgmt_only=self.mgmt_only,
             poe_mode=self.poe_mode,
@@ -533,10 +592,13 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         return {
             'name': self.name,
             'type': self.type,
+            'channels': self.channels,
+            'channel_id': self.channel_id,
             'enabled': self.enabled,
             'mgmt_only': self.mgmt_only,
             'label': self.label,
             'description': self.description,
+            'parent': self.parent.name if self.parent else None,
             'bridge': self.bridge.name if self.bridge else None,
             'poe_mode': self.poe_mode,
             'poe_type': self.poe_type,

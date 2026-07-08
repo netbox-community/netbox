@@ -131,12 +131,29 @@ def create_cablepaths(objects):
 
     :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
-    from dcim.models import CablePath
+    from dcim.models import CablePath, Interface
 
-    # Arrange objects by cable connector. All objects with a null connector are grouped together.
-    origins = defaultdict(list)
+    # Expand any channelized interface into its channel subinterfaces. A channelized parent originates no path of its
+    # own; instead, each channel subinterface traces independently from the single connector position it occupies.
+    # Plain (non-channelized) origins pass through unchanged, keeping this expansion re-entrant so that
+    # rebuild_paths() -> create_cablepaths(cp.origins) does not re-expand the channel subinterfaces it already holds.
+    expanded = []
     for obj in objects:
-        origins[obj.cable_connector].append(obj)
+        if isinstance(obj, Interface) and obj.channels:
+            expanded.extend(obj.child_interfaces.filter(channel_id__isnull=False, cable__isnull=False))
+        else:
+            expanded.append(obj)
+
+    # Arrange objects by cable connector. All objects with a null connector are grouped together. Channel
+    # subinterfaces must each originate their own path, as sharing a connector would otherwise collapse a group of
+    # siblings into a single malformed path.
+    origins = defaultdict(list)
+    for obj in expanded:
+        if isinstance(obj, Interface) and obj.channel_id:
+            if cp := CablePath.from_origin([obj]):
+                cp.save()
+        else:
+            origins[obj.cable_connector].append(obj)
 
     for connector, objects in origins.items():
         if cp := CablePath.from_origin(objects):
@@ -156,6 +173,54 @@ def rebuild_paths(terminations):
             for cp in cable_paths:
                 cp.delete()
                 create_cablepaths(cp.origins)
+
+
+def rebuild_cable_paths(cable):
+    """
+    Delete and rebuild every CablePath traversing the given Cable, tracing freshly from the Cable's current
+    terminations in both directions. Used when the channelization of a terminated interface changes (e.g. a channel
+    subinterface is added, moved, or removed) without the Cable itself being modified.
+    """
+    from dcim.choices import CableEndChoices
+    from dcim.models import CablePath, CableTermination, PathEndpoint
+
+    with transaction.atomic(using=router.db_for_write(CablePath)):
+        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
+        for cp in CablePath.objects.filter(_nodes__contains=cable):
+            cp.delete()
+
+        a_terminations, b_terminations = [], []
+        for ct in CableTermination.objects.filter(cable=cable):
+            if ct.cable_end == CableEndChoices.SIDE_A:
+                a_terminations.append(ct.termination)
+            else:
+                b_terminations.append(ct.termination)
+
+        for nodes in (a_terminations, b_terminations):
+            if not nodes:
+                continue
+            if isinstance(nodes[0], PathEndpoint):
+                create_cablepaths(nodes)
+            else:
+                rebuild_paths(nodes)
+
+
+def update_interface_parents(device, interface_templates, module=None):
+    """
+    Used for device and module instantiation. Iterates all InterfaceTemplates with a parent assigned and applies it to
+    the actual interfaces. Must run after all interfaces have been instantiated (so that every parent interface exists)
+    and before update_interface_bridges() (so that channel subinterfaces validate against a populated parent).
+    """
+    Interface = apps.get_model('dcim', 'Interface')
+
+    for interface_template in interface_templates.exclude(parent=None):
+        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface.parent = Interface.objects.get(
+            device=device,
+            name=interface_template.parent.resolve_name(module=module)
+        )
+        interface.full_clean()
+        interface.save()
 
 
 def update_interface_bridges(device, interface_templates, module=None):

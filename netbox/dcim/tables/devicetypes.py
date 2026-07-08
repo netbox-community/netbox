@@ -244,8 +244,8 @@ class InterfaceTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.InterfaceTemplate
         fields = (
-            'pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'description', 'bridge', 'poe_mode', 'poe_type',
-            'rf_role', 'actions',
+            'pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'channels', 'channel_id', 'description', 'parent',
+            'bridge', 'poe_mode', 'poe_type', 'rf_role', 'actions',
         )
         empty_text = "None"
 
