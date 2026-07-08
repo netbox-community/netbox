@@ -15,6 +15,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models.features import ChangeLoggingMixin
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -1196,9 +1197,16 @@ class Interface(
 # Pass-through ports
 #
 
-class PortMapping(PortMappingBase):
+class PortMapping(ChangeLoggingMixin, PortMappingBase):
     """
     Maps a FrontPort & position to a RearPort & position.
+
+    Change logging is enabled (via ChangeLoggingMixin) so that creating, editing, or
+    removing a mapping is recorded in the object change log. The model remains "private"
+    (_netbox_private, inherited from PortMappingBase): it has no public API/URL of its own
+    and is still treated as an implementation detail of its FrontPort/RearPort. Recording
+    an ObjectChange ensures the mapping is captured in the audit trail and can be replayed
+    by consumers of the change log (e.g. branch merges). See netbox-branching issue #611.
     """
     device = models.ForeignKey(
         to='dcim.Device',
@@ -1215,6 +1223,12 @@ class PortMapping(PortMappingBase):
         on_delete=models.CASCADE,
         related_name='mappings',
     )
+
+    class Meta(PortMappingBase.Meta):
+        # Inherit the unique constraints from PortMappingBase.Meta. An explicit Meta is
+        # required now that ChangeLoggingMixin precedes PortMappingBase in the MRO;
+        # without it, ChangeLoggingMixin's (constraint-less) Meta would shadow the base's.
+        pass
 
     def clean(self):
         super().clean()
