@@ -1740,9 +1740,14 @@ class RearPortBulkEditForm(
 
 
 class ModuleBayBulkEditForm(
-    form_from_model(ModuleBay, ['label', 'position', 'enabled', 'description']),
+    form_from_model(ModuleBay, ['label', 'position', 'description']),
     NetBoxModelBulkEditForm
 ):
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+    )
     add_module_bay_types = DynamicModelMultipleChoiceField(
         label=_('Add bay types'),
         queryset=ModuleBayType.objects.all(),
@@ -1768,9 +1773,15 @@ class ModuleBayBulkEditForm(
 
 
 class DeviceBayBulkEditForm(
-    form_from_model(DeviceBay, ['label', 'enabled', 'description']),
+    form_from_model(DeviceBay, ['label', 'description']),
     NetBoxModelBulkEditForm
 ):
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+    )
+
     model = DeviceBay
     fieldsets = (
         FieldSet('label', 'enabled', 'description'),
