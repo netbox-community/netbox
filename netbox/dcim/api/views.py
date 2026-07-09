@@ -286,6 +286,12 @@ class DeviceTypeViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceTypeFilterSet
 
 
+class ModuleBayTypeViewSet(NetBoxModelViewSet):
+    queryset = ModuleBayType.objects.all()
+    serializer_class = serializers.ModuleBayTypeSerializer
+    filterset_class = filtersets.ModuleBayTypeFilterSet
+
+
 class ModuleTypeProfileViewSet(NetBoxModelViewSet):
     queryset = ModuleTypeProfile.objects.all()
     serializer_class = serializers.ModuleTypeProfileSerializer
@@ -427,7 +433,10 @@ class VirtualDeviceContextViewSet(NetBoxModelViewSet):
 
 
 class ModuleViewSet(NetBoxModelViewSet):
-    queryset = Module.objects.all()
+    queryset = Module.objects.prefetch_related(
+        'module_bay__module_bay_types',
+        'module_type__module_bay_types',
+    )
     serializer_class = serializers.ModuleSerializer
     filterset_class = filtersets.ModuleFilterSet
 
@@ -512,7 +521,9 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
-    queryset = ModuleBay.objects.all()
+    queryset = ModuleBay.objects.prefetch_related(
+        'installed_module__module_type__module_bay_types',
+    )
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
 

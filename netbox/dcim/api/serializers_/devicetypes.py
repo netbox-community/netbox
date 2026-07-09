@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
+from dcim.models import DeviceType, ModuleBayType, ModuleType, ModuleTypeProfile
 from netbox.api.fields import AttributesField, ChoiceField
 from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
@@ -14,6 +14,7 @@ from .platforms import PlatformSerializer
 
 __all__ = (
     'DeviceTypeSerializer',
+    'ModuleBayTypeSerializer',
     'ModuleTypeProfileSerializer',
     'ModuleTypeSerializer',
 )
@@ -62,6 +63,22 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'device_count')
 
 
+class ModuleBayTypeSerializer(PrimaryModelSerializer):
+    manufacturer = ManufacturerSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'manufacturer', 'color', 'description', 'owner',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'manufacturer', 'color', 'description')
+
+
 class ModuleTypeProfileSerializer(PrimaryModelSerializer):
 
     class Meta:
@@ -81,6 +98,11 @@ class ModuleTypeSerializer(PrimaryModelSerializer):
     )
     manufacturer = ManufacturerSerializer(
         nested=True
+    )
+    module_bay_types = ModuleBayTypeSerializer(
+        nested=True,
+        many=True,
+        required=False,
     )
     weight_unit = ChoiceField(
         choices=WeightUnitChoices,
@@ -115,8 +137,8 @@ class ModuleTypeSerializer(PrimaryModelSerializer):
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
-            'weight', 'weight_unit', 'description', 'attributes', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'module_count', 'console_port_template_count',
+            'weight', 'weight_unit', 'description', 'attributes', 'module_bay_types', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'module_count', 'console_port_template_count',
             'console_server_port_template_count', 'power_port_template_count', 'power_outlet_template_count',
             'interface_template_count', 'front_port_template_count', 'rear_port_template_count',
             'module_bay_template_count',

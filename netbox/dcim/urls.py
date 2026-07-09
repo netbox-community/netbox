@@ -41,6 +41,9 @@ urlpatterns = [
     path('device-types/', include(get_model_urls('dcim', 'devicetype', detail=False))),
     path('device-types/<int:pk>/', include(get_model_urls('dcim', 'devicetype'))),
 
+    path('module-bay-types/', include(get_model_urls('dcim', 'modulebaytype', detail=False))),
+    path('module-bay-types/<int:pk>/', include(get_model_urls('dcim', 'modulebaytype'))),
+
     path('module-type-profiles/', include(get_model_urls('dcim', 'moduletypeprofile', detail=False))),
     path('module-type-profiles/<int:pk>/', include(get_model_urls('dcim', 'moduletypeprofile'))),
 

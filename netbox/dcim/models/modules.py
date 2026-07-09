@@ -14,7 +14,7 @@ from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
-from utilities.fields import CounterCacheField
+from utilities.fields import ColorField, CounterCacheField
 from utilities.jsonschema import validate_schema
 from utilities.string import title
 from utilities.tracking import TrackingModelMixin
@@ -23,9 +23,64 @@ from .device_components import *
 
 __all__ = (
     'Module',
+    'ModuleBayType',
     'ModuleType',
     'ModuleTypeProfile',
 )
+
+
+class ModuleBayType(PrimaryModel):
+    """
+    A type classification for module bays. When bay types are assigned to both a ModuleBay and a
+    ModuleType, module installation is permitted only if the two sets share at least one common
+    member (i.e. an empty set on either side means unconstrained).
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+    )
+    manufacturer = models.ForeignKey(
+        to='dcim.Manufacturer',
+        on_delete=models.PROTECT,
+        related_name='module_bay_types',
+        blank=True,
+        null=True,
+    )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True,
+    )
+
+    clone_fields = ('manufacturer', 'color')
+    prerequisite_models = (
+        'dcim.Manufacturer',
+    )
+
+    class Meta:
+        ordering = ('manufacturer', 'name')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('manufacturer', 'name'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_name',
+                nulls_distinct=False,
+            ),
+            models.UniqueConstraint(
+                fields=('manufacturer', 'slug'),
+                name='%(app_label)s_%(class)s_unique_manufacturer_slug',
+                nulls_distinct=False,
+            ),
+        )
+        verbose_name = _('module bay type')
+        verbose_name_plural = _('module bay types')
+
+    def __str__(self):
+        if self.manufacturer:
+            return f'{self.manufacturer} {self.name}'
+        return self.name
 
 
 class ModuleTypeProfile(PrimaryModel):
@@ -95,6 +150,13 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True,
         verbose_name=_('attributes')
+    )
+    module_bay_types = models.ManyToManyField(
+        to='dcim.ModuleBayType',
+        related_name='module_types',
+        blank=True,
+        verbose_name=_('module bay types'),
+        help_text=_('Types of module bays this module type can be installed in (empty = unconstrained)'),
     )
     module_count = CounterCacheField(
         to_model='dcim.Module',
@@ -176,6 +238,30 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 value = ', '.join(str(v) for v in value)
             attrs[key] = value
         return dict(sorted(attrs.items()))
+
+    def get_incompatible_modules(self):
+        """
+        Return a queryset of Module instances of this type that are installed in bays whose
+        bay type sets are non-empty and share no members with this type's bay type set.
+        If this type has no bay type constraints, no installation can be incompatible.
+        """
+        type_type_pks = list(self.module_bay_types.values_list('pk', flat=True))
+        if not type_type_pks:
+            return Module.objects.none()
+        # Bays that have any compatible type (the intersection is non-empty)
+        compatible_bay_pks = ModuleBay.objects.filter(
+            module_bay_types__pk__in=type_type_pks
+        ).values_list('pk', flat=True)
+        # Bays with at least one type set (constrained bays)
+        constrained_bay_pks = ModuleBay.objects.filter(
+            module_bay_types__isnull=False
+        ).values_list('pk', flat=True)
+        return Module.objects.filter(
+            module_type=self,
+            module_bay__pk__in=constrained_bay_pks,
+        ).exclude(
+            module_bay__pk__in=compatible_bay_pks,
+        )
 
     def clean(self):
         super().clean()
@@ -297,6 +383,20 @@ class Module(TrackingModelMixin, PrimaryModel):
     def get_status_color(self):
         return ModuleStatusChoices.colors.get(self.status)
 
+    @property
+    def is_bay_compatible(self):
+        """
+        Return True if this module's type is compatible with its installed bay, or if either has no type constraints.
+        Returns False when both the bay and module type have non-empty, disjoint bay type sets.
+        """
+        if not (self.module_bay_id and self.module_type_id):
+            return True
+        bay_types = set(self.module_bay.module_bay_types.values_list('pk', flat=True))
+        type_types = set(self.module_type.module_bay_types.values_list('pk', flat=True))
+        if bay_types and type_types and not (bay_types & type_types):
+            return False
+        return True
+
     def clean(self):
         super().clean()
 
@@ -306,6 +406,19 @@ class Module(TrackingModelMixin, PrimaryModel):
                     device=self.device
                 )
             )
+
+        # Check module bay type compatibility
+        if self.module_bay_id and self.module_type_id:
+            bay_types = set(self.module_bay.module_bay_types.values_list('pk', flat=True))
+            type_types = set(self.module_type.module_bay_types.values_list('pk', flat=True))
+            if bay_types and type_types and not (bay_types & type_types):
+                raise ValidationError(
+                    _('Module type {module_type} is not compatible with module bay {module_bay}: '
+                      'their bay type sets have no common members.').format(
+                        module_type=self.module_type,
+                        module_bay=self.module_bay,
+                    )
+                )
 
         # Prevent module from being installed in a disabled bay
         if hasattr(self, 'module_bay') and self.module_bay and not self.module_bay.enabled:
@@ -375,6 +488,7 @@ class Module(TrackingModelMixin, PrimaryModel):
             # Get the template for the module type.
             for template in getattr(self.module_type, templates).all():
                 template_instance = template.instantiate(device=self.device, module=self)
+                template_instance._source_template = template
 
                 if adopt_components:
                     existing_item = installed_components.get(template_instance.name)
@@ -405,6 +519,13 @@ class Module(TrackingModelMixin, PrimaryModel):
             # in ModuleBayTemplate.instantiate() (bulk_create bypasses ModuleBay.save()),
             # and the BEFORE INSERT trigger derives path/sort_path from parent_id per row.
             component_model.objects.bulk_create(create_instances)
+
+            # Copy M2M module_bay_types from template to new ModuleBay instances.
+            if component_model is ModuleBay:
+                for component in create_instances:
+                    if src := getattr(component, '_source_template', None):
+                        component.module_bay_types.set(src.module_bay_types.all())
+
             for component in create_instances:
                 post_save.send(
                     sender=component_model,

@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
@@ -1691,6 +1692,67 @@ class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Module bay types
+#
+
+@register_model_view(ModuleBayType, 'list', path='', detail=False)
+class ModuleBayTypeListView(generic.ObjectListView):
+    queryset = ModuleBayType.objects.all()
+    filterset = filtersets.ModuleBayTypeFilterSet
+    filterset_form = forms.ModuleBayTypeFilterForm
+    table = tables.ModuleBayTypeTable
+
+
+@register_model_view(ModuleBayType)
+class ModuleBayTypeView(generic.ObjectView):
+    template_name = 'generic/object.html'
+    queryset = ModuleBayType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleBayTypePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+        ],
+    )
+
+
+@register_model_view(ModuleBayType, 'add', detail=False)
+@register_model_view(ModuleBayType, 'edit')
+class ModuleBayTypeEditView(generic.ObjectEditView):
+    queryset = ModuleBayType.objects.all()
+    form = forms.ModuleBayTypeForm
+
+
+@register_model_view(ModuleBayType, 'delete')
+class ModuleBayTypeDeleteView(generic.ObjectDeleteView):
+    queryset = ModuleBayType.objects.all()
+
+
+@register_model_view(ModuleBayType, 'bulk_import', detail=False)
+class ModuleBayTypeBulkImportView(generic.BulkImportView):
+    queryset = ModuleBayType.objects.all()
+    model_form = forms.ModuleBayTypeImportForm
+
+
+@register_model_view(ModuleBayType, 'bulk_edit', path='edit', detail=False)
+class ModuleBayTypeBulkEditView(generic.BulkEditView):
+    queryset = ModuleBayType.objects.all()
+    filterset = filtersets.ModuleBayTypeFilterSet
+    table = tables.ModuleBayTypeTable
+    form = forms.ModuleBayTypeBulkEditForm
+
+
+@register_model_view(ModuleBayType, 'bulk_delete', path='delete', detail=False)
+class ModuleBayTypeBulkDeleteView(generic.BulkDeleteView):
+    queryset = ModuleBayType.objects.all()
+    filterset = filtersets.ModuleBayTypeFilterSet
+    table = tables.ModuleBayTypeTable
+
+
+#
 # Module type profiles
 #
 
@@ -1832,6 +1894,31 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
 class ModuleTypeEditView(generic.ObjectEditView):
     queryset = ModuleType.objects.all()
     form = forms.ModuleTypeForm
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        saved = (
+            getattr(response, 'status_code', None) == 302 or
+            (hasattr(response, 'headers') and 'HX-Location' in response.headers)
+        )
+        if saved and kwargs.get('pk'):
+            try:
+                module_type = ModuleType.objects.prefetch_related('module_bay_types').get(pk=kwargs['pk'])
+                count = module_type.get_incompatible_modules().count()
+                if count:
+                    messages.warning(
+                        request,
+                        ngettext(
+                            '%(count)d installed module of this type is now incompatible with its module bay '
+                            'due to conflicting bay type constraints.',
+                            '%(count)d installed modules of this type are now incompatible with their module bays '
+                            'due to conflicting bay type constraints.',
+                            count,
+                        ) % {'count': count}
+                    )
+            except ModuleType.DoesNotExist:
+                pass
+        return response
 
 
 @register_model_view(ModuleType, 'delete')
@@ -3006,6 +3093,7 @@ class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
             Breadcrumb('module_type', url=filtered_list_url('dcim:module_list', 'module_type_id')),
         ],
         left_panels=[
+            panels.BayTypeIncompatibilityPanel(),
             panels.ModulePanel(),
             TagsPanel(),
             CommentsPanel(),
@@ -3857,6 +3945,7 @@ class ModuleBayView(generic.ObjectView):
             Breadcrumb('device', url=object_view_url('dcim:device_modulebays')),
         ],
         left_panels=[
+            panels.BayTypeIncompatibilityPanel(),
             panels.ModuleBayPanel(),
             TagsPanel(),
         ],
@@ -3878,6 +3967,27 @@ class ModuleBayCreateView(generic.ComponentCreateView):
 class ModuleBayEditView(generic.ObjectEditView):
     queryset = ModuleBay.objects.all()
     form = forms.ModuleBayForm
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        saved = (
+            getattr(response, 'status_code', None) == 302 or
+            (hasattr(response, 'headers') and 'HX-Location' in response.headers)
+        )
+        if saved and kwargs.get('pk'):
+            try:
+                bay = ModuleBay.objects.prefetch_related(
+                    'module_bay_types', 'installed_module__module_type__module_bay_types'
+                ).get(pk=kwargs['pk'])
+                if not bay.is_module_compatible:
+                    messages.warning(
+                        request,
+                        _('The module currently installed in this bay is incompatible with the new bay type '
+                          'constraints. Consider removing or replacing it.')
+                    )
+            except ModuleBay.DoesNotExist:
+                pass
+        return response
 
 
 @register_model_view(ModuleBay, 'delete')

@@ -1025,6 +1025,10 @@ class Device(
                 if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                     component.custom_field_data = cf_defaults
                 component.save()
+                # Copy module_bay_types from the source template (set by instantiate()).
+                if src := getattr(component, '_source_template', None):
+                    if hasattr(component, 'module_bay_types'):
+                        component.module_bay_types.set(src.module_bay_types.all())
 
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)

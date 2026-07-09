@@ -69,6 +69,7 @@ __all__ = (
     'ModularComponentType',
     'ModuleBayTemplateType',
     'ModuleBayType',
+    'ModuleBayTypeType',
     'ModuleType',
     'ModuleTypeProfileType',
     'ModuleTypeType',
@@ -611,6 +612,7 @@ class ModuleBayType(LtreeNodeMixin, ModularComponentType):
 
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
+    module_bay_types: list[Annotated["ModuleBayTypeType", strawberry.lazy('dcim.graphql.types')]]
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')] | None:
@@ -624,7 +626,21 @@ class ModuleBayType(LtreeNodeMixin, ModularComponentType):
     pagination=True
 )
 class ModuleBayTemplateType(ModularComponentTemplateType):
-    pass
+    module_bay_types: list[Annotated["ModuleBayTypeType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
+    models.ModuleBayType,
+    fields='__all__',
+    filters=ModuleBayTypeFilter,
+    pagination=True
+)
+class ModuleBayTypeType(PrimaryObjectType):
+    color: str
+    manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
+    module_types: list[Annotated["ModuleTypeType", strawberry.lazy('dcim.graphql.types')]]
+    module_bays: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
+    module_bay_templates: list[Annotated["ModuleBayTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -655,6 +671,7 @@ class ModuleTypeType(PrimaryObjectType):
     module_bay_template_count: BigInt
     profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
+    module_bay_types: list[Annotated["ModuleBayTypeType", strawberry.lazy('dcim.graphql.types')]]
 
     frontporttemplates: list[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     consoleserverporttemplates: list[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]

@@ -1,0 +1,49 @@
+{% load i18n %}
+<!-- begin BayTypeIncompatibilityPanel -->
+<div class="card border-warning">
+  <h2 class="card-header bg-warning-subtle text-warning-emphasis">
+    <i class="mdi mdi-alert"></i> {% trans "Bay Type Incompatibility" %}
+  </h2>
+  <div class="card-body">
+    {% if object.module_bay_id %}
+      {# Module detail view #}
+      <p class="mb-1">
+        {% blocktrans with module_type=object.module_type module_bay=object.module_bay %}
+          Module type <strong>{{ module_type }}</strong> is not compatible with module bay
+          <strong>{{ module_bay }}</strong>: their bay type sets share no common members.
+        {% endblocktrans %}
+      </p>
+      <p class="mb-0 text-muted small">
+        {% trans "Bay types on bay:" %}
+        {% for bt in object.module_bay.module_bay_types.all %}
+          <a href="{{ bt.get_absolute_url }}">{{ bt }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        &nbsp;&mdash;&nbsp;
+        {% trans "Bay types on module type:" %}
+        {% for bt in object.module_type.module_bay_types.all %}
+          <a href="{{ bt.get_absolute_url }}">{{ bt }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% else %}
+      {# ModuleBay detail view #}
+      <p class="mb-1">
+        {% blocktrans with module_type=object.installed_module.module_type bay=object %}
+          Module type <strong>{{ module_type }}</strong> is not compatible with this bay
+          (<strong>{{ bay }}</strong>): their bay type sets share no common members.
+        {% endblocktrans %}
+      </p>
+      <p class="mb-0 text-muted small">
+        {% trans "Bay types on bay:" %}
+        {% for bt in object.module_bay_types.all %}
+          <a href="{{ bt.get_absolute_url }}">{{ bt }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+        &nbsp;&mdash;&nbsp;
+        {% trans "Bay types on module type:" %}
+        {% for bt in object.installed_module.module_type.module_bay_types.all %}
+          <a href="{{ bt.get_absolute_url }}">{{ bt }}</a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+    {% endif %}
+  </div>
+</div>
+<!-- end BayTypeIncompatibilityPanel -->

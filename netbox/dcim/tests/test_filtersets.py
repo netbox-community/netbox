@@ -1866,6 +1866,49 @@ class ModuleTypeProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class ModuleBayTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ModuleBayType.objects.all()
+    filterset = ModuleBayTypeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[1], name='Module Bay Type 2', slug='module-bay-type-2'),
+            ModuleBayType(manufacturer=manufacturers[2], name='Module Bay Type 3', slug='module-bay-type-3'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+
+    def test_q(self):
+        params = {'q': 'Module Bay Type 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Module Bay Type 1', 'Module Bay Type 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['module-bay-type-1', 'module-bay-type-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer(self):
+        manufacturers = Manufacturer.objects.filter(name__in=['Manufacturer 1', 'Manufacturer 2'])
+        params = {'manufacturer': [m.slug for m in manufacturers]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_manufacturer_id(self):
+        manufacturers = Manufacturer.objects.filter(name__in=['Manufacturer 1', 'Manufacturer 2'])
+        params = {'manufacturer_id': [m.pk for m in manufacturers]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = ConsolePortTemplate.objects.all()
     filterset = ConsolePortTemplateFilterSet

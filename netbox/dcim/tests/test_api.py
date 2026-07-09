@@ -1086,6 +1086,47 @@ class ModuleTypeProfileTestCase(APIViewTestCases.APIViewTestCase):
         ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
 
+class ModuleBayTypeTestCase(APIViewTestCases.APIViewTestCase):
+    model = ModuleBayType
+    brief_fields = ['color', 'description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 2', slug='module-bay-type-2'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 3', slug='module-bay-type-3'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+
+        cls.create_data = [
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 4',
+                'slug': 'module-bay-type-4',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 5',
+                'slug': 'module-bay-type-5',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 6',
+                'slug': 'module-bay-type-6',
+            },
+        ]
+
+
 class ConsolePortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
@@ -2235,6 +2276,54 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_is_bay_compatible_flag(self):
+        """
+        is_bay_compatible should be True when no bay types are set, and False when the
+        bay's types and the module type's types are both set but share no common members.
+        """
+        self.add_permissions('dcim.view_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Compat Test Device')
+
+        bay_type_a = ModuleBayType.objects.create(manufacturer=manufacturer, name='Bay Type A', slug='bay-type-a')
+        bay_type_b = ModuleBayType.objects.create(manufacturer=manufacturer, name='Bay Type B', slug='bay-type-b')
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Compat Module Type')
+        module_type.module_bay_types.set([bay_type_a])
+
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compatible Bay')
+        compatible_bay.module_bay_types.set([bay_type_a])
+
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Incompatible Bay')
+        incompatible_bay.module_bay_types.set([bay_type_b])
+
+        unconstrained_bay = ModuleBay.objects.create(device=device, name='Unconstrained Bay')
+
+        compatible_module = Module.objects.create(
+            device=device, module_bay=compatible_bay, module_type=module_type
+        )
+        incompatible_module = Module.objects.create(
+            device=device, module_bay=incompatible_bay, module_type=module_type
+        )
+        unconstrained_module = Module.objects.create(
+            device=device, module_bay=unconstrained_bay, module_type=module_type
+        )
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': compatible_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_bay_compatible'])
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': incompatible_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(response.data['is_bay_compatible'])
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': unconstrained_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_bay_compatible'])
+
     def test_replicate_components(self):
         """
         Installing a module with replicate_components=True (the default) should create
@@ -3263,6 +3352,52 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Device Bay 6',
             },
         ]
+
+    def test_is_module_compatible_flag(self):
+        """
+        is_module_compatible should be True when no bay types restrict the bay, and False
+        when the bay's types and the installed module type's types share no common members.
+        """
+        self.add_permissions('dcim.view_modulebay', 'dcim.view_module', 'dcim.view_moduletype')
+        manufacturer = Manufacturer.objects.create(
+            name='Compat Manufacturer', slug='compat-manufacturer'
+        )
+        device = create_test_device('Compat Bay Test Device')
+
+        bay_type_a = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Compat Bay Type A', slug='compat-bay-type-a'
+        )
+        bay_type_b = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Compat Bay Type B', slug='compat-bay-type-b'
+        )
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Compat MT')
+        module_type.module_bay_types.set([bay_type_a])
+
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compat Bay C')
+        compatible_bay.module_bay_types.set([bay_type_a])
+        Module.objects.create(device=device, module_bay=compatible_bay, module_type=module_type)
+
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Compat Bay I')
+        incompatible_bay.module_bay_types.set([bay_type_b])
+        Module.objects.create(device=device, module_bay=incompatible_bay, module_type=module_type)
+
+        empty_bay = ModuleBay.objects.create(device=device, name='Compat Bay E')
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': compatible_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_module_compatible'])
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': incompatible_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(response.data['is_module_compatible'])
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': empty_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_module_compatible'])
 
 
 class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):

@@ -1928,6 +1928,160 @@ class ModuleBayTestCase(TestCase):
         self.assertIn('disabled module bay', str(cm.exception.message_dict['module_bay']))
 
 
+class ModuleBayTypeCompatibilityTestCase(TestCase):
+    """Tests for bay type compatibility: Module.is_bay_compatible, ModuleType.get_incompatible_modules,
+    ModuleBay.is_module_compatible, and Module.clean() validation."""
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Compat Site', slug='compat-site')
+        manufacturer = Manufacturer.objects.create(name='Compat Mfr', slug='compat-mfr')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Compat Device Type', slug='compat-dt'
+        )
+        device_role = DeviceRole.objects.create(name='Compat Role', slug='compat-role')
+        cls.device = Device.objects.create(
+            name='Compat Device', device_type=device_type, role=device_role, site=site
+        )
+
+        cls.bay_type_a = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Bay Type A', slug='bay-type-a'
+        )
+        cls.bay_type_b = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Bay Type B', slug='bay-type-b'
+        )
+
+        cls.module_type_a = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type A')
+        cls.module_type_a.module_bay_types.set([cls.bay_type_a])
+
+        cls.module_type_b = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type B')
+        cls.module_type_b.module_bay_types.set([cls.bay_type_b])
+
+        cls.module_type_any = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type Any')
+
+    def _make_bay(self, name, *bay_types):
+        bay = ModuleBay.objects.create(device=self.device, name=name)
+        if bay_types:
+            bay.module_bay_types.set(bay_types)
+        return bay
+
+    def _install(self, bay, module_type):
+        return Module.objects.create(device=self.device, module_bay=bay, module_type=module_type)
+
+    # --- Module.clean() validation ---
+
+    def test_clean_blocks_incompatible_install(self):
+        """Module.clean() raises ValidationError when bay and module type have disjoint type sets."""
+        bay = self._make_bay('Bay Compat 1', self.bay_type_b)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        with self.assertRaises(ValidationError):
+            module.clean()
+
+    def test_clean_allows_compatible_install(self):
+        """Module.clean() passes when bay and module type share at least one bay type."""
+        bay = self._make_bay('Bay Compat 2', self.bay_type_a)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.clean()  # should not raise
+
+    def test_clean_allows_unconstrained_module_type(self):
+        """Module.clean() passes when the module type has no bay type constraints."""
+        bay = self._make_bay('Bay Compat 3', self.bay_type_a)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_any)
+        module.clean()  # should not raise
+
+    def test_clean_allows_unconstrained_bay(self):
+        """Module.clean() passes when the bay has no bay type constraints."""
+        bay = self._make_bay('Bay Compat 4')
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.clean()  # should not raise
+
+    # --- Module.is_bay_compatible ---
+
+    def test_is_bay_compatible_false_when_disjoint(self):
+        """Module.is_bay_compatible returns False when bay and module type sets are disjoint."""
+        bay = self._make_bay('Bay Compat 5', self.bay_type_b)
+        # Bypass clean() to create an incompatible installation for testing the property
+        module = Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.refresh_from_db()
+        self.assertFalse(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_overlapping(self):
+        """Module.is_bay_compatible returns True when bay and module type share a bay type."""
+        bay = self._make_bay('Bay Compat 6', self.bay_type_a)
+        module = self._install(bay, self.module_type_a)
+        self.assertTrue(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_module_type_unconstrained(self):
+        """Module.is_bay_compatible returns True when module type has no constraints."""
+        bay = self._make_bay('Bay Compat 7', self.bay_type_a)
+        module = self._install(bay, self.module_type_any)
+        self.assertTrue(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_bay_unconstrained(self):
+        """Module.is_bay_compatible returns True when bay has no constraints."""
+        bay = self._make_bay('Bay Compat 8')
+        module = self._install(bay, self.module_type_a)
+        self.assertTrue(module.is_bay_compatible)
+
+    # --- ModuleType.get_incompatible_modules ---
+
+    def test_get_incompatible_modules_returns_incompatible(self):
+        """ModuleType.get_incompatible_modules includes modules in bays with disjoint type sets."""
+        bay = self._make_bay('Bay Compat 9', self.bay_type_b)
+        module = Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertIn(module, qs)
+
+    def test_get_incompatible_modules_excludes_compatible(self):
+        """ModuleType.get_incompatible_modules excludes modules in bays with matching type sets."""
+        bay = self._make_bay('Bay Compat 10', self.bay_type_a)
+        module = self._install(bay, self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertNotIn(module, qs)
+
+    def test_get_incompatible_modules_excludes_unconstrained_bay(self):
+        """ModuleType.get_incompatible_modules excludes modules in unconstrained bays."""
+        bay = self._make_bay('Bay Compat 11')
+        module = self._install(bay, self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertNotIn(module, qs)
+
+    def test_get_incompatible_modules_empty_when_type_unconstrained(self):
+        """ModuleType.get_incompatible_modules returns empty queryset when type has no constraints."""
+        bay = self._make_bay('Bay Compat 12', self.bay_type_a)
+        self._install(bay, self.module_type_any)
+        qs = self.module_type_any.get_incompatible_modules()
+        self.assertFalse(qs.exists())
+
+    # --- ModuleBay.is_module_compatible ---
+
+    def test_bay_is_module_compatible_false_when_disjoint(self):
+        """ModuleBay.is_module_compatible returns False when bay and installed module sets are disjoint."""
+        bay = self._make_bay('Bay Compat 13', self.bay_type_b)
+        Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        bay.refresh_from_db()
+        self.assertFalse(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_overlapping(self):
+        """ModuleBay.is_module_compatible returns True when sets overlap."""
+        bay = self._make_bay('Bay Compat 14', self.bay_type_a)
+        self._install(bay, self.module_type_a)
+        bay.refresh_from_db()
+        self.assertTrue(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_no_module(self):
+        """ModuleBay.is_module_compatible returns True when nothing is installed."""
+        bay = self._make_bay('Bay Compat 15', self.bay_type_a)
+        self.assertTrue(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_bay_unconstrained(self):
+        """ModuleBay.is_module_compatible returns True when bay has no constraints."""
+        bay = self._make_bay('Bay Compat 16')
+        Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        bay.refresh_from_db()
+        self.assertTrue(bay.is_module_compatible)
+
+
 class CableTestCase(TestCase):
 
     @classmethod

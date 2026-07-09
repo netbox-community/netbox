@@ -1,7 +1,7 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Func, IntegerField
+from django.db.models import Func, IntegerField, Q
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -75,6 +75,7 @@ __all__ = (
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
+    'ModuleBayTypeFilterSet',
     'ModuleFilterSet',
     'ModuleTypeFilterSet',
     'ModuleTypeProfileFilterSet',
@@ -796,6 +797,50 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
+class ModuleBayTypeFilterSet(PrimaryModelFilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        distinct=False,
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
+    module_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_types',
+        queryset=ModuleType.objects.all(),
+        label=_('Module type (ID)'),
+    )
+    module_bay_template_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_templates',
+        queryset=ModuleBayTemplate.objects.all(),
+        label=_('Module bay template (ID)'),
+    )
+    module_bay_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bays',
+        queryset=ModuleBay.objects.all(),
+        label=_('Module bay (ID)'),
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = ('id', 'name', 'slug', 'color', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
+@register_filterset
 class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
 
     class Meta:
@@ -837,6 +882,19 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
+    )
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
@@ -1062,6 +1120,19 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
 
 @register_filterset
 class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
+    )
 
     class Meta:
         model = ModuleBayTemplate
@@ -2439,6 +2510,19 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
         field_name='installed_module',
         queryset=ModuleBay.objects.all(),
         label=_('Installed module (ID)'),
+    )
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
     )
 
     class Meta:

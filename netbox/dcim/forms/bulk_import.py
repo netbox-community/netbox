@@ -50,6 +50,7 @@ __all__ = (
     'MACAddressImportForm',
     'ManufacturerImportForm',
     'ModuleBayImportForm',
+    'ModuleBayTypeImportForm',
     'ModuleImportForm',
     'ModuleTypeImportForm',
     'ModuleTypeProfileImportForm',
@@ -459,6 +460,21 @@ class DeviceTypeImportForm(PrimaryModelImportForm):
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization',
             'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'owner', 'comments',
             'tags',
+        ]
+
+
+class ModuleBayTypeImportForm(PrimaryModelImportForm):
+    manufacturer = CSVModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = [
+            'name', 'slug', 'manufacturer', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 

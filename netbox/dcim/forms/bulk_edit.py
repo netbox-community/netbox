@@ -58,6 +58,7 @@ __all__ = (
     'ManufacturerBulkEditForm',
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
+    'ModuleBayTypeBulkEditForm',
     'ModuleBulkEditForm',
     'ModuleTypeBulkEditForm',
     'ModuleTypeProfileBulkEditForm',
@@ -560,6 +561,24 @@ class DeviceTypeBulkEditForm(PrimaryModelBulkEditForm):
         FieldSet('weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')
+
+
+class ModuleBayTypeBulkEditForm(PrimaryModelBulkEditForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False,
+    )
+
+    model = ModuleBayType
+    fieldsets = (
+        FieldSet('manufacturer', 'color', 'description', name=_('Module Bay Type')),
+    )
+    nullable_fields = ('manufacturer', 'color', 'description', 'comments')
 
 
 class ModuleTypeProfileBulkEditForm(PrimaryModelBulkEditForm):

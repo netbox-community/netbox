@@ -78,6 +78,9 @@ class DCIMQuery:
     module_bay_template: ModuleBayTemplateType = strawberry_django.field()
     module_bay_template_list: list[ModuleBayTemplateType] = strawberry_django.field()
 
+    module_bay_type: ModuleBayTypeType = strawberry_django.field()
+    module_bay_type_list: list[ModuleBayTypeType] = strawberry_django.field()
+
     module_type_profile: ModuleTypeProfileType = strawberry_django.field()
     module_type_profile_list: list[ModuleTypeProfileType] = strawberry_django.field()
 
