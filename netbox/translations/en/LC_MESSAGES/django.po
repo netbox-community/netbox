@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-08 05:58+0000\n"
+"POT-Creation-Date: 2026-07-09 06:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12143,11 +12143,6 @@ msgstr ""
 msgid "{class_name} must implement get_view_name()"
 msgstr ""
 
-#: netbox/netbox/authentication/__init__.py:143
-#, python-brace-format
-msgid "Invalid permission {permission} for model {model}"
-msgstr ""
-
 #: netbox/netbox/choices.py:51
 msgid "Dark Red"
 msgstr ""
@@ -13343,90 +13338,98 @@ msgstr ""
 msgid "{value}: {field}: {error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:506
+#: netbox/netbox/views/generic/bulk_views.py:503
 msgid "Must be a list."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:516
+#: netbox/netbox/views/generic/bulk_views.py:513
 msgid "Must be a dictionary."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:573
+#: netbox/netbox/views/generic/bulk_views.py:570
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:636
+#: netbox/netbox/views/generic/bulk_views.py:633
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:688
+#: netbox/netbox/views/generic/bulk_views.py:650
+#, python-brace-format
+msgid ""
+"This import includes {count} record(s) that reference an existing object by "
+"ID and would update it, which requires the {permission} permission. Remove "
+"the ID column to create new objects instead."
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:715
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:704
+#: netbox/netbox/views/generic/bulk_views.py:728
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:818
+#: netbox/netbox/views/generic/bulk_views.py:842
 #, python-brace-format
 msgid "Custom field form field name must begin with 'cf_': {name}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:897
+#: netbox/netbox/views/generic/bulk_views.py:921
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:913
+#: netbox/netbox/views/generic/bulk_views.py:937
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:946
-#: netbox/netbox/views/generic/bulk_views.py:1225
-#: netbox/netbox/views/generic/bulk_views.py:1273
+#: netbox/netbox/views/generic/bulk_views.py:970
+#: netbox/netbox/views/generic/bulk_views.py:1249
+#: netbox/netbox/views/generic/bulk_views.py:1297
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1053
+#: netbox/netbox/views/generic/bulk_views.py:1077
 msgid "Select at least one field to rename."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1083
+#: netbox/netbox/views/generic/bulk_views.py:1107
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1154
+#: netbox/netbox/views/generic/bulk_views.py:1178
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1181
+#: netbox/netbox/views/generic/bulk_views.py:1205
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1198
+#: netbox/netbox/views/generic/bulk_views.py:1222
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1286
+#: netbox/netbox/views/generic/bulk_views.py:1310
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1339
+#: netbox/netbox/views/generic/bulk_views.py:1363
 msgid "An integrity error occurred while creating components"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1351
+#: netbox/netbox/views/generic/bulk_views.py:1375
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr ""
@@ -16838,7 +16841,7 @@ msgstr ""
 msgid "Selected"
 msgstr ""
 
-#: netbox/utilities/testing/views.py:753
+#: netbox/utilities/testing/views.py:754 netbox/utilities/testing/views.py:799
 msgid "The test must define csv_update_data."
 msgstr ""
 
