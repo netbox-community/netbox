@@ -325,8 +325,10 @@ class ConfigTemplate(
         is returned.
         """
         if self.debug:
-            # Strip absolute install-path prefix from File "..." lines so that internal filesystem
-            # layout is not exposed. Paths are replaced with repo-relative equivalents.
+            # Strip the absolute install-path prefix from File "..." lines so that the server's
+            # filesystem layout is not disclosed. Paths under install_root (including the venv)
+            # become repo-relative; paths outside (e.g. Python stdlib at /usr/lib/...) are left
+            # as-is but reveal only standard OS locations, not deployment-specific structure.
             install_root = os.path.dirname(settings.BASE_DIR) + os.sep
             tb = ''.join(traceback.format_exception(exc))
             tb = re.sub(

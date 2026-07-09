@@ -858,7 +858,10 @@ class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, for
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
 
-        # Restrict debug mode to superusers only (CWE-209: exposes install paths via traceback)
+        # Restrict debug mode to superusers only (CWE-209: exposes install paths via traceback).
+        # When debug is absent from the form, the model field retains its current DB value on save.
+        # Note: the fieldset filter is a top-level string scan; InlineFields/TabbedGroups wrappers
+        # around 'debug' would not be caught, but none exist in the current fieldset definition.
         if self.request and not self.request.user.is_superuser:
             del self.fields['debug']
             self.fieldsets = tuple(
