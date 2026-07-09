@@ -249,10 +249,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         compatible_bay_pks = ModuleBay.objects.filter(
             module_bay_types__pk__in=type_type_pks
         ).values_list('pk', flat=True)
-        # Bays with at least one type set (constrained bays)
+        # Bays with at least one type set (constrained bays); distinct() prevents M2M join duplicates
         constrained_bay_pks = ModuleBay.objects.filter(
             module_bay_types__isnull=False
-        ).values_list('pk', flat=True)
+        ).distinct().values_list('pk', flat=True)
         return Module.objects.filter(
             module_type=self,
             module_bay__pk__in=constrained_bay_pks,

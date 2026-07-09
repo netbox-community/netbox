@@ -9,6 +9,9 @@ If either the bay or the module type has **no bay types assigned**, the constrai
 !!! tip
     Bay types function as an allow-list: assign the same type to a bay and to the module types that fit it, and leave the type unset on bays or module types where no restriction is needed.
 
+!!! note "GraphQL naming"
+    In the GraphQL API, the type for the `ModuleBay` *component* is named `ModuleBayType` (following the project's `<Model>Type` suffix convention), while the type for the `ModuleBayType` *model* is named `ModuleBayTypeType`. This is an unavoidable consequence of the naming convention colliding with this model's name.
+
 ## Fields
 
 ### Name

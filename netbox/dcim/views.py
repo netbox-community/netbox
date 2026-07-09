@@ -1904,6 +1904,8 @@ class ModuleTypeEditView(generic.ObjectEditView):
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
+        # A successful save always redirects (302) or returns an HTMX redirect header.
+        # Quick-add creates new objects (no pk in kwargs), so it is excluded by the pk guard below.
         saved = (
             getattr(response, 'status_code', None) == 302 or
             (hasattr(response, 'headers') and 'HX-Location' in response.headers)
@@ -3094,7 +3096,10 @@ class ModuleListView(generic.ObjectListView):
 
 @register_model_view(Module)
 class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
-    queryset = Module.objects.all()
+    queryset = Module.objects.prefetch_related(
+        'module_bay__module_bay_types',
+        'module_type__module_bay_types',
+    )
     layout = layout.SimpleLayout(
         breadcrumbs=[
             Breadcrumb('module_type', url=filtered_list_url('dcim:module_list', 'module_type_id')),
@@ -3946,7 +3951,10 @@ class ModuleBayListView(generic.ObjectListView):
 @register_model_view(ModuleBay)
 class ModuleBayView(generic.ObjectView):
     template_name = 'generic/object.html'
-    queryset = ModuleBay.objects.all()
+    queryset = ModuleBay.objects.prefetch_related(
+        'module_bay_types',
+        'installed_module__module_type__module_bay_types',
+    )
     layout = layout.SimpleLayout(
         breadcrumbs=[
             Breadcrumb('device', url=object_view_url('dcim:device_modulebays')),
@@ -3977,6 +3985,8 @@ class ModuleBayEditView(generic.ObjectEditView):
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
+        # A successful save always redirects (302) or returns an HTMX redirect header.
+        # Quick-add creates new objects (no pk in kwargs), so it is excluded by the pk guard below.
         saved = (
             getattr(response, 'status_code', None) == 302 or
             (hasattr(response, 'headers') and 'HX-Location' in response.headers)
