@@ -95,6 +95,11 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
             loader = BaseLoader()
         environment_params['loader'] = loader
 
+    # Explicitly disable autoescape after unpacking user params. Config templates render plain text
+    # (network configs, scripts), not HTML. Forcing autoescape=False ensures user-supplied
+    # environment_params cannot inadvertently enable it and create a latent XSS sink if output
+    # is ever rendered in an HTML context.
+    environment_params['autoescape'] = False
     environment = SandboxedEnvironment(**environment_params)
 
     # Register default filters, then apply any user-defined filters. User-defined entries take precedence so that
