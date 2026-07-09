@@ -579,9 +579,8 @@ class APIViewTestCases:
             self.assertIn('results', response.data)
             self.assertEqual(len(response.data['results']), 2)
             self.assertEqual(response.data['results'][0]['id'], id_list[0])
-            self.assertEqual(response.data['results'][0]['status'], 'ok')
+            self.assertNotIn('errors', response.data['results'][0])
             self.assertEqual(response.data['results'][1]['id'], id_list[1])
-            self.assertEqual(response.data['results'][1]['status'], 'error')
             self.assertIn('errors', response.data['results'][1])
 
             # Verify atomicity: object 0 passed validation but must not have been modified

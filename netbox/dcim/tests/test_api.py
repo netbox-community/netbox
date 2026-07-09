@@ -497,10 +497,9 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         results_by_id = {r['id']: r for r in response.data['results']}
         self.assertIn(site1.pk, results_by_id)
         self.assertIn(site2.pk, results_by_id)
-        # Site 1 (no dependents) would have succeeded
-        self.assertEqual(results_by_id[site1.pk]['status'], 'ok')
-        # Site 2 (has Device) should have failed
-        self.assertEqual(results_by_id[site2.pk]['status'], 'error')
+        # Site 1 (no dependents) would have succeeded — no errors key
+        self.assertNotIn('errors', results_by_id[site1.pk])
+        # Site 2 (has Device) should have failed — errors key present
         self.assertIn('errors', results_by_id[site2.pk])
 
         # Verify that no sites were actually deleted (transaction rolled back)
@@ -2233,12 +2232,11 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIn('detail', response.data)
         self.assertIn('results', response.data)
         self.assertEqual(len(response.data['results']), 2)
-        # First item passed validation
+        # First item passed validation — no errors key
         self.assertEqual(response.data['results'][0]['index'], 0)
-        self.assertEqual(response.data['results'][0]['status'], 'ok')
-        # Second item failed validation
+        self.assertNotIn('errors', response.data['results'][0])
+        # Second item failed validation — errors key present
         self.assertEqual(response.data['results'][1]['index'], 1)
-        self.assertEqual(response.data['results'][1]['status'], 'error')
         self.assertIn('errors', response.data['results'][1])
 
 

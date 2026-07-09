@@ -183,9 +183,9 @@ class SequentialBulkCreatesMixin:
                     # All creates are rolled back together if any item in the batch fails.
                     self.perform_create(serializer)
                     return_data.append(serializer.data)
-                    results.append({'index': i, 'status': 'ok'})
+                    results.append({'index': i})
                 else:
-                    results.append({'index': i, 'status': 'error', 'errors': serializer.errors})
+                    results.append({'index': i, 'errors': serializer.errors})
                     error_count += 1
 
             if error_count:
@@ -288,9 +288,9 @@ class BulkUpdateModelMixin:
                 if serializer.is_valid():
                     self.perform_update(serializer)
                     updated_pks.append(obj.pk)
-                    results.append({'id': obj.pk, 'status': 'ok'})
+                    results.append({'id': obj.pk})
                 else:
-                    results.append({'id': obj.pk, 'status': 'error', 'errors': serializer.errors})
+                    results.append({'id': obj.pk, 'errors': serializer.errors})
                     error_count += 1
             if error_count:
                 transaction.set_rollback(True)
@@ -378,7 +378,7 @@ class BulkDestroyModelMixin:
                 pk = obj.pk  # Django sets obj.pk = None after deletion; capture it first
                 try:
                     self.perform_destroy(obj)
-                    results.append({'id': pk, 'status': 'ok'})
+                    results.append({'id': pk})
                 except (ProtectedError, RestrictedError) as e:
                     protected = list(
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
@@ -388,7 +388,6 @@ class BulkDestroyModelMixin:
                     # the caller may not have permission to view.
                     results.append({
                         'id': pk,
-                        'status': 'error',
                         'errors': {
                             'detail': _(
                                 'Unable to delete: {n} dependent object(s) prevent deletion.'
