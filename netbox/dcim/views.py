@@ -2096,6 +2096,33 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
     table = tables.ModuleTypeTable
     form = forms.ModuleTypeBulkEditForm
 
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+        add = form.cleaned_data.get('add_module_bay_types')
+        remove = form.cleaned_data.get('remove_module_bay_types')
+        if add:
+            obj.module_bay_types.add(*add)
+        if remove:
+            obj.module_bay_types.remove(*remove)
+        if add or remove:
+            self._incompatible_count += obj.get_incompatible_modules().count()
+
+    def post(self, request, **kwargs):
+        self._incompatible_count = 0
+        response = super().post(request, **kwargs)
+        if self._incompatible_count and getattr(response, 'status_code', None) == 302:
+            messages.warning(
+                request,
+                ngettext(
+                    '%(count)d installed module is now incompatible with its module bay '
+                    'due to conflicting bay type constraints.',
+                    '%(count)d installed modules are now incompatible with their module bays '
+                    'due to conflicting bay type constraints.',
+                    self._incompatible_count,
+                ) % {'count': self._incompatible_count}
+            )
+        return response
+
 
 @register_model_view(ModuleType, 'bulk_rename', path='rename', detail=False)
 class ModuleTypeBulkRenameView(generic.BulkRenameView):
@@ -4024,6 +4051,33 @@ class ModuleBayBulkEditView(generic.BulkEditView):
     filterset = filtersets.ModuleBayFilterSet
     table = tables.ModuleBayTable
     form = forms.ModuleBayBulkEditForm
+
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+        add = form.cleaned_data.get('add_module_bay_types')
+        remove = form.cleaned_data.get('remove_module_bay_types')
+        if add:
+            obj.module_bay_types.add(*add)
+        if remove:
+            obj.module_bay_types.remove(*remove)
+        if add or remove:
+            self._incompatible_count += int(not obj.is_module_compatible)
+
+    def post(self, request, **kwargs):
+        self._incompatible_count = 0
+        response = super().post(request, **kwargs)
+        if self._incompatible_count and getattr(response, 'status_code', None) == 302:
+            messages.warning(
+                request,
+                ngettext(
+                    '%(count)d module bay now has an incompatible module installed '
+                    'due to conflicting bay type constraints.',
+                    '%(count)d module bays now have incompatible modules installed '
+                    'due to conflicting bay type constraints.',
+                    self._incompatible_count,
+                ) % {'count': self._incompatible_count}
+            )
+        return response
 
 
 @register_model_view(ModuleBay, 'bulk_rename', path='rename', detail=False)
