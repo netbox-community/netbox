@@ -4,7 +4,13 @@ import strawberry
 import strawberry_django
 from django.db.models import Q
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, FilterLookup, StrFilterLookup
+from strawberry_django import (
+    BaseFilterLookup,
+    ComparisonFilterLookup,
+    DateFilterLookup,
+    FilterLookup,
+    StrFilterLookup,
+)
 
 from dcim import models
 from dcim.constants import *
@@ -391,6 +397,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     airflow: BaseFilterLookup[Annotated['DeviceAirflowEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    end_of_life: DateFilterLookup | None = strawberry_django.filter_field()
     front_image: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -781,6 +788,7 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     airflow: BaseFilterLookup[Annotated['ModuleAirflowEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    end_of_life: DateFilterLookup | None = strawberry_django.filter_field()
     consoleporttemplates: Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field(name='console_port_templates')
     )

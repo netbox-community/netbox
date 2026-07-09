@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
-from django.db.models import JSONField, ManyToManyField, ManyToManyRel
+from django.db.models import DateField, DateTimeField, JSONField, ManyToManyField, ManyToManyRel
 from django.forms.models import model_to_dict
 from django.test import Client
 from django.test import TestCase as _TestCase
@@ -213,6 +213,11 @@ class ModelTestCase(TestCase):
                 # Convert IPNetwork instances to strings
                 elif type(value) is IPNetwork:
                     model_dict[key] = str(value)
+
+                # Convert date values to ISO 8601 strings (as rendered by the REST API). DateTimeField
+                # subclasses DateField, so exclude it here to preserve existing datetime handling.
+                elif isinstance(field, DateField) and not isinstance(field, DateTimeField) and value is not None:
+                    model_dict[key] = value.isoformat()
 
                 # Normalize arrays of numeric ranges (e.g. VLAN IDs or port ranges).
                 # DB uses canonical half-open [lo, hi) via NumericRange; API uses inclusive [lo, hi].

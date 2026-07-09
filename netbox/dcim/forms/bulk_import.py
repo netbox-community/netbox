@@ -457,8 +457,8 @@ class DeviceTypeImportForm(PrimaryModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'owner', 'comments',
-            'tags',
+            'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'end_of_life',
+            'owner', 'comments', 'tags',
         ]
 
 
@@ -509,8 +509,8 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'profile',
-            'attribute_data', 'owner', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'end_of_life',
+            'profile', 'attribute_data', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
