@@ -1306,6 +1306,26 @@ class ConfigTemplateTestCase(APIViewTestCases.APIViewTestCase):
         configtemplate.refresh_from_db()
         self.assertTrue(configtemplate.debug)
 
+    def test_debug_false_allowed_for_non_superuser(self):
+        """Non-superusers can set debug=False (disabling debug is always permitted)."""
+        configtemplate = ConfigTemplate.objects.first()
+        self.add_permissions('extras.change_configtemplate', 'extras.view_configtemplate')
+        url = self._get_detail_url(configtemplate)
+        response = self.client.patch(url, {'debug': False}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_debug_absent_from_payload_non_superuser(self):
+        """Non-superusers can update other fields on a template that has debug=True in the DB."""
+        configtemplate = ConfigTemplate.objects.first()
+        configtemplate.debug = True
+        configtemplate.save()
+        self.add_permissions('extras.change_configtemplate', 'extras.view_configtemplate')
+        url = self._get_detail_url(configtemplate)
+        response = self.client.patch(url, {'description': 'updated'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        configtemplate.refresh_from_db()
+        self.assertTrue(configtemplate.debug)
+
 
 class ScriptTestCase(APITestCase):
 
