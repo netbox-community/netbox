@@ -165,15 +165,16 @@ class SequentialBulkCreatesMixin:
         if (response := handle_background(request, 'create')) is not None:
             return response
 
-        if not isinstance(request.data, list):
-            # Creating a single object
-            return super().create(request, *args, **kwargs)
-
         # Create objects sequentially so each validation sees the state left by prior creates
         # (e.g. rack space checks). Collect per-object errors instead of failing on the first.
         results = []
         return_data = []
+        error_count = 0
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+            if not isinstance(request.data, list):
+                # Creating a single object
+                return super().create(request, *args, **kwargs)
+
             for i, data in enumerate(request.data):
                 serializer = self.get_serializer(data=data)
                 if serializer.is_valid():
@@ -185,16 +186,16 @@ class SequentialBulkCreatesMixin:
                     results.append({'index': i, 'status': 'ok'})
                 else:
                     results.append({'index': i, 'status': 'error', 'errors': serializer.errors})
+                    error_count += 1
 
-            if any(r['status'] == 'error' for r in results):
+            if error_count:
                 transaction.set_rollback(True)
 
-        if any(r['status'] == 'error' for r in results):
-            failed_count = sum(1 for r in results if r['status'] == 'error')
+        if error_count:
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects failed validation.').format(
-                        failed_count=failed_count,
+                        failed_count=error_count,
                         total=len(results),
                     ),
                     'results': results,
@@ -251,16 +252,13 @@ class BulkUpdateModelMixin:
             obj.pop('id'): obj for obj in request.data
         }
 
-        object_pks, results = self.perform_bulk_update(qs, update_data, partial=partial)
+        object_pks, results, error_count = self.perform_bulk_update(qs, update_data, partial=partial)
 
-        # perform_bulk_update returns an empty list on full success; non-empty means at least one
-        # object failed validation and the full results list (with per-object status) is populated.
-        if results:
-            failed_count = sum(1 for r in results if r['status'] == 'error')
+        if error_count:
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects failed validation.').format(
-                        failed_count=failed_count,
+                        failed_count=error_count,
                         total=len(results),
                     ),
                     'results': results,
@@ -277,30 +275,26 @@ class BulkUpdateModelMixin:
     def perform_bulk_update(self, objects, update_data, partial):
         updated_pks = []
         results = []
+        error_count = 0
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
-            # Pass 1: validate all objects without writing to the database
-            prepared = []
+            # Validate and save each object in turn so subsequent validations see the DB
+            # state left by prior saves (e.g. two items renamed to the same name: the second
+            # will fail validation rather than raising an integrity error on save).
             for obj in objects:
                 data = update_data.get(obj.id)
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()
                 serializer = self.get_serializer(obj, data=data, partial=partial)
-                prepared.append((obj, serializer, serializer.is_valid()))
-
-            if any(not valid for _, _, valid in prepared):
-                results = [
-                    {'id': obj.pk, 'status': 'error', 'errors': ser.errors} if not valid
-                    else {'id': obj.pk, 'status': 'ok'}
-                    for obj, ser, valid in prepared
-                ]
-                transaction.set_rollback(True)
-            else:
-                # Pass 2: all objects are valid — perform updates
-                for obj, serializer, _ in prepared:
+                if serializer.is_valid():
                     self.perform_update(serializer)
                     updated_pks.append(obj.pk)
-
-        return updated_pks, results
+                    results.append({'id': obj.pk, 'status': 'ok'})
+                else:
+                    results.append({'id': obj.pk, 'status': 'error', 'errors': serializer.errors})
+                    error_count += 1
+            if error_count:
+                transaction.set_rollback(True)
+        return updated_pks, results, error_count
 
     def get_bulk_update_serializer_class(self, *, partial=False):
         return get_bulk_update_serializer_class(
@@ -356,14 +350,13 @@ class BulkDestroyModelMixin:
             o['id']: o.get('changelog_message') for o in serializer.validated_data
         }
 
-        results = self.perform_bulk_destroy(qs, changelog_messages)
+        results, error_count = self.perform_bulk_destroy(qs, changelog_messages)
 
-        if any(r['status'] == 'error' for r in results):
-            failed_count = sum(1 for r in results if r['status'] == 'error')
+        if error_count:
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects could not be deleted.').format(
-                        failed_count=failed_count,
+                        failed_count=error_count,
                         total=len(results),
                     ),
                     'results': results,
@@ -376,6 +369,7 @@ class BulkDestroyModelMixin:
     def perform_bulk_destroy(self, objects, changelog_messages=None):
         changelog_messages = changelog_messages or {}
         results = []
+        error_count = 0
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             for obj in objects:
                 if hasattr(obj, 'snapshot'):
@@ -401,9 +395,10 @@ class BulkDestroyModelMixin:
                             ).format(n=n),
                         },
                     })
-            if any(r['status'] == 'error' for r in results):
+                    error_count += 1
+            if error_count:
                 transaction.set_rollback(True)
-        return results
+        return results, error_count
 
 
 class ObjectValidationMixin:
