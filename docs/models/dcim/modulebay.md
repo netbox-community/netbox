@@ -30,6 +30,10 @@ An alternative physical label identifying the module bay.
 
 The numeric position in which this module bay is situated. For example, this would be the number assigned to a slot within a chassis-based switch.
 
+### Bay Types
+
+Zero or more [module bay types](./modulebaytype.md) assigned to this bay. When at least one bay type is set, only module types that share a common bay type may be installed. Leave empty to allow any module type.
+
 ### Enabled
 
 Whether this module bay is enabled. Disabled module bays are not available for installation.

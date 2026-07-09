@@ -218,6 +218,7 @@ nav:
             - Module: 'models/dcim/module.md'
             - ModuleBay: 'models/dcim/modulebay.md'
             - ModuleBayTemplate: 'models/dcim/modulebaytemplate.md'
+            - ModuleBayType: 'models/dcim/modulebaytype.md'
             - ModuleType: 'models/dcim/moduletype.md'
             - ModuleTypeProfile: 'models/dcim/moduletypeprofile.md'
             - Platform: 'models/dcim/platform.md'

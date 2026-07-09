@@ -79,6 +79,10 @@ The direction in which air circulates through the device chassis for cooling.
 
 The assigned [profile](./moduletypeprofile.md) for the type of module. Profiles can be used to classify module types by function (e.g. power supply, hard disk, etc.), and they support the addition of user-configurable attributes on module types. The assignment of a module type to a profile is optional.
 
+### Bay Types
+
+Zero or more [module bay types](./modulebaytype.md) that this module type is compatible with. When at least one bay type is set, the module type may only be installed into bays that share a common type. Leave empty to allow installation into any bay.
+
 ### Attributes
 
 Depending on the module type's assigned [profile](./moduletypeprofile.md) (if any), one or more user-defined attributes may be available to configure.
