@@ -1716,6 +1716,13 @@ class ModuleBayTypeView(generic.ObjectView):
         right_panels=[
             CustomFieldsPanel(),
         ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.ModuleBay',
+                title=_('Module Bays'),
+                filters={'module_bay_type_id': lambda ctx: ctx['object'].pk},
+            ),
+        ],
     )
 
 

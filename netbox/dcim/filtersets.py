@@ -835,6 +835,7 @@ class ModuleBayTypeFilterSet(PrimaryModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(slug__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )

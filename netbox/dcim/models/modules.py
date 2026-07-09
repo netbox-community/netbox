@@ -56,9 +56,6 @@ class ModuleBayType(PrimaryModel):
     )
 
     clone_fields = ('manufacturer', 'color')
-    prerequisite_models = (
-        'dcim.Manufacturer',
-    )
 
     class Meta:
         ordering = ('manufacturer', 'name')
@@ -391,8 +388,10 @@ class Module(TrackingModelMixin, PrimaryModel):
         """
         if not (self.module_bay_id and self.module_type_id):
             return True
-        bay_types = set(self.module_bay.module_bay_types.values_list('pk', flat=True))
-        type_types = set(self.module_type.module_bay_types.values_list('pk', flat=True))
+        # Use .all() so a prefetch cache (populated by the API list queryset) is honoured; .values_list()
+        # creates a fresh queryset that bypasses the cache and causes N+1 hits in list views.
+        bay_types = {t.pk for t in self.module_bay.module_bay_types.all()}
+        type_types = {t.pk for t in self.module_type.module_bay_types.all()}
         if bay_types and type_types and not (bay_types & type_types):
             return False
         return True
@@ -407,18 +406,14 @@ class Module(TrackingModelMixin, PrimaryModel):
                 )
             )
 
-        # Check module bay type compatibility
-        if self.module_bay_id and self.module_type_id:
-            bay_types = set(self.module_bay.module_bay_types.values_list('pk', flat=True))
-            type_types = set(self.module_type.module_bay_types.values_list('pk', flat=True))
-            if bay_types and type_types and not (bay_types & type_types):
-                raise ValidationError(
-                    _('Module type {module_type} is not compatible with module bay {module_bay}: '
-                      'their bay type sets have no common members.').format(
-                        module_type=self.module_type,
-                        module_bay=self.module_bay,
-                    )
+        if not self.is_bay_compatible:
+            raise ValidationError(
+                _('Module type {module_type} is not compatible with module bay {module_bay}: '
+                  'their bay type sets have no common members.').format(
+                    module_type=self.module_type,
+                    module_bay=self.module_bay,
                 )
+            )
 
         # Prevent module from being installed in a disabled bay
         if hasattr(self, 'module_bay') and self.module_bay and not self.module_bay.enabled:

@@ -1433,12 +1433,14 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         or if this bay has no type constraints, or if no module is installed.
         Returns False when this bay and the installed module's type have non-empty, disjoint bay type sets.
         """
-        if not hasattr(self, 'installed_module'):
+        module = getattr(self, 'installed_module', None)
+        if module is None:
             return True
-        bay_types = set(self.module_bay_types.values_list('pk', flat=True))
+        # Use .all() so a prefetch cache is honoured; see Module.is_bay_compatible for details.
+        bay_types = {t.pk for t in self.module_bay_types.all()}
         if not bay_types:
             return True
-        type_types = set(self.installed_module.module_type.module_bay_types.values_list('pk', flat=True))
+        type_types = {t.pk for t in module.module_type.module_bay_types.all()}
         if type_types and not (bay_types & type_types):
             return False
         return True
@@ -1447,7 +1449,8 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         """
         Return the installed Module if it is incompatible with this bay's type constraints, else None.
         """
-        return self.installed_module if not self.is_module_compatible else None
+        module = getattr(self, 'installed_module', None)
+        return module if module and not self.is_module_compatible else None
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):

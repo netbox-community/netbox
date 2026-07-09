@@ -36,7 +36,7 @@
   "macaddress:list_objects_with_permission": 24,
   "manufacturer:api_list_objects": 13,
   "manufacturer:list_objects_with_permission": 20,
-  "module:api_list_objects": 24,
+  "module:api_list_objects": 20,
   "module:list_objects_with_permission": 24,
   "modulebay:api_list_objects": 16,
   "modulebay:list_objects_with_permission": 21,

@@ -773,6 +773,8 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
             parent=module.module_bay if module else None,
             **kwargs
         )
+        # Stash reference so callers (Module.save, Device._instantiate_components) can
+        # copy M2M fields (e.g. module_bay_types) that bulk_create cannot handle.
         instance._source_template = self
         return instance
     instantiate.do_not_call_in_templates = True

@@ -1,11 +1,10 @@
 {% load i18n %}
-<!-- begin BayTypeIncompatibilityPanel -->
 <div class="card border-warning">
   <h2 class="card-header bg-warning-subtle text-warning-emphasis">
     <i class="mdi mdi-alert"></i> {% trans "Bay Type Incompatibility" %}
   </h2>
   <div class="card-body">
-    {% if object.module_bay_id %}
+    {% if is_module_view %}
       {# Module detail view #}
       <p class="mb-1">
         {% blocktrans with module_type=object.module_type module_bay=object.module_bay %}
@@ -46,4 +45,3 @@
     {% endif %}
   </div>
 </div>
-<!-- end BayTypeIncompatibilityPanel -->

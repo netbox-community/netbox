@@ -13,16 +13,19 @@ class BayTypeIncompatibilityPanel(panels.Panel):
     template_name = 'dcim/panels/bay_type_incompatibility.html'
 
     def should_render(self, context):
+        from dcim.models import Module, ModuleBay
         obj = context.get('object')
-        if obj is None:
-            return False
-        # Module detail: check module.is_bay_compatible
-        if hasattr(obj, 'is_bay_compatible'):
+        if isinstance(obj, Module):
             return not obj.is_bay_compatible
-        # ModuleBay detail: check bay.is_module_compatible
-        if hasattr(obj, 'is_module_compatible'):
+        if isinstance(obj, ModuleBay):
             return not obj.is_module_compatible
         return False
+
+    def get_context(self, context):
+        from dcim.models import Module
+        ctx = super().get_context(context)
+        ctx['is_module_view'] = isinstance(context.get('object'), Module)
+        return ctx
 
 
 class SitePanel(panels.ObjectAttributesPanel):
@@ -199,7 +202,6 @@ class ModuleBayTypePanel(panels.ObjectAttributesPanel):
     color = attrs.ColorAttr('color')
     description = attrs.TextAttr('description')
     module_types = attrs.RelatedObjectListAttr('module_types', label=_('Compatible Module Types'), linkify=True)
-    module_bays = attrs.RelatedObjectListAttr('module_bays', label=_('Module Bays'), linkify=True)
 
 
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
