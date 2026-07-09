@@ -1,6 +1,7 @@
-from django.test import TestCase, tag
+from django.test import RequestFactory, TestCase, tag
 
 from extras.dashboard.widgets import ObjectListWidget
+from extras.templatetags.dashboard import render_widget
 
 
 class ObjectListWidgetTestCase(TestCase):
@@ -46,3 +47,32 @@ class ObjectListWidgetTestCase(TestCase):
         widget = ObjectListWidget(id='2829fd9b-5dee-4c9a-81f2-5bd84c350a27', **config)
         rendered = widget.render(mock_request)
         self.assertTrue('Unable to load content. Could not resolve list URL for:' in rendered)
+
+
+class RenderWidgetTemplateTagTestCase(TestCase):
+
+    def _make_context(self):
+        request = RequestFactory().get('/')
+        return {'request': request}
+
+    def test_render_widget_escapes_exception_html(self):
+        """Exception text with HTML special chars must be escaped, not rendered as markup."""
+
+        class BrokenWidget:
+            def render(self, request):
+                raise Exception('<script>alert(1)</script>')
+
+        output = render_widget(self._make_context(), BrokenWidget())
+        self.assertIn('&lt;script&gt;', output)
+        self.assertNotIn('<script>', output)
+
+    def test_render_widget_escapes_exception_angle_brackets(self):
+        """Angle brackets in exception messages are escaped."""
+
+        class BrokenWidget:
+            def render(self, request):
+                raise ValueError('invalid value: <bad>')
+
+        output = render_widget(self._make_context(), BrokenWidget())
+        self.assertIn('&lt;bad&gt;', output)
+        self.assertNotIn('<bad>', output)
