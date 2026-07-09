@@ -855,7 +855,17 @@ class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, for
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
+
+        # Restrict debug mode to superusers only (CWE-209: exposes install paths via traceback)
+        if self.request and not self.request.user.is_superuser:
+            del self.fields['debug']
+            self.fieldsets = tuple(
+                FieldSet(*(f for f in fs.items if f != 'debug'), name=fs.name)
+                if 'debug' in fs.items else fs
+                for fs in self.fieldsets
+            )
 
         # Disable content field when a DataFile has been set
         if self.instance.data_file:

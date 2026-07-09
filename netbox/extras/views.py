@@ -1,3 +1,4 @@
+import functools
 from datetime import datetime
 
 from django.contrib import messages
@@ -1221,6 +1222,14 @@ class ConfigTemplateEditView(generic.ObjectEditView):
     queryset = ConfigTemplate.objects.all()
     form = forms.ConfigTemplateForm
 
+    def get(self, request, *args, **kwargs):
+        self.form = functools.partial(forms.ConfigTemplateForm, request=request)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.form = functools.partial(forms.ConfigTemplateForm, request=request)
+        return super().post(request, *args, **kwargs)
+
 
 @register_model_view(ConfigTemplate, 'delete')
 class ConfigTemplateDeleteView(generic.ObjectDeleteView):
@@ -1239,6 +1248,10 @@ class ConfigTemplateBulkEditView(generic.BulkEditView):
     filterset = filtersets.ConfigTemplateFilterSet
     table = tables.ConfigTemplateTable
     form = forms.ConfigTemplateBulkEditForm
+
+    def post(self, request, **kwargs):
+        self.form = functools.partial(forms.ConfigTemplateBulkEditForm, request=request)
+        return super().post(request, **kwargs)
 
 
 @register_model_view(ConfigTemplate, 'bulk_rename', path='rename', detail=False)

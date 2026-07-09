@@ -411,6 +411,14 @@ class ConfigTemplateBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm
     )
     nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension', 'auto_sync_enabled',)
 
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+        # Restrict debug mode to superusers only (CWE-209: exposes install paths via traceback)
+        if request and not request.user.is_superuser:
+            del self.fields['debug']
+
 
 class ImageAttachmentBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(

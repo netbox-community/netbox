@@ -1,3 +1,5 @@
+import os
+import re
 import traceback
 
 import jsonschema
@@ -323,7 +325,16 @@ class ConfigTemplate(
         is returned.
         """
         if self.debug:
-            return ''.join(traceback.format_exception(exc))
+            # Strip absolute install-path prefix from File "..." lines so that internal filesystem
+            # layout is not exposed. Paths are replaced with repo-relative equivalents.
+            install_root = os.path.dirname(settings.BASE_DIR) + os.sep
+            tb = ''.join(traceback.format_exception(exc))
+            tb = re.sub(
+                r'(File ")' + re.escape(install_root),
+                r'\1',
+                tb,
+            )
+            return tb
         if isinstance(exc, TemplateError):
             parts = [f"{type(exc).__name__}: {exc}"]
             if getattr(exc, 'name', None):
