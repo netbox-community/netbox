@@ -645,12 +645,7 @@ class ModuleTypeBulkEditForm(PrimaryModelBulkEditForm):
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             name=_('Chassis')
         ),
-        FieldSet(
-            TabbedGroups(
-                FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Add/Remove')),
-            ),
-            name=_('Bay Types'),
-        ),
+        FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Bay Types')),
     )
     nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'description', 'comments')
 
@@ -1762,12 +1757,7 @@ class ModuleBayBulkEditForm(
     model = ModuleBay
     fieldsets = (
         FieldSet('label', 'position', 'enabled', 'description'),
-        FieldSet(
-            TabbedGroups(
-                FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Add/Remove')),
-            ),
-            name=_('Bay Types'),
-        ),
+        FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Bay Types')),
     )
     nullable_fields = ('label', 'position', 'description')
 

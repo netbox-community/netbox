@@ -2105,6 +2105,8 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
         if remove:
             obj.module_bay_types.remove(*remove)
         if add or remove:
+            # Counts current incompatibilities, not just newly-introduced ones; may over-warn
+            # if pre-existing incompatibilities exist, but safe to under-warn on.
             self._incompatible_count += obj.get_incompatible_modules().count()
 
     def post(self, request, **kwargs):
@@ -4061,6 +4063,8 @@ class ModuleBayBulkEditView(generic.BulkEditView):
         if remove:
             obj.module_bay_types.remove(*remove)
         if add or remove:
+            # Counts current incompatibilities, not just newly-introduced ones; may over-warn
+            # if pre-existing incompatibilities exist, but safe to under-warn on.
             self._incompatible_count += int(not obj.is_module_compatible)
 
     def post(self, request, **kwargs):
