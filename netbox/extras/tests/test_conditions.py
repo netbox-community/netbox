@@ -478,6 +478,20 @@ class SnapshotConditionTestCase(TestCase):
         }
         self.assertTrue(c.eval({'snapshots': snapshots}))
 
+    def test_snapshot_path_rest_api_style_attr_raises_invalid_condition(self):
+        """
+        Snapshots store raw values (e.g. status="planned"), not REST API-style nested
+        dicts (status={"value": "planned"}). A '.value' suffix on a snapshot path must
+        fail closed with InvalidCondition rather than raising a raw TypeError.
+        """
+        c = Condition('snapshots.prechange.status.value', value='planned', op='eq')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
     #
     # EventRule.eval_conditions integration
     #
@@ -533,3 +547,23 @@ class SnapshotConditionTestCase(TestCase):
             'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
         })
         self.assertTrue(event_rule.eval_conditions(data))
+
+    def test_event_rule_snapshot_path_rest_api_style_attr_must_return_false(self):
+        """
+        An EventRule condition mistakenly using a REST API-style '.value' suffix on a
+        snapshot path must fail closed (return False) rather than crashing evaluation.
+        """
+        event_rule = EventRule(
+            name='Was planned (REST-style mistake)',
+            event_types=[OBJECT_UPDATED],
+            conditions={
+                'attr': 'snapshots.prechange.status.value',
+                'value': SiteStatusChoices.STATUS_PLANNED,
+            }
+        )
+        site = Site.objects.create(name='Site 4', slug='site-4', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        self.assertFalse(event_rule.eval_conditions(data))

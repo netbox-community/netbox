@@ -103,7 +103,8 @@ class Condition:
     def _resolve_attr(self, data):
         """
         Walk self.attr as a dotted key path through data. Raises InvalidCondition on
-        missing keys.
+        missing keys, or when an intermediate value can't be indexed by key (e.g. a
+        REST API-style path like 'status.value' applied to a raw snapshot value).
         """
         def _get(obj, key):
             if isinstance(obj, list):
@@ -114,6 +115,8 @@ class Condition:
             return functools.reduce(_get, self.attr.split('.'), data)
         except KeyError:
             raise InvalidCondition(f"Invalid key path: {self.attr}")
+        except TypeError as e:
+            raise InvalidCondition(f"Invalid key path: {self.attr} ({e})")
 
     def _resolve_snapshot_attr(self, snapshot):
         """
