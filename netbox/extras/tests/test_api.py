@@ -1284,48 +1284,6 @@ class ConfigTemplateTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, {'foo': 'bar'}, format='json', HTTP_AUTHORIZATION=token_header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-    def test_debug_field_blocked_for_non_superuser(self):
-        """Non-superusers cannot set debug=True via the API."""
-        configtemplate = ConfigTemplate.objects.first()
-        self.add_permissions('extras.change_configtemplate', 'extras.view_configtemplate')
-        url = self._get_detail_url(configtemplate)
-        response = self.client.patch(url, {'debug': True}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-
-    def test_debug_field_allowed_for_superuser(self):
-        """Superusers can set debug=True via the API."""
-        configtemplate = ConfigTemplate.objects.first()
-        superuser = User.objects.create_superuser(username='superuser-debug-test', password='pass')
-        superuser_token = Token.objects.create(user=superuser)
-        superuser_header = {
-            'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{superuser_token.key}.{superuser_token.token}'
-        }
-        url = self._get_detail_url(configtemplate)
-        response = self.client.patch(url, {'debug': True}, format='json', **superuser_header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        configtemplate.refresh_from_db()
-        self.assertTrue(configtemplate.debug)
-
-    def test_debug_false_allowed_for_non_superuser(self):
-        """Non-superusers can set debug=False (disabling debug is always permitted)."""
-        configtemplate = ConfigTemplate.objects.first()
-        self.add_permissions('extras.change_configtemplate', 'extras.view_configtemplate')
-        url = self._get_detail_url(configtemplate)
-        response = self.client.patch(url, {'debug': False}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-
-    def test_debug_absent_from_payload_non_superuser(self):
-        """Non-superusers can update other fields on a template that has debug=True in the DB."""
-        configtemplate = ConfigTemplate.objects.first()
-        configtemplate.debug = True
-        configtemplate.save()
-        self.add_permissions('extras.change_configtemplate', 'extras.view_configtemplate')
-        url = self._get_detail_url(configtemplate)
-        response = self.client.patch(url, {'description': 'updated'}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        configtemplate.refresh_from_db()
-        self.assertTrue(configtemplate.debug)
-
 
 class ScriptTestCase(APITestCase):
 

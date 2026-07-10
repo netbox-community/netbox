@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-from types import SimpleNamespace
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -12,8 +11,7 @@ from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
-from extras.forms.bulk_edit import ConfigTemplateBulkEditForm
-from extras.forms.model_forms import ConfigTemplateForm, CustomFieldChoiceSetForm
+from extras.forms.model_forms import CustomFieldChoiceSetForm
 from extras.forms.scripts import ScriptFileForm
 from extras.models import CustomField, CustomFieldChoiceSet, ScriptModule
 
@@ -339,46 +337,3 @@ class TableConfigFormTestCase(TestCase):
         form = TableConfigBulkEditForm()
         self.assertIn('changelog_message', form.fields)
         self.assertIn('changelog_message', form.meta_fields)
-
-
-def _make_request(is_superuser):
-    user = SimpleNamespace(is_superuser=is_superuser)
-    return SimpleNamespace(user=user)
-
-
-class ConfigTemplateFormSuperuserGateTestCase(TestCase):
-    """
-    The debug field must be visible to superusers and hidden from non-superusers in both
-    the model form and the bulk edit form.
-    """
-
-    def test_model_form_superuser_sees_debug(self):
-        form = ConfigTemplateForm(request=_make_request(is_superuser=True))
-        self.assertIn('debug', form.fields)
-
-    def test_model_form_non_superuser_no_debug(self):
-        form = ConfigTemplateForm(request=_make_request(is_superuser=False))
-        self.assertNotIn('debug', form.fields)
-
-    def test_model_form_non_superuser_debug_absent_from_fieldsets(self):
-        form = ConfigTemplateForm(request=_make_request(is_superuser=False))
-        all_items = [item for fs in form.fieldsets for item in fs.items]
-        self.assertNotIn('debug', all_items)
-
-    def test_model_form_no_request_shows_debug(self):
-        """When no request is provided (e.g. programmatic use), debug is shown by default."""
-        form = ConfigTemplateForm()
-        self.assertIn('debug', form.fields)
-
-    def test_bulk_edit_form_superuser_sees_debug(self):
-        form = ConfigTemplateBulkEditForm(request=_make_request(is_superuser=True))
-        self.assertIn('debug', form.fields)
-
-    def test_bulk_edit_form_non_superuser_no_debug(self):
-        form = ConfigTemplateBulkEditForm(request=_make_request(is_superuser=False))
-        self.assertNotIn('debug', form.fields)
-
-    def test_bulk_edit_form_no_request_shows_debug(self):
-        """When no request is provided (e.g. programmatic use), debug is shown by default."""
-        form = ConfigTemplateBulkEditForm()
-        self.assertIn('debug', form.fields)

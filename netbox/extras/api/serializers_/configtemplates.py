@@ -1,7 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from extras.models import ConfigTemplate
@@ -39,12 +38,6 @@ class ConfigTemplateSerializer(
             'data_file', 'auto_sync_enabled', 'data_synced', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
-
-    def validate_debug(self, value):
-        # Restrict debug mode to superusers only (CWE-209: exposes install paths via traceback)
-        if value and not self.context['request'].user.is_superuser:
-            raise ValidationError(_("Debug mode may only be enabled by superusers."))
-        return value
 
 
 class RenderConfigInputSerializer(serializers.Serializer):
