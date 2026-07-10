@@ -539,9 +539,27 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
-            return self.customfield.get_choice_label(value)
+            label = self.customfield.get_choice_label(value)
+            color = self.customfield.get_choice_color(value)
+            if color:
+                return mark_safe(
+                    f'<span class="badge text-bg-{color}">{escape(label)}</span>'
+                )
+            return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            return ', '.join(self.customfield.get_choice_label(v) for v in value)
+            if not value:
+                return ''
+            parts = []
+            for v in value:
+                label = self.customfield.get_choice_label(v)
+                color = self.customfield.get_choice_color(v)
+                if color:
+                    parts.append(
+                        f'<span class="badge text-bg-{color}">{escape(label)}</span>'
+                    )
+                else:
+                    parts.append(escape(label))
+            return mark_safe(' '.join(parts))
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)
