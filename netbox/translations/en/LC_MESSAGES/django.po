@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-09 06:18+0000\n"
+"POT-Creation-Date: 2026-07-10 06:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13219,34 +13219,38 @@ msgid "Japanese"
 msgstr ""
 
 #: netbox/netbox/settings.py:889
-msgid "Latvian"
+msgid "Korean"
 msgstr ""
 
 #: netbox/netbox/settings.py:890
-msgid "Dutch"
+msgid "Latvian"
 msgstr ""
 
 #: netbox/netbox/settings.py:891
-msgid "Polish"
+msgid "Dutch"
 msgstr ""
 
 #: netbox/netbox/settings.py:892
-msgid "Portuguese"
+msgid "Polish"
 msgstr ""
 
 #: netbox/netbox/settings.py:893
-msgid "Russian"
+msgid "Portuguese"
 msgstr ""
 
 #: netbox/netbox/settings.py:894
-msgid "Turkish"
+msgid "Russian"
 msgstr ""
 
 #: netbox/netbox/settings.py:895
-msgid "Ukrainian"
+msgid "Turkish"
 msgstr ""
 
 #: netbox/netbox/settings.py:896
+msgid "Ukrainian"
+msgstr ""
+
+#: netbox/netbox/settings.py:897
 msgid "Chinese"
 msgstr ""
 
