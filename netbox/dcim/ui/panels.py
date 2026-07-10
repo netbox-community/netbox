@@ -182,6 +182,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     weight = attrs.WeightAttr('weight')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
     airflow = attrs.ChoiceAttr('airflow')
+    end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
     front_image = attrs.ImageAttr('front_image')
     rear_image = attrs.ImageAttr('rear_image')
 
@@ -217,7 +218,10 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
     weight = attrs.WeightAttr('weight')
-    module_bay_types = attrs.RelatedObjectListAttr('module_bay_types', label=_('Bay Type Compatibility'), linkify=True)
+    end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
+    module_bay_types = attrs.RelatedObjectListAttr(
+        'module_bay_types', label=_('Bay Type Compatibility'), linkify=True
+    )
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):

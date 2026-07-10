@@ -728,7 +728,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         model = DeviceType
         fields = (
             'id', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'description',
+            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'description',
 
             # Counters
             'console_port_template_count',
@@ -929,7 +929,7 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     class Meta:
         model = ModuleType
         fields = (
-            'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
+            'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'description',
 
             # Counters
             'console_port_template_count',

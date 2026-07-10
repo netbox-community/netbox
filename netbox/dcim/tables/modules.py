@@ -103,7 +103,8 @@ class ModuleTypeTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'module_bay_types',
+            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'end_of_life',
+            'module_bay_types',
             'description', 'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (

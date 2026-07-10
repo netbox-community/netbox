@@ -10,7 +10,7 @@ import utilities.json
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0241_consolidate_unique_constraints'),
+        ('dcim', '0242_add_devicetype_end_of_life'),
         ('extras', '0141_custom_field_nulls_first'),
         ('users', '0016_default_ordering_indexes'),
     ]

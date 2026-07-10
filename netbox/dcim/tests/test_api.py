@@ -941,6 +941,7 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
+        'end_of_life': '2030-01-01',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -972,6 +973,7 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'model': 'Device Type 5',
                 'slug': 'device-type-5',
                 'u_height': 0.5,
+                'end_of_life': '2035-06-30',
             },
             {
                 'manufacturer': manufacturers[1].pk,
@@ -987,6 +989,7 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'module_count', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
+        'end_of_life': '2030-01-01',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -1014,6 +1017,7 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Module Type 5',
+                'end_of_life': '2035-06-30',
             },
             {
                 'manufacturer': manufacturers[1].pk,

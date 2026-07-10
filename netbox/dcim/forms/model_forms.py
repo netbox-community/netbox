@@ -32,6 +32,7 @@ from utilities.forms.widgets import (
     APISelect,
     ClearableFileInput,
     ClearableSelect,
+    DatePicker,
     HTMXSelect,
     NumberWithOptions,
     SelectWithPK,
@@ -511,6 +512,7 @@ class DeviceTypeForm(PrimaryModelForm):
             'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
             'weight', 'weight_unit', name=_('Chassis')
         ),
+        FieldSet('end_of_life', name=_('Lifecycle')),
         FieldSet('front_image', 'rear_image', name=_('Images')),
     )
 
@@ -518,8 +520,8 @@ class DeviceTypeForm(PrimaryModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'owner', 'comments', 'tags',
+            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'front_image',
+            'rear_image', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -528,6 +530,7 @@ class DeviceTypeForm(PrimaryModelForm):
             'rear_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
+            'end_of_life': DatePicker(),
         }
 
 
@@ -603,6 +606,7 @@ class ModuleTypeForm(PrimaryModelForm):
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
             FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
             FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
+            FieldSet('end_of_life', name=_('Lifecycle')),
             FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
         ]
 
@@ -610,8 +614,11 @@ class ModuleTypeForm(PrimaryModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'module_bay_types', 'owner', 'comments', 'tags',
+            'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
         ]
+        widgets = {
+            'end_of_life': DatePicker(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
