@@ -1,4 +1,5 @@
 from django import template
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -19,6 +20,6 @@ def render_widget(context, widget):
               <span class="text-danger"><i class="mdi mdi-alert"></i></span>
               {message1}
             </p>
-            <p class="font-monospace ps-3">{e}</p>
+            <p class="font-monospace ps-3">{escape(e)}</p>
             <p>{message2}</p>
         """)
