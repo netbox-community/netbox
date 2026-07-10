@@ -4080,6 +4080,15 @@ class CableTestCase(
                 "Power Panel 1,dcim.powerfeed,Power Feed 2,Device 4,dcim.powerport,Power Port 2",
                 "Power Panel 1,dcim.powerfeed,Power Feed 3,Device 4,dcim.powerport,Power Port 3",
             ),
+            'multi-termination': (
+                # Ensure that a comma-separated cell imports multiple terminations per cable end,
+                # both with a single broadcast parent and with one parent per termination name.
+                "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+                'Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,'
+                '"Interface 1,Interface 2",breakout-1c2p-2c1p',
+                'Device 3,dcim.interface,Interface 2,"Device 4,Device 5",dcim.interface,'
+                '"Interface 3,Interface 1",breakout-1c2p-2c1p',
+            ),
         }
 
         cls.csv_update_data = (
@@ -4108,6 +4117,44 @@ class CableTestCase(
             data['b_terminations'] = [obj.pk for obj in data['b_terminations']]
 
         return data
+
+    def test_bulk_import_unquoted_multi_value_cell(self):
+        """An unquoted multi-value cell is rejected with a column-count error."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1,Interface 2,breakout-1c2p-2c1p",
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('Expected 7 columns but found 8', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+    def test_bulk_import_unquoted_multi_value_cell_shifted_columns(self):
+        """An unquoted multi-value cell matching the column count is rejected by field validation."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1,Interface 2",
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('not one of the available choices', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
 
 
 class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):

@@ -4,10 +4,13 @@ from django import forms
 from django.test import TestCase
 
 from dcim.choices import (
+    CableEndChoices,
+    CableProfileChoices,
     DeviceFaceChoices,
     DeviceStatusChoices,
     InterfaceModeChoices,
     InterfaceTypeChoices,
+    LinkStatusChoices,
     PortTypeChoices,
     PowerOutletStatusChoices,
 )
@@ -553,11 +556,342 @@ class InterfaceTestCase(TestCase):
 
 class CableTestCase(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.device_a = create_test_device('Device A', site=cls.site)
+        cls.device_b = create_test_device('Device B', site=cls.site)
+        cls.device_c = create_test_device('Device C', site=cls.site)
+
+        cls.interfaces_a = (
+            Interface(device=cls.device_a, name='et-0/0/0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_a, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        cls.interfaces_b = (
+            Interface(device=cls.device_b, name='et-0/0/0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_b, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_b, name='et-0/0/2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        cls.interface_c = Interface(device=cls.device_c, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Interface.objects.bulk_create([*cls.interfaces_a, *cls.interfaces_b, cls.interface_c])
+
+        cls.power_panel = PowerPanel.objects.create(site=cls.site, name='Power Panel 1')
+        cls.power_feeds = (
+            PowerFeed(power_panel=cls.power_panel, name='Power Feed 1'),
+            PowerFeed(power_panel=cls.power_panel, name='Power Feed 2'),
+        )
+        PowerFeed.objects.bulk_create(cls.power_feeds)
+        cls.power_ports = (
+            PowerPort(device=cls.device_b, name='Power Port 1'),
+            PowerPort(device=cls.device_b, name='Power Port 2'),
+        )
+        PowerPort.objects.bulk_create(cls.power_ports)
+
     def test_invalid_side_designation_raises_value_error(self):
         """_clean_side rejects a side other than 'a' or 'b' with ValueError."""
         form = CableImportForm.__new__(CableImportForm)
         with self.assertRaisesMessage(ValueError, "Invalid side designation: c"):
             form._clean_side('c')
+
+    def test_import_single_termination_cable(self):
+        """A single-value cell per side resolves one termination per side."""
+        form = CableImportForm(data={
+            'side_a_site': 'Site 1',
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_site': 'Site 1',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, [self.interfaces_a[0]])
+        self.assertEqual(cable.b_terminations, [self.interfaces_b[0]])
+
+    def test_import_multiple_terminations_single_parent(self):
+        """A single parent value is reused for all comma-separated termination names."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1, et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, [self.interfaces_a[0]])
+        self.assertEqual(cable.b_terminations, [self.interfaces_b[1], self.interfaces_b[2]])
+
+    def test_import_multiple_terminations_multiple_parents_preserves_order(self):
+        """Pairwise parent/name lists resolve in submitted order, driving connector assignment."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device C,Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.b_terminations, [self.interface_c, self.interfaces_b[1]])
+
+        cable_terminations = CableTermination.objects.filter(
+            cable=cable, cable_end=CableEndChoices.SIDE_B
+        ).order_by('connector')
+        self.assertEqual([ct.termination for ct in cable_terminations], [self.interface_c, self.interfaces_b[1]])
+        self.assertEqual([ct.connector for ct in cable_terminations], [1, 2])
+
+    def test_import_multiple_terminations_parent_count_mismatch(self):
+        """A parent list that is neither one value nor one per termination name is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device C',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Must specify either one device', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_duplicate_termination(self):
+        """The same termination cannot be listed twice on one cable end."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Duplicate termination', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_empty_name(self):
+        """A trailing comma produces an empty termination name and is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Empty termination names', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_connected_termination(self):
+        """An already-cabled termination in a multi-value list is rejected."""
+        cable = Cable(a_terminations=[self.interfaces_a[1]], b_terminations=[self.interfaces_b[1]])
+        cable.save()
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('already connected', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_power_feeds(self):
+        """Multiple power feeds import from a single broadcast power panel."""
+        form = CableImportForm(data={
+            'side_a_power_panel': 'Power Panel 1',
+            'side_a_type': 'dcim.powerfeed',
+            'side_a_name': 'Power Feed 1,Power Feed 2',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.powerport',
+            'side_b_name': 'Power Port 1,Power Port 2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, list(self.power_feeds))
+        self.assertEqual(cable.b_terminations, list(self.power_ports))
+
+    def test_import_multiple_terminations_repeated_parent_values(self):
+        """A repeated parent in a pairwise list resolves per position, not deduplicated."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device C,Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(
+            cable.b_terminations,
+            [self.interfaces_b[1], self.interface_c, self.interfaces_b[2]]
+        )
+
+    def test_import_multiple_terminations_native_lists(self):
+        """Native list values (JSON/YAML import) resolve like comma-separated cells."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': ['Device C', 'Device B'],
+            'side_b_type': 'dcim.interface',
+            'side_b_name': ['et-0/0/1', 'et-0/0/1'],
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.b_terminations, [self.interface_c, self.interfaces_b[1]])
+
+    def test_import_multiple_terminations_unknown_parent(self):
+        """An unknown parent in a multi-value cell errors on the parent field only."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device X',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Object not found: Device X', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_missing_parent(self):
+        """A device component termination type without a device value is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Must specify a device', str(form.errors.get('side_b_name')))
+
+    def test_import_unsupported_termination_type(self):
+        """Termination types without a supported parent field are rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'circuits.circuittermination',
+            'side_b_name': 'Termination X',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Bulk import does not support', str(form.errors.get('side_b_name')))
+
+    def test_import_unknown_termination_type(self):
+        """An unresolvable termination type errors on the type field only."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.nosuchmodel',
+            'side_b_name': 'et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side_b_type', form.errors)
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_unknown_name(self):
+        """An unknown termination name in a multi-value list is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/9',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side termination not found', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_ambiguous_parent(self):
+        """A parent name matching multiple objects errors on the parent field."""
+        site_2 = Site.objects.create(name='Site 2', slug='site-2')
+        create_test_device('Device D', site=self.site)
+        create_test_device('Device D', site=site_2)
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device D',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('is not a unique value', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_site_filtered_parent_queryset(self):
+        """Parent resolution honors side_x_site queryset filtering for multi-value parents."""
+        site_2 = Site.objects.create(name='Site 2', slug='site-2')
+        device_x = create_test_device('Device X', site=site_2)
+        Interface.objects.create(device=device_x, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+
+        form = CableImportForm(data={
+            'side_a_site': 'Site 1',
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_site': 'Site 1',
+            'side_b_device': 'Device B,Device X',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Object not found: Device X', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_ambiguous_vc_component(self):
+        """A component name found on multiple VC members produces a form error."""
+        vc = VirtualChassis.objects.create(name='Virtual Chassis 1')
+        master = create_test_device('VC Master', site=self.site, virtual_chassis=vc, vc_position=1)
+        member_2 = create_test_device('VC Member 2', site=self.site, virtual_chassis=vc, vc_position=2)
+        member_3 = create_test_device('VC Member 3', site=self.site, virtual_chassis=vc, vc_position=3)
+        vc.master = master
+        vc.save()
+        Interface.objects.create(device=member_2, name='vc-eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Interface.objects.create(device=member_3, name='vc-eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'VC Master',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'vc-eth0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side termination not unique', str(form.errors.get('side_b_name')))
 
 
 class SiteFormTestCase(TestCase):

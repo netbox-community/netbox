@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -1440,19 +1441,29 @@ class CableImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Site of parent device A (if any)'),
     )
-    side_a_device = CSVModelChoiceField(
+    side_a_device = CSVModelMultipleChoiceField(
         label=_('Side A device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Device name (for device component terminations)')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Device name(s) for device component terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"device1,device2"'
+        )
     )
-    side_a_power_panel = CSVModelChoiceField(
+    side_a_power_panel = CSVModelMultipleChoiceField(
         label=_('Side A power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Power panel name (for power feed terminations)')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"panel1,panel2"'
+        )
     )
     side_a_type = CSVContentTypeField(
         label=_('Side A type'),
@@ -1462,7 +1473,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_a_name = forms.CharField(
         label=_('Side A name'),
-        help_text=_('Termination name')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
+              'Example:'),
+            '"eth0,eth1"'
+        )
     )
 
     # Termination B
@@ -1473,19 +1489,29 @@ class CableImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Site of parent device B (if any)'),
     )
-    side_b_device = CSVModelChoiceField(
+    side_b_device = CSVModelMultipleChoiceField(
         label=_('Side B device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Device name (for device component terminations)')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Device name(s) for device component terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"device1,device2"'
+        )
     )
-    side_b_power_panel = CSVModelChoiceField(
+    side_b_power_panel = CSVModelMultipleChoiceField(
         label=_('Side B power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Power panel name (for power feed terminations)')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"panel1,panel2"'
+        )
     )
     side_b_type = CSVContentTypeField(
         label=_('Side B type'),
@@ -1495,7 +1521,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_b_name = forms.CharField(
         label=_('Side B name'),
-        help_text=_('Termination name')
+        help_text=format_html(
+            '{} <code>{}</code>',
+            _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
+              'Example:'),
+            '"eth0,eth1"'
+        )
     )
 
     # Cable attributes
@@ -1577,6 +1608,63 @@ class CableImportForm(PrimaryModelImportForm):
                     **side_b_parent_params
                 )
 
+    @staticmethod
+    def _split_side_values(value):
+        """
+        Split a side_* cell into an ordered list of values, preserving duplicates and empty
+        entries. Accepts a comma-separated string (CSV) or a native list (JSON/YAML).
+        """
+        if value in (None, ''):
+            return []
+        if not isinstance(value, (list, tuple)):
+            value = str(value).split(',')
+        return ['' if item is None else str(item).strip() for item in value]
+
+    def _resolve_side_parent_objects(self, field_name):
+        """
+        Resolve a side's parent objects from the raw submitted values, preserving their order.
+        CSVModelMultipleChoiceField cleans to an unordered queryset, which cannot be used to pair
+        each parent with its corresponding termination name by position. Resolution errors are
+        reported on the parent field itself.
+        """
+        if field_name not in self.cleaned_data:
+            # The parent field has already raised its own validation error
+            return None
+        field = self.fields[field_name]
+        to_field_name = field.to_field_name or 'pk'
+
+        parents = []
+        for value in self._split_side_values(self.data.get(field_name)):
+            try:
+                parents.append(field.queryset.get(**{to_field_name: value}))
+            except ObjectDoesNotExist:
+                self.add_error(field_name, _("Object not found: {value}").format(value=value))
+                return None
+            except MultipleObjectsReturned:
+                self.add_error(
+                    field_name,
+                    _('"{value}" is not a unique value for this field; multiple objects were found').format(
+                        value=value
+                    )
+                )
+                return None
+        return parents
+
+    @staticmethod
+    def _get_device_component_termination(model, device, name):
+        """
+        Resolve a device component by its device and name. If the device is a virtual chassis
+        master and the component is not found on it, search all virtual chassis members.
+        """
+        queryset = model.objects.filter(device=device, name=name)
+        if (
+            device.virtual_chassis and
+            device.virtual_chassis.master == device and
+            not queryset.exists()
+        ):
+            queryset = model.objects.filter(device__in=device.virtual_chassis.members.all(), name=name)
+        return queryset.get()
+
     def _clean_side(self, side):
         """
         Derive a Cable's A/B termination objects.
@@ -1586,60 +1674,89 @@ class CableImportForm(PrimaryModelImportForm):
         if side not in ('a', 'b'):
             raise ValueError(_("Invalid side designation: {side}").format(side=side))
 
-        device = self.cleaned_data.get(f'side_{side}_device')
-        power_panel = self.cleaned_data.get(f'side_{side}_power_panel')
         content_type = self.cleaned_data.get(f'side_{side}_type')
-        name = self.cleaned_data.get(f'side_{side}_name')
-        if not content_type or not name:
+        # Native list values (JSON/YAML) bypass the CharField; strings use its cleaned value
+        names = self.data.get(f'side_{side}_name')
+        if not isinstance(names, (list, tuple)):
+            names = self.cleaned_data.get(f'side_{side}_name')
+        names = self._split_side_values(names)
+        if not content_type or not names:
             return None
+
+        if '' in names:
+            raise forms.ValidationError(
+                _("Side {side_upper}: Empty termination names are not permitted").format(side_upper=side.upper())
+            )
 
         model = content_type.model_class()
 
-        # PowerFeed terminations reference a PowerPanel, not a Device
+        # Identify the parent field for the termination type. PowerFeed terminations reference a
+        # PowerPanel; all other supported types reference a Device.
         if content_type.model == 'powerfeed':
-            if not power_panel:
-                return None
-            try:
-                termination_object = model.objects.get(power_panel=power_panel, name=name)
-                if termination_object.cable is not None and termination_object.cable != self.instance:
-                    raise forms.ValidationError(
-                        _("Side {side_upper}: {power_panel} {termination_object} is already connected").format(
-                            side_upper=side.upper(), power_panel=power_panel, termination_object=termination_object
-                        )
-                    )
-            except ObjectDoesNotExist:
-                raise forms.ValidationError(
-                    _("{side_upper} side termination not found: {power_panel} {name}").format(
-                        side_upper=side.upper(), power_panel=power_panel, name=name
-                    )
-                )
+            parent_field_name = f'side_{side}_power_panel'
+            parent_label = _('power panel')
+        elif any(field.name == 'device' for field in model._meta.fields):
+            parent_field_name = f'side_{side}_device'
+            parent_label = _('device')
         else:
-            if not device:
-                return None
+            raise forms.ValidationError(
+                _("Bulk import does not support {type} terminations").format(type=content_type)
+            )
+
+        parents = self._resolve_side_parent_objects(parent_field_name)
+        if parents is None:
+            # The parent field has already raised its own validation error
+            return None
+        if not parents:
+            raise forms.ValidationError(
+                _("Side {side_upper}: Must specify a {parent} for the selected termination type").format(
+                    side_upper=side.upper(), parent=parent_label
+                )
+            )
+        if len(parents) == 1:
+            parents = parents * len(names)
+        elif len(parents) != len(names):
+            raise forms.ValidationError(
+                _(
+                    "Side {side_upper}: Must specify either one {parent} for all terminations or one {parent} "
+                    "per termination name"
+                ).format(side_upper=side.upper(), parent=parent_label)
+            )
+
+        terminations = []
+        for parent, name in zip(parents, names):
             try:
-                if (
-                    device.virtual_chassis and
-                    device.virtual_chassis.master == device and
-                    not model.objects.filter(device=device, name=name).exists()
-                ):
-                    termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
+                if content_type.model == 'powerfeed':
+                    termination_object = model.objects.get(power_panel=parent, name=name)
                 else:
-                    termination_object = model.objects.get(device=device, name=name)
-                if termination_object.cable is not None and termination_object.cable != self.instance:
-                    raise forms.ValidationError(
-                        _("Side {side_upper}: {device} {termination_object} is already connected").format(
-                            side_upper=side.upper(), device=device, termination_object=termination_object
-                        )
-                    )
+                    termination_object = self._get_device_component_termination(model, parent, name)
             except ObjectDoesNotExist:
                 raise forms.ValidationError(
-                    _("{side_upper} side termination not found: {device} {name}").format(
-                        side_upper=side.upper(), device=device, name=name
+                    _("{side_upper} side termination not found: {parent} {name}").format(
+                        side_upper=side.upper(), parent=parent, name=name
                     )
                 )
+            except MultipleObjectsReturned:
+                raise forms.ValidationError(
+                    _("{side_upper} side termination not unique: {parent} {name}").format(
+                        side_upper=side.upper(), parent=parent, name=name
+                    )
+                )
+            if termination_object.cable is not None and termination_object.cable != self.instance:
+                raise forms.ValidationError(
+                    _("Side {side_upper}: {parent} {termination_object} is already connected").format(
+                        side_upper=side.upper(), parent=parent, termination_object=termination_object
+                    )
+                )
+            terminations.append(termination_object)
 
-        setattr(self.instance, f'{side}_terminations', [termination_object])
-        return termination_object
+        if len({termination.pk for termination in terminations}) != len(terminations):
+            raise forms.ValidationError(
+                _("Side {side_upper}: Duplicate termination specified").format(side_upper=side.upper())
+            )
+
+        setattr(self.instance, f'{side}_terminations', terminations)
+        return terminations
 
     def _clean_color(self, color):
         """
