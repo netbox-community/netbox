@@ -16,11 +16,11 @@ from django.core.management.base import BaseCommand
 
 
 def _docs_source_root():
-    # mkdocs.yml sits beside the application root in a checkout, and inside the bundled
-    # package data (netbox/_data) in a wheel. No sources: return None (build is skipped).
-    for candidate in (os.path.dirname(settings.BASE_DIR), settings.BASE_DIR):
-        if os.path.isfile(os.path.join(candidate, 'mkdocs.yml')):
-            return candidate
+    # mkdocs.yml sits beside the application root in a checkout. Wheels ship the
+    # pre-rendered site instead of the sources: no mkdocs.yml, the build is skipped.
+    candidate = os.path.dirname(settings.BASE_DIR)
+    if os.path.isfile(os.path.join(candidate, 'mkdocs.yml')):
+        return candidate
     return None
 
 
@@ -66,10 +66,15 @@ class Command(BaseCommand):
         elif options['build_docs']:
             docs_root = _docs_source_root()
             if docs_root is None:
-                out.write(style.WARNING("Skipping documentation build (documentation source tree not found)."))
+                out.write(style.WARNING(
+                    "Skipping documentation build; the documentation source tree is not available "
+                    "in this installation."
+                ))
             else:
                 out.write("Building documentation...")
-                subprocess.run(['zensical', 'build'], cwd=docs_root, check=True)
+                # -c cleans the cache; -s (strict) is deliberately omitted so a docs
+                # warning cannot abort an instance upgrade.
+                subprocess.run(['zensical', 'build', '-c'], cwd=docs_root, check=True)
 
         # Static files (filesystem)
         if options['skip_static'] or options['readonly']:

@@ -9,6 +9,8 @@ on:
     paths:
       - '.github/workflows/release.yml'
       - 'pyproject.toml'
+      - 'README.md'
+      - 'LICENSE.txt'
       - 'base_requirements.txt'
       - 'requirements.txt'
       - 'upgrade.sh'
@@ -43,6 +45,14 @@ jobs:
 
       - name: Install build tooling
         run: python -m pip install --upgrade build twine
+
+      - name: Install documentation toolchain
+        run: python -m pip install -r requirements.txt
+
+      - name: Render the documentation
+        # -c = clean cache, -s = strict (abort on warnings); verify_wheel_contents.py
+        # additionally guards against a partial render reaching the wheel.
+        run: zensical build -c -s
 
       - name: Build sdist and wheel
         run: python -m build
@@ -152,23 +162,24 @@ jobs:
 
       - name: Install wheel without dependencies
         run: |
-          python -m venv /tmp/netbox-cli-venv
-          /tmp/netbox-cli-venv/bin/python -m pip install --no-deps dist/*.whl
+          python -m venv "$RUNNER_TEMP/netbox-cli-venv"
+          "$RUNNER_TEMP/netbox-cli-venv/bin/python" -m pip install --no-deps dist/*.whl
 
       - name: Exercise the pre-configuration CLI
         run: |
-          /tmp/netbox-cli-venv/bin/netbox --version
-          /tmp/netbox-cli-venv/bin/netbox version
-          /tmp/netbox-cli-venv/bin/netbox secret-key | grep -Eq '^.{50}$' || { echo "secret-key not 50 chars"; exit 1; }
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" --version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/python" -m netbox --version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" secret-key | grep -Eq '^.{50}$' || { echo "secret-key not 50 chars"; exit 1; }
 
       - name: Smoke-test netbox setup from the wheel
         run: |
-          /tmp/netbox-cli-venv/bin/netbox setup --target /tmp/nbroot
-          for f in /tmp/nbroot/conf/__init__.py /tmp/nbroot/conf/configuration.py /tmp/nbroot/local_requirements.txt; do
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" setup --target "$RUNNER_TEMP/nbroot"
+          for f in "$RUNNER_TEMP/nbroot/conf/__init__.py" "$RUNNER_TEMP/nbroot/conf/configuration.py" "$RUNNER_TEMP/nbroot/local_requirements.txt"; do
             test -f "$f" || { echo "missing $f"; exit 1; }
           done
           for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
-            test -s "/tmp/nbroot/contrib/$f" || { echo "missing or empty contrib/$f"; exit 1; }
+            test -s "$RUNNER_TEMP/nbroot/contrib/$f" || { echo "missing or empty contrib/$f"; exit 1; }
           done
 
   smoke-test:
@@ -206,7 +217,6 @@ jobs:
 
     env:
       NETBOX_CONFIGURATION: smoketest_configuration
-      NETBOX_SMOKETEST_BASE: /tmp/netbox-smoketest
       POSTGRES_DB: netbox
       POSTGRES_USER: netbox
       POSTGRES_PASSWORD: netbox
@@ -238,29 +248,28 @@ jobs:
 
       - name: Install wheel into a clean virtual environment
         run: |
-          python -m venv /tmp/netbox-wheel-venv
-          /tmp/netbox-wheel-venv/bin/python -m pip install --upgrade pip
-          /tmp/netbox-wheel-venv/bin/python -m pip install dist/*.whl
+          python -m venv "$RUNNER_TEMP/netbox-wheel-venv"
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/python" -m pip install dist/*.whl
 
       - name: Run NetBox smoke checks
         env:
+          # STATIC_ROOT is not a configuration parameter; NETBOX_ROOT places it under the scratch base.
+          NETBOX_ROOT: ${{ runner.temp }}/netbox-smoketest
+          NETBOX_SMOKETEST_BASE: ${{ runner.temp }}/netbox-smoketest
           PYTHONPATH: ${{ github.workspace }}/scripts
         run: |
-          # The docs build runs `zensical` as a subprocess, which resolves via PATH;
-          # prepending the venv bin is equivalent to activating it (as upgrade.sh does).
-          export PATH="/tmp/netbox-wheel-venv/bin:$PATH"
-          /tmp/netbox-wheel-venv/bin/netbox check
-          upgrade_output=$(/tmp/netbox-wheel-venv/bin/netbox upgrade --no-input --build-docs)
-          echo "$upgrade_output"
-          ! grep -q 'Skipping documentation build' <<< "$upgrade_output" || { echo "documentation build was skipped"; exit 1; }
-          test -f /tmp/netbox-smoketest/static/docs/index.html || { echo "documentation was not collected to STATIC_ROOT"; exit 1; }
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" check
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" upgrade --no-input
+          test -f "$NETBOX_SMOKETEST_BASE/static/docs/index.html" || { echo "bundled documentation was not collected to STATIC_ROOT"; exit 1; }
+          test -f "$NETBOX_SMOKETEST_BASE/static/docs/models/dcim/device/index.html" || { echo "model documentation page was not collected"; exit 1; }
 
       - name: Smoke-test netbox setup from the wheel
         run: |
-          /tmp/netbox-wheel-venv/bin/netbox setup --target /tmp/nbroot
-          diff -q /tmp/nbroot/conf/configuration.py netbox/netbox/configuration_example.py
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" setup --target "$RUNNER_TEMP/nbroot"
+          diff -q "$RUNNER_TEMP/nbroot/conf/configuration.py" netbox/netbox/configuration_example.py
           for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
-            diff -q "/tmp/nbroot/contrib/$f" "contrib/$f"
+            diff -q "$RUNNER_TEMP/nbroot/contrib/$f" "contrib/$f"
           done
 
   publish-testpypi:

@@ -6,11 +6,12 @@ live configuration.py (which holds SECRET_KEY and database credentials), any oth
 local configuration*.py variant, or any ldap_config*.py (which holds LDAP bind
 credentials). This guards against a dirty or manual build leaking secrets into a
 published artifact. The wheel must also ship the runtime-critical bundled data
-(release metadata, templates, translations, static assets, documentation sources,
-deployment examples), so a broken build fails here with a precise message instead of
-at smoke-test time. main() also cross-checks pyproject.toml's wheel force-include
-table against REQUIRED_FILES/REQUIRED_PREFIXES/ALLOWED, so an addition there without
-matching verifier coverage fails too.
+(release metadata, templates, translations, static assets, the pre-rendered
+documentation site, deployment examples), so a broken build fails here with a
+precise message instead of at smoke-test time. main() also cross-checks
+pyproject.toml's wheel force-include table against
+REQUIRED_FILES/REQUIRED_PREFIXES/ALLOWED, so an addition there without matching
+verifier coverage fails too.
 """
 
 import sys
@@ -37,7 +38,8 @@ REQUIRED_FILES = {
     'netbox/_data/contrib/netbox.service',
     'netbox/_data/contrib/nginx.conf',
     'netbox/_data/contrib/uwsgi.ini',
-    'netbox/_data/mkdocs.yml',
+    'netbox/_data/docs/index.html',
+    'netbox/_data/docs/models/dcim/device/index.html',
     'netbox/_data/release.yaml',
 }
 REQUIRED_PREFIXES = (

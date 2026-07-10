@@ -188,10 +188,7 @@ class ResolveInstallPathsTest(SimpleTestCase):
             self.assertEqual(paths.base_dir, base_dir)
             self.assertEqual(paths.netbox_root, '/opt/netbox')
             self.assertEqual(paths.docs_root, os.path.join(base_dir, 'docs'))
-            # zensical's site_dir (netbox/project-static/docs) is relative to the bundled
-            # mkdocs.yml at _data/mkdocs.yml, so the built docs land under _data/netbox/...,
-            # unlike the checkout layout where base_dir already is the netbox/ directory.
-            self.assertEqual(paths.static_docs_root, os.path.join(base_dir, 'netbox', 'project-static', 'docs'))
+            self.assertEqual(paths.static_docs_root, os.path.join(base_dir, 'docs'))
 
     def test_netbox_root_env_override_is_abspathed(self):
         with tempfile.TemporaryDirectory() as root:

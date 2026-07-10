@@ -610,7 +610,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'project-static', 'dist'),
     os.path.join(BASE_DIR, 'project-static', 'img'),
     os.path.join(BASE_DIR, 'project-static', 'js'),
-    # May not exist until `manage.py upgrade --build-docs` runs; collectstatic tolerates that.
+    # May not exist on a checkout until `manage.py upgrade --build-docs` runs (wheels bundle
+    # the pre-rendered site); collectstatic tolerates that.
     ('docs', _PATHS.static_docs_root),  # Prefix with /docs
 )
 

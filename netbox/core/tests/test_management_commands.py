@@ -362,7 +362,7 @@ class UpgradeCommandTest(TestCase):
         with patch('core.management.commands.upgrade._docs_source_root', return_value='/repo'):
             _, _, sub, _ = self._run(build_docs=True)
         sub.assert_called_once()
-        self.assertEqual(sub.call_args.args[0], ['zensical', 'build'])
+        self.assertEqual(sub.call_args.args[0], ['zensical', 'build', '-c'])
 
     def test_build_docs_skipped_when_sources_absent(self):
         with patch('core.management.commands.upgrade._docs_source_root', return_value=None):
@@ -383,17 +383,8 @@ class UpgradeCommandTest(TestCase):
             with override_settings(BASE_DIR=base_dir):
                 self.assertEqual(upgrade._docs_source_root(), root)
 
-    def test_docs_source_root_wheel_shaped(self):
-        """mkdocs.yml inside BASE_DIR (bundled package data layout) is found."""
-        with tempfile.TemporaryDirectory() as root:
-            base_dir = os.path.join(root, '_data')
-            os.mkdir(base_dir)
-            open(os.path.join(base_dir, 'mkdocs.yml'), 'w').close()
-            with override_settings(BASE_DIR=base_dir):
-                self.assertEqual(upgrade._docs_source_root(), base_dir)
-
     def test_docs_source_root_none_when_absent(self):
-        """No mkdocs.yml in either candidate location returns None."""
+        """No mkdocs.yml beside the application root returns None."""
         with tempfile.TemporaryDirectory() as root:
             base_dir = os.path.join(root, 'netbox')
             os.mkdir(base_dir)
