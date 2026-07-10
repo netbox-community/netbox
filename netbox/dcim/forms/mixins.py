@@ -1,12 +1,11 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import connection
-from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
 from dcim.models import PortTemplateMapping, Site
+from dcim.utils import reconcile_port_mappings
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField,
@@ -204,43 +203,35 @@ class FrontPortFormMixin(forms.Form):
     def _save_m2m(self):
         super()._save_m2m()
 
-        # TODO: Can this be made more efficient?
-        # Delete existing rear port mappings
-        self.port_mapping_model.objects.filter(front_port_id=self.instance.pk).delete()
-
-        # Create new rear port mappings
-        mappings = []
         if self.port_mapping_model is PortTemplateMapping:
-            params = {
+            extra = {
                 'device_type_id': self.instance.device_type_id,
                 'module_type_id': self.instance.module_type_id,
             }
         else:
-            params = {
+            extra = {
                 'device_id': self.instance.device_id,
             }
+
+        # Build the desired set of mappings from the submitted rear port pairs, assigning front port
+        # positions in order. reconcile_port_mappings() then writes only the difference, so re-saving
+        # a front port without changing its wiring produces no writes (and no changelog churn).
+        desired = []
         for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
             rear_port_id, rear_port_position = rp_position.split(':')
-            mappings.append(
-                self.port_mapping_model(**{
-                    **params,
-                    'front_port_id': self.instance.pk,
-                    'front_port_position': i,
-                    'rear_port_id': rear_port_id,
-                    'rear_port_position': rear_port_position,
-                })
-            )
-        self.port_mapping_model.objects.bulk_create(mappings)
-        # Send post_save signals
-        for mapping in mappings:
-            post_save.send(
-                sender=self.port_mapping_model,
-                instance=mapping,
-                created=True,
-                raw=False,
-                using=connection,
-                update_fields=None
-            )
+            desired.append({
+                'front_port_position': i,
+                'rear_port_id': int(rear_port_id),
+                'rear_port_position': int(rear_port_position),
+            })
+
+        reconcile_port_mappings(
+            self.port_mapping_model,
+            parent_field='front_port',
+            parent=self.instance,
+            desired=desired,
+            extra=extra,
+        )
 
     def _get_rear_port_choices(self, parent_filter, front_port):
         """

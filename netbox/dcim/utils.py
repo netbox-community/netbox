@@ -169,3 +169,57 @@ def create_port_mappings(device, device_or_module_type, module=None):
             )
         )
     PortMapping.objects.bulk_create(mappings)
+
+
+def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=None):
+    """
+    Reconcile the set of port mappings for a parent port against `desired`, writing only the
+    difference so that unchanged mappings keep their primary key (and generate no changelog entry).
+
+    `parent_field` is the name of the FK on the mapping identifying the object being edited
+    ('front_port' or 'rear_port'); the matching '<parent_field>_position' value is the stable
+    identity of each mapping within that parent's set. Rows whose target changed or which were
+    removed are deleted, and new or changed rows are (re)created; unchanged rows are left untouched.
+    All changed/removed rows are deleted before any replacement is created, which keeps the operation
+    safe against transient unique-constraint violations (e.g. swapping two positions' targets).
+
+    Per-row create()/delete() are used rather than bulk operations so that the change-logging signals
+    fire naturally (including for branching), which is the whole point of recording these mappings.
+
+    Args:
+        mapping_model: PortMapping or PortTemplateMapping.
+        parent_field: 'front_port' or 'rear_port' — the side being edited.
+        parent: the parent instance (FrontPort/RearPort or their templates).
+        desired: iterable of dicts of mapping field values EXCLUDING the parent FK, using '<field>_id'
+            for the opposite-port FK. For a front-port edit, e.g.:
+            {'front_port_position': 1, 'rear_port_id': 5, 'rear_port_position': 2}.
+        extra: optional dict of fields applied to every created row (e.g. the device_type/module_type
+            of a template mapping). Omit to let Model.save() derive them (PortMapping derives `device`
+            from its front port).
+    """
+    extra = extra or {}
+    key_field = f'{parent_field}_position'
+    other_field = 'rear_port' if parent_field == 'front_port' else 'front_port'
+    value_fields = (f'{other_field}_id', f'{other_field}_position')
+
+    def target(source):
+        # The comparable "value" of a mapping: the opposite port and its position. Two mappings with
+        # the same parent-side position but a different target represent a re-pointing of that slot.
+        get = source.get if isinstance(source, dict) else lambda f: getattr(source, f)
+        return tuple(get(f) for f in value_fields)
+
+    desired_by_key = {d[key_field]: d for d in desired}
+    existing = {
+        getattr(m, key_field): m
+        for m in mapping_model.objects.filter(**{parent_field: parent})
+    }
+
+    # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
+    for key, mapping in existing.items():
+        if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):
+            mapping.delete()
+
+    # Create rows that are new or whose target changed
+    for key, attrs in desired_by_key.items():
+        if key not in existing or target(existing[key]) != target(attrs):
+            mapping_model.objects.create(**{parent_field: parent, **extra, **attrs})
