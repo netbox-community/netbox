@@ -173,18 +173,14 @@ def create_port_mappings(device, device_or_module_type, module=None):
 
 def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=None):
     """
-    Reconcile the set of port mappings for a parent port against `desired`, writing only the
-    difference so that unchanged mappings keep their primary key (and generate no changelog entry).
+    Reconcile a parent port's mappings against `desired`, writing only the difference so unchanged
+    mappings keep their PK (and emit no changelog entry).
 
-    `parent_field` is the name of the FK on the mapping identifying the object being edited
-    ('front_port' or 'rear_port'); the matching '<parent_field>_position' value is the stable
-    identity of each mapping within that parent's set. Rows whose target changed or which were
-    removed are deleted, and new or changed rows are (re)created; unchanged rows are left untouched.
-    All changed/removed rows are deleted before any replacement is created, which keeps the operation
-    safe against transient unique-constraint violations (e.g. swapping two positions' targets).
-
-    Per-row create()/delete() are used rather than bulk operations so that the change-logging signals
-    fire naturally (including for branching), which is the whole point of recording these mappings.
+    `parent_field` ('front_port' or 'rear_port') identifies the side being edited; its
+    '<parent_field>_position' is each mapping's stable identity within the set. Removed or re-pointed
+    rows are deleted before any replacement is created (safe against transient unique-constraint
+    violations, e.g. swapping two positions); unchanged rows are left untouched. Per-row
+    create()/delete() are used so the change-logging signals fire naturally.
 
     Args:
         mapping_model: PortMapping or PortTemplateMapping.
