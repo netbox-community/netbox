@@ -316,6 +316,16 @@ class ConfigTemplate(
         self.template_code = self.data_file.data_as_string
     sync_data.alters_data = True
 
+    def get_environment_params(self):
+        """
+        Config templates render plain text (network configs, scripts), not HTML. Force
+        autoescape off so environment_params cannot enable it and create a latent XSS sink
+        if output is ever rendered in an HTML context.
+        """
+        params = super().get_environment_params()
+        params['autoescape'] = False
+        return params
+
     def format_render_error(self, exc):
         """
         Return a formatted error string for a rendering exception. When debug is enabled, the full

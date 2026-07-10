@@ -1310,6 +1310,24 @@ class RenderTemplateMixinRenderTestCase(TestCase):
         self.assertNotEqual(plain.render(ctx), trimmed.render(ctx))
         self.assertEqual(trimmed.render(ctx).strip(), 'VALUE')
 
+    def test_configtemplate_autoescape_always_disabled(self):
+        """
+        ConfigTemplate renders plain text (network configs, scripts); autoescape must stay off
+        even if environment_params explicitly requests it (#22652).
+        """
+        t = ConfigTemplate(name='autoescape', template_code='{{ value }}', environment_params={'autoescape': True})
+        self.assertEqual(t.render({'value': '<script>'}), '<script>')
+
+    def test_exporttemplate_autoescape_is_configurable(self):
+        """
+        Unlike ConfigTemplate, ExportTemplate output may legitimately be HTML, so an explicit
+        autoescape=True in environment_params must be honored rather than forced off.
+        """
+        et = ExportTemplate(
+            name='autoescape', template_code='{{ value }}', environment_params={'autoescape': True}
+        )
+        self.assertEqual(et.render({'value': '<script>'}), '&lt;script&gt;')
+
     def test_environment_params_undefined_path_import(self):
         # Default Undefined renders nothing for a missing variable.
         default = ConfigTemplate(name='default', template_code='{{ missing }}')
@@ -1339,8 +1357,9 @@ class RenderTemplateMixinRenderTestCase(TestCase):
 
     def test_get_environment_params_handles_none(self):
         # The environment_params field may be cleared; ensure the mixin returns a dict (not None).
+        # ConfigTemplate always forces autoescape off (#22652).
         t = ConfigTemplate(name='empty', template_code='ok', environment_params=None)
-        self.assertEqual(t.get_environment_params(), {})
+        self.assertEqual(t.get_environment_params(), {'autoescape': False})
 
     def test_get_environment_params_resolves_path_imports(self):
         t = ConfigTemplate(
@@ -1666,9 +1685,11 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         self.assertEqual(template.environment_params['undefined'], 'jinja2.StrictUndefined')
 
     def test_none_environment_params(self):
+        # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template(None)
-        self.assertEqual(template.get_environment_params(), {})
+        self.assertEqual(template.get_environment_params(), {'autoescape': False})
 
     def test_empty_environment_params(self):
+        # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template({})
-        self.assertEqual(template.get_environment_params(), {})
+        self.assertEqual(template.get_environment_params(), {'autoescape': False})
