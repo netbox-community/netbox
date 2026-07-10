@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortMapping, PortTemplateMapping, Site
+from dcim.models import PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField,
@@ -234,7 +234,7 @@ class FrontPortFormMixin(forms.Form):
         # Send post_save signals
         for mapping in mappings:
             post_save.send(
-                sender=PortMapping,
+                sender=self.port_mapping_model,
                 instance=mapping,
                 created=True,
                 raw=False,

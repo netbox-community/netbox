@@ -44,6 +44,9 @@ class PortMappingBase(models.Model):
             ),
         )
 
+    def __str__(self):
+        return f'{self.front_port}:{self.front_port_position} to {self.rear_port}:{self.rear_port_position}'
+
     def clean(self):
         super().clean()
 
