@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-10 06:17+0000\n"
+"POT-Creation-Date: 2026-07-11 05:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8253,7 +8253,7 @@ msgstr ""
 msgid "Unknown related object(s): {name}"
 msgstr ""
 
-#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:255
+#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:256
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw "
 "rendered content is returned in place of the JSON object."
@@ -8263,7 +8263,7 @@ msgstr ""
 msgid "No config template could be resolved for this object."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:261
+#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:262
 msgid "An error occurred while rendering the config template."
 msgstr ""
 
@@ -8291,23 +8291,38 @@ msgstr ""
 msgid "Changing the type of custom fields is not supported."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:45
-#: netbox/extras/api/serializers_/scripts.py:74
+#: netbox/extras/api/serializers_/scripts.py:46
+#: netbox/extras/api/serializers_/scripts.py:84
 msgid "A script module with this file name already exists."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:57
+#: netbox/extras/api/serializers_/scripts.py:49
+msgid "This field is required."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:53
+#, python-brace-format
+msgid "The uploaded file name must match the existing file path ({path})."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:67
 #: netbox/extras/forms/scripts.py:91 netbox/extras/forms/scripts.py:100
 #, python-brace-format
 msgid "Error loading script: {error}"
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:158
-#: netbox/extras/api/serializers_/scripts.py:168
+#: netbox/extras/api/serializers_/scripts.py:113
+msgid ""
+"The scripts storage backend did not overwrite the existing file. Ensure the "
+"backend is configured to allow overwrites."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:197
+#: netbox/extras/api/serializers_/scripts.py:207
 msgid "Scheduling is not enabled for this script."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:160
+#: netbox/extras/api/serializers_/scripts.py:199
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr ""
@@ -10372,11 +10387,11 @@ msgstr ""
 msgid "Method"
 msgstr ""
 
-#: netbox/extras/templatetags/dashboard.py:15
+#: netbox/extras/templatetags/dashboard.py:16
 msgid "An error was encountered when attempting to render this widget:"
 msgstr ""
 
-#: netbox/extras/templatetags/dashboard.py:16
+#: netbox/extras/templatetags/dashboard.py:17
 msgid "Please try reconfiguring the widget, or remove it from your dashboard."
 msgstr ""
 
