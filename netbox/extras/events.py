@@ -176,8 +176,13 @@ def process_event_rules(event_rules, object_type, event):
 
     for event_rule in event_rules:
 
-        # Evaluate event rule conditions (if any)
-        if not event_rule.eval_conditions(event['data']):
+        # Evaluate event rule conditions (if any).
+        # Snapshots are merged into the condition context so conditions can
+        # reference snapshots.prechange.<attr> and snapshots.postchange.<attr>
+        # using the standard dot-path syntax, and so the 'changed'/'unchanged'
+        # operators can access pre/post values.
+        condition_data = {**event['data'], 'snapshots': event.get('snapshots')}
+        if not event_rule.eval_conditions(condition_data):
             continue
 
         # Guard against action_data that is valid JSON but not a dict

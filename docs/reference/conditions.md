@@ -9,7 +9,7 @@ A condition is expressed as a JSON object with the following keys:
 | Key name | Required | Default | Description |
 |----------|----------|---------|-------------|
 | attr     | Yes      | -       | Name of the key within the data being evaluated |
-| value    | Yes      | -       | The reference value to which the given data will be compared |
+| value    | See note | -       | The reference value to which the given data will be compared. Not used by snapshot operators (`changed`, `unchanged`). |
 | op       | No       | `eq`    | The logical operation to be performed |
 | negate   | No       | False   | Negate (invert) the result of the condition's evaluation |
 
@@ -22,6 +22,9 @@ A condition is expressed as a JSON object with the following keys:
 * `lte`: Less than or equal to
 * `in`: Is present within a list of values
 * `contains`: Contains the specified value
+* `regex`: Matches a regular expression
+* `changed`: The attribute's value differs between the pre-change and post-change snapshots (no `value` required)
+* `unchanged`: The attribute's value is the same in both snapshots (no `value` required)
 
 ### Accessing Nested Keys
 
@@ -90,6 +93,59 @@ The following condition will evaluate as true:
 
 !!! note "Evaluating static choice fields"
     Pay close attention when evaluating static choice fields, such as the `status` field above. These fields typically render as a dictionary specifying both the field's raw value (`value`) and its human-friendly label (`label`). Be sure to specify on which of these you want to match.
+
+## Snapshot Conditions (Event Rules)
+
+When used in an [event rule](../features/event-rules.md), conditions can also inspect the **pre-change and post-change snapshots** captured at the time of the event. This allows rules to fire only when a specific field actually changes value, rather than whenever it has a particular value.
+
+### Snapshot Operators
+
+The `changed` and `unchanged` operators compare an attribute's value across the two snapshots. They do not accept a `value` key.
+
+Fire only when `status` changes (to any value):
+
+```json
+{
+  "attr": "status",
+  "op": "changed"
+}
+```
+
+### Combining with Standard Conditions
+
+The canonical use case — fire only when `status` changes **to** `active` — combines a standard value check with the `changed` operator:
+
+```json
+{
+  "and": [
+    {
+      "attr": "status.value",
+      "value": "active"
+    },
+    {
+      "attr": "status",
+      "op": "changed"
+    }
+  ]
+}
+```
+
+### Direct Snapshot Path Access
+
+You can also read pre- or post-change values directly using the `snapshots.prechange.<attr>` and `snapshots.postchange.<attr>` dot-path syntax with any standard operator:
+
+```json
+{
+  "attr": "snapshots.prechange.status",
+  "value": "planned"
+}
+```
+
+!!! warning "Snapshot serialization format"
+    Snapshot data uses the **model serializer format**, not the REST API format. Choice fields such as `status` are stored as raw strings (e.g. `"active"`) rather than nested objects (e.g. `{"value": "active", "label": "Active"}`). Use `attr: "snapshots.prechange.status"` — not `"snapshots.prechange.status.value"` — when referencing snapshot attributes. The `changed`/`unchanged` operators compare the same format on both sides, so they are not affected by this distinction.
+
+!!! note "Snapshot availability"
+    Snapshots are only populated for update and delete events. For create events, `prechange` is `null` — conditions using the `changed` operator on a create event evaluate to `true` (the field transitioned from non-existent to its initial value), while conditions using `snapshots.prechange.*` paths evaluate to `false`. For delete events, `postchange` is `null` — the `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, and `unchanged` evaluates to `false`.
 
 ## Condition Sets
 

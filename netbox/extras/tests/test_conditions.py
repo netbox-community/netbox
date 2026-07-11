@@ -321,3 +321,249 @@ class ConditionSetTestCase(TestCase):
         })
 
         self.assertFalse(form.is_valid())
+
+
+class SnapshotConditionTestCase(TestCase):
+    """
+    Tests for snapshot-aware conditions: the 'changed'/'unchanged' operators and
+    direct snapshot attribute access via the snapshots.prechange.* / snapshots.postchange.*
+    dot-path syntax.
+    """
+
+    def _make_condition_data(self, site, snapshots):
+        """Return a condition evaluation context as produced by process_event_rules()."""
+        return {**serialize_for_event(site), 'snapshots': snapshots}
+
+    #
+    # Validation
+    #
+
+    def test_changed_operator_rejects_value(self):
+        with self.assertRaises(ValueError):
+            Condition('status', value='active', op='changed')
+
+    def test_unchanged_operator_rejects_value(self):
+        with self.assertRaises(ValueError):
+            Condition('status', value='active', op='unchanged')
+
+    def test_snapshot_operator_rejects_snapshot_path_attr(self):
+        """Snapshot operators must not use a snapshots.prechange.* path — that's only for standard operators."""
+        with self.assertRaises(ValueError):
+            Condition('snapshots.prechange.status', op='changed')
+        with self.assertRaises(ValueError):
+            Condition('snapshots.postchange.status', op='unchanged')
+
+    def test_standard_operator_requires_value(self):
+        with self.assertRaises(ValueError):
+            Condition('status', op='eq')
+
+    #
+    # 'changed' operator
+    #
+
+    def test_changed_true_when_attr_differs(self):
+        c = Condition('status', op='changed')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_changed_false_when_attr_same(self):
+        c = Condition('status', op='changed')
+        snapshots = {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_changed_true_when_prechange_missing_attr(self):
+        # attr present in postchange but absent from prechange snapshot
+        c = Condition('description', op='changed')
+        snapshots = {
+            'prechange': {},
+            'postchange': {'description': 'hello'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_changed_true_when_prechange_is_none(self):
+        # OBJECT_CREATED events have no prechange snapshot
+        c = Condition('status', op='changed')
+        snapshots = {
+            'prechange': None,
+            'postchange': {'status': 'active'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_changed_false_when_both_snapshots_missing_attr(self):
+        # If neither snapshot has the attr, nothing changed
+        c = Condition('nonexistent', op='changed')
+        snapshots = {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_changed_false_when_path_traverses_scalar(self):
+        # Snapshot choice fields are raw strings, not nested dicts. A path like
+        # 'status.value' hits a TypeError when traversing into the string; both
+        # sides resolve to _MISSING and the operator returns False (no change).
+        c = Condition('status.value', op='changed')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_changed_negated(self):
+        c = Condition('status', op='changed', negate=True)
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_changed_raises_when_no_snapshots(self):
+        c = Condition('status', op='changed')
+        with self.assertRaises(InvalidCondition):
+            c.eval({'status': {'value': 'active'}})
+
+    #
+    # 'unchanged' operator
+    #
+
+    def test_unchanged_true_when_attr_same(self):
+        c = Condition('status', op='unchanged')
+        snapshots = {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_unchanged_false_when_attr_differs(self):
+        c = Condition('status', op='unchanged')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    def test_unchanged_false_when_both_snapshots_missing_attr(self):
+        # Fail-closed: a typo or non-existent attr resolves to _MISSING on both
+        # sides; unchanged must return False rather than silently passing.
+        c = Condition('statsu', op='unchanged')
+        snapshots = {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertFalse(c.eval({'snapshots': snapshots}))
+
+    #
+    # Direct snapshot path access (snapshots.prechange.* / snapshots.postchange.*)
+    #
+
+    def test_snapshot_path_access_prechange(self):
+        c = Condition('snapshots.prechange.status', value='planned', op='eq')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_snapshot_path_access_postchange(self):
+        c = Condition('snapshots.postchange.status', value='active', op='eq')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        self.assertTrue(c.eval({'snapshots': snapshots}))
+
+    def test_snapshot_path_rest_api_style_attr_raises_invalid_condition(self):
+        """
+        Snapshots store raw values (e.g. status="planned"), not REST API-style nested
+        dicts (status={"value": "planned"}). A '.value' suffix on a snapshot path must
+        fail closed with InvalidCondition rather than raising a raw TypeError.
+        """
+        c = Condition('snapshots.prechange.status.value', value='planned', op='eq')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active'},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
+    #
+    # EventRule.eval_conditions integration
+    #
+
+    def test_event_rule_changed_operator(self):
+        """
+        Verify the canonical use case: fire only when status changes to active.
+        """
+        event_rule = EventRule(
+            name='Notify on activation',
+            event_types=[OBJECT_UPDATED],
+            conditions={
+                'and': [
+                    {'attr': 'status.value', 'value': 'active'},
+                    {'attr': 'status', 'op': 'changed'},
+                ]
+            }
+        )
+        site = Site.objects.create(name='Site 2', slug='site-2', status=SiteStatusChoices.STATUS_ACTIVE)
+
+        # status changed planned → active: should fire
+        data_changed = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        self.assertTrue(event_rule.eval_conditions(data_changed))
+
+        # status already active, description updated: should NOT fire
+        data_unchanged = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        self.assertFalse(event_rule.eval_conditions(data_unchanged))
+
+    def test_event_rule_snapshot_path_with_existing_operator(self):
+        """
+        Conditions can reference prechange/postchange data using the standard
+        snapshots.prechange.<attr> dot-path and existing operators.
+        Note: snapshot values use model serializer format (raw strings, not nested
+        dicts), so 'status' not 'status.value'.
+        """
+        event_rule = EventRule(
+            name='Was planned',
+            event_types=[OBJECT_UPDATED],
+            conditions={
+                'attr': 'snapshots.prechange.status',
+                'value': SiteStatusChoices.STATUS_PLANNED,
+            }
+        )
+        site = Site.objects.create(name='Site 3', slug='site-3', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        self.assertTrue(event_rule.eval_conditions(data))
+
+    def test_event_rule_snapshot_path_rest_api_style_attr_must_return_false(self):
+        """
+        An EventRule condition mistakenly using a REST API-style '.value' suffix on a
+        snapshot path must fail closed (return False) rather than crashing evaluation.
+        """
+        event_rule = EventRule(
+            name='Was planned (REST-style mistake)',
+            event_types=[OBJECT_UPDATED],
+            conditions={
+                'attr': 'snapshots.prechange.status.value',
+                'value': SiteStatusChoices.STATUS_PLANNED,
+            }
+        )
+        site = Site.objects.create(name='Site 4', slug='site-4', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        self.assertFalse(event_rule.eval_conditions(data))

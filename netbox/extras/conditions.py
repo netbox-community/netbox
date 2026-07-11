@@ -13,6 +13,12 @@ __all__ = (
 AND = 'and'
 OR = 'or'
 
+# Sentinel for a snapshot attribute that could not be resolved (missing key or
+# null snapshot).  Using a unique object ensures that two independently
+# unresolvable values compare equal to each other, which is the correct
+# semantics for the 'unchanged' operator when neither snapshot has the field.
+_MISSING = object()
+
 
 def is_ruleset(data):
     """
@@ -30,8 +36,9 @@ class Condition:
     An individual conditional rule that evaluates a single attribute and its value.
 
     :param attr: The name of the attribute being evaluated
-    :param value: The value being compared
+    :param value: The value being compared (not used by snapshot operators)
     :param op: The logical operation to use when evaluating the value (default: 'eq')
+    :param negate: Invert the result of evaluation
     """
     EQ = 'eq'
     GT = 'gt'
@@ -41,10 +48,15 @@ class Condition:
     IN = 'in'
     CONTAINS = 'contains'
     REGEX = 'regex'
+    CHANGED = 'changed'
+    UNCHANGED = 'unchanged'
 
     OPERATORS = (
-        EQ, GT, GTE, LT, LTE, IN, CONTAINS, REGEX
+        EQ, GT, GTE, LT, LTE, IN, CONTAINS, REGEX, CHANGED, UNCHANGED
     )
+
+    # Operators that compare pre/post snapshots and do not accept a value.
+    SNAPSHOT_OPERATORS = (CHANGED, UNCHANGED)
 
     TYPES = {
         str: (EQ, CONTAINS, REGEX),
@@ -55,25 +67,44 @@ class Condition:
         type(None): (EQ,)
     }
 
-    def __init__(self, attr, value, op=EQ, negate=False):
+    def __init__(self, attr, value=_MISSING, op=EQ, negate=False):
         if op not in self.OPERATORS:
             raise ValueError(_("Unknown operator: {op}. Must be one of: {operators}").format(
                 op=op, operators=', '.join(self.OPERATORS)
             ))
-        if type(value) not in self.TYPES:
-            raise ValueError(_("Unsupported value type: {value}").format(value=type(value)))
-        if op not in self.TYPES[type(value)]:
-            raise ValueError(_("Invalid type for {op} operation: {value}").format(op=op, value=type(value)))
+
+        if op in self.SNAPSHOT_OPERATORS:
+            if value is not _MISSING:
+                raise ValueError(_(
+                    "The '{op}' operator compares snapshots and does not accept a value."
+                ).format(op=op))
+            if attr.startswith('snapshots.'):
+                raise ValueError(_(
+                    "The '{op}' operator resolves '{attr}' within each snapshot dict, not the "
+                    "top-level condition context. Use the bare attribute name (e.g. 'status') "
+                    "rather than a snapshot path (e.g. 'snapshots.prechange.status'), which is "
+                    "only valid with standard operators."
+                ).format(op=op, attr=attr))
+            self.value = _MISSING
+        else:
+            if value is _MISSING:
+                raise ValueError(_("A value is required for the '{op}' operator.").format(op=op))
+            if type(value) not in self.TYPES:
+                raise ValueError(_("Unsupported value type: {value}").format(value=type(value)))
+            if op not in self.TYPES[type(value)]:
+                raise ValueError(_("Invalid type for {op} operation: {value}").format(op=op, value=type(value)))
+            self.value = value
 
         self.attr = attr
-        self.value = value
         self.op = op
         self.eval_func = getattr(self, f'eval_{op}')
         self.negate = negate
 
-    def eval(self, data):
+    def _resolve_attr(self, data):
         """
-        Evaluate the provided data to determine whether it matches the condition.
+        Walk self.attr as a dotted key path through data. Raises InvalidCondition on
+        missing keys, or when an intermediate value can't be indexed by key (e.g. a
+        REST API-style path like 'status.value' applied to a raw snapshot value).
         """
         def _get(obj, key):
             if isinstance(obj, list):
@@ -81,9 +112,46 @@ class Condition:
             return operator.getitem(obj or {}, key)
 
         try:
-            value = functools.reduce(_get, self.attr.split('.'), data)
+            return functools.reduce(_get, self.attr.split('.'), data)
         except KeyError:
             raise InvalidCondition(f"Invalid key path: {self.attr}")
+        except TypeError as e:
+            raise InvalidCondition(f"Invalid key path: {self.attr} ({e})")
+
+    def _resolve_snapshot_attr(self, snapshot):
+        """
+        Walk self.attr through a snapshot dict, returning _MISSING on any miss.
+        Snapshots use the model serializer format (raw field values), not the REST
+        API format, so e.g. status is stored as "active" not {"value": "active"}.
+        """
+        if snapshot is None:
+            return _MISSING
+        try:
+            obj = snapshot
+            for key in self.attr.split('.'):
+                if isinstance(obj, list):
+                    obj = [operator.getitem(item or {}, key) for item in obj]
+                else:
+                    obj = operator.getitem(obj or {}, key)
+            return obj
+        except (KeyError, TypeError):
+            return _MISSING
+
+    def eval(self, data):
+        """
+        Evaluate the provided data to determine whether it matches the condition.
+        """
+        if self.op in self.SNAPSHOT_OPERATORS:
+            snapshots = data.get('snapshots') if isinstance(data, dict) else None
+            if snapshots is None:
+                raise InvalidCondition(
+                    f"No snapshot data available for '{self.op}' operator. "
+                    f"Snapshot operators are only meaningful on update and delete events."
+                )
+            result = self.eval_func(snapshots)
+            return not result if self.negate else result
+
+        value = self._resolve_attr(data)
         try:
             result = self.eval_func(value)
         except TypeError as e:
@@ -127,6 +195,27 @@ class Condition:
 
     def eval_regex(self, value):
         return re.match(self.value, value) is not None
+
+    # Snapshot comparison operators
+    # These resolve self.attr in both the prechange and postchange snapshots and
+    # compare the resulting values.  _MISSING is used when a snapshot is absent
+    # or does not contain the attribute.
+    #
+    # Fail-closed semantics:
+    #   changed:   False when attr is absent from both snapshots (field never existed)
+    #   unchanged: False when attr is absent from both snapshots (avoids silent pass on typos)
+
+    def eval_changed(self, snapshots):
+        pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
+        post = self._resolve_snapshot_attr(snapshots.get('postchange'))
+        return pre != post
+
+    def eval_unchanged(self, snapshots):
+        pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
+        post = self._resolve_snapshot_attr(snapshots.get('postchange'))
+        if pre is _MISSING and post is _MISSING:
+            return False
+        return pre == post
 
 
 class ConditionSet:
