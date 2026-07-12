@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-11 05:50+0000\n"
+"POT-Creation-Date: 2026-07-12 05:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9417,12 +9417,12 @@ msgstr ""
 msgid "config templates"
 msgstr ""
 
-#: netbox/extras/models/configs.py:330
+#: netbox/extras/models/configs.py:340
 #, python-brace-format
 msgid "Template: {name}"
 msgstr ""
 
-#: netbox/extras/models/configs.py:332
+#: netbox/extras/models/configs.py:342
 #, python-brace-format
 msgid "Line: {lineno}"
 msgstr ""
