@@ -543,7 +543,7 @@ class CustomFieldColumn(tables.Column):
             color = self.customfield.get_choice_color(value)
             if color:
                 return mark_safe(
-                    f'<span class="badge text-bg-{color}">{escape(label)}</span>'
+                    f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
                 )
             return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
@@ -555,11 +555,11 @@ class CustomFieldColumn(tables.Column):
                 color = self.customfield.get_choice_color(v)
                 if color:
                     parts.append(
-                        f'<span class="badge text-bg-{color}">{escape(label)}</span>'
+                        f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
                     )
                 else:
                     parts.append(escape(label))
-            return mark_safe(' '.join(parts))
+            return mark_safe(', '.join(parts))
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)
