@@ -1,5 +1,39 @@
 # NetBox v4.6
 
+## v4.6.5 (2026-07-14)
+
+### Enhancements
+
+* [#18828](https://github.com/netbox-community/netbox/issues/18828) - Add MDC connector type for fiber ports and cables
+* [#22544](https://github.com/netbox-community/netbox/issues/22544) - Provide a REST API method to update or overwrite an existing custom script module
+* [#22629](https://github.com/netbox-community/netbox/issues/22629) - Enforce a lower maximum uploaded image size (50 megapixels) than the Pillow default
+* [#22649](https://github.com/netbox-community/netbox/issues/22649) - Add Korean language support
+
+### Performance Improvements
+
+* [#22551](https://github.com/netbox-community/netbox/issues/22551) - Add a prefetch hint to the GraphQL `tags` field to avoid N+1 queries on list endpoints
+* [#22589](https://github.com/netbox-community/netbox/issues/22589) - Cache serializers to avoid repeated reinstantiation on the cables list REST API endpoint
+
+### Bug Fixes
+
+* [#22154](https://github.com/netbox-community/netbox/issues/22154) - Correct the OpenAPI schema for relation counts on nested (brief) object representations
+* [#22500](https://github.com/netbox-community/netbox/issues/22500) - Return the configured maintenance mode message for REST API requests
+* [#22521](https://github.com/netbox-community/netbox/issues/22521) - Honor `RAM_BASE_UNIT` for the default memory of a virtual machine type
+* [#22539](https://github.com/netbox-community/netbox/issues/22539) - Restore the available IPs button for users with constrained permissions
+* [#22566](https://github.com/netbox-community/netbox/issues/22566) - Avoid name collisions when a custom script's filename matches a core app label
+* [#22568](https://github.com/netbox-community/netbox/issues/22568) - Fix uncaught `ValueError` (HTTP 500) when an invalid `filter_id` query parameter is provided
+* [#22573](https://github.com/netbox-community/netbox/issues/22573) - Remove persistent scrollbar on the navigation menu in Chrome
+* [#22578](https://github.com/netbox-community/netbox/issues/22578) - Ensure shared objects are treated consistently across the UI and REST API
+* [#22582](https://github.com/netbox-community/netbox/issues/22582) - Use a theme-aware color for interface list row separators in dark mode
+* [#22598](https://github.com/netbox-community/netbox/issues/22598) - Fix `ValueError` exception when viewing background tasks under RQ 2.10
+* [#22617](https://github.com/netbox-community/netbox/issues/22617) - Require the "change" permission (rather than "add") when editing objects via the bulk import form
+* [#22626](https://github.com/netbox-community/netbox/issues/22626) - Ensure custom link names are escaped when rendering fails
+* [#22632](https://github.com/netbox-community/netbox/issues/22632) - Fix `ValueError` raised by object-level permission checks for cross-app proxy models
+* [#22652](https://github.com/netbox-community/netbox/issues/22652) - Explicitly disable autoescaping for config templates rendered via `SandboxedEnvironment`
+* [#22657](https://github.com/netbox-community/netbox/issues/22657) - Escape the exception message in the `render_widget` template tag before marking it safe
+
+---
+
 ## v4.6.4 (2026-06-30)
 
 ### Enhancements
