@@ -1207,25 +1207,14 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         min_value=0,
         required=False
     )
-    flow_rate = forms.DecimalField(
-        label=_('Flow rate'),
+    rated_flow_rate = forms.DecimalField(
+        label=_('Rated flow rate'),
         min_value=0,
         required=False
     )
-    flow_rate_unit = forms.ChoiceField(
-        label=_('Flow rate unit'),
+    rated_flow_rate_unit = forms.ChoiceField(
+        label=_('Rated flow rate unit'),
         choices=add_blank_choice(FlowRateUnitChoices),
-        required=False,
-        initial=''
-    )
-    pressure = forms.DecimalField(
-        label=_('Pressure'),
-        min_value=0,
-        required=False
-    )
-    pressure_unit = forms.ChoiceField(
-        label=_('Pressure unit'),
-        choices=add_blank_choice(PressureUnitChoices),
         required=False,
         initial=''
     )
@@ -1252,13 +1241,13 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     fieldsets = (
         FieldSet('cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'description', 'tenant'),
         FieldSet(
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
             'return_temperature', 'temperature_unit',
             name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'rack', 'fluid_type', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
+        'rack', 'fluid_type', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
         'supply_temperature', 'return_temperature', 'temperature_unit', 'tenant', 'description', 'comments',
     )
 

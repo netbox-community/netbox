@@ -2,7 +2,7 @@ from dcim.choices import *
 from dcim.models import CoolingFeed, CoolingSource
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import PrimaryModelSerializer
-from netbox.choices import FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
+from netbox.choices import FlowRateUnitChoices, TemperatureUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from .racks import RackSerializer
@@ -71,14 +71,8 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         required=False,
         allow_null=True
     )
-    flow_rate_unit = ChoiceField(
+    rated_flow_rate_unit = ChoiceField(
         choices=FlowRateUnitChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
-    )
-    pressure_unit = ChoiceField(
-        choices=PressureUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -99,7 +93,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'flow_direction',
-            'fluid_type', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
+            'fluid_type', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
             'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'tenant', 'owner',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

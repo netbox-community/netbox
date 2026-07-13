@@ -2199,17 +2199,11 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Coolant fluid type')
     )
-    flow_rate_unit = CSVChoiceField(
-        label=_('Flow rate unit'),
+    rated_flow_rate_unit = CSVChoiceField(
+        label=_('Rated flow rate unit'),
         choices=FlowRateUnitChoices,
         required=False,
-        help_text=_('Unit for flow rate')
-    )
-    pressure_unit = CSVChoiceField(
-        label=_('Pressure unit'),
-        choices=PressureUnitChoices,
-        required=False,
-        help_text=_('Unit for pressure')
+        help_text=_('Unit for rated flow rate')
     )
     temperature_unit = CSVChoiceField(
         label=_('Temperature unit'),
@@ -2222,7 +2216,7 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         model = CoolingFeed
         fields = (
             'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'flow_direction', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
             'return_temperature', 'temperature_unit', 'tenant', 'description', 'owner', 'comments', 'tags',
         )
 

@@ -14,7 +14,6 @@ from netbox.choices import (
     ColorChoices,
     DiameterUnitChoices,
     FlowRateUnitChoices,
-    PressureUnitChoices,
     TemperatureUnitChoices,
     WeightUnitChoices,
 )
@@ -8454,10 +8453,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=100,
-                flow_rate=10,
-                flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                pressure=100,
-                pressure_unit=PressureUnitChoices.UNIT_KILOPASCAL,
+                rated_flow_rate=10,
+                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 supply_temperature=18,
                 return_temperature=30,
                 temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
@@ -8472,10 +8469,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=200,
-                flow_rate=20,
-                flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                pressure=200,
-                pressure_unit=PressureUnitChoices.UNIT_KILOPASCAL,
+                rated_flow_rate=20,
+                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 supply_temperature=20,
                 return_temperature=32,
                 temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
@@ -8490,10 +8485,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 fluid_type=FluidTypeChoices.FLUID_DIELECTRIC,
                 cooling_capacity=300,
-                flow_rate=30,
-                flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
-                pressure=300,
-                pressure_unit=PressureUnitChoices.UNIT_PSI,
+                rated_flow_rate=30,
+                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
                 supply_temperature=22,
                 return_temperature=34,
                 temperature_unit=TemperatureUnitChoices.UNIT_FAHRENHEIT,
@@ -8528,20 +8521,12 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'cooling_capacity': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_flow_rate(self):
-        params = {'flow_rate': [10, 20]}
+    def test_rated_flow_rate(self):
+        params = {'rated_flow_rate': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_flow_rate_unit(self):
-        params = {'flow_rate_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_pressure(self):
-        params = {'pressure': [100, 200]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_pressure_unit(self):
-        params = {'pressure_unit': [PressureUnitChoices.UNIT_KILOPASCAL]}
+    def test_rated_flow_rate_unit(self):
+        params = {'rated_flow_rate_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_supply_temperature(self):

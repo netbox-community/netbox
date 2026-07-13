@@ -1,7 +1,7 @@
 import strawberry
 
 from dcim.choices import *
-from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, TemperatureUnitChoices
 
 __all__ = (
     'CableEndEnum',
@@ -41,7 +41,6 @@ __all__ = (
     'PowerOutletStatusEnum',
     'PowerOutletTypeEnum',
     'PowerPortTypeEnum',
-    'PressureUnitEnum',
     'RackAirflowEnum',
     'RackCoolingCapabilityEnum',
     'RackDimensionUnitEnum',
@@ -92,7 +91,6 @@ PowerOutletFeedLegEnum = strawberry.enum(PowerOutletFeedLegChoices.as_enum(prefi
 PowerOutletStatusEnum = strawberry.enum(PowerOutletStatusChoices.as_enum(prefix='status'))
 PowerOutletTypeEnum = strawberry.enum(PowerOutletTypeChoices.as_enum(prefix='type'))
 PowerPortTypeEnum = strawberry.enum(PowerPortTypeChoices.as_enum(prefix='type'))
-PressureUnitEnum = strawberry.enum(PressureUnitChoices.as_enum(prefix='unit'))
 RackAirflowEnum = strawberry.enum(RackAirflowChoices.as_enum())
 RackCoolingCapabilityEnum = strawberry.enum(RackCoolingCapabilityChoices.as_enum())
 RackDimensionUnitEnum = strawberry.enum(RackDimensionUnitChoices.as_enum(prefix='unit'))

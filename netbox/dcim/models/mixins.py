@@ -10,7 +10,6 @@ from dcim.constants import NONCONNECTABLE_IFACE_TYPES, VIRTUAL_IFACE_TYPES, WIRE
 from netbox.choices import *
 from utilities.conversion import (
     to_celsius,
-    to_kilopascals,
     to_liters_per_minute,
     to_millimeters,
 )
@@ -19,10 +18,9 @@ __all__ = (
     'CachedScopeMixin',
     'CoolingTemperatureMixin',
     'DiameterMixin',
-    'FlowRateMixin',
     'InterfaceValidationMixin',
     'MaximumFlowMixin',
-    'PressureMixin',
+    'RatedFlowRateMixin',
     'RenderConfigMixin',
 )
 
@@ -296,24 +294,29 @@ class DiameterMixin(models.Model):
             raise ValidationError(_("Must specify a unit when setting a diameter"))
 
 
-class FlowRateMixin(models.Model):
-    flow_rate = models.DecimalField(
-        verbose_name=_('flow rate'),
+class RatedFlowRateMixin(models.Model):
+    """
+    Adds a rated (design) flow rate with a normalized (L/min) field for ordering. This is a design
+    specification, not a live telemetry reading.
+    """
+    rated_flow_rate = models.DecimalField(
+        verbose_name=_('rated flow rate'),
         max_digits=8,
         decimal_places=2,
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
+        help_text=_('Rated (design) flow rate')
     )
-    flow_rate_unit = models.CharField(
-        verbose_name=_('flow rate unit'),
+    rated_flow_rate_unit = models.CharField(
+        verbose_name=_('rated flow rate unit'),
         max_length=50,
         choices=FlowRateUnitChoices,
         blank=True,
         null=True,
     )
-    # Stores the normalized flow rate (in liters per minute) for database ordering
-    _abs_flow_rate = models.DecimalField(
+    # Stores the normalized rated flow rate (in liters per minute) for database ordering
+    _abs_rated_flow_rate = models.DecimalField(
         max_digits=13,
         decimal_places=4,
         blank=True,
@@ -324,29 +327,29 @@ class FlowRateMixin(models.Model):
         abstract = True
 
     @property
-    def abs_flow_rate(self):
-        # Public alias for _abs_flow_rate; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_flow_rate
+    def abs_rated_flow_rate(self):
+        # Public alias for _abs_rated_flow_rate; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_rated_flow_rate
 
     def save(self, *args, **kwargs):
-        # Store the given flow rate (if any) in liters per minute for use in database ordering
-        if self.flow_rate is not None and self.flow_rate_unit:
-            self._abs_flow_rate = to_liters_per_minute(self.flow_rate, self.flow_rate_unit)
+        # Store the given rated flow rate (if any) in liters per minute for use in database ordering
+        if self.rated_flow_rate is not None and self.rated_flow_rate_unit:
+            self._abs_rated_flow_rate = to_liters_per_minute(self.rated_flow_rate, self.rated_flow_rate_unit)
         else:
-            self._abs_flow_rate = None
+            self._abs_rated_flow_rate = None
 
-        # Clear flow_rate_unit if no flow rate is defined
-        if self.flow_rate is None:
-            self.flow_rate_unit = None
+        # Clear rated_flow_rate_unit if no rated flow rate is defined
+        if self.rated_flow_rate is None:
+            self.rated_flow_rate_unit = None
 
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
 
-        # Validate flow_rate and flow_rate_unit
-        if self.flow_rate is not None and not self.flow_rate_unit:
-            raise ValidationError(_("Must specify a unit when setting a flow rate"))
+        # Validate rated_flow_rate and rated_flow_rate_unit
+        if self.rated_flow_rate is not None and not self.rated_flow_rate_unit:
+            raise ValidationError(_("Must specify a unit when setting a rated flow rate"))
 
 
 class MaximumFlowMixin(models.Model):
@@ -402,62 +405,10 @@ class MaximumFlowMixin(models.Model):
             raise ValidationError(_("Must specify a unit when setting a maximum flow"))
 
 
-class PressureMixin(models.Model):
-    pressure = models.DecimalField(
-        verbose_name=_('pressure'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-    )
-    pressure_unit = models.CharField(
-        verbose_name=_('pressure unit'),
-        max_length=50,
-        choices=PressureUnitChoices,
-        blank=True,
-        null=True,
-    )
-    # Stores the normalized pressure (in kilopascals) for database ordering
-    _abs_pressure = models.DecimalField(
-        max_digits=13,
-        decimal_places=4,
-        blank=True,
-        null=True
-    )
-
-    class Meta:
-        abstract = True
-
-    @property
-    def abs_pressure(self):
-        # Public alias for _abs_pressure; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_pressure
-
-    def save(self, *args, **kwargs):
-        # Store the given pressure (if any) in kilopascals for use in database ordering
-        if self.pressure is not None and self.pressure_unit:
-            self._abs_pressure = to_kilopascals(self.pressure, self.pressure_unit)
-        else:
-            self._abs_pressure = None
-
-        # Clear pressure_unit if no pressure is defined
-        if self.pressure is None:
-            self.pressure_unit = None
-
-        super().save(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        # Validate pressure and pressure_unit
-        if self.pressure is not None and not self.pressure_unit:
-            raise ValidationError(_("Must specify a unit when setting a pressure"))
-
-
 class CoolingTemperatureMixin(models.Model):
     """
-    Adds supply/return temperatures sharing a single unit, with normalized (°C) fields for ordering.
+    Adds design supply/return temperatures sharing a single unit, with normalized (°C) fields for
+    ordering. These are design specifications, not live telemetry readings.
     """
     supply_temperature = models.DecimalField(
         verbose_name=_('supply temperature'),
@@ -465,7 +416,7 @@ class CoolingTemperatureMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        help_text=_('Supply (cold) temperature')
+        help_text=_('Design supply (cold) temperature')
     )
     return_temperature = models.DecimalField(
         verbose_name=_('return temperature'),
@@ -473,7 +424,7 @@ class CoolingTemperatureMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        help_text=_('Return (warm) temperature')
+        help_text=_('Design return (warm) temperature')
     )
     temperature_unit = models.CharField(
         verbose_name=_('temperature unit'),

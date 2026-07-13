@@ -1597,7 +1597,7 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
         FieldSet('status', 'flow_direction', 'fluid_type', name=_('Attributes')),
         FieldSet(
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
             'return_temperature', 'temperature_unit', name=_('Characteristics')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -1658,22 +1658,13 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         label=_('Cooling capacity'),
         required=False
     )
-    flow_rate = forms.DecimalField(
-        label=_('Flow rate'),
+    rated_flow_rate = forms.DecimalField(
+        label=_('Rated flow rate'),
         required=False
     )
-    flow_rate_unit = forms.MultipleChoiceField(
-        label=_('Flow rate unit'),
+    rated_flow_rate_unit = forms.MultipleChoiceField(
+        label=_('Rated flow rate unit'),
         choices=FlowRateUnitChoices,
-        required=False
-    )
-    pressure = forms.DecimalField(
-        label=_('Pressure'),
-        required=False
-    )
-    pressure_unit = forms.MultipleChoiceField(
-        label=_('Pressure unit'),
-        choices=PressureUnitChoices,
         required=False
     )
     supply_temperature = forms.DecimalField(

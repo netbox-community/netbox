@@ -460,8 +460,7 @@ class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
     title = _('Cooling Characteristics')
 
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
-    flow_rate = attrs.NumericAttr('flow_rate', unit_accessor='get_flow_rate_unit_display')
-    pressure = attrs.NumericAttr('pressure', unit_accessor='get_pressure_unit_display')
+    rated_flow_rate = attrs.NumericAttr('rated_flow_rate', unit_accessor='get_rated_flow_rate_unit_display')
     supply_temperature = attrs.NumericAttr('supply_temperature', unit_accessor='get_temperature_unit_display')
     return_temperature = attrs.NumericAttr('return_temperature', unit_accessor='get_temperature_unit_display')
 

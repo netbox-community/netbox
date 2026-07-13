@@ -693,7 +693,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "flow_rate",
+                    "rated_flow_rate",
                     models.DecimalField(
                         blank=True,
                         decimal_places=2,
@@ -703,31 +703,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "flow_rate_unit",
+                    "rated_flow_rate_unit",
                     models.CharField(blank=True, max_length=50, null=True),
                 ),
                 (
-                    "_abs_flow_rate",
-                    models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=13, null=True
-                    ),
-                ),
-                (
-                    "pressure",
-                    models.DecimalField(
-                        blank=True,
-                        decimal_places=2,
-                        max_digits=8,
-                        null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
-                    ),
-                ),
-                (
-                    "pressure_unit",
-                    models.CharField(blank=True, max_length=50, null=True),
-                ),
-                (
-                    "_abs_pressure",
+                    "_abs_rated_flow_rate",
                     models.DecimalField(
                         blank=True, decimal_places=4, max_digits=13, null=True
                     ),

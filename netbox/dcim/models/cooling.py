@@ -7,7 +7,7 @@ from dcim.choices import *
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
-from .mixins import CoolingTemperatureMixin, FlowRateMixin, PressureMixin
+from .mixins import CoolingTemperatureMixin, RatedFlowRateMixin
 
 __all__ = (
     'CoolingFeed',
@@ -56,7 +56,7 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        help_text=_('Total cooling capacity (kW)')
+        help_text=_('Total rated cooling capacity (kW)')
     )
     # supply_temperature, return_temperature, temperature_unit, _abs_* provided by CoolingTemperatureMixin
 
@@ -96,11 +96,14 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
             )
 
 
-class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, PrimaryModel):
+class CoolingFeed(CoolingTemperatureMixin, RatedFlowRateMixin, PrimaryModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
     represented as separate feeds. A CoolingFeed supplies one or more CoolingPorts (referenced via
     CoolingPort.cooling_feed) rather than being cabled.
+
+    Flow rate and temperatures are design specifications (the intended operating envelope), not live
+    telemetry; runtime readings belong in an external monitoring system.
     """
     cooling_source = models.ForeignKey(
         to='CoolingSource',
@@ -145,10 +148,9 @@ class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, Primary
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        help_text=_('Cooling capacity (kW)')
+        help_text=_('Rated cooling capacity (kW)')
     )
-    # flow_rate, flow_rate_unit, _abs_flow_rate provided by FlowRateMixin
-    # pressure, pressure_unit, _abs_pressure provided by PressureMixin
+    # rated_flow_rate, rated_flow_rate_unit, _abs_rated_flow_rate provided by RatedFlowRateMixin
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -158,9 +160,8 @@ class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, Primary
     )
 
     clone_fields = (
-        'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity', 'flow_rate',
-        'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature', 'return_temperature', 'temperature_unit',
-        'tenant',
+        'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity', 'rated_flow_rate',
+        'rated_flow_rate_unit', 'supply_temperature', 'return_temperature', 'temperature_unit', 'tenant',
     )
     prerequisite_models = (
         'dcim.CoolingSource',

@@ -113,19 +113,12 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
-    flow_rate = tables.Column(
-        verbose_name=_('Flow Rate'),
-        order_by=('_abs_flow_rate',)
+    rated_flow_rate = tables.Column(
+        verbose_name=_('Rated Flow Rate'),
+        order_by=('_abs_rated_flow_rate',)
     )
-    flow_rate_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Flow Rate Unit'),
-    )
-    pressure = tables.Column(
-        verbose_name=_('Pressure'),
-        order_by=('_abs_pressure',)
-    )
-    pressure_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Pressure Unit'),
+    rated_flow_rate_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Rated Flow Rate Unit'),
     )
     supply_temperature = tables.Column(
         verbose_name=_('Supply Temperature'),
@@ -155,13 +148,13 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
         model = CoolingFeed
         fields = (
             'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'flow_direction', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
             'return_temperature', 'temperature_unit', 'tenant', 'tenant_group', 'description', 'comments', 'tags',
             'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity',
-            'flow_rate',
+            'rated_flow_rate',
         )
 
 
