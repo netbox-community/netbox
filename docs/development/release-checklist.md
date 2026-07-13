@@ -97,14 +97,23 @@ Notify the [`netbox-docker`](https://github.com/netbox-community/netbox-docker) 
 
 ### Update Python Dependencies
 
-Before each release, update each of NetBox's Python dependencies to its most recent stable version. These are defined in `requirements.txt`, which is updated from `base_requirements.txt` using `pip`. To do this:
+Before each release, update each of NetBox's Python dependencies to its most recent stable version. Loose runtime constraints (and per-package descriptions) live in `base_requirements.txt`; `requirements.txt` is the pinned, top-level dependency file consumed by the release archive, the git install flow (`upgrade.sh`), and the published wheel's dependency metadata. Optional dependency groups (for example `ldap`, `saml2`) are declared in `pyproject.toml`.
 
-1. Upgrade the installed version of all required packages in your environment (`pip install -U -r base_requirements.txt`).
-2. Run all tests and check that the UI and API function as expected.
-3. Review each requirement's release notes for any breaking or otherwise noteworthy changes.
-4. Update the package versions in `requirements.txt` as appropriate.
+To update the pinned requirements:
 
-In cases where upgrading a dependency to its most recent release is breaking, it should be constrained to its current minor version in `base_requirements.txt` with an explanatory comment and revisited for the next major NetBox release (see the [Address Constrained Dependencies](#address-constrained-dependencies) section above).
+1. Review each constraint in `base_requirements.txt`.
+2. Upgrade the installed version of all required packages in your environment (`pip install -U -r base_requirements.txt`).
+3. Run all tests and check that the UI and API function as expected.
+4. Review each requirement's release notes for any breaking or otherwise noteworthy changes.
+5. If upgrading a dependency is breaking, constrain it in `base_requirements.txt` with an explanatory comment and revisit it for the next major NetBox release (see the [Address Constrained Dependencies](#address-constrained-dependencies) section above).
+6. Update the pinned versions in `requirements.txt` to the versions you just tested. Keep `requirements.txt` in the existing bare `package==version` format (one top-level package per line, the same package set as `base_requirements.txt`).
+7. Verify there is no drift between the policy file and the pins:
+
+    ```no-highlight
+    python3 scripts/verify_dependencies.py
+    ```
+
+The published wheel's `Requires-Dist` is generated from `requirements.txt` at build time, so the package installs the same tested pins as the archive and git flows.
 
 ### Update UI Dependencies
 
@@ -143,7 +152,7 @@ Then, compile these portable (`.po`) files for use in the application:
 ### Update Version and Changelog
 
 * Update the version number and published date in `netbox/release.yaml`. Add or remove the designation (e.g. `beta1`) if applicable.
-* Copy the version number from `release.yaml` to `pyproject.toml` in the project root.
+* No manual `pyproject.toml` version edit is needed: the package version is derived automatically from `release.yaml` (`version` plus any `designation`) by the build backend.
 * Add a section for this release at the top of the changelog page for the minor version (e.g. `docs/release-notes/version-4.2.md`) listing all relevant changes made in this release.
 
 !!! tip
@@ -196,4 +205,25 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 * **Title:** Version and date (e.g. `v4.2.1 - 2025-01-17`)
 * **Description:** Copy from the pull request body, then promote the `###` headers to `##` ones
 
-Once created, the release will become available for users to install.
+Once created, the release will become available for users to install from GitHub.
+
+### Publish to Test PyPI
+
+Pushing a release tag triggers the Python package publishing workflow, which publishes the tagged release automatically to **Test PyPI** for maintainer validation. Installing NetBox via pip is not a supported installation path during the v4.6.x preview period; production PyPI publishing is planned for the v4.7.0 feature branch. A manual `workflow_dispatch` run publishes to Test PyPI only when the selected ref is a `v*` release tag; dispatching from a branch runs the build and verification jobs as a dry run without publishing.
+
+After a publish run completes:
+
+* Verify that the build, CLI smoke-test (`cli-smoke-test`), smoke-test, dependency-verification (`verify-dependencies`), and sdist-verification (`verify-sdist`) jobs succeeded. The dependency-verification job fails the release if `requirements.txt` has drifted from `base_requirements.txt` or if the built wheel's `Requires-Dist` does not match `requirements.txt`; the sdist-verification job fails it if the sdist ships unexpected configuration files or cannot rebuild a valid wheel.
+* Verify that the publish job used the expected trusted-publishing environment (`testpypi`).
+* Confirm that the new version is visible on Test PyPI.
+* Install the published wheel into a fresh virtual environment and run `netbox check` against a minimal configuration module. The preview artifact is published to Test PyPI while NetBox's pinned runtime dependencies are expected to resolve from PyPI; to avoid mixed-index dependency resolution during validation, install the pinned dependencies from PyPI first, then install the Test PyPI artifact without resolving dependencies again:
+
+    ```no-highlight
+    pip install -r requirements.txt
+    pip install --no-deps --index-url https://test.pypi.org/simple/ netbox==<version>
+    ```
+
+!!! note "Trusted publishing prerequisites"
+    Publishing requires a one-time setup by the project owners: a `netbox` project and a configured GitHub trusted publisher on Test PyPI, plus the corresponding `testpypi` GitHub Actions environment.
+
+The published package version is derived from `netbox/release.yaml` (the `version` field plus any `designation`, e.g. `beta1` becomes `4.7.0b1`), not from the git tag. Ensure the tag and `release.yaml` agree before tagging a pre-release.

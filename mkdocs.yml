@@ -331,6 +331,7 @@ nav:
         - Internationalization: 'development/internationalization.md'
         - Translations: 'development/translations.md'
         - Release Checklist: 'development/release-checklist.md'
+        - Building the Package: 'development/building-the-package.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
