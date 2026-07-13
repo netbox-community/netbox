@@ -210,12 +210,16 @@ def reconcile_port_mappings(mapping_model, parent_field, parent, desired):
         return tuple(get(f) for f in value_fields)
 
     desired_by_key = {d[key_field]: d for d in desired}
-    existing = {
-        getattr(m, key_field): m
-        for m in mapping_model.objects.filter(**{parent_field: parent})
-    }
 
     with transaction.atomic(using=router.db_for_write(mapping_model)):
+        # Lock the parent's existing mappings for the duration of the reconcile. Two requests editing
+        # the same port would otherwise read the same snapshot and race, the second colliding on a
+        # unique constraint when it recreates rows the first has already committed.
+        existing = {
+            getattr(m, key_field): m
+            for m in mapping_model.objects.filter(**{parent_field: parent}).select_for_update()
+        }
+
         # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
         for key, mapping in existing.items():
             if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):

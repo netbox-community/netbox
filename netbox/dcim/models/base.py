@@ -29,6 +29,8 @@ class PortMappingBase(models.Model):
         ),
     )
 
+    # Change-logged but private: no public API/URL, and the delete-time UPDATE cascade onto the
+    # parent ports stays suppressed (see #21390, #22270).
     _netbox_private = True
 
     class Meta:

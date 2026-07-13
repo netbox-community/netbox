@@ -2,6 +2,8 @@ import uuid
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase, tag
+from django.urls import reverse
+from rest_framework import status
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
@@ -22,6 +24,7 @@ from dcim.models import (
 from dcim.utils import reconcile_port_mappings
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.testing import APITestCase
 
 
 def _build_request(user):
@@ -253,3 +256,106 @@ class ReconcilePortTemplateMappingsTestCase(TestCase):
 
         self.assertEqual(self._mapping_changes().count(), 0)
         self.assertEqual(PortTemplateMapping.objects.get(front_port=self.front_port).pk, original_pk)
+
+
+class PortMappingAPITestCase(APITestCase):
+    """
+    Exercise the reconcile behaviour through PortSerializer.create()/update() over the REST API,
+    covering the model-instance -> _id normalization in PortSerializer._reconcile_mappings.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.device = Device.objects.create(device_type=device_type, role=role, name='Device 1', site=site)
+
+        cls.rear_ports = [
+            RearPort.objects.create(
+                device=cls.device, name=f'Rear Port {i}', type=PortTypeChoices.TYPE_8P8C, positions=4
+            )
+            for i in range(1, 4)
+        ]
+
+        # An existing front port with two mappings, for the update/PATCH tests.
+        cls.front_port = FrontPort.objects.create(
+            device=cls.device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, positions=2
+        )
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=cls.device, front_port=cls.front_port, front_port_position=1,
+                rear_port=cls.rear_ports[0], rear_port_position=1,
+            ),
+            PortMapping(
+                device=cls.device, front_port=cls.front_port, front_port_position=2,
+                rear_port=cls.rear_ports[1], rear_port_position=1,
+            ),
+        ])
+
+    def _mapping_pks(self, front_port):
+        return set(PortMapping.objects.filter(front_port=front_port).values_list('pk', flat=True))
+
+    def _mapping_creates(self):
+        return ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(PortMapping),
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+        )
+
+    def test_create_records_mappings_and_changelog(self):
+        # Confirms PortSerializer.create() + _reconcile_mappings normalization (rear_port instance ->
+        # rear_port_id) writes the mappings and records their ObjectChanges.
+        self.add_permissions('dcim.add_frontport', 'dcim.view_frontport', 'dcim.view_rearport', 'dcim.view_device')
+        data = {
+            'device': self.device.pk,
+            'name': 'Front Port 2',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [
+                {'position': 1, 'rear_port': self.rear_ports[2].pk, 'rear_port_position': 1},
+                {'position': 2, 'rear_port': self.rear_ports[2].pk, 'rear_port_position': 2},
+            ],
+        }
+        response = self.client.post(reverse('dcim-api:frontport-list'), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        front_port = FrontPort.objects.get(pk=response.data['id'])
+        mappings = PortMapping.objects.filter(front_port=front_port).order_by('front_port_position')
+        self.assertEqual(mappings.count(), 2)
+        self.assertEqual(mappings[0].rear_port_id, self.rear_ports[2].pk)
+        self.assertEqual(mappings[1].rear_port_position, 2)
+        self.assertEqual(
+            self._mapping_creates().filter(changed_object_id__in=mappings.values_list('pk', flat=True)).count(), 2
+        )
+
+    def test_update_omitting_rear_ports_preserves_mappings(self):
+        # A PATCH that omits rear_ports must leave the existing mappings untouched.
+        self.add_permissions('dcim.change_frontport', 'dcim.view_frontport')
+        url = reverse('dcim-api:frontport-detail', kwargs={'pk': self.front_port.pk})
+        original_pks = self._mapping_pks(self.front_port)
+
+        response = self.client.patch(url, {'description': 'Updated'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(self._mapping_pks(self.front_port), original_pks)
+
+    def test_update_rewires_mappings(self):
+        # Re-point both slots to new rear port pairs; reconcile deletes the old rows and creates the
+        # replacements.
+        self.add_permissions('dcim.change_frontport', 'dcim.view_frontport', 'dcim.view_rearport', 'dcim.view_device')
+        url = reverse('dcim-api:frontport-detail', kwargs={'pk': self.front_port.pk})
+        original_pks = self._mapping_pks(self.front_port)
+
+        data = {
+            'rear_ports': [
+                {'position': 1, 'rear_port': self.rear_ports[2].pk, 'rear_port_position': 3},
+                {'position': 2, 'rear_port': self.rear_ports[2].pk, 'rear_port_position': 4},
+            ],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        mappings = PortMapping.objects.filter(front_port=self.front_port).order_by('front_port_position')
+        self.assertEqual([m.rear_port_id for m in mappings], [self.rear_ports[2].pk, self.rear_ports[2].pk])
+        self.assertEqual([m.rear_port_position for m in mappings], [3, 4])
+        self.assertTrue(self._mapping_pks(self.front_port).isdisjoint(original_pks))
