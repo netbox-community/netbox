@@ -168,36 +168,25 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
-    # bulk_create() intentionally bypasses save()/signals here: this is device instantiation, where
-    # every other component (interfaces, ports, etc.) is likewise bulk-created without emitting its
-    # own ObjectChange. The Device's creation is the changelog event; the replicated mappings are
-    # part of that initial state, not independent changes. Later edits (via reconcile_port_mappings)
-    # are change-logged normally.
+    # Bulk-created (no per-mapping ObjectChange) to match how every other component is instantiated.
     PortMapping.objects.bulk_create(mappings)
 
 
 def reconcile_port_mappings(mapping_model, parent_field, parent, desired):
     """
     Reconcile a parent port's mappings against `desired`, writing only the difference so unchanged
-    mappings keep their PK (and emit no changelog entry).
-
-    `parent_field` ('front_port' or 'rear_port') identifies the side being edited; its
-    '<parent_field>_position' is each mapping's stable identity within the set. Removed or re-pointed
-    rows are deleted before any replacement is created (safe against transient unique-constraint
-    violations, e.g. swapping two positions); unchanged rows are left untouched. Per-row
-    create()/delete() are used so the change-logging signals fire naturally. The whole reconciliation
-    runs in a single transaction so a failed create() cannot leave slots deleted-but-not-recreated.
-
-    Every created row's `device`/`device_type`/`module_type` is derived by the model's own save()
-    from its front port, so callers only supply the opposite-port FK and positions.
+    mappings keep their PK (and emit no changelog entry). Changed/removed rows are deleted before
+    replacements are created, all in one transaction, so position swaps don't trip the unique
+    constraint. Per-row create()/delete() let the change-logging signals fire naturally.
 
     Args:
         mapping_model: PortMapping or PortTemplateMapping.
-        parent_field: 'front_port' or 'rear_port' — the side being edited.
+        parent_field: 'front_port' or 'rear_port' — the side being edited; its '<parent_field>_position'
+            is each mapping's stable identity within the set.
         parent: the parent instance (FrontPort/RearPort or their templates).
         desired: iterable of dicts of mapping field values EXCLUDING the parent FK, using '<field>_id'
-            for the opposite-port FK. For a front-port edit, e.g.:
-            {'front_port_position': 1, 'rear_port_id': 5, 'rear_port_position': 2}.
+            for the opposite-port FK, e.g. {'front_port_position': 1, 'rear_port_id': 5,
+            'rear_port_position': 2}. save() derives device/device_type/module_type from the front port.
     """
     key_field = f'{parent_field}_position'
     other_field = 'rear_port' if parent_field == 'front_port' else 'front_port'
