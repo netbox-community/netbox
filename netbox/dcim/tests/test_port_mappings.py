@@ -225,7 +225,6 @@ class ReconcilePortTemplateMappingsTestCase(TestCase):
                 parent_field='front_port',
                 parent=self.front_port,
                 desired=desired,
-                extra={'device_type_id': self.device_type.pk, 'module_type_id': None},
             )
 
     def _mapping_changes(self, action=None):

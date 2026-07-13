@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortTemplateMapping, Site
+from dcim.models import Site
 from dcim.utils import reconcile_port_mappings
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
@@ -203,16 +203,6 @@ class FrontPortFormMixin(forms.Form):
     def _save_m2m(self):
         super()._save_m2m()
 
-        if self.port_mapping_model is PortTemplateMapping:
-            extra = {
-                'device_type_id': self.instance.device_type_id,
-                'module_type_id': self.instance.module_type_id,
-            }
-        else:
-            extra = {
-                'device_id': self.instance.device_id,
-            }
-
         # Build the desired set of mappings from the submitted rear port pairs, assigning front port
         # positions in order. reconcile_port_mappings() then writes only the difference, so re-saving
         # a front port without changing its wiring produces no writes (and no changelog churn).
@@ -230,7 +220,6 @@ class FrontPortFormMixin(forms.Form):
             parent_field='front_port',
             parent=self.instance,
             desired=desired,
-            extra=extra,
         )
 
     def _get_rear_port_choices(self, parent_filter, front_port):

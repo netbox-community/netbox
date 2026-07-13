@@ -168,10 +168,15 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
+    # bulk_create() intentionally bypasses save()/signals here: this is device instantiation, where
+    # every other component (interfaces, ports, etc.) is likewise bulk-created without emitting its
+    # own ObjectChange. The Device's creation is the changelog event; the replicated mappings are
+    # part of that initial state, not independent changes. Later edits (via reconcile_port_mappings)
+    # are change-logged normally.
     PortMapping.objects.bulk_create(mappings)
 
 
-def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=None):
+def reconcile_port_mappings(mapping_model, parent_field, parent, desired):
     """
     Reconcile a parent port's mappings against `desired`, writing only the difference so unchanged
     mappings keep their PK (and emit no changelog entry).
@@ -180,7 +185,11 @@ def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=
     '<parent_field>_position' is each mapping's stable identity within the set. Removed or re-pointed
     rows are deleted before any replacement is created (safe against transient unique-constraint
     violations, e.g. swapping two positions); unchanged rows are left untouched. Per-row
-    create()/delete() are used so the change-logging signals fire naturally.
+    create()/delete() are used so the change-logging signals fire naturally. The whole reconciliation
+    runs in a single transaction so a failed create() cannot leave slots deleted-but-not-recreated.
+
+    Every created row's `device`/`device_type`/`module_type` is derived by the model's own save()
+    from its front port, so callers only supply the opposite-port FK and positions.
 
     Args:
         mapping_model: PortMapping or PortTemplateMapping.
@@ -189,11 +198,7 @@ def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=
         desired: iterable of dicts of mapping field values EXCLUDING the parent FK, using '<field>_id'
             for the opposite-port FK. For a front-port edit, e.g.:
             {'front_port_position': 1, 'rear_port_id': 5, 'rear_port_position': 2}.
-        extra: optional dict of fields applied to every created row (e.g. the device_type/module_type
-            of a template mapping). Omit to let Model.save() derive them (PortMapping derives `device`
-            from its front port).
     """
-    extra = extra or {}
     key_field = f'{parent_field}_position'
     other_field = 'rear_port' if parent_field == 'front_port' else 'front_port'
     value_fields = (f'{other_field}_id', f'{other_field}_position')
@@ -210,12 +215,13 @@ def reconcile_port_mappings(mapping_model, parent_field, parent, desired, extra=
         for m in mapping_model.objects.filter(**{parent_field: parent})
     }
 
-    # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
-    for key, mapping in existing.items():
-        if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):
-            mapping.delete()
+    with transaction.atomic(using=router.db_for_write(mapping_model)):
+        # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
+        for key, mapping in existing.items():
+            if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):
+                mapping.delete()
 
-    # Create rows that are new or whose target changed
-    for key, attrs in desired_by_key.items():
-        if key not in existing or target(existing[key]) != target(attrs):
-            mapping_model.objects.create(**{parent_field: parent, **extra, **attrs})
+        # Create rows that are new or whose target changed
+        for key, attrs in desired_by_key.items():
+            if key not in existing or target(existing[key]) != target(attrs):
+                mapping_model.objects.create(**{parent_field: parent, **attrs})
