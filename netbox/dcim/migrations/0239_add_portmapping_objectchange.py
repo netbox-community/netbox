@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("dcim", "0237_module_remove_local_context_data"),
+        ("dcim", "0238_alter_cable__abs_length"),
     ]
 
     operations = [
