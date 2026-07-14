@@ -9,6 +9,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
 
+from netbox.settings_utils import load_ldap_config
 from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import Group, ObjectPermission, User
 from utilities.permissions import (
@@ -344,15 +345,10 @@ class LDAPBackend:
                 )
             raise e
 
-        try:
-            from netbox import ldap_config
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'ldap_config':
-                raise ImproperlyConfigured(
-                    "LDAP configuration file not found: Check that ldap_config.py has been created alongside "
-                    "configuration.py."
-                )
-            raise e
+        ldap_config = load_ldap_config(
+            settings.CONFIGURATION_DIR,
+            allow_legacy_fallback=settings.NETBOX_INSTALL_MODE == 'checkout',
+        )
 
         try:
             getattr(ldap_config, 'AUTH_LDAP_SERVER_URI')
@@ -364,11 +360,11 @@ class LDAPBackend:
         obj = NBLDAPBackend()
 
         # Read LDAP configuration parameters from ldap_config.py instead of settings.py
-        settings = LDAPSettings()
+        ldap_settings = LDAPSettings()
         for param in dir(ldap_config):
-            if param.startswith(settings._prefix):
-                setattr(settings, param[10:], getattr(ldap_config, param))
-        obj.settings = settings
+            if param.startswith(ldap_settings._prefix):
+                setattr(ldap_settings, param[10:], getattr(ldap_config, param))
+        obj.settings = ldap_settings
 
         # Optionally disable strict certificate checking
         if getattr(ldap_config, 'LDAP_IGNORE_CERT_ERRORS', False):

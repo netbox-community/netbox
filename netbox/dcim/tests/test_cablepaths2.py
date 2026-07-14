@@ -1,10 +1,11 @@
 from unittest import skip
 
-from circuits.models import CircuitTermination
-from dcim.choices import CableProfileChoices
+from circuits.models import Circuit, CircuitTermination, ProviderNetwork
+from dcim.choices import CableLengthUnitChoices, CableProfileChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
+from netbox.choices import DistanceUnitChoices
 
 
 class CablePathTestCase(BaseCablePathTestCase):
@@ -1953,6 +1954,362 @@ class CablePathTestCase(BaseCablePathTestCase):
         CableTraceSVG(interfaces[0]).render()
         CableTraceSVG(interfaces[1]).render()
         CableTraceSVG(interfaces[2]).render()
+
+    def test_226_total_length_via_circuit(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --C2-- [IF2]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='Z'
+        )
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1]
+        )
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[circuittermination2],
+            b_terminations=[interface2]
+        )
+        cable2.clean()
+        cable2.save()
+
+        # Check for complete paths in both directions
+        paths = [
+            self.assertPathExists(
+                (interface1, cable1, circuittermination1, circuittermination2, cable2, interface2),
+                is_complete=True,
+                is_active=True
+            ),
+            self.assertPathExists(
+                (interface2, cable2, circuittermination2, circuittermination1, cable1, interface1),
+                is_complete=True,
+                is_active=True
+            ),
+        ]
+
+        # The crossed circuit's distance counts toward the total path length
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (10400, True))
+
+        # An unset circuit distance makes the total length non-definitive
+        self.circuit.distance = None
+        self.circuit.save()
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (400, False))
+
+        # A circuit distance of zero is a known value and remains definitive
+        self.circuit.distance = 0
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (400, True))
+
+    def test_227_total_length_via_circuit_without_peer_termination(self):
+        """
+        [IF1] --C1-- [CT1]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1]
+        )
+        cable1.clean()
+        cable1.save()
+
+        # The distance of a circuit which the path does not cross is excluded
+        path = self.assertPathExists(
+            (interface1, cable1, circuittermination1),
+            is_complete=False
+        )
+        self.assertEqual(path.get_total_length(), (200, True))
+
+    def test_228_total_length_via_multiple_circuits(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --C2-- [CT3] [CT4] --C3-- [IF2]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+        circuit2 = Circuit.objects.create(
+            provider=self.circuit.provider,
+            type=self.circuit.type,
+            cid='Circuit 2',
+            distance=5,
+            distance_unit=DistanceUnitChoices.UNIT_KILOMETER
+        )
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='Z'
+        )
+        circuittermination3 = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination4 = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='Z'
+        )
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1]
+        )
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=100,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[circuittermination2],
+            b_terminations=[circuittermination3]
+        )
+        cable2.clean()
+        cable2.save()
+        cable3 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[circuittermination4],
+            b_terminations=[interface2]
+        )
+        cable3.clean()
+        cable3.save()
+
+        # Check for complete paths in both directions
+        paths = [
+            self.assertPathExists(
+                (
+                    interface1, cable1, circuittermination1, circuittermination2, cable2, circuittermination3,
+                    circuittermination4, cable3, interface2,
+                ),
+                is_complete=True,
+                is_active=True
+            ),
+            self.assertPathExists(
+                (
+                    interface2, cable3, circuittermination4, circuittermination3, cable2, circuittermination2,
+                    circuittermination1, cable1, interface1,
+                ),
+                is_complete=True,
+                is_active=True
+            ),
+        ]
+
+        # Each crossed circuit adds its distance to the total path length
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (15500, True))
+
+    def test_229_total_length_via_circuit_to_site(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --> [Site2]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        site2 = Site.objects.create(name='Site 2', slug='site-2')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=site2,
+            term_side='Z'
+        )
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1]
+        )
+        cable1.clean()
+        cable1.save()
+
+        # The distance of a circuit crossed to reach its far-side site counts toward the total length
+        path = self.assertPathExists(
+            (interface1, cable1, circuittermination1, circuittermination2, site2),
+            is_active=True
+        )
+        self.assertEqual(path.get_total_length(), (10200, True))
+
+    def test_230_total_length_via_circuit_to_providernetwork(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --> [PN1]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        providernetwork = ProviderNetwork.objects.create(name='Provider Network 1', provider=self.circuit.provider)
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=providernetwork,
+            term_side='Z'
+        )
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C1P,
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1]
+        )
+        cable1.clean()
+        cable1.save()
+
+        # The distance of a circuit crossed to reach a provider network counts toward the total length
+        path = self.assertPathExists(
+            (interface1, cable1, circuittermination1, circuittermination2, providernetwork),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(path.get_total_length(), (10200, True))
+
+    def test_231_total_length_via_parallel_circuits(self):
+        """
+        [IF1] --C1-- [CT1_A] [CT1_Z] --C2-- [IF2]
+                     [CT2_A] [CT2_Z]
+        """
+        self.circuit.distance = 10
+        self.circuit.distance_unit = DistanceUnitChoices.UNIT_KILOMETER
+        self.circuit.save()
+        circuit2 = Circuit.objects.create(
+            provider=self.circuit.provider,
+            type=self.circuit.type,
+            cid='Circuit 2',
+            distance=5,
+            distance_unit=DistanceUnitChoices.UNIT_KILOMETER
+        )
+
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1_A = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination1_Z = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='Z'
+        )
+        circuittermination2_A = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2_Z = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='Z'
+        )
+
+        # Create cables
+        cable1 = Cable(
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1_A, circuittermination2_A]
+        )
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(
+            length=200,
+            length_unit=CableLengthUnitChoices.UNIT_METER,
+            a_terminations=[circuittermination1_Z, circuittermination2_Z],
+            b_terminations=[interface2]
+        )
+        cable2.clean()
+        cable2.save()
+
+        # Check for complete paths in both directions
+        paths = [
+            self.assertPathExists(
+                (
+                    interface1, cable1, (circuittermination1_A, circuittermination2_A),
+                    (circuittermination1_Z, circuittermination2_Z), cable2, interface2,
+                ),
+                is_complete=True,
+                is_active=True
+            ),
+            self.assertPathExists(
+                (
+                    interface2, cable2, (circuittermination1_Z, circuittermination2_Z),
+                    (circuittermination1_A, circuittermination2_A), cable1, interface1,
+                ),
+                is_complete=True,
+                is_active=True
+            ),
+        ]
+
+        # Parallel circuits crossed in the same hop count only the longest distance
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (10400, True))
+
+        # An unset distance on one parallel circuit keeps the longest known distance but is non-definitive
+        circuit2.distance = None
+        circuit2.save()
+        for path in paths:
+            self.assertEqual(path.get_total_length(), (10400, False))
 
     def test_304_add_port_mapping_between_connected_ports(self):
         """

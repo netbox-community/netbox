@@ -18,6 +18,7 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from netbox.settings_utils import get_configuration_dir, load_configuration, resolve_install_paths, secret_key_hint
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
@@ -30,8 +31,18 @@ from .monkey import get_unique_validators
 
 RELEASE = load_release_data()
 VERSION = RELEASE.full_version  # Retained for backward compatibility
-# Set the base directory two levels up
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Settings package directory (settings.py lives here in both checkout & wheel).
+_SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# All wheel-vs-checkout path branching is centralized in resolve_install_paths(): a wheel
+# bundles package data under netbox/_data and keeps mutable instance files under an external
+# instance root (NETBOX_ROOT, default /opt/netbox); a checkout keeps both roots as the project
+# directory, so archive/git behavior is unchanged.
+_PATHS = resolve_install_paths(_SETTINGS_DIR, os.environ)
+NETBOX_INSTALL_MODE = _PATHS.install_mode
+BASE_DIR = _PATHS.base_dir
+# Instance root for wheel installs (holds conf/, media/, reports/, scripts/, static/, units).
+NETBOX_ROOT = _PATHS.netbox_root
 
 # Validate the Python version
 if sys.version_info < (3, 12):  # noqa: UP036
@@ -43,17 +54,15 @@ if sys.version_info < (3, 12):  # noqa: UP036
 # Configuration import
 #
 
-# Import the configuration module
-config_path = os.getenv('NETBOX_CONFIGURATION', 'netbox.configuration')
-try:
-    configuration = importlib.import_module(config_path)
-except ModuleNotFoundError as e:
-    if getattr(e, 'name') == config_path:
-        raise ImproperlyConfigured(
-            f"Specified configuration module ({config_path}) not found. Please define netbox/netbox/configuration.py "
-            f"per the documentation, or specify an alternate module in the NETBOX_CONFIGURATION environment variable."
-        )
-    raise
+# Import the configuration module (wheel mode prefers NETBOX_ROOT/conf/configuration.py).
+configuration = load_configuration(
+    install_mode=NETBOX_INSTALL_MODE,
+    install_root=NETBOX_ROOT,
+    environ=os.environ,
+)
+
+# The directory holding the active configuration.py; ldap_config.py lives beside it.
+CONFIGURATION_DIR = get_configuration_dir(configuration)
 
 # Check for missing/conflicting required configuration parameters
 for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
@@ -119,7 +128,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
+DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', _PATHS.docs_root)
 EMAIL = getattr(configuration, 'EMAIL', {})
 STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
@@ -150,7 +159,7 @@ LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 LOGIN_FORM_HIDDEN = getattr(configuration, 'LOGIN_FORM_HIDDEN', False)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
-MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
+MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media')).rstrip('/')
 METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
@@ -175,7 +184,7 @@ REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_
 REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
 REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
 # Required by extras/migrations/0109_script_models.py
-REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
+REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(NETBOX_ROOT, 'reports')).rstrip('/')
 RQ = getattr(configuration, 'RQ', {})
 if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWorker':
     warnings.warn(
@@ -187,7 +196,7 @@ else:
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
 RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
-SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
+SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')  # Required
 SECURE_HSTS_INCLUDE_SUBDOMAINS = getattr(configuration, 'SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
@@ -232,7 +241,7 @@ if type(SECRET_KEY) is not str:
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured(
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
-        f"  python {BASE_DIR}/generate_secret_key.py"
+        f"  {secret_key_hint(NETBOX_INSTALL_MODE, BASE_DIR)}"
     )
 
 # Validate API token peppers
@@ -594,13 +603,16 @@ USE_X_FORWARDED_HOST = True
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Static files (CSS, JavaScript, Images)
-STATIC_ROOT = BASE_DIR + '/static'
+# STATIC_ROOT is deliberately not a configuration parameter; static files are collected to <NETBOX_ROOT>/static.
+STATIC_ROOT = os.path.join(NETBOX_ROOT, 'static')
 STATIC_URL = f'/{BASE_PATH}static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'project-static', 'dist'),
     os.path.join(BASE_DIR, 'project-static', 'img'),
     os.path.join(BASE_DIR, 'project-static', 'js'),
-    ('docs', os.path.join(BASE_DIR, 'project-static', 'docs')),  # Prefix with /docs
+    # May not exist on a checkout until `manage.py upgrade --build-docs` runs (wheels bundle
+    # the pre-rendered site); collectstatic tolerates that.
+    ('docs', _PATHS.static_docs_root),  # Prefix with /docs
 )
 
 # Media URL
@@ -886,6 +898,7 @@ LANGUAGES = (
     ('fr', _('French')),
     ('it', _('Italian')),
     ('ja', _('Japanese')),
+    ('ko', _('Korean')),
     ('lv', _('Latvian')),
     ('nl', _('Dutch')),
     ('pl', _('Polish')),

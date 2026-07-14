@@ -179,7 +179,7 @@ LOGOUT_REDIRECT_URL = 'home'
 
 # The file path where uploaded media such as image attachments are stored. A trailing slash is not needed. Note that
 # the default value of this setting is derived from the installed location.
-# MEDIA_ROOT = '/opt/netbox/netbox/media'
+# MEDIA_ROOT = '/path/to/netbox/media'
 
 # Expose Prometheus monitoring metrics at the HTTP endpoint '/metrics'
 METRICS_ENABLED = False
@@ -214,14 +214,14 @@ RELEASE_CHECK_URL = None
 
 # The file path where custom reports will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
-# REPORTS_ROOT = '/opt/netbox/netbox/reports'
+# REPORTS_ROOT = '/path/to/netbox/reports'
 
 # Maximum execution time for background tasks, in seconds.
 RQ_DEFAULT_TIMEOUT = 300
 
 # The file path where custom scripts will be stored. A trailing slash is not needed. Note that the default value of
 # this setting is derived from the installed location.
-# SCRIPTS_ROOT = '/opt/netbox/netbox/scripts'
+# SCRIPTS_ROOT = '/path/to/netbox/scripts'
 
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'

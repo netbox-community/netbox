@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-08 05:58+0000\n"
+"POT-Creation-Date: 2026-07-14 05:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8253,7 +8253,7 @@ msgstr ""
 msgid "Unknown related object(s): {name}"
 msgstr ""
 
-#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:255
+#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:256
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw "
 "rendered content is returned in place of the JSON object."
@@ -8263,7 +8263,7 @@ msgstr ""
 msgid "No config template could be resolved for this object."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:261
+#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:262
 msgid "An error occurred while rendering the config template."
 msgstr ""
 
@@ -8291,23 +8291,38 @@ msgstr ""
 msgid "Changing the type of custom fields is not supported."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:45
-#: netbox/extras/api/serializers_/scripts.py:74
+#: netbox/extras/api/serializers_/scripts.py:46
+#: netbox/extras/api/serializers_/scripts.py:84
 msgid "A script module with this file name already exists."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:57
+#: netbox/extras/api/serializers_/scripts.py:49
+msgid "This field is required."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:53
+#, python-brace-format
+msgid "The uploaded file name must match the existing file path ({path})."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:67
 #: netbox/extras/forms/scripts.py:91 netbox/extras/forms/scripts.py:100
 #, python-brace-format
 msgid "Error loading script: {error}"
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:158
-#: netbox/extras/api/serializers_/scripts.py:168
+#: netbox/extras/api/serializers_/scripts.py:113
+msgid ""
+"The scripts storage backend did not overwrite the existing file. Ensure the "
+"backend is configured to allow overwrites."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:197
+#: netbox/extras/api/serializers_/scripts.py:207
 msgid "Scheduling is not enabled for this script."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:160
+#: netbox/extras/api/serializers_/scripts.py:199
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr ""
@@ -9402,12 +9417,12 @@ msgstr ""
 msgid "config templates"
 msgstr ""
 
-#: netbox/extras/models/configs.py:330
+#: netbox/extras/models/configs.py:340
 #, python-brace-format
 msgid "Template: {name}"
 msgstr ""
 
-#: netbox/extras/models/configs.py:332
+#: netbox/extras/models/configs.py:342
 #, python-brace-format
 msgid "Line: {lineno}"
 msgstr ""
@@ -10372,11 +10387,11 @@ msgstr ""
 msgid "Method"
 msgstr ""
 
-#: netbox/extras/templatetags/dashboard.py:15
+#: netbox/extras/templatetags/dashboard.py:16
 msgid "An error was encountered when attempting to render this widget:"
 msgstr ""
 
-#: netbox/extras/templatetags/dashboard.py:16
+#: netbox/extras/templatetags/dashboard.py:17
 msgid "Please try reconfiguring the widget, or remove it from your dashboard."
 msgstr ""
 
@@ -12143,11 +12158,6 @@ msgstr ""
 msgid "{class_name} must implement get_view_name()"
 msgstr ""
 
-#: netbox/netbox/authentication/__init__.py:143
-#, python-brace-format
-msgid "Invalid permission {permission} for model {model}"
-msgstr ""
-
 #: netbox/netbox/choices.py:51
 msgid "Dark Red"
 msgstr ""
@@ -13191,67 +13201,71 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:881
+#: netbox/netbox/settings.py:893
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:882
+#: netbox/netbox/settings.py:894
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:883
+#: netbox/netbox/settings.py:895
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:884
+#: netbox/netbox/settings.py:896
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:885
+#: netbox/netbox/settings.py:897
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:886
+#: netbox/netbox/settings.py:898
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:887
+#: netbox/netbox/settings.py:899
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:888
+#: netbox/netbox/settings.py:900
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:889
+#: netbox/netbox/settings.py:901
+msgid "Korean"
+msgstr ""
+
+#: netbox/netbox/settings.py:902
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:890
+#: netbox/netbox/settings.py:903
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:891
+#: netbox/netbox/settings.py:904
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:892
+#: netbox/netbox/settings.py:905
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:893
+#: netbox/netbox/settings.py:906
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:894
+#: netbox/netbox/settings.py:907
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:895
+#: netbox/netbox/settings.py:908
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:896
+#: netbox/netbox/settings.py:909
 msgid "Chinese"
 msgstr ""
 
@@ -13343,90 +13357,98 @@ msgstr ""
 msgid "{value}: {field}: {error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:506
+#: netbox/netbox/views/generic/bulk_views.py:503
 msgid "Must be a list."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:516
+#: netbox/netbox/views/generic/bulk_views.py:513
 msgid "Must be a dictionary."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:573
+#: netbox/netbox/views/generic/bulk_views.py:570
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:636
+#: netbox/netbox/views/generic/bulk_views.py:633
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:688
+#: netbox/netbox/views/generic/bulk_views.py:650
+#, python-brace-format
+msgid ""
+"This import includes {count} record(s) that reference an existing object by "
+"ID and would update it, which requires the {permission} permission. Remove "
+"the ID column to create new objects instead."
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:715
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:704
+#: netbox/netbox/views/generic/bulk_views.py:728
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:818
+#: netbox/netbox/views/generic/bulk_views.py:842
 #, python-brace-format
 msgid "Custom field form field name must begin with 'cf_': {name}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:897
+#: netbox/netbox/views/generic/bulk_views.py:921
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:913
+#: netbox/netbox/views/generic/bulk_views.py:937
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:946
-#: netbox/netbox/views/generic/bulk_views.py:1225
-#: netbox/netbox/views/generic/bulk_views.py:1273
+#: netbox/netbox/views/generic/bulk_views.py:970
+#: netbox/netbox/views/generic/bulk_views.py:1249
+#: netbox/netbox/views/generic/bulk_views.py:1297
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1053
+#: netbox/netbox/views/generic/bulk_views.py:1077
 msgid "Select at least one field to rename."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1083
+#: netbox/netbox/views/generic/bulk_views.py:1107
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1154
+#: netbox/netbox/views/generic/bulk_views.py:1178
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1181
+#: netbox/netbox/views/generic/bulk_views.py:1205
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1198
+#: netbox/netbox/views/generic/bulk_views.py:1222
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1286
+#: netbox/netbox/views/generic/bulk_views.py:1310
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1339
+#: netbox/netbox/views/generic/bulk_views.py:1363
 msgid "An integrity error occurred while creating components"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1351
+#: netbox/netbox/views/generic/bulk_views.py:1375
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr ""
@@ -16838,7 +16860,7 @@ msgstr ""
 msgid "Selected"
 msgstr ""
 
-#: netbox/utilities/testing/views.py:753
+#: netbox/utilities/testing/views.py:754 netbox/utilities/testing/views.py:799
 msgid "The test must define csv_update_data."
 msgstr ""
 

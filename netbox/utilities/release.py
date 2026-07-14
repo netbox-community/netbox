@@ -1,4 +1,5 @@
 import datetime
+import importlib.util
 import os
 from dataclasses import asdict, dataclass, field
 
@@ -9,6 +10,28 @@ from utilities.datetime import datetime_from_timestamp
 
 RELEASE_PATH = 'release.yaml'
 LOCAL_RELEASE_PATH = 'local/release.yaml'
+
+
+def _find_release_base_path():
+    """
+    Return the directory containing release.yaml.
+
+    In a source checkout, release.yaml lives under the NetBox application root
+    beside manage.py. In a wheel install, release.yaml is bundled under the
+    installed netbox package's _data directory.
+    """
+    checkout_base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if os.path.isfile(os.path.join(checkout_base_path, RELEASE_PATH)):
+        return checkout_base_path
+
+    spec = importlib.util.find_spec('netbox')  # pragma: no cover
+    locations = spec.submodule_search_locations if spec is not None else ()  # pragma: no cover
+    for location in locations or ():  # pragma: no cover
+        bundled_base_path = os.path.join(location, '_data')
+        if os.path.isfile(os.path.join(bundled_base_path, RELEASE_PATH)):
+            return bundled_base_path
+
+    raise ImproperlyConfigured(f"Unable to locate {RELEASE_PATH} for this NetBox installation.")  # pragma: no cover
 
 
 @dataclass
@@ -53,7 +76,7 @@ def load_release_data():
     """
     Load any locally-defined release attributes and return a ReleaseInfo instance.
     """
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_path = _find_release_base_path()
 
     # Load canonical release attributes
     with open(os.path.join(base_path, RELEASE_PATH)) as release_file:

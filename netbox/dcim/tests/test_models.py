@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
@@ -2226,6 +2228,32 @@ class CableTestCase(TestCase):
         cable = Cable.objects.first()
         interface = Interface(device=device, name='tmp', cable=cable)
         self.assertIsNone(interface.path)
+
+    def test_cable_length_normalization_large_kilometer_value(self):
+        """
+        A large kilometer length must pass validation and fit in the normalized length field.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1234')
+        cable.length_unit = CableLengthUnitChoices.UNIT_KILOMETER
+        cable.full_clean()
+        cable.save()
+        cable.refresh_from_db()
+
+        self.assertEqual(cable._abs_length, Decimal('1234000.0000'))
+
+    def test_cable_length_normalization_maximum_mile_value(self):
+        """
+        The maximum length value expressed in miles must fit in the normalized length field.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('999999.99')
+        cable.length_unit = CableLengthUnitChoices.UNIT_MILE
+        cable.full_clean()
+        cable.save()
+        cable.refresh_from_db()
+
+        self.assertEqual(cable._abs_length, Decimal('1609343983.9066'))
 
 
 class CableTerminationTestCase(TestCase):
