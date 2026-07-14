@@ -926,6 +926,12 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+        )
+        User.objects.bulk_create(users)
+
         user = User.objects.first()
         site = Site.objects.create(name='Site 1', slug='site-1')
 
@@ -965,6 +971,25 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
                 'comments': 'Third entry',
             },
         ]
+
+    def test_immutable_created_by(self):
+        """
+        Verify that created_by can't be changed for existing objects
+        """
+        entry = JournalEntry.objects.first()
+        created_by_before = entry.created_by_id
+        # select user different from the one currently set
+        change_user = User.objects.exclude(pk=created_by_before).only('id').first()
+
+        url = reverse('extras-api:journalentry-detail', kwargs={'pk': entry.pk})
+        self.add_permissions('extras.change_journalentry')
+        response = self.client.patch(url, {'created_by': change_user.id}, format='json', **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        entry.refresh_from_db()
+        created_by_after = entry.created_by_id
+        self.assertEqual(created_by_before, created_by_after)
 
 
 class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
