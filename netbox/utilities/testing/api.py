@@ -576,12 +576,10 @@ class APIViewTestCases:
 
             self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
             self.assertIn('detail', response.data)
-            self.assertIn('results', response.data)
-            self.assertEqual(len(response.data['results']), 2)
-            self.assertEqual(response.data['results'][0]['id'], id_list[0])
-            self.assertNotIn('errors', response.data['results'][0])
-            self.assertEqual(response.data['results'][1]['id'], id_list[1])
-            self.assertIn('errors', response.data['results'][1])
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[1])
+            self.assertIn('errors', response.data['errors'][0])
 
             # Verify atomicity: object 0 passed validation but must not have been modified
             instance0_after = self._get_queryset().get(pk=id_list[0])

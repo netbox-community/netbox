@@ -490,17 +490,12 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertIn('detail', response.data)
-        self.assertIn('results', response.data)
-        self.assertEqual(len(response.data['results']), 2)
+        self.assertIn('errors', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
 
-        # Index results by ID to avoid relying on queryset ordering
-        results_by_id = {r['id']: r for r in response.data['results']}
-        self.assertIn(site1.pk, results_by_id)
-        self.assertIn(site2.pk, results_by_id)
-        # Site 1 (no dependents) would have succeeded — no errors key
-        self.assertNotIn('errors', results_by_id[site1.pk])
-        # Site 2 (has Device) should have failed — errors key present
-        self.assertIn('errors', results_by_id[site2.pk])
+        # Site 2 (has Device) should be the only entry, since Site 1 succeeded
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+        self.assertIn('errors', response.data['errors'][0])
 
         # Verify that no sites were actually deleted (transaction rolled back)
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
@@ -2204,9 +2199,9 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
     def test_bulk_create_objects_validation_error(self):
         """
         POST a set of Device objects where the first passes and the second fails validation.
-        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should be the structured
-        per-object format with mixed ok/error statuses, and no objects should be created despite
-        the first item passing (atomic rollback).
+        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should report only the
+        failed object, and no objects should be created despite the first item passing
+        (atomic rollback).
         """
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
@@ -2230,14 +2225,11 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
             'No objects should be created when any sibling fails validation',
         )
         self.assertIn('detail', response.data)
-        self.assertIn('results', response.data)
-        self.assertEqual(len(response.data['results']), 2)
-        # First item passed validation — no errors key
-        self.assertEqual(response.data['results'][0]['index'], 0)
-        self.assertNotIn('errors', response.data['results'][0])
-        # Second item failed validation — errors key present
-        self.assertEqual(response.data['results'][1]['index'], 1)
-        self.assertIn('errors', response.data['results'][1])
+        self.assertIn('errors', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        # Second item failed validation — first item succeeded so it's omitted
+        self.assertEqual(response.data['errors'][0]['index'], 1)
+        self.assertIn('errors', response.data['errors'][0])
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):
