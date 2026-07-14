@@ -19,6 +19,12 @@ redis-server -v
 
 You may wish to modify the Redis configuration at `/etc/redis.conf` or `/etc/redis/redis.conf`, however in most cases the default configuration is sufficient.
 
+!!! danger "Restrict access to Redis"
+    NetBox's background workers execute jobs read from Redis, so anyone able to write to the `tasks` database can run
+    arbitrary code on a worker. Treat Redis as trusted infrastructure: keep it bound to `localhost` (the default) or a
+    private network, and enable authentication if it is reachable by any other host. See
+    [Redis configuration](../configuration/required-parameters.md#redis) for details.
+
 ## Verify Service Status
 
 Use the `redis-cli` utility to ensure the Redis service is functional:
