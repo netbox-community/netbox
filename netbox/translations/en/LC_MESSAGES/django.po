@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-12 05:59+0000\n"
+"POT-Creation-Date: 2026-07-14 05:45+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13201,71 +13201,71 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:881
+#: netbox/netbox/settings.py:893
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:882
+#: netbox/netbox/settings.py:894
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:883
+#: netbox/netbox/settings.py:895
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:884
+#: netbox/netbox/settings.py:896
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:885
+#: netbox/netbox/settings.py:897
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:886
+#: netbox/netbox/settings.py:898
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:887
+#: netbox/netbox/settings.py:899
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:888
+#: netbox/netbox/settings.py:900
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:889
+#: netbox/netbox/settings.py:901
 msgid "Korean"
 msgstr ""
 
-#: netbox/netbox/settings.py:890
+#: netbox/netbox/settings.py:902
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:891
+#: netbox/netbox/settings.py:903
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:892
+#: netbox/netbox/settings.py:904
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:893
+#: netbox/netbox/settings.py:905
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:894
+#: netbox/netbox/settings.py:906
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:895
+#: netbox/netbox/settings.py:907
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:896
+#: netbox/netbox/settings.py:908
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:897
+#: netbox/netbox/settings.py:909
 msgid "Chinese"
 msgstr ""
 
