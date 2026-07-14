@@ -15,6 +15,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models.features import ChangeLoggingMixin
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -1196,7 +1197,7 @@ class Interface(
 # Pass-through ports
 #
 
-class PortMapping(PortMappingBase):
+class PortMapping(ChangeLoggingMixin, PortMappingBase):
     """
     Maps a FrontPort & position to a RearPort & position.
     """
@@ -1215,6 +1216,10 @@ class PortMapping(PortMappingBase):
         on_delete=models.CASCADE,
         related_name='mappings',
     )
+
+    class Meta(PortMappingBase.Meta):
+        # Inherit the unique constraints from PortMappingBase.Meta.
+        pass
 
     def clean(self):
         super().clean()

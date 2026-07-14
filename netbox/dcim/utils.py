@@ -168,4 +168,53 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
+    # Bulk-created (no per-mapping ObjectChange) to match how every other component is instantiated.
     PortMapping.objects.bulk_create(mappings)
+
+
+def reconcile_port_mappings(mapping_model, parent_field, parent, desired):
+    """
+    Reconcile a parent port's mappings against `desired`, writing only the difference so unchanged
+    mappings keep their PK (and emit no changelog entry). Changed/removed rows are deleted before
+    replacements are created, all in one transaction, so position swaps don't trip the unique
+    constraint. Per-row create()/delete() let the change-logging signals fire naturally.
+
+    Args:
+        mapping_model: PortMapping or PortTemplateMapping.
+        parent_field: 'front_port' or 'rear_port' — the side being edited; its '<parent_field>_position'
+            is each mapping's stable identity within the set.
+        parent: the parent instance (FrontPort/RearPort or their templates).
+        desired: iterable of dicts of mapping field values EXCLUDING the parent FK, using '<field>_id'
+            for the opposite-port FK, e.g. {'front_port_position': 1, 'rear_port_id': 5,
+            'rear_port_position': 2}. save() derives device/device_type/module_type from the front port.
+    """
+    key_field = f'{parent_field}_position'
+    other_field = 'rear_port' if parent_field == 'front_port' else 'front_port'
+    value_fields = (f'{other_field}_id', f'{other_field}_position')
+
+    def target(source):
+        # The comparable "value" of a mapping: the opposite port and its position. Two mappings with
+        # the same parent-side position but a different target represent a re-pointing of that slot.
+        get = source.get if isinstance(source, dict) else lambda f: getattr(source, f)
+        return tuple(get(f) for f in value_fields)
+
+    desired_by_key = {d[key_field]: d for d in desired}
+
+    with transaction.atomic(using=router.db_for_write(mapping_model)):
+        # Lock the parent's existing mappings for the duration of the reconcile. Two requests editing
+        # the same port would otherwise read the same snapshot and race, the second colliding on a
+        # unique constraint when it recreates rows the first has already committed.
+        existing = {
+            getattr(m, key_field): m
+            for m in mapping_model.objects.filter(**{parent_field: parent}).select_for_update()
+        }
+
+        # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
+        for key, mapping in existing.items():
+            if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):
+                mapping.delete()
+
+        # Create rows that are new or whose target changed
+        for key, attrs in desired_by_key.items():
+            if key not in existing or target(existing[key]) != target(attrs):
+                mapping_model.objects.create(**{parent_field: parent, **attrs})
