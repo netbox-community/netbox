@@ -133,7 +133,7 @@ class Cable(PrimaryModel):
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
-        max_digits=10,
+        max_digits=14,
         decimal_places=4,
         blank=True,
         null=True
