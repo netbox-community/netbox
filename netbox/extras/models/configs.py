@@ -1,3 +1,6 @@
+import os
+import re
+import sys
 import traceback
 
 import jsonschema
@@ -333,7 +336,23 @@ class ConfigTemplate(
         is returned.
         """
         if self.debug:
-            return ''.join(traceback.format_exception(exc))
+            # Strip deployment-specific path prefixes from File "..." lines to avoid disclosing
+            # the server's filesystem layout. install_root covers all NetBox source files plus
+            # any venv co-located inside the repo. When the venv lives outside the repo
+            # (the typical production pattern, e.g. ~/.venv/netbox/), sys.prefix differs from
+            # sys.base_prefix and the venv root is stripped separately so that the deployment
+            # user's home directory is not exposed. Stdlib paths not under either prefix are
+            # left as-is — they reveal only standard OS locations, not deployment structure.
+            install_root = os.path.dirname(settings.BASE_DIR) + os.sep
+            prefixes_to_strip = [install_root]
+            if sys.prefix != sys.base_prefix:
+                venv_root = sys.prefix + os.sep
+                if venv_root != install_root:
+                    prefixes_to_strip.append(venv_root)
+            tb = ''.join(traceback.format_exception(exc))
+            for prefix in prefixes_to_strip:
+                tb = re.sub(r'(File ")' + re.escape(prefix), r'\1', tb)
+            return tb
         if isinstance(exc, TemplateError):
             parts = [f"{type(exc).__name__}: {exc}"]
             if getattr(exc, 'name', None):

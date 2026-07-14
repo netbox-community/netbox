@@ -1,9 +1,12 @@
 import io
+import os
+import sys
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
@@ -1199,6 +1202,32 @@ class ConfigTemplateDebugTestCase(TestCase):
         """When debug=False, the {% debug %} tag is not available."""
         with self.assertRaises(TemplateSyntaxError):
             render_jinja2("{% debug %}", {}, debug=False)
+
+    def test_format_render_error_debug_redacts_install_path(self):
+        """format_render_error() strips the repo install-path prefix from debug tracebacks."""
+        t = ConfigTemplate(name='redact-test', template_code='hello', debug=True)
+        try:
+            raise ValueError("deliberate test error")
+        except ValueError as exc:
+            result = t.format_render_error(exc)
+        install_root = os.path.dirname(settings.BASE_DIR) + os.sep
+        self.assertIn('Traceback', result)
+        self.assertNotIn(install_root, result)
+        # Also verify the venv prefix is stripped when running inside a virtualenv.
+        if sys.prefix != sys.base_prefix:
+            venv_root = sys.prefix + os.sep
+            if venv_root != install_root:
+                self.assertNotIn(venv_root, result)
+
+    def test_format_render_error_non_debug_returns_concise_message(self):
+        """format_render_error() returns a one-line message (no traceback) when debug=False."""
+        t = ConfigTemplate(name='nodebug-test', template_code='hello', debug=False)
+        try:
+            raise TemplateError("bad template")
+        except TemplateError as exc:
+            result = t.format_render_error(exc)
+        self.assertNotIn('Traceback', result)
+        self.assertIn('TemplateError', result)
 
 
 class JinjaEnvFilterTestCase(TestCase):
