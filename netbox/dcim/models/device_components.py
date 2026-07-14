@@ -1351,6 +1351,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         verbose_name=_('enabled'),
         default=True,
     )
+    module_bay_types = models.ManyToManyField(
+        to='dcim.ModuleBayType',
+        related_name='module_bays',
+        blank=True,
+        verbose_name=_('module bay types'),
+        help_text=_('Types of modules that can be installed in this bay (empty = unconstrained)'),
+    )
     # sort_path inherits `name`'s natural_sort collation automatically (LtreeModelBase),
     # so ORDER BY sort_path sorts siblings naturally (Slot 0..Slot 13) — as MPTT's
     # order_insertion_by=('name',) did — rather than lexicographically.
@@ -1418,6 +1425,32 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         Indicates whether the module bay is occupied by a module.
         """
         return bool(not self.enabled or hasattr(self, 'installed_module'))
+
+    @property
+    def is_module_compatible(self):
+        """
+        Return True if the installed module (if any) is compatible with this bay's type constraints,
+        or if this bay has no type constraints, or if no module is installed.
+        Returns False when this bay and the installed module's type have non-empty, disjoint bay type sets.
+        """
+        module = getattr(self, 'installed_module', None)
+        if module is None:
+            return True
+        # Use .all() so a prefetch cache is honoured; see Module.is_bay_compatible for details.
+        bay_types = {t.pk for t in self.module_bay_types.all()}
+        if not bay_types:
+            return True
+        type_types = {t.pk for t in module.module_type.module_bay_types.all()}
+        if type_types and not (bay_types & type_types):
+            return False
+        return True
+
+    def get_incompatible_module(self):
+        """
+        Return the installed Module if it is incompatible with this bay's type constraints, else None.
+        """
+        module = getattr(self, 'installed_module', None)
+        return module if module and not self.is_module_compatible else None
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):

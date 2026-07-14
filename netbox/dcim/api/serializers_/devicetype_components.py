@@ -22,7 +22,7 @@ from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSer
 from wireless.choices import *
 
 from .base import PortSerializer
-from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
+from .devicetypes import DeviceTypeSerializer, ModuleBayTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceTemplateSerializer
 from .roles import InventoryItemRoleSerializer
@@ -313,12 +313,17 @@ class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
+    module_bay_types = ModuleBayTypeSerializer(
+        nested=True,
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
-            'created', 'last_updated',
+            'module_bay_types', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'description')
 

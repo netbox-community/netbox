@@ -93,6 +93,7 @@ __all__ = (
     'ManufacturerFilter',
     'ModuleBayFilter',
     'ModuleBayTemplateFilter',
+    'ModuleBayTypeFilter',
     'ModuleFilter',
     'ModuleTypeFilter',
     'ModuleTypeProfileFilter',
@@ -757,12 +758,30 @@ class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     parent_id: ID | None = strawberry_django.filter_field()
     position: StrFilterLookup | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
+    module_bay_types: Annotated['ModuleBayTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    module_bay_type_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleBayTemplate, lookups=True)
 class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     position: StrFilterLookup | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
+    module_bay_types: Annotated['ModuleBayTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    module_bay_type_id: ID | None = strawberry_django.filter_field()
+
+
+@strawberry_django.filter_type(models.ModuleBayType, lookups=True)
+class ModuleBayTypeFilter(PrimaryModelFilter):
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    slug: StrFilterLookup | None = strawberry_django.filter_field()
+    manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    manufacturer_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleTypeProfile, lookups=True)
@@ -780,6 +799,10 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
         strawberry_django.filter_field()
     )
     profile_id: ID | None = strawberry_django.filter_field()
+    module_bay_types: Annotated['ModuleBayTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    module_bay_type_id: ID | None = strawberry_django.filter_field()
     model: StrFilterLookup | None = strawberry_django.filter_field()
     part_number: StrFilterLookup | None = strawberry_django.filter_field()
     instances: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (

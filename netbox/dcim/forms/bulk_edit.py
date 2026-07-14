@@ -58,6 +58,7 @@ __all__ = (
     'ManufacturerBulkEditForm',
     'ModuleBayBulkEditForm',
     'ModuleBayTemplateBulkEditForm',
+    'ModuleBayTypeBulkEditForm',
     'ModuleBulkEditForm',
     'ModuleTypeBulkEditForm',
     'ModuleTypeProfileBulkEditForm',
@@ -568,6 +569,24 @@ class DeviceTypeBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'description', 'comments')
 
 
+class ModuleBayTypeBulkEditForm(PrimaryModelBulkEditForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False,
+    )
+
+    model = ModuleBayType
+    fieldsets = (
+        FieldSet('manufacturer', 'color', 'description', name=_('Module Bay Type')),
+    )
+    nullable_fields = ('manufacturer', 'color', 'description', 'comments')
+
+
 class ModuleTypeProfileBulkEditForm(PrimaryModelBulkEditForm):
     schema = JSONField(
         label=_('Schema'),
@@ -618,6 +637,17 @@ class ModuleTypeBulkEditForm(PrimaryModelBulkEditForm):
         widget=DatePicker()
     )
 
+    add_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Add bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+    remove_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Remove bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     model = ModuleType
     fieldsets = (
         FieldSet('profile', 'manufacturer', 'part_number', 'description', name=_('Module Type')),
@@ -626,6 +656,7 @@ class ModuleTypeBulkEditForm(PrimaryModelBulkEditForm):
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             name=_('Chassis')
         ),
+        FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Bay Types')),
         FieldSet('end_of_life', name=_('Lifecycle')),
     )
     nullable_fields = ('part_number', 'weight', 'weight_unit', 'profile', 'end_of_life', 'description', 'comments')
@@ -1716,20 +1747,43 @@ class RearPortBulkEditForm(
 
 
 class ModuleBayBulkEditForm(
-    form_from_model(ModuleBay, ['label', 'position', 'enabled', 'description']),
+    form_from_model(ModuleBay, ['label', 'position', 'description']),
     NetBoxModelBulkEditForm
 ):
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+    )
+    add_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Add bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+    remove_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Remove bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     model = ModuleBay
     fieldsets = (
         FieldSet('label', 'position', 'enabled', 'description'),
+        FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Bay Types')),
     )
     nullable_fields = ('label', 'position', 'description')
 
 
 class DeviceBayBulkEditForm(
-    form_from_model(DeviceBay, ['label', 'enabled', 'description']),
+    form_from_model(DeviceBay, ['label', 'description']),
     NetBoxModelBulkEditForm
 ):
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+    )
+
     model = DeviceBay
     fieldsets = (
         FieldSet('label', 'enabled', 'description'),

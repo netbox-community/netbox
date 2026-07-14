@@ -52,6 +52,7 @@ __all__ = (
     'ManufacturerFilterForm',
     'ModuleBayFilterForm',
     'ModuleBayTemplateFilterForm',
+    'ModuleBayTypeFilterForm',
     'ModuleFilterForm',
     'ModuleTypeFilterForm',
     'ModuleTypeProfileFilterForm',
@@ -701,6 +702,26 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     )
 
 
+class ModuleBayTypeFilterForm(PrimaryModelFilterSetForm):
+    model = ModuleBayType
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('manufacturer_id', 'color', name=_('Module Bay Type')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    selector_fields = ('filter_id', 'q', 'manufacturer_id')
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False,
+    )
+    tag = TagFilterField(model)
+
+
 class ModuleTypeProfileFilterForm(PrimaryModelFilterSetForm):
     model = ModuleTypeProfile
     fieldsets = (
@@ -717,7 +738,7 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'profile_id', 'manufacturer_id', 'part_number', 'module_count',
-            'airflow', name=_('Hardware')
+            'airflow', 'module_bay_type_id', name=_('Hardware')
         ),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
@@ -738,6 +759,12 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         label=_('Manufacturer')
+    )
+    module_bay_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Module bay type')
     )
     part_number = forms.CharField(
         label=_('Part number'),
@@ -1919,7 +1946,7 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'position', 'enabled', name=_('Attributes')),
+        FieldSet('name', 'label', 'position', 'enabled', 'module_bay_type_id', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
@@ -1936,6 +1963,11 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
         required=False,
         widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
+    module_bay_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+        label=_('Module bay type')
+    )
     tag = TagFilterField(model)
 
 
@@ -1943,7 +1975,7 @@ class ModuleBayTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
     model = ModuleBayTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'position', 'enabled', name=_('Attributes')),
+        FieldSet('name', 'label', 'position', 'enabled', 'module_bay_type_id', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     position = forms.CharField(
@@ -1954,6 +1986,11 @@ class ModuleBayTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         label=_('Enabled'),
         required=False,
         widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    module_bay_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+        label=_('Module bay type')
     )
 
 

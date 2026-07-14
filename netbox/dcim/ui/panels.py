@@ -4,6 +4,30 @@ from django.utils.translation import gettext_lazy as _
 from netbox.ui import actions, attrs, panels
 
 
+class BayTypeIncompatibilityPanel(panels.Panel):
+    """
+    Renders a warning banner when a Module is incompatibly installed (its type's bay type set and
+    the bay's bay type set are both non-empty and share no common members).
+    Silently omitted when the installation is compatible or unconstrained.
+    """
+    template_name = 'dcim/panels/bay_type_incompatibility.html'
+
+    def should_render(self, context):
+        from dcim.models import Module, ModuleBay
+        obj = context.get('object')
+        if isinstance(obj, Module):
+            return not obj.is_bay_compatible
+        if isinstance(obj, ModuleBay):
+            return not obj.is_module_compatible
+        return False
+
+    def get_context(self, context):
+        from dcim.models import Module
+        ctx = super().get_context(context)
+        ctx['is_module_view'] = isinstance(context.get('object'), Module)
+        return ctx
+
+
 class SitePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('region', linkify=True)
     group = attrs.NestedObjectAttr('group', linkify=True)
@@ -173,6 +197,14 @@ class ModulePanel(panels.ObjectAttributesPanel):
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
 
 
+class ModuleBayTypePanel(panels.ObjectAttributesPanel):
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    name = attrs.TextAttr('name')
+    color = attrs.ColorAttr('color')
+    description = attrs.TextAttr('description')
+    module_types = attrs.RelatedObjectListAttr('module_types', label=_('Compatible Module Types'), linkify=True)
+
+
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
@@ -187,6 +219,9 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     airflow = attrs.ChoiceAttr('airflow')
     weight = attrs.WeightAttr('weight')
     end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
+    module_bay_types = attrs.RelatedObjectListAttr(
+        'module_bay_types', label=_('Bay Type Compatibility'), linkify=True
+    )
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):
@@ -267,6 +302,7 @@ class ModuleBayPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     position = attrs.TextAttr('position')
     description = attrs.TextAttr('description')
+    module_bay_types = attrs.RelatedObjectListAttr('module_bay_types', label=_('Bay Type Compatibility'), linkify=True)
 
 
 class InstalledModulePanel(panels.ObjectAttributesPanel):

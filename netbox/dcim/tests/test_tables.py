@@ -67,6 +67,10 @@ class ModuleTypeProfileTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleTypeProfileTable
 
 
+class ModuleBayTypeTableTestCase(TableTestCases.StandardTableTestCase):
+    table = ModuleBayTypeTable
+
+
 class ModuleTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleTypeTable
 

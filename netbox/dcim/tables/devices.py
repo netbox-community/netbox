@@ -1015,12 +1015,16 @@ class ModuleBayTable(ModularDeviceComponentTable):
         template_code=MODULEBAY_STATUS,
         verbose_name=_('Module Status')
     )
+    module_bay_types = columns.ManyToManyColumn(
+        verbose_name=_('Bay Types'),
+        linkify_item=True,
+    )
 
     class Meta(ModularDeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'enabled', 'parent', 'label', 'position', 'installed_module', 'module_status',
-            'module_serial', 'module_asset_tag', 'description', 'tags',
+            'pk', 'id', 'name', 'device', 'enabled', 'parent', 'label', 'position', 'module_bay_types',
+            'installed_module', 'module_status', 'module_serial', 'module_asset_tag', 'description', 'tags',
         )
         default_columns = (
             'pk', 'name', 'device', 'enabled', 'parent', 'label', 'installed_module', 'module_status', 'description',

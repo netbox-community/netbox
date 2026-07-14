@@ -23,6 +23,7 @@ router.register('manufacturers', views.ManufacturerViewSet)
 router.register('device-types', views.DeviceTypeViewSet)
 router.register('module-types', views.ModuleTypeViewSet)
 router.register('module-type-profiles', views.ModuleTypeProfileViewSet)
+router.register('module-bay-types', views.ModuleBayTypeViewSet)
 
 # Device type components
 router.register('console-port-templates', views.ConsolePortTemplateViewSet)

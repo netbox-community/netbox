@@ -1722,6 +1722,54 @@ class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+class ModuleBayTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ModuleBayType
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 2', slug='module-bay-type-2'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 3', slug='module-bay-type-3'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'name': 'Module Bay Type X',
+            'slug': 'module-bay-type-x',
+            'color': 'aa1409',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,manufacturer",
+            "Module Bay Type 4,module-bay-type-4,Manufacturer 1",
+            "Module Bay Type 5,module-bay-type-5,Manufacturer 1",
+            "Module Bay Type 6,module-bay-type-6,Manufacturer 1",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{module_bay_types[0].pk},New description",
+            f"{module_bay_types[1].pk},New description",
+            f"{module_bay_types[2].pk},New description",
+        )
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
+            'description': 'New description',
+        }
+
+
 #
 # DeviceType components
 #

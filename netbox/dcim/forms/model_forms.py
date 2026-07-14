@@ -69,6 +69,7 @@ __all__ = (
     'ManufacturerForm',
     'ModuleBayForm',
     'ModuleBayTemplateForm',
+    'ModuleBayTypeForm',
     'ModuleForm',
     'ModuleTypeForm',
     'ModuleTypeProfileForm',
@@ -533,6 +534,27 @@ class DeviceTypeForm(PrimaryModelForm):
         }
 
 
+class ModuleBayTypeForm(PrimaryModelForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+    )
+    slug = SlugField(
+        slug_source='name',
+    )
+
+    fieldsets = (
+        FieldSet('name', 'slug', 'manufacturer', 'color', 'description', 'tags', name=_('Module Bay Type')),
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = [
+            'name', 'slug', 'manufacturer', 'color', 'description', 'owner', 'comments', 'tags',
+        ]
+
+
 class ModuleTypeProfileForm(PrimaryModelForm):
     schema = JSONField(
         label=_('Schema'),
@@ -572,12 +594,18 @@ class ModuleTypeForm(PrimaryModelForm):
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
     )
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
 
     @property
     def fieldsets(self):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
             FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
             FieldSet('end_of_life', name=_('Lifecycle')),
             FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
         ]
@@ -586,7 +614,7 @@ class ModuleTypeForm(PrimaryModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'end_of_life', 'owner', 'comments', 'tags',
+            'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'end_of_life': DatePicker(),
@@ -1461,20 +1489,26 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 
 class ModuleBayTemplateForm(ModularComponentTemplateForm):
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'position', 'enabled', 'description',
+            'name', 'label', 'position', 'enabled', 'description', 'module_bay_types',
         ),
     )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
+            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types',
         ]
 
 
@@ -2003,14 +2037,21 @@ class RearPortForm(ModularDeviceComponentForm):
 
 
 class ModuleBayForm(ModularDeviceComponentForm):
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     fieldsets = (
-        FieldSet('device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'tags',),
+        FieldSet('device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types', 'tags'),
     )
 
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types', 'owner',
+            'tags',
         ]
 
 

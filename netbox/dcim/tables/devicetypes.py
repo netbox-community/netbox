@@ -292,13 +292,17 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
+    module_bay_types = columns.ManyToManyColumn(
+        verbose_name=_('Bay Types'),
+        linkify_item=True,
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.ModuleBayTemplate
-        fields = ('pk', 'name', 'label', 'position', 'enabled', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'position', 'enabled', 'module_bay_types', 'description', 'actions')
         empty_text = "None"
 
 

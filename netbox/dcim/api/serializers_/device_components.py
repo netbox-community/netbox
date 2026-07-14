@@ -35,6 +35,7 @@ from wireless.models import WirelessLAN
 from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
+from .devicetypes import ModuleBayTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .mixins import _UNSET, MACAddressShortcutMixin
 from .nested import NestedInterfaceSerializer
@@ -445,13 +446,20 @@ class ModuleBaySerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
+    module_bay_types = ModuleBayTypeSerializer(
+        nested=True,
+        many=True,
+        required=False,
+    )
     _occupied = serializers.BooleanField(required=False, read_only=True)
+    is_module_compatible = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = ModuleBay
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'position', 'enabled',
-            'description', 'installed_module', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'description', 'module_bay_types', 'installed_module', 'owner', 'tags', 'custom_fields', 'created',
+            'last_updated', '_occupied', 'is_module_compatible',
         ]
         brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'enabled', 'description', '_occupied')
 

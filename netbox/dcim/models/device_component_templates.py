@@ -744,6 +744,13 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name=_('enabled'),
         default=True,
     )
+    module_bay_types = models.ManyToManyField(
+        to='dcim.ModuleBayType',
+        related_name='module_bay_templates',
+        blank=True,
+        verbose_name=_('module bay types'),
+        help_text=_('Types of modules that can be installed in this bay (empty = unconstrained)'),
+    )
 
     component_model = ModuleBay
 
@@ -753,7 +760,7 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         module = kwargs.get('module')
-        return self.component_model(
+        instance = self.component_model(
             name=self.resolve_name(module, kwargs.get('device')),
             label=self.resolve_label(module, kwargs.get('device')),
             position=self.resolve_position(module, kwargs.get('device')),
@@ -766,6 +773,10 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
             parent=module.module_bay if module else None,
             **kwargs
         )
+        # Stash reference so callers (Module.save, Device._instantiate_components) can
+        # copy M2M fields (e.g. module_bay_types) that bulk_create cannot handle.
+        instance._source_template = self
+        return instance
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):

@@ -40,3 +40,7 @@ Controls whether templates module type components are automatically added when c
 ### Adopt Components
 
 Controls whether pre-existing components assigned to the device with the same names as components that would be created automatically will be assigned to the new module.
+
+## Bay Type Compatibility
+
+If the module bay has [bay types](./modulebaytype.md) assigned and the module's type also has bay types assigned, NetBox verifies that the two sets share at least one type in common. An installation that fails this check will be rejected. The `is_bay_compatible` flag is exposed in the REST API to indicate compatibility status without performing a write.
