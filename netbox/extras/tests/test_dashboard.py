@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock, patch
+
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase, tag
 
@@ -90,26 +92,39 @@ class RSSFeedWidgetSanitizationTestCase(TestCase):
         self.assertIn('<b>ok</b>', entries[0]['summary'])
 
     @tag('regression')
-    def test_get_feed_sanitizes_cached_content(self):
+    def test_get_feed_sanitizes_before_caching(self):
         """
-        Content cached by a pre-fix release must be sanitized on read, not served verbatim.
+        Fetched feed content must be sanitized before it is rendered or written to the cache,
+        so a poisoned link is never stored or served.
         """
         widget = RSSFeedWidget(config={
             'feed_url': 'https://example.com/feed.xml',
             'requires_internet': False,
             'max_entries': 10,
+            'cache_timeout': 3600,
         })
-        # Simulate a poisoned feed left in the cache by an older release
-        cache.set(widget.cache_key, {
-            'bozo': False,
-            'entries': [
-                {'link': 'javascript:alert(1)', 'title': 'evil', 'summary': 'x'},
-            ],
-        })
+        rss = (
+            b'<?xml version="1.0"?>'
+            b'<rss version="2.0"><channel><title>t</title>'
+            b'<link>http://example.com</link><description>d</description>'
+            b'<item><title>evil</title><link>javascript:alert(1)</link>'
+            b'<description>d</description></item>'
+            b'</channel></rss>'
+        )
+        mock_response = MagicMock()
+        mock_response.content = rss
 
-        result = widget.get_feed()
+        with (
+            patch('extras.dashboard.widgets.requests.get', return_value=mock_response),
+            patch('extras.dashboard.widgets.resolve_proxies', return_value={}),
+        ):
+            result = widget.get_feed()
 
+        # The rendered feed is sanitized...
         self.assertEqual(result['feed']['entries'][0]['link'], '')
+        # ...and the cached copy is sanitized too (never stored poisoned).
+        cached = cache.get(widget.cache_key)
+        self.assertEqual(cached['entries'][0]['link'], '')
 
 
 class RenderWidgetTemplateTagTestCase(TestCase):

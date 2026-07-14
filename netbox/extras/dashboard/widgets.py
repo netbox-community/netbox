@@ -358,7 +358,9 @@ class RSSFeedWidget(DashboardWidget):
     def cache_key(self):
         url = self.config['feed_url']
         url_checksum = sha256(url.encode('utf-8')).hexdigest()
-        return f'dashboard_rss_{url_checksum}'
+        # The version segment invalidates entries cached by a pre-sanitization release: such
+        # entries live under the old key and are never read, so they can't be served unsanitized.
+        return f'dashboard_rss_2_{url_checksum}'
 
     def get_feed(self):
         if self.config.get('requires_internet') and settings.ISOLATED_DEPLOYMENT:
@@ -366,14 +368,11 @@ class RSSFeedWidget(DashboardWidget):
                 'isolated_deployment': True,
             }
 
-        # Fetch RSS content from cache if available
+        # Fetch RSS content from cache if available. Cached content is always sanitized before
+        # it is written (see below), so no sanitization is needed on read.
         if feed_content := cache.get(self.cache_key):
-            feed = feedparser.FeedParserDict(feed_content)
-            # Sanitize on read as well: cached content may have been written by a pre-fix
-            # release (during an upgrade) and thus not yet sanitized. Idempotent.
-            self.sanitize_entries(feed.get('entries', []))
             return {
-                'feed': feed,
+                'feed': feedparser.FeedParserDict(feed_content),
             }
 
         # Fetch feed content from remote server
@@ -414,12 +413,15 @@ class RSSFeedWidget(DashboardWidget):
         """
         allowed_schemes = get_config().ALLOWED_URL_SCHEMES
         for entry in entries:
-            # Blank any link whose scheme isn't permitted (blocks javascript:, data:, etc.)
+            # Blank any link whose scheme isn't permitted (blocks javascript:, data:, etc.).
+            # This is the load-bearing control: the template renders entry.link into an href.
             if link := entry.get('link'):
                 result = urlparse(link)
                 if result.scheme and result.scheme.lower() not in allowed_schemes:
                     entry['link'] = ''
-            # Sanitize the summary HTML
+            # Sanitize the summary HTML as defense-in-depth. The template renders entry.summary
+            # with auto-escaping (not |safe), so this is not currently load-bearing; it guards
+            # against a future change that renders the summary as markup.
             if summary := entry.get('summary'):
                 entry['summary'] = clean_html(summary, allowed_schemes)
 
