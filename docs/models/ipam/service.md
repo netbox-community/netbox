@@ -23,13 +23,9 @@ The parent object to which the application service is assigned. This must be one
 
 A service or protocol name.
 
-### Protocol
+### Port Mappings
 
-The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
-
-### Ports
-
-One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.
+One or more [port mappings](./serviceportmapping.md), each pairing a wire protocol (UDP, TCP, or SCTP) with one or more port numbers. A service may expose the same port on multiple protocols by adding a mapping per protocol — for example, DNS listening on both `TCP/53` and `UDP/53`. Within a single mapping, multiple ports can be expressed using commas and/or hyphens (e.g. `80,8001-8003`).
 
 ### IP Addresses
 

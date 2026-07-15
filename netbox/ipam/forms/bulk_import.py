@@ -17,6 +17,7 @@ from utilities.forms.fields import (
     NumericRangeArrayField,
     SlugField,
 )
+from utilities.forms.utils import parse_numeric_range
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -586,19 +587,94 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
         fields = ('policy', 'local_vid', 'remote_vid')
 
 
-class ServiceTemplateImportForm(PrimaryModelImportForm):
-    protocol = CSVChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-        help_text=_('IP protocol')
+class ServicePortMappingsImportMixin(forms.Form):
+    """
+    Adds a ``port_mappings`` CSV column parsed from a compact string (e.g. "tcp:80,443;udp:53") and
+    syncs the related child mapping rows on save. Subclasses set ``port_mapping_model`` /
+    ``port_mapping_fk``.
+    """
+    port_mappings = forms.CharField(
+        label=_('Port mappings'),
+        required=True,
+        help_text=_(
+            'Protocol/port pairs in the form "tcp:80,443;udp:53" (pairs separated by semicolons; ports '
+            'may use commas and hyphenated ranges).'
+        )
     )
+
+    port_mapping_model = None
+    port_mapping_fk = None
+
+    def clean_port_mappings(self):
+        value = self.cleaned_data.get('port_mappings')
+        if not value:
+            return []
+        mappings = []
+        seen = set()
+        for token in value.split(';'):
+            token = token.strip()
+            if not token:
+                continue
+            protocol, sep, ports_str = token.partition(':')
+            if not sep:
+                raise forms.ValidationError(
+                    _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
+                )
+            protocol = protocol.strip().lower()
+            if protocol not in ServiceProtocolChoices.values():
+                raise forms.ValidationError(_('Invalid protocol: {protocol}').format(protocol=protocol))
+            if protocol in seen:
+                raise forms.ValidationError(_('Duplicate protocol: {protocol}').format(protocol=protocol))
+            seen.add(protocol)
+            ports = parse_numeric_range(ports_str.strip())
+            if not ports:
+                raise forms.ValidationError(
+                    _('At least one port is required for protocol {protocol}.').format(protocol=protocol)
+                )
+            for port in ports:
+                if not SERVICE_PORT_MIN <= port <= SERVICE_PORT_MAX:
+                    raise forms.ValidationError(_('Port {port} is out of range.').format(port=port))
+            mappings.append({'protocol': protocol, 'ports': ports})
+        return mappings
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        if instance.pk:
+            desired = self.cleaned_data.get('port_mappings') or []
+            existing = {m.protocol: m for m in instance.port_mappings.all()}
+            seen = set()
+            for row in desired:
+                seen.add(row['protocol'])
+                mapping = existing.get(row['protocol'])
+                if mapping is not None:
+                    if mapping.ports != row['ports']:
+                        mapping.ports = row['ports']
+                        mapping.save()
+                else:
+                    self.port_mapping_model.objects.create(**{
+                        self.port_mapping_fk: instance,
+                        'protocol': row['protocol'],
+                        'ports': row['ports'],
+                    })
+            for protocol, mapping in existing.items():
+                if protocol not in seen:
+                    mapping.delete()
+        return instance
+
+
+class ServiceTemplateImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
+    port_mapping_model = ServiceTemplatePortMapping
+    port_mapping_fk = 'service_template'
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceImportForm(PrimaryModelImportForm):
+class ServiceImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
+    port_mapping_model = ServicePortMapping
+    port_mapping_fk = 'service'
+
     parent_object_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
@@ -615,11 +691,6 @@ class ServiceImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Parent object ID'),
     )
-    protocol = CSVChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-        help_text=_('IP protocol')
-    )
     ipaddresses = CSVModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
@@ -630,7 +701,7 @@ class ServiceImportForm(PrimaryModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'ipaddresses', 'name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags',
+            'ipaddresses', 'name', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

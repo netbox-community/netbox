@@ -25,6 +25,8 @@ router.register('vlan-translation-policies', views.VLANTranslationPolicyViewSet)
 router.register('vlan-translation-rules', views.VLANTranslationRuleViewSet)
 router.register('service-templates', views.ServiceTemplateViewSet)
 router.register('services', views.ServiceViewSet)
+router.register('service-template-port-mappings', views.ServiceTemplatePortMappingViewSet)
+router.register('service-port-mappings', views.ServicePortMappingViewSet)
 
 app_name = 'ipam-api'
 

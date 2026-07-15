@@ -1845,31 +1845,43 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
+    # port_mappings is a reverse relation managed by the form, not a directly-comparable model field
+    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
         service_templates = (
-            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            ServiceTemplate(name='Service Template 1'),
+            ServiceTemplate(name='Service Template 2'),
+            ServiceTemplate(name='Service Template 3'),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
+        ServiceTemplatePortMapping.objects.bulk_create([
+            ServiceTemplatePortMapping(
+                service_template=service_templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]
+            ),
+            ServiceTemplatePortMapping(
+                service_template=service_templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]
+            ),
+            ServiceTemplatePortMapping(
+                service_template=service_templates[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]
+            ),
+        ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
             'name': 'Service Template X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '104,105',
+            'port_mappings': '[{"protocol": "udp", "ports": "104,105"}]',
             'description': 'A new service template',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "name,protocol,ports,description",
-            "Service Template 4,tcp,1,First service template",
-            "Service Template 5,tcp,2,Second service template",
-            "Service Template 6,tcp,3,Third service template",
+            "name,port_mappings,description",
+            "Service Template 4,tcp:1,First service template",
+            "Service Template 5,tcp:2,Second service template",
+            "Service Template 6,udp:3;tcp:4,Third service template",
         )
 
         cls.csv_update_data = (
@@ -1880,8 +1892,6 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
         }
 
@@ -1889,7 +1899,8 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
     # TODO, related to #9816, cannot validate GFK
-    validation_excluded_fields = ('device',)
+    # port_mappings is a reverse relation managed by the form, not a directly-comparable model field
+    validation_excluded_fields = ('device', 'port_mappings')
 
     @classmethod
     def setUpTestData(cls):
@@ -1905,11 +1916,16 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         services = (
-            Service(parent=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            Service(parent=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            Service(parent=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            Service(parent=device, name='Service 1'),
+            Service(parent=device, name='Service 2'),
+            Service(parent=device, name='Service 3'),
         )
         Service.objects.bulk_create(services)
+        ServicePortMapping.objects.bulk_create([
+            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
+            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
+            ServicePortMapping(service=services[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+        ])
 
         ip_addresses = (
             IPAddress(assigned_object=interface, address='192.0.2.1/24'),
@@ -1924,19 +1940,18 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'parent_content_type': ContentType.objects.get_for_model(Device).pk,
             'parent_object_id': device.pk,
             'name': 'Service X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-            'ports': '104,105',
+            'port_mappings': '[{"protocol": "tcp", "ports": "104,105"}, {"protocol": "udp", "ports": "104"}]',
             'ipaddresses': [],
             'description': 'A new service',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "parent_object_type,parent,name,protocol,ports,ipaddresses,description",
-            "dcim.device,Device 1,Service 1,tcp,1,192.0.2.1/24,First service",
-            "dcim.device,Device 1,Service 2,tcp,2,192.0.2.2/24,Second service",
-            "dcim.device,Device 1,Service 3,udp,3,,Third service",
-            "ipam.fhrpgroup,Group 1,Service 4,udp,4,192.0.2.3/24,Fourth service",
+            "parent_object_type,parent,name,port_mappings,ipaddresses,description",
+            "dcim.device,Device 1,Service 1,tcp:1,192.0.2.1/24,First service",
+            "dcim.device,Device 1,Service 2,tcp:2,192.0.2.2/24,Second service",
+            "dcim.device,Device 1,Service 3,udp:3,,Third service",
+            "ipam.fhrpgroup,Group 1,Service 4,tcp:4;udp:4,192.0.2.3/24,Fourth service",
         )
 
         cls.csv_update_data = (
@@ -1947,8 +1962,6 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
         }
 
@@ -1957,8 +1970,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.first()
         addr = IPAddress.objects.create(address='192.0.2.4/24')
         csv_data = (
-            "parent_object_type,parent_object_id,name,protocol,ports,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp,10,{addr.address},Eleventh service",
+            "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
+            f"dcim.device,{device.pk},Service 11,tcp:10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()
@@ -1988,8 +2001,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         interface = device.interfaces.first()
         addr = IPAddress.objects.create(assigned_object=interface, address='192.0.2.3/24')
         csv_data = (
-            "parent_object_type,parent_object_id,name,protocol,ports,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp,10,{addr.address},Eleventh service",
+            "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
+            f"dcim.device,{device.pk},Service 11,tcp:10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()
@@ -2023,9 +2036,12 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.first()
         service_template = ServiceTemplate.objects.create(
             name='HTTP',
+            description='Hypertext transfer protocol'
+        )
+        ServiceTemplatePortMapping.objects.create(
+            service_template=service_template,
             protocol=ServiceProtocolChoices.PROTOCOL_TCP,
             ports=[80],
-            description='Hypertext transfer protocol'
         )
 
         request = {
@@ -2041,6 +2057,9 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         instance = self._get_queryset().order_by('pk').last()
         self.assertEqual(instance.parent, device)
         self.assertEqual(instance.name, service_template.name)
-        self.assertEqual(instance.protocol, service_template.protocol)
-        self.assertEqual(instance.ports, service_template.ports)
         self.assertEqual(instance.description, service_template.description)
+        # Port mappings should be copied from the template
+        self.assertEqual(instance.port_mappings.count(), 1)
+        mapping = instance.port_mappings.first()
+        self.assertEqual(mapping.protocol, ServiceProtocolChoices.PROTOCOL_TCP)
+        self.assertEqual(mapping.ports, [80])

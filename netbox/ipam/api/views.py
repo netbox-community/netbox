@@ -170,15 +170,27 @@ class VLANTranslationRuleViewSet(NetBoxModelViewSet):
 
 
 class ServiceTemplateViewSet(NetBoxModelViewSet):
-    queryset = ServiceTemplate.objects.all()
+    queryset = ServiceTemplate.objects.prefetch_related('port_mappings')
     serializer_class = serializers.ServiceTemplateSerializer
     filterset_class = filtersets.ServiceTemplateFilterSet
 
 
 class ServiceViewSet(NetBoxModelViewSet):
-    queryset = Service.objects.all()
+    queryset = Service.objects.prefetch_related('port_mappings')
     serializer_class = serializers.ServiceSerializer
     filterset_class = filtersets.ServiceFilterSet
+
+
+class ServiceTemplatePortMappingViewSet(NetBoxModelViewSet):
+    queryset = ServiceTemplatePortMapping.objects.prefetch_related('service_template')
+    serializer_class = serializers.ServiceTemplatePortMappingSerializer
+    filterset_class = filtersets.ServiceTemplatePortMappingFilterSet
+
+
+class ServicePortMappingViewSet(NetBoxModelViewSet):
+    queryset = ServicePortMapping.objects.prefetch_related('service')
+    serializer_class = serializers.ServicePortMappingSerializer
+    filterset_class = filtersets.ServicePortMappingFilterSet
 
 
 #

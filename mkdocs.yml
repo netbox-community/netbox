@@ -272,6 +272,7 @@ nav:
             - Role: 'models/ipam/role.md'
             - RouteTarget: 'models/ipam/routetarget.md'
             - Service: 'models/ipam/service.md'
+            - ServicePortMapping: 'models/ipam/serviceportmapping.md'
             - ServiceTemplate: 'models/ipam/servicetemplate.md'
             - VLAN: 'models/ipam/vlan.md'
             - VLANGroup: 'models/ipam/vlangroup.md'

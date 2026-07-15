@@ -46,7 +46,9 @@ __all__ = (
     'RoleFilterSet',
     'RouteTargetFilterSet',
     'ServiceFilterSet',
+    'ServicePortMappingFilterSet',
     'ServiceTemplateFilterSet',
+    'ServiceTemplatePortMappingFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
     'VLANTranslationPolicyFilterSet',
@@ -1208,14 +1210,20 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
 
 @register_filterset
 class ServiceTemplateFilterSet(PrimaryModelFilterSet):
+    protocol = django_filters.MultipleChoiceFilter(
+        field_name='port_mappings__protocol',
+        choices=ServiceProtocolChoices,
+        distinct=True,
+    )
     port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
+        field_name='port_mappings__ports',
+        lookup_expr='contains',
+        distinct=True,
     )
 
     class Meta:
         model = ServiceTemplate
-        fields = ('id', 'name', 'protocol', 'description')
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1271,14 +1279,20 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
+    protocol = django_filters.MultipleChoiceFilter(
+        field_name='port_mappings__protocol',
+        choices=ServiceProtocolChoices,
+        distinct=True,
+    )
     port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
+        field_name='port_mappings__ports',
+        lookup_expr='contains',
+        distinct=True,
     )
 
     class Meta:
         model = Service
-        fields = ('id', 'name', 'protocol', 'description', 'parent_object_type', 'parent_object_id')
+        fields = ('id', 'name', 'description', 'parent_object_type', 'parent_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1312,6 +1326,40 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         for vm in virtual_machines:
             service_ids.extend(vm.services.values_list('id', flat=True))
         return queryset.filter(id__in=service_ids)
+
+
+@register_filterset
+class ServicePortMappingFilterSet(ChangeLoggedModelFilterSet):
+    service_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='service',
+        queryset=Service.objects.all(),
+        label=_('Service (ID)'),
+    )
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains',
+    )
+
+    class Meta:
+        model = ServicePortMapping
+        fields = ('id', 'protocol', 'service_id')
+
+
+@register_filterset
+class ServiceTemplatePortMappingFilterSet(ChangeLoggedModelFilterSet):
+    service_template_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='service_template',
+        queryset=ServiceTemplate.objects.all(),
+        label=_('Service template (ID)'),
+    )
+    port = NumericArrayFilter(
+        field_name='ports',
+        lookup_expr='contains',
+    )
+
+    class Meta:
+        model = ServiceTemplatePortMapping
+        fields = ('id', 'protocol', 'service_template_id')
 
 
 class PrimaryIPFilterSet(django_filters.FilterSet):

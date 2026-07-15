@@ -39,6 +39,8 @@ __all__ = (
     'RIRType',
     'RoleType',
     'RouteTargetType',
+    'ServicePortMappingType',
+    'ServiceTemplatePortMappingType',
     'ServiceTemplateType',
     'ServiceType',
     'VLANGroupType',
@@ -244,13 +246,13 @@ class RouteTargetType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Service,
-    exclude=('_ports_lowest', 'parent_object_type', 'parent_object_id'),
+    exclude=('parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
-    ports: list[int]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
+    port_mappings: list[Annotated['ServicePortMappingType', strawberry.lazy('ipam.graphql.types')]]
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
@@ -264,12 +266,40 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @strawberry_django.type(
     models.ServiceTemplate,
-    exclude=('_ports_lowest',),
+    fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
+    port_mappings: list[Annotated['ServiceTemplatePortMappingType', strawberry.lazy('ipam.graphql.types')]]
+
+
+@strawberry_django.type(
+    models.ServicePortMapping,
+    exclude=('service',),
+    filters=ServicePortMappingFilter,
+    pagination=True
+)
+class ServicePortMappingType(BaseObjectType):
     ports: list[int]
+
+    @strawberry_django.field
+    def service(self) -> Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]:
+        return self.service
+
+
+@strawberry_django.type(
+    models.ServiceTemplatePortMapping,
+    exclude=('service_template',),
+    filters=ServiceTemplatePortMappingFilter,
+    pagination=True
+)
+class ServiceTemplatePortMappingType(BaseObjectType):
+    ports: list[int]
+
+    @strawberry_django.field
+    def service_template(self) -> Annotated['ServiceTemplateType', strawberry.lazy('ipam.graphql.types')]:
+        return self.service_template
 
 
 @strawberry_django.type(

@@ -39,6 +39,12 @@ class IPAMQuery:
     service_template: ServiceTemplateType = strawberry_django.field()
     service_template_list: list[ServiceTemplateType] = strawberry_django.field()
 
+    service_port_mapping: ServicePortMappingType = strawberry_django.field()
+    service_port_mapping_list: list[ServicePortMappingType] = strawberry_django.field()
+
+    service_template_port_mapping: ServiceTemplatePortMappingType = strawberry_django.field()
+    service_template_port_mapping_list: list[ServiceTemplatePortMappingType] = strawberry_django.field()
+
     fhrp_group: FHRPGroupType = strawberry_django.field()
     fhrp_group_list: list[FHRPGroupType] = strawberry_django.field()
 

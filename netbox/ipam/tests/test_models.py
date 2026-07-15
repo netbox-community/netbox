@@ -1855,44 +1855,58 @@ class PrefixGetChildIPsTestCase(TestCase):
         self.assertEqual(child_pks, {in_vrf.pk, in_global.pk})
 
 
-class ServiceTemplateTestCase(TestCase):
+class ServiceTemplatePortMappingTestCase(TestCase):
 
-    def test_servicetemplate_lowest_port(self):
+    def test_multiple_protocols_same_port(self):
         """
-        Test lowest port setting for servicetemplate
+        A template may expose the same port on multiple protocols (e.g. DNS on tcp/53 and udp/53).
         """
-        template = ServiceTemplate(
-            name='Template 1',
+        template = ServiceTemplate.objects.create(name='DNS')
+        tcp = ServiceTemplatePortMapping(
+            service_template=template,
             protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=[80, 443, 22, 8080],  # small test list
+            ports=[53],
         )
-        template.full_clean()
-        template.save()
-        self.assertEqual(template._ports_lowest, 22)
-
-    def test_servicetemplate_single_port(self):
-        """
-        Test with a single port
-        """
-        template = ServiceTemplate(
-            name='Template 2',
+        tcp.full_clean()
+        tcp.save()
+        udp = ServiceTemplatePortMapping(
+            service_template=template,
             protocol=ServiceProtocolChoices.PROTOCOL_UDP,
             ports=[53],
         )
-        template.full_clean()
-        template.save()
-        self.assertEqual(template._ports_lowest, 53)
+        udp.full_clean()
+        udp.save()
+        self.assertEqual(template.port_mappings.count(), 2)
 
-    def test_servicetemplate_empty_ports(self):
+    def test_duplicate_protocol_not_allowed(self):
         """
-        Test with empty ports list
+        Only one mapping row per protocol per template is permitted.
         """
-        template = ServiceTemplate(
-            name='Template 3',
+        template = ServiceTemplate.objects.create(name='Template 1')
+        ServiceTemplatePortMapping.objects.create(
+            service_template=template,
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80],
+        )
+        duplicate = ServiceTemplatePortMapping(
+            service_template=template,
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[443],
+        )
+        with self.assertRaises(ValidationError):
+            duplicate.full_clean()
+
+    def test_empty_ports(self):
+        """
+        A mapping must specify at least one port.
+        """
+        template = ServiceTemplate.objects.create(name='Template 2')
+        mapping = ServiceTemplatePortMapping(
+            service_template=template,
             protocol=ServiceProtocolChoices.PROTOCOL_TCP,
             ports=[],
         )
-        self.assertRaises(ValidationError, template.full_clean)
+        self.assertRaises(ValidationError, mapping.full_clean)
 
 
 class ServiceTestCase(TestCase):
@@ -1910,16 +1924,37 @@ class ServiceTestCase(TestCase):
 
     def test_large_service(self):
         """
-        Test creation of service with large number of ports.
+        Test creation of a port mapping with a large number of ports.
         Related to issue #22273
         """
-        service = Service(
+        service = Service.objects.create(
             name='Service 1',
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=list(range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)),
             parent=VirtualMachine.objects.first(),
         )
-        service.full_clean()
+        mapping = ServicePortMapping(
+            service=service,
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=list(range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)),
+        )
+        mapping.full_clean()
         # Testing .save() is the important part, to check for database problems
-        service.save()
-        self.assertEqual(service._ports_lowest, SERVICE_PORT_MIN)
+        mapping.save()
+        self.assertEqual(mapping.ports[0], SERVICE_PORT_MIN)
+
+    def test_port_list_summary(self):
+        """
+        The port_list property summarizes all mappings across protocols.
+        """
+        service = Service.objects.create(
+            name='dns',
+            parent=VirtualMachine.objects.first(),
+        )
+        ServicePortMapping.objects.create(
+            service=service, protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[53]
+        )
+        ServicePortMapping.objects.create(
+            service=service, protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]
+        )
+        self.assertEqual(service.port_mappings.count(), 2)
+        self.assertIn('TCP/53', service.port_list)
+        self.assertIn('UDP/53', service.port_list)

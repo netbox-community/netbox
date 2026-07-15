@@ -12,10 +12,6 @@ Application service templates can be used to instantiate [application services](
 
 A service or protocol name.
 
-### Protocol
+### Port Mappings
 
-The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
-
-### Ports
-
-One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.
+One or more [port mappings](./serviceportmapping.md), each pairing a wire protocol (UDP, TCP, or SCTP) with one or more port numbers. The same port may be exposed on multiple protocols by adding a mapping per protocol. Within a single mapping, multiple ports can be expressed using commas and/or hyphens (e.g. `80,8001-8003`).

@@ -16,7 +16,6 @@ from utilities.forms.fields import (
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
-    NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
@@ -476,23 +475,11 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
-        choices=add_blank_choice(ServiceProtocolChoices),
-        required=False
-    )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
-        ),
-        required=False
-    )
-
+    # Protocol/port data now lives in child ServiceTemplatePortMapping rows, which cannot be coherently
+    # set in bulk. Edit port mappings via the individual service (template) form instead.
     model = ServiceTemplate
     fieldsets = (
-        FieldSet('protocol', 'ports', 'description'),
+        FieldSet('description'),
     )
     nullable_fields = ('description', 'comments')
 
