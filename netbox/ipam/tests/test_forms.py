@@ -31,7 +31,7 @@ class PrefixFormTestCase(TestCase):
 
     def test_vlan_field_sets_dynamic_params_for_scope_site_group(self):
         """data-dynamic-params present with available_at_site_group when scope type is Site Group"""
-        site_group = SiteGroup(name='Site Group 1', slug='site-group-1')
+        site_group = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
         form = PrefixForm(data={
             'scope_type': ContentType.objects.get_for_model(SiteGroup).id,
             'scope': site_group,
