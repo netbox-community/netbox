@@ -378,7 +378,6 @@ class BulkDestroyModelMixin:
                     protected = list(
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
                     )
-                    n = len(protected)
                     # Report only the count, not names or PKs, to keep each per-object error
                     # entry small in a batch response. Note: the single-object delete endpoint
                     # (NetBoxModelViewSet.dispatch()) does include names and PKs of dependent
