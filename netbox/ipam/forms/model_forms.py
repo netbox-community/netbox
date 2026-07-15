@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.mixins import ScopedForm
-from dcim.models import Device, Interface, Site
+from dcim.models import Device, Interface, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
@@ -245,12 +245,18 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # #18605: only filter VLAN select list if scope field is a Site
+        # #18605: only filter VLAN select list if scope field is a Site or Site Group
         if scope_field := self.fields.get('scope', None):
-            if scope_field.queryset.model is not Site:
+            if scope_field.queryset.model is Site:
+                pass  # already filtered by available_at_site
+            elif scope_field.queryset.model is SiteGroup:
+                self.fields['vlan'].widget.dynamic_params.clear()
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
-
-
+                self.fields['vlan'].widget.add_query_params({
+                    'available_at_site_group': '$scope',
+                })
+            else:
+                self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 class PrefixBulkAddForm(PrefixForm):
     """
     Subclass of PrefixForm for bulk creation. The prefix field is inherited
