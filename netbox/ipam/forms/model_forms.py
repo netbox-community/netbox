@@ -257,6 +257,8 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
                 })
             else:
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
+
+
 class PrefixBulkAddForm(PrefixForm):
     """
     Subclass of PrefixForm for bulk creation. The prefix field is inherited
