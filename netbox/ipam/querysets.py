@@ -294,6 +294,8 @@ class VLANQuerySet(RestrictedQuerySet):
         """
         Return all VLANs available to the specified site group.
         """
+        if site_group is None:
+            return self.none()
         from .models import VLANGroup
         q = Q(
             scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
