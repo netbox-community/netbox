@@ -1449,13 +1449,7 @@ class RenderTemplateMixinResponseTestCase(TestCase):
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
 
     def test_response_attachment_filename_from_empty_queryset(self):
-        """
-        Regression test (#22687): a non-None but empty queryset must still yield a
-        model-derived filename. A prior bug checked `elif queryset:` (truthiness)
-        instead of `elif queryset is not None:`; QuerySet.__bool__() returns False for
-        an empty queryset, so this branch was incorrectly skipped in favor of the
-        "output" fallback even though a valid queryset was provided.
-        """
+        """An empty (but non-None) queryset must still yield a model-derived filename."""
         t = ExportTemplate(
             name='t',
             template_code='{% for obj in queryset %}{{ obj.name }}{% endfor %}',
@@ -1466,13 +1460,7 @@ class RenderTemplateMixinResponseTestCase(TestCase):
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
 
     def test_response_attachment_does_not_force_queryset_evaluation(self):
-        """
-        Regression test (#22687): render_to_response() must not force evaluation of the
-        queryset just to check its truthiness. The prior `elif queryset:` check triggered
-        QuerySet.__bool__() -> _fetch_all(), issuing an unbounded SELECT and caching every
-        matching row in memory -- even when (as here) the template never references
-        `queryset` and so would otherwise leave it unevaluated.
-        """
+        """A template that never references `queryset` must not force it to be evaluated."""
         Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(5)])
         t = ExportTemplate(
             name='t',
@@ -1483,10 +1471,11 @@ class RenderTemplateMixinResponseTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             t.render_to_response(queryset=Site.objects.all())
 
-        site_queries = [q for q in ctx.captured_queries if 'dcim_site' in q['sql']]
+        table = Site._meta.db_table
+        site_queries = [q for q in ctx.captured_queries if table in q['sql']]
         self.assertEqual(
             site_queries, [],
-            f"render_to_response() queried dcim_site even though the template never "
+            f"render_to_response() queried {table} even though the template never "
             f"references `queryset`:\n{site_queries}"
         )
 
