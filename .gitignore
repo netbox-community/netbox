@@ -5,6 +5,7 @@ __pycache__/
 
 # Python virtual environment created by the installation/upgrade workflow
 /venv/
+/.venv/
 
 # Frontend dependencies and Yarn logs generated during asset development/builds
 /netbox/project-static/node_modules/

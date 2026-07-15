@@ -32,5 +32,18 @@ router.register('scripts', views.ScriptViewSet, basename='script')
 app_name = 'extras-api'
 urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path(
+        'scripts/<str:pk>/',
+        views.ScriptViewSet.as_view(
+            {
+                'get': 'retrieve',
+                'put': 'update',
+                'patch': 'partial_update',
+                'delete': 'destroy',
+                'post': 'post',
+            }
+        ),
+        name='script-detail',
+    ),
     path('', include(router.urls)),
 ]
