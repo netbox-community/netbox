@@ -1312,24 +1312,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         services = (
-            Service(
-                parent=devices[0],
-                name='Service 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
-            Service(
-                parent=devices[1],
-                name='Service 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
-            Service(
-                parent=devices[2],
-                name='Service 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
+            Service(parent=devices[0], name='Service 1'),
+            Service(parent=devices[1], name='Service 2'),
+            Service(parent=devices[2], name='Service 3'),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])
@@ -2528,4 +2513,75 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'ip_address_id': [ips[0].pk, ips[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'ip_address': [str(ips[0].address), str(ips[1].address)]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ServiceTemplatePortMappingTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ServiceTemplatePortMapping.objects.all()
+    filterset = ServiceTemplatePortMappingFilterSet
+    ignore_fields = ('ports',)
+
+    @classmethod
+    def setUpTestData(cls):
+        templates = (
+            ServiceTemplate(name='Service Template 1'),
+            ServiceTemplate(name='Service Template 2'),
+        )
+        ServiceTemplate.objects.bulk_create(templates)
+        ServiceTemplatePortMapping.objects.bulk_create([
+            ServiceTemplatePortMapping(
+                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80, 443]
+            ),
+            ServiceTemplatePortMapping(
+                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]
+            ),
+            ServiceTemplatePortMapping(
+                service_template=templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[22]
+            ),
+        ])
+
+    def test_protocol(self):
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_port(self):
+        params = {'port': '80'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_service_template(self):
+        template = ServiceTemplate.objects.get(name='Service Template 1')
+        params = {'service_template_id': [template.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ServicePortMappingTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ServicePortMapping.objects.all()
+    filterset = ServicePortMappingFilterSet
+    ignore_fields = ('ports',)
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        services = (
+            Service(parent=device, name='Service 1'),
+            Service(parent=device, name='Service 2'),
+        )
+        Service.objects.bulk_create(services)
+        ServicePortMapping.objects.bulk_create([
+            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80, 443]),
+            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]),
+            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[22]),
+        ])
+
+    def test_protocol(self):
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_port(self):
+        params = {'port': '80'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_service(self):
+        service = Service.objects.get(name='Service 1')
+        params = {'service_id': [service.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

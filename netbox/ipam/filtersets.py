@@ -1330,6 +1330,9 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
 
 @register_filterset
 class ServicePortMappingFilterSet(ChangeLoggedModelFilterSet):
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+    )
     service_id = django_filters.ModelMultipleChoiceFilter(
         field_name='service',
         queryset=Service.objects.all(),
@@ -1347,6 +1350,9 @@ class ServicePortMappingFilterSet(ChangeLoggedModelFilterSet):
 
 @register_filterset
 class ServiceTemplatePortMappingFilterSet(ChangeLoggedModelFilterSet):
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+    )
     service_template_id = django_filters.ModelMultipleChoiceFilter(
         field_name='service_template',
         queryset=ServiceTemplate.objects.all(),
