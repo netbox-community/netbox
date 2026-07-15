@@ -1045,6 +1045,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         field_name='group__slug',
         queryset=VLANGroup.objects.all(),
         distinct=False,
+        to_field_name='slug',
         label=_('Group'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
