@@ -395,6 +395,7 @@ class APIViewTestCases:
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
         bulk_update_data = None
+        bulk_update_invalid_data = None
         validation_excluded_fields = []
 
         def test_update_object_without_permission(self):
@@ -545,6 +546,51 @@ class APIViewTestCases:
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_UPDATE,
                         message=changelog_message)
+
+        def test_bulk_update_objects_validation_error(self):
+            """
+            PATCH a set of objects where one fails validation. Verify the structured per-object error
+            response and that no objects are modified (atomic rollback).
+            """
+            if self.bulk_update_data is None or self.bulk_update_invalid_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update validation error')
+
+            # First object: valid data; second: invalid data that must fail validation
+            data = [
+                {'id': id_list[0], **self.bulk_update_data},
+                {'id': id_list[1], **self.bulk_update_invalid_data},
+            ]
+
+            # Snapshot field values before the request so we can verify atomicity afterward
+            instance0_before = self._get_queryset().get(pk=id_list[0])
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[1])
+            self.assertIn('errors', response.data['errors'][0])
+
+            # Verify atomicity: object 0 passed validation but must not have been modified
+            instance0_after = self._get_queryset().get(pk=id_list[0])
+            for field in self.bulk_update_data:
+                if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                    continue
+                self.assertEqual(
+                    getattr(instance0_after, field, None),
+                    getattr(instance0_before, field, None),
+                    f'Field {field!r} of object {id_list[0]} was modified — atomic rollback may be broken',
+                )
 
     class DeleteObjectViewTestCase(APITestCase):
 

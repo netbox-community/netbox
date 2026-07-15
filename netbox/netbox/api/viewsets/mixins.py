@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import router, transaction
+from django.db.models import ProtectedError, RestrictedError
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
@@ -164,21 +165,44 @@ class SequentialBulkCreatesMixin:
         if (response := handle_background(request, 'create')) is not None:
             return response
 
+        # Create objects sequentially so each validation sees the state left by prior creates
+        # (e.g. rack space checks). Collect per-object errors instead of failing on the first.
+        errors = []
+        return_data = []
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             if not isinstance(request.data, list):
                 # Creating a single object
                 return super().create(request, *args, **kwargs)
 
-            return_data = []
-            for data in request.data:
+            total = len(request.data)
+            for i, data in enumerate(request.data):
                 serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
-                self.perform_create(serializer)
-                return_data.append(serializer.data)
+                if serializer.is_valid():
+                    # Provisionally create even when a prior item failed, so subsequent
+                    # cross-object validators (e.g. rack space checks) see a realistic state.
+                    # All creates are rolled back together if any item in the batch fails.
+                    self.perform_create(serializer)
+                    return_data.append(serializer.data)
+                else:
+                    errors.append({'index': i, 'errors': serializer.errors})
 
-            headers = self.get_success_headers(serializer.data)
+            if errors:
+                transaction.set_rollback(True)
 
-            return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
+        if errors:
+            return Response(
+                {
+                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                        failed_count=len(errors),
+                        total=total,
+                    ),
+                    'errors': errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        headers = self.get_success_headers(return_data[-1]) if return_data else {}
+        return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class BulkUpdateModelMixin:
@@ -226,7 +250,19 @@ class BulkUpdateModelMixin:
             obj.pop('id'): obj for obj in request.data
         }
 
-        object_pks = self.perform_bulk_update(qs, update_data, partial=partial)
+        object_pks, errors = self.perform_bulk_update(qs, update_data, partial=partial)
+
+        if errors:
+            return Response(
+                {
+                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                        failed_count=len(errors),
+                        total=len(object_pks) + len(errors),
+                    ),
+                    'errors': errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Prefetch related objects for all updated instances
         qs = self.get_queryset().filter(pk__in=object_pks)
@@ -236,17 +272,24 @@ class BulkUpdateModelMixin:
 
     def perform_bulk_update(self, objects, update_data, partial):
         updated_pks = []
+        errors = []
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+            # Validate and save each object in turn so subsequent validations see the DB
+            # state left by prior saves (e.g. two items renamed to the same name: the second
+            # will fail validation rather than raising an integrity error on save).
             for obj in objects:
                 data = update_data.get(obj.id)
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()
                 serializer = self.get_serializer(obj, data=data, partial=partial)
-                serializer.is_valid(raise_exception=True)
-                self.perform_update(serializer)
-                updated_pks.append(obj.pk)
-
-        return updated_pks
+                if serializer.is_valid():
+                    self.perform_update(serializer)
+                    updated_pks.append(obj.pk)
+                else:
+                    errors.append({'id': obj.pk, 'errors': serializer.errors})
+            if errors:
+                transaction.set_rollback(True)
+        return updated_pks, errors
 
     def get_bulk_update_serializer_class(self, *, partial=False):
         return get_bulk_update_serializer_class(
@@ -302,18 +345,55 @@ class BulkDestroyModelMixin:
             o['id']: o.get('changelog_message') for o in serializer.validated_data
         }
 
-        self.perform_bulk_destroy(qs, changelog_messages)
+        errors, total = self.perform_bulk_destroy(qs, changelog_messages)
+
+        if errors:
+            return Response(
+                {
+                    'detail': _('{failed_count} of {total} objects could not be deleted.').format(
+                        failed_count=len(errors),
+                        total=total,
+                    ),
+                    'errors': errors,
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_bulk_destroy(self, objects, changelog_messages=None):
         changelog_messages = changelog_messages or {}
+        errors = []
+        total = 0
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             for obj in objects:
+                total += 1
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()
                 obj._changelog_message = changelog_messages.get(obj.pk)
-                self.perform_destroy(obj)
+                pk = obj.pk  # Django sets obj.pk = None after deletion; capture it first
+                try:
+                    self.perform_destroy(obj)
+                except (ProtectedError, RestrictedError) as e:
+                    protected = list(
+                        e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
+                    )
+                    # Report only the count, not names or PKs, to keep each per-object error
+                    # entry small in a batch response. Note: the single-object delete endpoint
+                    # (NetBoxModelViewSet.dispatch()) does include names and PKs of dependent
+                    # objects, so this is not a hard security boundary — just a narrower
+                    # response shape for the bulk case.
+                    errors.append({
+                        'id': pk,
+                        'errors': {
+                            '__all__': _(
+                                'Unable to delete: {n} dependent object(s) prevent deletion.'
+                            ).format(n=len(protected)),
+                        },
+                    })
+            if errors:
+                transaction.set_rollback(True)
+        return errors, total
 
 
 class ObjectValidationMixin:
