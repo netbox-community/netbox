@@ -1136,7 +1136,6 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_site_group(self, queryset, name, value):
         return queryset.get_for_site_group(value)
-        
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_device(self, queryset, name, value):
         return queryset.get_for_device(value)
