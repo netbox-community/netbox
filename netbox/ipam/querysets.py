@@ -302,7 +302,9 @@ class VLANQuerySet(RestrictedQuerySet):
             scope_id__in=site_group.get_ancestors(include_self=True)
         )
         return self.filter(
-            Q(group__in=VLANGroup.objects.filter(q))
+            Q(group__in=VLANGroup.objects.filter(q)) |
+            Q(group__scope_id__isnull=True, site__isnull=True) |  # Global group VLANs
+            Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
 
     def get_for_device(self, device):
