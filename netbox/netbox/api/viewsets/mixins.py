@@ -389,7 +389,7 @@ class BulkDestroyModelMixin:
                         'errors': {
                             '__all__': _(
                                 'Unable to delete: {n} dependent object(s) prevent deletion.'
-                            ).format(n=n),
+                            ).format(n=len(protected)),
                         },
                     })
             if errors:
