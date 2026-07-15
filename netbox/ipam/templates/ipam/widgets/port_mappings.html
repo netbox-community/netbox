@@ -1,0 +1,58 @@
+{% load i18n %}
+<div class="port-mapping-widget" data-name="{{ widget.name }}">
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value }}">
+  <table class="table table-sm mb-1">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 40%;">{% trans "Protocol" %}</th>
+        <th scope="col">{% trans "Ports" %}</th>
+        <th scope="col" style="width: 1%;"></th>
+      </tr>
+    </thead>
+    <tbody data-port-mapping-rows>
+      {% for row in widget.rows %}
+        <tr data-port-mapping-row>
+          <td>
+            <select class="form-select form-select-sm no-ts port-mapping-protocol">
+              <option value=""{% if not row.protocol %} selected{% endif %}>---------</option>
+              {% for value, label in protocol_choices %}
+                <option value="{{ value }}"{% if value == row.protocol %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <input type="text" class="form-control form-control-sm port-mapping-ports" value="{{ row.ports }}"
+                   placeholder="{% trans 'e.g. 80,443,8000-8010' %}">
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-port-mapping-remove
+                    aria-label="{% trans 'Remove mapping' %}"><i class="mdi mdi-close"></i></button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="button" class="btn btn-sm btn-outline-primary" data-port-mapping-add>
+    <i class="mdi mdi-plus-thick"></i> {% trans "Add mapping" %}
+  </button>
+
+  <template data-port-mapping-template>
+    <tr data-port-mapping-row>
+      <td>
+        <select class="form-select form-select-sm no-ts port-mapping-protocol">
+          {% for value, label in protocol_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm port-mapping-ports"
+               placeholder="{% trans 'e.g. 80,443,8000-8010' %}">
+      </td>
+      <td>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-port-mapping-remove
+                aria-label="{% trans 'Remove mapping' %}"><i class="mdi mdi-close"></i></button>
+      </td>
+    </tr>
+  </template>
+</div>

@@ -1463,6 +1463,29 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_create_duplicate_protocol_rejected(self):
+        """A protocol may only appear once across a template's port mappings (clean 400, not a 500)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {
+            'name': 'Duplicate',
+            'port_mappings': [
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [80]},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [443]},
+            ],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_port_out_of_range_rejected(self):
+        """Ports outside SERVICE_PORT_MIN..SERVICE_PORT_MAX are rejected with a 400."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {
+            'name': 'OutOfRange',
+            'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [70000]}],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service

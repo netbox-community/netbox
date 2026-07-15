@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from ipam.choices import *
@@ -10,6 +11,7 @@ from ipam.models import (
     ServiceTemplate,
     ServiceTemplatePortMapping,
 )
+from ipam.validators import validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
@@ -49,6 +51,15 @@ class PortMappingSyncMixin:
     """
     port_mapping_model = None
     port_mapping_fk = None
+
+    def validate_port_mappings(self, value):
+        # Enforce the same rules as the UI form (unique protocol per mapping, ports within range) so
+        # invalid input returns a 400 instead of a database IntegrityError.
+        try:
+            validate_port_mappings(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages)
+        return value
 
     def _sync_port_mappings(self, instance, mappings):
         instance.port_mappings.all().delete()
