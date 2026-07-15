@@ -539,27 +539,35 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
+            if value is None:
+                return self.default
             label = self.customfield.get_choice_label(value)
             color = self.customfield.get_choice_color(value)
-            if color:
-                return mark_safe(
-                    f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
+            return mark_safe(
+                    f'<span class="badge text-bg-{escape(color or "secondary")}">{escape(label)}</span>'
                 )
-            return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            has_color = False
             if not value:
-                return ''
+                return self.default
             parts = []
+            
             for v in value:
                 label = self.customfield.get_choice_label(v)
                 color = self.customfield.get_choice_color(v)
                 if color:
-                    parts.append(
-                        f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
-                    )
-                else:
-                    parts.append(escape(label))
-            return mark_safe(', '.join(parts))
+                    has_color = True
+                parts.append( (escape(label), color) )
+            if has_color:
+                badges = []
+                for label, color in parts:
+                    badges.append(
+                        f'<span class="badge text-bg-{escape(color or "secondary")}">{escape(label)}</span>'
+                        )
+                return mark_safe(' '.join(badges))
+            else:
+                return ', '.join(label for label, _ in parts)
+            
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)
