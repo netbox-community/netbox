@@ -11,6 +11,7 @@ from ipam.models import (
     ServiceTemplate,
     ServiceTemplatePortMapping,
 )
+from ipam.utils import sync_port_mappings
 from ipam.validators import validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
@@ -28,7 +29,8 @@ __all__ = (
 
 class PortMappingNestedSerializer(serializers.ModelSerializer):
     """
-    Minimal serializer used to read/write port mappings nested within a Service or ServiceTemplate.
+    Minimal serializer used to read/write port mappings nested within a Service or ServiceTemplate. The
+    ``id`` is read-only (informational); writes are reconciled by protocol, not by ID.
     """
     class Meta:
         fields = ('id', 'protocol', 'ports')
@@ -46,8 +48,8 @@ class ServiceTemplatePortMappingNestedSerializer(PortMappingNestedSerializer):
 
 class PortMappingSyncMixin:
     """
-    Handles create/update of the nested ``port_mappings`` list on the parent serializer. On update the
-    mappings are replaced wholesale when provided.
+    Handles create/update of the nested ``port_mappings`` list on the parent serializer, using the same
+    incremental (protocol-keyed) upsert as the UI form so a PATCH only touches the rows that changed.
     """
     port_mapping_model = None
     port_mapping_fk = None
@@ -61,22 +63,17 @@ class PortMappingSyncMixin:
             raise serializers.ValidationError(exc.messages)
         return value
 
-    def _sync_port_mappings(self, instance, mappings):
-        instance.port_mappings.all().delete()
-        for mapping in mappings:
-            self.port_mapping_model.objects.create(**{self.port_mapping_fk: instance, **mapping})
-
     def create(self, validated_data):
         mappings = validated_data.pop('port_mappings', [])
         instance = super().create(validated_data)
-        self._sync_port_mappings(instance, mappings)
+        sync_port_mappings(instance, self.port_mapping_model, self.port_mapping_fk, mappings)
         return instance
 
     def update(self, instance, validated_data):
         mappings = validated_data.pop('port_mappings', None)
         instance = super().update(instance, validated_data)
         if mappings is not None:
-            self._sync_port_mappings(instance, mappings)
+            sync_port_mappings(instance, self.port_mapping_model, self.port_mapping_fk, mappings)
         return instance
 
 

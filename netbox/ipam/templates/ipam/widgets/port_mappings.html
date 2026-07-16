@@ -40,6 +40,7 @@
     <tr data-port-mapping-row>
       <td>
         <select class="form-select form-select-sm no-ts port-mapping-protocol">
+          <option value="">---------</option>
           {% for value, label in protocol_choices %}
             <option value="{{ value }}">{{ label }}</option>
           {% endfor %}

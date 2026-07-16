@@ -130,7 +130,9 @@ class Migration(migrations.Migration):
             ),
         ),
 
-        # Migrate existing data into the child tables before dropping the old columns
+        # Migrate existing data into the child tables before dropping the old columns. This migration
+        # is effectively forward-only: reversing it re-adds the non-nullable protocol/ports columns with
+        # no default, which fails on a populated table (the RunPython reverse is a no-op regardless).
         migrations.RunPython(copy_port_mappings, migrations.RunPython.noop),
 
         # Drop the protocol/ports data from the parent models

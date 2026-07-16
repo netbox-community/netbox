@@ -11,6 +11,7 @@ from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.forms.port_mappings import PortMappingField
 from ipam.models import *
+from ipam.utils import sync_port_mappings
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
@@ -826,28 +827,7 @@ class ServicePortMappingsMixin(forms.Form):
 
     def _save_port_mappings(self):
         desired = self.cleaned_data.get('port_mappings') or []
-        existing = {mapping.protocol: mapping for mapping in self.instance.port_mappings.all()}
-        seen = set()
-
-        for row in desired:
-            protocol, ports = row['protocol'], row['ports']
-            seen.add(protocol)
-            mapping = existing.get(protocol)
-            if mapping is not None:
-                if mapping.ports != ports:
-                    mapping.ports = ports
-                    mapping.save()
-            else:
-                self.port_mapping_model.objects.create(**{
-                    self.port_mapping_fk: self.instance,
-                    'protocol': protocol,
-                    'ports': ports,
-                })
-
-        # Remove mappings for protocols no longer present
-        for protocol, mapping in existing.items():
-            if protocol not in seen:
-                mapping.delete()
+        sync_port_mappings(self.instance, self.port_mapping_model, self.port_mapping_fk, desired)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)

@@ -118,4 +118,13 @@ class PortMappingField(forms.Field):
             raise ValidationError(self.error_messages['required'], code='required')
 
     def has_changed(self, initial, data):
-        return self.prepare_value(initial) != (data or '[]')
+        # Compare the parsed mappings rather than raw strings, so cosmetic differences (row/port
+        # ordering, whitespace) don't register as a change.
+        def normalize(value):
+            try:
+                mappings = self.to_python(value)
+            except ValidationError:
+                return None
+            return sorted((m['protocol'], tuple(sorted(m['ports']))) for m in mappings)
+
+        return normalize(self.prepare_value(initial)) != normalize(data)

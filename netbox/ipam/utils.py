@@ -13,7 +13,37 @@ __all__ = (
     'annotate_ip_space',
     'get_next_available_prefix',
     'rebuild_prefixes',
+    'sync_port_mappings',
 )
+
+
+def sync_port_mappings(parent, mapping_model, fk_field, desired):
+    """
+    Reconcile a Service/ServiceTemplate's child port mappings against ``desired`` — a list of dicts of
+    the form ``{'protocol': <str>, 'ports': [<int>, ...]}`` — using an incremental, protocol-keyed
+    upsert. Existing rows are updated in place (preserving their PKs and only writing when ports
+    actually change), new protocols are created, and protocols no longer present are deleted.
+
+    Shared by the model form and the REST serializer so both persist mappings identically.
+    """
+    existing = {mapping.protocol: mapping for mapping in parent.port_mappings.all()}
+    seen = set()
+
+    for row in desired:
+        protocol, ports = row['protocol'], list(row['ports'])
+        seen.add(protocol)
+        mapping = existing.get(protocol)
+        if mapping is not None:
+            if list(mapping.ports) != ports:
+                mapping.ports = ports
+                mapping.save()
+        else:
+            mapping_model.objects.create(**{fk_field: parent, 'protocol': protocol, 'ports': ports})
+
+    # Remove mappings for protocols no longer present
+    for protocol, mapping in existing.items():
+        if protocol not in seen:
+            mapping.delete()
 
 
 @dataclass
