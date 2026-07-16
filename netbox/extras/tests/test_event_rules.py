@@ -31,11 +31,6 @@ from utilities.testing.mixins import RQQueueTestMixin
 
 
 class EventRuleTestCase(RQQueueTestMixin, APITestCase):
-    user_permissions = (
-        'dcim.add_site',
-        'dcim.change_site',
-        'extras.view_tag',
-    )
 
     def setUp(self):
         super().setUp()
@@ -617,7 +612,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             'b_terminations': [{'object_type': 'dcim.interface', 'object_id': interface_b.pk}],
         }
         url = reverse('dcim-api:cable-list')
-        self.add_permissions('dcim.add_cable', 'dcim.view_interface')
+        self.add_permissions('dcim.add_cable')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
 

@@ -654,10 +654,6 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         }
         initial_count = Rack.objects.count()
 
-        # Permit resolving the related Site. This test is concerned with
-        # constrained Rack add permissions, not Site visibility.
-        self.add_permissions('dcim.view_site')
-
         # Attempt to create an object without permission
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 403)
@@ -685,9 +681,6 @@ class ObjectPermissionAPIViewTestCase(TestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_edit_object(self):
-        # Permit resolving the related Site. This test is concerned with
-        # constrained Rack change permissions, not Site visibility.
-        self.add_permissions('dcim.view_site')
 
         # Attempt to edit an object without permission
         data = {'site': self.sites[0].pk}

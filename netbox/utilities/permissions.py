@@ -15,7 +15,6 @@ __all__ = (
     'qs_filter_from_constraints',
     'resolve_permission',
     'resolve_permission_type',
-    'restrict_queryset',
 )
 
 
@@ -160,18 +159,3 @@ def qs_filter_from_constraints(constraints, tokens=None):
             return Q()
 
     return params
-
-
-def restrict_queryset(queryset, request, action='view'):
-    """
-    Restrict a queryset to the objects the request user may act on.
-
-    Used when resolving related objects from REST API write input so that an object the user
-    cannot view fails resolution exactly as a nonexistent object would. When no request context
-    is available (internal calls), or the queryset does not support restriction (models without a
-    RestrictedQuerySet manager have no object-level permissions to enforce), it is returned unchanged.
-    """
-    if request is not None and hasattr(queryset, 'restrict'):
-        # An unauthenticated request resolves no objects (restrict() returns none()).
-        return queryset.restrict(getattr(request, 'user', None), action)
-    return queryset
