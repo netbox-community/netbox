@@ -5,7 +5,7 @@ from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
 
-from dcim.models import Site, SiteGroup
+from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import *
@@ -1261,6 +1261,65 @@ class PrefixTestCase(TestCase):
         Prefix.objects.create(vrf=vrf, prefix=IPNetwork('192.0.2.0/24'))
         duplicate_prefix = Prefix(vrf=vrf, prefix=IPNetwork('192.0.2.0/24'))
         self.assertRaises(ValidationError, duplicate_prefix.clean)
+
+
+class PrefixCachedScopeTestCase(TestCase):
+    """
+    Regression tests for #22682: CachedScopeMixin's _region/_site_group fields cache an
+    ancestor of the actual scope (e.g. a Site's region/group) whenever scope is a Site or
+    Location, not just when scope is a Region/SiteGroup directly. These fields must not
+    cascade-delete the scoped object (here, Prefix) when that ancestor is deleted -- only
+    Site.region/Site.group (both SET_NULL) should be affected, exactly as if the cache
+    fields didn't exist.
+    """
+
+    def test_deleting_site_group_does_not_delete_prefix_scoped_to_member_site(self):
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.0.0/24'), scope=site)
+
+        sitegroup.delete()
+
+        site.refresh_from_db()
+        prefix.refresh_from_db()
+        self.assertIsNone(site.group)
+        self.assertEqual(prefix.scope, site)
+        self.assertIsNone(prefix._site_group_id)
+
+    def test_deleting_region_does_not_delete_prefix_scoped_to_member_site(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        site = Site.objects.create(name='Site 2', slug='site-2', region=region)
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.1.0/24'), scope=site)
+
+        region.delete()
+
+        site.refresh_from_db()
+        prefix.refresh_from_db()
+        self.assertIsNone(site.region)
+        self.assertEqual(prefix.scope, site)
+        self.assertIsNone(prefix._region_id)
+
+    def test_deleting_site_group_scoped_to_it_directly_still_deletes_prefix(self):
+        """
+        Sanity check: a Prefix scoped directly to a SiteGroup must still be removed when
+        that SiteGroup is deleted. This cascade is driven by SiteGroup's own GenericRelation
+        to Prefix (see dcim/models/sites.py), independent of _site_group's on_delete setting,
+        so it must be unaffected by the fix for the bug above.
+        """
+        sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.2.0/24'), scope=sitegroup)
+
+        sitegroup.delete()
+
+        self.assertFalse(Prefix.objects.filter(pk=prefix.pk).exists())
+
+    def test_deleting_region_scoped_to_it_directly_still_deletes_prefix(self):
+        region = Region.objects.create(name='Region 2', slug='region-2')
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.3.0/24'), scope=region)
+
+        region.delete()
+
+        self.assertFalse(Prefix.objects.filter(pk=prefix.pk).exists())
 
 
 class PrefixHierarchyTestCase(TestCase):

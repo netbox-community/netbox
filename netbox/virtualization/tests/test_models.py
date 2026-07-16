@@ -3,10 +3,47 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from dcim.models import Platform, Site
+from dcim.models import Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant
 from utilities.testing import create_test_device
 from virtualization.models import *
+
+
+class ClusterCachedScopeTestCase(TestCase):
+    """
+    Regression test for #22682 (see ipam.tests.test_models.PrefixCachedScopeTestCase for
+    the full explanation): CachedScopeMixin's cached _region/_site_group fields must not
+    cascade-delete a Cluster scoped to a Site when that Site's parent Region/SiteGroup is
+    deleted.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+
+    def test_deleting_site_group_does_not_delete_cluster_scoped_to_member_site(self):
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
+        cluster = Cluster.objects.create(name='Cluster 1', type=self.cluster_type, scope=site)
+
+        sitegroup.delete()
+
+        site.refresh_from_db()
+        cluster.refresh_from_db()
+        self.assertIsNone(site.group)
+        self.assertEqual(cluster.scope, site)
+
+    def test_deleting_region_does_not_delete_cluster_scoped_to_member_site(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        site = Site.objects.create(name='Site 2', slug='site-2', region=region)
+        cluster = Cluster.objects.create(name='Cluster 2', type=self.cluster_type, scope=site)
+
+        region.delete()
+
+        site.refresh_from_db()
+        cluster.refresh_from_db()
+        self.assertIsNone(site.region)
+        self.assertEqual(cluster.scope, site)
 
 
 class VirtualMachineTypeTestCase(TestCase):

@@ -5,11 +5,44 @@ from django.test import RequestFactory, TestCase
 
 from core.models import ObjectChange
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Interface
+from dcim.models import Interface, Region, Site, SiteGroup
 from netbox.context_managers import event_tracking
 from users.models import User
 from utilities.testing import create_test_device
-from wireless.models import WirelessLink
+from wireless.models import WirelessLAN, WirelessLink
+
+
+class WirelessLANCachedScopeTestCase(TestCase):
+    """
+    Regression test for #22682 (see ipam.tests.test_models.PrefixCachedScopeTestCase for
+    the full explanation): CachedScopeMixin's cached _region/_site_group fields must not
+    cascade-delete a WirelessLAN scoped to a Site when that Site's parent Region/SiteGroup
+    is deleted.
+    """
+
+    def test_deleting_site_group_does_not_delete_wirelesslan_scoped_to_member_site(self):
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
+        wlan = WirelessLAN.objects.create(ssid='WLAN 1', scope=site)
+
+        sitegroup.delete()
+
+        site.refresh_from_db()
+        wlan.refresh_from_db()
+        self.assertIsNone(site.group)
+        self.assertEqual(wlan.scope, site)
+
+    def test_deleting_region_does_not_delete_wirelesslan_scoped_to_member_site(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        site = Site.objects.create(name='Site 2', slug='site-2', region=region)
+        wlan = WirelessLAN.objects.create(ssid='WLAN 2', scope=site)
+
+        region.delete()
+
+        site.refresh_from_db()
+        wlan.refresh_from_db()
+        self.assertIsNone(site.region)
+        self.assertEqual(wlan.scope, site)
 
 
 class WirelessLinkTestCase(TestCase):
