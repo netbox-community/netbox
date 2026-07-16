@@ -2370,14 +2370,14 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_protocol_and_port(self):
         # Both filters annotate the same alias; ensure they compose without error
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': '1001'}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': '1001'}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_description(self):
@@ -2465,14 +2465,14 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_protocol_and_port(self):
         # Both filters annotate the same alias; ensure they compose without error
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': '1001'}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': '1001'}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_device(self):
