@@ -46,6 +46,29 @@ class WirelessLANCachedScopeTestCase(TestCase):
         self.assertEqual(wlan.scope, site)
         self.assertIsNone(wlan._region_id)
 
+    def test_deleting_site_group_scoped_to_it_directly_still_deletes_wirelesslan(self):
+        """
+        Sanity check: a WirelessLAN scoped directly to a SiteGroup must still be removed
+        when that SiteGroup is deleted. This cascade is driven by SiteGroup's own
+        GenericRelation to WirelessLAN (see dcim/models/sites.py), independent of
+        _site_group's on_delete setting, so it must be unaffected by the fix for the bug
+        above.
+        """
+        sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        wlan = WirelessLAN.objects.create(ssid='WLAN 3', scope=sitegroup)
+
+        sitegroup.delete()
+
+        self.assertFalse(WirelessLAN.objects.filter(pk=wlan.pk).exists())
+
+    def test_deleting_region_scoped_to_it_directly_still_deletes_wirelesslan(self):
+        region = Region.objects.create(name='Region 2', slug='region-2')
+        wlan = WirelessLAN.objects.create(ssid='WLAN 4', scope=region)
+
+        region.delete()
+
+        self.assertFalse(WirelessLAN.objects.filter(pk=wlan.pk).exists())
+
 
 class WirelessLinkTestCase(TestCase):
 

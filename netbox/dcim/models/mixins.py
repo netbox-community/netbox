@@ -72,15 +72,10 @@ class CachedScopeMixin(models.Model):
         blank=True,
         null=True
     )
-    # _region and _site_group are cache-only: they're populated from an ancestor of the
-    # actual scope (e.g. a site's region/group) whenever scope is a Site or Location, not
-    # just when scope is a Region/SiteGroup directly. CASCADE here would delete this object
-    # when that ancestor is deleted, even though the real scope (Site/Location) survives
-    # deletion of its region/group (Site.region and Site.group are both SET_NULL). Deletion
-    # of a Region/SiteGroup that *is* the actual scope is still handled correctly and
-    # independently, via that model's own GenericRelation to this model (see e.g.
-    # Region.prefixes in dcim/models/sites.py), which is unaffected by this field's
-    # on_delete setting.
+    # SET_NULL, not CASCADE (see #22682): these cache an ancestor of the actual scope, so
+    # deleting that ancestor must not delete this object. Deletion of a Region/SiteGroup
+    # that *is* the actual scope is handled independently via its GenericRelation to this
+    # model (e.g. Region.clusters in dcim/models/sites.py).
     _region = models.ForeignKey(
         to='dcim.Region',
         on_delete=models.SET_NULL,

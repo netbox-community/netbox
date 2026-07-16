@@ -47,6 +47,28 @@ class ClusterCachedScopeTestCase(TestCase):
         self.assertIsNone(cluster._region_id)
         self.assertEqual(cluster.scope, site)
 
+    def test_deleting_site_group_scoped_to_it_directly_still_deletes_cluster(self):
+        """
+        Sanity check: a Cluster scoped directly to a SiteGroup must still be removed when
+        that SiteGroup is deleted. This cascade is driven by SiteGroup's own GenericRelation
+        to Cluster (see dcim/models/sites.py), independent of _site_group's on_delete
+        setting, so it must be unaffected by the fix for the bug above.
+        """
+        sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        cluster = Cluster.objects.create(name='Cluster 3', type=self.cluster_type, scope=sitegroup)
+
+        sitegroup.delete()
+
+        self.assertFalse(Cluster.objects.filter(pk=cluster.pk).exists())
+
+    def test_deleting_region_scoped_to_it_directly_still_deletes_cluster(self):
+        region = Region.objects.create(name='Region 2', slug='region-2')
+        cluster = Cluster.objects.create(name='Cluster 4', type=self.cluster_type, scope=region)
+
+        region.delete()
+
+        self.assertFalse(Cluster.objects.filter(pk=cluster.pk).exists())
+
 
 class VirtualMachineTypeTestCase(TestCase):
 
