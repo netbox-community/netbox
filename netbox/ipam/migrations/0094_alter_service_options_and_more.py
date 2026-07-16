@@ -13,7 +13,9 @@ def populate_port_mappings(apps, schema_editor):
         model = apps.get_model('ipam', model_name)
         batch = []
         for obj in model.objects.filter(ports__len__gt=0).iterator(chunk_size=1000):
-            obj.port_mappings = [f'{obj.protocol}/{port}' for port in obj.ports]
+            # dict.fromkeys dedupes while preserving order (legacy ports weren't guaranteed unique),
+            # so a duplicated port doesn't produce a duplicate mapping that later fails validation.
+            obj.port_mappings = list(dict.fromkeys(f'{obj.protocol}/{port}' for port in obj.ports))
             batch.append(obj)
             if len(batch) >= 1000:
                 model.objects.bulk_update(batch, ['port_mappings'])

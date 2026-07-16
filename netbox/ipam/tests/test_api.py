@@ -1517,6 +1517,18 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_graphql_protocol_and_port_filter(self):
+        """Combined protocol + port filtering works over GraphQL (port mappings live in an array)."""
+        self.add_permissions('ipam.view_service')
+        url = reverse('graphql')
+        query = '{ service_list(filters: {protocol: [ROLE_TCP], port: [1]}) { id name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['service_list']), 1)
+        self.assertEqual(data['data']['service_list'][0]['name'], 'Service 1')
+
 
 class NestedObjectPermissionAPITest(APITestCase):
     """
