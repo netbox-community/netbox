@@ -244,7 +244,7 @@ class RenderTemplateMixin(models.Model):
             extension = f'.{self.file_extension}' if self.file_extension else ''
             if self.file_name:
                 filename = self.file_name
-            elif queryset:
+            elif queryset is not None:
                 filename = filename_from_model(queryset.model)
             elif context:
                 filename = filename_from_object(context)

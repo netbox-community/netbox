@@ -11,8 +11,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection
 from django.forms import ValidationError
 from django.test import TestCase, tag
+from django.test.utils import CaptureQueriesContext
 from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
 
@@ -1445,6 +1447,37 @@ class RenderTemplateMixinResponseTestCase(TestCase):
         )
         response = t.render_to_response(queryset=Site.objects.all())
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+
+    def test_response_attachment_filename_from_empty_queryset(self):
+        """An empty (but non-None) queryset must still yield a model-derived filename."""
+        t = ExportTemplate(
+            name='t',
+            template_code='{% for obj in queryset %}{{ obj.name }}{% endfor %}',
+            file_extension='txt',
+            as_attachment=True,
+        )
+        response = t.render_to_response(queryset=Site.objects.none())
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+
+    def test_response_attachment_does_not_force_queryset_evaluation(self):
+        """A template that never references `queryset` must not force it to be evaluated."""
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(5)])
+        t = ExportTemplate(
+            name='t',
+            template_code='static output',  # deliberately does not reference `queryset`
+            file_extension='txt',
+            as_attachment=True,
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            t.render_to_response(queryset=Site.objects.all())
+
+        table = Site._meta.db_table
+        site_queries = [q for q in ctx.captured_queries if table in q['sql']]
+        self.assertEqual(
+            site_queries, [],
+            f"render_to_response() queried {table} even though the template never "
+            f"references `queryset`:\n{site_queries}"
+        )
 
     def test_response_attachment_filename_from_device_context(self):
         t = ConfigTemplate(name='t', template_code='ok', as_attachment=True)
