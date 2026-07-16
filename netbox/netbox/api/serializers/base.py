@@ -50,7 +50,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # identifying a related object.
         if self.nested:
             queryset = self.Meta.model.objects.all()
-            return get_related_object_by_attrs(queryset, data)
+            request = self.context.get('request')
+            user = request.user if request else None
+            return get_related_object_by_attrs(queryset, data, user=user)
 
         return super().to_internal_value(data)
 
