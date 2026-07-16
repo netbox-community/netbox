@@ -10,7 +10,6 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
 from utilities.data import get_inclusive_integer_range_bounds
-from utilities.permissions import restrict_queryset
 
 __all__ = (
     'AttributesField',
@@ -19,7 +18,6 @@ __all__ = (
     'IPNetworkSerializer',
     'IntegerRangeSerializer',
     'RelatedObjectCountField',
-    'RestrictedPrimaryKeyRelatedField',
     'SerializedPKRelatedField',
 )
 
@@ -135,21 +133,10 @@ class IPNetworkSerializer(serializers.Serializer):
         return IPNetwork(value)
 
 
-class RestrictedPrimaryKeyRelatedField(PrimaryKeyRelatedField):
+class SerializedPKRelatedField(PrimaryKeyRelatedField):
     """
-    PrimaryKeyRelatedField that resolves write input from a permission-restricted queryset, so a
-    referenced object the user cannot view fails validation as though it did not exist. It represents the
-    object by its bare PK on read; SerializedPKRelatedField extends it to return a serialized object instead.
-    """
-    def get_queryset(self):
-        return restrict_queryset(super().get_queryset(), self.context.get('request'))
-
-
-class SerializedPKRelatedField(RestrictedPrimaryKeyRelatedField):
-    """
-    Extends RestrictedPrimaryKeyRelatedField to return a serialized object on read, inheriting its
-    permission-restricted resolution of write input. This is useful for representing related objects in a
-    ManyToManyField while still allowing a set of primary keys to be written.
+    Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related
+    objects in a ManyToManyField while still allowing a set of primary keys to be written.
     """
     def __init__(self, serializer, nested=False, **kwargs):
         self.serializer = serializer

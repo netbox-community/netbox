@@ -66,10 +66,7 @@ class Mixins:
             cable = Cable(a_terminations=[obj], b_terminations=[peer_obj], label='Cable 1')
             cable.save()
 
-            self.add_permissions(
-                f'dcim.view_{self.model._meta.model_name}',
-                f'dcim.view_{self.peer_termination_type._meta.model_name}',
-            )
+            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
             url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
             response = self.client.get(url, **self.header)
 
@@ -1526,7 +1523,6 @@ class RearPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
-    user_permissions = ('dcim.view_frontporttemplate', )
 
     @classmethod
     def setUpTestData(cls):
@@ -2253,8 +2249,6 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         obj_perm.users.add(self.user)
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-        self.add_related_view_permissions(self.create_data[0])
-
         initial_count = self._get_queryset().count()
         # First item is valid; second is empty (missing required fields) and will fail
         response = self.client.post(
@@ -2842,7 +2836,7 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         'description': 'New description',
     }
     peer_termination_type = Interface
-    user_permissions = ('dcim.view_device', 'ipam.view_vlan')
+    user_permissions = ('dcim.view_device', )
 
     @classmethod
     def setUpTestData(cls):
@@ -3249,25 +3243,6 @@ class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-    def test_create_front_port_with_unviewable_rear_port_fails(self):
-        """A front port cannot be created against a rear port the user cannot view."""
-        self.remove_permissions('dcim.view_rearport')
-        self.add_permissions('dcim.add_frontport')
-
-        device = Device.objects.first()
-        rear_port = RearPort.objects.first()
-        data = {
-            'device': device.pk,
-            'name': 'Front Port Hidden',
-            'type': PortTypeChoices.TYPE_8P8C,
-            'rear_ports': [
-                {'position': 1, 'rear_port': rear_port.pk, 'rear_port_position': 1},
-            ],
-        }
-        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('rear_ports', response.data)
-
 
 class RearPortTestCase(APIViewTestCases.APIViewTestCase):
     model = RearPort
@@ -3276,7 +3251,7 @@ class RearPortTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     peer_termination_type = Interface
-    user_permissions = ('dcim.view_device', 'dcim.view_frontport')
+    user_permissions = ('dcim.view_device', )
 
     @classmethod
     def setUpTestData(cls):
@@ -3696,8 +3671,6 @@ class CableBundleTestCase(APIViewTestCases.APIViewTestCase):
 class CableTestCase(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['description', 'display', 'id', 'label', 'url']
-    # Cable terminations are generic-FK references; view permission cannot be auto-derived
-    user_permissions = ('dcim.view_interface',)
     bulk_update_data = {
         'length': 100,
         'length_unit': 'm',

@@ -22,7 +22,7 @@ from dcim.models import (
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
-from netbox.api.fields import ChoiceField, ContentTypeField, RestrictedPrimaryKeyRelatedField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
 from users.api.serializers_.mixins import OwnerMixin
@@ -359,7 +359,7 @@ class RearPortMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='rear_port_position'
     )
-    front_port = RestrictedPrimaryKeyRelatedField(
+    front_port = serializers.PrimaryKeyRelatedField(
         queryset=FrontPort.objects.all(),
     )
 
@@ -397,7 +397,7 @@ class FrontPortMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='front_port_position'
     )
-    rear_port = RestrictedPrimaryKeyRelatedField(
+    rear_port = serializers.PrimaryKeyRelatedField(
         queryset=RearPort.objects.all(),
     )
 
@@ -480,7 +480,7 @@ class DeviceBaySerializer(OwnerMixin, NetBoxModelSerializer):
 
 class InventoryItemSerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
-    parent = RestrictedPrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
+    parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     role = InventoryItemRoleSerializer(nested=True, required=False, allow_null=True)
     manufacturer = ManufacturerSerializer(nested=True, required=False, allow_null=True, default=None)
     component_type = ContentTypeField(

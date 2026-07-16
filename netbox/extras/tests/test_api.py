@@ -598,7 +598,6 @@ class BookmarkTestCase(
 ):
     model = Bookmark
     brief_fields = ['display', 'id', 'object_id', 'object_type', 'url']
-    user_permissions = ('users.view_user',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1423,7 +1422,6 @@ class SubscriptionTestCase(APIViewTestCases.APIViewTestCase):
     graphql_filter = {
         'id': {'lookup': 'gt', 'value': '0'},
     }
-    user_permissions = ('users.view_user',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1560,7 +1558,6 @@ class NotificationGroupTestCase(APIViewTestCases.APIViewTestCase):
 class NotificationTestCase(APIViewTestCases.APIViewTestCase):
     model = Notification
     brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
-    user_permissions = ('users.view_user',)
     bulk_update_data = {
         'read': now(),
     }

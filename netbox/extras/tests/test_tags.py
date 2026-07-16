@@ -22,7 +22,7 @@ class TaggedItemTestCase(APITestCase):
             'tags': [t.pk for t in tags]
         }
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site', 'extras.view_tag')
+        self.add_permissions('dcim.add_site')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -50,7 +50,7 @@ class TaggedItemTestCase(APITestCase):
                 {"name": "New Tag"},
             ]
         }
-        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        self.add_permissions('dcim.change_site')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
 
         response = self.client.patch(url, data, format='json', **self.header)

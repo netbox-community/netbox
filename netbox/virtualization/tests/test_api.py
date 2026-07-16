@@ -357,12 +357,7 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
             'vcpus': None,
             'memory': None,
         }
-        self.add_permissions(
-            'virtualization.add_virtualmachine',
-            'dcim.view_site',
-            'virtualization.view_cluster',
-            'virtualization.view_virtualmachinetype',
-        )
+        self.add_permissions('virtualization.add_virtualmachine')
 
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -383,13 +378,7 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
             'vcpus': 6,
             'memory': 12288,
         }
-        self.add_permissions(
-            'virtualization.add_virtualmachine',
-            'dcim.view_site',
-            'virtualization.view_cluster',
-            'virtualization.view_virtualmachinetype',
-            'dcim.view_platform',
-        )
+        self.add_permissions('virtualization.add_virtualmachine')
 
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -720,7 +709,7 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
             },
         }
 
-        self.add_permissions('ipam.change_prefix', 'virtualization.view_vminterface')
+        self.add_permissions('ipam.change_prefix')
 
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 200)
