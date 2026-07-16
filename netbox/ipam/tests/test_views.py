@@ -2040,3 +2040,23 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(instance.description, service_template.description)
         # Port mappings should be copied from the template
         self.assertEqual(instance.port_mappings, ['tcp/80'])
+
+    def test_bulk_edit_port_mappings(self):
+        # Bulk add/remove port mappings across selected services (tags-style)
+        self.add_permissions('ipam.view_service', 'ipam.change_service')
+        services = list(Service.objects.filter(name__in=['Service 1', 'Service 2']).order_by('name'))
+        data = {
+            'pk': [s.pk for s in services],
+            'add_port_mappings': '[{"protocol": "udp", "ports": "53"}]',
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        # Service 1 (was tcp/101): tcp/101 removed, udp/53 added
+        service1 = Service.objects.get(pk=services[0].pk)
+        self.assertEqual(service1.port_mappings, ['udp/53'])
+        # Service 2 (was tcp/102): remove is a no-op, udp/53 added
+        service2 = Service.objects.get(pk=services[1].pk)
+        self.assertEqual(service2.port_mappings, ['tcp/102', 'udp/53'])

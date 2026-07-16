@@ -6,6 +6,7 @@ from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
+from ipam.forms.port_mappings import PortMappingField
 from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
@@ -475,10 +476,20 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    # Port mappings are edited via the individual service (template) form, not in bulk.
+    add_port_mappings = PortMappingField(
+        label=_('Add port mappings'),
+        required=False,
+        help_text=_("Port mappings to add to each selected object"),
+    )
+    remove_port_mappings = PortMappingField(
+        label=_('Remove port mappings'),
+        required=False,
+        help_text=_("Port mappings to remove from each selected object (if present)"),
+    )
+
     model = ServiceTemplate
     fieldsets = (
-        FieldSet('description'),
+        FieldSet('add_port_mappings', 'remove_port_mappings', 'description'),
     )
     nullable_fields = ('description', 'comments')
 
