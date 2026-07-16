@@ -1217,6 +1217,8 @@ def annotate_port_mappings(queryset):
     # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
     # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port). Idempotent so the
     # protocol and port filters can both run on the same queryset without a duplicate-alias error.
+    # NOTE: queryset.query.annotations is a Django ORM internal; if it changes in a future release,
+    # replace this guard with tracking the annotation state at the caller.
     if '_port_mappings_str' in queryset.query.annotations:
         return queryset
     return queryset.annotate(
@@ -1225,19 +1227,20 @@ def annotate_port_mappings(queryset):
     )
 
 
-def filter_port_mapping_protocol(queryset, protocols):
-    if not protocols:
-        return queryset
+def port_mapping_protocol_q(protocols):
+    # Match services having a mapping for any of the given protocols (operates on _port_mappings_str)
     qs_filter = Q()
     for protocol in protocols:
         qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
-    return annotate_port_mappings(queryset).filter(qs_filter)
+    return qs_filter
 
 
-def filter_port_mapping_port(queryset, port):
-    if port in (None, ''):
-        return queryset
-    return annotate_port_mappings(queryset).filter(_port_mappings_str__contains=f'/{port},')
+def port_mapping_port_q(ports):
+    # Match services having a mapping on any of the given ports (any protocol)
+    qs_filter = Q()
+    for port in ports:
+        qs_filter |= Q(_port_mappings_str__contains=f'/{port},')
+    return qs_filter
 
 
 @register_filterset
@@ -1246,7 +1249,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         choices=ServiceProtocolChoices,
         method='filter_protocol',
     )
-    port = django_filters.NumberFilter(
+    port = MultiValueNumberFilter(
         method='filter_port',
     )
 
@@ -1264,10 +1267,14 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
     def filter_protocol(self, queryset, name, value):
-        return filter_port_mapping_protocol(queryset, value)
+        if not value:
+            return queryset
+        return annotate_port_mappings(queryset).filter(port_mapping_protocol_q(value))
 
     def filter_port(self, queryset, name, value):
-        return filter_port_mapping_port(queryset, value)
+        if not value:
+            return queryset
+        return annotate_port_mappings(queryset).filter(port_mapping_port_q(value))
 
 
 @register_filterset
@@ -1318,7 +1325,7 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         choices=ServiceProtocolChoices,
         method='filter_protocol',
     )
-    port = django_filters.NumberFilter(
+    port = MultiValueNumberFilter(
         method='filter_port',
     )
 
@@ -1333,10 +1340,14 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
     def filter_protocol(self, queryset, name, value):
-        return filter_port_mapping_protocol(queryset, value)
+        if not value:
+            return queryset
+        return annotate_port_mappings(queryset).filter(port_mapping_protocol_q(value))
 
     def filter_port(self, queryset, name, value):
-        return filter_port_mapping_port(queryset, value)
+        if not value:
+            return queryset
+        return annotate_port_mappings(queryset).filter(port_mapping_port_q(value))
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})

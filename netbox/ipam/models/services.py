@@ -40,34 +40,51 @@ class ServiceBase(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Apply bulk-edit add/remove modifiers before validation. BulkEditView sets the
-        # add_port_mappings / remove_port_mappings form values as transient attributes on the instance
-        # ahead of full_clean() (its "form field used to modify a field" handling), so the delta is
-        # folded into the single save and produces one change-log entry.
-        add = self.__dict__.pop('add_port_mappings', None)
-        remove = self.__dict__.pop('remove_port_mappings', None)
-        if add or remove:
-            mappings = list(self.port_mappings)
-            if add:
-                mappings += [mapping for mapping in add if mapping not in mappings]
-            if remove:
-                mappings = [mapping for mapping in mappings if mapping not in remove]
-            self.port_mappings = mappings
-
+        self._apply_bulk_port_mapping_modifiers()
         validate_port_mappings(self.port_mappings)
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
 
+    def _apply_bulk_port_mapping_modifiers(self):
+        """
+        Fold bulk-edit add/remove deltas into ``port_mappings`` before validation.
+
+        The generic ``BulkEditView`` has no per-object pre-save hook, but it does assign the
+        ``add_port_mappings`` / ``remove_port_mappings`` bulk-edit form values onto the instance ahead
+        of ``full_clean()`` (its "form field used to modify a field" handling). Consuming them here keeps
+        the change within the single bulk-edit save (one change-log entry). This is a no-op everywhere
+        else, since those attributes are only present during a bulk edit.
+        """
+        add = getattr(self, 'add_port_mappings', None)
+        remove = getattr(self, 'remove_port_mappings', None)
+        if add is None and remove is None:
+            return
+
+        # Consume the transient attributes so a repeated clean() can't re-apply the delta
+        for attr in ('add_port_mappings', 'remove_port_mappings'):
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
+
+        mappings = list(self.port_mappings)
+        if add:
+            mappings += [mapping for mapping in add if mapping not in mappings]
+        if remove:
+            mappings = [mapping for mapping in mappings if mapping not in remove]
+        self.port_mappings = mappings
+
     @property
     def port_list(self):
-        # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53"
+        # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
+        # numerically within each protocol so the display is stable regardless of stored order.
         grouped = {}
         for mapping in self.port_mappings:
             protocol, _sep, port = mapping.partition('/')
             grouped.setdefault(protocol, []).append(port)
         return ', '.join(
-            f'{protocol.upper()}/{",".join(ports)}' for protocol, ports in grouped.items()
+            f'{protocol.upper()}/{",".join(sorted(ports, key=int))}'
+            for protocol, ports in grouped.items()
         )
 
 

@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from ipam.choices import *
@@ -20,11 +21,17 @@ __all__ = (
 
 class PortMappingsValidationMixin:
     def validate_port_mappings(self, value):
-        # Enforce the same rules as the model/UI form so invalid input returns a 400.
+        # Enforce the same rules as the model/UI form so invalid input returns a 400 keyed under
+        # port_mappings (rather than surfacing as a non-field error from the model's full_clean()).
+        # The non-empty check lives here rather than in the shared validator because the shared
+        # validator is also used by the create-from-template form field, which is legitimately empty
+        # until clean() copies the template's mappings.
         try:
             validate_port_mappings(value)
         except DjangoValidationError as exc:
             raise serializers.ValidationError(exc.messages)
+        if not value:
+            raise serializers.ValidationError(_("At least one port mapping is required."))
         return value
 
 
