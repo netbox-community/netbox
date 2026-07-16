@@ -563,7 +563,7 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
             'manufacturer_id', 'default_platform_id', 'part_number', 'device_count',
             'subdevice_role', 'airflow', name=_('Hardware')
         ),
-        FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
+        FieldSet('has_front_image', 'has_rear_image', 'has_images', name=_('Images')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'device_bays', 'module_bays', 'inventory_items', name=_('Components')
@@ -615,6 +615,13 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    has_images = forms.NullBooleanField(
+        required=False,
+        label=_('Has images'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    ) 
     console_ports = forms.NullBooleanField(
         required=False,
         label=_('Has console ports'),
@@ -712,6 +719,7 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', 'module_bays', name=_('Components')
         ),
+        FieldSet('has_images', name=_('Images')),
         FieldSet('weight', 'weight_unit', name=_('Weight')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -799,6 +807,13 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         label=_('Weight unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
+    )
+    has_images = forms.NullBooleanField(
+        required=False,
+        label=_('Has images'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
 
 
