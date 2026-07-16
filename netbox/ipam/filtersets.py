@@ -1215,16 +1215,16 @@ class _ArrayToString(Func):
 
 def annotate_port_mappings(queryset):
     # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
-    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port). Idempotent so the
-    # protocol and port filters can both run on the same queryset without a duplicate-alias error.
-    # NOTE: queryset.query.annotations is a Django ORM internal; if it changes in a future release,
-    # replace this guard with tracking the annotation state at the caller.
-    if '_port_mappings_str' in queryset.query.annotations:
+    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port). The protocol and port
+    # filters may both annotate the same queryset; annotate() raises ValueError on a duplicate alias, so
+    # we treat that as "already annotated" rather than inspecting Django ORM internals.
+    try:
+        return queryset.annotate(
+            _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
+                                      output_field=TextField())
+        )
+    except ValueError:
         return queryset
-    return queryset.annotate(
-        _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
-                                  output_field=TextField())
-    )
 
 
 def port_mapping_protocol_q(protocols):

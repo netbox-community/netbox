@@ -39,9 +39,11 @@ def validate_port_mappings(mappings):
                     port=port_number, min=SERVICE_PORT_MIN, max=SERVICE_PORT_MAX
                 )
             )
-        if mapping in seen:
+        # Compare on the normalized protocol/port so e.g. tcp/80 and tcp/080 count as duplicates
+        normalized = f'{protocol}/{port_number}'
+        if normalized in seen:
             raise ValidationError(_("Duplicate port mapping: {mapping}").format(mapping=mapping))
-        seen.add(mapping)
+        seen.add(normalized)
 
 
 def prefix_validator(prefix):

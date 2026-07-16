@@ -8,6 +8,12 @@ def populate_port_mappings(apps, schema_editor):
     """
     Build the new ``port_mappings`` array (e.g. ['tcp/80', 'tcp/443']) from the legacy protocol/ports
     fields on each Service/ServiceTemplate. Processed in batches to bound memory on large installs.
+
+    Services/templates that had an empty ``ports`` array (technically invalid under the old schema, but
+    possible via direct DB writes) are left with ``port_mappings=[]``, which the new model rejects on the
+    next save. Operators can find any such records post-migration with, e.g.:
+        SELECT id, name FROM ipam_service WHERE port_mappings = '{}';
+        SELECT id, name FROM ipam_servicetemplate WHERE port_mappings = '{}';
     """
     for model_name in ('Service', 'ServiceTemplate'):
         model = apps.get_model('ipam', model_name)

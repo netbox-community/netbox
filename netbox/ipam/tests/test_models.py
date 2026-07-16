@@ -1887,6 +1887,12 @@ class ServiceTemplateTestCase(TestCase):
         with self.assertRaises(ValidationError):
             template.full_clean()
 
+    def test_duplicate_normalized_port(self):
+        # tcp/80 and tcp/080 are the same mapping and must be rejected as a duplicate
+        template = ServiceTemplate(name='DupNorm', port_mappings=['tcp/80', 'tcp/080'])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
 
 class ServiceTestCase(TestCase):
 
