@@ -1215,32 +1215,51 @@ class _ArrayToString(Func):
 
 def annotate_port_mappings(queryset):
     # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
-    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port). The protocol and port
-    # filters may both annotate the same queryset; annotate() raises ValueError on a duplicate alias, so
-    # we treat that as "already annotated" rather than inspecting Django ORM internals.
-    try:
-        return queryset.annotate(
-            _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
-                                      output_field=TextField())
-        )
-    except ValueError:
-        return queryset
+    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port, ',tcp/80,' for a pair).
+    # Re-annotating with the same alias is a harmless no-op, so both the protocol and port filters may
+    # call this on the same queryset.
+    return queryset.annotate(
+        _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
+                                  output_field=TextField())
+    )
 
 
-def port_mapping_protocol_q(protocols):
-    # Match services having a mapping for any of the given protocols (operates on _port_mappings_str)
+def port_mapping_q(protocols, ports):
+    """
+    Build a filter for services by protocol and/or port, returning ``(needs_annotation, Q)``.
+
+    When both protocols and ports are given, a match must come from the *same* mapping: this uses exact
+    ArrayField containment (``port_mappings @> ['tcp/80']``), which is precise and GIN-indexable, so no
+    annotation is required (``needs_annotation`` is False). When only one is given, there is no way to
+    match a protocol prefix or port suffix via containment, so we fall back to a substring match against
+    the ``_port_mappings_str`` annotation (``needs_annotation`` is True).
+    """
     qs_filter = Q()
-    for protocol in protocols:
-        qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
-    return qs_filter
-
-
-def port_mapping_port_q(ports):
-    # Match services having a mapping on any of the given ports (any protocol)
-    qs_filter = Q()
+    if protocols and ports:
+        for protocol in protocols:
+            for port in ports:
+                qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
+        return False, qs_filter
+    if protocols:
+        for protocol in protocols:
+            qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
+        return True, qs_filter
     for port in ports:
         qs_filter |= Q(_port_mappings_str__contains=f'/{port},')
-    return qs_filter
+    return True, qs_filter
+
+
+def port_mapping_filter_qs(queryset, protocols, ports):
+    """
+    Return ``(queryset, Q)`` for a protocol/port filter, annotating the queryset only when the Q needs
+    the ``_port_mappings_str`` string form. Shared by the FilterSet and the GraphQL filters.
+    """
+    if not protocols and not ports:
+        return queryset, Q()
+    needs_annotation, qs_filter = port_mapping_q(protocols, ports)
+    if needs_annotation:
+        queryset = annotate_port_mappings(queryset)
+    return queryset, qs_filter
 
 
 @register_filterset
@@ -1266,15 +1285,19 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         )
         return queryset.filter(qs_filter)
 
+    def _filter_port_mappings(self, queryset):
+        # Correlate the protocol and port filters so a combined query matches a single mapping rather
+        # than protocol and port independently across the whole array.
+        protocols = self.form.cleaned_data.get('protocol') or []
+        ports = self.form.cleaned_data.get('port') or []
+        queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
+        return queryset.filter(qs_filter)
+
     def filter_protocol(self, queryset, name, value):
-        if not value:
-            return queryset
-        return annotate_port_mappings(queryset).filter(port_mapping_protocol_q(value))
+        return self._filter_port_mappings(queryset)
 
     def filter_port(self, queryset, name, value):
-        if not value:
-            return queryset
-        return annotate_port_mappings(queryset).filter(port_mapping_port_q(value))
+        return self._filter_port_mappings(queryset)
 
 
 @register_filterset
@@ -1339,15 +1362,19 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
         return queryset.filter(qs_filter)
 
+    def _filter_port_mappings(self, queryset):
+        # Correlate the protocol and port filters so a combined query matches a single mapping rather
+        # than protocol and port independently across the whole array.
+        protocols = self.form.cleaned_data.get('protocol') or []
+        ports = self.form.cleaned_data.get('port') or []
+        queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
+        return queryset.filter(qs_filter)
+
     def filter_protocol(self, queryset, name, value):
-        if not value:
-            return queryset
-        return annotate_port_mappings(queryset).filter(port_mapping_protocol_q(value))
+        return self._filter_port_mappings(queryset)
 
     def filter_port(self, queryset, name, value):
-        if not value:
-            return queryset
-        return annotate_port_mappings(queryset).filter(port_mapping_port_q(value))
+        return self._filter_port_mappings(queryset)
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})

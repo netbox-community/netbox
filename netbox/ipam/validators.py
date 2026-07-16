@@ -3,6 +3,28 @@ from django.core.validators import BaseValidator, RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 
+def split_port_mapping(mapping):
+    """
+    Split a ``protocol/port`` string (e.g. ``'tcp/80'``) into its ``(protocol, port)`` parts. A missing
+    separator or port yields an empty string for that part, leaving validation to report the problem.
+    """
+    protocol, _sep, port = mapping.partition('/')
+    return protocol, port
+
+
+def group_port_mappings(mappings):
+    """
+    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into an ordered ``{protocol: [ports]}`` dict,
+    preserving first-seen protocol order. Shared by the display property and the form widget so the
+    ``protocol/port`` string is parsed in exactly one place.
+    """
+    grouped = {}
+    for mapping in mappings:
+        protocol, port = split_port_mapping(mapping)
+        grouped.setdefault(protocol, []).append(port)
+    return grouped
+
+
 def validate_port_mappings(mappings):
     """
     Validate a list of service port mappings, i.e. ``protocol/port`` strings such as ``'tcp/80'``.
@@ -20,8 +42,8 @@ def validate_port_mappings(mappings):
     valid_protocols = ServiceProtocolChoices.values()
     seen = set()
     for mapping in mappings:
-        protocol, sep, port = mapping.partition('/')
-        if not sep or not port:
+        protocol, port = split_port_mapping(mapping)
+        if not port:
             raise ValidationError(
                 _("Invalid port mapping '{mapping}'. Expected format protocol/port (e.g. tcp/80).").format(
                     mapping=mapping

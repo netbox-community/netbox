@@ -618,7 +618,8 @@ class ServicePortMappingsImportMixin(forms.Form):
                     _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
                 )
             protocol = protocol.strip().lower()
-            for port in parse_numeric_range(ports_str.strip()):
+            ports = parse_numeric_range(ports_str.strip(), min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+            for port in ports:
                 mappings.append(f'{protocol}/{port}')
         # Validate protocol/range/duplicates consistently with the model and UI form
         try:

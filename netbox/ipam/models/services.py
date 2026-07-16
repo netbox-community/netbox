@@ -1,12 +1,13 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
-from ipam.validators import validate_port_mappings
+from ipam.validators import group_port_mappings, validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
 
@@ -78,13 +79,9 @@ class ServiceBase(models.Model):
     def port_list(self):
         # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
         # numerically within each protocol so the display is stable regardless of stored order.
-        grouped = {}
-        for mapping in self.port_mappings:
-            protocol, _sep, port = mapping.partition('/')
-            grouped.setdefault(protocol, []).append(port)
         return ', '.join(
             f'{protocol.upper()}/{",".join(sorted(ports, key=int))}'
-            for protocol, ports in grouped.items()
+            for protocol, ports in group_port_mappings(self.port_mappings).items()
         )
 
 
@@ -101,6 +98,10 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
     clone_fields = ('port_mappings', 'description')
 
     class Meta:
+        indexes = (
+            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            GinIndex(fields=('port_mappings',)),
+        )
         ordering = ('name',)
         verbose_name = _('application service template')
         verbose_name_plural = _('application service templates')
@@ -134,13 +135,15 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
     )
 
     clone_fields = (
-        'port_mappings', 'description', 'parent_object_type', 'parent_object_id', 'ipaddresses',
+        'port_mappings', 'description', 'parent', 'ipaddresses',
     )
 
     class Meta:
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
+            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            GinIndex(fields=('port_mappings',)),
         )
         ordering = ('name', 'id')
         verbose_name = _('application service')

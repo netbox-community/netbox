@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import ServiceProtocolChoices
-from ipam.validators import validate_port_mappings
+from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+from ipam.validators import group_port_mappings, validate_port_mappings
 from utilities.forms.utils import parse_numeric_range
 
 __all__ = (
@@ -19,11 +20,10 @@ def _group_mappings(mappings):
     Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into widget rows
     ``[{'protocol': 'tcp', 'ports': '80,443'}, {'protocol': 'udp', 'ports': '53'}]``.
     """
-    grouped = {}
-    for mapping in mappings:
-        protocol, _sep, port = mapping.partition('/')
-        grouped.setdefault(protocol, []).append(port)
-    return [{'protocol': protocol, 'ports': ','.join(ports)} for protocol, ports in grouped.items()]
+    return [
+        {'protocol': protocol, 'ports': ','.join(ports)}
+        for protocol, ports in group_port_mappings(mappings).items()
+    ]
 
 
 class PortMappingWidget(forms.Widget):
@@ -104,7 +104,10 @@ class PortMappingField(forms.Field):
                 # Ignore entirely-empty rows (e.g. the default blank row on an untouched form)
                 if not protocol and not raw_ports:
                     continue
-                ports = parse_numeric_range(raw_ports) if isinstance(raw_ports, str) else (raw_ports or [])
+                ports = (
+                    parse_numeric_range(raw_ports, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+                    if isinstance(raw_ports, str) else (raw_ports or [])
+                )
                 mappings.extend(f'{protocol}/{port}' for port in ports)
                 # Preserve a protocol chosen without any ports so validation can report it
                 if not ports:

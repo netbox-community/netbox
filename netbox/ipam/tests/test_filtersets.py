@@ -2374,11 +2374,18 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_protocol_and_port(self):
-        # Both filters annotate the same alias; ensure they compose without error
+        # A combined protocol+port filter must match a single mapping, not protocol and port matched
+        # independently across different mappings on the same object.
+        ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/8080 does not exist, even though this template has udp (on 53) and 8080 (on tcp)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Single-mapping composition still works
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [1001]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
@@ -2469,11 +2476,19 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_protocol_and_port(self):
-        # Both filters annotate the same alias; ensure they compose without error
+        # A combined protocol+port filter must match a single mapping, not protocol and port matched
+        # independently across different mappings on the same object.
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/8080 does not exist, even though this service has udp (on 53) and 8080 (on tcp)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Single-mapping composition still works
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [1001]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_device(self):
         devices = Device.objects.all()[:2]

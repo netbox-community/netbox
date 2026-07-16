@@ -1,10 +1,13 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
+from ipam.constants import SERVICE_PORT_MAX
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm
+from ipam.forms.port_mappings import PortMappingField
 
 
 class PrefixFormTestCase(TestCase):
@@ -196,3 +199,23 @@ class VLANFormTestCase(TestCase):
                 form = VLANIDBulkCreateForm({'pattern': pattern})
                 self.assertFalse(form.is_valid())
                 self.assertIn('pattern', form.errors)
+
+
+class PortMappingFieldTestCase(TestCase):
+
+    def test_ports_and_ranges_expand(self):
+        """A protocol row's comma/range port string expands into individual protocol/port mappings."""
+        field = PortMappingField()
+        value = field.clean('[{"protocol": "tcp", "ports": "80,443,8000-8002"}]')
+        self.assertEqual(value, ['tcp/80', 'tcp/443', 'tcp/8000', 'tcp/8001', 'tcp/8002'])
+
+    def test_out_of_range_rejected_without_expanding(self):
+        """
+        An out-of-bounds range is rejected before it is expanded, so a pathological range cannot
+        exhaust memory (regression guard for the unbounded parse_numeric_range expansion).
+        """
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "1-9999999999"}]')
+        with self.assertRaises(ValidationError):
+            field.clean(f'[{{"protocol": "tcp", "ports": "1-{SERVICE_PORT_MAX + 1}"}}]')

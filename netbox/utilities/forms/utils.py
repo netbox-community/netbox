@@ -25,12 +25,15 @@ __all__ = (
 )
 
 
-def parse_numeric_range(string, base=10):
+def parse_numeric_range(string, base=10, min_value=None, max_value=None):
     """
     Expand a numeric range (continuous or not) into a decimal or
     hexadecimal list, as specified by the base parameter
       '0-3,5' => [0, 1, 2, 3, 5]
       '2,8-b,d,f' => [2, 8, 9, a, b, d, f]
+
+    If ``min_value`` and/or ``max_value`` are given, each range is validated against those bounds
+    *before* it is expanded, so an out-of-bounds range raises rather than materializing a huge list.
     """
     values = list()
     for dash_range in string.split(','):
@@ -42,6 +45,13 @@ def parse_numeric_range(string, base=10):
             begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         except ValueError:
             raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+        # Enforce bounds before expanding to avoid materializing an unbounded range
+        if (min_value is not None and begin < min_value) or (max_value is not None and end - 1 > max_value):
+            raise forms.ValidationError(
+                _('Range "{value}" is not within the permitted range ({min}-{max}).').format(
+                    value=dash_range, min=min_value, max=max_value
+                )
+            )
         values.extend(range(begin, end))
     return sorted(set(values))
 
