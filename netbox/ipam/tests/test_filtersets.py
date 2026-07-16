@@ -1312,9 +1312,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         services = (
-            Service(parent=devices[0], name='Service 1'),
-            Service(parent=devices[1], name='Service 2'),
-            Service(parent=devices[2], name='Service 3'),
+            Service(parent=devices[0], name='Service 1', port_mappings=['tcp/80']),
+            Service(parent=devices[1], name='Service 2', port_mappings=['tcp/80']),
+            Service(parent=devices[2], name='Service 3', port_mappings=['tcp/80']),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])
