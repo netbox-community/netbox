@@ -17,7 +17,7 @@ class ServiceTemplateTable(PrimaryModelTable):
         linkify=True
     )
     ports = tables.Column(
-        verbose_name=_('Ports'),
+        verbose_name=_('Port Mappings'),
         accessor=tables.A('port_list'),
         orderable=False,
     )
@@ -44,7 +44,7 @@ class ServiceTable(ContactsColumnMixin, PrimaryModelTable):
         order_by=('device', 'virtual_machine')
     )
     ports = tables.Column(
-        verbose_name=_('Ports'),
+        verbose_name=_('Port Mappings'),
         accessor=tables.A('port_list'),
         orderable=False,
     )

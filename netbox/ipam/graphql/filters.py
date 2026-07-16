@@ -11,6 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
+from ipam.filtersets import filter_port_mapping_port, filter_port_mapping_protocol
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -354,10 +355,44 @@ class ServiceFilter(ContactFilterMixin, PrimaryModelFilter):
     )
     parent_object_id: ID | None = strawberry_django.filter_field()
 
+    @strawberry_django.filter_field()
+    def protocol(
+        self,
+        value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
+        prefix,
+    ) -> Q:
+        matched = filter_port_mapping_protocol(models.Service.objects.all(), [v.value for v in value])
+        return Q(**{f'{prefix}pk__in': matched.values('pk')})
+
+    @strawberry_django.filter_field()
+    def port(self, value: list[int], prefix) -> Q:
+        qs_filter = Q()
+        for port in value:
+            matched = filter_port_mapping_port(models.Service.objects.all(), port)
+            qs_filter |= Q(**{f'{prefix}pk__in': matched.values('pk')})
+        return qs_filter
+
 
 @strawberry_django.filter_type(models.ServiceTemplate, lookups=True)
 class ServiceTemplateFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field()
+    def protocol(
+        self,
+        value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
+        prefix,
+    ) -> Q:
+        matched = filter_port_mapping_protocol(models.ServiceTemplate.objects.all(), [v.value for v in value])
+        return Q(**{f'{prefix}pk__in': matched.values('pk')})
+
+    @strawberry_django.filter_field()
+    def port(self, value: list[int], prefix) -> Q:
+        qs_filter = Q()
+        for port in value:
+            matched = filter_port_mapping_port(models.ServiceTemplate.objects.all(), port)
+            qs_filter |= Q(**{f'{prefix}pk__in': matched.values('pk')})
+        return qs_filter
 
 
 @strawberry_django.filter_type(models.VLAN, lookups=True)

@@ -1461,6 +1461,13 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_without_port_mappings_rejected(self):
+        """A service (template) must define at least one port mapping (400, not a portless object)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Portless', 'port_mappings': []}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service

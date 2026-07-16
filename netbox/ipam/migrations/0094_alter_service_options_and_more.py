@@ -7,17 +7,19 @@ from django.db import migrations, models
 def populate_port_mappings(apps, schema_editor):
     """
     Build the new ``port_mappings`` array (e.g. ['tcp/80', 'tcp/443']) from the legacy protocol/ports
-    fields on each Service/ServiceTemplate.
+    fields on each Service/ServiceTemplate. Processed in batches to bound memory on large installs.
     """
     for model_name in ('Service', 'ServiceTemplate'):
         model = apps.get_model('ipam', model_name)
-        instances = []
-        for obj in model.objects.all():
-            if obj.ports:
-                obj.port_mappings = [f'{obj.protocol}/{port}' for port in obj.ports]
-                instances.append(obj)
-        if instances:
-            model.objects.bulk_update(instances, ['port_mappings'], batch_size=1000)
+        batch = []
+        for obj in model.objects.filter(ports__len__gt=0).iterator(chunk_size=1000):
+            obj.port_mappings = [f'{obj.protocol}/{port}' for port in obj.ports]
+            batch.append(obj)
+            if len(batch) >= 1000:
+                model.objects.bulk_update(batch, ['port_mappings'])
+                batch = []
+        if batch:
+            model.objects.bulk_update(batch, ['port_mappings'])
 
 
 class Migration(migrations.Migration):

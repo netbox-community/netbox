@@ -1881,6 +1881,12 @@ class ServiceTemplateTestCase(TestCase):
         with self.assertRaises(ValidationError):
             template.full_clean()
 
+    def test_empty_port_mappings(self):
+        # A service (template) must define at least one port mapping
+        template = ServiceTemplate(name='Empty', port_mappings=[])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
 
 class ServiceTestCase(TestCase):
 

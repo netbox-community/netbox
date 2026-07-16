@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -33,11 +34,15 @@ class ServiceBase(models.Model):
         abstract = True
 
     def __str__(self):
+        if self.port_mappings:
+            return f'{self.name} ({self.port_list})'
         return self.name
 
     def clean(self):
         super().clean()
         validate_port_mappings(self.port_mappings)
+        if not self.port_mappings:
+            raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
 
     @property
     def port_list(self):
