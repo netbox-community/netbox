@@ -31,6 +31,7 @@ class WirelessLANCachedScopeTestCase(TestCase):
         wlan.refresh_from_db()
         self.assertIsNone(site.group)
         self.assertEqual(wlan.scope, site)
+        self.assertIsNone(wlan._site_group_id)
 
     def test_deleting_region_does_not_delete_wirelesslan_scoped_to_member_site(self):
         region = Region.objects.create(name='Region 1', slug='region-1')
@@ -43,6 +44,7 @@ class WirelessLANCachedScopeTestCase(TestCase):
         wlan.refresh_from_db()
         self.assertIsNone(site.region)
         self.assertEqual(wlan.scope, site)
+        self.assertIsNone(wlan._region_id)
 
 
 class WirelessLinkTestCase(TestCase):

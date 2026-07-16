@@ -32,6 +32,7 @@ class ClusterCachedScopeTestCase(TestCase):
         cluster.refresh_from_db()
         self.assertIsNone(site.group)
         self.assertEqual(cluster.scope, site)
+        self.assertIsNone(cluster._site_group_id)
 
     def test_deleting_region_does_not_delete_cluster_scoped_to_member_site(self):
         region = Region.objects.create(name='Region 1', slug='region-1')
@@ -43,6 +44,7 @@ class ClusterCachedScopeTestCase(TestCase):
         site.refresh_from_db()
         cluster.refresh_from_db()
         self.assertIsNone(site.region)
+        self.assertIsNone(cluster._region_id)
         self.assertEqual(cluster.scope, site)
 
 

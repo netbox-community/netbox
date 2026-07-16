@@ -5,7 +5,7 @@ from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
 
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Location, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import *
@@ -1297,6 +1297,40 @@ class PrefixCachedScopeTestCase(TestCase):
         prefix.refresh_from_db()
         self.assertIsNone(site.region)
         self.assertEqual(prefix.scope, site)
+        self.assertIsNone(prefix._region_id)
+
+    def test_deleting_site_group_does_not_delete_prefix_scoped_to_member_location(self):
+        """
+        Same bug, one level deeper: cache_related_objects() has a separate branch for
+        scope_type == location (self._site_group = self.scope.site.group), a distinct code
+        path from the scope_type == site branch covered above. Both must be exercised, since
+        a future change to one branch could reintroduce the bug in only the other.
+        """
+        sitegroup = SiteGroup.objects.create(name='Site Group 3', slug='site-group-3')
+        site = Site.objects.create(name='Site 3', slug='site-3', group=sitegroup)
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site)
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.4.0/24'), scope=location)
+
+        sitegroup.delete()
+
+        site.refresh_from_db()
+        prefix.refresh_from_db()
+        self.assertIsNone(site.group)
+        self.assertEqual(prefix.scope, location)
+        self.assertIsNone(prefix._site_group_id)
+
+    def test_deleting_region_does_not_delete_prefix_scoped_to_member_location(self):
+        region = Region.objects.create(name='Region 3', slug='region-3')
+        site = Site.objects.create(name='Site 4', slug='site-4', region=region)
+        location = Location.objects.create(name='Location 2', slug='location-2', site=site)
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.0.5.0/24'), scope=location)
+
+        region.delete()
+
+        site.refresh_from_db()
+        prefix.refresh_from_db()
+        self.assertIsNone(site.region)
+        self.assertEqual(prefix.scope, location)
         self.assertIsNone(prefix._region_id)
 
     def test_deleting_site_group_scoped_to_it_directly_still_deletes_prefix(self):
