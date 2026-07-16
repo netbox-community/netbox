@@ -1851,22 +1851,11 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
         service_templates = (
-            ServiceTemplate(name='Service Template 1'),
-            ServiceTemplate(name='Service Template 2'),
-            ServiceTemplate(name='Service Template 3'),
+            ServiceTemplate(name='Service Template 1', port_mappings=['tcp/101']),
+            ServiceTemplate(name='Service Template 2', port_mappings=['tcp/102']),
+            ServiceTemplate(name='Service Template 3', port_mappings=['tcp/103']),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
-        ServiceTemplatePortMapping.objects.bulk_create([
-            ServiceTemplatePortMapping(
-                service_template=service_templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]
-            ),
-        ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -1916,16 +1905,11 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         services = (
-            Service(parent=device, name='Service 1'),
-            Service(parent=device, name='Service 2'),
-            Service(parent=device, name='Service 3'),
+            Service(parent=device, name='Service 1', port_mappings=['tcp/101']),
+            Service(parent=device, name='Service 2', port_mappings=['tcp/102']),
+            Service(parent=device, name='Service 3', port_mappings=['tcp/103']),
         )
         Service.objects.bulk_create(services)
-        ServicePortMapping.objects.bulk_create([
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            ServicePortMapping(service=services[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
-        ])
 
         ip_addresses = (
             IPAddress(assigned_object=interface, address='192.0.2.1/24'),
@@ -2036,12 +2020,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.first()
         service_template = ServiceTemplate.objects.create(
             name='HTTP',
+            port_mappings=['tcp/80'],
             description='Hypertext transfer protocol'
-        )
-        ServiceTemplatePortMapping.objects.create(
-            service_template=service_template,
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=[80],
         )
 
         request = {
@@ -2059,7 +2039,4 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(instance.name, service_template.name)
         self.assertEqual(instance.description, service_template.description)
         # Port mappings should be copied from the template
-        self.assertEqual(instance.port_mappings.count(), 1)
-        mapping = instance.port_mappings.first()
-        self.assertEqual(mapping.protocol, ServiceProtocolChoices.PROTOCOL_TCP)
-        self.assertEqual(mapping.ports, [80])
+        self.assertEqual(instance.port_mappings, ['tcp/80'])

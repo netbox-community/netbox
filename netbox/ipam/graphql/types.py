@@ -39,8 +39,6 @@ __all__ = (
     'RIRType',
     'RoleType',
     'RouteTargetType',
-    'ServicePortMappingType',
-    'ServiceTemplatePortMappingType',
     'ServiceTemplateType',
     'ServiceType',
     'VLANGroupType',
@@ -252,7 +250,7 @@ class RouteTargetType(PrimaryObjectType):
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
-    port_mappings: list[Annotated['ServicePortMappingType', strawberry.lazy('ipam.graphql.types')]]
+    port_mappings: list[str]
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
@@ -271,35 +269,7 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
-    port_mappings: list[Annotated['ServiceTemplatePortMappingType', strawberry.lazy('ipam.graphql.types')]]
-
-
-@strawberry_django.type(
-    models.ServicePortMapping,
-    exclude=('service',),
-    filters=ServicePortMappingFilter,
-    pagination=True
-)
-class ServicePortMappingType(BaseObjectType):
-    ports: list[int]
-
-    @strawberry_django.field
-    def service(self) -> Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]:
-        return self.service
-
-
-@strawberry_django.type(
-    models.ServiceTemplatePortMapping,
-    exclude=('service_template',),
-    filters=ServiceTemplatePortMappingFilter,
-    pagination=True
-)
-class ServiceTemplatePortMappingType(BaseObjectType):
-    ports: list[int]
-
-    @strawberry_django.field
-    def service_template(self) -> Annotated['ServiceTemplateType', strawberry.lazy('ipam.graphql.types')]:
-        return self.service_template
+    port_mappings: list[str]
 
 
 @strawberry_django.type(

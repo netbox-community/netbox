@@ -2343,38 +2343,19 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
+    # port_mappings is filtered via the custom 'protocol' and 'port' filters
+    ignore_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
-        service_templates = (
-            ServiceTemplate(name='Service Template 1', description='foobar1'),
-            ServiceTemplate(name='Service Template 2', description='foobar2'),
-            ServiceTemplate(name='Service Template 3', description='foobar3'),
-            ServiceTemplate(name='Service Template 4'),
-            ServiceTemplate(name='Service Template 5'),
-            ServiceTemplate(name='Service Template 6'),
-        )
-        ServiceTemplate.objects.bulk_create(service_templates)
-        ServiceTemplatePortMapping.objects.bulk_create([
-            ServiceTemplatePortMapping(
-                service_template=service_templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[2], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[3], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[4], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[5], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]
-            ),
-        ])
+        ServiceTemplate.objects.bulk_create((
+            ServiceTemplate(name='Service Template 1', description='foobar1', port_mappings=['tcp/1001']),
+            ServiceTemplate(name='Service Template 2', description='foobar2', port_mappings=['tcp/1002']),
+            ServiceTemplate(name='Service Template 3', description='foobar3', port_mappings=['udp/1003']),
+            ServiceTemplate(name='Service Template 4', port_mappings=['tcp/2001']),
+            ServiceTemplate(name='Service Template 5', port_mappings=['tcp/2002']),
+            ServiceTemplate(name='Service Template 6', port_mappings=['udp/2003']),
+        ))
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -2400,6 +2381,8 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
+    # port_mappings is filtered via the custom 'protocol' and 'port' filters
+    ignore_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
@@ -2445,24 +2428,15 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         services = (
-            Service(parent=devices[0], name='Service 1', description='foobar1'),
-            Service(parent=devices[1], name='Service 2', description='foobar2'),
-            Service(parent=devices[2], name='Service 3'),
-            Service(parent=virtual_machines[0], name='Service 4'),
-            Service(parent=virtual_machines[1], name='Service 5'),
-            Service(parent=virtual_machines[2], name='Service 6'),
-            Service(parent=fhrp_group, name='Service 7'),
+            Service(parent=devices[0], name='Service 1', description='foobar1', port_mappings=['tcp/1001']),
+            Service(parent=devices[1], name='Service 2', description='foobar2', port_mappings=['tcp/1002']),
+            Service(parent=devices[2], name='Service 3', port_mappings=['udp/1003']),
+            Service(parent=virtual_machines[0], name='Service 4', port_mappings=['tcp/2001']),
+            Service(parent=virtual_machines[1], name='Service 5', port_mappings=['tcp/2002']),
+            Service(parent=virtual_machines[2], name='Service 6', port_mappings=['udp/2003']),
+            Service(parent=fhrp_group, name='Service 7', port_mappings=['udp/2004']),
         )
         Service.objects.bulk_create(services)
-        ServicePortMapping.objects.bulk_create([
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1001]),
-            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1002]),
-            ServicePortMapping(service=services[2], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[1003]),
-            ServicePortMapping(service=services[3], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2001]),
-            ServicePortMapping(service=services[4], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2002]),
-            ServicePortMapping(service=services[5], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2003]),
-            ServicePortMapping(service=services[6], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[2004]),
-        ])
         services[0].ipaddresses.add(ip_addresses[0])
         services[1].ipaddresses.add(ip_addresses[1])
         services[2].ipaddresses.add(ip_addresses[2])
@@ -2513,75 +2487,4 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'ip_address_id': [ips[0].pk, ips[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'ip_address': [str(ips[0].address), str(ips[1].address)]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-
-class ServiceTemplatePortMappingTestCase(TestCase, ChangeLoggedFilterSetTests):
-    queryset = ServiceTemplatePortMapping.objects.all()
-    filterset = ServiceTemplatePortMappingFilterSet
-    ignore_fields = ('ports',)
-
-    @classmethod
-    def setUpTestData(cls):
-        templates = (
-            ServiceTemplate(name='Service Template 1'),
-            ServiceTemplate(name='Service Template 2'),
-        )
-        ServiceTemplate.objects.bulk_create(templates)
-        ServiceTemplatePortMapping.objects.bulk_create([
-            ServiceTemplatePortMapping(
-                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80, 443]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[22]
-            ),
-        ])
-
-    def test_protocol(self):
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_port(self):
-        params = {'port': '80'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_service_template(self):
-        template = ServiceTemplate.objects.get(name='Service Template 1')
-        params = {'service_template_id': [template.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-
-class ServicePortMappingTestCase(TestCase, ChangeLoggedFilterSetTests):
-    queryset = ServicePortMapping.objects.all()
-    filterset = ServicePortMappingFilterSet
-    ignore_fields = ('ports',)
-
-    @classmethod
-    def setUpTestData(cls):
-        device = create_test_device('Device 1')
-        services = (
-            Service(parent=device, name='Service 1'),
-            Service(parent=device, name='Service 2'),
-        )
-        Service.objects.bulk_create(services)
-        ServicePortMapping.objects.bulk_create([
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80, 443]),
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]),
-            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[22]),
-        ])
-
-    def test_protocol(self):
-        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_port(self):
-        params = {'port': '80'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_service(self):
-        service = Service.objects.get(name='Service 1')
-        params = {'service_id': [service.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

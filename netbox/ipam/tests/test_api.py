@@ -1419,7 +1419,6 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
 class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
-    validation_excluded_fields = ('port_mappings',)
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1427,62 +1426,38 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        service_templates = (
-            ServiceTemplate(name='Service Template 1'),
-            ServiceTemplate(name='Service Template 2'),
-            ServiceTemplate(name='Service Template 3'),
-        )
-        ServiceTemplate.objects.bulk_create(service_templates)
-        ServiceTemplatePortMapping.objects.bulk_create([
-            ServiceTemplatePortMapping(
-                service_template=service_templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1, 2]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3, 4]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=service_templates[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[5, 6]
-            ),
+        ServiceTemplate.objects.bulk_create([
+            ServiceTemplate(name='Service Template 1', port_mappings=['tcp/1', 'tcp/2']),
+            ServiceTemplate(name='Service Template 2', port_mappings=['tcp/3', 'tcp/4']),
+            ServiceTemplate(name='Service Template 3', port_mappings=['tcp/5', 'tcp/6']),
         ])
 
         cls.create_data = [
             {
                 'name': 'Service Template 4',
-                'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [7, 8]}],
+                'port_mappings': ['tcp/7', 'tcp/8'],
             },
             {
                 'name': 'Service Template 5',
-                'port_mappings': [
-                    {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [53]},
-                    {'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'ports': [53]},
-                ],
+                'port_mappings': ['tcp/53', 'udp/53'],
             },
             {
                 'name': 'Service Template 6',
-                'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [11, 12]}],
+                'port_mappings': ['tcp/11', 'tcp/12'],
             },
         ]
 
-    def test_create_duplicate_protocol_rejected(self):
-        """A protocol may only appear once across a template's port mappings (clean 400, not a 500)."""
+    def test_create_duplicate_mapping_rejected(self):
+        """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
         self.add_permissions('ipam.add_servicetemplate')
-        data = {
-            'name': 'Duplicate',
-            'port_mappings': [
-                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [80]},
-                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [443]},
-            ],
-        }
+        data = {'name': 'Duplicate', 'port_mappings': ['tcp/80', 'tcp/80']}
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_create_port_out_of_range_rejected(self):
         """Ports outside SERVICE_PORT_MIN..SERVICE_PORT_MAX are rejected with a 400."""
         self.add_permissions('ipam.add_servicetemplate')
-        data = {
-            'name': 'OutOfRange',
-            'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [70000]}],
-        }
+        data = {'name': 'OutOfRange', 'port_mappings': ['tcp/70000']}
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
@@ -1490,7 +1465,6 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
     brief_fields = ['description', 'display', 'id', 'name', 'url']
-    validation_excluded_fields = ('port_mappings',)
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1509,16 +1483,10 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         )
         Device.objects.bulk_create(devices)
 
-        services = (
-            Service(parent=devices[0], name='Service 1'),
-            Service(parent=devices[0], name='Service 2'),
-            Service(parent=devices[0], name='Service 3'),
-        )
-        Service.objects.bulk_create(services)
-        ServicePortMapping.objects.bulk_create([
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
-            ServicePortMapping(service=services[2], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
+        Service.objects.bulk_create([
+            Service(parent=devices[0], name='Service 1', port_mappings=['tcp/1']),
+            Service(parent=devices[0], name='Service 2', port_mappings=['tcp/2']),
+            Service(parent=devices[0], name='Service 3', port_mappings=['tcp/3']),
         ])
 
         cls.create_data = [
@@ -1526,116 +1494,19 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 4',
-                'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [4]}],
+                'port_mappings': ['tcp/4'],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'dns',
-                'port_mappings': [
-                    {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [53]},
-                    {'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'ports': [53]},
-                ],
+                'port_mappings': ['tcp/53', 'udp/53'],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 6',
-                'port_mappings': [{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'ports': [6]}],
-            },
-        ]
-
-
-class ServiceTemplatePortMappingTestCase(APIViewTestCases.APIViewTestCase):
-    model = ServiceTemplatePortMapping
-    brief_fields = ['display', 'id', 'ports', 'protocol', 'url']
-    bulk_update_data = {
-        'ports': [8080],
-    }
-    graphql_base_name = 'service_template_port_mapping'
-
-    @classmethod
-    def setUpTestData(cls):
-        templates = (
-            ServiceTemplate(name='Service Template 1'),
-            ServiceTemplate(name='Service Template 2'),
-            ServiceTemplate(name='Service Template 3'),
-        )
-        ServiceTemplate.objects.bulk_create(templates)
-        ServiceTemplatePortMapping.objects.bulk_create([
-            ServiceTemplatePortMapping(
-                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=templates[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[53]
-            ),
-            ServiceTemplatePortMapping(
-                service_template=templates[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[443]
-            ),
-        ])
-
-        cls.create_data = [
-            {
-                'service_template': templates[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [22],
-            },
-            {
-                'service_template': templates[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-                'ports': [67, 68],
-            },
-            {
-                'service_template': templates[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_SCTP,
-                'ports': [9],
-            },
-        ]
-
-
-class ServicePortMappingTestCase(APIViewTestCases.APIViewTestCase):
-    model = ServicePortMapping
-    brief_fields = ['display', 'id', 'ports', 'protocol', 'url']
-    bulk_update_data = {
-        'ports': [8080],
-    }
-    graphql_base_name = 'service_port_mapping'
-
-    @classmethod
-    def setUpTestData(cls):
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
-        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, role=role)
-
-        services = (
-            Service(parent=device, name='Service 1'),
-            Service(parent=device, name='Service 2'),
-            Service(parent=device, name='dns'),
-        )
-        Service.objects.bulk_create(services)
-        ServicePortMapping.objects.bulk_create([
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[80]),
-            ServicePortMapping(service=services[0], protocol=ServiceProtocolChoices.PROTOCOL_UDP, ports=[161]),
-            ServicePortMapping(service=services[1], protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[443]),
-        ])
-
-        cls.create_data = [
-            {
-                'service': services[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [53],
-            },
-            {
-                'service': services[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-                'ports': [53],
-            },
-            {
-                'service': services[2].pk,
-                'protocol': ServiceProtocolChoices.PROTOCOL_SCTP,
-                'ports': [9],
+                'port_mappings': ['tcp/6'],
             },
         ]
 

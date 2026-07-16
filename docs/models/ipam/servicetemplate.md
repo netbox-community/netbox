@@ -14,4 +14,8 @@ A service or protocol name.
 
 ### Port Mappings
 
-One or more [port mappings](./serviceportmapping.md), each pairing a wire protocol (UDP, TCP, or SCTP) with one or more port numbers. The same port may be exposed on multiple protocols by adding a mapping per protocol. Within a single mapping, multiple ports can be expressed using commas and/or hyphens (e.g. `80,8001-8003`).
+The protocol/port pairs on which the service runs, stored as a list of `protocol/port` values (e.g. `tcp/80`, `tcp/443`, `udp/53`). Each pair uses a wire protocol (UDP, TCP, or SCTP) and a port number. The same port may be exposed on multiple protocols. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
+
+## Bulk Import (CSV)
+
+When importing services or service templates via CSV, all port mappings for a row are given in a single `port_mappings` column, formatted as `protocol:ports` pairs separated by semicolons (ports within a pair use the same comma/hyphen syntax). For example, `tcp:80,443;udp:53`.

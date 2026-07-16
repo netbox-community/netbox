@@ -11,7 +11,6 @@ from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.forms.port_mappings import PortMappingField
 from ipam.models import *
-from ipam.utils import sync_port_mappings
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
@@ -803,9 +802,8 @@ class VLANTranslationRuleForm(NetBoxModelForm):
 
 class ServicePortMappingsMixin(forms.Form):
     """
-    Adds a ``port_mappings`` field (protocol + ports rows) to a Service/ServiceTemplate form and syncs
-    the related child mapping rows on save. Subclasses must set ``port_mapping_model`` and
-    ``port_mapping_fk`` (the FK field name on the child model pointing back at the parent).
+    Adds a ``port_mappings`` field (protocol + ports rows) to a Service/ServiceTemplate form. The field
+    maps directly to the model's ``port_mappings`` ArrayField, so no custom save handling is required.
     """
     port_mappings = PortMappingField(
         label=_('Port Mappings'),
@@ -815,45 +813,18 @@ class ServicePortMappingsMixin(forms.Form):
         ),
     )
 
-    port_mapping_model = None
-    port_mapping_fk = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Populate the initial mappings from the existing instance
-        if self.instance and self.instance.pk:
-            self.fields['port_mappings'].initial = list(self.instance.port_mappings.all())
-
-    def _save_port_mappings(self):
-        desired = self.cleaned_data.get('port_mappings') or []
-        sync_port_mappings(self.instance, self.port_mapping_model, self.port_mapping_fk, desired)
-
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        # Sync child rows once the parent has been persisted (commit=True path)
-        if instance.pk:
-            self._save_port_mappings()
-        return instance
-
 
 class ServiceTemplateForm(ServicePortMappingsMixin, PrimaryModelForm):
-    port_mapping_model = ServiceTemplatePortMapping
-    port_mapping_fk = 'service_template'
-
     fieldsets = (
         FieldSet('name', 'port_mappings', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'port_mappings', 'description', 'owner', 'comments', 'tags')
 
 
 class ServiceForm(ServicePortMappingsMixin, GenericObjectFormMixin, PrimaryModelForm):
-    port_mapping_model = ServicePortMapping
-    port_mapping_fk = 'service'
-
     parent = GenericObjectChoiceField(
         label=_('Parent'),
         content_type_queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
@@ -878,7 +849,7 @@ class ServiceForm(ServicePortMappingsMixin, GenericObjectFormMixin, PrimaryModel
     class Meta:
         model = Service
         fields = [
-            'name', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
+            'name', 'port_mappings', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -916,7 +887,7 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'service_template', 'name', 'ipaddresses', 'description',
+            'service_template', 'name', 'port_mappings', 'ipaddresses', 'description',
             'comments', 'tags',
         ]
 
@@ -934,10 +905,7 @@ class ServiceCreateForm(ServiceForm):
             # Create a new Service from the specified template
             service_template = self.cleaned_data['service_template']
             self.cleaned_data['name'] = service_template.name
-            self.cleaned_data['port_mappings'] = [
-                {'protocol': mapping.protocol, 'ports': mapping.ports}
-                for mapping in service_template.port_mappings.all()
-            ]
+            self.cleaned_data['port_mappings'] = list(service_template.port_mappings)
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
         elif not self.cleaned_data.get('name') or not self.cleaned_data.get('port_mappings'):

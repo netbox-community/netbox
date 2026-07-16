@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.mixins import ScopedImportForm
@@ -7,6 +8,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.validators import validate_port_mappings
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -589,9 +591,8 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
 
 class ServicePortMappingsImportMixin(forms.Form):
     """
-    Adds a ``port_mappings`` CSV column parsed from a compact string (e.g. "tcp:80,443;udp:53") and
-    syncs the related child mapping rows on save. Subclasses set ``port_mapping_model`` /
-    ``port_mapping_fk``.
+    Adds a ``port_mappings`` CSV column parsed from a compact string (e.g. "tcp:80,443;udp:53") into the
+    model's flat ``['tcp/80', 'tcp/443', 'udp/53']`` list.
     """
     port_mappings = forms.CharField(
         label=_('Port mappings'),
@@ -602,15 +603,11 @@ class ServicePortMappingsImportMixin(forms.Form):
         )
     )
 
-    port_mapping_model = None
-    port_mapping_fk = None
-
     def clean_port_mappings(self):
         value = self.cleaned_data.get('port_mappings')
         if not value:
             return []
         mappings = []
-        seen = set()
         for token in value.split(';'):
             token = token.strip()
             if not token:
@@ -621,60 +618,24 @@ class ServicePortMappingsImportMixin(forms.Form):
                     _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
                 )
             protocol = protocol.strip().lower()
-            if protocol not in ServiceProtocolChoices.values():
-                raise forms.ValidationError(_('Invalid protocol: {protocol}').format(protocol=protocol))
-            if protocol in seen:
-                raise forms.ValidationError(_('Duplicate protocol: {protocol}').format(protocol=protocol))
-            seen.add(protocol)
-            ports = parse_numeric_range(ports_str.strip())
-            if not ports:
-                raise forms.ValidationError(
-                    _('At least one port is required for protocol {protocol}.').format(protocol=protocol)
-                )
-            for port in ports:
-                if not SERVICE_PORT_MIN <= port <= SERVICE_PORT_MAX:
-                    raise forms.ValidationError(_('Port {port} is out of range.').format(port=port))
-            mappings.append({'protocol': protocol, 'ports': ports})
+            for port in parse_numeric_range(ports_str.strip()):
+                mappings.append(f'{protocol}/{port}')
+        # Validate protocol/range/duplicates consistently with the model and UI form
+        try:
+            validate_port_mappings(mappings)
+        except DjangoValidationError as exc:
+            raise forms.ValidationError(exc.messages)
         return mappings
-
-    def save(self, *args, **kwargs):
-        instance = super().save(*args, **kwargs)
-        if instance.pk:
-            desired = self.cleaned_data.get('port_mappings') or []
-            existing = {m.protocol: m for m in instance.port_mappings.all()}
-            seen = set()
-            for row in desired:
-                seen.add(row['protocol'])
-                mapping = existing.get(row['protocol'])
-                if mapping is not None:
-                    if mapping.ports != row['ports']:
-                        mapping.ports = row['ports']
-                        mapping.save()
-                else:
-                    self.port_mapping_model.objects.create(**{
-                        self.port_mapping_fk: instance,
-                        'protocol': row['protocol'],
-                        'ports': row['ports'],
-                    })
-            for protocol, mapping in existing.items():
-                if protocol not in seen:
-                    mapping.delete()
-        return instance
 
 
 class ServiceTemplateImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
-    port_mapping_model = ServiceTemplatePortMapping
-    port_mapping_fk = 'service_template'
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'port_mappings', 'description', 'owner', 'comments', 'tags')
 
 
 class ServiceImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
-    port_mapping_model = ServicePortMapping
-    port_mapping_fk = 'service'
-
     parent_object_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
@@ -701,7 +662,7 @@ class ServiceImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'ipaddresses', 'name', 'description', 'owner', 'comments', 'tags',
+            'ipaddresses', 'name', 'port_mappings', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

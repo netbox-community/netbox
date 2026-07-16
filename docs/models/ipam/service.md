@@ -25,7 +25,7 @@ A service or protocol name.
 
 ### Port Mappings
 
-One or more [port mappings](./serviceportmapping.md), each pairing a wire protocol (UDP, TCP, or SCTP) with one or more port numbers. A service may expose the same port on multiple protocols by adding a mapping per protocol — for example, DNS listening on both `TCP/53` and `UDP/53`. Within a single mapping, multiple ports can be expressed using commas and/or hyphens (e.g. `80,8001-8003`).
+The protocol/port pairs on which the service runs, stored as a list of `protocol/port` values (e.g. `tcp/80`, `tcp/443`, `udp/53`). Each pair uses a wire protocol (UDP, TCP, or SCTP) and a port number. A service may expose the same port on multiple protocols — for example, DNS listening on both `tcp/53` and `udp/53`. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
 
 ### IP Addresses
 

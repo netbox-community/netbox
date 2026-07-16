@@ -42,9 +42,7 @@ __all__ = (
     'RoleFilter',
     'RouteTargetFilter',
     'ServiceFilter',
-    'ServicePortMappingFilter',
     'ServiceTemplateFilter',
-    'ServiceTemplatePortMappingFilter',
     'VLANFilter',
     'VLANGroupFilter',
     'VLANTranslationPolicyFilter',
@@ -360,34 +358,6 @@ class ServiceFilter(ContactFilterMixin, PrimaryModelFilter):
 @strawberry_django.filter_type(models.ServiceTemplate, lookups=True)
 class ServiceTemplateFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
-
-
-@strawberry_django.filter_type(models.ServicePortMapping, lookups=True)
-class ServicePortMappingFilter(ChangeLoggedModelFilter):
-    protocol: Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
-        strawberry_django.filter_field()
-    )
-    ports: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    service: Annotated['ServiceFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    service_id: ID | None = strawberry_django.filter_field()
-
-
-@strawberry_django.filter_type(models.ServiceTemplatePortMapping, lookups=True)
-class ServiceTemplatePortMappingFilter(ChangeLoggedModelFilter):
-    protocol: Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
-        strawberry_django.filter_field()
-    )
-    ports: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    service_template: Annotated['ServiceTemplateFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    service_template_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.VLAN, lookups=True)

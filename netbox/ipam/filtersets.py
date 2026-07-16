@@ -2,7 +2,8 @@ import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import F, Func, Q, TextField, Value
+from django.db.models.functions import Concat
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -22,7 +23,6 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
-    NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -46,9 +46,7 @@ __all__ = (
     'RoleFilterSet',
     'RouteTargetFilterSet',
     'ServiceFilterSet',
-    'ServicePortMappingFilterSet',
     'ServiceTemplateFilterSet',
-    'ServiceTemplatePortMappingFilterSet',
     'VLANFilterSet',
     'VLANGroupFilterSet',
     'VLANTranslationPolicyFilterSet',
@@ -1208,17 +1206,45 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+class _ArrayToString(Func):
+    """Postgres array_to_string(<array>, ',') for searching within an ArrayField of strings."""
+    function = 'array_to_string'
+    template = "%(function)s(%(expressions)s, ',')"
+    output_field = TextField()
+
+
+def _annotate_port_mappings(queryset):
+    # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
+    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port).
+    return queryset.annotate(
+        _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
+                                  output_field=TextField())
+    )
+
+
+def filter_port_mapping_protocol(queryset, protocols):
+    if not protocols:
+        return queryset
+    qs_filter = Q()
+    for protocol in protocols:
+        qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
+    return _annotate_port_mappings(queryset).filter(qs_filter)
+
+
+def filter_port_mapping_port(queryset, port):
+    if port in (None, ''):
+        return queryset
+    return _annotate_port_mappings(queryset).filter(_port_mappings_str__contains=f'/{port},')
+
+
 @register_filterset
 class ServiceTemplateFilterSet(PrimaryModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
-        field_name='port_mappings__protocol',
         choices=ServiceProtocolChoices,
-        distinct=True,
+        method='filter_protocol',
     )
-    port = NumericArrayFilter(
-        field_name='port_mappings__ports',
-        lookup_expr='contains',
-        distinct=True,
+    port = django_filters.NumberFilter(
+        method='filter_port',
     )
 
     class Meta:
@@ -1233,6 +1259,12 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
+    def filter_protocol(self, queryset, name, value):
+        return filter_port_mapping_protocol(queryset, value)
+
+    def filter_port(self, queryset, name, value):
+        return filter_port_mapping_port(queryset, value)
 
 
 @register_filterset
@@ -1280,14 +1312,11 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         label=_('IP address'),
     )
     protocol = django_filters.MultipleChoiceFilter(
-        field_name='port_mappings__protocol',
         choices=ServiceProtocolChoices,
-        distinct=True,
+        method='filter_protocol',
     )
-    port = NumericArrayFilter(
-        field_name='port_mappings__ports',
-        lookup_expr='contains',
-        distinct=True,
+    port = django_filters.NumberFilter(
+        method='filter_port',
     )
 
     class Meta:
@@ -1299,6 +1328,12 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
             return queryset
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
         return queryset.filter(qs_filter)
+
+    def filter_protocol(self, queryset, name, value):
+        return filter_port_mapping_protocol(queryset, value)
+
+    def filter_port(self, queryset, name, value):
+        return filter_port_mapping_port(queryset, value)
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})
@@ -1326,46 +1361,6 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         for vm in virtual_machines:
             service_ids.extend(vm.services.values_list('id', flat=True))
         return queryset.filter(id__in=service_ids)
-
-
-@register_filterset
-class ServicePortMappingFilterSet(ChangeLoggedModelFilterSet):
-    protocol = django_filters.MultipleChoiceFilter(
-        choices=ServiceProtocolChoices,
-    )
-    service_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='service',
-        queryset=Service.objects.all(),
-        label=_('Service (ID)'),
-    )
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains',
-    )
-
-    class Meta:
-        model = ServicePortMapping
-        fields = ('id', 'protocol', 'service_id')
-
-
-@register_filterset
-class ServiceTemplatePortMappingFilterSet(ChangeLoggedModelFilterSet):
-    protocol = django_filters.MultipleChoiceFilter(
-        choices=ServiceProtocolChoices,
-    )
-    service_template_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='service_template',
-        queryset=ServiceTemplate.objects.all(),
-        label=_('Service template (ID)'),
-    )
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains',
-    )
-
-    class Meta:
-        model = ServiceTemplatePortMapping
-        fields = ('id', 'protocol', 'service_template_id')
 
 
 class PrimaryIPFilterSet(django_filters.FilterSet):

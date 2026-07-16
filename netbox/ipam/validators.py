@@ -5,40 +5,43 @@ from django.utils.translation import gettext_lazy as _
 
 def validate_port_mappings(mappings):
     """
-    Validate a normalized list of service port mappings, i.e. dicts of the form
-    ``{'protocol': <str>, 'ports': [<int>, ...]}``. Ensures each protocol is specified only once and
-    that every port falls within the permitted range. Raises a ``ValidationError`` describing the first
-    problem found.
+    Validate a list of service port mappings, i.e. ``protocol/port`` strings such as ``'tcp/80'``.
+    Ensures each entry is well-formed, uses a known protocol, falls within the permitted port range,
+    and is not duplicated. Raises a ``ValidationError`` describing the first problem found.
 
-    Shared by the model form field (``PortMappingField``) and the REST API serializers so both enforce
-    identical rules.
+    Shared by the model (``ServiceBase.clean()``), the model form field (``PortMappingField``), and the
+    REST API serializers so all paths enforce identical rules.
     """
     # Imported lazily to avoid a circular import during settings load (this module is imported by
     # ipam.models, and ipam.constants pulls in ipam.choices, which reads settings.FIELD_CHOICES).
+    from ipam.choices import ServiceProtocolChoices
     from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 
-    seen_protocols = set()
+    valid_protocols = ServiceProtocolChoices.values()
+    seen = set()
     for mapping in mappings:
-        protocol = mapping.get('protocol')
-        ports = mapping.get('ports') or []
-        if protocol in seen_protocols:
+        protocol, sep, port = mapping.partition('/')
+        if not sep or not port:
             raise ValidationError(
-                _("Duplicate protocol: {protocol}. Each protocol may be specified only once.").format(
-                    protocol=protocol
+                _("Invalid port mapping '{mapping}'. Expected format protocol/port (e.g. tcp/80).").format(
+                    mapping=mapping
                 )
             )
-        seen_protocols.add(protocol)
-        if not ports:
+        if protocol not in valid_protocols:
+            raise ValidationError(_("Invalid protocol: {protocol}").format(protocol=protocol))
+        try:
+            port_number = int(port)
+        except ValueError:
+            raise ValidationError(_("Invalid port number: {port}").format(port=port))
+        if not SERVICE_PORT_MIN <= port_number <= SERVICE_PORT_MAX:
             raise ValidationError(
-                _("At least one port is required for protocol {protocol}.").format(protocol=protocol)
-            )
-        for port in ports:
-            if not SERVICE_PORT_MIN <= port <= SERVICE_PORT_MAX:
-                raise ValidationError(
-                    _("Port {port} is not within the permitted range ({min}-{max}).").format(
-                        port=port, min=SERVICE_PORT_MIN, max=SERVICE_PORT_MAX
-                    )
+                _("Port {port} is not within the permitted range ({min}-{max}).").format(
+                    port=port_number, min=SERVICE_PORT_MIN, max=SERVICE_PORT_MAX
                 )
+            )
+        if mapping in seen:
+            raise ValidationError(_("Duplicate port mapping: {mapping}").format(mapping=mapping))
+        seen.add(mapping)
 
 
 def prefix_validator(prefix):

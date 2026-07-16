@@ -475,8 +475,7 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    # Protocol/port data now lives in child ServiceTemplatePortMapping rows, which cannot be coherently
-    # set in bulk. Edit port mappings via the individual service (template) form instead.
+    # Port mappings are edited via the individual service (template) form, not in bulk.
     model = ServiceTemplate
     fieldsets = (
         FieldSet('description'),

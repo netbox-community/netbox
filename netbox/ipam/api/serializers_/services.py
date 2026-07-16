@@ -4,84 +4,31 @@ from rest_framework import serializers
 
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS
-from ipam.models import (
-    IPAddress,
-    Service,
-    ServicePortMapping,
-    ServiceTemplate,
-    ServiceTemplatePortMapping,
-)
-from ipam.utils import sync_port_mappings
+from ipam.models import IPAddress, Service, ServiceTemplate
 from ipam.validators import validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
-from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 
 from .ip import IPAddressSerializer
 
 __all__ = (
-    'ServicePortMappingSerializer',
     'ServiceSerializer',
-    'ServiceTemplatePortMappingSerializer',
     'ServiceTemplateSerializer',
 )
 
 
-class PortMappingNestedSerializer(serializers.ModelSerializer):
-    """
-    Minimal serializer used to read/write port mappings nested within a Service or ServiceTemplate. The
-    ``id`` is read-only (informational); writes are reconciled by protocol, not by ID.
-    """
-    class Meta:
-        fields = ('id', 'protocol', 'ports')
-
-
-class ServicePortMappingNestedSerializer(PortMappingNestedSerializer):
-    class Meta(PortMappingNestedSerializer.Meta):
-        model = ServicePortMapping
-
-
-class ServiceTemplatePortMappingNestedSerializer(PortMappingNestedSerializer):
-    class Meta(PortMappingNestedSerializer.Meta):
-        model = ServiceTemplatePortMapping
-
-
-class PortMappingSyncMixin:
-    """
-    Handles create/update of the nested ``port_mappings`` list on the parent serializer, using the same
-    incremental (protocol-keyed) upsert as the UI form so a PATCH only touches the rows that changed.
-    """
-    port_mapping_model = None
-    port_mapping_fk = None
-
+class PortMappingsValidationMixin:
     def validate_port_mappings(self, value):
-        # Enforce the same rules as the UI form (unique protocol per mapping, ports within range) so
-        # invalid input returns a 400 instead of a database IntegrityError.
+        # Enforce the same rules as the model/UI form so invalid input returns a 400.
         try:
             validate_port_mappings(value)
         except DjangoValidationError as exc:
             raise serializers.ValidationError(exc.messages)
         return value
 
-    def create(self, validated_data):
-        mappings = validated_data.pop('port_mappings', [])
-        instance = super().create(validated_data)
-        sync_port_mappings(instance, self.port_mapping_model, self.port_mapping_fk, mappings)
-        return instance
 
-    def update(self, instance, validated_data):
-        mappings = validated_data.pop('port_mappings', None)
-        instance = super().update(instance, validated_data)
-        if mappings is not None:
-            sync_port_mappings(instance, self.port_mapping_model, self.port_mapping_fk, mappings)
-        return instance
-
-
-class ServiceTemplateSerializer(PortMappingSyncMixin, PrimaryModelSerializer):
-    port_mappings = ServiceTemplatePortMappingNestedSerializer(many=True, required=False)
-
-    port_mapping_model = ServiceTemplatePortMapping
-    port_mapping_fk = 'service_template'
+class ServiceTemplateSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
 
     class Meta:
         model = ServiceTemplate
@@ -92,8 +39,7 @@ class ServiceTemplateSerializer(PortMappingSyncMixin, PrimaryModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ServiceSerializer(PortMappingSyncMixin, PrimaryModelSerializer):
-    port_mappings = ServicePortMappingNestedSerializer(many=True, required=False)
+class ServiceSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=IPAddressSerializer,
@@ -106,9 +52,6 @@ class ServiceSerializer(PortMappingSyncMixin, PrimaryModelSerializer):
     )
     parent = GFKSerializerField(read_only=True)
 
-    port_mapping_model = ServicePortMapping
-    port_mapping_fk = 'service'
-
     class Meta:
         model = Service
         fields = [
@@ -117,25 +60,3 @@ class ServiceSerializer(PortMappingSyncMixin, PrimaryModelSerializer):
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
-
-
-class ServicePortMappingSerializer(NetBoxModelSerializer):
-    service = ServiceSerializer(nested=True)
-
-    class Meta:
-        model = ServicePortMapping
-        fields = [
-            'id', 'url', 'display', 'service', 'protocol', 'ports', 'created', 'last_updated',
-        ]
-        brief_fields = ('id', 'url', 'display', 'protocol', 'ports')
-
-
-class ServiceTemplatePortMappingSerializer(NetBoxModelSerializer):
-    service_template = ServiceTemplateSerializer(nested=True)
-
-    class Meta:
-        model = ServiceTemplatePortMapping
-        fields = [
-            'id', 'url', 'display', 'service_template', 'protocol', 'ports', 'created', 'last_updated',
-        ]
-        brief_fields = ('id', 'url', 'display', 'protocol', 'ports')
