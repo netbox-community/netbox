@@ -1213,7 +1213,7 @@ class _ArrayToString(Func):
     output_field = TextField()
 
 
-def _annotate_port_mappings(queryset):
+def annotate_port_mappings(queryset):
     # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
     # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port). Idempotent so the
     # protocol and port filters can both run on the same queryset without a duplicate-alias error.
@@ -1231,13 +1231,13 @@ def filter_port_mapping_protocol(queryset, protocols):
     qs_filter = Q()
     for protocol in protocols:
         qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
-    return _annotate_port_mappings(queryset).filter(qs_filter)
+    return annotate_port_mappings(queryset).filter(qs_filter)
 
 
 def filter_port_mapping_port(queryset, port):
     if port in (None, ''):
         return queryset
-    return _annotate_port_mappings(queryset).filter(_port_mappings_str__contains=f'/{port},')
+    return annotate_port_mappings(queryset).filter(_port_mappings_str__contains=f'/{port},')
 
 
 @register_filterset

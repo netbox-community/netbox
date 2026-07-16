@@ -14,6 +14,18 @@ __all__ = (
 )
 
 
+def _group_mappings(mappings):
+    """
+    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into widget rows
+    ``[{'protocol': 'tcp', 'ports': '80,443'}, {'protocol': 'udp', 'ports': '53'}]``.
+    """
+    grouped = {}
+    for mapping in mappings:
+        protocol, _sep, port = mapping.partition('/')
+        grouped.setdefault(protocol, []).append(port)
+    return [{'protocol': protocol, 'ports': ','.join(ports)} for protocol, ports in grouped.items()]
+
+
 class PortMappingWidget(forms.Widget):
     """
     Renders a dynamic set of (protocol, ports) rows. The rows are serialized to a JSON string held in a
@@ -46,11 +58,13 @@ class PortMappingWidget(forms.Widget):
         return data.get(name)
 
     def format_value(self, value):
+        # Mirror PortMappingField.prepare_value: a raw flat list is grouped into rows; a pre-converted
+        # JSON string is passed through unchanged.
         if value is None:
             return '[]'
         if isinstance(value, str):
             return value
-        return json.dumps(value)
+        return json.dumps(_group_mappings(value))
 
 
 class PortMappingField(forms.Field):
@@ -67,13 +81,7 @@ class PortMappingField(forms.Field):
             return '[]'
         if isinstance(value, str):
             return value
-
-        grouped = {}
-        for mapping in value:
-            protocol, _sep, port = mapping.partition('/')
-            grouped.setdefault(protocol, []).append(port)
-        rows = [{'protocol': protocol, 'ports': ','.join(ports)} for protocol, ports in grouped.items()]
-        return json.dumps(rows)
+        return json.dumps(_group_mappings(value))
 
     def to_python(self, value):
         if value in (None, ''):

@@ -40,6 +40,21 @@ class ServiceBase(models.Model):
 
     def clean(self):
         super().clean()
+
+        # Apply bulk-edit add/remove modifiers before validation. BulkEditView sets the
+        # add_port_mappings / remove_port_mappings form values as transient attributes on the instance
+        # ahead of full_clean() (its "form field used to modify a field" handling), so the delta is
+        # folded into the single save and produces one change-log entry.
+        add = self.__dict__.pop('add_port_mappings', None)
+        remove = self.__dict__.pop('remove_port_mappings', None)
+        if add or remove:
+            mappings = list(self.port_mappings)
+            if add:
+                mappings += [mapping for mapping in add if mapping not in mappings]
+            if remove:
+                mappings = [mapping for mapping in mappings if mapping not in remove]
+            self.port_mappings = mappings
+
         validate_port_mappings(self.port_mappings)
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})

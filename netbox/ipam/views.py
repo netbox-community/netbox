@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,7 +10,6 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
 from dcim.models import Device, Interface, Site
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
-from ipam.validators import validate_port_mappings
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
 from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
@@ -1910,37 +1908,8 @@ class ServiceTemplateBulkImportView(generic.BulkImportView):
     model_form = forms.ServiceTemplateImportForm
 
 
-class PortMappingBulkEditMixin:
-    """
-    Applies the bulk-edit ``add_port_mappings`` / ``remove_port_mappings`` fields to each object's
-    port_mappings array (add = union preserving order, remove = drop if present), mirroring how tags
-    are added/removed in bulk.
-    """
-    def post_save_operations(self, form, obj):
-        super().post_save_operations(form, obj)
-
-        add = form.cleaned_data.get('add_port_mappings')
-        remove = form.cleaned_data.get('remove_port_mappings')
-        if not add and not remove:
-            return
-
-        mappings = list(obj.port_mappings)
-        if add:
-            mappings += [mapping for mapping in add if mapping not in mappings]
-        if remove:
-            mappings = [mapping for mapping in mappings if mapping not in remove]
-
-        # Validate the result (format + non-empty); a ValidationError here is surfaced as a form error
-        validate_port_mappings(mappings)
-        if not mappings:
-            raise ValidationError(_("At least one port mapping is required."))
-
-        obj.port_mappings = mappings
-        obj.save()
-
-
 @register_model_view(ServiceTemplate, 'bulk_edit', path='edit', detail=False)
-class ServiceTemplateBulkEditView(PortMappingBulkEditMixin, generic.BulkEditView):
+class ServiceTemplateBulkEditView(generic.BulkEditView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
     table = tables.ServiceTemplateTable
@@ -2023,7 +1992,7 @@ class ServiceBulkImportView(generic.BulkImportView):
 
 
 @register_model_view(Service, 'bulk_edit', path='edit', detail=False)
-class ServiceBulkEditView(PortMappingBulkEditMixin, generic.BulkEditView):
+class ServiceBulkEditView(generic.BulkEditView):
     queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable

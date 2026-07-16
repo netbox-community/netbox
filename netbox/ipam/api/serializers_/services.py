@@ -36,7 +36,7 @@ class ServiceTemplateSerializer(PortMappingsValidationMixin, PrimaryModelSeriali
             'id', 'url', 'display_url', 'display', 'name', 'port_mappings', 'description', 'owner', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'port_mappings', 'description')
 
 
 class ServiceSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
@@ -59,4 +59,4 @@ class ServiceSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
             'port_mappings', 'ipaddresses', 'description', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'port_mappings', 'description')

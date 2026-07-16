@@ -1416,7 +1416,7 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
 
 class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1469,7 +1469,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
