@@ -2122,47 +2122,37 @@ class CoolingIntakeTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
             CoolingIntakeTemplate(
                 device_type=device_types[0],
                 name='Cooling Port 1',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=100,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                heat_capacity=50,
                 description='foobar1'
             ),
             CoolingIntakeTemplate(
                 device_type=device_types[1],
                 name='Cooling Port 2',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=200,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
-                heat_capacity=100,
                 description='foobar2'
             ),
             CoolingIntakeTemplate(
                 device_type=device_types[2],
                 name='Cooling Port 3',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=300,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
-                heat_capacity=150,
                 description='foobar3'
             ),
         ))
 
     def test_name(self):
         params = {'name': ['Cooling Port 1', 'Cooling Port 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_flow_direction(self):
-        params = {'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -2181,10 +2171,6 @@ class CoolingIntakeTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         params = {'maximum_flow_unit': [
             FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR
         ]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_heat_capacity(self):
-        params = {'heat_capacity': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -2208,7 +2194,6 @@ class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetT
             CoolingOutflowTemplate(
                 device_type=device_types[0],
                 name='Cooling Outlet 1',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -2217,7 +2202,6 @@ class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetT
             CoolingOutflowTemplate(
                 device_type=device_types[1],
                 name='Cooling Outlet 2',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -2226,7 +2210,6 @@ class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetT
             CoolingOutflowTemplate(
                 device_type=device_types[2],
                 name='Cooling Outlet 3',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -2236,10 +2219,6 @@ class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetT
 
     def test_name(self):
         params = {'name': ['Cooling Outlet 1', 'Cooling Outlet 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_flow_direction(self):
-        params = {'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -4877,13 +4856,11 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[0],
                 name='Cooling Port 1',
                 label='A',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=100,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                heat_capacity=50,
                 description='First',
                 cooling_outflow=cooling_outflow,
                 _site=devices[0].site,
@@ -4895,13 +4872,11 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[1],
                 name='Cooling Port 2',
                 label='B',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=200,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
-                heat_capacity=100,
                 description='Second',
                 cooling_feed=cooling_feed,
                 _site=devices[1].site,
@@ -4913,13 +4888,11 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[2],
                 name='Cooling Port 3',
                 label='C',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=300,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
-                heat_capacity=150,
                 description='Third',
                 _site=devices[2].site,
                 _location=devices[2].location,
@@ -4938,10 +4911,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_flow_direction(self):
-        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -4970,10 +4939,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         params = {'maximum_flow_unit': [
             FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR
         ]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_heat_capacity(self):
-        params = {'heat_capacity': [50, 100]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -5163,7 +5128,6 @@ class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogg
                 module=modules[0],
                 name='Cooling Outlet 1',
                 label='A',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -5178,7 +5142,6 @@ class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogg
                 module=modules[1],
                 name='Cooling Outlet 2',
                 label='B',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -5193,7 +5156,6 @@ class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogg
                 module=modules[2],
                 name='Cooling Outlet 3',
                 label='C',
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
@@ -5215,10 +5177,6 @@ class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogg
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_flow_direction(self):
-        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):

@@ -87,26 +87,25 @@ class CoolingIntakeBulkCreateForm(
     form_from_model(
         CoolingIntake,
         [
-            'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-            'heat_capacity'
+            'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit'
         ]
     ),
     DeviceBulkAddComponentForm
 ):
     model = CoolingIntake
     field_order = (
-        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'description', 'tags',
+        'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'description', 'tags',
     )
 
 
 class CoolingOutflowBulkCreateForm(
-    form_from_model(CoolingOutflow, ['flow_direction', 'type', 'diameter', 'diameter_unit']),
+    form_from_model(CoolingOutflow, ['type', 'diameter', 'diameter_unit']),
     DeviceBulkAddComponentForm
 ):
     model = CoolingOutflow
     field_order = (
-        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
+        'name', 'label', 'type', 'diameter', 'diameter_unit',
         'description', 'tags',
     )
 

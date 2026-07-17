@@ -3143,18 +3143,15 @@ class CoolingComponentTestCase(TestCase):
         cooling_intake_template = CoolingIntakeTemplate.objects.create(
             device_type=device_type,
             name='Cooling Port 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
-            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            heat_capacity=50
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
         )
         CoolingOutflowTemplate.objects.create(
             device_type=device_type,
             name='Cooling Outlet 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
@@ -3170,20 +3167,17 @@ class CoolingComponentTestCase(TestCase):
         cooling_intake = CoolingIntake.objects.get(
             device=device,
             name='Cooling Port 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
-            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            heat_capacity=50
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
         )
         self.assertEqual(cooling_intake_template.maximum_flow, cooling_intake.maximum_flow)
 
         CoolingOutflow.objects.get(
             device=device,
             name='Cooling Outlet 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER

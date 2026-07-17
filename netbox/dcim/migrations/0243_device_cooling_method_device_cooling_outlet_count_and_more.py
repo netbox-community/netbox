@@ -184,18 +184,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(db_collation="natural_sort", max_length=64)),
                 ("label", models.CharField(blank=True, max_length=64)),
                 ("description", models.CharField(blank=True, max_length=200)),
-                ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
-                (
-                    "heat_capacity",
-                    models.DecimalField(
-                        blank=True,
-                        decimal_places=2,
-                        max_digits=8,
-                        null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
-                    ),
-                ),
                 (
                     "_location",
                     models.ForeignKey(
@@ -311,7 +300,6 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(db_collation="natural_sort", max_length=64)),
                 ("label", models.CharField(blank=True, max_length=64)),
                 ("description", models.CharField(blank=True, max_length=200)),
-                ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
                 (
                     "_location",
@@ -450,18 +438,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(db_collation="natural_sort", max_length=64)),
                 ("label", models.CharField(blank=True, max_length=64)),
                 ("description", models.CharField(blank=True, max_length=200)),
-                ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
-                (
-                    "heat_capacity",
-                    models.DecimalField(
-                        blank=True,
-                        decimal_places=2,
-                        max_digits=8,
-                        null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
-                    ),
-                ),
                 (
                     "device_type",
                     models.ForeignKey(
@@ -525,7 +502,6 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(db_collation="natural_sort", max_length=64)),
                 ("label", models.CharField(blank=True, max_length=64)),
                 ("description", models.CharField(blank=True, max_length=200)),
-                ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
                 (
                     "device_type",

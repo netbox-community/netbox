@@ -999,12 +999,6 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
-    flow_direction = CSVChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False,
-        help_text=_('Port flow direction')
-    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=CoolingConnectorTypeChoices,
@@ -1040,8 +1034,8 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = CoolingIntake
         fields = (
-            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'maximum_flow_unit', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):
@@ -1073,12 +1067,6 @@ class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
-    flow_direction = CSVChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False,
-        help_text=_('Outlet flow direction')
-    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=CoolingConnectorTypeChoices,
@@ -1102,7 +1090,7 @@ class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = CoolingOutflow
         fields = (
-            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit',
             'cooling_intake', 'description', 'owner', 'tags',
         )
 

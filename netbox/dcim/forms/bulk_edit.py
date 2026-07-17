@@ -1369,11 +1369,6 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         max_length=64,
         required=False
     )
-    flow_direction = forms.ChoiceField(
-        label=_('Flow direction'),
-        choices=add_blank_choice(CoolingFlowDirectionChoices),
-        required=False
-    )
     type = forms.ChoiceField(
         label=_('Type'),
         choices=add_blank_choice(CoolingConnectorTypeChoices),
@@ -1398,11 +1393,6 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         choices=add_blank_choice(FlowRateUnitChoices),
         required=False
     )
-    heat_capacity = forms.DecimalField(
-        label=_('Heat capacity'),
-        min_value=0,
-        required=False
-    )
     description = forms.CharField(
         label=_('Description'),
         required=False
@@ -1410,15 +1400,15 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
 
     fieldsets = (
         FieldSet(
-            'label', 'flow_direction', 'type',
+            'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
-            'heat_capacity', 'description',
+            'description',
         ),
     )
     nullable_fields = (
-        'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'description',
+        'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'description',
     )
 
 
@@ -1437,11 +1427,6 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     label = forms.CharField(
         label=_('Label'),
         max_length=64,
-        required=False
-    )
-    flow_direction = forms.ChoiceField(
-        label=_('Flow direction'),
-        choices=add_blank_choice(CoolingFlowDirectionChoices),
         required=False
     )
     type = forms.ChoiceField(
@@ -1470,13 +1455,13 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
 
     fieldsets = (
         FieldSet(
-            'label', 'flow_direction', 'type',
+            'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'cooling_intake', 'description',
         ),
     )
     nullable_fields = (
-        'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
+        'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1800,8 +1785,8 @@ class PowerOutletBulkEditForm(
 class CoolingIntakeBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(CoolingIntake, [
-        'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'description'
+        'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'description'
     ])
 ):
     maximum_flow_unit = forms.ChoiceField(
@@ -1823,18 +1808,18 @@ class CoolingIntakeBulkEditForm(
     model = CoolingIntake
     fieldsets = (
         FieldSet(
-            'module', 'flow_direction', 'type',
+            'module', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'label', 'cooling_outflow', 'cooling_feed', 'description',
         ),
         FieldSet(
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
-            'heat_capacity', name=_('Characteristics')
+            name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'module', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description',
+        'module', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'cooling_outflow', 'cooling_feed', 'description',
     )
 
 
@@ -1843,7 +1828,7 @@ class CoolingOutflowBulkEditForm(
     form_from_model(
         CoolingOutflow,
         [
-            'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake',
+            'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake',
             'description'
         ]
     )
@@ -1851,13 +1836,13 @@ class CoolingOutflowBulkEditForm(
     model = CoolingOutflow
     fieldsets = (
         FieldSet(
-            'module', 'flow_direction', 'type',
+            'module', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'label', 'description', 'cooling_intake',
         ),
     )
     nullable_fields = (
-        'module', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
+        'module', 'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
     )
 
     def __init__(self, *args, **kwargs):

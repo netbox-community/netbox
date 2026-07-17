@@ -146,9 +146,6 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    flow_direction = columns.ChoiceFieldColumn(
-        verbose_name=_('Flow Direction'),
-    )
     type = columns.ChoiceFieldColumn(
         verbose_name=_('Type'),
     )
@@ -163,9 +160,6 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
     )
     maximum_flow_unit = columns.ChoiceFieldColumn(
         verbose_name=_('Maximum Flow Unit')
-    )
-    heat_capacity = tables.Column(
-        verbose_name=_('Heat capacity (kW)')
     )
     cooling_outflow = tables.Column(
         verbose_name=_('Cooling Outlet'),
@@ -182,12 +176,12 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingIntake
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
-            'description', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outflow', 'cooling_feed',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'diameter',
+            'description', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow', 'cooling_feed',
             'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'heat_capacity',
+            'pk', 'name', 'device', 'label', 'type', 'diameter', 'maximum_flow',
             'description',
         )
 
@@ -203,9 +197,6 @@ class CoolingOutflowTable(ModularDeviceComponentTable):
             'viewname': 'dcim:device_coolingoutflows',
             'args': [Accessor('device_id')],
         }
-    )
-    flow_direction = columns.ChoiceFieldColumn(
-        verbose_name=_('Flow Direction'),
     )
     type = columns.ChoiceFieldColumn(
         verbose_name=_('Type'),
@@ -226,11 +217,11 @@ class CoolingOutflowTable(ModularDeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingOutflow
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'diameter',
             'description', 'cooling_intake', 'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake',
+            'pk', 'name', 'device', 'label', 'type', 'diameter', 'cooling_intake',
             'description',
         )
 
@@ -260,8 +251,8 @@ class CoolingIntakeTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingIntakeTemplate
         fields = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
-            'heat_capacity', 'description', 'actions',
+            'pk', 'name', 'label', 'type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
+            'description', 'actions',
         )
         empty_text = "None"
 
@@ -284,7 +275,7 @@ class CoolingOutflowTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingOutflowTemplate
         fields = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake', 'description',
+            'pk', 'name', 'label', 'type', 'diameter', 'cooling_intake', 'description',
             'actions',
         )
         empty_text = "None"
@@ -304,11 +295,11 @@ class DeviceCoolingIntakeTable(CoolingIntakeTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingIntake
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'description', 'cooling_outflow', 'cooling_feed', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'diameter', 'maximum_flow',
+            'maximum_flow_unit', 'description', 'cooling_outflow', 'cooling_feed', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'heat_capacity',
+            'pk', 'name', 'label', 'type', 'diameter', 'maximum_flow',
             'description',
         )
 
@@ -323,9 +314,9 @@ class DeviceCoolingOutflowTable(CoolingOutflowTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingOutflow
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'diameter',
             'cooling_intake', 'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake', 'description',
+            'pk', 'name', 'label', 'type', 'diameter', 'cooling_intake', 'description',
         )

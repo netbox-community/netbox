@@ -188,12 +188,6 @@ class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
-    flow_direction = ChoiceField(
-        choices=CoolingFlowDirectionChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
-    )
     type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
@@ -216,8 +210,8 @@ class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = CoolingIntakeTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'description',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
@@ -235,12 +229,6 @@ class CoolingOutflowTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True,
         default=None
-    )
-    flow_direction = ChoiceField(
-        choices=CoolingFlowDirectionChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
     )
     type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
@@ -263,7 +251,7 @@ class CoolingOutflowTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = CoolingOutflowTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'diameter', 'diameter_unit', 'cooling_intake', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

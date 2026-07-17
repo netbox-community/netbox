@@ -695,14 +695,6 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake). A
     CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
     """
-    flow_direction = models.CharField(
-        verbose_name=_('flow direction'),
-        max_length=50,
-        choices=CoolingFlowDirectionChoices,
-        blank=True,
-        null=True,
-        help_text=_('Direction of coolant flow (supply or return)')
-    )
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -713,15 +705,6 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
     # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
-    heat_capacity = models.DecimalField(
-        verbose_name=_('heat capacity'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Heat removal capacity (kW)')
-    )
     cooling_outflow = models.ForeignKey(
         to='dcim.CoolingOutflow',
         on_delete=models.SET_NULL,
@@ -740,8 +723,8 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     )
 
     clone_fields = (
-        'device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-        'maximum_flow_unit', 'heat_capacity',
+        'device', 'module', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+        'maximum_flow_unit',
     )
 
     class Meta(ModularComponentModel.Meta):
@@ -757,23 +740,12 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
                 _("A cooling port cannot be supplied by both a cooling outlet and a cooling feed.")
             )
 
-    def get_flow_direction_color(self):
-        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
-
 
 class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
     CoolingIntakes (referenced via CoolingIntake.cooling_outflow).
     """
-    flow_direction = models.CharField(
-        verbose_name=_('flow direction'),
-        max_length=50,
-        choices=CoolingFlowDirectionChoices,
-        blank=True,
-        null=True,
-        help_text=_('Direction of coolant flow (supply or return)')
-    )
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -791,7 +763,7 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
         related_name='coolingoutflows'
     )
 
-    clone_fields = ('device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
+    clone_fields = ('device', 'module', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling outlet')
@@ -806,9 +778,6 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
                 _("Parent cooling port ({cooling_intake}) must belong to the same device").format(
                     cooling_intake=self.cooling_intake)
             )
-
-    def get_flow_direction_color(self):
-        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
 
 #

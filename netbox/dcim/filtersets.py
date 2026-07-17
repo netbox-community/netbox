@@ -1084,8 +1084,8 @@ class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTy
     class Meta:
         model = CoolingIntakeTemplate
         fields = (
-            'id', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'description',
+            'id', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'maximum_flow_unit', 'description',
         )
 
 
@@ -1099,7 +1099,7 @@ class CoolingOutflowTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceT
 
     class Meta:
         model = CoolingOutflowTemplate
-        fields = ('id', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'description')
+        fields = ('id', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'description')
 
 
 @register_filterset
@@ -2157,11 +2157,6 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 
 @register_filterset
 class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
-    flow_direction = django_filters.MultipleChoiceFilter(
-        choices=CoolingFlowDirectionChoices,
-        distinct=False,
-        null_value=None
-    )
     type = django_filters.MultipleChoiceFilter(
         choices=CoolingConnectorTypeChoices,
         distinct=False,
@@ -2188,18 +2183,13 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
     class Meta:
         model = CoolingIntake
         fields = (
-            'id', 'name', 'label', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity',
+            'id', 'name', 'label', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
             'description',
         )
 
 
 @register_filterset
 class CoolingOutflowFilterSet(ModularDeviceComponentFilterSet):
-    flow_direction = django_filters.MultipleChoiceFilter(
-        choices=CoolingFlowDirectionChoices,
-        distinct=False,
-        null_value=None
-    )
     type = django_filters.MultipleChoiceFilter(
         choices=CoolingConnectorTypeChoices,
         distinct=False,

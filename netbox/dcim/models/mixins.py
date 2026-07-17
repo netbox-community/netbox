@@ -18,7 +18,6 @@ __all__ = (
     'DiameterMixin',
     'InterfaceValidationMixin',
     'MaximumFlowMixin',
-    'RatedFlowRateMixin',
     'RenderConfigMixin',
 )
 
@@ -290,64 +289,6 @@ class DiameterMixin(models.Model):
         # Validate diameter and diameter_unit
         if self.diameter is not None and not self.diameter_unit:
             raise ValidationError(_("Must specify a unit when setting a diameter"))
-
-
-class RatedFlowRateMixin(models.Model):
-    """
-    Adds a rated (design) flow rate with a normalized (L/min) field for ordering. This is a design
-    specification, not a live telemetry reading.
-    """
-    rated_flow_rate = models.DecimalField(
-        verbose_name=_('rated flow rate'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Rated (design) flow rate')
-    )
-    rated_flow_rate_unit = models.CharField(
-        verbose_name=_('rated flow rate unit'),
-        max_length=50,
-        choices=FlowRateUnitChoices,
-        blank=True,
-        null=True,
-    )
-    # Stores the normalized rated flow rate (in liters per minute) for database ordering
-    _abs_rated_flow_rate = models.DecimalField(
-        max_digits=13,
-        decimal_places=4,
-        blank=True,
-        null=True
-    )
-
-    class Meta:
-        abstract = True
-
-    @property
-    def abs_rated_flow_rate(self):
-        # Public alias for _abs_rated_flow_rate; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_rated_flow_rate
-
-    def save(self, *args, **kwargs):
-        # Store the given rated flow rate (if any) in liters per minute for use in database ordering
-        if self.rated_flow_rate is not None and self.rated_flow_rate_unit:
-            self._abs_rated_flow_rate = to_liters_per_minute(self.rated_flow_rate, self.rated_flow_rate_unit)
-        else:
-            self._abs_rated_flow_rate = None
-
-        # Clear rated_flow_rate_unit if no rated flow rate is defined
-        if self.rated_flow_rate is None:
-            self.rated_flow_rate_unit = None
-
-        super().save(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        # Validate rated_flow_rate and rated_flow_rate_unit
-        if self.rated_flow_rate is not None and not self.rated_flow_rate_unit:
-            raise ValidationError(_("Must specify a unit when setting a rated flow rate"))
 
 
 class MaximumFlowMixin(models.Model):

@@ -4271,7 +4271,6 @@ class CoolingIntakeTemplateTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Port Template 4',
-                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
             },
             {
@@ -4324,7 +4323,6 @@ class CoolingOutflowTemplateTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Outlet Template 4',
-                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
                 'cooling_intake': cooling_intake_templates[0].pk,
             },
@@ -4385,14 +4383,12 @@ class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device': device.pk,
                 'name': 'Cooling Port 4',
-                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
                 'cooling_outflow': cooling_outflow.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Cooling Port 5',
-                'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
                 'type': CoolingConnectorTypeChoices.TYPE_QDC,
                 'cooling_feed': cooling_feed.pk,
             },
@@ -4436,7 +4432,6 @@ class CoolingOutflowTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device': device.pk,
                 'name': 'Cooling Outlet 4',
-                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
                 'cooling_intake': cooling_intakes[0].pk,
             },

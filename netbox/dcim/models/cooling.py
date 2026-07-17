@@ -4,10 +4,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
+from netbox.choices import FlowRateUnitChoices
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-
-from .mixins import RatedFlowRateMixin
+from utilities.conversion import to_liters_per_minute
 
 __all__ = (
     'CoolingFeed',
@@ -101,7 +101,7 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
             )
 
 
-class CoolingFeed(RatedFlowRateMixin, PrimaryModel):
+class CoolingFeed(PrimaryModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
     represented as separate feeds. A CoolingFeed supplies one or more CoolingIntakes (referenced via
@@ -148,7 +148,29 @@ class CoolingFeed(RatedFlowRateMixin, PrimaryModel):
         validators=[MinValueValidator(0)],
         help_text=_('Rated cooling capacity (kW)')
     )
-    # rated_flow_rate, rated_flow_rate_unit, _abs_rated_flow_rate provided by RatedFlowRateMixin
+    rated_flow_rate = models.DecimalField(
+        verbose_name=_('rated flow rate'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Rated (design) flow rate')
+    )
+    rated_flow_rate_unit = models.CharField(
+        verbose_name=_('rated flow rate unit'),
+        max_length=50,
+        choices=FlowRateUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized rated flow rate (in liters per minute) for database ordering
+    _abs_rated_flow_rate = models.DecimalField(
+        max_digits=13,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -179,6 +201,19 @@ class CoolingFeed(RatedFlowRateMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        # Store the given rated flow rate (if any) in liters per minute for use in database ordering
+        if self.rated_flow_rate is not None and self.rated_flow_rate_unit:
+            self._abs_rated_flow_rate = to_liters_per_minute(self.rated_flow_rate, self.rated_flow_rate_unit)
+        else:
+            self._abs_rated_flow_rate = None
+
+        # Clear rated_flow_rate_unit if no rated flow rate is defined
+        if self.rated_flow_rate is None:
+            self.rated_flow_rate_unit = None
+
+        super().save(*args, **kwargs)
+
     def clean(self):
         super().clean()
 
@@ -192,6 +227,15 @@ class CoolingFeed(RatedFlowRateMixin, PrimaryModel):
                 source=self.cooling_source,
                 source_site=self.cooling_source.site
             ))
+
+        # A rated flow rate unit is required when a rated flow rate is set
+        if self.rated_flow_rate is not None and not self.rated_flow_rate_unit:
+            raise ValidationError(_("Must specify a unit when setting a rated flow rate"))
+
+    @property
+    def abs_rated_flow_rate(self):
+        # Public alias for _abs_rated_flow_rate; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_rated_flow_rate
 
     @property
     def parent_object(self):

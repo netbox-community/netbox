@@ -1458,18 +1458,18 @@ class CoolingIntakeTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'flow_direction', 'type',
+            'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
-            'heat_capacity', 'description',
+            'description',
         ),
     )
 
     class Meta:
         model = CoolingIntakeTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
-            'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'maximum_flow', 'maximum_flow_unit', 'description',
         ]
 
 
@@ -1489,7 +1489,7 @@ class CoolingOutflowTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'flow_direction', 'type',
+            'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'cooling_intake', 'description',
         ),
@@ -1498,7 +1498,7 @@ class CoolingOutflowTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = CoolingOutflowTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
             'cooling_intake', 'description',
         ]
 
@@ -1961,18 +1961,18 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'flow_direction', 'type',
+            'device', 'module', 'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
-            'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description', 'tags',
+            'cooling_outflow', 'cooling_feed', 'description', 'tags',
         ),
     )
 
     class Meta:
         model = CoolingIntake
         fields = [
-            'device', 'module', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'maximum_flow_unit', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
         ]
 
 
@@ -1988,7 +1988,7 @@ class CoolingOutflowForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'flow_direction', 'type',
+            'device', 'module', 'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'cooling_intake', 'description', 'tags',
         ),
@@ -1997,7 +1997,7 @@ class CoolingOutflowForm(ModularDeviceComponentForm):
     class Meta:
         model = CoolingOutflow
         fields = [
-            'device', 'module', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit',
             'cooling_intake', 'description', 'tags',
         ]
 

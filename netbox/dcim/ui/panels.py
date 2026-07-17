@@ -286,12 +286,10 @@ class CoolingIntakePanel(panels.ObjectAttributesPanel):
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
-    flow_direction = attrs.ChoiceAttr('flow_direction')
     type = attrs.ChoiceAttr('type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
     maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
-    heat_capacity = attrs.TextAttr('heat_capacity', format_string=_('{} kW'))
     cooling_outflow = attrs.RelatedObjectAttr('cooling_outflow', linkify=True)
     cooling_feed = attrs.RelatedObjectAttr('cooling_feed', linkify=True)
 
@@ -301,11 +299,9 @@ class CoolingOutflowPanel(panels.ObjectAttributesPanel):
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
-    flow_direction = attrs.ChoiceAttr('flow_direction')
     type = attrs.ChoiceAttr('type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
-    color = attrs.ColorAttr('color')
     cooling_intake = attrs.RelatedObjectAttr('cooling_intake', linkify=True)
 
 

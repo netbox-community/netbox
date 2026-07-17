@@ -4594,35 +4594,29 @@ class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         cls.form_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Port Template X',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
         }
 
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Port Template [4-6]',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
         }
 
         cls.bulk_edit_data = {
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
         }
 
 
@@ -4649,7 +4643,6 @@ class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTe
         cls.form_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Outlet Template X',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
@@ -4659,7 +4652,6 @@ class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTe
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Outlet Template [4-6]',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
@@ -4667,7 +4659,6 @@ class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTe
         }
 
         cls.bulk_edit_data = {
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
@@ -4694,13 +4685,11 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.form_data = {
             'device': device.pk,
             'name': 'Cooling Port X',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
             'description': 'A cooling port',
             'tags': [t.pk for t in tags],
         }
@@ -4708,25 +4697,21 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name': 'Cooling Port [4-6]]',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
             'description': 'A cooling port',
             'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'heat_capacity': 50,
             'description': 'New description',
         }
 
@@ -4771,7 +4756,6 @@ class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.form_data = {
             'device': device.pk,
             'name': 'Cooling Outlet X',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
@@ -4783,7 +4767,6 @@ class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name': 'Cooling Outlet [4-6]',
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
@@ -4793,7 +4776,6 @@ class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'cooling_intake': coolingintakes[1].pk,
             'description': 'New description',
         }

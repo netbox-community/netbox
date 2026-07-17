@@ -1867,7 +1867,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
+            'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
             'cooling_outflow', 'cooling_feed', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
@@ -1876,11 +1876,6 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
             name=_('Device')
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
-    )
-    flow_direction = forms.MultipleChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1919,15 +1914,10 @@ class CoolingIntakeTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
+            'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
             name=_('Attributes')
         ),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
-    )
-    flow_direction = forms.MultipleChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1955,7 +1945,7 @@ class CoolingOutflowFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', name=_('Attributes')
+            'name', 'label', 'type', 'diameter', 'diameter_unit', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
@@ -1963,11 +1953,6 @@ class CoolingOutflowFilterForm(DeviceComponentFilterForm):
             name=_('Device')
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
-    )
-    flow_direction = forms.MultipleChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1990,13 +1975,8 @@ class CoolingOutflowTemplateFilterForm(ModularDeviceComponentTemplateFilterForm)
     model = CoolingOutflowTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', name=_('Attributes')),
+        FieldSet('name', 'label', 'type', 'diameter', 'diameter_unit', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
-    )
-    flow_direction = forms.MultipleChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        required=False
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),

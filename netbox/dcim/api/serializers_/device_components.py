@@ -213,12 +213,6 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    flow_direction = ChoiceField(
-        choices=CoolingFlowDirectionChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
-    )
     type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
@@ -251,8 +245,8 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
     class Meta:
         model = CoolingIntake
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'flow_direction', 'type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outflow',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
             'cooling_feed', 'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
@@ -263,12 +257,6 @@ class CoolingOutflowSerializer(OwnerMixin, NetBoxModelSerializer):
     module = ModuleSerializer(
         nested=True,
         fields=('id', 'url', 'display', 'device', 'module_bay'),
-        required=False,
-        allow_null=True
-    )
-    flow_direction = ChoiceField(
-        choices=CoolingFlowDirectionChoices,
-        allow_blank=True,
         required=False,
         allow_null=True
     )
@@ -293,7 +281,7 @@ class CoolingOutflowSerializer(OwnerMixin, NetBoxModelSerializer):
     class Meta:
         model = CoolingOutflow
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'flow_direction', 'type',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
             'diameter', 'diameter_unit', 'cooling_intake', 'description', 'owner', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]

@@ -446,13 +446,6 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
     """
     A template for a CoolingIntake to be created for a new Device.
     """
-    flow_direction = models.CharField(
-        verbose_name=_('flow direction'),
-        max_length=50,
-        choices=CoolingFlowDirectionChoices,
-        blank=True,
-        null=True
-    )
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -462,15 +455,6 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
     # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
-    heat_capacity = models.DecimalField(
-        verbose_name=_('heat capacity'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Heat removal capacity (kW)')
-    )
 
     component_model = CoolingIntake
 
@@ -482,13 +466,11 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
-            flow_direction=self.flow_direction,
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
             maximum_flow=self.maximum_flow,
             maximum_flow_unit=self.maximum_flow_unit,
-            heat_capacity=self.heat_capacity,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -496,13 +478,11 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
     def to_yaml(self):
         return {
             'name': self.name,
-            'flow_direction': self.flow_direction,
             'type': self.type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
             'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
             'maximum_flow_unit': self.maximum_flow_unit,
-            'heat_capacity': float(self.heat_capacity) if self.heat_capacity is not None else None,
             'label': self.label,
             'description': self.description,
         }
@@ -512,13 +492,6 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
     """
     A template for a CoolingOutflow to be created for a new Device.
     """
-    flow_direction = models.CharField(
-        verbose_name=_('flow direction'),
-        max_length=50,
-        choices=CoolingFlowDirectionChoices,
-        blank=True,
-        null=True
-    )
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -568,7 +541,6 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
-            flow_direction=self.flow_direction,
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
@@ -580,7 +552,6 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
     def to_yaml(self):
         return {
             'name': self.name,
-            'flow_direction': self.flow_direction,
             'type': self.type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,

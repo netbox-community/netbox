@@ -87,8 +87,8 @@ class CoolingIntakeTemplateImportForm(forms.ModelForm):
     class Meta:
         model = CoolingIntakeTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'maximum_flow',
+            'maximum_flow_unit', 'description',
         ]
 
 
@@ -103,7 +103,7 @@ class CoolingOutflowTemplateImportForm(forms.ModelForm):
     class Meta:
         model = CoolingOutflowTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter',
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter',
             'cooling_intake', 'description',
         ]
 

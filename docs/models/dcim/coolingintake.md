@@ -1,6 +1,6 @@
 # Cooling Ports
 
-A cooling port is a device component which represents a coolant intake or outlet on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling port can be connected via a cooling hose cable to a [cooling outlet](./coolingoutflow.md) or a [cooling feed](./coolingfeed.md).
+A cooling intake is a device component which represents a coolant intake on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling intake references the upstream [cooling outlet](./coolingoutflow.md) or [cooling feed](./coolingfeed.md) which supplies it.
 
 !!! tip
     Like most device components, cooling ports are instantiated automatically from [cooling port templates](./coolingintaketemplate.md) assigned to the selected device type when a device is created.
@@ -23,10 +23,6 @@ The name of the cooling port. Must be unique to the parent device.
 
 An alternative physical label identifying the cooling port.
 
-### Type
-
-Indicates whether the port carries supply (cold) or return (warm) coolant.
-
 ### Connector Type
 
 The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded NPT/BSP).
@@ -38,11 +34,3 @@ The connector diameter, expressed as a numeric value with a selectable unit (mil
 ### Maximum Flow
 
 The maximum coolant flow rate this port supports, expressed as a numeric value with a selectable unit (litres per minute, cubic meters per hour, or gallons per minute).
-
-### Heat Capacity
-
-The heat-removal capacity of this port, in kilowatts (kW).
-
-### Mark Connected
-
-If selected, this component will be treated as if a cable has been connected.
