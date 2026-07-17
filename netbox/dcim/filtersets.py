@@ -510,7 +510,6 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         choices=RackCoolingCapabilityChoices,
         distinct=False,
     )
-    has_rdhx = django_filters.BooleanFilter()
 
     class Meta:
         model = Rack

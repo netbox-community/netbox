@@ -388,7 +388,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', name=_('Location')),
         FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
         FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
-        FieldSet('cooling_capability', 'has_rdhx', name=_('Cooling')),
+        FieldSet('cooling_capability', name=_('Cooling')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -457,13 +457,6 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         label=_('Airflow'),
         choices=add_blank_choice(RackAirflowChoices),
         required=False
-    )
-    has_rdhx = forms.NullBooleanField(
-        required=False,
-        label=_('Has RDHx'),
-        widget=forms.Select(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
     )
     serial = forms.CharField(
         label=_('Serial'),

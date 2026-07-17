@@ -461,11 +461,6 @@ class RackBulkEditForm(PrimaryModelBulkEditForm):
         choices=add_blank_choice(RackCoolingCapabilityChoices),
         required=False
     )
-    has_rdhx = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect,
-        label=_('Has RDHx')
-    )
     cooling_capacity = forms.DecimalField(
         label=_('Cooling capacity'),
         min_value=0,
@@ -496,7 +491,7 @@ class RackBulkEditForm(PrimaryModelBulkEditForm):
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet('outer_width', 'outer_height', 'outer_depth', 'outer_unit', name=_('Outer Dimensions')),
         FieldSet('form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'mounting_depth', name=_('Hardware')),
-        FieldSet('cooling_capability', 'has_rdhx', 'cooling_capacity', name=_('Cooling')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (

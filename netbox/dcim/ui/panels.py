@@ -80,7 +80,6 @@ class RackPanel(panels.ObjectAttributesPanel):
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     airflow = attrs.ChoiceAttr('airflow')
     cooling_capability = attrs.ChoiceAttr('cooling_capability')
-    has_rdhx = attrs.BooleanAttr('has_rdhx', label=_('Has RDHx'))
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
     space_utilization = attrs.UtilizationAttr('get_utilization')
     power_utilization = attrs.UtilizationAttr('get_power_utilization')

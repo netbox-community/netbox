@@ -159,7 +159,7 @@ class RackSerializer(RackBaseSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'group', 'tenant',
             'status', 'role', 'serial', 'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit',
             'weight', 'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'has_rdhx', 'cooling_capacity',
+            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'cooling_capacity',
             'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
             'powerfeed_count',
         ]

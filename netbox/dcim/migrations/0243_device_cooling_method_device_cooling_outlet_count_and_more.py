@@ -110,11 +110,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="rack",
-            name="has_rdhx",
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
             model_name="racktype",
             name="cooling_capability",
             field=models.CharField(blank=True, max_length=50, null=True),

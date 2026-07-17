@@ -205,10 +205,6 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     cooling_capability = columns.ChoiceFieldColumn(
         verbose_name=_('Cooling Capability'),
     )
-    has_rdhx = columns.BooleanColumn(
-        verbose_name=_('Has RDHx'),
-        false_mark=None
-    )
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
@@ -218,7 +214,7 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'group', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
             'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'cooling_capability', 'has_rdhx',
+            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'cooling_capability',
             'cooling_capacity', 'weight', 'max_weight', 'comments',
             'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts',
             'tags', 'created', 'last_updated',

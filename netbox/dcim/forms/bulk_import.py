@@ -354,7 +354,7 @@ class RackImportForm(PrimaryModelImportForm):
         fields = (
             'site', 'location', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor',
             'serial', 'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'has_rdhx', 'cooling_capacity', 'weight',
+            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'cooling_capacity', 'weight',
             'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         )
 

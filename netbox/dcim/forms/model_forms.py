@@ -389,7 +389,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
             'site', 'location', 'group', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
             name=_('Rack')
         ),
-        FieldSet('cooling_capability', 'has_rdhx', 'cooling_capacity', name=_('Cooling')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -399,7 +399,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
         fields = [
             'site', 'location', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'has_rdhx',
+            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability',
             'cooling_capacity', 'weight', 'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 

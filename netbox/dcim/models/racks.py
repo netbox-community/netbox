@@ -378,11 +378,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         blank=True,
         null=True
     )
-    has_rdhx = models.BooleanField(
-        verbose_name=_('has RDHx'),
-        default=False,
-        help_text=_('Rack is equipped with a rear-door heat exchanger')
-    )
 
     # Generic relations
     vlan_groups = GenericRelation(
@@ -394,7 +389,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
     clone_fields = (
         'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'cooling_capability',
-        'has_rdhx', 'cooling_capacity', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
+        'cooling_capacity', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
         'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
