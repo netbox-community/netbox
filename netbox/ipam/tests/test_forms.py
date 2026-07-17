@@ -233,6 +233,17 @@ class PortMappingFieldTestCase(TestCase):
         with self.assertRaises(ValidationError):
             field.clean('[{"protocol": "tcp", "ports": "9000-53"}]')
 
+    def test_invalid_subrange_alongside_valid_rejected(self):
+        """
+        An invalid range combined with a valid one must raise rather than silently dropping the
+        invalid sub-range (the valid range would otherwise mask the empty expansion).
+        """
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "80,9000-53"}]')
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "80,70000-80"}]')
+
     def test_normalizes_leading_zero_ports(self):
         """Leading-zero ports are normalized so they remain matchable by the port filter."""
         field = PortMappingField()
@@ -249,6 +260,12 @@ class ServiceTemplateImportFormTestCase(TestCase):
     def test_reversed_range_rejected(self):
         """A reversed range must error rather than silently dropping the token's mappings."""
         form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80;udp:9000-53'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
+    def test_invalid_subrange_alongside_valid_rejected(self):
+        """An invalid range combined with a valid one in the same token must error, not be dropped."""
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80,9000-53'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
 
