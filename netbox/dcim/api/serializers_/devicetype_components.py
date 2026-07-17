@@ -6,8 +6,8 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate,
     ConsoleServerPortTemplate,
-    CoolingOutletTemplate,
-    CoolingPortTemplate,
+    CoolingIntakeTemplate,
+    CoolingOutflowTemplate,
     DeviceBayTemplate,
     FrontPortTemplate,
     InterfaceTemplate,
@@ -33,8 +33,8 @@ from .roles import InventoryItemRoleSerializer
 __all__ = (
     'ConsolePortTemplateSerializer',
     'ConsoleServerPortTemplateSerializer',
-    'CoolingOutletTemplateSerializer',
-    'CoolingPortTemplateSerializer',
+    'CoolingIntakeTemplateSerializer',
+    'CoolingOutflowTemplateSerializer',
     'DeviceBayTemplateSerializer',
     'FrontPortTemplateSerializer',
     'InterfaceTemplateSerializer',
@@ -175,7 +175,7 @@ class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
+class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -214,7 +214,7 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
     )
 
     class Meta:
-        model = CoolingPortTemplate
+        model = CoolingIntakeTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
             'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
@@ -223,7 +223,7 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
+class CoolingOutflowTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -254,17 +254,17 @@ class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
-    cooling_port = CoolingPortTemplateSerializer(
+    cooling_intake = CoolingIntakeTemplateSerializer(
         nested=True,
         required=False,
         allow_null=True
     )
 
     class Meta:
-        model = CoolingOutletTemplate
+        model = CoolingOutflowTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
-            'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'created', 'last_updated',
+            'diameter', 'diameter_unit', 'cooling_intake', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

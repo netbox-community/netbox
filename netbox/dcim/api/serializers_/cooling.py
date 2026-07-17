@@ -2,7 +2,7 @@ from dcim.choices import *
 from dcim.models import CoolingFeed, CoolingSource
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import PrimaryModelSerializer
-from netbox.choices import FlowRateUnitChoices, TemperatureUnitChoices
+from netbox.choices import FlowRateUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from .racks import RackSerializer
@@ -29,8 +29,8 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
         choices=CoolingSourceStatusChoices,
         default=lambda: CoolingSourceStatusChoices.STATUS_ACTIVE,
     )
-    temperature_unit = ChoiceField(
-        choices=TemperatureUnitChoices,
+    fluid_type = ChoiceField(
+        choices=FluidTypeChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -42,8 +42,8 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
     class Meta:
         model = CoolingSource
         fields = [
-            'id', 'url', 'display_url', 'display', 'site', 'location', 'name', 'type', 'status', 'cooling_capacity',
-            'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'owner', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'site', 'location', 'name', 'type', 'status', 'fluid_type',
+            'cooling_capacity', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'coolingfeed_count', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'coolingfeed_count')
@@ -65,20 +65,8 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         choices=CoolingFeedStatusChoices,
         default=lambda: CoolingFeedStatusChoices.STATUS_ACTIVE,
     )
-    fluid_type = ChoiceField(
-        choices=FluidTypeChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
-    )
     rated_flow_rate_unit = ChoiceField(
         choices=FlowRateUnitChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
-    )
-    temperature_unit = ChoiceField(
-        choices=TemperatureUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -93,8 +81,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'flow_direction',
-            'fluid_type', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
-            'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'tenant', 'owner',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'description', 'tenant',
+            'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

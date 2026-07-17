@@ -207,12 +207,12 @@ class CoolingFeedTableTestCase(TableTestCases.StandardTableTestCase):
     table = CoolingFeedTable
 
 
-class CoolingPortTableTestCase(TableTestCases.StandardTableTestCase):
-    table = CoolingPortTable
+class CoolingIntakeTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingIntakeTable
 
 
-class CoolingOutletTableTestCase(TableTestCases.StandardTableTestCase):
-    table = CoolingOutletTable
+class CoolingOutflowTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingOutflowTable
 
 
 #

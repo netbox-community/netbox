@@ -14,7 +14,6 @@ from netbox.choices import (
     ColorChoices,
     DiameterUnitChoices,
     FlowRateUnitChoices,
-    TemperatureUnitChoices,
     WeightUnitChoices,
 )
 from tenancy.models import Tenant, TenantGroup
@@ -2103,9 +2102,9 @@ class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
-    queryset = CoolingPortTemplate.objects.all()
-    filterset = CoolingPortTemplateFilterSet
+class CoolingIntakeTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+    queryset = CoolingIntakeTemplate.objects.all()
+    filterset = CoolingIntakeTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2119,8 +2118,8 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         )
         DeviceType.objects.bulk_create(device_types)
 
-        CoolingPortTemplate.objects.bulk_create((
-            CoolingPortTemplate(
+        CoolingIntakeTemplate.objects.bulk_create((
+            CoolingIntakeTemplate(
                 device_type=device_types[0],
                 name='Cooling Port 1',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -2132,7 +2131,7 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
                 heat_capacity=50,
                 description='foobar1'
             ),
-            CoolingPortTemplate(
+            CoolingIntakeTemplate(
                 device_type=device_types[1],
                 name='Cooling Port 2',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
@@ -2144,7 +2143,7 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
                 heat_capacity=100,
                 description='foobar2'
             ),
-            CoolingPortTemplate(
+            CoolingIntakeTemplate(
                 device_type=device_types[2],
                 name='Cooling Port 3',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -2189,9 +2188,9 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
-    queryset = CoolingOutletTemplate.objects.all()
-    filterset = CoolingOutletTemplateFilterSet
+class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+    queryset = CoolingOutflowTemplate.objects.all()
+    filterset = CoolingOutflowTemplateFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -2205,35 +2204,32 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         )
         DeviceType.objects.bulk_create(device_types)
 
-        CoolingOutletTemplate.objects.bulk_create((
-            CoolingOutletTemplate(
+        CoolingOutflowTemplate.objects.bulk_create((
+            CoolingOutflowTemplate(
                 device_type=device_types[0],
                 name='Cooling Outlet 1',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                color=ColorChoices.COLOR_RED,
                 description='foobar1'
             ),
-            CoolingOutletTemplate(
+            CoolingOutflowTemplate(
                 device_type=device_types[1],
                 name='Cooling Outlet 2',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                color=ColorChoices.COLOR_GREEN,
                 description='foobar2'
             ),
-            CoolingOutletTemplate(
+            CoolingOutflowTemplate(
                 device_type=device_types[2],
                 name='Cooling Outlet 3',
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                color=ColorChoices.COLOR_BLUE,
                 description='foobar3'
             ),
         ))
@@ -2253,10 +2249,6 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
     def test_diameter(self):
         params = {'diameter': [Decimal('25')]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_color(self):
-        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class InterfaceTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
@@ -4742,9 +4734,9 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
-    queryset = CoolingPort.objects.all()
-    filterset = CoolingPortFilterSet
+class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+    queryset = CoolingIntake.objects.all()
+    filterset = CoolingIntakeFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -4869,7 +4861,7 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         )
         Module.objects.bulk_create(modules)
 
-        cooling_outlet = CoolingOutlet.objects.create(device=devices[3], name='Cooling Outlet 1')
+        cooling_outflow = CoolingOutflow.objects.create(device=devices[3], name='Cooling Outlet 1')
 
         cooling_source = CoolingSource.objects.create(
             site=sites[0], name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
@@ -4879,8 +4871,8 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
         )
 
-        cooling_ports = (
-            CoolingPort(
+        cooling_intakes = (
+            CoolingIntake(
                 device=devices[0],
                 module=modules[0],
                 name='Cooling Port 1',
@@ -4893,12 +4885,12 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 heat_capacity=50,
                 description='First',
-                cooling_outlet=cooling_outlet,
+                cooling_outflow=cooling_outflow,
                 _site=devices[0].site,
                 _location=devices[0].location,
                 _rack=devices[0].rack,
             ),
-            CoolingPort(
+            CoolingIntake(
                 device=devices[1],
                 module=modules[1],
                 name='Cooling Port 2',
@@ -4916,7 +4908,7 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 _location=devices[1].location,
                 _rack=devices[1].rack,
             ),
-            CoolingPort(
+            CoolingIntake(
                 device=devices[2],
                 module=modules[2],
                 name='Cooling Port 3',
@@ -4934,7 +4926,7 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 _rack=devices[2].rack,
             ),
         )
-        CoolingPort.objects.bulk_create(cooling_ports)
+        CoolingIntake.objects.bulk_create(cooling_intakes)
 
     def test_name(self):
         params = {'name': ['Cooling Port 1', 'Cooling Port 2']}
@@ -4956,9 +4948,9 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         params = {'type': [CoolingConnectorTypeChoices.TYPE_UQD, CoolingConnectorTypeChoices.TYPE_QDC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_cooling_outlet(self):
-        cooling_outlet = CoolingOutlet.objects.first()
-        params = {'cooling_outlet_id': [cooling_outlet.pk]}
+    def test_cooling_outflow(self):
+        cooling_outflow = CoolingOutflow.objects.first()
+        params = {'cooling_outflow_id': [cooling_outflow.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_cooling_feed(self):
@@ -5032,9 +5024,9 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
-    queryset = CoolingOutlet.objects.all()
-    filterset = CoolingOutletFilterSet
+class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+    queryset = CoolingOutflow.objects.all()
+    filterset = CoolingOutflowFilterSet
 
     @classmethod
     def setUpTestData(cls):
@@ -5159,14 +5151,14 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         )
         Module.objects.bulk_create(modules)
 
-        cooling_ports = (
-            CoolingPort(device=devices[0], name='Cooling Port 1'),
-            CoolingPort(device=devices[1], name='Cooling Port 2'),
+        cooling_intakes = (
+            CoolingIntake(device=devices[0], name='Cooling Port 1'),
+            CoolingIntake(device=devices[1], name='Cooling Port 2'),
         )
-        CoolingPort.objects.bulk_create(cooling_ports)
+        CoolingIntake.objects.bulk_create(cooling_intakes)
 
-        cooling_outlets = (
-            CoolingOutlet(
+        cooling_outflows = (
+            CoolingOutflow(
                 device=devices[0],
                 module=modules[0],
                 name='Cooling Outlet 1',
@@ -5176,13 +5168,12 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='First',
-                color='ff0000',
-                cooling_port=cooling_ports[0],
+                cooling_intake=cooling_intakes[0],
                 _site=devices[0].site,
                 _location=devices[0].location,
                 _rack=devices[0].rack,
             ),
-            CoolingOutlet(
+            CoolingOutflow(
                 device=devices[1],
                 module=modules[1],
                 name='Cooling Outlet 2',
@@ -5192,13 +5183,12 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='Second',
-                color='00ff00',
-                cooling_port=cooling_ports[1],
+                cooling_intake=cooling_intakes[1],
                 _site=devices[1].site,
                 _location=devices[1].location,
                 _rack=devices[1].rack,
             ),
-            CoolingOutlet(
+            CoolingOutflow(
                 device=devices[2],
                 module=modules[2],
                 name='Cooling Outlet 3',
@@ -5208,13 +5198,12 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='Third',
-                color='0000ff',
                 _site=devices[2].site,
                 _location=devices[2].location,
                 _rack=devices[2].rack,
             ),
         )
-        CoolingOutlet.objects.bulk_create(cooling_outlets)
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
 
     def test_name(self):
         params = {'name': ['Cooling Outlet 1', 'Cooling Outlet 2']}
@@ -5226,10 +5215,6 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_color(self):
-        params = {'color': ['ff0000', '00ff00']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_flow_direction(self):
@@ -5244,9 +5229,9 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         params = {'diameter': [Decimal('25'), Decimal('32')]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_cooling_port(self):
-        cooling_ports = CoolingPort.objects.all()[:2]
-        params = {'cooling_port_id': [cooling_ports[0].pk, cooling_ports[1].pk]}
+    def test_cooling_intake(self):
+        cooling_intakes = CoolingIntake.objects.all()[:2]
+        params = {'cooling_intake_id': [cooling_intakes[0].pk, cooling_intakes[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -8284,10 +8269,8 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 location=locations[0],
                 type=CoolingSourceTypeChoices.TYPE_CHILLER,
                 status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+                fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=100,
-                supply_temperature=18,
-                return_temperature=30,
-                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar1'
             ),
             CoolingSource(
@@ -8296,10 +8279,8 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 location=locations[1],
                 type=CoolingSourceTypeChoices.TYPE_COOLING_TOWER,
                 status=CoolingSourceStatusChoices.STATUS_PLANNED,
+                fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=200,
-                supply_temperature=20,
-                return_temperature=32,
-                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar2'
             ),
             CoolingSource(
@@ -8308,14 +8289,11 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 location=locations[2],
                 type=CoolingSourceTypeChoices.TYPE_DRY_COOLER,
                 status=CoolingSourceStatusChoices.STATUS_OFFLINE,
+                fluid_type=FluidTypeChoices.FLUID_DIELECTRIC,
                 cooling_capacity=300,
-                supply_temperature=22,
-                return_temperature=34,
-                temperature_unit=TemperatureUnitChoices.UNIT_FAHRENHEIT,
                 description='foobar3'
             ),
         )
-        # Use save() rather than bulk_create() so that the normalized _abs_*_temperature fields are populated
         for cooling_source in cooling_sources:
             cooling_source.save()
 
@@ -8339,20 +8317,12 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'status': [CoolingSourceStatusChoices.STATUS_ACTIVE, CoolingSourceStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_fluid_type(self):
+        params = {'fluid_type': [FluidTypeChoices.FLUID_WATER]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_cooling_capacity(self):
         params = {'cooling_capacity': [100, 200]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_supply_temperature(self):
-        params = {'supply_temperature': [18, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_return_temperature(self):
-        params = {'return_temperature': [30, 32]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_temperature_unit(self):
-        params = {'temperature_unit': [TemperatureUnitChoices.UNIT_CELSIUS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -8451,13 +8421,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[0],
                 status=CoolingFeedStatusChoices.STATUS_ACTIVE,
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
-                fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=100,
                 rated_flow_rate=10,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                supply_temperature=18,
-                return_temperature=30,
-                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar1'
             ),
             CoolingFeed(
@@ -8467,13 +8433,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[1],
                 status=CoolingFeedStatusChoices.STATUS_FAILED,
                 flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
-                fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=200,
                 rated_flow_rate=20,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-                supply_temperature=20,
-                return_temperature=32,
-                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar2'
             ),
             CoolingFeed(
@@ -8483,13 +8445,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[2],
                 status=CoolingFeedStatusChoices.STATUS_OFFLINE,
                 flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
-                fluid_type=FluidTypeChoices.FLUID_DIELECTRIC,
                 cooling_capacity=300,
                 rated_flow_rate=30,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
-                supply_temperature=22,
-                return_temperature=34,
-                temperature_unit=TemperatureUnitChoices.UNIT_FAHRENHEIT,
                 description='foobar3'
             ),
         )
@@ -8513,10 +8471,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_fluid_type(self):
-        params = {'fluid_type': [FluidTypeChoices.FLUID_WATER]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
     def test_cooling_capacity(self):
         params = {'cooling_capacity': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -8527,18 +8481,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_rated_flow_rate_unit(self):
         params = {'rated_flow_rate_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_supply_temperature(self):
-        params = {'supply_temperature': [18, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_return_temperature(self):
-        params = {'return_temperature': [30, 32]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_temperature_unit(self):
-        params = {'temperature_unit': [TemperatureUnitChoices.UNIT_CELSIUS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

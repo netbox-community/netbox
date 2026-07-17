@@ -7,7 +7,7 @@ from dcim.choices import *
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
-from .mixins import CoolingTemperatureMixin, RatedFlowRateMixin
+from .mixins import RatedFlowRateMixin
 
 __all__ = (
     'CoolingFeed',
@@ -19,7 +19,7 @@ __all__ = (
 # Cooling
 #
 
-class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
+class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A facility-level source of cooling; e.g. a chiller, cooling tower, or dry cooler.
     """
@@ -49,6 +49,13 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
         choices=CoolingSourceStatusChoices,
         default=CoolingSourceStatusChoices.STATUS_ACTIVE
     )
+    fluid_type = models.CharField(
+        verbose_name=_('fluid type'),
+        max_length=50,
+        choices=FluidTypeChoices,
+        blank=True,
+        null=True
+    )
     cooling_capacity = models.DecimalField(
         verbose_name=_('cooling capacity'),
         max_digits=10,
@@ -58,11 +65,9 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
         validators=[MinValueValidator(0)],
         help_text=_('Total rated cooling capacity (kW)')
     )
-    # supply_temperature, return_temperature, temperature_unit, _abs_* provided by CoolingTemperatureMixin
 
     clone_fields = (
-        'site', 'location', 'type', 'status', 'cooling_capacity', 'supply_temperature', 'return_temperature',
-        'temperature_unit',
+        'site', 'location', 'type', 'status', 'fluid_type', 'cooling_capacity',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -96,14 +101,14 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
             )
 
 
-class CoolingFeed(CoolingTemperatureMixin, RatedFlowRateMixin, PrimaryModel):
+class CoolingFeed(RatedFlowRateMixin, PrimaryModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
-    represented as separate feeds. A CoolingFeed supplies one or more CoolingPorts (referenced via
-    CoolingPort.cooling_feed) rather than being cabled.
+    represented as separate feeds. A CoolingFeed supplies one or more CoolingIntakes (referenced via
+    CoolingIntake.cooling_feed) rather than being cabled.
 
-    Flow rate and temperatures are design specifications (the intended operating envelope), not live
-    telemetry; runtime readings belong in an external monitoring system.
+    Rated flow rate is a design specification (the intended operating envelope), not live telemetry;
+    runtime readings belong in an external monitoring system.
     """
     cooling_source = models.ForeignKey(
         to='CoolingSource',
@@ -134,13 +139,6 @@ class CoolingFeed(CoolingTemperatureMixin, RatedFlowRateMixin, PrimaryModel):
         choices=CoolingFlowDirectionChoices,
         default=CoolingFlowDirectionChoices.TYPE_SUPPLY
     )
-    fluid_type = models.CharField(
-        verbose_name=_('fluid type'),
-        max_length=50,
-        choices=FluidTypeChoices,
-        blank=True,
-        null=True
-    )
     cooling_capacity = models.DecimalField(
         verbose_name=_('cooling capacity'),
         max_digits=10,
@@ -160,8 +158,8 @@ class CoolingFeed(CoolingTemperatureMixin, RatedFlowRateMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity', 'rated_flow_rate',
-        'rated_flow_rate_unit', 'supply_temperature', 'return_temperature', 'temperature_unit', 'tenant',
+        'cooling_source', 'rack', 'status', 'flow_direction', 'cooling_capacity', 'rated_flow_rate',
+        'rated_flow_rate_unit', 'tenant',
     )
     prerequisite_models = (
         'dcim.CoolingSource',

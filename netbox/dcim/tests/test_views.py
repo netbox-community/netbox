@@ -24,7 +24,6 @@ from netbox.choices import (
     DiameterUnitChoices,
     FlowRateUnitChoices,
     ImportFormatChoices,
-    TemperatureUnitChoices,
     WeightUnitChoices,
 )
 from tenancy.models import Tenant
@@ -998,8 +997,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1096,8 +1095,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1150,8 +1149,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1188,8 +1187,8 @@ console-ports: {value}
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1314,8 +1313,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1348,8 +1347,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1371,8 +1370,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1595,8 +1594,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
-            'dcim.add_coolingporttemplate',
-            'dcim.add_coolingoutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -4577,8 +4576,8 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
 
 
-class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
-    model = CoolingPortTemplate
+class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingIntakeTemplate
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4586,10 +4585,10 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
-        CoolingPortTemplate.objects.bulk_create((
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        CoolingIntakeTemplate.objects.bulk_create((
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 3'),
         ))
 
         cls.form_data = {
@@ -4627,8 +4626,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         }
 
 
-class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
-    model = CoolingOutletTemplate
+class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingOutflowTemplate
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
@@ -4636,16 +4635,16 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
-        CoolingOutletTemplate.objects.bulk_create((
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        CoolingOutflowTemplate.objects.bulk_create((
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
         ))
 
-        coolingports = (
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+        coolingintakes = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
         )
-        CoolingPortTemplate.objects.bulk_create(coolingports)
+        CoolingIntakeTemplate.objects.bulk_create(coolingintakes)
 
         cls.form_data = {
             'device_type': devicetype.pk,
@@ -4654,7 +4653,7 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'cooling_port': coolingports[0].pk,
+            'cooling_intake': coolingintakes[0].pk,
         }
 
         cls.bulk_create_data = {
@@ -4664,7 +4663,7 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'cooling_port': coolingports[0].pk,
+            'cooling_intake': coolingintakes[0].pk,
         }
 
         cls.bulk_edit_data = {
@@ -4675,20 +4674,20 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         }
 
 
-class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
-    model = CoolingPort
+class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingIntake
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        cooling_ports = (
-            CoolingPort(device=device, name='Cooling Port 1'),
-            CoolingPort(device=device, name='Cooling Port 2'),
-            CoolingPort(device=device, name='Cooling Port 3'),
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+            CoolingIntake(device=device, name='Cooling Port 3'),
         )
-        CoolingPort.objects.bulk_create(cooling_ports)
+        CoolingIntake.objects.bulk_create(cooling_intakes)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -4740,32 +4739,32 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_update_data = (
             "id,name,description",
-            f"{cooling_ports[0].pk},Cooling Port 7,New description7",
-            f"{cooling_ports[1].pk},Cooling Port 8,New description8",
-            f"{cooling_ports[2].pk},Cooling Port 9,New description9",
+            f"{cooling_intakes[0].pk},Cooling Port 7,New description7",
+            f"{cooling_intakes[1].pk},Cooling Port 8,New description8",
+            f"{cooling_intakes[2].pk},Cooling Port 9,New description9",
         )
 
 
-class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
-    model = CoolingOutlet
+class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingOutflow
     validation_excluded_fields = ('name', 'label')
 
     @classmethod
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        coolingports = (
-            CoolingPort(device=device, name='Cooling Port 1'),
-            CoolingPort(device=device, name='Cooling Port 2'),
+        coolingintakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
         )
-        CoolingPort.objects.bulk_create(coolingports)
+        CoolingIntake.objects.bulk_create(coolingintakes)
 
-        cooling_outlets = (
-            CoolingOutlet(device=device, name='Cooling Outlet 1', cooling_port=coolingports[0]),
-            CoolingOutlet(device=device, name='Cooling Outlet 2', cooling_port=coolingports[0]),
-            CoolingOutlet(device=device, name='Cooling Outlet 3', cooling_port=coolingports[0]),
+        cooling_outflows = (
+            CoolingOutflow(device=device, name='Cooling Outlet 1', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 2', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 3', cooling_intake=coolingintakes[0]),
         )
-        CoolingOutlet.objects.bulk_create(cooling_outlets)
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -4776,7 +4775,7 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'cooling_port': coolingports[1].pk,
+            'cooling_intake': coolingintakes[1].pk,
             'description': 'A cooling outlet',
             'tags': [t.pk for t in tags],
         }
@@ -4788,14 +4787,14 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'cooling_port': coolingports[1].pk,
+            'cooling_intake': coolingintakes[1].pk,
             'description': 'A cooling outlet',
             'tags': [t.pk for t in tags],
         }
 
         cls.bulk_edit_data = {
             'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
-            'cooling_port': coolingports[1].pk,
+            'cooling_intake': coolingintakes[1].pk,
             'description': 'New description',
         }
 
@@ -4808,9 +4807,9 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
         cls.csv_update_data = (
             "id,name,description",
-            f"{cooling_outlets[0].pk},Cooling Outlet 7,New description7",
-            f"{cooling_outlets[1].pk},Cooling Outlet 8,New description8",
-            f"{cooling_outlets[2].pk},Cooling Outlet 9,New description9",
+            f"{cooling_outflows[0].pk},Cooling Outlet 7,New description7",
+            f"{cooling_outflows[1].pk},Cooling Outlet 8,New description8",
+            f"{cooling_outflows[2].pk},Cooling Outlet 9,New description9",
         )
 
 
@@ -4857,6 +4856,7 @@ class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Cooling Source X',
             'type': CoolingSourceTypeChoices.TYPE_COOLING_TOWER,
             'status': CoolingSourceStatusChoices.STATUS_ACTIVE,
+            'fluid_type': FluidTypeChoices.FLUID_WATER,
             'tags': [t.pk for t in tags],
         }
 
@@ -4915,13 +4915,9 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
             'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
-            'fluid_type': FluidTypeChoices.FLUID_WATER,
             'cooling_capacity': 100,
             'rated_flow_rate': 50,
             'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'supply_temperature': 18,
-            'return_temperature': 30,
-            'temperature_unit': TemperatureUnitChoices.UNIT_CELSIUS,
             'comments': 'New comments',
             'tags': [t.pk for t in tags],
         }
@@ -4945,13 +4941,9 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
             'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
-            'fluid_type': FluidTypeChoices.FLUID_WATER,
             'cooling_capacity': 100,
             'rated_flow_rate': 50,
             'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
-            'supply_temperature': 18,
-            'return_temperature': 30,
-            'temperature_unit': TemperatureUnitChoices.UNIT_CELSIUS,
             'comments': 'New comments',
         }
 

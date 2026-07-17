@@ -16,13 +16,13 @@ from .template_code import (
 
 __all__ = (
     'CoolingFeedTable',
-    'CoolingOutletTable',
-    'CoolingOutletTemplateTable',
-    'CoolingPortTable',
-    'CoolingPortTemplateTable',
+    'CoolingIntakeTable',
+    'CoolingIntakeTemplateTable',
+    'CoolingOutflowTable',
+    'CoolingOutflowTemplateTable',
     'CoolingSourceTable',
-    'DeviceCoolingOutletTable',
-    'DeviceCoolingPortTable',
+    'DeviceCoolingIntakeTable',
+    'DeviceCoolingOutflowTable',
 )
 
 
@@ -49,19 +49,11 @@ class CoolingSourceTable(ContactsColumnMixin, PrimaryModelTable):
     type = columns.ChoiceFieldColumn(
         verbose_name=_('Type'),
     )
+    fluid_type = columns.ChoiceFieldColumn(
+        verbose_name=_('Fluid Type'),
+    )
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
-    )
-    supply_temperature = tables.Column(
-        verbose_name=_('Supply Temperature'),
-        order_by=('_abs_supply_temperature',)
-    )
-    return_temperature = tables.Column(
-        verbose_name=_('Return Temperature'),
-        order_by=('_abs_return_temperature',)
-    )
-    temperature_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Temperature Unit'),
     )
     coolingfeed_count = columns.LinkedCountColumn(
         viewname='dcim:coolingfeed_list',
@@ -75,9 +67,8 @@ class CoolingSourceTable(ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = CoolingSource
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'type', 'status', 'cooling_capacity', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'coolingfeed_count', 'contacts', 'description', 'comments',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'location', 'type', 'status', 'fluid_type', 'cooling_capacity',
+            'coolingfeed_count', 'contacts', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'site', 'location', 'type', 'status', 'cooling_capacity', 'coolingfeed_count',
@@ -107,9 +98,6 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     flow_direction = columns.ChoiceFieldColumn(
         verbose_name=_('Flow Direction'),
     )
-    fluid_type = columns.ChoiceFieldColumn(
-        verbose_name=_('Fluid Type'),
-    )
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
@@ -119,17 +107,6 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     )
     rated_flow_rate_unit = columns.ChoiceFieldColumn(
         verbose_name=_('Rated Flow Rate Unit'),
-    )
-    supply_temperature = tables.Column(
-        verbose_name=_('Supply Temperature'),
-        order_by=('_abs_supply_temperature',)
-    )
-    return_temperature = tables.Column(
-        verbose_name=_('Return Temperature'),
-        order_by=('_abs_return_temperature',)
-    )
-    temperature_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Temperature Unit'),
     )
     tenant = tables.Column(
         linkify=True,
@@ -147,13 +124,12 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = CoolingFeed
         fields = (
-            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'flow_direction', 'fluid_type',
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'tenant', 'tenant_group', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'flow_direction',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'tenant_group', 'description',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity',
+            'pk', 'name', 'cooling_source', 'rack', 'status', 'flow_direction', 'cooling_capacity',
             'rated_flow_rate',
         )
 
@@ -162,11 +138,11 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
 # Cooling ports
 #
 
-class CoolingPortTable(ModularDeviceComponentTable):
+class CoolingIntakeTable(ModularDeviceComponentTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={
-            'viewname': 'dcim:device_coolingports',
+            'viewname': 'dcim:device_coolingintakes',
             'args': [Accessor('device_id')],
         }
     )
@@ -191,7 +167,7 @@ class CoolingPortTable(ModularDeviceComponentTable):
     heat_capacity = tables.Column(
         verbose_name=_('Heat capacity (kW)')
     )
-    cooling_outlet = tables.Column(
+    cooling_outflow = tables.Column(
         verbose_name=_('Cooling Outlet'),
         linkify=True
     )
@@ -200,14 +176,14 @@ class CoolingPortTable(ModularDeviceComponentTable):
         linkify=True
     )
     tags = columns.TagColumn(
-        url_name='dcim:coolingport_list'
+        url_name='dcim:coolingintake_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
-        model = models.CoolingPort
+        model = models.CoolingIntake
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
-            'description', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outlet', 'cooling_feed',
+            'description', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outflow', 'cooling_feed',
             'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -220,11 +196,11 @@ class CoolingPortTable(ModularDeviceComponentTable):
 # Cooling outlets
 #
 
-class CoolingOutletTable(ModularDeviceComponentTable):
+class CoolingOutflowTable(ModularDeviceComponentTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={
-            'viewname': 'dcim:device_coolingoutlets',
+            'viewname': 'dcim:device_coolingoutflows',
             'args': [Accessor('device_id')],
         }
     )
@@ -239,23 +215,22 @@ class CoolingOutletTable(ModularDeviceComponentTable):
         template_code=DIAMETER,
         order_by=('_abs_diameter', 'diameter_unit')
     )
-    cooling_port = tables.Column(
+    cooling_intake = tables.Column(
         verbose_name=_('Cooling Port'),
         linkify=True
     )
-    color = columns.ColorColumn()
     tags = columns.TagColumn(
-        url_name='dcim:coolingoutlet_list'
+        url_name='dcim:coolingoutflow_list'
     )
 
     class Meta(DeviceComponentTable.Meta):
-        model = models.CoolingOutlet
+        model = models.CoolingOutflow
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
-            'description', 'cooling_port', 'color', 'inventory_items', 'tags', 'created', 'last_updated',
+            'description', 'cooling_intake', 'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port',
+            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake',
             'description',
         )
 
@@ -264,7 +239,7 @@ class CoolingOutletTable(ModularDeviceComponentTable):
 # Cooling port templates
 #
 
-class CoolingPortTemplateTable(ComponentTemplateTable):
+class CoolingIntakeTemplateTable(ComponentTemplateTable):
     diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
         template_code=DIAMETER,
@@ -283,7 +258,7 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = models.CoolingPortTemplate
+        model = models.CoolingIntakeTemplate
         fields = (
             'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
             'heat_capacity', 'description', 'actions',
@@ -295,14 +270,11 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
 # Cooling outlet templates
 #
 
-class CoolingOutletTemplateTable(ComponentTemplateTable):
+class CoolingOutflowTemplateTable(ComponentTemplateTable):
     diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
         template_code=DIAMETER,
         order_by=('_abs_diameter', 'diameter_unit')
-    )
-    color = columns.ColorColumn(
-        verbose_name=_('Color'),
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -310,9 +282,9 @@ class CoolingOutletTemplateTable(ComponentTemplateTable):
     )
 
     class Meta(ComponentTemplateTable.Meta):
-        model = models.CoolingOutletTemplate
+        model = models.CoolingOutflowTemplate
         fields = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port', 'description',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake', 'description',
             'actions',
         )
         empty_text = "None"
@@ -322,7 +294,7 @@ class CoolingOutletTemplateTable(ComponentTemplateTable):
 # Device cooling components
 #
 
-class DeviceCoolingPortTable(CoolingPortTable):
+class DeviceCoolingIntakeTable(CoolingIntakeTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-snowflake"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
@@ -330,10 +302,10 @@ class DeviceCoolingPortTable(CoolingPortTable):
     )
 
     class Meta(DeviceComponentTable.Meta):
-        model = models.CoolingPort
+        model = models.CoolingIntake
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'description', 'cooling_outlet', 'cooling_feed', 'tags', 'actions',
+            'maximum_flow_unit', 'heat_capacity', 'description', 'cooling_outflow', 'cooling_feed', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'heat_capacity',
@@ -341,7 +313,7 @@ class DeviceCoolingPortTable(CoolingPortTable):
         )
 
 
-class DeviceCoolingOutletTable(CoolingOutletTable):
+class DeviceCoolingOutflowTable(CoolingOutflowTable):
     name = tables.TemplateColumn(
         verbose_name=_('Name'),
         template_code='<i class="mdi mdi-snowflake"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
@@ -349,11 +321,11 @@ class DeviceCoolingOutletTable(CoolingOutletTable):
     )
 
     class Meta(DeviceComponentTable.Meta):
-        model = models.CoolingOutlet
+        model = models.CoolingOutflow
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter', 'color',
-            'cooling_port', 'description', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
+            'cooling_intake', 'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port', 'description',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'cooling_intake', 'description',
         )

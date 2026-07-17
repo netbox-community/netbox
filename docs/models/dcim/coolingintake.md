@@ -1,9 +1,9 @@
 # Cooling Ports
 
-A cooling port is a device component which represents a coolant intake or outlet on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling port can be connected via a cooling hose cable to a [cooling outlet](./coolingoutlet.md) or a [cooling feed](./coolingfeed.md).
+A cooling port is a device component which represents a coolant intake or outlet on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling port can be connected via a cooling hose cable to a [cooling outlet](./coolingoutflow.md) or a [cooling feed](./coolingfeed.md).
 
 !!! tip
-    Like most device components, cooling ports are instantiated automatically from [cooling port templates](./coolingporttemplate.md) assigned to the selected device type when a device is created.
+    Like most device components, cooling ports are instantiated automatically from [cooling port templates](./coolingintaketemplate.md) assigned to the selected device type when a device is created.
 
 ## Fields
 

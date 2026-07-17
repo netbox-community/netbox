@@ -4,6 +4,6 @@
 {% block breadcrumbs %}
   {{ block.super }}
   <li class="breadcrumb-item">
-    <a href="{% url 'dcim:device_coolingoutlets' pk=object.device.pk %}">{{ object.device }}</a>
+    <a href="{% url 'dcim:device_coolingoutflows' pk=object.device.pk %}">{{ object.device }}</a>
   </li>
 {% endblock %}

@@ -110,8 +110,8 @@ class DeviceSerializer(PrimaryModelSerializer):
             'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template',
             'config_context',
             'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
-            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'cooling_port_count',
-            'cooling_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
+            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'cooling_intake_count',
+            'cooling_outflow_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
             'module_bay_count', 'inventory_item_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

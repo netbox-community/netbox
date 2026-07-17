@@ -61,8 +61,8 @@ class CoolingFeedIndex(SearchIndex):
 
 
 @register_search
-class CoolingOutletIndex(SearchIndex):
-    model = models.CoolingOutlet
+class CoolingOutflowIndex(SearchIndex):
+    model = models.CoolingOutflow
     fields = (
         ('name', 100),
         ('label', 200),
@@ -72,8 +72,8 @@ class CoolingOutletIndex(SearchIndex):
 
 
 @register_search
-class CoolingPortIndex(SearchIndex):
-    model = models.CoolingPort
+class CoolingIntakeIndex(SearchIndex):
+    model = models.CoolingIntake
     fields = (
         ('name', 100),
         ('label', 200),

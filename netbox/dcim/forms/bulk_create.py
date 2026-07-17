@@ -13,8 +13,8 @@ from .object_create import ComponentCreateForm
 __all__ = (
     'ConsolePortBulkCreateForm',
     'ConsoleServerPortBulkCreateForm',
-    'CoolingOutletBulkCreateForm',
-    'CoolingPortBulkCreateForm',
+    'CoolingIntakeBulkCreateForm',
+    'CoolingOutflowBulkCreateForm',
     'DeviceBayBulkCreateForm',
     # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
@@ -83,9 +83,9 @@ class PowerOutletBulkCreateForm(
     )
 
 
-class CoolingPortBulkCreateForm(
+class CoolingIntakeBulkCreateForm(
     form_from_model(
-        CoolingPort,
+        CoolingIntake,
         [
             'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
             'heat_capacity'
@@ -93,20 +93,20 @@ class CoolingPortBulkCreateForm(
     ),
     DeviceBulkAddComponentForm
 ):
-    model = CoolingPort
+    model = CoolingIntake
     field_order = (
         'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
         'heat_capacity', 'description', 'tags',
     )
 
 
-class CoolingOutletBulkCreateForm(
-    form_from_model(CoolingOutlet, ['flow_direction', 'type', 'diameter', 'diameter_unit', 'color']),
+class CoolingOutflowBulkCreateForm(
+    form_from_model(CoolingOutflow, ['flow_direction', 'type', 'diameter', 'diameter_unit']),
     DeviceBulkAddComponentForm
 ):
-    model = CoolingOutlet
+    model = CoolingOutflow
     field_order = (
-        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color',
+        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
         'description', 'tags',
     )
 

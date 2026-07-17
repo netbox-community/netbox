@@ -29,22 +29,22 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="device",
-            name="cooling_outlet_count",
+            name="cooling_outflow_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="device",
-                to_model="dcim.CoolingOutlet",
+                to_model="dcim.CoolingOutflow",
             ),
         ),
         migrations.AddField(
             model_name="device",
-            name="cooling_port_count",
+            name="cooling_intake_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="device",
-                to_model="dcim.CoolingPort",
+                to_model="dcim.CoolingIntake",
             ),
         ),
         migrations.AddField(
@@ -54,22 +54,22 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="devicetype",
-            name="cooling_outlet_template_count",
+            name="cooling_outflow_template_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="device_type",
-                to_model="dcim.CoolingOutletTemplate",
+                to_model="dcim.CoolingOutflowTemplate",
             ),
         ),
         migrations.AddField(
             model_name="devicetype",
-            name="cooling_port_template_count",
+            name="cooling_intake_template_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="device_type",
-                to_model="dcim.CoolingPortTemplate",
+                to_model="dcim.CoolingIntakeTemplate",
             ),
         ),
         migrations.AddField(
@@ -79,22 +79,22 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="moduletype",
-            name="cooling_outlet_template_count",
+            name="cooling_outflow_template_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="module_type",
-                to_model="dcim.CoolingOutletTemplate",
+                to_model="dcim.CoolingOutflowTemplate",
             ),
         ),
         migrations.AddField(
             model_name="moduletype",
-            name="cooling_port_template_count",
+            name="cooling_intake_template_count",
             field=utilities.fields.CounterCacheField(
                 default=0,
                 editable=False,
                 to_field="module_type",
-                to_model="dcim.CoolingPortTemplate",
+                to_model="dcim.CoolingIntakeTemplate",
             ),
         ),
         migrations.AddField(
@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="CoolingPort",
+            name="CoolingIntake",
             fields=[
                 (
                     "id",
@@ -274,7 +274,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="CoolingOutlet",
+            name="CoolingOutflow",
             fields=[
                 (
                     "id",
@@ -313,7 +313,6 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(blank=True, max_length=200)),
                 ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
-                ("color", utilities.fields.ColorField(blank=True, max_length=6)),
                 (
                     "_location",
                     models.ForeignKey(
@@ -379,13 +378,13 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "cooling_port",
+                    "cooling_intake",
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="coolingoutlets",
-                        to="dcim.coolingport",
+                        related_name="coolingoutflows",
+                        to="dcim.coolingintake",
                     ),
                 ),
             ],
@@ -402,7 +401,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="CoolingPortTemplate",
+            name="CoolingIntakeTemplate",
             fields=[
                 (
                     "id",
@@ -497,7 +496,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="CoolingOutletTemplate",
+            name="CoolingOutflowTemplate",
             fields=[
                 (
                     "id",
@@ -528,7 +527,6 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(blank=True, max_length=200)),
                 ("flow_direction", models.CharField(blank=True, max_length=50, null=True)),
                 ("type", models.CharField(blank=True, max_length=50, null=True)),
-                ("color", utilities.fields.ColorField(blank=True, max_length=6)),
                 (
                     "device_type",
                     models.ForeignKey(
@@ -550,13 +548,13 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "cooling_port",
+                    "cooling_intake",
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="coolingoutlet_templates",
-                        to="dcim.coolingporttemplate",
+                        related_name="coolingoutflow_templates",
+                        to="dcim.coolingintaketemplate",
                     ),
                 ),
             ],
@@ -591,39 +589,12 @@ class Migration(migrations.Migration):
                         encoder=utilities.json.CustomFieldJSONEncoder,
                     ),
                 ),
-                (
-                    "supply_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=6, null=True
-                    ),
-                ),
-                (
-                    "return_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=6, null=True
-                    ),
-                ),
-                (
-                    "temperature_unit",
-                    models.CharField(blank=True, max_length=50, null=True),
-                ),
-                (
-                    "_abs_supply_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=8, null=True
-                    ),
-                ),
-                (
-                    "_abs_return_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=8, null=True
-                    ),
-                ),
                 ("description", models.CharField(blank=True, max_length=200)),
                 ("comments", models.TextField(blank=True)),
                 ("name", models.CharField(db_collation="natural_sort", max_length=100)),
                 ("type", models.CharField(max_length=50)),
                 ("status", models.CharField(default="active", max_length=50)),
+                ("fluid_type", models.CharField(blank=True, max_length=50, null=True)),
                 (
                     "cooling_capacity",
                     models.DecimalField(
@@ -712,40 +683,11 @@ class Migration(migrations.Migration):
                         blank=True, decimal_places=4, max_digits=13, null=True
                     ),
                 ),
-                (
-                    "supply_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=6, null=True
-                    ),
-                ),
-                (
-                    "return_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=6, null=True
-                    ),
-                ),
-                (
-                    "temperature_unit",
-                    models.CharField(blank=True, max_length=50, null=True),
-                ),
-                (
-                    "_abs_supply_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=8, null=True
-                    ),
-                ),
-                (
-                    "_abs_return_temperature",
-                    models.DecimalField(
-                        blank=True, decimal_places=4, max_digits=8, null=True
-                    ),
-                ),
                 ("description", models.CharField(blank=True, max_length=200)),
                 ("comments", models.TextField(blank=True)),
                 ("name", models.CharField(db_collation="natural_sort", max_length=100)),
                 ("status", models.CharField(default="active", max_length=50)),
                 ("flow_direction", models.CharField(default="supply", max_length=50)),
-                ("fluid_type", models.CharField(blank=True, max_length=50, null=True)),
                 (
                     "cooling_capacity",
                     models.DecimalField(
@@ -809,79 +751,79 @@ class Migration(migrations.Migration):
             bases=(netbox.models.deletion.DeleteMixin, models.Model),
         ),
         migrations.AddField(
-            model_name="coolingport",
-            name="cooling_outlet",
+            model_name="coolingintake",
+            name="cooling_outflow",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="cooling_ports",
-                to="dcim.coolingoutlet",
+                related_name="cooling_intakes",
+                to="dcim.coolingoutflow",
             ),
         ),
         migrations.AddField(
-            model_name="coolingport",
+            model_name="coolingintake",
             name="cooling_feed",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="cooling_ports",
+                related_name="cooling_intakes",
                 to="dcim.coolingfeed",
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingport",
+            model_name="coolingintake",
             constraint=models.UniqueConstraint(
-                fields=("device", "name"), name="dcim_coolingport_unique_device_name"
+                fields=("device", "name"), name="dcim_coolingintake_unique_device_name"
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingoutlet",
+            model_name="coolingoutflow",
             constraint=models.UniqueConstraint(
-                fields=("device", "name"), name="dcim_coolingoutlet_unique_device_name"
+                fields=("device", "name"), name="dcim_coolingoutflow_unique_device_name"
             ),
         ),
         migrations.AddIndex(
-            model_name="coolingporttemplate",
+            model_name="coolingintaketemplate",
             index=models.Index(
                 fields=["device_type", "module_type", "name"],
-                name="dcim_coolin_device__0665e2_idx",
+                name="dcim_coolin_device__ee88f9_idx",
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingporttemplate",
+            model_name="coolingintaketemplate",
             constraint=models.UniqueConstraint(
                 fields=("device_type", "name"),
-                name="dcim_coolingporttemplate_unique_device_type_name",
+                name="dcim_coolingintaketemplate_unique_device_type_name",
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingporttemplate",
+            model_name="coolingintaketemplate",
             constraint=models.UniqueConstraint(
                 fields=("module_type", "name"),
-                name="dcim_coolingporttemplate_unique_module_type_name",
+                name="dcim_coolingintaketemplate_unique_module_type_name",
             ),
         ),
         migrations.AddIndex(
-            model_name="coolingoutlettemplate",
+            model_name="coolingoutflowtemplate",
             index=models.Index(
                 fields=["device_type", "module_type", "name"],
-                name="dcim_coolin_device__a5bf09_idx",
+                name="dcim_coolin_device__4d0859_idx",
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingoutlettemplate",
+            model_name="coolingoutflowtemplate",
             constraint=models.UniqueConstraint(
                 fields=("device_type", "name"),
-                name="dcim_coolingoutlettemplate_unique_device_type_name",
+                name="dcim_coolingoutflowtemplate_unique_device_type_name",
             ),
         ),
         migrations.AddConstraint(
-            model_name="coolingoutlettemplate",
+            model_name="coolingoutflowtemplate",
             constraint=models.UniqueConstraint(
                 fields=("module_type", "name"),
-                name="dcim_coolingoutlettemplate_unique_module_type_name",
+                name="dcim_coolingoutflowtemplate_unique_module_type_name",
             ),
         ),
         migrations.AddConstraint(
@@ -906,6 +848,6 @@ class Migration(migrations.Migration):
                 fk_column="device_id",
                 mappings={"_site_id": "site_id", "_location_id": "location_id", "_rack_id": "rack_id"},
             )
-            for table in ("dcim_coolingport", "dcim_coolingoutlet")
+            for table in ("dcim_coolingintake", "dcim_coolingoutflow")
         ],
     ]

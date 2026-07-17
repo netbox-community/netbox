@@ -78,10 +78,10 @@ __all__ = (
     'ConsoleServerPortFilter',
     'ConsoleServerPortTemplateFilter',
     'CoolingFeedFilter',
-    'CoolingOutletFilter',
-    'CoolingOutletTemplateFilter',
-    'CoolingPortFilter',
-    'CoolingPortTemplateFilter',
+    'CoolingIntakeFilter',
+    'CoolingIntakeTemplateFilter',
+    'CoolingOutflowFilter',
+    'CoolingOutflowTemplateFilter',
     'CoolingSourceFilter',
     'DeviceBayFilter',
     'DeviceBayTemplateFilter',
@@ -1009,9 +1009,6 @@ class CoolingFeedFilter(TenancyFilterMixin, PrimaryModelFilter):
     flow_direction: (
         BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
-    fluid_type: BaseFilterLookup[Annotated['FluidTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
     cooling_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -1021,19 +1018,10 @@ class CoolingFeedFilter(TenancyFilterMixin, PrimaryModelFilter):
     rated_flow_rate_unit: (
         BaseFilterLookup[Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
-    supply_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    return_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    temperature_unit: (
-        BaseFilterLookup[Annotated['TemperatureUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
-    ) = strawberry_django.filter_field()
 
 
-@register_filter(models.CoolingOutlet, lookups=True)
-class CoolingOutletFilter(ModularComponentFilterMixin, NetBoxModelFilter):
+@register_filter(models.CoolingOutflow, lookups=True)
+class CoolingOutflowFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     flow_direction: (
         BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
@@ -1046,17 +1034,17 @@ class CoolingOutletFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    cooling_port: Annotated['CoolingPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+    cooling_intake: Annotated['CoolingIntakeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    cooling_port_id: ID | None = strawberry_django.filter_field()
+    cooling_intake_id: ID | None = strawberry_django.filter_field()
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
 
-@register_filter(models.CoolingOutletTemplate, lookups=True)
-class CoolingOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
+@register_filter(models.CoolingOutflowTemplate, lookups=True)
+class CoolingOutflowTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     flow_direction: (
         BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
@@ -1069,14 +1057,14 @@ class CoolingOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLog
     diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    cooling_port: Annotated['CoolingPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+    cooling_intake: Annotated['CoolingIntakeTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    cooling_port_id: ID | None = strawberry_django.filter_field()
+    cooling_intake_id: ID | None = strawberry_django.filter_field()
 
 
-@register_filter(models.CoolingPort, lookups=True)
-class CoolingPortFilter(ModularComponentFilterMixin, NetBoxModelFilter):
+@register_filter(models.CoolingIntake, lookups=True)
+class CoolingIntakeFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     flow_direction: (
         BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
@@ -1100,8 +1088,8 @@ class CoolingPortFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     )
 
 
-@register_filter(models.CoolingPortTemplate, lookups=True)
-class CoolingPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
+@register_filter(models.CoolingIntakeTemplate, lookups=True)
+class CoolingIntakeTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     flow_direction: (
         BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
@@ -1142,18 +1130,12 @@ class CoolingSourceFilter(ContactFilterMixin, ImageAttachmentFilterMixin, Primar
     status: BaseFilterLookup[Annotated['CoolingSourceStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    fluid_type: BaseFilterLookup[Annotated['FluidTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
     cooling_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    supply_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    return_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
-    temperature_unit: (
-        BaseFilterLookup[Annotated['TemperatureUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
-    ) = strawberry_django.filter_field()
 
 
 @register_filter(models.RackType, lookups=True)

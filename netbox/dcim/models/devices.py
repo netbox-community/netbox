@@ -175,12 +175,12 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_model='dcim.PowerOutletTemplate',
         to_field='device_type'
     )
-    cooling_port_template_count = CounterCacheField(
-        to_model='dcim.CoolingPortTemplate',
+    cooling_intake_template_count = CounterCacheField(
+        to_model='dcim.CoolingIntakeTemplate',
         to_field='device_type'
     )
-    cooling_outlet_template_count = CounterCacheField(
-        to_model='dcim.CoolingOutletTemplate',
+    cooling_outflow_template_count = CounterCacheField(
+        to_model='dcim.CoolingOutflowTemplate',
         to_field='device_type'
     )
     interface_template_count = CounterCacheField(
@@ -288,13 +288,13 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             data['power-outlets'] = [
                 c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
-        if self.coolingporttemplates.exists():
+        if self.coolingintaketemplates.exists():
             data['cooling-ports'] = [
-                c.to_yaml() for c in self.coolingporttemplates.all()
+                c.to_yaml() for c in self.coolingintaketemplates.all()
             ]
-        if self.coolingoutlettemplates.exists():
+        if self.coolingoutflowtemplates.exists():
             data['cooling-outlets'] = [
-                c.to_yaml() for c in self.coolingoutlettemplates.all()
+                c.to_yaml() for c in self.coolingoutflowtemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
@@ -732,12 +732,12 @@ class Device(
         to_model='dcim.PowerOutlet',
         to_field='device'
     )
-    cooling_port_count = CounterCacheField(
-        to_model='dcim.CoolingPort',
+    cooling_intake_count = CounterCacheField(
+        to_model='dcim.CoolingIntake',
         to_field='device'
     )
-    cooling_outlet_count = CounterCacheField(
-        to_model='dcim.CoolingOutlet',
+    cooling_outflow_count = CounterCacheField(
+        to_model='dcim.CoolingOutflow',
         to_field='device'
     )
     interface_count = CounterCacheField(
@@ -1103,8 +1103,8 @@ class Device(
             self._instantiate_components(self.device_type.consoleserverporttemplates.all())
             self._instantiate_components(self.device_type.powerporttemplates.all())
             self._instantiate_components(self.device_type.poweroutlettemplates.all())
-            self._instantiate_components(self.device_type.coolingporttemplates.all())
-            self._instantiate_components(self.device_type.coolingoutlettemplates.all())
+            self._instantiate_components(self.device_type.coolingintaketemplates.all())
+            self._instantiate_components(self.device_type.coolingoutflowtemplates.all())
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())

@@ -11,7 +11,7 @@ from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
-from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, TemperatureUnitChoices, WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
@@ -3132,7 +3132,7 @@ class CoolingComponentTestCase(TestCase):
     def test_device_creation_instantiates_cooling_components(self):
         """
         Creating a Device from a DeviceType with cooling component templates should auto-instantiate
-        matching CoolingPort and CoolingOutlet components.
+        matching CoolingIntake and CoolingOutflow components.
         """
         device_type = DeviceType.objects.create(
             manufacturer=self.manufacturer,
@@ -3140,7 +3140,7 @@ class CoolingComponentTestCase(TestCase):
             slug='device-type-3'
         )
 
-        cooling_port_template = CoolingPortTemplate.objects.create(
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
             device_type=device_type,
             name='Cooling Port 1',
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -3151,7 +3151,7 @@ class CoolingComponentTestCase(TestCase):
             maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             heat_capacity=50
         )
-        CoolingOutletTemplate.objects.create(
+        CoolingOutflowTemplate.objects.create(
             device_type=device_type,
             name='Cooling Outlet 1',
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -3167,7 +3167,7 @@ class CoolingComponentTestCase(TestCase):
             name='Device 3'
         )
 
-        cooling_port = CoolingPort.objects.get(
+        cooling_intake = CoolingIntake.objects.get(
             device=device,
             name='Cooling Port 1',
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -3178,9 +3178,9 @@ class CoolingComponentTestCase(TestCase):
             maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             heat_capacity=50
         )
-        self.assertEqual(cooling_port_template.maximum_flow, cooling_port.maximum_flow)
+        self.assertEqual(cooling_intake_template.maximum_flow, cooling_intake.maximum_flow)
 
-        CoolingOutlet.objects.get(
+        CoolingOutflow.objects.get(
             device=device,
             name='Cooling Outlet 1',
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
@@ -3189,9 +3189,9 @@ class CoolingComponentTestCase(TestCase):
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
         )
 
-    def test_cooling_outlet_clean_different_device(self):
+    def test_cooling_outflow_clean_different_device(self):
         """
-        CoolingOutlet.clean() should raise a ValidationError when its cooling_port belongs to a
+        CoolingOutflow.clean() should raise a ValidationError when its cooling_intake belongs to a
         different device.
         """
         device_type = DeviceType.objects.create(
@@ -3206,11 +3206,11 @@ class CoolingComponentTestCase(TestCase):
             site=self.site, device_type=device_type, role=self.role, name='Device B'
         )
 
-        cooling_port = CoolingPort.objects.create(device=device1, name='Cooling Port 1')
-        cooling_outlet = CoolingOutlet(device=device2, name='Cooling Outlet 1', cooling_port=cooling_port)
+        cooling_intake = CoolingIntake.objects.create(device=device1, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow(device=device2, name='Cooling Outlet 1', cooling_intake=cooling_intake)
 
         with self.assertRaises(ValidationError):
-            cooling_outlet.full_clean()
+            cooling_outflow.full_clean()
 
     def test_cooling_source_location_site_mismatch(self):
         """
@@ -3227,26 +3227,6 @@ class CoolingComponentTestCase(TestCase):
         )
         with self.assertRaises(ValidationError):
             cooling_source.full_clean()
-
-    def test_cooling_source_temperature_without_unit(self):
-        """
-        CoolingSource.clean() should raise a ValidationError when a temperature is set without a unit.
-        """
-        cooling_source = CoolingSource(
-            site=self.site,
-            name='Cooling Source 2',
-            type=CoolingSourceTypeChoices.TYPE_CHILLER,
-            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
-            supply_temperature=Decimal('18'),
-        )
-        with self.assertRaises(ValidationError):
-            cooling_source.full_clean()
-
-        # Setting a unit should resolve the error and populate the normalized value on save
-        cooling_source.temperature_unit = TemperatureUnitChoices.UNIT_CELSIUS
-        cooling_source.full_clean()
-        cooling_source.save()
-        self.assertEqual(cooling_source._abs_supply_temperature, Decimal('18.0000'))
 
     def test_cooling_feed_rack_site_mismatch(self):
         """
@@ -3271,9 +3251,9 @@ class CoolingComponentTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cooling_feed.full_clean()
 
-    def test_cooling_port_supply_mutually_exclusive(self):
+    def test_cooling_intake_supply_mutually_exclusive(self):
         """
-        CoolingPort.clean() should raise a ValidationError when both cooling_outlet and cooling_feed
+        CoolingIntake.clean() should raise a ValidationError when both cooling_outflow and cooling_feed
         are set, but permit either one alone.
         """
         device_type = DeviceType.objects.create(
@@ -3284,7 +3264,7 @@ class CoolingComponentTestCase(TestCase):
         device = Device.objects.create(
             site=self.site, device_type=device_type, role=self.role, name='Device C'
         )
-        cooling_outlet = CoolingOutlet.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
         cooling_source = CoolingSource.objects.create(
             site=self.site,
             name='Cooling Source 4',
@@ -3299,20 +3279,20 @@ class CoolingComponentTestCase(TestCase):
         )
 
         # Setting both a cooling outlet and a cooling feed should raise a ValidationError
-        cooling_port = CoolingPort(
+        cooling_intake = CoolingIntake(
             device=device,
             name='Cooling Port 1',
-            cooling_outlet=cooling_outlet,
+            cooling_outflow=cooling_outflow,
             cooling_feed=cooling_feed,
         )
         with self.assertRaises(ValidationError):
-            cooling_port.full_clean()
+            cooling_intake.full_clean()
 
         # Setting just the cooling outlet should be valid
-        cooling_port.cooling_feed = None
-        cooling_port.full_clean()
+        cooling_intake.cooling_feed = None
+        cooling_intake.full_clean()
 
         # Setting just the cooling feed should be valid
-        cooling_port.cooling_outlet = None
-        cooling_port.cooling_feed = cooling_feed
-        cooling_port.full_clean()
+        cooling_intake.cooling_outflow = None
+        cooling_intake.cooling_feed = cooling_feed
+        cooling_intake.full_clean()

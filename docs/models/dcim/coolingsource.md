@@ -27,18 +27,10 @@ The operational status of the cooling source.
 !!! tip
     Additional statuses may be defined by setting `CoolingSource.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
+### Fluid Type
+
+The coolant used by the source (e.g. water, water/glycol, dielectric fluid, or refrigerant).
+
 ### Cooling Capacity
 
 The total heat-removal capacity of the source, expressed in kilowatts (kW).
-
-### Supply Temperature
-
-The design supply (cold) coolant temperature, expressed in the selected temperature unit.
-
-### Return Temperature
-
-The design return (warm) coolant temperature, expressed in the selected temperature unit.
-
-### Temperature Unit
-
-The unit (Celsius or Fahrenheit) in which the supply and return temperatures are expressed.

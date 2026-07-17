@@ -332,16 +332,16 @@ class PowerOutletTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.PowerOutletTemplateFilterSet
 
 
-class CoolingPortTemplateViewSet(NetBoxModelViewSet):
-    queryset = CoolingPortTemplate.objects.all()
-    serializer_class = serializers.CoolingPortTemplateSerializer
-    filterset_class = filtersets.CoolingPortTemplateFilterSet
+class CoolingIntakeTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntakeTemplate.objects.all()
+    serializer_class = serializers.CoolingIntakeTemplateSerializer
+    filterset_class = filtersets.CoolingIntakeTemplateFilterSet
 
 
-class CoolingOutletTemplateViewSet(NetBoxModelViewSet):
-    queryset = CoolingOutletTemplate.objects.all()
-    serializer_class = serializers.CoolingOutletTemplateSerializer
-    filterset_class = filtersets.CoolingOutletTemplateFilterSet
+class CoolingOutflowTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflowTemplate.objects.all()
+    serializer_class = serializers.CoolingOutflowTemplateSerializer
+    filterset_class = filtersets.CoolingOutflowTemplateFilterSet
 
 
 class InterfaceTemplateViewSet(NetBoxModelViewSet):
@@ -489,20 +489,20 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     filterset_class = filtersets.PowerOutletFilterSet
 
 
-class CoolingPortViewSet(NetBoxModelViewSet):
-    queryset = CoolingPort.objects.prefetch_related(
-        'cooling_outlet', 'cooling_feed',
+class CoolingIntakeViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntake.objects.prefetch_related(
+        'cooling_outflow', 'cooling_feed',
     )
-    serializer_class = serializers.CoolingPortSerializer
-    filterset_class = filtersets.CoolingPortFilterSet
+    serializer_class = serializers.CoolingIntakeSerializer
+    filterset_class = filtersets.CoolingIntakeFilterSet
 
 
-class CoolingOutletViewSet(NetBoxModelViewSet):
-    queryset = CoolingOutlet.objects.prefetch_related(
-        'cooling_port',
+class CoolingOutflowViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflow.objects.prefetch_related(
+        'cooling_intake',
     )
-    serializer_class = serializers.CoolingOutletSerializer
-    filterset_class = filtersets.CoolingOutletFilterSet
+    serializer_class = serializers.CoolingOutflowSerializer
+    filterset_class = filtersets.CoolingOutflowFilterSet
 
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):

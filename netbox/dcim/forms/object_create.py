@@ -21,10 +21,10 @@ __all__ = (
     'ConsolePortTemplateCreateForm',
     'ConsoleServerPortCreateForm',
     'ConsoleServerPortTemplateCreateForm',
-    'CoolingOutletCreateForm',
-    'CoolingOutletTemplateCreateForm',
-    'CoolingPortCreateForm',
-    'CoolingPortTemplateCreateForm',
+    'CoolingIntakeCreateForm',
+    'CoolingIntakeTemplateCreateForm',
+    'CoolingOutflowCreateForm',
+    'CoolingOutflowTemplateCreateForm',
     'DeviceBayCreateForm',
     'DeviceBayTemplateCreateForm',
     'FrontPortCreateForm',
@@ -113,15 +113,15 @@ class PowerOutletTemplateCreateForm(ComponentCreateForm, model_forms.PowerOutlet
         exclude = ('name', 'label')
 
 
-class CoolingPortTemplateCreateForm(ComponentCreateForm, model_forms.CoolingPortTemplateForm):
+class CoolingIntakeTemplateCreateForm(ComponentCreateForm, model_forms.CoolingIntakeTemplateForm):
 
-    class Meta(model_forms.CoolingPortTemplateForm.Meta):
+    class Meta(model_forms.CoolingIntakeTemplateForm.Meta):
         exclude = ('name', 'label')
 
 
-class CoolingOutletTemplateCreateForm(ComponentCreateForm, model_forms.CoolingOutletTemplateForm):
+class CoolingOutflowTemplateCreateForm(ComponentCreateForm, model_forms.CoolingOutflowTemplateForm):
 
-    class Meta(model_forms.CoolingOutletTemplateForm.Meta):
+    class Meta(model_forms.CoolingOutflowTemplateForm.Meta):
         exclude = ('name', 'label')
 
 
@@ -222,15 +222,15 @@ class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
         exclude = ('name', 'label')
 
 
-class CoolingPortCreateForm(ComponentCreateForm, model_forms.CoolingPortForm):
+class CoolingIntakeCreateForm(ComponentCreateForm, model_forms.CoolingIntakeForm):
 
-    class Meta(model_forms.CoolingPortForm.Meta):
+    class Meta(model_forms.CoolingIntakeForm.Meta):
         exclude = ('name', 'label')
 
 
-class CoolingOutletCreateForm(ComponentCreateForm, model_forms.CoolingOutletForm):
+class CoolingOutflowCreateForm(ComponentCreateForm, model_forms.CoolingOutflowForm):
 
-    class Meta(model_forms.CoolingOutletForm.Meta):
+    class Meta(model_forms.CoolingOutflowForm.Meta):
         exclude = ('name', 'label')
 
 

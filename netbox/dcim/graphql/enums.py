@@ -1,7 +1,7 @@
 import strawberry
 
 from dcim.choices import *
-from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, TemperatureUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
 
 __all__ = (
     'CableEndEnum',
@@ -50,7 +50,6 @@ __all__ = (
     'RackWidthEnum',
     'SiteStatusEnum',
     'SubdeviceRoleEnum',
-    'TemperatureUnitEnum',
     'VirtualDeviceContextStatusEnum',
 )
 
@@ -100,5 +99,4 @@ RackStatusEnum = strawberry.enum(RackStatusChoices.as_enum(prefix='status'))
 RackWidthEnum = strawberry.enum(RackWidthChoices.as_enum(prefix='width'))
 SiteStatusEnum = strawberry.enum(SiteStatusChoices.as_enum(prefix='status'))
 SubdeviceRoleEnum = strawberry.enum(SubdeviceRoleChoices.as_enum(prefix='role'))
-TemperatureUnitEnum = strawberry.enum(TemperatureUnitChoices.as_enum(prefix='unit'))
 VirtualDeviceContextStatusEnum = strawberry.enum(VirtualDeviceContextStatusChoices.as_enum(prefix='status'))

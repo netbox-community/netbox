@@ -27,17 +27,17 @@ class DCIMQuery:
     cooling_feed: CoolingFeedType = strawberry_django.field()
     cooling_feed_list: list[CoolingFeedType] = strawberry_django.field()
 
-    cooling_outlet: CoolingOutletType = strawberry_django.field()
-    cooling_outlet_list: list[CoolingOutletType] = strawberry_django.field()
+    cooling_outflow: CoolingOutflowType = strawberry_django.field()
+    cooling_outflow_list: list[CoolingOutflowType] = strawberry_django.field()
 
-    cooling_outlet_template: CoolingOutletTemplateType = strawberry_django.field()
-    cooling_outlet_template_list: list[CoolingOutletTemplateType] = strawberry_django.field()
+    cooling_outflow_template: CoolingOutflowTemplateType = strawberry_django.field()
+    cooling_outflow_template_list: list[CoolingOutflowTemplateType] = strawberry_django.field()
 
-    cooling_port: CoolingPortType = strawberry_django.field()
-    cooling_port_list: list[CoolingPortType] = strawberry_django.field()
+    cooling_intake: CoolingIntakeType = strawberry_django.field()
+    cooling_intake_list: list[CoolingIntakeType] = strawberry_django.field()
 
-    cooling_port_template: CoolingPortTemplateType = strawberry_django.field()
-    cooling_port_template_list: list[CoolingPortTemplateType] = strawberry_django.field()
+    cooling_intake_template: CoolingIntakeTemplateType = strawberry_django.field()
+    cooling_intake_template_list: list[CoolingIntakeTemplateType] = strawberry_django.field()
 
     cooling_source: CoolingSourceType = strawberry_django.field()
     cooling_source_list: list[CoolingSourceType] = strawberry_django.field()

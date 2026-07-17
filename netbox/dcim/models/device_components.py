@@ -30,8 +30,8 @@ __all__ = (
     'CabledObjectModel',
     'ConsolePort',
     'ConsoleServerPort',
-    'CoolingOutlet',
-    'CoolingPort',
+    'CoolingIntake',
+    'CoolingOutflow',
     'DeviceBay',
     'FrontPort',
     'Interface',
@@ -690,10 +690,10 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
-class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
+class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake). A
-    CoolingPort is supplied by an upstream CoolingOutlet or CoolingFeed.
+    CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
     """
     flow_direction = models.CharField(
         verbose_name=_('flow direction'),
@@ -722,12 +722,12 @@ class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Tracki
         validators=[MinValueValidator(0)],
         help_text=_('Heat removal capacity (kW)')
     )
-    cooling_outlet = models.ForeignKey(
-        to='dcim.CoolingOutlet',
+    cooling_outflow = models.ForeignKey(
+        to='dcim.CoolingOutflow',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='cooling_ports',
+        related_name='cooling_intakes',
         help_text=_('The upstream cooling outlet supplying this port')
     )
     cooling_feed = models.ForeignKey(
@@ -735,7 +735,7 @@ class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Tracki
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='cooling_ports',
+        related_name='cooling_intakes',
         help_text=_('The upstream cooling feed supplying this port')
     )
 
@@ -752,7 +752,7 @@ class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Tracki
         super().clean()
 
         # A port may be supplied by either a cooling outlet or a cooling feed, but not both
-        if self.cooling_outlet and self.cooling_feed:
+        if self.cooling_outflow and self.cooling_feed:
             raise ValidationError(
                 _("A cooling port cannot be supplied by both a cooling outlet and a cooling feed.")
             )
@@ -761,10 +761,10 @@ class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Tracki
         return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
 
-class CoolingOutlet(DiameterMixin, ModularComponentModel, TrackingModelMixin):
+class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
-    CoolingPorts (referenced via CoolingPort.cooling_outlet).
+    CoolingIntakes (referenced via CoolingIntake.cooling_outflow).
     """
     flow_direction = models.CharField(
         verbose_name=_('flow direction'),
@@ -783,19 +783,15 @@ class CoolingOutlet(DiameterMixin, ModularComponentModel, TrackingModelMixin):
         help_text=_('Physical connector type')
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    cooling_port = models.ForeignKey(
-        to='dcim.CoolingPort',
+    cooling_intake = models.ForeignKey(
+        to='dcim.CoolingIntake',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='coolingoutlets'
-    )
-    color = ColorField(
-        verbose_name=_('color'),
-        blank=True
+        related_name='coolingoutflows'
     )
 
-    clone_fields = ('device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_port')
+    clone_fields = ('device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling outlet')
@@ -805,10 +801,10 @@ class CoolingOutlet(DiameterMixin, ModularComponentModel, TrackingModelMixin):
         super().clean()
 
         # Validate cooling port assignment
-        if self.cooling_port and self.cooling_port.device != self.device:
+        if self.cooling_intake and self.cooling_intake.device != self.device:
             raise ValidationError(
-                _("Parent cooling port ({cooling_port}) must belong to the same device").format(
-                    cooling_port=self.cooling_port)
+                _("Parent cooling port ({cooling_intake}) must belong to the same device").format(
+                    cooling_intake=self.cooling_intake)
             )
 
     def get_flow_direction_color(self):

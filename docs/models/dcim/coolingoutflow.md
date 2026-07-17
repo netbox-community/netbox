@@ -1,9 +1,9 @@
 # Cooling Outlets
 
-A cooling outlet is a device component which delivers coolant to a downstream [cooling port](./coolingport.md), and generally represents an outlet on a coolant distribution unit (CDU) or manifold. A cooling outlet may optionally be associated with an upstream cooling port on the same device for path tracing.
+A cooling outlet is a device component which delivers coolant to a downstream [cooling port](./coolingintake.md), and generally represents an outlet on a coolant distribution unit (CDU) or manifold. A cooling outlet may optionally be associated with an upstream cooling port on the same device for path tracing.
 
 !!! tip
-    Like most device components, cooling outlets are instantiated automatically from [cooling outlet templates](./coolingoutlettemplate.md) assigned to the selected device type when a device is created.
+    Like most device components, cooling outlets are instantiated automatically from [cooling outlet templates](./coolingoutflowtemplate.md) assigned to the selected device type when a device is created.
 
 ## Fields
 
@@ -37,11 +37,7 @@ The connector diameter, expressed as a numeric value with a selectable unit (mil
 
 ### Cooling Port
 
-The upstream [cooling port](./coolingport.md) on the same device which feeds this outlet (optional).
-
-### Color
-
-The color of the outlet (for organizational purposes).
+The upstream [cooling port](./coolingintake.md) on the same device which feeds this outlet (optional).
 
 ### Mark Connected
 

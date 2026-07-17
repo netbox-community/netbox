@@ -8,8 +8,8 @@ from wireless.choices import WirelessRoleChoices
 __all__ = (
     'ConsolePortTemplateImportForm',
     'ConsoleServerPortTemplateImportForm',
-    'CoolingOutletTemplateImportForm',
-    'CoolingPortTemplateImportForm',
+    'CoolingIntakeTemplateImportForm',
+    'CoolingOutflowTemplateImportForm',
     'DeviceBayTemplateImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
@@ -82,42 +82,42 @@ class PowerOutletTemplateImportForm(forms.ModelForm):
         return module_type
 
 
-class CoolingPortTemplateImportForm(forms.ModelForm):
+class CoolingIntakeTemplateImportForm(forms.ModelForm):
 
     class Meta:
-        model = CoolingPortTemplate
+        model = CoolingIntakeTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
             'maximum_flow_unit', 'heat_capacity', 'description',
         ]
 
 
-class CoolingOutletTemplateImportForm(forms.ModelForm):
-    cooling_port = forms.ModelChoiceField(
+class CoolingOutflowTemplateImportForm(forms.ModelForm):
+    cooling_intake = forms.ModelChoiceField(
         label=_('Cooling port'),
-        queryset=CoolingPortTemplate.objects.all(),
+        queryset=CoolingIntakeTemplate.objects.all(),
         to_field_name='name',
         required=False
     )
 
     class Meta:
-        model = CoolingOutletTemplate
+        model = CoolingOutflowTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color',
-            'cooling_port', 'description',
+            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter',
+            'cooling_intake', 'description',
         ]
 
     def clean_device_type(self):
         if device_type := self.cleaned_data['device_type']:
-            cooling_port = self.fields['cooling_port']
-            cooling_port.queryset = cooling_port.queryset.filter(device_type=device_type)
+            cooling_intake = self.fields['cooling_intake']
+            cooling_intake.queryset = cooling_intake.queryset.filter(device_type=device_type)
 
         return device_type
 
     def clean_module_type(self):
         if module_type := self.cleaned_data['module_type']:
-            cooling_port = self.fields['cooling_port']
-            cooling_port.queryset = cooling_port.queryset.filter(module_type=module_type)
+            cooling_intake = self.fields['cooling_intake']
+            cooling_intake.queryset = cooling_intake.queryset.filter(module_type=module_type)
 
         return module_type
 

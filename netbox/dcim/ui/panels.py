@@ -281,7 +281,7 @@ class PowerOutletPanel(panels.ObjectAttributesPanel):
     feed_leg = attrs.ChoiceAttr('feed_leg')
 
 
-class CoolingPortPanel(panels.ObjectAttributesPanel):
+class CoolingIntakePanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
@@ -292,11 +292,11 @@ class CoolingPortPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
     heat_capacity = attrs.TextAttr('heat_capacity', format_string=_('{} kW'))
-    cooling_outlet = attrs.RelatedObjectAttr('cooling_outlet', linkify=True)
+    cooling_outflow = attrs.RelatedObjectAttr('cooling_outflow', linkify=True)
     cooling_feed = attrs.RelatedObjectAttr('cooling_feed', linkify=True)
 
 
-class CoolingOutletPanel(panels.ObjectAttributesPanel):
+class CoolingOutflowPanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
@@ -306,7 +306,7 @@ class CoolingOutletPanel(panels.ObjectAttributesPanel):
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
     color = attrs.ColorAttr('color')
-    cooling_port = attrs.RelatedObjectAttr('cooling_port', linkify=True)
+    cooling_intake = attrs.RelatedObjectAttr('cooling_intake', linkify=True)
 
 
 class FrontPortPanel(panels.ObjectAttributesPanel):
@@ -440,9 +440,8 @@ class CoolingSourcePanel(panels.ObjectAttributesPanel):
     location = attrs.NestedObjectAttr('location', linkify=True)
     type = attrs.ChoiceAttr('type')
     status = attrs.ChoiceAttr('status')
+    fluid_type = attrs.ChoiceAttr('fluid_type')
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
-    supply_temperature = attrs.NumericAttr('supply_temperature', unit_accessor='get_temperature_unit_display')
-    return_temperature = attrs.NumericAttr('return_temperature', unit_accessor='get_temperature_unit_display')
     description = attrs.TextAttr('description')
 
 
@@ -451,7 +450,6 @@ class CoolingFeedPanel(panels.ObjectAttributesPanel):
     rack = attrs.RelatedObjectAttr('rack', linkify=True)
     flow_direction = attrs.ChoiceAttr('flow_direction')
     status = attrs.ChoiceAttr('status')
-    fluid_type = attrs.ChoiceAttr('fluid_type')
     description = attrs.TextAttr('description')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
 
@@ -461,8 +459,6 @@ class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
 
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
     rated_flow_rate = attrs.NumericAttr('rated_flow_rate', unit_accessor='get_rated_flow_rate_unit_display')
-    supply_temperature = attrs.NumericAttr('supply_temperature', unit_accessor='get_temperature_unit_display')
-    return_temperature = attrs.NumericAttr('return_temperature', unit_accessor='get_temperature_unit_display')
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):

@@ -192,12 +192,12 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_model='dcim.PowerOutletTemplate',
         to_field='module_type'
     )
-    cooling_port_template_count = CounterCacheField(
-        to_model='dcim.CoolingPortTemplate',
+    cooling_intake_template_count = CounterCacheField(
+        to_model='dcim.CoolingIntakeTemplate',
         to_field='module_type'
     )
-    cooling_outlet_template_count = CounterCacheField(
-        to_model='dcim.CoolingOutletTemplate',
+    cooling_outflow_template_count = CounterCacheField(
+        to_model='dcim.CoolingOutflowTemplate',
         to_field='module_type'
     )
     interface_template_count = CounterCacheField(
@@ -328,13 +328,13 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             data['power-outlets'] = [
                 c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
-        if self.coolingporttemplates.exists():
+        if self.coolingintaketemplates.exists():
             data['cooling-ports'] = [
-                c.to_yaml() for c in self.coolingporttemplates.all()
+                c.to_yaml() for c in self.coolingintaketemplates.all()
             ]
-        if self.coolingoutlettemplates.exists():
+        if self.coolingoutflowtemplates.exists():
             data['cooling-outlets'] = [
-                c.to_yaml() for c in self.coolingoutlettemplates.all()
+                c.to_yaml() for c in self.coolingoutflowtemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
@@ -526,8 +526,8 @@ class Module(TrackingModelMixin, PrimaryModel):
             ("interfacetemplates", "interfaces", Interface),
             ("powerporttemplates", "powerports", PowerPort),
             ("poweroutlettemplates", "poweroutlets", PowerOutlet),
-            ("coolingporttemplates", "coolingports", CoolingPort),
-            ("coolingoutlettemplates", "coolingoutlets", CoolingOutlet),
+            ("coolingintaketemplates", "coolingintakes", CoolingIntake),
+            ("coolingoutflowtemplates", "coolingoutflows", CoolingOutflow),
             ("rearporttemplates", "rearports", RearPort),
             ("frontporttemplates", "frontports", FrontPort),
             ("modulebaytemplates", "modulebays", ModuleBay),

@@ -22,8 +22,8 @@ from wireless.choices import WirelessRoleChoices
 from .device_components import (
     ConsolePort,
     ConsoleServerPort,
-    CoolingOutlet,
-    CoolingPort,
+    CoolingIntake,
+    CoolingOutflow,
     DeviceBay,
     FrontPort,
     Interface,
@@ -37,8 +37,8 @@ from .device_components import (
 __all__ = (
     'ConsolePortTemplate',
     'ConsoleServerPortTemplate',
-    'CoolingOutletTemplate',
-    'CoolingPortTemplate',
+    'CoolingIntakeTemplate',
+    'CoolingOutflowTemplate',
     'DeviceBayTemplate',
     'FrontPortTemplate',
     'InterfaceTemplate',
@@ -442,9 +442,9 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         }
 
 
-class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTemplateModel):
+class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTemplateModel):
     """
-    A template for a CoolingPort to be created for a new Device.
+    A template for a CoolingIntake to be created for a new Device.
     """
     flow_direction = models.CharField(
         verbose_name=_('flow direction'),
@@ -472,7 +472,7 @@ class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTempl
         help_text=_('Heat removal capacity (kW)')
     )
 
-    component_model = CoolingPort
+    component_model = CoolingIntake
 
     class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('cooling port template')
@@ -508,9 +508,9 @@ class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTempl
         }
 
 
-class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
+class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
     """
-    A template for a CoolingOutlet to be created for a new Device.
+    A template for a CoolingOutflow to be created for a new Device.
     """
     flow_direction = models.CharField(
         verbose_name=_('flow direction'),
@@ -527,19 +527,15 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
         null=True
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    color = ColorField(
-        verbose_name=_('color'),
-        blank=True
-    )
-    cooling_port = models.ForeignKey(
-        to='dcim.CoolingPortTemplate',
+    cooling_intake = models.ForeignKey(
+        to='dcim.CoolingIntakeTemplate',
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='coolingoutlet_templates'
+        related_name='coolingoutflow_templates'
     )
 
-    component_model = CoolingOutlet
+    component_model = CoolingOutflow
 
     class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('cooling outlet template')
@@ -549,26 +545,26 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
         super().clean()
 
         # Validate cooling port assignment
-        if self.cooling_port:
-            if self.device_type and self.cooling_port.device_type != self.device_type:
+        if self.cooling_intake:
+            if self.device_type and self.cooling_intake.device_type != self.device_type:
                 raise ValidationError(
-                    _("Parent cooling port ({cooling_port}) must belong to the same device type").format(
-                        cooling_port=self.cooling_port
+                    _("Parent cooling port ({cooling_intake}) must belong to the same device type").format(
+                        cooling_intake=self.cooling_intake
                     )
                 )
-            if self.module_type and self.cooling_port.module_type != self.module_type:
+            if self.module_type and self.cooling_intake.module_type != self.module_type:
                 raise ValidationError(
-                    _("Parent cooling port ({cooling_port}) must belong to the same module type").format(
-                        cooling_port=self.cooling_port
+                    _("Parent cooling port ({cooling_intake}) must belong to the same module type").format(
+                        cooling_intake=self.cooling_intake
                     )
                 )
 
     def instantiate(self, **kwargs):
-        if self.cooling_port:
-            cooling_port_name = self.cooling_port.resolve_name(kwargs.get('module'), kwargs.get('device'))
-            cooling_port = CoolingPort.objects.get(name=cooling_port_name, **kwargs)
+        if self.cooling_intake:
+            cooling_intake_name = self.cooling_intake.resolve_name(kwargs.get('module'), kwargs.get('device'))
+            cooling_intake = CoolingIntake.objects.get(name=cooling_intake_name, **kwargs)
         else:
-            cooling_port = None
+            cooling_intake = None
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
@@ -576,8 +572,7 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
-            color=self.color,
-            cooling_port=cooling_port,
+            cooling_intake=cooling_intake,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -589,8 +584,7 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
             'type': self.type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
-            'color': self.color,
-            'cooling_port': self.cooling_port.name if self.cooling_port else None,
+            'cooling_intake': self.cooling_intake.name if self.cooling_intake else None,
             'label': self.label,
             'description': self.description,
         }

@@ -4243,8 +4243,8 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CoolingPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
-    model = CoolingPortTemplate
+class CoolingIntakeTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingIntakeTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4260,12 +4260,12 @@ class CoolingPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
             manufacturer=manufacturer, model='Module Type 1'
         )
 
-        cooling_port_templates = (
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        cooling_intake_templates = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 3'),
         )
-        CoolingPortTemplate.objects.bulk_create(cooling_port_templates)
+        CoolingIntakeTemplate.objects.bulk_create(cooling_intake_templates)
 
         cls.create_data = [
             {
@@ -4289,8 +4289,8 @@ class CoolingPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
-    model = CoolingOutletTemplate
+class CoolingOutflowTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingOutflowTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4307,18 +4307,18 @@ class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
             manufacturer=manufacturer, model='Module Type 1'
         )
 
-        cooling_port_templates = (
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
-            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+        cooling_intake_templates = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
         )
-        CoolingPortTemplate.objects.bulk_create(cooling_port_templates)
+        CoolingIntakeTemplate.objects.bulk_create(cooling_intake_templates)
 
-        cooling_outlet_templates = (
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
-            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        cooling_outflow_templates = (
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
         )
-        CoolingOutletTemplate.objects.bulk_create(cooling_outlet_templates)
+        CoolingOutflowTemplate.objects.bulk_create(cooling_outflow_templates)
 
         cls.create_data = [
             {
@@ -4326,17 +4326,17 @@ class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Outlet Template 4',
                 'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
-                'cooling_port': cooling_port_templates[0].pk,
+                'cooling_intake': cooling_intake_templates[0].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Outlet Template 5',
-                'cooling_port': cooling_port_templates[1].pk,
+                'cooling_intake': cooling_intake_templates[1].pk,
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Outlet Template 6',
-                'cooling_port': None,
+                'cooling_intake': None,
             },
             {
                 'module_type': moduletype.pk,
@@ -4349,8 +4349,8 @@ class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
-    model = CoolingPort
+class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingIntake
     brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4365,7 +4365,7 @@ class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
         role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
 
-        cooling_outlet = CoolingOutlet.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
         cooling_source = CoolingSource.objects.create(
             site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
         )
@@ -4374,12 +4374,12 @@ class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
             flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
         )
 
-        cooling_ports = (
-            CoolingPort(device=device, name='Cooling Port 1'),
-            CoolingPort(device=device, name='Cooling Port 2'),
-            CoolingPort(device=device, name='Cooling Port 3'),
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+            CoolingIntake(device=device, name='Cooling Port 3'),
         )
-        CoolingPort.objects.bulk_create(cooling_ports)
+        CoolingIntake.objects.bulk_create(cooling_intakes)
 
         cls.create_data = [
             {
@@ -4387,7 +4387,7 @@ class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Port 4',
                 'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
-                'cooling_outlet': cooling_outlet.pk,
+                'cooling_outflow': cooling_outflow.pk,
             },
             {
                 'device': device.pk,
@@ -4403,8 +4403,8 @@ class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CoolingOutletTestCase(APIViewTestCases.APIViewTestCase):
-    model = CoolingOutlet
+class CoolingOutflowTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingOutflow
     brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -4419,18 +4419,18 @@ class CoolingOutletTestCase(APIViewTestCases.APIViewTestCase):
         role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
 
-        cooling_ports = (
-            CoolingPort(device=device, name='Cooling Port 1'),
-            CoolingPort(device=device, name='Cooling Port 2'),
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
         )
-        CoolingPort.objects.bulk_create(cooling_ports)
+        CoolingIntake.objects.bulk_create(cooling_intakes)
 
-        cooling_outlets = (
-            CoolingOutlet(device=device, name='Cooling Outlet 1'),
-            CoolingOutlet(device=device, name='Cooling Outlet 2'),
-            CoolingOutlet(device=device, name='Cooling Outlet 3'),
+        cooling_outflows = (
+            CoolingOutflow(device=device, name='Cooling Outlet 1'),
+            CoolingOutflow(device=device, name='Cooling Outlet 2'),
+            CoolingOutflow(device=device, name='Cooling Outlet 3'),
         )
-        CoolingOutlet.objects.bulk_create(cooling_outlets)
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
 
         cls.create_data = [
             {
@@ -4438,17 +4438,17 @@ class CoolingOutletTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Outlet 4',
                 'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 'type': CoolingConnectorTypeChoices.TYPE_UQD,
-                'cooling_port': cooling_ports[0].pk,
+                'cooling_intake': cooling_intakes[0].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Cooling Outlet 5',
-                'cooling_port': cooling_ports[1].pk,
+                'cooling_intake': cooling_intakes[1].pk,
             },
             {
                 'device': device.pk,
                 'name': 'Cooling Outlet 6',
-                'cooling_port': None,
+                'cooling_intake': None,
             },
         ]
 

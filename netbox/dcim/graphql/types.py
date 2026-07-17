@@ -53,10 +53,10 @@ __all__ = (
     'ConsoleServerPortTemplateType',
     'ConsoleServerPortType',
     'CoolingFeedType',
-    'CoolingOutletTemplateType',
-    'CoolingOutletType',
-    'CoolingPortTemplateType',
-    'CoolingPortType',
+    'CoolingIntakeTemplateType',
+    'CoolingIntakeType',
+    'CoolingOutflowTemplateType',
+    'CoolingOutflowType',
     'CoolingSourceType',
     'DeviceBayTemplateType',
     'DeviceBayType',
@@ -264,8 +264,8 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, Prima
     console_server_port_count: BigInt
     power_port_count: BigInt
     power_outlet_count: BigInt
-    cooling_port_count: BigInt
-    cooling_outlet_count: BigInt
+    cooling_intake_count: BigInt
+    cooling_outflow_count: BigInt
     interface_count: BigInt
     front_port_count: BigInt
     rear_port_count: BigInt
@@ -292,11 +292,11 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, Prima
     rearports: list[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]
     consoleports: list[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]
     powerports: list[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]
-    coolingports: list[Annotated["CoolingPortType", strawberry.lazy('dcim.graphql.types')]]
+    coolingintakes: list[Annotated["CoolingIntakeType", strawberry.lazy('dcim.graphql.types')]]
     cabletermination_set: list[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]
     consoleserverports: list[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlets: list[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
-    coolingoutlets: list[Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')]]
+    coolingoutflows: list[Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')]]
     frontports: list[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
     devicebays: list[Annotated["DeviceBayType", strawberry.lazy('dcim.graphql.types')]]
     modulebays: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
@@ -388,8 +388,8 @@ class DeviceTypeType(PrimaryObjectType):
     console_server_port_template_count: BigInt
     power_port_template_count: BigInt
     power_outlet_template_count: BigInt
-    cooling_port_template_count: BigInt
-    cooling_outlet_template_count: BigInt
+    cooling_intake_template_count: BigInt
+    cooling_outflow_template_count: BigInt
     interface_template_count: BigInt
     front_port_template_count: BigInt
     rear_port_template_count: BigInt
@@ -407,8 +407,8 @@ class DeviceTypeType(PrimaryObjectType):
     instances: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlettemplates: list[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
     powerporttemplates: list[Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    coolingoutlettemplates: list[Annotated["CoolingOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    coolingporttemplates: list[Annotated["CoolingPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    coolingoutflowtemplates: list[Annotated["CoolingOutflowTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    coolingintaketemplates: list[Annotated["CoolingIntakeTemplateType", strawberry.lazy('dcim.graphql.types')]]
     inventoryitemtemplates: list[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
     rearporttemplates: list[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     consoleserverporttemplates: list[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
@@ -611,11 +611,11 @@ class ModuleType(PrimaryObjectType):
 
     interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     powerports: list[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]
-    coolingports: list[Annotated["CoolingPortType", strawberry.lazy('dcim.graphql.types')]]
+    coolingintakes: list[Annotated["CoolingIntakeType", strawberry.lazy('dcim.graphql.types')]]
     consoleserverports: list[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]
     consoleports: list[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlets: list[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
-    coolingoutlets: list[Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')]]
+    coolingoutflows: list[Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')]]
     rearports: list[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]
     frontports: list[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
 
@@ -684,8 +684,8 @@ class ModuleTypeType(PrimaryObjectType):
     console_server_port_template_count: BigInt
     power_port_template_count: BigInt
     power_outlet_template_count: BigInt
-    cooling_port_template_count: BigInt
-    cooling_outlet_template_count: BigInt
+    cooling_intake_template_count: BigInt
+    cooling_outflow_template_count: BigInt
     interface_template_count: BigInt
     front_port_template_count: BigInt
     rear_port_template_count: BigInt
@@ -699,8 +699,8 @@ class ModuleTypeType(PrimaryObjectType):
     interfacetemplates: list[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
     powerporttemplates: list[Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     poweroutlettemplates: list[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    coolingporttemplates: list[Annotated["CoolingPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
-    coolingoutlettemplates: list[Annotated["CoolingOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    coolingintaketemplates: list[Annotated["CoolingIntakeTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    coolingoutflowtemplates: list[Annotated["CoolingOutflowTemplateType", strawberry.lazy('dcim.graphql.types')]]
     rearporttemplates: list[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
     instances: list[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
     consoleporttemplates: list[Annotated["ConsolePortTemplateType", strawberry.lazy('dcim.graphql.types')]]
@@ -814,7 +814,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingFeed,
-    exclude=['_path', '_abs_rated_flow_rate', '_abs_supply_temperature', '_abs_return_temperature'],
+    exclude=['_path', '_abs_rated_flow_rate'],
     filters=CoolingFeedFilter,
     pagination=True
 )
@@ -825,53 +825,51 @@ class CoolingFeedType(PrimaryObjectType):
 
 
 @register_type(
-    models.CoolingOutlet,
+    models.CoolingOutflow,
     exclude=['_path', '_abs_diameter'],
-    filters=CoolingOutletFilter,
+    filters=CoolingOutflowFilter,
     pagination=True
 )
-class CoolingOutletType(ModularComponentType):
-    cooling_port: Annotated["CoolingPortType", strawberry.lazy('dcim.graphql.types')] | None
-    color: str
+class CoolingOutflowType(ModularComponentType):
+    cooling_intake: Annotated["CoolingIntakeType", strawberry.lazy('dcim.graphql.types')] | None
 
 
 @register_type(
-    models.CoolingOutletTemplate,
+    models.CoolingOutflowTemplate,
     exclude=['_abs_diameter'],
-    filters=CoolingOutletTemplateFilter,
+    filters=CoolingOutflowTemplateFilter,
     pagination=True
 )
-class CoolingOutletTemplateType(ModularComponentTemplateType):
-    cooling_port: Annotated["CoolingPortTemplateType", strawberry.lazy('dcim.graphql.types')] | None
-    color: str
+class CoolingOutflowTemplateType(ModularComponentTemplateType):
+    cooling_intake: Annotated["CoolingIntakeTemplateType", strawberry.lazy('dcim.graphql.types')] | None
 
 
 @register_type(
-    models.CoolingPort,
+    models.CoolingIntake,
     exclude=['_path', '_abs_diameter', '_abs_maximum_flow'],
-    filters=CoolingPortFilter,
+    filters=CoolingIntakeFilter,
     pagination=True
 )
-class CoolingPortType(ModularComponentType):
-    cooling_outlet: Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')] | None
+class CoolingIntakeType(ModularComponentType):
+    cooling_outflow: Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')] | None
     cooling_feed: Annotated["CoolingFeedType", strawberry.lazy('dcim.graphql.types')] | None
 
-    coolingoutlets: list[Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')]]
+    coolingoutflows: list[Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @register_type(
-    models.CoolingPortTemplate,
+    models.CoolingIntakeTemplate,
     exclude=['_abs_diameter', '_abs_maximum_flow'],
-    filters=CoolingPortTemplateFilter,
+    filters=CoolingIntakeTemplateFilter,
     pagination=True
 )
-class CoolingPortTemplateType(ModularComponentTemplateType):
-    coolingoutlet_templates: list[Annotated["CoolingOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+class CoolingIntakeTemplateType(ModularComponentTemplateType):
+    coolingoutflow_templates: list[Annotated["CoolingOutflowTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @register_type(
     models.CoolingSource,
-    exclude=['_abs_supply_temperature', '_abs_return_temperature'],
+    fields='__all__',
     filters=CoolingSourceFilter,
     pagination=True
 )

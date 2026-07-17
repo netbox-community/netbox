@@ -65,8 +65,8 @@ CABLE_TERMINATION_TYPES = {
     'dcim.consoleserverport': ConsoleServerPort,
     'dcim.powerport': PowerPort,
     'dcim.poweroutlet': PowerOutlet,
-    'dcim.coolingport': CoolingPort,
-    'dcim.coolingoutlet': CoolingOutlet,
+    'dcim.coolingintake': CoolingIntake,
+    'dcim.coolingoutflow': CoolingOutflow,
     'dcim.interface': Interface,
     'dcim.frontport': FrontPort,
     'dcim.rearport': RearPort,
@@ -1467,7 +1467,7 @@ class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         return {
             'related_models': self.get_related_models(request, instance, omit=[
-                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutletTemplate, CoolingPortTemplate,
+                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutflowTemplate, CoolingIntakeTemplate,
                 DeviceBayTemplate, FrontPortTemplate, InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate,
                 PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
             ]),
@@ -1546,31 +1546,31 @@ class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     )
 
 
-@register_model_view(DeviceType, 'coolingports', path='cooling-ports')
-class DeviceTypeCoolingPortsView(DeviceTypeComponentsView):
-    child_model = CoolingPortTemplate
-    table = tables.CoolingPortTemplateTable
-    filterset = filtersets.CoolingPortTemplateFilterSet
-    viewname = 'dcim:devicetype_coolingports'
+@register_model_view(DeviceType, 'coolingintakes', path='cooling-ports')
+class DeviceTypeCoolingIntakesView(DeviceTypeComponentsView):
+    child_model = CoolingIntakeTemplate
+    table = tables.CoolingIntakeTemplateTable
+    filterset = filtersets.CoolingIntakeTemplateFilterSet
+    viewname = 'dcim:devicetype_coolingintakes'
     tab = ViewTab(
         label=_('Cooling Ports'),
-        badge=lambda obj: obj.cooling_port_template_count,
-        permission='dcim.view_coolingporttemplate',
+        badge=lambda obj: obj.cooling_intake_template_count,
+        permission='dcim.view_coolingintaketemplate',
         weight=570,
         hide_if_empty=True
     )
 
 
-@register_model_view(DeviceType, 'coolingoutlets', path='cooling-outlets')
-class DeviceTypeCoolingOutletsView(DeviceTypeComponentsView):
-    child_model = CoolingOutletTemplate
-    table = tables.CoolingOutletTemplateTable
-    filterset = filtersets.CoolingOutletTemplateFilterSet
-    viewname = 'dcim:devicetype_coolingoutlets'
+@register_model_view(DeviceType, 'coolingoutflows', path='cooling-outlets')
+class DeviceTypeCoolingOutflowsView(DeviceTypeComponentsView):
+    child_model = CoolingOutflowTemplate
+    table = tables.CoolingOutflowTemplateTable
+    filterset = filtersets.CoolingOutflowTemplateFilterSet
+    viewname = 'dcim:devicetype_coolingoutflows'
     tab = ViewTab(
         label=_('Cooling Outlets'),
-        badge=lambda obj: obj.cooling_outlet_template_count,
-        permission='dcim.view_coolingoutlettemplate',
+        badge=lambda obj: obj.cooling_outflow_template_count,
+        permission='dcim.view_coolingoutflowtemplate',
         weight=580,
         hide_if_empty=True
     )
@@ -1674,8 +1674,8 @@ class DeviceTypeImportView(generic.BulkImportView):
         'dcim.add_consoleserverporttemplate',
         'dcim.add_powerporttemplate',
         'dcim.add_poweroutlettemplate',
-        'dcim.add_coolingporttemplate',
-        'dcim.add_coolingoutlettemplate',
+        'dcim.add_coolingintaketemplate',
+        'dcim.add_coolingoutflowtemplate',
         'dcim.add_interfacetemplate',
         'dcim.add_frontporttemplate',
         'dcim.add_rearporttemplate',
@@ -1690,8 +1690,8 @@ class DeviceTypeImportView(generic.BulkImportView):
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
         'power-ports': forms.PowerPortTemplateImportForm,
         'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-ports': forms.CoolingPortTemplateImportForm,
-        'cooling-outlets': forms.CoolingOutletTemplateImportForm,
+        'cooling-ports': forms.CoolingIntakeTemplateImportForm,
+        'cooling-outlets': forms.CoolingOutflowTemplateImportForm,
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
@@ -1926,7 +1926,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         return {
             'related_models': self.get_related_models(request, instance, omit=[
-                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutletTemplate, CoolingPortTemplate,
+                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutflowTemplate, CoolingIntakeTemplate,
                 DeviceBayTemplate, FrontPortTemplate, InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate,
                 PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
             ]),
@@ -2032,31 +2032,31 @@ class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     )
 
 
-@register_model_view(ModuleType, 'coolingports', path='cooling-ports')
-class ModuleTypeCoolingPortsView(ModuleTypeComponentsView):
-    child_model = CoolingPortTemplate
-    table = tables.CoolingPortTemplateTable
-    filterset = filtersets.CoolingPortTemplateFilterSet
-    viewname = 'dcim:moduletype_coolingports'
+@register_model_view(ModuleType, 'coolingintakes', path='cooling-ports')
+class ModuleTypeCoolingIntakesView(ModuleTypeComponentsView):
+    child_model = CoolingIntakeTemplate
+    table = tables.CoolingIntakeTemplateTable
+    filterset = filtersets.CoolingIntakeTemplateFilterSet
+    viewname = 'dcim:moduletype_coolingintakes'
     tab = ViewTab(
         label=_('Cooling Ports'),
-        badge=lambda obj: obj.cooling_port_template_count,
-        permission='dcim.view_coolingporttemplate',
+        badge=lambda obj: obj.cooling_intake_template_count,
+        permission='dcim.view_coolingintaketemplate',
         weight=550,
         hide_if_empty=True
     )
 
 
-@register_model_view(ModuleType, 'coolingoutlets', path='cooling-outlets')
-class ModuleTypeCoolingOutletsView(ModuleTypeComponentsView):
-    child_model = CoolingOutletTemplate
-    table = tables.CoolingOutletTemplateTable
-    filterset = filtersets.CoolingOutletTemplateFilterSet
-    viewname = 'dcim:moduletype_coolingoutlets'
+@register_model_view(ModuleType, 'coolingoutflows', path='cooling-outlets')
+class ModuleTypeCoolingOutflowsView(ModuleTypeComponentsView):
+    child_model = CoolingOutflowTemplate
+    table = tables.CoolingOutflowTemplateTable
+    filterset = filtersets.CoolingOutflowTemplateFilterSet
+    viewname = 'dcim:moduletype_coolingoutflows'
     tab = ViewTab(
         label=_('Cooling Outlets'),
-        badge=lambda obj: obj.cooling_outlet_template_count,
-        permission='dcim.view_coolingoutlettemplate',
+        badge=lambda obj: obj.cooling_outflow_template_count,
+        permission='dcim.view_coolingoutflowtemplate',
         weight=560,
         hide_if_empty=True
     )
@@ -2130,8 +2130,8 @@ class ModuleTypeImportView(generic.BulkImportView):
         'dcim.add_consoleserverporttemplate',
         'dcim.add_powerporttemplate',
         'dcim.add_poweroutlettemplate',
-        'dcim.add_coolingporttemplate',
-        'dcim.add_coolingoutlettemplate',
+        'dcim.add_coolingintaketemplate',
+        'dcim.add_coolingoutflowtemplate',
         'dcim.add_interfacetemplate',
         'dcim.add_frontporttemplate',
         'dcim.add_rearporttemplate',
@@ -2144,8 +2144,8 @@ class ModuleTypeImportView(generic.BulkImportView):
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
         'power-ports': forms.PowerPortTemplateImportForm,
         'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-ports': forms.CoolingPortTemplateImportForm,
-        'cooling-outlets': forms.CoolingOutletTemplateImportForm,
+        'cooling-ports': forms.CoolingIntakeTemplateImportForm,
+        'cooling-outlets': forms.CoolingOutflowTemplateImportForm,
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
@@ -2381,82 +2381,82 @@ class PowerOutletTemplateBulkDeleteView(generic.BulkDeleteView):
 # Cooling port templates
 #
 
-@register_model_view(CoolingPortTemplate, 'add', detail=False)
-class CoolingPortTemplateCreateView(generic.ComponentCreateView):
-    queryset = CoolingPortTemplate.objects.all()
-    form = forms.CoolingPortTemplateCreateForm
-    model_form = forms.CoolingPortTemplateForm
+@register_model_view(CoolingIntakeTemplate, 'add', detail=False)
+class CoolingIntakeTemplateCreateView(generic.ComponentCreateView):
+    queryset = CoolingIntakeTemplate.objects.all()
+    form = forms.CoolingIntakeTemplateCreateForm
+    model_form = forms.CoolingIntakeTemplateForm
 
 
-@register_model_view(CoolingPortTemplate, 'edit')
-class CoolingPortTemplateEditView(generic.ObjectEditView):
-    queryset = CoolingPortTemplate.objects.all()
-    form = forms.CoolingPortTemplateForm
+@register_model_view(CoolingIntakeTemplate, 'edit')
+class CoolingIntakeTemplateEditView(generic.ObjectEditView):
+    queryset = CoolingIntakeTemplate.objects.all()
+    form = forms.CoolingIntakeTemplateForm
 
 
-@register_model_view(CoolingPortTemplate, 'delete')
-class CoolingPortTemplateDeleteView(generic.ObjectDeleteView):
-    queryset = CoolingPortTemplate.objects.all()
+@register_model_view(CoolingIntakeTemplate, 'delete')
+class CoolingIntakeTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = CoolingIntakeTemplate.objects.all()
 
 
-@register_model_view(CoolingPortTemplate, 'bulk_edit', path='edit', detail=False)
-class CoolingPortTemplateBulkEditView(generic.BulkEditView):
-    queryset = CoolingPortTemplate.objects.all()
-    table = tables.CoolingPortTemplateTable
-    form = forms.CoolingPortTemplateBulkEditForm
+@register_model_view(CoolingIntakeTemplate, 'bulk_edit', path='edit', detail=False)
+class CoolingIntakeTemplateBulkEditView(generic.BulkEditView):
+    queryset = CoolingIntakeTemplate.objects.all()
+    table = tables.CoolingIntakeTemplateTable
+    form = forms.CoolingIntakeTemplateBulkEditForm
 
 
-@register_model_view(CoolingPortTemplate, 'bulk_rename', path='rename', detail=False)
-class CoolingPortTemplateBulkRenameView(generic.BulkRenameView):
-    queryset = CoolingPortTemplate.objects.all()
+@register_model_view(CoolingIntakeTemplate, 'bulk_rename', path='rename', detail=False)
+class CoolingIntakeTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = CoolingIntakeTemplate.objects.all()
     rename_fields = ('name', 'label')
 
 
-@register_model_view(CoolingPortTemplate, 'bulk_delete', path='delete', detail=False)
-class CoolingPortTemplateBulkDeleteView(generic.BulkDeleteView):
-    queryset = CoolingPortTemplate.objects.all()
-    table = tables.CoolingPortTemplateTable
+@register_model_view(CoolingIntakeTemplate, 'bulk_delete', path='delete', detail=False)
+class CoolingIntakeTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = CoolingIntakeTemplate.objects.all()
+    table = tables.CoolingIntakeTemplateTable
 
 
 #
 # Cooling outlet templates
 #
 
-@register_model_view(CoolingOutletTemplate, 'add', detail=False)
-class CoolingOutletTemplateCreateView(generic.ComponentCreateView):
-    queryset = CoolingOutletTemplate.objects.all()
-    form = forms.CoolingOutletTemplateCreateForm
-    model_form = forms.CoolingOutletTemplateForm
+@register_model_view(CoolingOutflowTemplate, 'add', detail=False)
+class CoolingOutflowTemplateCreateView(generic.ComponentCreateView):
+    queryset = CoolingOutflowTemplate.objects.all()
+    form = forms.CoolingOutflowTemplateCreateForm
+    model_form = forms.CoolingOutflowTemplateForm
 
 
-@register_model_view(CoolingOutletTemplate, 'edit')
-class CoolingOutletTemplateEditView(generic.ObjectEditView):
-    queryset = CoolingOutletTemplate.objects.all()
-    form = forms.CoolingOutletTemplateForm
+@register_model_view(CoolingOutflowTemplate, 'edit')
+class CoolingOutflowTemplateEditView(generic.ObjectEditView):
+    queryset = CoolingOutflowTemplate.objects.all()
+    form = forms.CoolingOutflowTemplateForm
 
 
-@register_model_view(CoolingOutletTemplate, 'delete')
-class CoolingOutletTemplateDeleteView(generic.ObjectDeleteView):
-    queryset = CoolingOutletTemplate.objects.all()
+@register_model_view(CoolingOutflowTemplate, 'delete')
+class CoolingOutflowTemplateDeleteView(generic.ObjectDeleteView):
+    queryset = CoolingOutflowTemplate.objects.all()
 
 
-@register_model_view(CoolingOutletTemplate, 'bulk_edit', path='edit', detail=False)
-class CoolingOutletTemplateBulkEditView(generic.BulkEditView):
-    queryset = CoolingOutletTemplate.objects.all()
-    table = tables.CoolingOutletTemplateTable
-    form = forms.CoolingOutletTemplateBulkEditForm
+@register_model_view(CoolingOutflowTemplate, 'bulk_edit', path='edit', detail=False)
+class CoolingOutflowTemplateBulkEditView(generic.BulkEditView):
+    queryset = CoolingOutflowTemplate.objects.all()
+    table = tables.CoolingOutflowTemplateTable
+    form = forms.CoolingOutflowTemplateBulkEditForm
 
 
-@register_model_view(CoolingOutletTemplate, 'bulk_rename', path='rename', detail=False)
-class CoolingOutletTemplateBulkRenameView(generic.BulkRenameView):
-    queryset = CoolingOutletTemplate.objects.all()
+@register_model_view(CoolingOutflowTemplate, 'bulk_rename', path='rename', detail=False)
+class CoolingOutflowTemplateBulkRenameView(generic.BulkRenameView):
+    queryset = CoolingOutflowTemplate.objects.all()
     rename_fields = ('name', 'label')
 
 
-@register_model_view(CoolingOutletTemplate, 'bulk_delete', path='delete', detail=False)
-class CoolingOutletTemplateBulkDeleteView(generic.BulkDeleteView):
-    queryset = CoolingOutletTemplate.objects.all()
-    table = tables.CoolingOutletTemplateTable
+@register_model_view(CoolingOutflowTemplate, 'bulk_delete', path='delete', detail=False)
+class CoolingOutflowTemplateBulkDeleteView(generic.BulkDeleteView):
+    queryset = CoolingOutflowTemplate.objects.all()
+    table = tables.CoolingOutflowTemplateTable
 
 
 #
@@ -3071,33 +3071,33 @@ class DevicePowerOutletsView(DeviceComponentsView):
     )
 
 
-@register_model_view(Device, 'coolingports', path='cooling-ports')
-class DeviceCoolingPortsView(DeviceComponentsView):
-    child_model = CoolingPort
-    table = tables.DeviceCoolingPortTable
-    filterset = filtersets.CoolingPortFilterSet
-    filterset_form = forms.CoolingPortFilterForm
+@register_model_view(Device, 'coolingintakes', path='cooling-ports')
+class DeviceCoolingIntakesView(DeviceComponentsView):
+    child_model = CoolingIntake
+    table = tables.DeviceCoolingIntakeTable
+    filterset = filtersets.CoolingIntakeFilterSet
+    filterset_form = forms.CoolingIntakeFilterForm
     actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Cooling Ports'),
-        badge=lambda obj: obj.cooling_port_count,
-        permission='dcim.view_coolingport',
+        badge=lambda obj: obj.cooling_intake_count,
+        permission='dcim.view_coolingintake',
         weight=570,
         hide_if_empty=True
     )
 
 
-@register_model_view(Device, 'coolingoutlets', path='cooling-outlets')
-class DeviceCoolingOutletsView(DeviceComponentsView):
-    child_model = CoolingOutlet
-    table = tables.DeviceCoolingOutletTable
-    filterset = filtersets.CoolingOutletFilterSet
-    filterset_form = forms.CoolingOutletFilterForm
+@register_model_view(Device, 'coolingoutflows', path='cooling-outlets')
+class DeviceCoolingOutflowsView(DeviceComponentsView):
+    child_model = CoolingOutflow
+    table = tables.DeviceCoolingOutflowTable
+    filterset = filtersets.CoolingOutflowFilterSet
+    filterset_form = forms.CoolingOutflowFilterForm
     actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
         label=_('Cooling Outlets'),
-        badge=lambda obj: obj.cooling_outlet_count,
-        permission='dcim.view_coolingoutlet',
+        badge=lambda obj: obj.cooling_outflow_count,
+        permission='dcim.view_coolingoutflow',
         weight=580,
         hide_if_empty=True
     )
@@ -3754,20 +3754,20 @@ register_model_view(PowerOutlet, 'trace', kwargs={'model': PowerOutlet})(PathTra
 # Cooling ports
 #
 
-@register_model_view(CoolingPort, 'list', path='', detail=False)
-class CoolingPortListView(generic.ObjectListView):
-    queryset = CoolingPort.objects.all()
-    filterset = filtersets.CoolingPortFilterSet
-    filterset_form = forms.CoolingPortFilterForm
-    table = tables.CoolingPortTable
+@register_model_view(CoolingIntake, 'list', path='', detail=False)
+class CoolingIntakeListView(generic.ObjectListView):
+    queryset = CoolingIntake.objects.all()
+    filterset = filtersets.CoolingIntakeFilterSet
+    filterset_form = forms.CoolingIntakeFilterForm
+    table = tables.CoolingIntakeTable
 
 
-@register_model_view(CoolingPort)
-class CoolingPortView(generic.ObjectView):
-    queryset = CoolingPort.objects.all()
+@register_model_view(CoolingIntake)
+class CoolingIntakeView(generic.ObjectView):
+    queryset = CoolingIntake.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.CoolingPortPanel(),
+            panels.CoolingIntakePanel(),
             CustomFieldsPanel(),
             TagsPanel(),
         ],
@@ -3777,70 +3777,70 @@ class CoolingPortView(generic.ObjectView):
     )
 
 
-@register_model_view(CoolingPort, 'add', detail=False)
-class CoolingPortCreateView(generic.ComponentCreateView):
-    queryset = CoolingPort.objects.all()
-    form = forms.CoolingPortCreateForm
-    model_form = forms.CoolingPortForm
+@register_model_view(CoolingIntake, 'add', detail=False)
+class CoolingIntakeCreateView(generic.ComponentCreateView):
+    queryset = CoolingIntake.objects.all()
+    form = forms.CoolingIntakeCreateForm
+    model_form = forms.CoolingIntakeForm
 
 
-@register_model_view(CoolingPort, 'edit')
-class CoolingPortEditView(generic.ObjectEditView):
-    queryset = CoolingPort.objects.all()
-    form = forms.CoolingPortForm
+@register_model_view(CoolingIntake, 'edit')
+class CoolingIntakeEditView(generic.ObjectEditView):
+    queryset = CoolingIntake.objects.all()
+    form = forms.CoolingIntakeForm
 
 
-@register_model_view(CoolingPort, 'delete')
-class CoolingPortDeleteView(generic.ObjectDeleteView):
-    queryset = CoolingPort.objects.all()
+@register_model_view(CoolingIntake, 'delete')
+class CoolingIntakeDeleteView(generic.ObjectDeleteView):
+    queryset = CoolingIntake.objects.all()
 
 
-@register_model_view(CoolingPort, 'bulk_import', path='import', detail=False)
-class CoolingPortBulkImportView(generic.BulkImportView):
-    queryset = CoolingPort.objects.all()
-    model_form = forms.CoolingPortImportForm
+@register_model_view(CoolingIntake, 'bulk_import', path='import', detail=False)
+class CoolingIntakeBulkImportView(generic.BulkImportView):
+    queryset = CoolingIntake.objects.all()
+    model_form = forms.CoolingIntakeImportForm
 
 
-@register_model_view(CoolingPort, 'bulk_edit', path='edit', detail=False)
-class CoolingPortBulkEditView(generic.BulkEditView):
-    queryset = CoolingPort.objects.all()
-    filterset = filtersets.CoolingPortFilterSet
-    table = tables.CoolingPortTable
-    form = forms.CoolingPortBulkEditForm
+@register_model_view(CoolingIntake, 'bulk_edit', path='edit', detail=False)
+class CoolingIntakeBulkEditView(generic.BulkEditView):
+    queryset = CoolingIntake.objects.all()
+    filterset = filtersets.CoolingIntakeFilterSet
+    table = tables.CoolingIntakeTable
+    form = forms.CoolingIntakeBulkEditForm
 
 
-@register_model_view(CoolingPort, 'bulk_rename', path='rename', detail=False)
-class CoolingPortBulkRenameView(generic.BulkRenameView):
-    queryset = CoolingPort.objects.all()
-    filterset = filtersets.CoolingPortFilterSet
+@register_model_view(CoolingIntake, 'bulk_rename', path='rename', detail=False)
+class CoolingIntakeBulkRenameView(generic.BulkRenameView):
+    queryset = CoolingIntake.objects.all()
+    filterset = filtersets.CoolingIntakeFilterSet
     rename_fields = ('name', 'label')
 
 
-@register_model_view(CoolingPort, 'bulk_delete', path='delete', detail=False)
-class CoolingPortBulkDeleteView(generic.BulkDeleteView):
-    queryset = CoolingPort.objects.all()
-    filterset = filtersets.CoolingPortFilterSet
-    table = tables.CoolingPortTable
+@register_model_view(CoolingIntake, 'bulk_delete', path='delete', detail=False)
+class CoolingIntakeBulkDeleteView(generic.BulkDeleteView):
+    queryset = CoolingIntake.objects.all()
+    filterset = filtersets.CoolingIntakeFilterSet
+    table = tables.CoolingIntakeTable
 
 
 #
 # Cooling outlets
 #
 
-@register_model_view(CoolingOutlet, 'list', path='', detail=False)
-class CoolingOutletListView(generic.ObjectListView):
-    queryset = CoolingOutlet.objects.all()
-    filterset = filtersets.CoolingOutletFilterSet
-    filterset_form = forms.CoolingOutletFilterForm
-    table = tables.CoolingOutletTable
+@register_model_view(CoolingOutflow, 'list', path='', detail=False)
+class CoolingOutflowListView(generic.ObjectListView):
+    queryset = CoolingOutflow.objects.all()
+    filterset = filtersets.CoolingOutflowFilterSet
+    filterset_form = forms.CoolingOutflowFilterForm
+    table = tables.CoolingOutflowTable
 
 
-@register_model_view(CoolingOutlet)
-class CoolingOutletView(generic.ObjectView):
-    queryset = CoolingOutlet.objects.all()
+@register_model_view(CoolingOutflow)
+class CoolingOutflowView(generic.ObjectView):
+    queryset = CoolingOutflow.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.CoolingOutletPanel(),
+            panels.CoolingOutflowPanel(),
             CustomFieldsPanel(),
             TagsPanel(),
         ],
@@ -3850,50 +3850,50 @@ class CoolingOutletView(generic.ObjectView):
     )
 
 
-@register_model_view(CoolingOutlet, 'add', detail=False)
-class CoolingOutletCreateView(generic.ComponentCreateView):
-    queryset = CoolingOutlet.objects.all()
-    form = forms.CoolingOutletCreateForm
-    model_form = forms.CoolingOutletForm
+@register_model_view(CoolingOutflow, 'add', detail=False)
+class CoolingOutflowCreateView(generic.ComponentCreateView):
+    queryset = CoolingOutflow.objects.all()
+    form = forms.CoolingOutflowCreateForm
+    model_form = forms.CoolingOutflowForm
 
 
-@register_model_view(CoolingOutlet, 'edit')
-class CoolingOutletEditView(generic.ObjectEditView):
-    queryset = CoolingOutlet.objects.all()
-    form = forms.CoolingOutletForm
+@register_model_view(CoolingOutflow, 'edit')
+class CoolingOutflowEditView(generic.ObjectEditView):
+    queryset = CoolingOutflow.objects.all()
+    form = forms.CoolingOutflowForm
 
 
-@register_model_view(CoolingOutlet, 'delete')
-class CoolingOutletDeleteView(generic.ObjectDeleteView):
-    queryset = CoolingOutlet.objects.all()
+@register_model_view(CoolingOutflow, 'delete')
+class CoolingOutflowDeleteView(generic.ObjectDeleteView):
+    queryset = CoolingOutflow.objects.all()
 
 
-@register_model_view(CoolingOutlet, 'bulk_import', path='import', detail=False)
-class CoolingOutletBulkImportView(generic.BulkImportView):
-    queryset = CoolingOutlet.objects.all()
-    model_form = forms.CoolingOutletImportForm
+@register_model_view(CoolingOutflow, 'bulk_import', path='import', detail=False)
+class CoolingOutflowBulkImportView(generic.BulkImportView):
+    queryset = CoolingOutflow.objects.all()
+    model_form = forms.CoolingOutflowImportForm
 
 
-@register_model_view(CoolingOutlet, 'bulk_edit', path='edit', detail=False)
-class CoolingOutletBulkEditView(generic.BulkEditView):
-    queryset = CoolingOutlet.objects.all()
-    filterset = filtersets.CoolingOutletFilterSet
-    table = tables.CoolingOutletTable
-    form = forms.CoolingOutletBulkEditForm
+@register_model_view(CoolingOutflow, 'bulk_edit', path='edit', detail=False)
+class CoolingOutflowBulkEditView(generic.BulkEditView):
+    queryset = CoolingOutflow.objects.all()
+    filterset = filtersets.CoolingOutflowFilterSet
+    table = tables.CoolingOutflowTable
+    form = forms.CoolingOutflowBulkEditForm
 
 
-@register_model_view(CoolingOutlet, 'bulk_rename', path='rename', detail=False)
-class CoolingOutletBulkRenameView(generic.BulkRenameView):
-    queryset = CoolingOutlet.objects.all()
-    filterset = filtersets.CoolingOutletFilterSet
+@register_model_view(CoolingOutflow, 'bulk_rename', path='rename', detail=False)
+class CoolingOutflowBulkRenameView(generic.BulkRenameView):
+    queryset = CoolingOutflow.objects.all()
+    filterset = filtersets.CoolingOutflowFilterSet
     rename_fields = ('name', 'label')
 
 
-@register_model_view(CoolingOutlet, 'bulk_delete', path='delete', detail=False)
-class CoolingOutletBulkDeleteView(generic.BulkDeleteView):
-    queryset = CoolingOutlet.objects.all()
-    filterset = filtersets.CoolingOutletFilterSet
-    table = tables.CoolingOutletTable
+@register_model_view(CoolingOutflow, 'bulk_delete', path='delete', detail=False)
+class CoolingOutflowBulkDeleteView(generic.BulkDeleteView):
+    queryset = CoolingOutflow.objects.all()
+    filterset = filtersets.CoolingOutflowFilterSet
+    table = tables.CoolingOutflowTable
 
 
 #
@@ -4807,23 +4807,23 @@ class DeviceBulkAddPowerOutletView(generic.BulkComponentCreateView):
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddCoolingPortView(generic.BulkComponentCreateView):
+class DeviceBulkAddCoolingIntakeView(generic.BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
-    form = forms.CoolingPortBulkCreateForm
-    queryset = CoolingPort.objects.all()
-    model_form = forms.CoolingPortForm
+    form = forms.CoolingIntakeBulkCreateForm
+    queryset = CoolingIntake.objects.all()
+    model_form = forms.CoolingIntakeForm
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'
 
 
-class DeviceBulkAddCoolingOutletView(generic.BulkComponentCreateView):
+class DeviceBulkAddCoolingOutflowView(generic.BulkComponentCreateView):
     parent_model = Device
     parent_field = 'device'
-    form = forms.CoolingOutletBulkCreateForm
-    queryset = CoolingOutlet.objects.all()
-    model_form = forms.CoolingOutletForm
+    form = forms.CoolingOutflowBulkCreateForm
+    queryset = CoolingOutflow.objects.all()
+    model_form = forms.CoolingOutflowForm
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
     default_return_url = 'dcim:device_list'

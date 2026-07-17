@@ -42,10 +42,10 @@ __all__ = (
     'ConsoleServerPortBulkEditForm',
     'ConsoleServerPortTemplateBulkEditForm',
     'CoolingFeedBulkEditForm',
-    'CoolingOutletBulkEditForm',
-    'CoolingOutletTemplateBulkEditForm',
-    'CoolingPortBulkEditForm',
-    'CoolingPortTemplateBulkEditForm',
+    'CoolingIntakeBulkEditForm',
+    'CoolingIntakeTemplateBulkEditForm',
+    'CoolingOutflowBulkEditForm',
+    'CoolingOutflowTemplateBulkEditForm',
     'CoolingSourceBulkEditForm',
     'DeviceBayBulkEditForm',
     'DeviceBayTemplateBulkEditForm',
@@ -1139,37 +1139,25 @@ class CoolingSourceBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
+    fluid_type = forms.ChoiceField(
+        label=_('Fluid type'),
+        choices=add_blank_choice(FluidTypeChoices),
+        required=False,
+        initial=''
+    )
     cooling_capacity = forms.DecimalField(
         label=_('Cooling capacity'),
         min_value=0,
         required=False
     )
-    supply_temperature = forms.DecimalField(
-        label=_('Supply temperature'),
-        required=False
-    )
-    return_temperature = forms.DecimalField(
-        label=_('Return temperature'),
-        required=False
-    )
-    temperature_unit = forms.ChoiceField(
-        label=_('Temperature unit'),
-        choices=add_blank_choice(TemperatureUnitChoices),
-        required=False,
-        initial=''
-    )
 
     model = CoolingSource
     fieldsets = (
         FieldSet('region', 'site_group', 'site', 'location', 'type', 'status', 'description'),
-        FieldSet(
-            'cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
-            name=_('Characteristics')
-        ),
+        FieldSet('fluid_type', 'cooling_capacity', name=_('Characteristics')),
     )
     nullable_fields = (
-        'location', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
-        'description', 'comments',
+        'location', 'fluid_type', 'cooling_capacity', 'description', 'comments',
     )
 
 
@@ -1196,12 +1184,6 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
-    fluid_type = forms.ChoiceField(
-        label=_('Fluid type'),
-        choices=add_blank_choice(FluidTypeChoices),
-        required=False,
-        initial=''
-    )
     cooling_capacity = forms.DecimalField(
         label=_('Cooling capacity'),
         min_value=0,
@@ -1218,20 +1200,6 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
-    supply_temperature = forms.DecimalField(
-        label=_('Supply temperature'),
-        required=False
-    )
-    return_temperature = forms.DecimalField(
-        label=_('Return temperature'),
-        required=False
-    )
-    temperature_unit = forms.ChoiceField(
-        label=_('Temperature unit'),
-        choices=add_blank_choice(TemperatureUnitChoices),
-        required=False,
-        initial=''
-    )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
         required=False
@@ -1239,16 +1207,15 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
 
     model = CoolingFeed
     fieldsets = (
-        FieldSet('cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'description', 'tenant'),
+        FieldSet('cooling_source', 'rack', 'status', 'flow_direction', 'description', 'tenant'),
         FieldSet(
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
-            'return_temperature', 'temperature_unit',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
             name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'rack', 'fluid_type', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
-        'supply_temperature', 'return_temperature', 'temperature_unit', 'tenant', 'description', 'comments',
+        'rack', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
+        'tenant', 'description', 'comments',
     )
 
 
@@ -1392,9 +1359,9 @@ class PowerOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class CoolingPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
+class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=CoolingPortTemplate.objects.all(),
+        queryset=CoolingIntakeTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     label = forms.CharField(
@@ -1455,9 +1422,9 @@ class CoolingPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
 
 
-class CoolingOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
+class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        queryset=CoolingOutletTemplate.objects.all(),
+        queryset=CoolingOutflowTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     device_type = forms.ModelChoiceField(
@@ -1491,13 +1458,9 @@ class CoolingOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         choices=add_blank_choice(DiameterUnitChoices),
         required=False
     )
-    color = ColorField(
-        label=_('Color'),
-        required=False
-    )
-    cooling_port = forms.ModelChoiceField(
+    cooling_intake = forms.ModelChoiceField(
         label=_('Cooling port'),
-        queryset=CoolingPortTemplate.objects.all(),
+        queryset=CoolingIntakeTemplate.objects.all(),
         required=False
     )
     description = forms.CharField(
@@ -1509,23 +1472,23 @@ class CoolingOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         FieldSet(
             'label', 'flow_direction', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            'color', 'cooling_port', 'description',
+            'cooling_intake', 'description',
         ),
     )
     nullable_fields = (
-        'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_port', 'description',
+        'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit cooling_port queryset to CoolingPortTemplates which belong to the parent DeviceType
+        # Limit cooling_intake queryset to CoolingIntakeTemplates which belong to the parent DeviceType
         if 'device_type' in self.initial:
             device_type = DeviceType.objects.filter(pk=self.initial['device_type']).first()
-            self.fields['cooling_port'].queryset = CoolingPortTemplate.objects.filter(device_type=device_type)
+            self.fields['cooling_intake'].queryset = CoolingIntakeTemplate.objects.filter(device_type=device_type)
         else:
-            self.fields['cooling_port'].choices = ()
-            self.fields['cooling_port'].widget.attrs['disabled'] = True
+            self.fields['cooling_intake'].choices = ()
+            self.fields['cooling_intake'].widget.attrs['disabled'] = True
 
 
 class InterfaceTemplateBulkEditForm(ComponentTemplateBulkEditForm):
@@ -1834,9 +1797,9 @@ class PowerOutletBulkEditForm(
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class CoolingPortBulkEditForm(
+class CoolingIntakeBulkEditForm(
     ComponentBulkEditForm,
-    form_from_model(CoolingPort, [
+    form_from_model(CoolingIntake, [
         'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
         'heat_capacity', 'description'
     ])
@@ -1846,9 +1809,9 @@ class CoolingPortBulkEditForm(
         choices=add_blank_choice(FlowRateUnitChoices),
         required=False
     )
-    cooling_outlet = DynamicModelChoiceField(
+    cooling_outflow = DynamicModelChoiceField(
         label=_('Cooling outlet'),
-        queryset=CoolingOutlet.objects.all(),
+        queryset=CoolingOutflow.objects.all(),
         required=False
     )
     cooling_feed = DynamicModelChoiceField(
@@ -1857,12 +1820,12 @@ class CoolingPortBulkEditForm(
         required=False
     )
 
-    model = CoolingPort
+    model = CoolingIntake
     fieldsets = (
         FieldSet(
             'module', 'flow_direction', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            'label', 'cooling_outlet', 'cooling_feed', 'description',
+            'label', 'cooling_outflow', 'cooling_feed', 'description',
         ),
         FieldSet(
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
@@ -1871,42 +1834,42 @@ class CoolingPortBulkEditForm(
     )
     nullable_fields = (
         'module', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'cooling_outlet', 'cooling_feed', 'description',
+        'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description',
     )
 
 
-class CoolingOutletBulkEditForm(
+class CoolingOutflowBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(
-        CoolingOutlet,
+        CoolingOutflow,
         [
-            'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color', 'cooling_port',
+            'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake',
             'description'
         ]
     )
 ):
-    model = CoolingOutlet
+    model = CoolingOutflow
     fieldsets = (
         FieldSet(
             'module', 'flow_direction', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            'label', 'description', 'color', 'cooling_port',
+            'label', 'description', 'cooling_intake',
         ),
     )
     nullable_fields = (
-        'module', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_port', 'description',
+        'module', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit cooling_port queryset to CoolingPorts which belong to the parent Device
+        # Limit cooling_intake queryset to CoolingIntakes which belong to the parent Device
         if self.device_id:
             device = Device.objects.filter(pk=self.device_id).first()
-            self.fields['cooling_port'].queryset = CoolingPort.objects.filter(device=device)
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.filter(device=device)
         else:
-            self.fields['cooling_port'].choices = ()
-            self.fields['cooling_port'].widget.attrs['disabled'] = True
+            self.fields['cooling_intake'].choices = ()
+            self.fields['cooling_intake'].widget.attrs['disabled'] = True
 
 
 class InterfaceBulkEditForm(

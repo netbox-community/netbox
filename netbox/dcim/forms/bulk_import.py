@@ -40,8 +40,8 @@ __all__ = (
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
     'CoolingFeedImportForm',
-    'CoolingOutletImportForm',
-    'CoolingPortImportForm',
+    'CoolingIntakeImportForm',
+    'CoolingOutflowImportForm',
     'CoolingSourceImportForm',
     'DeviceBayImportForm',
     'DeviceImportForm',
@@ -993,7 +993,7 @@ class PowerOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             self.fields['power_port'].queryset = PowerPort.objects.none()
 
 
-class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1022,9 +1022,9 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for maximum flow')
     )
-    cooling_outlet = CSVModelChoiceField(
+    cooling_outflow = CSVModelChoiceField(
         label=_('Cooling outlet'),
-        queryset=CoolingOutlet.objects.all(),
+        queryset=CoolingOutflow.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Local cooling outlet which feeds this port')
@@ -1038,16 +1038,16 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     )
 
     class Meta:
-        model = CoolingPort
+        model = CoolingIntake
         fields = (
             'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'cooling_outlet', 'cooling_feed', 'description', 'owner', 'tags',
+            'maximum_flow_unit', 'heat_capacity', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit CoolingOutlet choices to those belonging to this device (or VC master)
+        # Limit CoolingOutflow choices to those belonging to this device (or VC master)
         if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
@@ -1060,14 +1060,14 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
                 device = None
 
         if device:
-            self.fields['cooling_outlet'].queryset = CoolingOutlet.objects.filter(
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(
                 device__in=[device, device.get_vc_master()]
             )
         else:
-            self.fields['cooling_outlet'].queryset = CoolingOutlet.objects.none()
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.none()
 
 
-class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1091,25 +1091,25 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Diameter unit')
     )
-    cooling_port = CSVModelChoiceField(
+    cooling_intake = CSVModelChoiceField(
         label=_('Cooling port'),
-        queryset=CoolingPort.objects.all(),
+        queryset=CoolingIntake.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Local cooling port which feeds this outlet')
     )
 
     class Meta:
-        model = CoolingOutlet
+        model = CoolingOutflow
         fields = (
-            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color',
-            'cooling_port', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit CoolingPort choices to those belonging to this device (or VC master)
+        # Limit CoolingIntake choices to those belonging to this device (or VC master)
         if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
@@ -1122,11 +1122,11 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
                 device = None
 
         if device:
-            self.fields['cooling_port'].queryset = CoolingPort.objects.filter(
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.filter(
                 device__in=[device, device.get_vc_master()]
             )
         else:
-            self.fields['cooling_port'].queryset = CoolingPort.objects.none()
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.none()
 
 
 class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -2126,18 +2126,18 @@ class CoolingSourceImportForm(PrimaryModelImportForm):
         choices=CoolingSourceStatusChoices,
         help_text=_('Operational status')
     )
-    temperature_unit = CSVChoiceField(
-        label=_('Temperature unit'),
-        choices=TemperatureUnitChoices,
+    fluid_type = CSVChoiceField(
+        label=_('Fluid type'),
+        choices=FluidTypeChoices,
         required=False,
-        help_text=_('Unit for supply/return temperatures')
+        help_text=_('Coolant fluid type')
     )
 
     class Meta:
         model = CoolingSource
         fields = (
-            'site', 'location', 'name', 'type', 'status', 'cooling_capacity', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'description', 'owner', 'comments', 'tags',
+            'site', 'location', 'name', 'type', 'status', 'fluid_type', 'cooling_capacity', 'description', 'owner',
+            'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -2193,31 +2193,19 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         choices=CoolingFlowDirectionChoices,
         help_text=_('Supply or return')
     )
-    fluid_type = CSVChoiceField(
-        label=_('Fluid type'),
-        choices=FluidTypeChoices,
-        required=False,
-        help_text=_('Coolant fluid type')
-    )
     rated_flow_rate_unit = CSVChoiceField(
         label=_('Rated flow rate unit'),
         choices=FlowRateUnitChoices,
         required=False,
         help_text=_('Unit for rated flow rate')
     )
-    temperature_unit = CSVChoiceField(
-        label=_('Temperature unit'),
-        choices=TemperatureUnitChoices,
-        required=False,
-        help_text=_('Unit for supply/return temperatures')
-    )
 
     class Meta:
         model = CoolingFeed
         fields = (
-            'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'flow_direction', 'fluid_type',
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'tenant', 'description', 'owner', 'comments', 'tags',
+            'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'flow_direction',
+            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'description', 'owner',
+            'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
