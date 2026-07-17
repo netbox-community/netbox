@@ -42,7 +42,9 @@ class ServiceBase(models.Model):
     def clean(self):
         super().clean()
         self._apply_bulk_port_mapping_modifiers()
-        validate_port_mappings(self.port_mappings)
+        # validate_port_mappings returns the canonical form (integer ports), so storing its result
+        # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080').
+        self.port_mappings = validate_port_mappings(self.port_mappings)
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
 
@@ -80,7 +82,9 @@ class ServiceBase(models.Model):
         # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
         # numerically within each protocol so the display is stable regardless of stored order.
         return ', '.join(
-            f'{protocol.upper()}/{",".join(sorted(ports, key=int))}'
+            # Guard the numeric sort so a malformed entry that bypassed validation (e.g. a raw SQL
+            # insert) degrades gracefully instead of raising ValueError when the service is rendered.
+            f'{protocol.upper()}/{",".join(sorted(ports, key=lambda p: int(p) if p.isdigit() else 0))}'
             for protocol, ports in group_port_mappings(self.port_mappings).items()
         )
 

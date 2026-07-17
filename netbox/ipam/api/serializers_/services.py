@@ -27,7 +27,7 @@ class PortMappingsValidationMixin:
         # validator is also used by the create-from-template form field, which is legitimately empty
         # until clean() copies the template's mappings.
         try:
-            validate_port_mappings(value)
+            value = validate_port_mappings(value)
         except DjangoValidationError as exc:
             raise serializers.ValidationError(exc.messages)
         if not value:

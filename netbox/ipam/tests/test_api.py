@@ -1466,6 +1466,15 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_normalizes_port_mappings(self):
+        """A leading-zero port is normalized on store, so it stays matchable by the port filter."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'LeadingZero', 'port_mappings': ['tcp/080']}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='LeadingZero')
+        self.assertEqual(template.port_mappings, ['tcp/80'])
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service

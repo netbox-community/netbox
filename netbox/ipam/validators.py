@@ -31,8 +31,11 @@ def validate_port_mappings(mappings):
     Ensures each entry is well-formed, uses a known protocol, falls within the permitted port range,
     and is not duplicated. Raises a ``ValidationError`` describing the first problem found.
 
-    Shared by the model (``ServiceBase.clean()``), the model form field (``PortMappingField``), and the
-    REST API serializers so all paths enforce identical rules.
+    Returns the list in a canonical, normalized form (integer ports, so ``'tcp/080'`` becomes
+    ``'tcp/80'``); callers should persist the returned value so every entry path stores identical
+    strings and remains matchable by the port filters. Shared by the model (``ServiceBase.clean()``),
+    the model form field (``PortMappingField``), the CSV import form, and the REST API serializers so
+    all paths enforce identical rules.
     """
     # Imported lazily to avoid a circular import during settings load (this module is imported by
     # ipam.models, and ipam.constants pulls in ipam.choices, which reads settings.FIELD_CHOICES).
@@ -41,6 +44,7 @@ def validate_port_mappings(mappings):
 
     valid_protocols = ServiceProtocolChoices.values()
     seen = set()
+    normalized_mappings = []
     for mapping in mappings:
         protocol, port = split_port_mapping(mapping)
         if not port:
@@ -61,11 +65,15 @@ def validate_port_mappings(mappings):
                     port=port_number, min=SERVICE_PORT_MIN, max=SERVICE_PORT_MAX
                 )
             )
-        # Compare on the normalized protocol/port so e.g. tcp/80 and tcp/080 count as duplicates
+        # Normalize the port to an integer so e.g. tcp/80 and tcp/080 count as duplicates and are
+        # stored identically (leaving the raw string would make tcp/080 invisible to the port filter).
         normalized = f'{protocol}/{port_number}'
         if normalized in seen:
             raise ValidationError(_("Duplicate port mapping: {mapping}").format(mapping=mapping))
         seen.add(normalized)
+        normalized_mappings.append(normalized)
+
+    return normalized_mappings
 
 
 def prefix_validator(prefix):

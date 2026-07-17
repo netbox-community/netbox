@@ -621,9 +621,10 @@ class ServicePortMappingsImportMixin(forms.Form):
             ports = parse_numeric_range(ports_str.strip(), min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
             for port in ports:
                 mappings.append(f'{protocol}/{port}')
-        # Validate protocol/range/duplicates consistently with the model and UI form
+        # Validate protocol/range/duplicates consistently with the model and UI form, storing the
+        # normalized (canonical) list it returns
         try:
-            validate_port_mappings(mappings)
+            mappings = validate_port_mappings(mappings)
         except DjangoValidationError as exc:
             raise forms.ValidationError(exc.messages)
         return mappings

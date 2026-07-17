@@ -113,10 +113,8 @@ class PortMappingField(forms.Field):
                 if not ports:
                     mappings.append(f'{protocol}/')
 
-        # Shared validation: well-formed entries, valid protocol, ports in range, no duplicates
-        validate_port_mappings(mappings)
-
-        return mappings
+        # Shared validation returns the canonical (normalized) list of protocol/port strings
+        return validate_port_mappings(mappings)
 
     def validate(self, value):
         if self.required and not value:

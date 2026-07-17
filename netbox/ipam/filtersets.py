@@ -1297,6 +1297,10 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         return self._filter_port_mappings(queryset)
 
     def filter_port(self, queryset, name, value):
+        # When protocol is also supplied, filter_protocol applies the combined protocol+port filter;
+        # skip here so the queryset isn't filtered (and annotated) a second time.
+        if self.form.cleaned_data.get('protocol'):
+            return queryset
         return self._filter_port_mappings(queryset)
 
 
@@ -1374,6 +1378,10 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         return self._filter_port_mappings(queryset)
 
     def filter_port(self, queryset, name, value):
+        # When protocol is also supplied, filter_protocol applies the combined protocol+port filter;
+        # skip here so the queryset isn't filtered (and annotated) a second time.
+        if self.form.cleaned_data.get('protocol'):
+            return queryset
         return self._filter_port_mappings(queryset)
 
     def filter_device(self, queryset, name, value):
