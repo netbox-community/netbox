@@ -12,14 +12,9 @@ from utilities.testing import create_test_device
 from wireless.models import WirelessLAN, WirelessLink
 
 
-class WirelessLANCachedScopeTestCase(TestCase):
-    """
-    Regression test for #22682 (see ipam.tests.test_models.PrefixCachedScopeTestCase for
-    the full explanation): CachedScopeMixin's cached _region/_site_group fields must not
-    cascade-delete a WirelessLAN scoped to a Site when that Site's parent Region/SiteGroup
-    is deleted.
-    """
+class WirelessLANTestCase(TestCase):
 
+    # Regression test for #22682
     def test_deleting_site_group_does_not_delete_wirelesslan_scoped_to_member_site(self):
         sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
         site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
@@ -33,6 +28,7 @@ class WirelessLANCachedScopeTestCase(TestCase):
         self.assertEqual(wlan.scope, site)
         self.assertIsNone(wlan._site_group_id)
 
+    # Regression test for #22682
     def test_deleting_region_does_not_delete_wirelesslan_scoped_to_member_site(self):
         region = Region.objects.create(name='Region 1', slug='region-1')
         site = Site.objects.create(name='Site 2', slug='site-2', region=region)
@@ -47,13 +43,6 @@ class WirelessLANCachedScopeTestCase(TestCase):
         self.assertIsNone(wlan._region_id)
 
     def test_deleting_site_group_scoped_to_it_directly_still_deletes_wirelesslan(self):
-        """
-        Sanity check: a WirelessLAN scoped directly to a SiteGroup must still be removed
-        when that SiteGroup is deleted. This cascade is driven by SiteGroup's own
-        GenericRelation to WirelessLAN (see dcim/models/sites.py), independent of
-        _site_group's on_delete setting, so it must be unaffected by the fix for the bug
-        above.
-        """
         sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
         wlan = WirelessLAN.objects.create(ssid='WLAN 3', scope=sitegroup)
 

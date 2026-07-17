@@ -9,18 +9,13 @@ from utilities.testing import create_test_device
 from virtualization.models import *
 
 
-class ClusterCachedScopeTestCase(TestCase):
-    """
-    Regression test for #22682 (see ipam.tests.test_models.PrefixCachedScopeTestCase for
-    the full explanation): CachedScopeMixin's cached _region/_site_group fields must not
-    cascade-delete a Cluster scoped to a Site when that Site's parent Region/SiteGroup is
-    deleted.
-    """
+class ClusterTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         cls.cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
+    # Regression test for #22682
     def test_deleting_site_group_does_not_delete_cluster_scoped_to_member_site(self):
         sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
         site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
@@ -34,6 +29,7 @@ class ClusterCachedScopeTestCase(TestCase):
         self.assertEqual(cluster.scope, site)
         self.assertIsNone(cluster._site_group_id)
 
+    # Regression test for #22682
     def test_deleting_region_does_not_delete_cluster_scoped_to_member_site(self):
         region = Region.objects.create(name='Region 1', slug='region-1')
         site = Site.objects.create(name='Site 2', slug='site-2', region=region)
@@ -48,12 +44,6 @@ class ClusterCachedScopeTestCase(TestCase):
         self.assertEqual(cluster.scope, site)
 
     def test_deleting_site_group_scoped_to_it_directly_still_deletes_cluster(self):
-        """
-        Sanity check: a Cluster scoped directly to a SiteGroup must still be removed when
-        that SiteGroup is deleted. This cascade is driven by SiteGroup's own GenericRelation
-        to Cluster (see dcim/models/sites.py), independent of _site_group's on_delete
-        setting, so it must be unaffected by the fix for the bug above.
-        """
         sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
         cluster = Cluster.objects.create(name='Cluster 3', type=self.cluster_type, scope=sitegroup)
 
