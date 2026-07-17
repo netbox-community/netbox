@@ -2,6 +2,7 @@
 
 import django.contrib.postgres.fields
 import django.contrib.postgres.indexes
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import migrations, models
 
 
@@ -31,6 +32,47 @@ def populate_port_mappings(apps, schema_editor):
             model.objects.bulk_update(batch, ['port_mappings'])
 
 
+def restore_legacy_fields(apps, schema_editor):
+    """
+    Reverse of ``populate_port_mappings``: rebuild the legacy protocol/ports/_ports_lowest columns from
+    ``port_mappings`` so the migration can be rolled back on a populated database.
+
+    The legacy schema stores a *single* protocol per service, whereas ``port_mappings`` can hold several.
+    A service that predates the upgrade only ever has one protocol, so this reconstruction is lossless
+    for it. A service that used the new multi-protocol capability keeps only the **first** mapping's
+    protocol (and every port belonging to it) on rollback; mappings for any other protocol cannot be
+    represented by the old schema and are dropped. This is the expected, documented cost of downgrading.
+
+    Runs before the AlterField operations restore NOT NULL on protocol/ports (see the operation order
+    below), so every row is populated before the constraints are re-applied. Records with an empty
+    ``port_mappings`` become protocol='' / ports=[] (an empty array is still non-NULL).
+    """
+    for model_name in ('Service', 'ServiceTemplate'):
+        model = apps.get_model('ipam', model_name)
+        batch = []
+        for obj in model.objects.iterator(chunk_size=1000):
+            protocol = ''
+            ports = []
+            for entry in obj.port_mappings:
+                entry_protocol, _, entry_port = entry.partition('/')
+                if not protocol:
+                    protocol = entry_protocol
+                # Keep only the first protocol's ports; the legacy schema can't hold more than one.
+                if entry_protocol == protocol and entry_port.isdigit():
+                    port = int(entry_port)
+                    if port not in ports:
+                        ports.append(port)
+            obj.protocol = protocol
+            obj.ports = ports
+            obj._ports_lowest = min(ports) if ports else None
+            batch.append(obj)
+            if len(batch) >= 1000:
+                model.objects.bulk_update(batch, ['protocol', 'ports', '_ports_lowest'])
+                batch = []
+        if batch:
+            model.objects.bulk_update(batch, ['protocol', 'ports', '_ports_lowest'])
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -56,10 +98,48 @@ class Migration(migrations.Migration):
                 base_field=models.CharField(max_length=63), blank=True, default=list
             ),
         ),
-        # Migrate existing protocol/ports data into port_mappings before dropping the old fields. This
-        # migration is effectively forward-only: reversing it re-adds the non-nullable protocol/ports
-        # columns with no default, which fails on a populated table (the RunPython reverse is a no-op).
-        migrations.RunPython(populate_port_mappings, migrations.RunPython.noop),
+        # Relax NOT NULL on the legacy protocol/ports columns before migrating the data. This makes the
+        # migration reversible on a populated database: on reverse, the RemoveField operations below
+        # re-add these columns as nullable (so ADD COLUMN succeeds without a default), restore_legacy_fields
+        # then backfills them from port_mappings, and finally these AlterField operations restore NOT NULL
+        # (running last on reverse, once every row has a value). Placed before the RunPython so their
+        # reverse executes after the data backfill.
+        migrations.AlterField(
+            model_name="service",
+            name="protocol",
+            field=models.CharField(max_length=50, null=True),
+        ),
+        migrations.AlterField(
+            model_name="service",
+            name="ports",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveIntegerField(
+                    validators=[MinValueValidator(1), MaxValueValidator(65535)]
+                ),
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AlterField(
+            model_name="servicetemplate",
+            name="protocol",
+            field=models.CharField(max_length=50, null=True),
+        ),
+        migrations.AlterField(
+            model_name="servicetemplate",
+            name="ports",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveIntegerField(
+                    validators=[MinValueValidator(1), MaxValueValidator(65535)]
+                ),
+                null=True,
+                size=None,
+            ),
+        ),
+        # Migrate existing protocol/ports data into port_mappings before dropping the old fields. The
+        # reverse (restore_legacy_fields) reconstructs the legacy columns from port_mappings, keeping only
+        # the first protocol's ports (the legacy schema holds a single protocol) — see its docstring.
+        migrations.RunPython(populate_port_mappings, restore_legacy_fields),
         migrations.AlterModelOptions(
             name="service",
             options={"ordering": ("name", "id")},
