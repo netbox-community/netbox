@@ -143,7 +143,10 @@ class ModuleCommonForm(forms.Form):
             self.instance._disable_replication = True
             return
 
-        positions = get_module_bay_positions(module_bay)
+        try:
+            positions = get_module_bay_positions(module_bay)
+        except ValueError as e:
+            raise forms.ValidationError(str(e))
 
         for templates, component_attribute in [
                 ("consoleporttemplates", "consoleports"),

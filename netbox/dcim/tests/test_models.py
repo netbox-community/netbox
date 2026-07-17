@@ -1014,9 +1014,10 @@ class ModuleBayTestCase(TestCase):
             module_bay_1.clean()
             module_bay_1.save()
 
-        # Confirm error if Module recurses
-        with self.assertRaises(ValidationError):
-            module_1.module_bay = module_bay_3
+        # Confirm error if Module recurses (empty target bay, so the occupied-bay check cannot mask it)
+        module_bay_4 = ModuleBay.objects.create(device=module_1.device, name='Module Bay 4', module=module_3)
+        with self.assertRaisesMessage(ValidationError, 'cannot belong to a module installed within it'):
+            module_1.module_bay = module_bay_4
             module_1.clean()
             module_1.save()
 

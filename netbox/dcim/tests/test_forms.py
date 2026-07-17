@@ -16,6 +16,7 @@ from dcim.choices import (
 )
 from dcim.forms import *
 from dcim.models import *
+from dcim.tests.test_module_moves import fail_after
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
 from utilities.forms.rendering import M2MAddRemoveFields
@@ -226,6 +227,102 @@ class ModuleTypeFormTestCase(TestCase):
 
             module_type = form.save()
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
+
+
+class ModuleFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Module Form Device A')
+        cls.device_b = create_test_device('Module Form Device B')
+        cls.bay_a = ModuleBay.objects.create(device=cls.device, name='Bay A')
+        cls.bay_b = ModuleBay.objects.create(device=cls.device, name='Bay B')
+        cls.bay_c = ModuleBay.objects.create(device=cls.device_b, name='Bay C')
+        manufacturer = Manufacturer.objects.create(
+            name='Module Form Manufacturer', slug='module-form-manufacturer'
+        )
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Form Type')
+        cls.module = Module.objects.create(
+            device=cls.device, module_bay=cls.bay_a, module_type=cls.module_type
+        )
+
+    def test_module_device_is_editable_on_edit(self):
+        form = ModuleForm(instance=self.module)
+        self.assertFalse(form.fields['device'].disabled)
+        self.assertTrue(form.fields['replicate_components'].disabled)
+        self.assertTrue(form.fields['adopt_components'].disabled)
+
+    def test_module_form_moves_module_to_empty_bay(self):
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.module_bay, self.bay_b)
+
+    def test_module_form_rejects_occupied_bay(self):
+        Module.objects.create(device=self.device, module_bay=self.bay_b, module_type=self.module_type)
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay', form.errors)
+
+    def test_module_form_moves_module_to_different_device(self):
+        interface = Interface.objects.create(
+            device=self.device, module=self.module, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleForm(
+            data={
+                'device': self.device_b.pk,
+                'module_bay': self.bay_c.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.device, self.device_b)
+        self.assertEqual(self.module.module_bay, self.bay_c)
+        interface.refresh_from_db()
+        self.assertEqual(interface.device, self.device_b)
+
+    def test_module_create_into_cyclic_hierarchy_is_rejected(self):
+        # CREATE into a cyclic hierarchy (bypassing clean() via .update()) must be a form error.
+        other_module = Module.objects.create(
+            device=self.device, module_bay=self.bay_b, module_type=self.module_type
+        )
+        child_bay_1 = ModuleBay.objects.create(device=self.device, module=self.module, name='Child Bay 1')
+        child_bay_2 = ModuleBay.objects.create(device=self.device, module=other_module, name='Child Bay 2')
+        Module.objects.filter(pk=self.module.pk).update(module_bay=child_bay_2)
+        Module.objects.filter(pk=other_module.pk).update(module_bay=child_bay_1)
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': child_bay_1.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+            },
+        )
+        with fail_after(15):
+            self.assertFalse(form.is_valid())
+        self.assertIn('contains a cycle', str(form.errors))
 
 
 class VCPositionTokenFormTestCase(TestCase):
