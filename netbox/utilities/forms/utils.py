@@ -45,10 +45,6 @@ def parse_numeric_range(string, base=10, min_value=None, max_value=None):
             begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         except ValueError:
             raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
-        # A reversed range (e.g. "9000-53") would expand to an empty list and be silently dropped;
-        # reject it so the caller sees an error instead of losing the entry.
-        if begin >= end:
-            raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
         # Enforce bounds before expanding to avoid materializing an unbounded range
         if (min_value is not None and begin < min_value) or (max_value is not None and end - 1 > max_value):
             raise forms.ValidationError(

@@ -625,6 +625,10 @@ class ServicePortMappingsImportMixin(forms.Form):
                 mappings.append(f'{protocol}/')
                 continue
             ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+            # A non-empty ports value that expands to nothing means a reversed range (e.g. "9000-53");
+            # reject it rather than silently dropping the token's mappings.
+            if not ports:
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=ports_str))
             for port in ports:
                 mappings.append(f'{protocol}/{port}')
         # Validate protocol/range/duplicates consistently with the model and UI form, storing the

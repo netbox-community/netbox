@@ -116,6 +116,10 @@ class PortMappingField(forms.Field):
                     parse_numeric_range(raw_ports, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
                     if isinstance(raw_ports, str) else (raw_ports or [])
                 )
+                # A non-empty ports string that expands to nothing means a reversed range (e.g.
+                # "9000-53"); reject it rather than silently dropping the mapping.
+                if not ports:
+                    raise ValidationError(_('Range "{value}" is invalid.').format(value=raw_ports))
                 mappings.extend(f'{protocol}/{port}' for port in ports)
 
         # Shared validation returns the canonical (normalized) list of protocol/port strings
