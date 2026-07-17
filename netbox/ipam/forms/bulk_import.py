@@ -618,7 +618,13 @@ class ServicePortMappingsImportMixin(forms.Form):
                     _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
                 )
             protocol = protocol.strip().lower()
-            ports = parse_numeric_range(ports_str.strip(), min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+            ports_str = ports_str.strip()
+            # A token with no ports (e.g. "tcp:") becomes a bare 'protocol/' entry so the shared
+            # validator reports a clear error rather than parse_numeric_range raising on an empty range.
+            if not ports_str:
+                mappings.append(f'{protocol}/')
+                continue
+            ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
             for port in ports:
                 mappings.append(f'{protocol}/{port}')
         # Validate protocol/range/duplicates consistently with the model and UI form, storing the

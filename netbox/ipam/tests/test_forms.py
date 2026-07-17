@@ -6,7 +6,7 @@ from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
 from ipam.constants import SERVICE_PORT_MAX
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
-from ipam.forms.bulk_import import IPAddressImportForm
+from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
 from ipam.forms.port_mappings import PortMappingField
 
 
@@ -219,3 +219,40 @@ class PortMappingFieldTestCase(TestCase):
             field.clean('[{"protocol": "tcp", "ports": "1-9999999999"}]')
         with self.assertRaises(ValidationError):
             field.clean(f'[{{"protocol": "tcp", "ports": "1-{SERVICE_PORT_MAX + 1}"}}]')
+
+    def test_protocol_without_ports_reports_clear_error(self):
+        """A protocol chosen with no ports reports the 'protocol/port' error, not 'Range \"\" is invalid'."""
+        field = PortMappingField()
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean('[{"protocol": "tcp", "ports": ""}]')
+        self.assertTrue(any('tcp/' in msg for msg in ctx.exception.messages))
+
+    def test_reversed_range_rejected(self):
+        """A reversed range must raise rather than silently expanding to an empty (dropped) list."""
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "9000-53"}]')
+
+    def test_normalizes_leading_zero_ports(self):
+        """Leading-zero ports are normalized so they remain matchable by the port filter."""
+        field = PortMappingField()
+        self.assertEqual(field.clean('[{"protocol": "tcp", "ports": "080"}]'), ['tcp/80'])
+
+
+class ServiceTemplateImportFormTestCase(TestCase):
+
+    def test_valid_port_mappings_parsed_and_normalized(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:080,443;udp:53'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['port_mappings'], ['tcp/80', 'tcp/443', 'udp/53'])
+
+    def test_reversed_range_rejected(self):
+        """A reversed range must error rather than silently dropping the token's mappings."""
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80;udp:9000-53'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
+    def test_empty_ports_token_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)

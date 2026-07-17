@@ -101,17 +101,22 @@ class PortMappingField(forms.Field):
             for row in rows:
                 protocol = (row or {}).get('protocol')
                 raw_ports = (row or {}).get('ports')
+                if isinstance(raw_ports, str):
+                    raw_ports = raw_ports.strip()
                 # Ignore entirely-empty rows (e.g. the default blank row on an untouched form)
                 if not protocol and not raw_ports:
+                    continue
+                # A protocol chosen without any ports is preserved as a bare 'protocol/' token so the
+                # shared validator reports a clear "expected protocol/port" error (rather than
+                # parse_numeric_range raising a confusing 'Range "" is invalid').
+                if not raw_ports:
+                    mappings.append(f'{protocol}/')
                     continue
                 ports = (
                     parse_numeric_range(raw_ports, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
                     if isinstance(raw_ports, str) else (raw_ports or [])
                 )
                 mappings.extend(f'{protocol}/{port}' for port in ports)
-                # Preserve a protocol chosen without any ports so validation can report it
-                if not ports:
-                    mappings.append(f'{protocol}/')
 
         # Shared validation returns the canonical (normalized) list of protocol/port strings
         return validate_port_mappings(mappings)

@@ -1262,8 +1262,12 @@ def port_mapping_filter_qs(queryset, protocols, ports):
     return queryset, qs_filter
 
 
-@register_filterset
-class ServiceTemplateFilterSet(PrimaryModelFilterSet):
+class ServicePortMappingFilterMixin(django_filters.FilterSet):
+    """
+    Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate. Both operate on the
+    ``port_mappings`` array; when both are supplied they must match a single mapping (see
+    ``port_mapping_filter_qs``).
+    """
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
         method='filter_protocol',
@@ -1271,19 +1275,6 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
     port = MultiValueNumberFilter(
         method='filter_port',
     )
-
-    class Meta:
-        model = ServiceTemplate
-        fields = ('id', 'name', 'description')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        qs_filter = (
-            Q(name__icontains=value) |
-            Q(description__icontains=value)
-        )
-        return queryset.filter(qs_filter)
 
     def _filter_port_mappings(self, queryset):
         # Correlate the protocol and port filters so a combined query matches a single mapping rather
@@ -1305,7 +1296,24 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
-class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
+class ServiceTemplateFilterSet(ServicePortMappingFilterMixin, PrimaryModelFilterSet):
+
+    class Meta:
+        model = ServiceTemplate
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+@register_filterset
+class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
@@ -1348,13 +1356,6 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
-    protocol = django_filters.MultipleChoiceFilter(
-        choices=ServiceProtocolChoices,
-        method='filter_protocol',
-    )
-    port = MultiValueNumberFilter(
-        method='filter_port',
-    )
 
     class Meta:
         model = Service
@@ -1365,24 +1366,6 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
             return queryset
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
         return queryset.filter(qs_filter)
-
-    def _filter_port_mappings(self, queryset):
-        # Correlate the protocol and port filters so a combined query matches a single mapping rather
-        # than protocol and port independently across the whole array.
-        protocols = self.form.cleaned_data.get('protocol') or []
-        ports = self.form.cleaned_data.get('port') or []
-        queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
-        return queryset.filter(qs_filter)
-
-    def filter_protocol(self, queryset, name, value):
-        return self._filter_port_mappings(queryset)
-
-    def filter_port(self, queryset, name, value):
-        # When protocol is also supplied, filter_protocol applies the combined protocol+port filter;
-        # skip here so the queryset isn't filtered (and annotated) a second time.
-        if self.form.cleaned_data.get('protocol'):
-            return queryset
-        return self._filter_port_mappings(queryset)
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})
