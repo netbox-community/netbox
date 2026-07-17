@@ -4369,7 +4369,6 @@ class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
         )
         cooling_feed = CoolingFeed.objects.create(
             cooling_source=cooling_source, name='Cooling Feed 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
         )
 
         cooling_intakes = (
@@ -4542,27 +4541,13 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 
-        SUPPLY = CoolingFlowDirectionChoices.TYPE_SUPPLY
-        RETURN = CoolingFlowDirectionChoices.TYPE_RETURN
         cooling_feeds = (
-            CoolingFeed(
-                cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A', flow_direction=SUPPLY
-            ),
-            CoolingFeed(
-                cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B', flow_direction=RETURN
-            ),
-            CoolingFeed(
-                cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A', flow_direction=SUPPLY
-            ),
-            CoolingFeed(
-                cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B', flow_direction=RETURN
-            ),
-            CoolingFeed(
-                cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A', flow_direction=SUPPLY
-            ),
-            CoolingFeed(
-                cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B', flow_direction=RETURN
-            ),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B'),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B'),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B'),
         )
         CoolingFeed.objects.bulk_create(cooling_feeds)
 
@@ -4571,19 +4556,16 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Feed 4A',
                 'cooling_source': cooling_sources[0].pk,
                 'rack': racks[3].pk,
-                'flow_direction': SUPPLY,
             },
             {
                 'name': 'Cooling Feed 4B',
                 'cooling_source': cooling_sources[1].pk,
                 'rack': racks[3].pk,
-                'flow_direction': RETURN,
             },
             {
                 'name': 'Cooling Feed 4C',
                 'cooling_source': cooling_sources[0].pk,
                 'rack': racks[3].pk,
-                'flow_direction': SUPPLY,
             },
         ]
 

@@ -57,10 +57,6 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         allow_null=True,
         default=None
     )
-    flow_direction = ChoiceField(
-        choices=CoolingFlowDirectionChoices,
-        default=lambda: CoolingFlowDirectionChoices.TYPE_SUPPLY,
-    )
     status = ChoiceField(
         choices=CoolingFeedStatusChoices,
         default=lambda: CoolingFeedStatusChoices.STATUS_ACTIVE,
@@ -80,7 +76,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
     class Meta:
         model = CoolingFeed
         fields = [
-            'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'flow_direction',
+            'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status',
             'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'description', 'tenant',
             'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]

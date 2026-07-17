@@ -11,7 +11,6 @@ __all__ = (
     'ConsolePortTypeEnum',
     'CoolingConnectorTypeEnum',
     'CoolingFeedStatusEnum',
-    'CoolingFlowDirectionEnum',
     'CoolingMethodEnum',
     'CoolingSourceStatusEnum',
     'CoolingSourceTypeEnum',
@@ -60,7 +59,6 @@ ConsolePortSpeedEnum = strawberry.enum(ConsolePortSpeedChoices.as_enum(prefix='s
 ConsolePortTypeEnum = strawberry.enum(ConsolePortTypeChoices.as_enum(prefix='type'))
 CoolingConnectorTypeEnum = strawberry.enum(CoolingConnectorTypeChoices.as_enum(prefix='type'))
 CoolingFeedStatusEnum = strawberry.enum(CoolingFeedStatusChoices.as_enum(prefix='status'))
-CoolingFlowDirectionEnum = strawberry.enum(CoolingFlowDirectionChoices.as_enum(prefix='flow_direction'))
 CoolingMethodEnum = strawberry.enum(CoolingMethodChoices.as_enum(prefix='method'))
 CoolingSourceStatusEnum = strawberry.enum(CoolingSourceStatusChoices.as_enum(prefix='status'))
 CoolingSourceTypeEnum = strawberry.enum(CoolingSourceTypeChoices.as_enum(prefix='type'))

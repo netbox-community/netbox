@@ -94,7 +94,7 @@ class CoolingIntakeTemplateImportForm(forms.ModelForm):
 
 class CoolingOutflowTemplateImportForm(forms.ModelForm):
     cooling_intake = forms.ModelChoiceField(
-        label=_('Cooling port'),
+        label=_('Cooling intake'),
         queryset=CoolingIntakeTemplate.objects.all(),
         to_field_name='name',
         required=False

@@ -1178,12 +1178,6 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
-    flow_direction = forms.ChoiceField(
-        label=_('Flow direction'),
-        choices=add_blank_choice(CoolingFlowDirectionChoices),
-        required=False,
-        initial=''
-    )
     cooling_capacity = forms.DecimalField(
         label=_('Cooling capacity'),
         min_value=0,
@@ -1207,7 +1201,7 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
 
     model = CoolingFeed
     fieldsets = (
-        FieldSet('cooling_source', 'rack', 'status', 'flow_direction', 'description', 'tenant'),
+        FieldSet('cooling_source', 'rack', 'status', 'description', 'tenant'),
         FieldSet(
             'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
             name=_('Characteristics')
@@ -1444,7 +1438,7 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         required=False
     )
     cooling_intake = forms.ModelChoiceField(
-        label=_('Cooling port'),
+        label=_('Cooling intake'),
         queryset=CoolingIntakeTemplate.objects.all(),
         required=False
     )
@@ -1795,7 +1789,7 @@ class CoolingIntakeBulkEditForm(
         required=False
     )
     cooling_outflow = DynamicModelChoiceField(
-        label=_('Cooling outlet'),
+        label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False
     )

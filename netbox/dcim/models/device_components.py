@@ -711,7 +711,7 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
         blank=True,
         null=True,
         related_name='cooling_intakes',
-        help_text=_('The upstream cooling outlet supplying this port')
+        help_text=_('The upstream cooling outflow supplying this intake')
     )
     cooling_feed = models.ForeignKey(
         to='dcim.CoolingFeed',
@@ -728,16 +728,16 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     )
 
     class Meta(ModularComponentModel.Meta):
-        verbose_name = _('cooling port')
-        verbose_name_plural = _('cooling ports')
+        verbose_name = _('cooling intake')
+        verbose_name_plural = _('cooling intakes')
 
     def clean(self):
         super().clean()
 
-        # A port may be supplied by either a cooling outlet or a cooling feed, but not both
+        # An intake may be supplied by either a cooling outflow or a cooling feed, but not both
         if self.cooling_outflow and self.cooling_feed:
             raise ValidationError(
-                _("A cooling port cannot be supplied by both a cooling outlet and a cooling feed.")
+                _("A cooling intake cannot be supplied by both a cooling outflow and a cooling feed.")
             )
 
 
@@ -766,16 +766,16 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
     clone_fields = ('device', 'module', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
 
     class Meta(ModularComponentModel.Meta):
-        verbose_name = _('cooling outlet')
-        verbose_name_plural = _('cooling outlets')
+        verbose_name = _('cooling outflow')
+        verbose_name_plural = _('cooling outflows')
 
     def clean(self):
         super().clean()
 
-        # Validate cooling port assignment
+        # Validate cooling intake assignment
         if self.cooling_intake and self.cooling_intake.device != self.device:
             raise ValidationError(
-                _("Parent cooling port ({cooling_intake}) must belong to the same device").format(
+                _("Parent cooling intake ({cooling_intake}) must belong to the same device").format(
                     cooling_intake=self.cooling_intake)
             )
 

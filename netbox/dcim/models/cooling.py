@@ -103,9 +103,9 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
 class CoolingFeed(PrimaryModel):
     """
-    A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
-    represented as separate feeds. A CoolingFeed supplies one or more CoolingIntakes (referenced via
-    CoolingIntake.cooling_feed) rather than being cabled.
+    A coolant loop delivered from a CoolingSource to a rack or CDU. A single feed represents the entire
+    loop (both the supply and return paths). A CoolingFeed supplies one or more CoolingIntakes
+    (referenced via CoolingIntake.cooling_feed) rather than being cabled.
 
     Rated flow rate is a design specification (the intended operating envelope), not live telemetry;
     runtime readings belong in an external monitoring system.
@@ -132,12 +132,6 @@ class CoolingFeed(PrimaryModel):
         max_length=50,
         choices=CoolingFeedStatusChoices,
         default=CoolingFeedStatusChoices.STATUS_ACTIVE
-    )
-    flow_direction = models.CharField(
-        verbose_name=_('flow direction'),
-        max_length=50,
-        choices=CoolingFlowDirectionChoices,
-        default=CoolingFlowDirectionChoices.TYPE_SUPPLY
     )
     cooling_capacity = models.DecimalField(
         verbose_name=_('cooling capacity'),
@@ -180,7 +174,7 @@ class CoolingFeed(PrimaryModel):
     )
 
     clone_fields = (
-        'cooling_source', 'rack', 'status', 'flow_direction', 'cooling_capacity', 'rated_flow_rate',
+        'cooling_source', 'rack', 'status', 'cooling_capacity', 'rated_flow_rate',
         'rated_flow_rate_unit', 'tenant',
     )
     prerequisite_models = (
@@ -240,9 +234,6 @@ class CoolingFeed(PrimaryModel):
     @property
     def parent_object(self):
         return self.cooling_source
-
-    def get_flow_direction_color(self):
-        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
     def get_status_color(self):
         return CoolingFeedStatusChoices.colors.get(self.status)

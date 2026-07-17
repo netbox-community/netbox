@@ -1,27 +1,27 @@
-# Cooling Ports
+# Cooling Intakes
 
-A cooling intake is a device component which represents a coolant intake on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling intake references the upstream [cooling outlet](./coolingoutflow.md) or [cooling feed](./coolingfeed.md) which supplies it.
+A cooling intake is a device component which represents a coolant intake on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling intake references the upstream [cooling outflow](./coolingoutflow.md) or [cooling feed](./coolingfeed.md) which supplies it.
 
 !!! tip
-    Like most device components, cooling ports are instantiated automatically from [cooling port templates](./coolingintaketemplate.md) assigned to the selected device type when a device is created.
+    Like most device components, cooling intakes are instantiated automatically from [cooling intake templates](./coolingintaketemplate.md) assigned to the selected device type when a device is created.
 
 ## Fields
 
 ### Device
 
-The device to which this cooling port belongs.
+The device to which this cooling intake belongs.
 
 ### Module
 
-The installed module within the assigned device to which this cooling port belongs (optional).
+The installed module within the assigned device to which this cooling intake belongs (optional).
 
 ### Name
 
-The name of the cooling port. Must be unique to the parent device.
+The name of the cooling intake. Must be unique to the parent device.
 
 ### Label
 
-An alternative physical label identifying the cooling port.
+An alternative physical label identifying the cooling intake.
 
 ### Connector Type
 

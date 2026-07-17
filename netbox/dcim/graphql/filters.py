@@ -1006,9 +1006,6 @@ class CoolingFeedFilter(TenancyFilterMixin, PrimaryModelFilter):
     status: BaseFilterLookup[Annotated['CoolingFeedStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    flow_direction: (
-        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
-    ) = strawberry_django.filter_field()
     cooling_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

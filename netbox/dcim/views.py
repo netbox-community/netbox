@@ -1553,7 +1553,7 @@ class DeviceTypeCoolingIntakesView(DeviceTypeComponentsView):
     filterset = filtersets.CoolingIntakeTemplateFilterSet
     viewname = 'dcim:devicetype_coolingintakes'
     tab = ViewTab(
-        label=_('Cooling Ports'),
+        label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_template_count,
         permission='dcim.view_coolingintaketemplate',
         weight=570,
@@ -1568,7 +1568,7 @@ class DeviceTypeCoolingOutflowsView(DeviceTypeComponentsView):
     filterset = filtersets.CoolingOutflowTemplateFilterSet
     viewname = 'dcim:devicetype_coolingoutflows'
     tab = ViewTab(
-        label=_('Cooling Outlets'),
+        label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_template_count,
         permission='dcim.view_coolingoutflowtemplate',
         weight=580,
@@ -2039,7 +2039,7 @@ class ModuleTypeCoolingIntakesView(ModuleTypeComponentsView):
     filterset = filtersets.CoolingIntakeTemplateFilterSet
     viewname = 'dcim:moduletype_coolingintakes'
     tab = ViewTab(
-        label=_('Cooling Ports'),
+        label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_template_count,
         permission='dcim.view_coolingintaketemplate',
         weight=550,
@@ -2054,7 +2054,7 @@ class ModuleTypeCoolingOutflowsView(ModuleTypeComponentsView):
     filterset = filtersets.CoolingOutflowTemplateFilterSet
     viewname = 'dcim:moduletype_coolingoutflows'
     tab = ViewTab(
-        label=_('Cooling Outlets'),
+        label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_template_count,
         permission='dcim.view_coolingoutflowtemplate',
         weight=560,
@@ -3079,7 +3079,7 @@ class DeviceCoolingIntakesView(DeviceComponentsView):
     filterset_form = forms.CoolingIntakeFilterForm
     actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
-        label=_('Cooling Ports'),
+        label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_count,
         permission='dcim.view_coolingintake',
         weight=570,
@@ -3095,7 +3095,7 @@ class DeviceCoolingOutflowsView(DeviceComponentsView):
     filterset_form = forms.CoolingOutflowFilterForm
     actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDelete)
     tab = ViewTab(
-        label=_('Cooling Outlets'),
+        label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_count,
         permission='dcim.view_coolingoutflow',
         weight=580,

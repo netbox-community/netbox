@@ -1,10 +1,10 @@
 # Cooling Feed
 
-A cooling feed represents a coolant loop delivered from a [cooling source](./coolingsource.md) to a particular rack or coolant distribution unit (CDU). It is the cooling equivalent of a [power feed](./powerfeed.md). A [cooling port](./coolingintake.md) on a device references the feed that supplies it (via the port's `cooling_feed` field) rather than being cabled.
+A cooling feed represents a coolant loop delivered from a [cooling source](./coolingsource.md) to a particular rack or coolant distribution unit (CDU). It is the cooling equivalent of a [power feed](./powerfeed.md). A [cooling intake](./coolingintake.md) on a device references the feed that supplies it (via the intake's `cooling_feed` field) rather than being cabled.
 
-Because a coolant loop has both a cold (supply) and a warm (return) side, supply and return are represented as separate feeds so that each path can be traced independently.
+A single feed represents the entire loop, covering both the supply (cold) and return (warm) paths.
 
-Flow rate and temperatures recorded on a feed are design specifications (the intended operating envelope), not live telemetry; runtime readings belong in an external monitoring system.
+The rated flow rate recorded on a feed is a design specification (the intended operating envelope), not live telemetry; runtime readings belong in an external monitoring system.
 
 ## Fields
 
@@ -26,10 +26,6 @@ The feed's operational status.
 
 !!! tip
     Additional statuses may be defined by setting `CoolingFeed.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
-
-### Flow Direction
-
-Indicates whether the feed carries supply (cold) or return (warm) coolant.
 
 ### Cooling Capacity
 

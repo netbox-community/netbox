@@ -1586,7 +1586,7 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
-        FieldSet('status', 'flow_direction', name=_('Attributes')),
+        FieldSet('status', name=_('Attributes')),
         FieldSet(
             'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', name=_('Characteristics')
         ),
@@ -1632,11 +1632,6 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=CoolingFeedStatusChoices,
-        required=False
-    )
-    flow_direction = forms.ChoiceField(
-        label=_('Flow direction'),
-        choices=add_blank_choice(CoolingFlowDirectionChoices),
         required=False
     )
     cooling_capacity = forms.DecimalField(
@@ -1897,7 +1892,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         required=False
     )
     cooling_outflow = DynamicModelChoiceField(
-        label=_('Cooling outlet'),
+        label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False
     )

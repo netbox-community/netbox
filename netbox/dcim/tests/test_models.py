@@ -3240,7 +3240,6 @@ class CoolingComponentTestCase(TestCase):
             rack=rack,
             name='Cooling Feed 1',
             status=CoolingFeedStatusChoices.STATUS_ACTIVE,
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
         )
         with self.assertRaises(ValidationError):
             cooling_feed.full_clean()
@@ -3269,7 +3268,6 @@ class CoolingComponentTestCase(TestCase):
             cooling_source=cooling_source,
             name='Cooling Feed 1',
             status=CoolingFeedStatusChoices.STATUS_ACTIVE,
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
         )
 
         # Setting both a cooling outlet and a cooling feed should raise a ValidationError

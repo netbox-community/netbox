@@ -4847,7 +4847,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         )
         cooling_feed = CoolingFeed.objects.create(
             cooling_source=cooling_source, name='Cooling Feed 1',
-            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
         )
 
         cooling_intakes = (
@@ -8378,7 +8377,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 1',
                 tenant=tenants[0],
                 status=CoolingFeedStatusChoices.STATUS_ACTIVE,
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 cooling_capacity=100,
                 rated_flow_rate=10,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
@@ -8390,7 +8388,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 2',
                 tenant=tenants[1],
                 status=CoolingFeedStatusChoices.STATUS_FAILED,
-                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 cooling_capacity=200,
                 rated_flow_rate=20,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
@@ -8402,7 +8399,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 3',
                 tenant=tenants[2],
                 status=CoolingFeedStatusChoices.STATUS_OFFLINE,
-                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 cooling_capacity=300,
                 rated_flow_rate=30,
                 rated_flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
@@ -8423,10 +8419,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [CoolingFeedStatusChoices.STATUS_ACTIVE, CoolingFeedStatusChoices.STATUS_FAILED]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_flow_direction(self):
-        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cooling_capacity(self):

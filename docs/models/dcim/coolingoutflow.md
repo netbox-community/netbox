@@ -1,27 +1,27 @@
-# Cooling Outlets
+# Cooling Outflows
 
-A cooling outlet is a device component which delivers coolant to a downstream [cooling port](./coolingintake.md), and generally represents an outlet on a coolant distribution unit (CDU) or manifold. A cooling outlet may optionally be associated with an upstream cooling port on the same device for path tracing.
+A cooling outflow is a device component which delivers coolant to a downstream [cooling intake](./coolingintake.md), and generally represents an outlet on a coolant distribution unit (CDU) or manifold. A cooling outflow may optionally be associated with an upstream cooling intake on the same device for path tracing.
 
 !!! tip
-    Like most device components, cooling outlets are instantiated automatically from [cooling outlet templates](./coolingoutflowtemplate.md) assigned to the selected device type when a device is created.
+    Like most device components, cooling outflows are instantiated automatically from [cooling outflow templates](./coolingoutflowtemplate.md) assigned to the selected device type when a device is created.
 
 ## Fields
 
 ### Device
 
-The device to which this cooling outlet belongs.
+The device to which this cooling outflow belongs.
 
 ### Module
 
-The installed module within the assigned device to which this cooling outlet belongs (optional).
+The installed module within the assigned device to which this cooling outflow belongs (optional).
 
 ### Name
 
-The name of the cooling outlet. Must be unique to the parent device.
+The name of the cooling outflow. Must be unique to the parent device.
 
 ### Label
 
-An alternative physical label identifying the cooling outlet.
+An alternative physical label identifying the cooling outflow.
 
 ### Type
 
@@ -35,9 +35,9 @@ The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded N
 
 The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches).
 
-### Cooling Port
+### Cooling Intake
 
-The upstream [cooling port](./coolingintake.md) on the same device which feeds this outlet (optional).
+The upstream [cooling intake](./coolingintake.md) on the same device which feeds this outlet (optional).
 
 ### Mark Connected
 

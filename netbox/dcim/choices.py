@@ -2185,17 +2185,6 @@ class CoolingFeedStatusChoices(ChoiceSet):
     ]
 
 
-class CoolingFlowDirectionChoices(ChoiceSet):
-
-    TYPE_SUPPLY = 'supply'
-    TYPE_RETURN = 'return'
-
-    CHOICES = [
-        (TYPE_SUPPLY, _('Supply'), 'blue'),
-        (TYPE_RETURN, _('Return'), 'red'),
-    ]
-
-
 class FluidTypeChoices(ChoiceSet):
 
     FLUID_WATER = 'water'

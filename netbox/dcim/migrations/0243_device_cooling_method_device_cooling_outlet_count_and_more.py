@@ -251,8 +251,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "cooling port",
-                "verbose_name_plural": "cooling ports",
+                "verbose_name": "cooling intake",
+                "verbose_name_plural": "cooling intakes",
                 "ordering": ("device", "name"),
                 "abstract": False,
             },
@@ -377,8 +377,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "cooling outlet",
-                "verbose_name_plural": "cooling outlets",
+                "verbose_name": "cooling outflow",
+                "verbose_name_plural": "cooling outflows",
                 "ordering": ("device", "name"),
                 "abstract": False,
             },
@@ -461,8 +461,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "cooling port template",
-                "verbose_name_plural": "cooling port templates",
+                "verbose_name": "cooling intake template",
+                "verbose_name_plural": "cooling intake templates",
                 "ordering": ("device_type", "module_type", "name"),
                 "abstract": False,
             },
@@ -535,8 +535,8 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                "verbose_name": "cooling outlet template",
-                "verbose_name_plural": "cooling outlet templates",
+                "verbose_name": "cooling outflow template",
+                "verbose_name_plural": "cooling outflow templates",
                 "ordering": ("device_type", "module_type", "name"),
                 "abstract": False,
             },
@@ -663,7 +663,6 @@ class Migration(migrations.Migration):
                 ("comments", models.TextField(blank=True)),
                 ("name", models.CharField(db_collation="natural_sort", max_length=100)),
                 ("status", models.CharField(default="active", max_length=50)),
-                ("flow_direction", models.CharField(default="supply", max_length=50)),
                 (
                     "cooling_capacity",
                     models.DecimalField(

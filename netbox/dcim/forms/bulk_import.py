@@ -1017,11 +1017,11 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         help_text=_('Unit for maximum flow')
     )
     cooling_outflow = CSVModelChoiceField(
-        label=_('Cooling outlet'),
+        label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Local cooling outlet which feeds this port')
+        help_text=_('Local cooling outflow which feeds this intake')
     )
     cooling_feed = CSVModelChoiceField(
         label=_('Cooling feed'),
@@ -1080,11 +1080,11 @@ class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         help_text=_('Diameter unit')
     )
     cooling_intake = CSVModelChoiceField(
-        label=_('Cooling port'),
+        label=_('Cooling intake'),
         queryset=CoolingIntake.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Local cooling port which feeds this outlet')
+        help_text=_('Local cooling intake which feeds this outflow')
     )
 
     class Meta:
@@ -2176,11 +2176,6 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         choices=CoolingFeedStatusChoices,
         help_text=_('Operational status')
     )
-    flow_direction = CSVChoiceField(
-        label=_('Flow direction'),
-        choices=CoolingFlowDirectionChoices,
-        help_text=_('Supply or return')
-    )
     rated_flow_rate_unit = CSVChoiceField(
         label=_('Rated flow rate unit'),
         choices=FlowRateUnitChoices,
@@ -2191,7 +2186,7 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
     class Meta:
         model = CoolingFeed
         fields = (
-            'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'flow_direction',
+            'site', 'cooling_source', 'location', 'rack', 'name', 'status',
             'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'description', 'owner',
             'comments', 'tags',
         )

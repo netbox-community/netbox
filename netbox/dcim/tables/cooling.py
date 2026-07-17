@@ -95,9 +95,6 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
-    flow_direction = columns.ChoiceFieldColumn(
-        verbose_name=_('Flow Direction'),
-    )
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
@@ -124,12 +121,12 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = CoolingFeed
         fields = (
-            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'flow_direction',
+            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status',
             'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'tenant_group', 'description',
             'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'cooling_source', 'rack', 'status', 'flow_direction', 'cooling_capacity',
+            'pk', 'name', 'cooling_source', 'rack', 'status', 'cooling_capacity',
             'rated_flow_rate',
         )
 
@@ -162,7 +159,7 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         verbose_name=_('Maximum Flow Unit')
     )
     cooling_outflow = tables.Column(
-        verbose_name=_('Cooling Outlet'),
+        verbose_name=_('Cooling Outflow'),
         linkify=True
     )
     cooling_feed = tables.Column(
@@ -207,7 +204,7 @@ class CoolingOutflowTable(ModularDeviceComponentTable):
         order_by=('_abs_diameter', 'diameter_unit')
     )
     cooling_intake = tables.Column(
-        verbose_name=_('Cooling Port'),
+        verbose_name=_('Cooling Intake'),
         linkify=True
     )
     tags = columns.TagColumn(

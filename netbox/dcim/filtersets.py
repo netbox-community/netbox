@@ -1094,7 +1094,7 @@ class CoolingOutflowTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceT
     cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CoolingIntakeTemplate.objects.all(),
         distinct=False,
-        label=_('Cooling port (ID)'),
+        label=_('Cooling intake (ID)'),
     )
 
     class Meta:
@@ -2171,7 +2171,7 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
         queryset=CoolingOutflow.objects.all(),
         field_name='cooling_outflow',
         distinct=False,
-        label=_('Cooling outlet (ID)'),
+        label=_('Cooling outflow (ID)'),
     )
     cooling_feed_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CoolingFeed.objects.all(),
@@ -2198,7 +2198,7 @@ class CoolingOutflowFilterSet(ModularDeviceComponentFilterSet):
     cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CoolingIntake.objects.all(),
         distinct=False,
-        label=_('Cooling port (ID)'),
+        label=_('Cooling intake (ID)'),
     )
 
     class Meta:
@@ -3366,11 +3366,6 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CoolingFeedStatusChoices,
-        distinct=False,
-        null_value=None
-    )
-    flow_direction = django_filters.MultipleChoiceFilter(
-        choices=CoolingFlowDirectionChoices,
         distinct=False,
         null_value=None
     )

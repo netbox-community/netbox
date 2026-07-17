@@ -4896,7 +4896,6 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'cooling_source': cooling_sources[1].pk,
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'cooling_capacity': 100,
             'rated_flow_rate': 50,
             'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
@@ -4905,10 +4904,10 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,cooling_source,name,status,flow_direction",
-            "Site 1,Cooling Source 1,Cooling Feed 4,active,supply",
-            "Site 1,Cooling Source 1,Cooling Feed 5,active,supply",
-            "Site 1,Cooling Source 1,Cooling Feed 6,active,supply",
+            "site,cooling_source,name,status",
+            "Site 1,Cooling Source 1,Cooling Feed 4,active",
+            "Site 1,Cooling Source 1,Cooling Feed 5,active",
+            "Site 1,Cooling Source 1,Cooling Feed 6,active",
         )
 
         cls.csv_update_data = (
@@ -4922,7 +4921,6 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'cooling_source': cooling_sources[1].pk,
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
-            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'cooling_capacity': 100,
             'rated_flow_rate': 50,
             'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,

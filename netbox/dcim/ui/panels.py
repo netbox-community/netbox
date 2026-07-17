@@ -444,7 +444,6 @@ class CoolingSourcePanel(panels.ObjectAttributesPanel):
 class CoolingFeedPanel(panels.ObjectAttributesPanel):
     cooling_source = attrs.RelatedObjectAttr('cooling_source', linkify=True)
     rack = attrs.RelatedObjectAttr('rack', linkify=True)
-    flow_direction = attrs.ChoiceAttr('flow_direction')
     status = attrs.ChoiceAttr('status')
     description = attrs.TextAttr('description')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')

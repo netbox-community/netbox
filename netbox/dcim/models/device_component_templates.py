@@ -459,8 +459,8 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
     component_model = CoolingIntake
 
     class Meta(ModularComponentTemplateModel.Meta):
-        verbose_name = _('cooling port template')
-        verbose_name_plural = _('cooling port templates')
+        verbose_name = _('cooling intake template')
+        verbose_name_plural = _('cooling intake templates')
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -511,23 +511,23 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
     component_model = CoolingOutflow
 
     class Meta(ModularComponentTemplateModel.Meta):
-        verbose_name = _('cooling outlet template')
-        verbose_name_plural = _('cooling outlet templates')
+        verbose_name = _('cooling outflow template')
+        verbose_name_plural = _('cooling outflow templates')
 
     def clean(self):
         super().clean()
 
-        # Validate cooling port assignment
+        # Validate cooling intake assignment
         if self.cooling_intake:
             if self.device_type and self.cooling_intake.device_type != self.device_type:
                 raise ValidationError(
-                    _("Parent cooling port ({cooling_intake}) must belong to the same device type").format(
+                    _("Parent cooling intake ({cooling_intake}) must belong to the same device type").format(
                         cooling_intake=self.cooling_intake
                     )
                 )
             if self.module_type and self.cooling_intake.module_type != self.module_type:
                 raise ValidationError(
-                    _("Parent cooling port ({cooling_intake}) must belong to the same module type").format(
+                    _("Parent cooling intake ({cooling_intake}) must belong to the same module type").format(
                         cooling_intake=self.cooling_intake
                     )
                 )
