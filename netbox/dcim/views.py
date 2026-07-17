@@ -1408,11 +1408,11 @@ class DeviceTypeListView(generic.ObjectListView):
     filterset = filtersets.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
-    
+
     def get_table(self, data, request, bulk_actions=True):
-    #Figures out which columns the user has picked before building the tables,
-    #because configure() tries to apply an existing sort, that may include image_count
-    #and it needs the existing annotation from the queryset.
+        # Figures out which columns the user has picked before building the tables,
+        # because configure() tries to apply an existing sort, that may include image_count
+        # and it needs the existing annotation from the queryset.
         if request.user.is_authenticated:
             selected_columns = request.user.config.get(f'tables.{self.table.__name__}.columns')
         else:
@@ -1424,7 +1424,7 @@ class DeviceTypeListView(generic.ObjectListView):
             data = data.annotate(image_count=Count('images'))
 
         return super().get_table(data, request, bulk_actions)
-    
+
 
 @register_model_view(DeviceType)
 class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
@@ -1774,11 +1774,11 @@ class ModuleTypeListView(generic.ObjectListView):
     filterset = filtersets.ModuleTypeFilterSet
     filterset_form = forms.ModuleTypeFilterForm
     table = tables.ModuleTypeTable
-    
+
     def get_table(self, data, request, bulk_actions=True):
-    #Figures out which columns the user has picked before building the tables,
-    #because configure() tries to apply an existing sort, that may include image_count
-    #and it needs the existing annotation from the queryset.
+        # Figures out which columns the user has picked before building the tables,
+        # because configure() tries to apply an existing sort, that may include image_count
+        # and it needs the existing annotation from the queryset.
         if request.user.is_authenticated:
             selected_columns = request.user.config.get(f'tables.{self.table.__name__}.columns')
         else:

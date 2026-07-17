@@ -621,7 +621,7 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
-    ) 
+    )
     console_ports = forms.NullBooleanField(
         required=False,
         label=_('Has console ports'),

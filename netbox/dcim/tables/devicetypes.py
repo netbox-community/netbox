@@ -155,7 +155,8 @@ class DeviceTypeTable(PrimaryModelTable):
         false_mark=None
     )
     image_count = tables.Column(
-        verbose_name=_('Images')
+        verbose_name=_('Images'),
+        orderable=False,
     )
 
     class Meta(PrimaryModelTable.Meta):
@@ -163,7 +164,7 @@ class DeviceTypeTable(PrimaryModelTable):
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
             'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-            'description', 'comments', 'device_count', 'tags', 'created', 'last_updated', 
+            'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
             'front_image', 'rear_image', 'image_count',
         )
         default_columns = (

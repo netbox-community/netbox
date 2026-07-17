@@ -68,7 +68,8 @@ class ModuleTypeTable(PrimaryModelTable):
         url_name='dcim:moduletype_list'
     )
     image_count = tables.Column(
-        verbose_name=_('Images')
+        verbose_name=_('Images'),
+        orderable=False,
     )
 
     class Meta(PrimaryModelTable.Meta):
