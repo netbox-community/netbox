@@ -736,17 +736,6 @@ class Migration(migrations.Migration):
                 to="dcim.coolingoutflow",
             ),
         ),
-        migrations.AddField(
-            model_name="coolingintake",
-            name="cooling_feed",
-            field=models.ForeignKey(
-                blank=True,
-                null=True,
-                on_delete=django.db.models.deletion.SET_NULL,
-                related_name="cooling_intakes",
-                to="dcim.coolingfeed",
-            ),
-        ),
         migrations.AddConstraint(
             model_name="coolingintake",
             constraint=models.UniqueConstraint(

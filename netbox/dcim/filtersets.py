@@ -2173,12 +2173,6 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
         distinct=False,
         label=_('Cooling outflow (ID)'),
     )
-    cooling_feed_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=CoolingFeed.objects.all(),
-        field_name='cooling_feed',
-        distinct=False,
-        label=_('Cooling feed (ID)'),
-    )
 
     class Meta:
         model = CoolingIntake

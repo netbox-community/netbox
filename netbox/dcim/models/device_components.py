@@ -713,14 +713,6 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
         related_name='cooling_intakes',
         help_text=_('The upstream cooling outflow supplying this intake')
     )
-    cooling_feed = models.ForeignKey(
-        to='dcim.CoolingFeed',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='cooling_intakes',
-        help_text=_('The upstream cooling feed supplying this port')
-    )
 
     clone_fields = (
         'device', 'module', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
@@ -730,15 +722,6 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling intake')
         verbose_name_plural = _('cooling intakes')
-
-    def clean(self):
-        super().clean()
-
-        # An intake may be supplied by either a cooling outflow or a cooling feed, but not both
-        if self.cooling_outflow and self.cooling_feed:
-            raise ValidationError(
-                _("A cooling intake cannot be supplied by both a cooling outflow and a cooling feed.")
-            )
 
 
 class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):

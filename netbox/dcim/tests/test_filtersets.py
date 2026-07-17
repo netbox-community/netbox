@@ -4842,13 +4842,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
 
         cooling_outflow = CoolingOutflow.objects.create(device=devices[3], name='Cooling Outlet 1')
 
-        cooling_source = CoolingSource.objects.create(
-            site=sites[0], name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
-        )
-        cooling_feed = CoolingFeed.objects.create(
-            cooling_source=cooling_source, name='Cooling Feed 1',
-        )
-
         cooling_intakes = (
             CoolingIntake(
                 device=devices[0],
@@ -4877,7 +4870,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 maximum_flow=200,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
                 description='Second',
-                cooling_feed=cooling_feed,
                 _site=devices[1].site,
                 _location=devices[1].location,
                 _rack=devices[1].rack,
@@ -4919,11 +4911,6 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
     def test_cooling_outflow(self):
         cooling_outflow = CoolingOutflow.objects.first()
         params = {'cooling_outflow_id': [cooling_outflow.pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_cooling_feed(self):
-        cooling_feed = CoolingFeed.objects.first()
-        params = {'cooling_feed_id': [cooling_feed.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):

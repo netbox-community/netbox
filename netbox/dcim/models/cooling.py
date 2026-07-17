@@ -104,8 +104,8 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 class CoolingFeed(PrimaryModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. A single feed represents the entire
-    loop (both the supply and return paths). A CoolingFeed supplies one or more CoolingIntakes
-    (referenced via CoolingIntake.cooling_feed) rather than being cabled.
+    loop (both the supply and return paths). A CoolingFeed serves a rack; the cooling intakes it supplies
+    are derived from the devices installed in that rack rather than referenced explicitly.
 
     Rated flow rate is a design specification (the intended operating envelope), not live telemetry;
     runtime readings belong in an external monitoring system.

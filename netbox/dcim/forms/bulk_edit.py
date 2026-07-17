@@ -1793,18 +1793,13 @@ class CoolingIntakeBulkEditForm(
         queryset=CoolingOutflow.objects.all(),
         required=False
     )
-    cooling_feed = DynamicModelChoiceField(
-        label=_('Cooling feed'),
-        queryset=CoolingFeed.objects.all(),
-        required=False
-    )
 
     model = CoolingIntake
     fieldsets = (
         FieldSet(
             'module', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            'label', 'cooling_outflow', 'cooling_feed', 'description',
+            'label', 'cooling_outflow', 'description',
         ),
         FieldSet(
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
@@ -1813,7 +1808,7 @@ class CoolingIntakeBulkEditForm(
     )
     nullable_fields = (
         'module', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'cooling_outflow', 'cooling_feed', 'description',
+        'cooling_outflow', 'description',
     )
 
 

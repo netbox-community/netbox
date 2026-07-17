@@ -1,6 +1,6 @@
 # Cooling Feed
 
-A cooling feed represents a coolant loop delivered from a [cooling source](./coolingsource.md) to a particular rack or coolant distribution unit (CDU). It is the cooling equivalent of a [power feed](./powerfeed.md). A [cooling intake](./coolingintake.md) on a device references the feed that supplies it (via the intake's `cooling_feed` field) rather than being cabled.
+A cooling feed represents a coolant loop delivered from a [cooling source](./coolingsource.md) to a particular rack or coolant distribution unit (CDU). It is the cooling equivalent of a [power feed](./powerfeed.md). The [cooling intakes](./coolingintake.md) a feed supplies are derived from the devices installed in the rack it serves, rather than referenced explicitly.
 
 A single feed represents the entire loop, covering both the supply (cold) and return (warm) paths.
 

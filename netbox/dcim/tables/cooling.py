@@ -162,10 +162,6 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         verbose_name=_('Cooling Outflow'),
         linkify=True
     )
-    cooling_feed = tables.Column(
-        verbose_name=_('Cooling Feed'),
-        linkify=True
-    )
     tags = columns.TagColumn(
         url_name='dcim:coolingintake_list'
     )
@@ -174,7 +170,7 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         model = models.CoolingIntake
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'diameter',
-            'description', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow', 'cooling_feed',
+            'description', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
             'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -293,7 +289,7 @@ class DeviceCoolingIntakeTable(CoolingIntakeTable):
         model = models.CoolingIntake
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'description', 'cooling_outflow', 'cooling_feed', 'tags', 'actions',
+            'maximum_flow_unit', 'description', 'cooling_outflow', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'diameter', 'maximum_flow',

@@ -1023,19 +1023,12 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Local cooling outflow which feeds this intake')
     )
-    cooling_feed = CSVModelChoiceField(
-        label=_('Cooling feed'),
-        queryset=CoolingFeed.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_('Cooling feed which feeds this port')
-    )
 
     class Meta:
         model = CoolingIntake
         fields = (
             'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
+            'maximum_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):

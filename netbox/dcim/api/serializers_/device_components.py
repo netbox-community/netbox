@@ -8,7 +8,6 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePort,
     ConsoleServerPort,
-    CoolingFeed,
     CoolingIntake,
     CoolingOutflow,
     DeviceBay,
@@ -236,18 +235,13 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    cooling_feed = RestrictedPrimaryKeyRelatedField(
-        queryset=CoolingFeed.objects.all(),
-        required=False,
-        allow_null=True
-    )
 
     class Meta:
         model = CoolingIntake
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
             'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
-            'cooling_feed', 'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+            'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 

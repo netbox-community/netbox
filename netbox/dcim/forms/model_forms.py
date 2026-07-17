@@ -1953,18 +1953,13 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
             'device_id': '$device',
         }
     )
-    cooling_feed = DynamicModelChoiceField(
-        label=_('Cooling feed'),
-        queryset=CoolingFeed.objects.all(),
-        required=False
-    )
 
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
-            'cooling_outflow', 'cooling_feed', 'description', 'tags',
+            'cooling_outflow', 'description', 'tags',
         ),
     )
 
@@ -1972,7 +1967,7 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
         model = CoolingIntake
         fields = [
             'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'cooling_outflow', 'cooling_feed', 'description', 'owner', 'tags',
+            'maximum_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
         ]
 
 

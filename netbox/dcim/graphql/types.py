@@ -852,7 +852,6 @@ class CoolingOutflowTemplateType(ModularComponentTemplateType):
 )
 class CoolingIntakeType(ModularComponentType):
     cooling_outflow: Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')] | None
-    cooling_feed: Annotated["CoolingFeedType", strawberry.lazy('dcim.graphql.types')] | None
 
     coolingoutflows: list[Annotated["CoolingOutflowType", strawberry.lazy('dcim.graphql.types')]]
 

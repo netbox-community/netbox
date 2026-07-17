@@ -1863,7 +1863,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
-            'cooling_outflow', 'cooling_feed', name=_('Attributes')
+            'cooling_outflow', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
@@ -1894,11 +1894,6 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
     cooling_outflow = DynamicModelChoiceField(
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
-        required=False
-    )
-    cooling_feed = DynamicModelChoiceField(
-        label=_('Cooling feed'),
-        queryset=CoolingFeed.objects.all(),
         required=False
     )
     tag = TagFilterField(model)

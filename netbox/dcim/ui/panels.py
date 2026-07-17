@@ -291,7 +291,6 @@ class CoolingIntakePanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
     cooling_outflow = attrs.RelatedObjectAttr('cooling_outflow', linkify=True)
-    cooling_feed = attrs.RelatedObjectAttr('cooling_feed', linkify=True)
 
 
 class CoolingOutflowPanel(panels.ObjectAttributesPanel):

@@ -4364,12 +4364,6 @@ class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
         device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
 
         cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
-        cooling_source = CoolingSource.objects.create(
-            site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
-        )
-        cooling_feed = CoolingFeed.objects.create(
-            cooling_source=cooling_source, name='Cooling Feed 1',
-        )
 
         cooling_intakes = (
             CoolingIntake(device=device, name='Cooling Port 1'),
@@ -4389,7 +4383,6 @@ class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
                 'device': device.pk,
                 'name': 'Cooling Port 5',
                 'type': CoolingConnectorTypeChoices.TYPE_QDC,
-                'cooling_feed': cooling_feed.pk,
             },
             {
                 'device': device.pk,
