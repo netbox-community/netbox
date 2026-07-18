@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-15 05:45+0000\n"
+"POT-Creation-Date: 2026-07-18 05:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16348,24 +16348,24 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
-#: netbox/utilities/api.py:236
+#: netbox/utilities/api.py:251
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:239
+#: netbox/utilities/api.py:254
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:251
+#: netbox/utilities/api.py:266
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr ""
 
-#: netbox/utilities/api.py:260
+#: netbox/utilities/api.py:275
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
