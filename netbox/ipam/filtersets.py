@@ -1227,7 +1227,6 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         )
         return queryset.filter(qs_filter)
 
-
 @register_filterset
 class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = MultiValueContentTypeFilter()
