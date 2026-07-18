@@ -946,28 +946,29 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 @register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = MultiValueContentTypeFilter()
-    region = django_filters.NumberFilter(
+
+    region = MultiValueNumberFilter(
         method='filter_scope'
     )
-    site_group = django_filters.NumberFilter(
+    site_group = MultiValueNumberFilter(
         method='filter_scope'
     )
-    site = django_filters.NumberFilter(
+    site = MultiValueNumberFilter(
         method='filter_scope'
     )
-    location = django_filters.NumberFilter(
+    location = MultiValueNumberFilter(
         method='filter_scope'
     )
-    rack_group = django_filters.NumberFilter(
+    rack_group = MultiValueNumberFilter(
         method='filter_scope'
     )
-    rack = django_filters.NumberFilter(
+    rack = MultiValueNumberFilter(
         method='filter_scope'
     )
-    cluster_group = django_filters.NumberFilter(
+    cluster_group = MultiValueNumberFilter(
         method='filter_scope'
     )
-    cluster = django_filters.NumberFilter(
+    cluster = MultiValueNumberFilter(
         method='filter_scope'
     )
     contains_vid = django_filters.NumberFilter(
@@ -992,7 +993,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         model_name = name.replace('_', '')
         return queryset.filter(
             scope_type=ContentType.objects.get(model=model_name),
-            scope_id=value
+            scope_id__in=value
         )
 
 
