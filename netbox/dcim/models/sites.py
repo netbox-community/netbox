@@ -42,6 +42,18 @@ class Region(ContactsMixin, NestedGroupModel):
         object_id_field='scope_id',
         related_query_name='region'
     )
+    clusters = GenericRelation(
+        to='virtualization.Cluster',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='region'
+    )
+    wireless_lans = GenericRelation(
+        to='wireless.WirelessLAN',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='region'
+    )
 
     class Meta:
         # Empty tuple triggers Django migration detection for MPTT indexes
@@ -97,6 +109,18 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     )
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site_group'
+    )
+    clusters = GenericRelation(
+        to='virtualization.Cluster',
+        content_type_field='scope_type',
+        object_id_field='scope_id',
+        related_query_name='site_group'
+    )
+    wireless_lans = GenericRelation(
+        to='wireless.WirelessLAN',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site_group'
