@@ -127,12 +127,15 @@ def update_interface_bridges(device, interface_templates, module=None):
     Interface = apps.get_model('dcim', 'Interface')
 
     for interface_template in interface_templates.exclude(bridge=None):
-        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface = Interface.objects.get(
+            device=device,
+            name=interface_template.resolve_name(module=module, device=device)
+        )
 
         if interface_template.bridge:
             interface.bridge = Interface.objects.get(
                 device=device,
-                name=interface_template.bridge.resolve_name(module=module)
+                name=interface_template.bridge.resolve_name(module=module, device=device)
             )
             interface.full_clean()
             interface.save()
@@ -157,8 +160,8 @@ def create_port_mappings(device, device_or_module_type, module=None):
     # Replicate PortMappings
     mappings = []
     for template in templates:
-        front_port = front_ports.get(template.front_port.resolve_name(module=module))
-        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module))
+        front_port = front_ports.get(template.front_port.resolve_name(module=module, device=device))
+        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module, device=device))
         mappings.append(
             PortMapping(
                 device_id=front_port.device_id,
