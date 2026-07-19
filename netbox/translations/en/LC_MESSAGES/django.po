@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-18 05:43+0000\n"
+"POT-Creation-Date: 2026-07-19 05:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1303,7 +1303,7 @@ msgstr ""
 #: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1261
 #: netbox/dcim/models/modules.py:269 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:329 netbox/dcim/models/racks.py:713
-#: netbox/dcim/models/sites.py:163 netbox/dcim/models/sites.py:287
+#: netbox/dcim/models/sites.py:187 netbox/dcim/models/sites.py:311
 #: netbox/ipam/models/ip.py:252 netbox/ipam/models/ip.py:680
 #: netbox/ipam/models/ip.py:971 netbox/ipam/models/vlans.py:242
 #: netbox/virtualization/models/clusters.py:70
@@ -1437,7 +1437,7 @@ msgstr ""
 #: netbox/dcim/models/devices.py:1184 netbox/dcim/models/devices.py:1256
 #: netbox/dcim/models/modules.py:37 netbox/dcim/models/power.py:39
 #: netbox/dcim/models/power.py:90 netbox/dcim/models/racks.py:290
-#: netbox/dcim/models/sites.py:151 netbox/extras/models/configs.py:40
+#: netbox/dcim/models/sites.py:175 netbox/extras/models/configs.py:40
 #: netbox/extras/models/configs.py:82 netbox/extras/models/configs.py:285
 #: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:68
 #: netbox/extras/models/models.py:177 netbox/extras/models/models.py:319
@@ -1470,7 +1470,7 @@ msgid "Full name of the provider"
 msgstr ""
 
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
-#: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:158
+#: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:182
 #: netbox/extras/models/models.py:492 netbox/ipam/models/asns.py:24
 #: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
@@ -5628,7 +5628,7 @@ msgid "Scope"
 msgstr ""
 
 #: netbox/dcim/forms/mixins.py:60 netbox/dcim/forms/mixins.py:171
-#: netbox/dcim/models/mixins.py:95
+#: netbox/dcim/models/mixins.py:98
 #, python-brace-format
 msgid "Please select a {scope_type}."
 msgstr ""
@@ -6932,16 +6932,16 @@ msgstr ""
 msgid "Virtual chassis master election priority"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:663 netbox/dcim/models/sites.py:217
+#: netbox/dcim/models/devices.py:663 netbox/dcim/models/sites.py:241
 msgid "latitude"
 msgstr ""
 
 #: netbox/dcim/models/devices.py:672 netbox/dcim/models/devices.py:684
-#: netbox/dcim/models/sites.py:226 netbox/dcim/models/sites.py:238
+#: netbox/dcim/models/sites.py:250 netbox/dcim/models/sites.py:262
 msgid "GPS coordinate in decimal format (xx.yyyyyy)"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:675 netbox/dcim/models/sites.py:229
+#: netbox/dcim/models/devices.py:675 netbox/dcim/models/sites.py:253
 msgid "longitude"
 msgstr ""
 
@@ -7128,24 +7128,24 @@ msgid ""
 "object"
 msgstr ""
 
-#: netbox/dcim/models/mixins.py:132
+#: netbox/dcim/models/mixins.py:135
 #: netbox/virtualization/models/virtualmachines.py:541
 msgid "An interface cannot be bridged to itself."
 msgstr ""
 
-#: netbox/dcim/models/mixins.py:137
+#: netbox/dcim/models/mixins.py:140
 msgid "Virtual interfaces cannot have a PoE mode."
 msgstr ""
 
-#: netbox/dcim/models/mixins.py:141
+#: netbox/dcim/models/mixins.py:144
 msgid "Virtual interfaces cannot have a PoE type."
 msgstr ""
 
-#: netbox/dcim/models/mixins.py:147
+#: netbox/dcim/models/mixins.py:150
 msgid "Must specify PoE mode when designating a PoE type."
 msgstr ""
 
-#: netbox/dcim/models/mixins.py:152
+#: netbox/dcim/models/mixins.py:155
 msgid "Wireless role may be set only on wireless interfaces."
 msgstr ""
 
@@ -7445,91 +7445,91 @@ msgstr ""
 msgid "The following units have already been reserved: {unit_list}"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:59
+#: netbox/dcim/models/sites.py:71
 msgid "A top-level region with this name already exists."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:69
+#: netbox/dcim/models/sites.py:81
 msgid "A top-level region with this slug already exists."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:72
+#: netbox/dcim/models/sites.py:84
 msgid "region"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:73
+#: netbox/dcim/models/sites.py:85
 msgid "regions"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:118
+#: netbox/dcim/models/sites.py:142
 msgid "A top-level site group with this name already exists."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:128
+#: netbox/dcim/models/sites.py:152
 msgid "A top-level site group with this slug already exists."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:131
+#: netbox/dcim/models/sites.py:155
 msgid "site group"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:132
+#: netbox/dcim/models/sites.py:156
 msgid "site groups"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:154
+#: netbox/dcim/models/sites.py:178
 msgid "Full name of the site"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:190 netbox/dcim/models/sites.py:300
+#: netbox/dcim/models/sites.py:214 netbox/dcim/models/sites.py:324
 msgid "facility"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:193 netbox/dcim/models/sites.py:303
+#: netbox/dcim/models/sites.py:217 netbox/dcim/models/sites.py:327
 msgid "Local facility ID or description"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:205
+#: netbox/dcim/models/sites.py:229
 msgid "physical address"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:208
+#: netbox/dcim/models/sites.py:232
 msgid "Physical location of the building"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:211
+#: netbox/dcim/models/sites.py:235
 msgid "shipping address"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:214
+#: netbox/dcim/models/sites.py:238
 msgid "If different from the physical address"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:262
+#: netbox/dcim/models/sites.py:286
 msgid "site"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:263
+#: netbox/dcim/models/sites.py:287
 msgid "sites"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:339
+#: netbox/dcim/models/sites.py:363
 msgid "A location with this name already exists within the specified site."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:349
+#: netbox/dcim/models/sites.py:373
 msgid "A location with this slug already exists within the specified site."
 msgstr ""
 
-#: netbox/dcim/models/sites.py:352
+#: netbox/dcim/models/sites.py:376
 msgid "location"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:353
+#: netbox/dcim/models/sites.py:377
 msgid "locations"
 msgstr ""
 
-#: netbox/dcim/models/sites.py:364
+#: netbox/dcim/models/sites.py:388
 #, python-brace-format
 msgid "Parent location ({parent}) must belong to the same site ({site})."
 msgstr ""
