@@ -6,6 +6,7 @@ __all__ = (
     'ClearableFileInput',
     'MarkdownWidget',
     'NumberWithOptions',
+    'RestrictedChoiceLabel',
     'SlugWidget',
 )
 
@@ -85,3 +86,18 @@ class ChoicesWidget(forms.Textarea):
         if type(value) is list:
             return '\n'.join([f'{k}:{v}' for k, v in value])
         return value
+
+
+class RestrictedChoiceLabel:
+    """
+    Wraps a choice label so widgets/select_option.html renders that single <option> as disabled. Used to identify a
+    restricted current value as read-only in widgets which honor disabled options. Preservation itself is enforced
+    server-side, not by the widget.
+    """
+    disabled = True
+
+    def __init__(self, label):
+        self.label = label
+
+    def __str__(self):
+        return str(self.label)

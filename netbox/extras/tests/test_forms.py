@@ -10,10 +10,28 @@ from core.models import DataSource, ObjectType
 from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
-from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
+from extras.forms import (
+    ConfigContextForm,
+    ConfigTemplateForm,
+    CustomFieldForm,
+    NotificationGroupForm,
+    SavedFilterForm,
+    TableConfigBulkEditForm,
+    TableConfigForm,
+)
 from extras.forms.model_forms import CustomFieldChoiceSetForm
 from extras.forms.scripts import ScriptFileForm
-from extras.models import CustomField, CustomFieldChoiceSet, ScriptModule
+from extras.models import (
+    ConfigContext,
+    ConfigTemplate,
+    CustomField,
+    CustomFieldChoiceSet,
+    NotificationGroup,
+    ScriptModule,
+    Tag,
+)
+from users.models import Group
+from utilities.testing import simulate_restrict
 
 
 class CustomFieldModelFormTestCase(TestCase):
@@ -337,3 +355,83 @@ class TableConfigFormTestCase(TestCase):
         form = TableConfigBulkEditForm()
         self.assertIn('changelog_message', form.fields)
         self.assertIn('changelog_message', form.meta_fields)
+
+
+class RestrictedCustomFieldFormTest(TestCase):
+    """CustomFieldForm (not a NetBoxModelForm) preserves a hidden choice_set FK via the mixin."""
+
+    def test_hidden_choice_set_is_preserved(self):
+        """Editing a custom field whose choice_set is hidden preserves it on save."""
+        site_type = ObjectType.objects.get_for_model(Site)
+        choice_set = CustomFieldChoiceSet.objects.create(name='Choice Set 1', extra_choices=(('A', 'A'), ('B', 'B')))
+        cf = CustomField.objects.create(name='field_x', label='Field X', type='select', choice_set=choice_set)
+        cf.object_types.set([site_type])
+
+        form = CustomFieldForm(
+            data={
+                'name': 'field_x',
+                'label': 'Field X',
+                'type': 'select',
+                'object_types': [site_type.pk],
+                'search_weight': 1000,
+                'filter_logic': 'exact',
+                'weight': 100,
+                'ui_visible': 'always',
+                'ui_editable': 'yes',
+            },
+            instance=cf,
+        )
+        simulate_restrict(form, 'choice_set', CustomFieldChoiceSet.objects.none())
+
+        self.assertTrue(form.fields['choice_set'].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+        cf = form.save()
+        self.assertEqual(cf.choice_set, choice_set)
+
+
+class RestrictedExtrasM2MFormTest(TestCase):
+    """Extras M2M forms (not NetBoxModelForms) preserve hidden members via the mixin + clean() merge."""
+
+    def test_configcontext_hidden_site_is_preserved(self):
+        """Editing a config context with a hidden assigned site keeps it on save."""
+        visible = Site.objects.create(name='Visible', slug='visible')
+        hidden = Site.objects.create(name='Hidden', slug='hidden')
+        cc = ConfigContext.objects.create(name='CC 1', weight=100, data={'foo': 123})
+        cc.sites.set([visible, hidden])
+
+        form = ConfigContextForm(
+            data={'name': 'CC 1', 'weight': 100, 'is_active': True, 'data': '{"foo": 123}', 'sites': [visible.pk]},
+            instance=cc,
+        )
+        simulate_restrict(form, 'sites', Site.objects.filter(pk=visible.pk))
+        self.assertTrue(form.is_valid(), form.errors)
+        cc = form.save()
+        self.assertEqual(set(cc.sites.all()), {visible, hidden})
+
+    def test_configtemplate_hidden_tag_is_preserved(self):
+        """Editing a config template with a hidden tag keeps it while visible tags stay editable."""
+        visible = Tag.objects.create(name='Visible', slug='visible')
+        hidden = Tag.objects.create(name='Hidden', slug='hidden')
+        ct = ConfigTemplate.objects.create(name='CT 1', template_code='x')
+        ct.tags.set([visible, hidden])
+
+        form = ConfigTemplateForm(
+            data={'name': 'CT 1', 'template_code': 'x', 'tags': [visible.pk]},
+            instance=ct,
+        )
+        simulate_restrict(form, 'tags', Tag.objects.filter(pk=visible.pk))
+        self.assertTrue(form.is_valid(), form.errors)
+        ct = form.save()
+        self.assertEqual(set(ct.tags.all()), {visible, hidden})
+
+    def test_notificationgroup_only_hidden_group_stays_valid_and_preserved(self):
+        """A notification group whose only group is hidden stays valid and keeps it (merge precedes validation)."""
+        hidden = Group.objects.create(name='Hidden group')
+        ng = NotificationGroup.objects.create(name='NG 1')
+        ng.groups.set([hidden])
+
+        form = NotificationGroupForm(data={'name': 'NG 1'}, instance=ng)
+        simulate_restrict(form, 'groups', Group.objects.none())
+        self.assertTrue(form.is_valid(), form.errors)
+        ng = form.save()
+        self.assertEqual(set(ng.groups.all()), {hidden})

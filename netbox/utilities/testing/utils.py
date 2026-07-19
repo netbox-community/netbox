@@ -41,6 +41,18 @@ def post_data(data):
     return ret
 
 
+def simulate_restrict(form, field_name, restricted_queryset, original_queryset=None):
+    """
+    Stand in for restrict_form_fields() in a form unit test: record the original (pre-restriction) queryset, swap in
+    the restricted one, then prepare the read-only display. `original_queryset` defaults to the field's current
+    queryset. The form must expose prepare_restricted_queryset_fields() (i.e. use RestrictedRelatedFieldsMixin).
+    """
+    if original_queryset is None:
+        original_queryset = form.fields[field_name].queryset
+    form.fields[field_name].queryset = restricted_queryset
+    form.prepare_restricted_queryset_fields({field_name: original_queryset})
+
+
 def create_test_device(name, site=None, **attrs):
     """
     Convenience method for creating a Device (e.g. for component testing).

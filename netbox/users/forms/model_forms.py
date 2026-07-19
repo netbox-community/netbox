@@ -13,6 +13,7 @@ from core.models import ObjectType
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.config import get_config
+from netbox.forms.mixins import RestrictedRelatedFieldsMixin
 from netbox.preferences import PREFERENCES
 from netbox.registry import registry
 from users.choices import TokenVersionChoices
@@ -204,7 +205,7 @@ class TokenForm(UserTokenForm):
         return self.cleaned_data
 
 
-class UserForm(forms.ModelForm):
+class UserForm(RestrictedRelatedFieldsMixin, forms.ModelForm):
     password = forms.CharField(
         label=_('Password'),
         widget=forms.PasswordInput(),
@@ -260,6 +261,7 @@ class UserForm(forms.ModelForm):
         return instance
 
     def clean(self):
+        self._merge_restricted_preserved_members()
 
         # Check that password confirmation matches if password is set
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
@@ -270,7 +272,7 @@ class UserForm(forms.ModelForm):
             password_validation.validate_password(self.cleaned_data['password'], self.instance)
 
 
-class GroupForm(forms.ModelForm):
+class GroupForm(RestrictedRelatedFieldsMixin, forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
@@ -300,6 +302,11 @@ class GroupForm(forms.ModelForm):
         # Populate assigned users and permissions
         if self.instance.pk:
             self.fields['users'].initial = self.instance.users.values_list('id', flat=True)
+
+    def clean(self):
+        super().clean()
+        self._merge_restricted_preserved_members()
+        return self.cleaned_data
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -331,7 +338,7 @@ def get_object_types_choices():
     return list(choices_by_app.items())
 
 
-class ObjectPermissionForm(forms.ModelForm):
+class ObjectPermissionForm(RestrictedRelatedFieldsMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.all(),
@@ -482,6 +489,7 @@ class ObjectPermissionForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
+        self._merge_restricted_preserved_members()
 
         object_types = self.cleaned_data.get('object_types', [])
         constraints = self.cleaned_data.get('constraints')
@@ -551,7 +559,7 @@ class OwnerGroupForm(forms.ModelForm):
         ]
 
 
-class OwnerForm(forms.ModelForm):
+class OwnerForm(RestrictedRelatedFieldsMixin, forms.ModelForm):
     fieldsets = (
         FieldSet('name', 'group', 'description', name=_('Owner')),
         FieldSet('user_groups', name=_('Groups')),
@@ -580,3 +588,8 @@ class OwnerForm(forms.ModelForm):
         fields = [
             'name', 'group', 'description', 'user_groups', 'users',
         ]
+
+    def clean(self):
+        super().clean()
+        self._merge_restricted_preserved_members()
+        return self.cleaned_data

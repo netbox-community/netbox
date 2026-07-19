@@ -12,7 +12,7 @@ from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
-from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
+from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin, RestrictedRelatedFieldsMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
@@ -1043,7 +1043,7 @@ class VCMemberSelectForm(forms.Form):
 # Device component templates
 #
 
-class ComponentTemplateForm(ChangelogMessageMixin, forms.ModelForm):
+class ComponentTemplateForm(RestrictedRelatedFieldsMixin, ChangelogMessageMixin, forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
@@ -1058,6 +1058,11 @@ class ComponentTemplateForm(ChangelogMessageMixin, forms.ModelForm):
         # Disable reassignment of DeviceType when editing an existing instance
         if self.instance.pk:
             self.fields['device_type'].disabled = True
+
+    def clean(self):
+        # Merge restricted current members hidden from the user back into multi-value fields so they survive on save.
+        self._merge_restricted_preserved_members()
+        return super().clean()
 
 
 class ModularComponentTemplateForm(ComponentTemplateForm):
@@ -1362,6 +1367,17 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         },
         label=_('Rear port template')
     )
+
+    # Sibling selectors stored as the component GenericForeignKey; the model picks the matching field.
+    restricted_related_selectors = {
+        'consoleporttemplate': {'path': 'component', 'model': ConsolePortTemplate},
+        'consoleserverporttemplate': {'path': 'component', 'model': ConsoleServerPortTemplate},
+        'frontporttemplate': {'path': 'component', 'model': FrontPortTemplate},
+        'interfacetemplate': {'path': 'component', 'model': InterfaceTemplate},
+        'poweroutlettemplate': {'path': 'component', 'model': PowerOutletTemplate},
+        'powerporttemplate': {'path': 'component', 'model': PowerPortTemplate},
+        'rearporttemplate': {'path': 'component', 'model': RearPortTemplate},
+    }
 
     fieldsets = (
         FieldSet(
@@ -1846,6 +1862,17 @@ class InventoryItemForm(DeviceComponentForm):
         label=_('Rear port')
     )
 
+    # Sibling selectors stored as the component GenericForeignKey; the model picks the matching field.
+    restricted_related_selectors = {
+        'consoleport': {'path': 'component', 'model': ConsolePort},
+        'consoleserverport': {'path': 'component', 'model': ConsoleServerPort},
+        'frontport': {'path': 'component', 'model': FrontPort},
+        'interface': {'path': 'component', 'model': Interface},
+        'poweroutlet': {'path': 'component', 'model': PowerOutlet},
+        'powerport': {'path': 'component', 'model': PowerPort},
+        'rearport': {'path': 'component', 'model': RearPort},
+    }
+
     fieldsets = (
         FieldSet(
             'device', 'parent', 'name', 'label', 'status', 'role', 'description', 'tags',
@@ -2008,6 +2035,12 @@ class MACAddressForm(PrimaryModelForm):
             ),
         ),
     )
+
+    restricted_related_selectors = {
+        # The selectors are stored as the assigned_object GenericForeignKey; the model picks the matching one.
+        'interface': {'path': 'assigned_object', 'model': Interface},
+        'vminterface': {'path': 'assigned_object', 'model': VMInterface},
+    }
 
     class Meta:
         model = MACAddress

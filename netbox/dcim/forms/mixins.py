@@ -38,6 +38,11 @@ class ScopedForm(forms.Form):
         selector=True
     )
 
+    # Duplicated by ipam.VLANGroupForm, which needs broader scope_type choices and cannot inherit ScopedForm.
+    restricted_related_selectors = {
+        'scope': {'path': 'scope', 'lock_fields': ('scope_type',)},
+    }
+
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {})

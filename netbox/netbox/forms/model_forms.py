@@ -8,7 +8,7 @@ from extras.choices import *
 from utilities.forms.fields import CommentField, SlugField
 from utilities.forms.mixins import CheckLastUpdatedMixin
 
-from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, TagsMixin
+from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, RestrictedRelatedFieldsMixin, TagsMixin
 
 __all__ = (
     'NestedGroupModelForm',
@@ -19,6 +19,7 @@ __all__ = (
 
 
 class NetBoxModelForm(
+    RestrictedRelatedFieldsMixin,
     ChangelogMessageMixin,
     CheckLastUpdatedMixin,
     CustomFieldsMixin,
@@ -50,6 +51,9 @@ class NetBoxModelForm(
         return customfield.to_form_field()
 
     def clean(self):
+        # Merge restricted current members the user could not see back into multi-value fields so they survive on
+        # save (their options are disabled in the widget and so are not submitted).
+        self._merge_restricted_preserved_members()
 
         # Save custom field data on instance
         for cf_name, customfield in self.custom_fields.items():

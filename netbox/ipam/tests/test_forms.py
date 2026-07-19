@@ -3,8 +3,10 @@ from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
-from ipam.forms import PrefixForm, VLANIDBulkCreateForm
+from ipam.forms import FHRPGroupAssignmentForm, PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm
+from ipam.models import FHRPGroup, FHRPGroupAssignment
+from utilities.testing import create_test_device, simulate_restrict
 
 
 class PrefixFormTestCase(TestCase):
@@ -195,3 +197,28 @@ class VLANFormTestCase(TestCase):
                 form = VLANIDBulkCreateForm({'pattern': pattern})
                 self.assertFalse(form.is_valid())
                 self.assertIn('pattern', form.errors)
+
+
+class RestrictedFHRPGroupAssignmentFormTest(TestCase):
+    """FHRPGroupAssignmentForm (not a NetBoxModelForm) preserves a hidden group FK via the mixin."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Device 1')
+        cls.interface = Interface.objects.create(device=cls.device, name='eth0', type='1000base-t')
+
+    def test_hidden_group_is_preserved(self):
+        """Editing an FHRP group assignment whose group is hidden preserves it on save."""
+        group = FHRPGroup.objects.create(protocol='vrrp2', group_id=1)
+        assignment = FHRPGroupAssignment.objects.create(interface=self.interface, group=group, priority=10)
+
+        form = FHRPGroupAssignmentForm(
+            data={'group': group.pk, 'priority': 10},
+            instance=assignment,
+        )
+        simulate_restrict(form, 'group', FHRPGroup.objects.none())
+
+        self.assertTrue(form.fields['group'].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+        assignment = form.save()
+        self.assertEqual(assignment.group, group)

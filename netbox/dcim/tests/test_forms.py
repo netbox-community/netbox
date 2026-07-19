@@ -16,7 +16,7 @@ from dcim.models import *
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
 from utilities.forms.rendering import M2MAddRemoveFields
-from utilities.testing import create_test_device
+from utilities.testing import create_test_device, simulate_restrict
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -666,3 +666,46 @@ class SiteFormTestCase(TestCase):
         self.assertEqual(site.asns.count(), M2MAddRemoveFields.THRESHOLD)
         self.assertTrue(site.asns.filter(pk__in=add_pks).count() == 3)
         self.assertFalse(site.asns.filter(pk__in=remove_pks).exists())
+
+
+class RestrictedComponentTemplateFormTest(TestCase):
+    """Component-template forms (not NetBoxModelForms) preserve hidden FK selectors via the mixin on the base."""
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+
+    def test_poweroutlettemplate_hidden_power_port_is_preserved(self):
+        """Editing a power outlet template whose power_port is hidden preserves it on save."""
+        pp = PowerPortTemplate.objects.create(device_type=self.device_type, name='psu0')
+        outlet = PowerOutletTemplate.objects.create(device_type=self.device_type, name='out0', power_port=pp)
+
+        form = PowerOutletTemplateForm(
+            data={'device_type': self.device_type.pk, 'name': 'out0'},
+            instance=outlet,
+        )
+        simulate_restrict(form, 'power_port', PowerPortTemplate.objects.none())
+
+        self.assertTrue(form.fields['power_port'].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+        outlet = form.save()
+        self.assertEqual(outlet.power_port, pp)
+
+    def test_interfacetemplate_hidden_bridge_is_preserved(self):
+        """Editing an interface template whose bridge is hidden preserves it on save."""
+        other = InterfaceTemplate.objects.create(device_type=self.device_type, name='br0', type='1000base-t')
+        iface = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='eth1', type='1000base-t', bridge=other
+        )
+
+        form = InterfaceTemplateForm(
+            data={'device_type': self.device_type.pk, 'name': 'eth1', 'type': '1000base-t'},
+            instance=iface,
+        )
+        simulate_restrict(form, 'bridge', InterfaceTemplate.objects.none())
+
+        self.assertTrue(form.fields['bridge'].disabled)
+        self.assertTrue(form.is_valid(), form.errors)
+        iface = form.save()
+        self.assertEqual(iface.bridge, other)
