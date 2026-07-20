@@ -25,9 +25,9 @@ class MyModelType:
 @strawberry.type
 class MyQuery:
     @strawberry.field
-    def dummymodel(self, id: int) -> DummyModelType:
+    def mymodel(self, id: int) -> MyModelType:
         return None
-    dummymodel_list: list[DummyModelType] = strawberry_django.field()
+    mymodel_list: list[MyModelType] = strawberry_django.field()
 
 
 schema = [

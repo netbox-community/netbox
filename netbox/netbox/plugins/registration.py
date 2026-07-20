@@ -104,7 +104,7 @@ def register_graphql_schema(graphql_schema):
     registry['plugins']['graphql_schemas'].extend(graphql_schema)
 
 
-def _register_graphql_extensions(class_list, store):
+def _register_graphql_extensions(class_list, store, require_strawberry_type=False):
     """
     Collect a list of GraphQL output-type or filter mixin classes into the given registry store, bucketed by the
     model labels declared on each class's `models` attribute.
@@ -121,6 +121,14 @@ def _register_graphql_extensions(class_list, store):
                     extension=extension
                 )
             )
+        # Output-type extensions must be @strawberry.type-decorated for their fields to be collected; catch this at
+        # registration time rather than surfacing an opaque error when the schema is assembled.
+        if require_strawberry_type and not hasattr(extension, '__strawberry_definition__'):
+            raise TypeError(
+                _("GraphQL type extension {extension} must be decorated with @strawberry.type.").format(
+                    extension=extension
+                )
+            )
         for model in models:
             registry['plugins'][store][model.lower()].append(extension)
 
@@ -130,7 +138,7 @@ def register_graphql_type_extensions(class_list):
     Register a list of GraphQL output-type mixin classes. Each class must declare a `models` attribute listing the
     lowercased `app_label.model` labels of the core types it extends.
     """
-    _register_graphql_extensions(class_list, 'graphql_type_extensions')
+    _register_graphql_extensions(class_list, 'graphql_type_extensions', require_strawberry_type=True)
 
 
 def register_graphql_filter_extensions(class_list):

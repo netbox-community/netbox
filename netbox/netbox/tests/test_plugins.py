@@ -230,10 +230,12 @@ class PluginTestCase(TestCase):
 
         # The injected field and filter appear in the assembled schema
         schema_str = schema.as_str()
-        site_type = re.search(r'\ntype SiteType \{.*?\n\}', schema_str, re.DOTALL).group(0)
-        self.assertIn('dummy_plugin_field', site_type)
-        site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL).group(0)
-        self.assertIn('dummy_plugin_filter', site_filter)
+        site_type = re.search(r'\ntype SiteType \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_type, "SiteType not found in GraphQL schema")
+        self.assertIn('dummy_plugin_field', site_type.group(0))
+        site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_filter, "SiteFilter not found in GraphQL schema")
+        self.assertIn('dummy_plugin_filter', site_filter.group(0))
 
     @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):

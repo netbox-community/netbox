@@ -1,6 +1,21 @@
+import logging
+
 __all__ = (
     'splice_extension_bases',
 )
+
+logger = logging.getLogger('netbox.graphql')
+
+
+def _extension_field_names(extension):
+    """
+    Return the set of field/filter names an extension class contributes directly (annotations and its own
+    non-dunder attributes such as resolver methods), excluding the `models` marker.
+    """
+    names = set(getattr(extension, '__annotations__', {}))
+    names |= {name for name in vars(extension) if not name.startswith('__')}
+    names.discard('models')
+    return names
 
 
 def splice_extension_bases(cls, extensions):
@@ -14,6 +29,20 @@ def splice_extension_bases(cls, extensions):
     """
     if not extensions:
         return cls
+
+    # Warn on field-name collisions between extensions targeting the same type. The MRO silently picks a
+    # load-order-dependent winner, which is hard to diagnose in deployments with many plugins.
+    seen = {}
+    for extension in extensions:
+        for name in _extension_field_names(extension):
+            if name in seen:
+                logger.warning(
+                    "GraphQL extension %s redefines field '%s' on %s, already introduced by %s; "
+                    "the effective field is resolved by MRO and depends on plugin load order.",
+                    extension, name, cls.__name__, seen[name],
+                )
+            else:
+                seen[name] = extension
 
     namespace = dict(cls.__dict__)
     # Drop the descriptors that cannot (and need not) be copied to the rebuilt class; they are recreated by type().
