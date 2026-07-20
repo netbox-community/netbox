@@ -1,9 +1,9 @@
-from django.db import connection
-from django.test.utils import CaptureQueriesContext
+from unittest.mock import patch
+
 from django.urls import reverse
 
 from dcim.models import *
-from utilities.counters import connect_counters
+from utilities.counters import connect_counters, update_counter
 from utilities.testing.base import TestCase
 from utilities.testing.utils import create_test_device
 
@@ -76,20 +76,17 @@ class CountersTestCase(TestCase):
         device_type = device1.device_type
         self.assertEqual(device_type.device_count, 2)
 
-        with CaptureQueriesContext(connection) as ctx:
+        # Wrap update_counter so the real counter logic still runs while we record each call
+        with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
             device1.delete()
 
-        # No counter UPDATE should target the interface counter of the Device being deleted
-        interface_counter_updates = [
-            q['sql'] for q in ctx.captured_queries
-            if q['sql'].upper().startswith('UPDATE') and '_interface_count' in q['sql']
-        ]
-        self.assertEqual(
-            interface_counter_updates, [],
-            "Deleting a Device must not update its own interface counter for each cascaded Interface"
-        )
+        # The Device's own interface counter must not be updated per cascaded Interface, since the
+        # Device is itself being deleted
+        counter_names = [call.args[2] for call in mock_update.call_args_list]
+        self.assertNotIn('interface_count', counter_names)
 
         # The counter on the surviving parent (DeviceType) must still be decremented
+        self.assertIn('device_count', counter_names)
         device_type.refresh_from_db()
         self.assertEqual(device_type.device_count, 1)
 

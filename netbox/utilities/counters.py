@@ -70,6 +70,11 @@ def _parent_is_being_deleted(origin, parent_model, parent_pk):
     operation. In that case, decrementing its counter is wasted work: the parent row is going away,
     so the UPDATE would be a no-op. Skipping it avoids an N+1 storm of pointless UPDATEs when a
     parent with many tracked children is deleted (e.g. a Device with thousands of Interfaces).
+
+    Note: only the *direct* parent is detected, since `origin` is just the top-level object/queryset
+    delete() was called on. In a deeper cascade (DeviceType -> Device -> Interface) `origin` stays
+    the DeviceType, so intermediate Devices' interface counters still get the (harmless) no-op
+    UPDATE. Suppressing that would require the full deletion set, which the signals don't expose.
     """
     if origin is None:
         return False
