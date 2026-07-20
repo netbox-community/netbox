@@ -71,6 +71,7 @@ nav:
         - Facilities: 'features/facilities.md'
         - Devices & Cabling: 'features/devices-cabling.md'
         - Power Tracking: 'features/power-tracking.md'
+        - Cooling: 'features/cooling.md'
         - IPAM: 'features/ipam.md'
         - VLAN Management: 'features/vlan-management.md'
         - L2VPN & Overlay: 'features/l2vpn-overlay.md'
