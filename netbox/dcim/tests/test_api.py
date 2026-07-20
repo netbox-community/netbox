@@ -2343,6 +2343,14 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.update_data = {
+            'device': device.pk,
+            'module_bay': module_bays[3].pk,
+            'module_type': module_types[0].pk,
+            'status': 'active',
+            'serial': 'ABC123',
+        }
+
     def test_is_bay_compatible_flag(self):
         """
         is_bay_compatible should be True when no bay types are set, and False when the
@@ -2652,6 +2660,72 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(self._get_list_url(), {'profile': [profiles[1].name]}, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+    def test_patch_module_bay_derives_device(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        device_b = create_test_device('Module Move Device B')
+        bay_b = ModuleBay.objects.create(device=device_b, name='Module Move Bay B1')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        module.refresh_from_db()
+        self.assertEqual(module.device, device_b)
+        self.assertEqual(module.module_bay, bay_b)
+
+    def test_patch_device_and_module_bay_mismatch_fails(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        device_b = create_test_device('Module Move Device B')
+        same_device_bay = ModuleBay.objects.create(device=module.device, name='Module Move Bay A9')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(
+            url, {'device': device_b.pk, 'module_bay': same_device_bay.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_patch_module_type_with_move_fails(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        empty_bay = ModuleBay.objects.filter(
+            device=module.device, installed_module__isnull=True
+        ).first()
+        other_type = ModuleType.objects.exclude(pk=module.module_type_id).first()
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(
+            url, {'module_bay': empty_bay.pk, 'module_type': other_type.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('module_type', response.data)
+
+    def test_patch_occupied_bay_fails(self):
+        self.add_permissions('dcim.change_module')
+        module_1, module_2 = Module.objects.order_by('pk')[:2]
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module_1.pk})
+        response = self.client.patch(
+            url, {'module_bay': module_2.module_bay_id}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('module_bay', response.data)
+
+    def test_patch_cross_device_move_blocked_by_ip_address(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        interface = Interface.objects.create(
+            device=module.device, module=module, name='Move Test Interface 1',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        IPAddress.objects.create(address='192.0.2.10/32', assigned_object=interface)
+        device_b = create_test_device('Module Move Device B')
+        bay_b = ModuleBay.objects.create(device=device_b, name='Module Move Bay B1')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
 class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):

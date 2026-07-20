@@ -8,25 +8,64 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
-def get_module_bay_positions(module_bay):
+def inherit_module_token(position, parent_positions):
     """
-    Given a module bay, traverse up the module hierarchy and return
-    a list of bay position strings from root to leaf, resolving any
-    {module} tokens in each position using the parent position
-    (position inheritance).
+    Resolve a single {module} token in a bay position by inheriting from the position
+    one level deeper in a module bay hierarchy. Returns position unchanged unless
+    parent_positions is non-empty and position contains {module}, in which case the
+    token is substituted with parent_positions[-1].
+
+    Used by resolve_position_chain(), the single inheritance implementation shared by
+    get_module_bay_positions() and the module move planner.
+    """
+    if parent_positions and MODULE_TOKEN in position:
+        return position.replace(MODULE_TOKEN, parent_positions[-1])
+    return position
+
+
+def get_module_bay_raw_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return the stored
+    (unresolved) bay position strings from root to leaf.
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
     """
     positions = []
+    visited = set()
     while module_bay:
-        pos = module_bay.position or ''
-        if positions and MODULE_TOKEN in pos:
-            pos = pos.replace(MODULE_TOKEN, positions[-1])
-        positions.append(pos)
-        if module_bay.module:
-            module_bay = module_bay.module.module_bay
-        else:
-            module_bay = None
+        if module_bay.pk in visited:
+            raise ValueError(_("Module bay hierarchy contains a cycle."))
+        visited.add(module_bay.pk)
+        positions.append(module_bay.position or '')
+        module_bay = module_bay.module.module_bay if module_bay.module else None
     positions.reverse()
     return positions
+
+
+def resolve_position_chain(raw_positions):
+    """
+    Apply leaf-to-root {module} token inheritance over a root-to-leaf list of raw bay
+    positions: each position inherits from the resolved position one level deeper, and
+    the leaf's own token is never resolved. Shared by get_module_bay_positions() and
+    the module move planner so a planned chain always equals what a fresh walk
+    computes once the planned positions are stored.
+    """
+    resolved = []
+    for position in reversed(raw_positions):
+        resolved.append(inherit_module_token(position, resolved))
+    resolved.reverse()
+    return resolved
+
+
+def get_module_bay_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return a list of bay
+    position strings from root to leaf, resolving any {module} tokens in each
+    position using the parent position (position inheritance).
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
+    """
+    return resolve_position_chain(get_module_bay_raw_positions(module_bay))
 
 
 def resolve_module_placeholder(value, positions):
