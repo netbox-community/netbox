@@ -2570,6 +2570,70 @@ class VCPositionTokenTestCase(TestCase):
         interface = device.interfaces.get(name='ge-2/1/0')
         self.assertEqual(interface.label, 'Member 2 / Slot 1')
 
+    @tag('regression')  # Ref: #22707
+    def test_vc_position_token_interface_bridge_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        bridge_template = InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='br-{vc_position}',
+            type='bridge',
+        )
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position}/0/1',
+            type='1000base-t',
+            bridge=bridge_template,
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 5')
+        device = Device.objects.create(
+            name='Device VC 5', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=5,
+        )
+
+        interface = device.interfaces.get(name='ge-5/0/1')
+        self.assertEqual(interface.bridge, device.interfaces.get(name='br-5'))
+
+    @tag('regression')  # Ref: #22707
+    def test_vc_position_token_port_mapping_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        rear_port_template = RearPortTemplate.objects.create(
+            device_type=device_type,
+            name='rp-{vc_position}/1',
+            type=PortTypeChoices.TYPE_LC,
+            positions=1,
+        )
+        front_port_template = FrontPortTemplate.objects.create(
+            device_type=device_type,
+            name='fp-{vc_position}/1',
+            type=PortTypeChoices.TYPE_LC,
+            positions=1,
+        )
+        PortTemplateMapping.objects.create(
+            device_type=device_type,
+            front_port=front_port_template,
+            front_port_position=1,
+            rear_port=rear_port_template,
+            rear_port_position=1,
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 6')
+        device = Device.objects.create(
+            name='Device VC 6', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=6,
+        )
+
+        front_port = FrontPort.objects.get(device=device, name='fp-6/1')
+        rear_port = RearPort.objects.get(device=device, name='rp-6/1')
+        mapping = PortMapping.objects.get(device=device, front_port=front_port)
+        self.assertEqual(mapping.rear_port, rear_port)
+        self.assertEqual(mapping.front_port_position, 1)
+        self.assertEqual(mapping.rear_port_position, 1)
+
 
 class SiteSignalTestCase(TestCase):
 
