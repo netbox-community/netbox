@@ -21,6 +21,8 @@ registry['plugins'].update({
     'installed': [],
     'graphql_schemas': [],
     'jinja_filters': {},
+    'graphql_type_extensions': collections.defaultdict(list),
+    'graphql_filter_extensions': collections.defaultdict(list),
     'menus': [],
     'menu_items': {},
     'preferences': {},
@@ -32,6 +34,8 @@ DEFAULT_RESOURCE_PATHS = {
     'data_backends': 'data_backends.backends',
     'graphql_schema': 'graphql.schema',
     'jinja_filters': 'jinja_env.filters',
+    'graphql_type_extensions': 'graphql.type_extensions',
+    'graphql_filter_extensions': 'graphql.filter_extensions',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -81,6 +85,8 @@ class PluginConfig(AppConfig):
     data_backends = None
     graphql_schema = None
     jinja_filters = None
+    graphql_type_extensions = None
+    graphql_filter_extensions = None
     menu = None
     menu_items = None
     serializer_resolver = None
@@ -150,6 +156,13 @@ class PluginConfig(AppConfig):
         # Register GraphQL schema (if defined)
         if graphql_schema := self._load_resource('graphql_schema'):
             register_graphql_schema(graphql_schema)
+
+        # Register GraphQL type & filter extensions (if defined). These must be registered before the GraphQL
+        # schema is assembled (during ROOT_URLCONF loading), which occurs after all apps' ready() methods run.
+        if graphql_type_extensions := self._load_resource('graphql_type_extensions'):
+            register_graphql_type_extensions(graphql_type_extensions)
+        if graphql_filter_extensions := self._load_resource('graphql_filter_extensions'):
+            register_graphql_filter_extensions(graphql_filter_extensions)
 
         # Register user preferences (if defined)
         if user_preferences := self._load_resource('user_preferences'):

@@ -7,6 +7,8 @@ from strawberry_django import ComparisonFilterLookup, StrFilterLookup
 
 from core.graphql.filter_mixins import ChangeLoggingMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, JournalEntriesFilterMixin, TagsFilterMixin
+from netbox.graphql.utils import splice_extension_bases
+from netbox.registry import registry
 
 if TYPE_CHECKING:
     from .filters import *
@@ -18,7 +20,25 @@ __all__ = (
     'NetBoxModelFilter',
     'OrganizationalModelFilter',
     'PrimaryModelFilter',
+    'register_filter',
 )
+
+
+def register_filter(model, **kwargs):
+    """
+    Drop-in replacement for `strawberry_django.filter_type()` for model-bound NetBox GraphQL filters. Before
+    delegating to `strawberry_django.filter_type()`, any plugin-registered filter mixins for the given model are
+    spliced into the decorated class's bases. With no extensions registered this is an exact pass-through, leaving
+    schema output unchanged.
+    """
+    label = f'{model._meta.app_label}.{model._meta.model_name}'
+
+    def wrapper(cls):
+        extensions = registry['plugins']['graphql_filter_extensions'].get(label)
+        cls = splice_extension_bases(cls, extensions)
+        return strawberry_django.filter_type(model, **kwargs)(cls)
+
+    return wrapper
 
 
 @dataclass

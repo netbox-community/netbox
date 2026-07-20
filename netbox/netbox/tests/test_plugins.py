@@ -1,3 +1,4 @@
+import re
 from unittest import skipIf
 
 from django.conf import settings
@@ -215,6 +216,24 @@ class PluginTestCase(TestCase):
 
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
+
+    def test_graphql_type_extensions(self):
+        """
+        Validate that plugin GraphQL type & filter extensions are registered and spliced into the built schema.
+        """
+        from netbox.graphql.schema import schema
+        from netbox.tests.dummy_plugin.graphql import SiteFilterExtension, SiteTypeExtension
+
+        # Extensions are registered against the targeted core model
+        self.assertIn(SiteTypeExtension, registry['plugins']['graphql_type_extensions']['dcim.site'])
+        self.assertIn(SiteFilterExtension, registry['plugins']['graphql_filter_extensions']['dcim.site'])
+
+        # The injected field and filter appear in the assembled schema
+        schema_str = schema.as_str()
+        site_type = re.search(r'\ntype SiteType \{.*?\n\}', schema_str, re.DOTALL).group(0)
+        self.assertIn('dummy_plugin_field', site_type)
+        site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL).group(0)
+        self.assertIn('dummy_plugin_filter', site_filter)
 
     @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):

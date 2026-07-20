@@ -11,7 +11,9 @@ from .templates import PluginTemplateExtension
 logger = logging.getLogger(__name__)
 
 __all__ = (
+    'register_graphql_filter_extensions',
     'register_graphql_schema',
+    'register_graphql_type_extensions',
     'register_jinja_filters',
     'register_menu',
     'register_menu_items',
@@ -100,6 +102,43 @@ def register_graphql_schema(graphql_schema):
     Register a GraphQL schema class for inclusion in NetBox's GraphQL API.
     """
     registry['plugins']['graphql_schemas'].extend(graphql_schema)
+
+
+def _register_graphql_extensions(class_list, store):
+    """
+    Collect a list of GraphQL output-type or filter mixin classes into the given registry store, bucketed by the
+    model labels declared on each class's `models` attribute.
+    """
+    for extension in class_list:
+        if not inspect.isclass(extension):
+            raise TypeError(
+                _("GraphQL extension {extension} was passed as an instance!").format(extension=extension)
+            )
+        models = getattr(extension, 'models', None)
+        if not models:
+            raise TypeError(
+                _("GraphQL extension {extension} must declare a non-empty 'models' attribute.").format(
+                    extension=extension
+                )
+            )
+        for model in models:
+            registry['plugins'][store][model.lower()].append(extension)
+
+
+def register_graphql_type_extensions(class_list):
+    """
+    Register a list of GraphQL output-type mixin classes. Each class must declare a `models` attribute listing the
+    lowercased `app_label.model` labels of the core types it extends.
+    """
+    _register_graphql_extensions(class_list, 'graphql_type_extensions')
+
+
+def register_graphql_filter_extensions(class_list):
+    """
+    Register a list of GraphQL filter mixin classes. Each class must declare a `models` attribute listing the
+    lowercased `app_label.model` labels of the core filters it extends.
+    """
+    _register_graphql_extensions(class_list, 'graphql_filter_extensions')
 
 
 def register_user_preferences(plugin_name, preferences):
