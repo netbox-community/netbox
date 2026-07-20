@@ -2205,7 +2205,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         site_group = SiteGroup.objects.get(name='Site Group 1')
         params = {'available_at_site_group': site_group.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)  # 1 scoped + 1 global group + 1 global
-        
+
     def test_interface(self):
         interface_id = Interface.objects.first().pk
         params = {'interface_id': interface_id}
