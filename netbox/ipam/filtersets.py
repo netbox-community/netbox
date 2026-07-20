@@ -946,7 +946,6 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 @register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = MultiValueContentTypeFilter()
-
     region = MultiValueNumberFilter(
         method='filter_scope'
     )
@@ -991,6 +990,8 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     def filter_scope(self, queryset, name, value):
         model_name = name.replace('_', '')
+        if not isinstance(value, (list, tuple, set)):
+            value = [value]
         return queryset.filter(
             scope_type=ContentType.objects.get(model=model_name),
             scope_id__in=value
@@ -1226,6 +1227,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
             Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
+
 
 @register_filterset
 class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
