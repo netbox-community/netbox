@@ -125,9 +125,8 @@ def _register_graphql_extensions(class_list, store):
                     extension=extension
                 )
             )
-        # Extensions must be @strawberry.type-decorated for their fields to be collected; catch this at
-        # registration time rather than surfacing an opaque error when the schema is assembled. Check the class's
-        # own __dict__ (not hasattr) so an undecorated subclass of a @strawberry.type base is still rejected.
+        # Must be @strawberry.type-decorated for its fields to be collected. Check the class's own __dict__ (not
+        # hasattr) so an undecorated subclass of a @strawberry.type base is still rejected.
         if '__strawberry_definition__' not in vars(extension):
             raise TypeError(
                 _("GraphQL extension {extension} must be decorated with @strawberry.type.").format(
@@ -135,8 +134,8 @@ def _register_graphql_extensions(class_list, store):
                 )
             )
         for label in models:
-            # Resolve the target model to validate the label and derive its canonical key; a mistyped or unknown
-            # label would otherwise register into a bucket that is never consumed, silently dropping the extension.
+            # Resolve the model to validate the label and derive its canonical key; a bad label would otherwise
+            # register into a bucket that is never looked up, silently dropping the extension.
             try:
                 model = apps.get_model(label)
             except (LookupError, ValueError):
