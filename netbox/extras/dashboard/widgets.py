@@ -2,7 +2,7 @@ import logging
 import uuid
 from functools import cached_property
 from hashlib import sha256
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 import feedparser
 import requests
@@ -16,7 +16,9 @@ from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
+from netbox.config import get_config
 from utilities.choices import Choice
+from utilities.html import clean_html
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.proxy import resolve_proxies
@@ -357,7 +359,9 @@ class RSSFeedWidget(DashboardWidget):
     def cache_key(self):
         url = self.config['feed_url']
         url_checksum = sha256(url.encode('utf-8')).hexdigest()
-        return f'dashboard_rss_{url_checksum}'
+        # The version segment invalidates entries cached by a pre-sanitization release: such
+        # entries live under the old key and are never read, so they can't be served unsanitized.
+        return f'dashboard_rss_2_{url_checksum}'
 
     def get_feed(self):
         if self.config.get('requires_internet') and settings.ISOLATED_DEPLOYMENT:
@@ -365,7 +369,8 @@ class RSSFeedWidget(DashboardWidget):
                 'isolated_deployment': True,
             }
 
-        # Fetch RSS content from cache if available
+        # Fetch RSS content from cache if available. Cached content is always sanitized before
+        # it is written (see below), so no sanitization is needed on read.
         if feed_content := cache.get(self.cache_key):
             return {
                 'feed': feedparser.FeedParserDict(feed_content),
@@ -391,12 +396,35 @@ class RSSFeedWidget(DashboardWidget):
             # Cap number of entries
             max_entries = self.config.get('max_entries')
             feed['entries'] = feed['entries'][:max_entries]
+            # Sanitize feed-controlled content before caching/rendering
+            self.sanitize_entries(feed['entries'])
             # Cache the feed content
             cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
 
         return {
             'feed': feed,
         }
+
+    @staticmethod
+    def sanitize_entries(entries):
+        """
+        Sanitize feed-controlled entry content in place. The feed URL is untrusted external
+        content, so we must guard against dangerous URL schemes (e.g. javascript:) in entry
+        links and sanitize entry summaries as defense-in-depth.
+        """
+        allowed_schemes = get_config().ALLOWED_URL_SCHEMES
+        for entry in entries:
+            # Blank any link whose scheme isn't permitted (blocks javascript:, data:, etc.).
+            # This is the load-bearing control: the template renders entry.link into an href.
+            if link := entry.get('link'):
+                result = urlparse(link)
+                if result.scheme and result.scheme.lower() not in allowed_schemes:
+                    entry['link'] = ''
+            # Sanitize the summary HTML as defense-in-depth. The template renders entry.summary
+            # with auto-escaping (not |safe), so this is not currently load-bearing; it guards
+            # against a future change that renders the summary as markup.
+            if summary := entry.get('summary'):
+                entry['summary'] = clean_html(summary, allowed_schemes)
 
 
 @register_widget

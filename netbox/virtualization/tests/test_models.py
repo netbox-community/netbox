@@ -3,10 +3,61 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from dcim.models import Platform, Site
+from dcim.models import Platform, Region, Site, SiteGroup
 from tenancy.models import Tenant
 from utilities.testing import create_test_device
 from virtualization.models import *
+
+
+class ClusterTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+
+    # Regression test for #22682
+    def test_deleting_site_group_does_not_delete_cluster_scoped_to_member_site(self):
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+        site = Site.objects.create(name='Site 1', slug='site-1', group=sitegroup)
+        cluster = Cluster.objects.create(name='Cluster 1', type=self.cluster_type, scope=site)
+
+        sitegroup.delete()
+
+        site.refresh_from_db()
+        cluster.refresh_from_db()
+        self.assertIsNone(site.group)
+        self.assertEqual(cluster.scope, site)
+        self.assertIsNone(cluster._site_group_id)
+
+    # Regression test for #22682
+    def test_deleting_region_does_not_delete_cluster_scoped_to_member_site(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        site = Site.objects.create(name='Site 2', slug='site-2', region=region)
+        cluster = Cluster.objects.create(name='Cluster 2', type=self.cluster_type, scope=site)
+
+        region.delete()
+
+        site.refresh_from_db()
+        cluster.refresh_from_db()
+        self.assertIsNone(site.region)
+        self.assertIsNone(cluster._region_id)
+        self.assertEqual(cluster.scope, site)
+
+    def test_deleting_site_group_scoped_to_it_directly_still_deletes_cluster(self):
+        sitegroup = SiteGroup.objects.create(name='Site Group 2', slug='site-group-2')
+        cluster = Cluster.objects.create(name='Cluster 3', type=self.cluster_type, scope=sitegroup)
+
+        sitegroup.delete()
+
+        self.assertFalse(Cluster.objects.filter(pk=cluster.pk).exists())
+
+    def test_deleting_region_scoped_to_it_directly_still_deletes_cluster(self):
+        region = Region.objects.create(name='Region 2', slug='region-2')
+        cluster = Cluster.objects.create(name='Cluster 4', type=self.cluster_type, scope=region)
+
+        region.delete()
+
+        self.assertFalse(Cluster.objects.filter(pk=cluster.pk).exists())
 
 
 class VirtualMachineTypeTestCase(TestCase):

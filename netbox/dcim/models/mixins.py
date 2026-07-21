@@ -72,15 +72,18 @@ class CachedScopeMixin(models.Model):
         blank=True,
         null=True
     )
+    # SET_NULL, not CASCADE: these cache an ancestor of the actual scope, so deleting that
+    # ancestor must not delete this object. Deletion of a Region/SiteGroup that *is* the
+    # actual scope is handled independently via its GenericRelation to this model.
     _region = models.ForeignKey(
         to='dcim.Region',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
     _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )

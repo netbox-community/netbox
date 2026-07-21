@@ -29,6 +29,8 @@ class PortMappingBase(models.Model):
         ),
     )
 
+    # Change-logged but private: no public API/URL, and the delete-time UPDATE cascade onto the
+    # parent ports stays suppressed (see #21390, #22270).
     _netbox_private = True
 
     class Meta:
@@ -43,6 +45,9 @@ class PortMappingBase(models.Model):
                 name='%(app_label)s_%(class)s_unique_rear_port_position'
             ),
         )
+
+    def __str__(self):
+        return f'{self.front_port}:{self.front_port_position} to {self.rear_port}:{self.rear_port_position}'
 
     def clean(self):
         super().clean()

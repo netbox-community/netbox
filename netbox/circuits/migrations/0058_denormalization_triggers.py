@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('circuits', '0057_default_ordering_indexes'),
         # Source tables (dcim_site, dcim_location) must already exist.
-        ('dcim', '0238_ltree_paths'),
+        ('dcim', '0240_ltree_paths'),
     ]
 
     operations = [

@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0239_denormalization_triggers'),
+        ('dcim', '0241_denormalization_triggers'),
     ]
 
     operations = [

@@ -1,10 +1,13 @@
 import datetime
 import hashlib
 import io
+import json
+from contextlib import contextmanager
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -18,7 +21,7 @@ from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
-from users.models import Group, Token, User
+from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -446,7 +449,24 @@ class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
             custom_link.object_types.set([site_type])
 
 
-class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
+class SharedObjectAPITestMixin:
+    """
+    Helpers for testing the shared/owner visibility enforced on SavedFilter and TableConfig.
+    """
+    def _grant_view_permission_and_authenticate(self, user, model):
+        """
+        Grant `user` an unconstrained view permission on `model`, create an API token, and return the
+        corresponding authentication header.
+        """
+        obj_perm = ObjectPermission(name=f'{model._meta.model_name} view', actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
+        token = Token.objects.create(user=user)
+        return {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+
+class SavedFilterTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = SavedFilter
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -518,8 +538,55 @@ class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.object_types.set([site_type])
 
+    def test_private_filter_not_visible_to_other_users(self):
+        """
+        A private (shared=False) SavedFilter owned by another user must not be exposed via the REST API, even to
+        a user holding an unconstrained view permission.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        owner = User.objects.create_user(username='filter-owner')
+        private_filter = SavedFilter.objects.create(
+            name='Private Filter',
+            slug='private-filter',
+            user=owner,
+            shared=False,
+            parameters={'status': ['active']},
+        )
+        private_filter.object_types.set([site_type])
 
-class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
+        # Grant an unconstrained view permission (the common case)
+        self.add_permissions('extras.view_savedfilter')
+
+        # The private filter must not appear in the list
+        response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        returned_ids = [obj['id'] for obj in response.data['results']]
+        self.assertNotIn(private_filter.pk, returned_ids)
+
+        # The private filter must not be retrievable directly
+        response = self.client.get(self._get_detail_url(private_filter), **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        # The private filter must not be exposed via GraphQL either
+        query = '{ saved_filter_list { id } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
+        self.assertNotIn(private_filter.pk, returned_ids)
+
+        # The owner, however, must still be able to access their own private filter
+        owner_header = self._grant_view_permission_and_authenticate(owner, SavedFilter)
+        response = self.client.get(self._get_detail_url(private_filter), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
+        self.assertIn(private_filter.pk, returned_ids)
+
+
+class TableConfigTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = TableConfig
     brief_fields = ['description', 'display', 'id', 'name', 'object_type', 'table', 'url']
     bulk_update_data = {
@@ -547,6 +614,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[0],
+                shared=True,
                 columns=['name', 'status'],
             ),
             TableConfig(
@@ -554,6 +622,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[1],
+                shared=True,
                 columns=['name', 'region'],
             ),
             TableConfig(
@@ -561,6 +630,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[2],
+                shared=True,
                 columns=['name', 'tenant'],
             ),
         )
@@ -588,6 +658,54 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 'columns': ['name', 'tenant'],
             },
         ]
+
+    def test_private_table_config_not_visible_to_other_users(self):
+        """
+        A private (shared=False) TableConfig owned by another user must not be exposed via the REST API, even to
+        a user holding an unconstrained view permission.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        site_table_name = get_table_for_model(Site).__name__
+        owner = User.objects.create_user(username='tableconfig-owner')
+        private_config = TableConfig.objects.create(
+            name='Private Table Config',
+            object_type=site_type,
+            table=site_table_name,
+            user=owner,
+            shared=False,
+            columns=['name', 'status'],
+        )
+
+        # Grant an unconstrained view permission (the common case)
+        self.add_permissions('extras.view_tableconfig')
+
+        # The private table config must not appear in the list
+        response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        returned_ids = [obj['id'] for obj in response.data['results']]
+        self.assertNotIn(private_config.pk, returned_ids)
+
+        # The private table config must not be retrievable directly
+        response = self.client.get(self._get_detail_url(private_config), **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        # The private table config must not be exposed via GraphQL either
+        query = '{ table_config_list { id } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
+        self.assertNotIn(private_config.pk, returned_ids)
+
+        # The owner, however, must still be able to access their own private table config
+        owner_header = self._grant_view_permission_and_authenticate(owner, TableConfig)
+        response = self.client.get(self._get_detail_url(private_config), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
+        self.assertIn(private_config.pk, returned_ids)
 
 
 class BookmarkTestCase(
@@ -810,6 +928,12 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+        )
+        User.objects.bulk_create(users)
+
         user = User.objects.first()
         site = Site.objects.create(name='Site 1', slug='site-1')
 
@@ -849,6 +973,25 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
                 'comments': 'Third entry',
             },
         ]
+
+    def test_immutable_created_by(self):
+        """
+        Verify that created_by can't be changed for existing objects
+        """
+        entry = JournalEntry.objects.first()
+        created_by_before = entry.created_by_id
+        # select user different from the one currently set
+        change_user = User.objects.exclude(pk=created_by_before).only('id').first()
+
+        url = reverse('extras-api:journalentry-detail', kwargs={'pk': entry.pk})
+        self.add_permissions('extras.change_journalentry')
+        response = self.client.patch(url, {'created_by': change_user.id}, format='json', **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        entry.refresh_from_db()
+        created_by_after = entry.created_by_id
+        self.assertEqual(created_by_before, created_by_after)
 
 
 class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
@@ -1623,17 +1766,22 @@ class NotificationTestCase(APIViewTestCases.APIViewTestCase):
 
 
 class _InMemoryScriptStorage:
-    """Stateful stand-in for the scripts storage backend; mimics allow_overwrite=True."""
+    """Stateful stand-in for the scripts storage backend; mirrors its allow_overwrite option."""
 
-    def __init__(self):
+    def __init__(self, allow_overwrite=True):
         self.files = {}
+        self.allow_overwrite = allow_overwrite
 
     def save(self, name, content):
+        if not self.allow_overwrite and name in self.files:
+            name = f'{name}.1'
         content.seek(0)
         self.files[name] = content.read()
         return name
 
     def open(self, name, mode='rb'):
+        if name not in self.files:
+            raise FileNotFoundError(name)
         return io.BytesIO(self.files[name])
 
     def delete(self, name):
@@ -1655,6 +1803,18 @@ class ScriptModuleTestCase(APITestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse('extras-api:scriptmodule-list')  # /api/extras/scripts/upload/
+
+    @contextmanager
+    def _patched_script_storage(self, fake_storage):
+        """Patch both storage entry points (serializer writes, module imports) to the given fake."""
+        with (
+            patch('extras.api.serializers_.scripts.storages') as serializer_storages,
+            patch('extras.models.mixins.storages') as module_storages,
+        ):
+            serializer_storages.create_storage.return_value = fake_storage
+            serializer_storages.backends = {'scripts': {}}
+            module_storages.__getitem__.return_value = fake_storage
+            yield
 
     def test_upload_script_module_without_permission(self):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
@@ -1765,3 +1925,354 @@ class ScriptModuleTestCase(APITestCase):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(self.url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_script_module(self):
+        """A PATCH with a new file replaces the stored content and re-syncs the module's scripts."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScriptV2(Script):\n    def run(self, data, commit):\n        return 'v2'\n"
+        )
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_update.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module_id = response.data['id']
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module_id})
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_update.py', updated_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['id'], module_id)
+        self.assertEqual(response.data['file_path'], 'zz_update.py')
+        self.assertIsNotNone(response.data['last_updated'])
+        self.assertEqual(fake_storage.files['zz_update.py'], updated_content)
+        # Script classes are re-synced from the new content
+        self.assertFalse(Script.objects.filter(module_id=module_id, name='ProbeScript').exists())
+        self.assertTrue(Script.objects.filter(module_id=module_id, name='ProbeScriptV2').exists())
+        self.assertEqual(ScriptModule.objects.filter(file_path='zz_update.py').count(), 1)
+
+    def test_update_script_module_without_file_fails(self):
+        """A PATCH without a file upload is rejected and leaves the stored content unchanged."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_nofile.py', script_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': response.data['id']})
+
+            response = self.client.patch(detail_url, {}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('file', response.data)
+        self.assertEqual(fake_storage.files['zz_nofile.py'], script_content)
+
+    def test_update_script_module_without_permission(self):
+        """A PATCH without change permissions returns 403 and leaves the stored content unchanged."""
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_forbidden.py', script_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': response.data['id']})
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_forbidden.py', script_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(fake_storage.files['zz_forbidden.py'], script_content)
+
+    def test_update_script_module_by_file_name(self):
+        """A module can be updated by addressing it with its file name instead of its numeric ID."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = original_content.replace(b"'v1'", b"'v2'")
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_by_name.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module_id = response.data['id']
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': 'zz_by_name.py'})
+
+            response = self.client.put(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_by_name.py', updated_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['id'], module_id)
+        self.assertEqual(fake_storage.files['zz_by_name.py'], updated_content)
+
+    def test_update_script_module_rejects_mismatched_file_name(self):
+        """An update whose uploaded file name differs from the module's file path is rejected."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_mismatch.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': response.data['id']})
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_other.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(fake_storage.files['zz_mismatch.py'], original_content)
+        self.assertNotIn('zz_other.py', fake_storage.files)
+
+    def test_update_script_module_storage_name_mismatch_fails(self):
+        """If the storage backend saves under an alternate name, the update is rejected and rolled back."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = original_content.replace(b"'v1'", b"'v2'")
+        fake_storage = _InMemoryScriptStorage(allow_overwrite=False)
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_suffix.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module = ScriptModule.objects.get(file_path='zz_suffix.py')
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_suffix.py', updated_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        # Original file intact, alternate-name orphan removed
+        self.assertEqual(fake_storage.files['zz_suffix.py'], original_content)
+        self.assertNotIn('zz_suffix.py.1', fake_storage.files)
+        module.refresh_from_db()
+        self.assertEqual(module.file_path, 'zz_suffix.py')
+
+    def test_update_faulty_script_module_preserves_existing_module(self):
+        """An update with invalid script content is rejected before storage or Script rows change."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        # 'extras.script' is invalid; the correct module is 'extras.scripts'
+        faulty_content = b"from extras.script import Script\nclass TestScript(Script):\n    pass\n"
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_faulty_update.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module_id = response.data['id']
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module_id})
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_faulty_update.py', faulty_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(fake_storage.files['zz_faulty_update.py'], original_content)
+        self.assertTrue(Script.objects.filter(module_id=module_id, name='ProbeScript').exists())
+
+    def test_update_script_module_not_found(self):
+        """An update addressing a nonexistent module returns 404 for both lookup styles."""
+        self.add_permissions('extras.change_scriptmodule', 'core.change_managedfile')
+        for lookup in ('999999', 'zz_missing.py', '½'):
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': lookup})
+            response = self.client.patch(detail_url, {}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_update_script_module_via_put_without_file_fails(self):
+        """A PUT without a file upload is rejected by the field-level required check."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_put_nofile.py', script_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': response.data['id']})
+
+            response = self.client.put(detail_url, {}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('file', response.data)
+        self.assertEqual(fake_storage.files['zz_put_nofile.py'], script_content)
+
+    def test_update_script_module_rolls_back_scripts_on_save_failure(self):
+        """A failed Script sync during an update rolls back all Script row changes."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScriptV2(Script):\n    def run(self, data, commit):\n        return 'v2'\n"
+        )
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_rollback.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            module_id = response.data['id']
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module_id})
+
+            # Fail the sync mid-way: the old Script row is already deleted when create() raises
+            with patch(
+                'extras.models.scripts.Script.objects.create',
+                side_effect=IntegrityError('Simulated database error'),
+            ):
+                with self.assertRaises(IntegrityError):
+                    self.client.patch(
+                        detail_url,
+                        {'file': SimpleUploadedFile('zz_rollback.py', updated_content, content_type='text/plain')},
+                        format='multipart',
+                        **self.header,
+                    )
+
+        # DB is all-or-nothing; storage keeps the new content and a retried update re-syncs the rows
+        self.assertTrue(Script.objects.filter(module_id=module_id, name='ProbeScript').exists())
+        self.assertFalse(Script.objects.filter(module_id=module_id, name='ProbeScriptV2').exists())
+        self.assertEqual(fake_storage.files['zz_rollback.py'], updated_content)
+
+    def test_update_script_module_with_missing_stored_file(self):
+        """An update succeeds when the stored file is missing, re-creating it from the upload."""
+        self.add_permissions(
+            'extras.add_scriptmodule', 'core.add_managedfile',
+            'extras.change_scriptmodule', 'core.change_managedfile',
+        )
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = original_content.replace(b"'v1'", b"'v2'")
+        fake_storage = _InMemoryScriptStorage()
+
+        with self._patched_script_storage(fake_storage):
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_lost_file.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            detail_url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': response.data['id']})
+
+            # Simulate a file removed from storage outside NetBox
+            del fake_storage.files['zz_lost_file.py']
+
+            response = self.client.patch(
+                detail_url,
+                {'file': SimpleUploadedFile('zz_lost_file.py', updated_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(fake_storage.files['zz_lost_file.py'], updated_content)

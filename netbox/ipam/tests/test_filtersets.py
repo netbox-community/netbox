@@ -2188,6 +2188,26 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'available_on_device': device_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)  # 5 scoped + 1 global group + 1 global
 
+    def test_available_on_device_cluster_scopes(self):
+        device = Device.objects.get(name='Device 1')
+        device.cluster = Cluster.objects.get(name='Cluster 1')
+        device.save(update_fields=('cluster',))
+
+        params = {'available_on_device': device.pk}
+        vlans = self.filterset(params, self.queryset).qs
+
+        # VLANs from groups scoped to the assigned cluster or its cluster group
+        self.assertIn(VLAN.objects.get(name='Cluster 1'), vlans)
+        self.assertIn(VLAN.objects.get(name='Cluster Group 1'), vlans)
+        # VLANs from groups scoped to unrelated clusters or cluster groups
+        self.assertNotIn(VLAN.objects.get(name='Cluster 2'), vlans)
+        self.assertNotIn(VLAN.objects.get(name='Cluster Group 2'), vlans)
+        # Site, location, rack and global availability is unchanged
+        self.assertEqual(
+            set(vlans.values_list('vid', flat=True)),
+            {1, 4, 7, 10, 13, 16, 19, 500, 1000}
+        )
+
     def test_available_on_virtualmachine(self):
         vm_id = VirtualMachine.objects.first().pk
         params = {'available_on_virtualmachine': vm_id}

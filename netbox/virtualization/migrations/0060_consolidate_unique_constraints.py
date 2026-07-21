@@ -4,12 +4,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0241_consolidate_unique_constraints'),
+        ('dcim', '0243_consolidate_unique_constraints'),
         ('extras', '0139_alter_customfieldchoiceset_extra_choices'),
-        ('ipam', '0093_denormalization_triggers'),
+        ('ipam', '0094_denormalization_triggers'),
         ('tenancy', '0026_consolidate_unique_constraints'),
         ('users', '0016_default_ordering_indexes'),
-        ('virtualization', '0058_virtualmachine__config_context_data'),
+        ('virtualization', '0059_virtualmachine__config_context_data'),
     ]
 
     operations = [

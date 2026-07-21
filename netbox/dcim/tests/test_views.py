@@ -1308,6 +1308,22 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         # run base test
         super().test_bulk_update_objects_with_permission()
 
+    def test_bulk_update_objects_without_change_permission(self):
+        # ModuleTypeImportView declares these as additional_permissions, so they're required to reach the view
+        self.add_permissions(
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        # run base test
+        super().test_bulk_update_objects_without_change_permission()
+
     @tag('regression')
     def test_bulk_import_objects_with_permission(self):
         self.add_permissions(
@@ -4203,6 +4219,110 @@ class CableTestCase(
         self.assertHttpStatus(response, 200)
         self.assertIn('not one of the available choices', response.content.decode())
         self.assertEqual(self._get_queryset().count(), initial_count)
+
+
+#
+# Connections
+#
+
+class ConnectionsListViewTestCaseMixin:
+    """
+    Shared behavior for the read-only connection list views.
+
+    These views list components whose cable paths are complete, but their URL names
+    do not follow the <model>_list pattern assumed by ModelViewTestCase.
+    """
+    url_base = None
+
+    def _get_base_url(self):
+        return self.url_base
+
+    def _get_queryset(self):
+        return self.model.objects.filter(_path__is_complete=True)
+
+
+class ConsoleConnectionsListViewTestCase(
+    ConnectionsListViewTestCaseMixin,
+    ViewTestCases.ListObjectsViewTestCase
+):
+    model = ConsolePort
+    url_base = 'dcim:console_connections_{}'
+    query_count_model_label = 'consoleconnection'
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        peer_device = create_test_device('Device 2')
+
+        console_ports = ConsolePort.objects.bulk_create((
+            ConsolePort(device=device, name='Console Port 1'),
+            ConsolePort(device=device, name='Console Port 2'),
+            ConsolePort(device=device, name='Console Port 3'),
+        ))
+        console_server_ports = ConsoleServerPort.objects.bulk_create((
+            ConsoleServerPort(device=peer_device, name='Console Server Port 1'),
+            ConsoleServerPort(device=peer_device, name='Console Server Port 2'),
+            ConsoleServerPort(device=peer_device, name='Console Server Port 3'),
+        ))
+
+        for console_port, console_server_port in zip(console_ports, console_server_ports):
+            Cable(a_terminations=[console_port], b_terminations=[console_server_port]).save()
+
+
+class PowerConnectionsListViewTestCase(
+    ConnectionsListViewTestCaseMixin,
+    ViewTestCases.ListObjectsViewTestCase
+):
+    model = PowerPort
+    url_base = 'dcim:power_connections_{}'
+    query_count_model_label = 'powerconnection'
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        peer_device = create_test_device('Device 2')
+
+        power_ports = PowerPort.objects.bulk_create((
+            PowerPort(device=device, name='Power Port 1'),
+            PowerPort(device=device, name='Power Port 2'),
+            PowerPort(device=device, name='Power Port 3'),
+        ))
+        power_outlets = PowerOutlet.objects.bulk_create((
+            PowerOutlet(device=peer_device, name='Power Outlet 1'),
+            PowerOutlet(device=peer_device, name='Power Outlet 2'),
+            PowerOutlet(device=peer_device, name='Power Outlet 3'),
+        ))
+
+        for power_port, power_outlet in zip(power_ports, power_outlets):
+            Cable(a_terminations=[power_port], b_terminations=[power_outlet]).save()
+
+
+class InterfaceConnectionsListViewTestCase(
+    ConnectionsListViewTestCaseMixin,
+    ViewTestCases.ListObjectsViewTestCase
+):
+    model = Interface
+    url_base = 'dcim:interface_connections_{}'
+    query_count_model_label = 'interfaceconnection'
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+        peer_device = create_test_device('Device 2')
+
+        interfaces = Interface.objects.bulk_create((
+            Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        ))
+        peer_interfaces = Interface.objects.bulk_create((
+            Interface(device=peer_device, name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=peer_device, name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=peer_device, name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        ))
+
+        for interface, peer_interface in zip(interfaces, peer_interfaces):
+            Cable(a_terminations=[interface], b_terminations=[peer_interface]).save()
 
 
 class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):

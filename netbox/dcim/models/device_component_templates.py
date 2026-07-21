@@ -11,6 +11,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
@@ -543,7 +544,7 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         }
 
 
-class PortTemplateMapping(PortMappingBase):
+class PortTemplateMapping(ChangeLoggingMixin, PortMappingBase):
     """
     Maps a FrontPortTemplate & position to a RearPortTemplate & position.
     """
@@ -571,6 +572,10 @@ class PortTemplateMapping(PortMappingBase):
         on_delete=models.CASCADE,
         related_name='mappings',
     )
+
+    class Meta(PortMappingBase.Meta):
+        # Inherit the unique constraints from PortMappingBase.Meta.
+        pass
 
     def clean(self):
         super().clean()

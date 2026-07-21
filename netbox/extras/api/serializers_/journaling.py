@@ -38,6 +38,15 @@ class JournalEntrySerializer(NetBoxModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'created')
 
+    def get_fields(self):
+        fields = super().get_fields()
+
+        # Make created_by field read-only if updating an existing JournalEntry.
+        if self.instance is not None:
+            fields['created_by'].read_only = True
+
+        return fields
+
     def validate(self, data):
 
         # Validate that the parent object exists

@@ -69,7 +69,7 @@ class IPAddressStatusChoices(ChoiceSet):
         Choice(STATUS_ACTIVE, _('Active'), color='blue', description=_('Provisioned and in use')),
         Choice(STATUS_RESERVED, _('Reserved'), color='cyan', description=_('Designated for future use')),
         Choice(STATUS_DEPRECATED, _('Deprecated'), color='red', description=_('No longer in use')),
-        Choice(STATUS_DHCP, _('DHCP'), color='green', description=_('Assigned dynamically via DHCP')),
+        Choice(STATUS_DHCP, _('DHCP'), color='purple', description=_('Assigned dynamically via DHCP')),
         Choice(
             STATUS_SLAAC,
             _('SLAAC'),

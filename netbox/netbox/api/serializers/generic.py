@@ -22,6 +22,10 @@ class GenericObjectSerializer(serializers.Serializer):
     object_id = serializers.IntegerField()
     object = serializers.SerializerMethodField(read_only=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._serializer_cache = {}
+
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
         model = data['object_type'].model_class()
@@ -40,5 +44,7 @@ class GenericObjectSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, obj):
-        serializer = get_serializer_for_model(obj)
-        return serializer(obj, nested=True, context=self.context).data
+        if obj.__class__ not in self._serializer_cache:
+            self._serializer_cache[obj.__class__] = get_serializer_for_model(obj)(nested=True, context=self.context)
+        serializer = self._serializer_cache[obj.__class__]
+        return serializer.to_representation(obj)

@@ -49,6 +49,10 @@ class VirtualMachineTypeTable(PrimaryModelTable):
             'pk', 'name', 'default_platform', 'default_vcpus', 'default_memory', 'virtual_machine_count', 'description',
         )
 
+    def render_default_memory(self, value):
+        return humanize_ram_capacity(value)
+
+
 #
 # Virtual machines
 #

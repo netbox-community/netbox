@@ -4,6 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from netbox.api.fields import RelatedObjectCountField
 from utilities.api import get_related_object_by_attrs
 
 from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
@@ -49,7 +50,9 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # identifying a related object.
         if self.nested:
             queryset = self.Meta.model.objects.all()
-            return get_related_object_by_attrs(queryset, data)
+            request = self.context.get('request')
+            user = request.user if request else None
+            return get_related_object_by_attrs(queryset, data, user=user)
 
         return super().to_internal_value(data)
 
@@ -68,6 +71,15 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # Remove omitted fields
         for field_name in set(self._omit_fields):
             fields.pop(field_name, None)
+
+        # Related object counts are populated by annotations applied to the viewset's queryset, but these
+        # annotations are not applied when the object is represented as a nested (brief) related object. Omit
+        # these fields when serializing a nested object to avoid advertising fields that will never be populated
+        # (and which would otherwise be declared as required in the generated OpenAPI schema). See #22154.
+        if self.nested:
+            for field_name, field in list(fields.items()):
+                if isinstance(field, RelatedObjectCountField):
+                    fields.pop(field_name)
 
         return fields
 

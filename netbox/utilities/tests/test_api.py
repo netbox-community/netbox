@@ -15,6 +15,7 @@ from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
 from netbox.plugins import register_serializer_resolver
 from netbox.registry import registry
+from users.models import ObjectPermission
 from utilities.api import get_prefetches_for_serializer, get_serializer_for_model, get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
@@ -70,7 +71,7 @@ class WritableNestedSerializerTestCase(APITestCase):
             },
         }
         url = reverse('ipam-api:vlan-list')
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'dcim.view_site')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -87,7 +88,7 @@ class WritableNestedSerializerTestCase(APITestCase):
             },
         }
         url = reverse('ipam-api:vlan-list')
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'dcim.view_site')
 
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
@@ -106,13 +107,107 @@ class WritableNestedSerializerTestCase(APITestCase):
             },
         }
         url = reverse('ipam-api:vlan-list')
-        self.add_permissions('ipam.add_vlan')
+        self.add_permissions('ipam.add_vlan', 'dcim.view_site')
 
         with disable_warnings('django.request'):
             response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(VLAN.objects.count(), 0)
         self.assertTrue(response.data['site'][0].startswith("Multiple objects match"))
+
+    def test_related_by_pk_without_view_permission(self):
+        """
+        Referencing a related object by its numeric ID must be permitted even if the user has not been granted
+        permission to view the object.
+        """
+        data = {
+            'vid': 100,
+            'name': 'Test VLAN 100',
+            'site': self.site1.pk,
+        }
+        url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['site']['id'], self.site1.pk)
+        vlan = VLAN.objects.get(pk=response.data['id'])
+        self.assertEqual(vlan.site, self.site1)
+
+    def test_related_by_id_attribute_without_view_permission(self):
+        """
+        Referencing a related object by a dictionary containing only its numeric ID is equivalent to referencing it
+        by ID directly, and must be permitted even without view permission.
+        """
+        data = {
+            'vid': 100,
+            'name': 'Test VLAN 100',
+            'site': {
+                'id': self.site1.pk
+            },
+        }
+        url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['site']['id'], self.site1.pk)
+        vlan = VLAN.objects.get(pk=response.data['id'])
+        self.assertEqual(vlan.site, self.site1)
+
+    def test_related_by_attributes_without_view_permission(self):
+        """
+        Referencing a related object by a dictionary of attributes must enforce the user's view permissions,
+        preventing enumeration of objects the user is not permitted to see.
+        """
+        data = {
+            'vid': 100,
+            'name': 'Test VLAN 100',
+            'site': {
+                'name': 'Site 1'
+            },
+        }
+        url = reverse('ipam-api:vlan-list')
+        self.add_permissions('ipam.add_vlan')
+
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(VLAN.objects.count(), 0)
+        self.assertTrue(response.data['site'][0].startswith("Related object not found"))
+
+    def test_related_by_attributes_constrained_view_permission(self):
+        """
+        When a user's view permission is constrained, only objects matching the constraint may be referenced by
+        attributes.
+        """
+        data = {
+            'vid': 100,
+            'name': 'Test VLAN 100',
+            'site': {
+                'name': 'Site 2'
+            },
+        }
+        url = reverse('ipam-api:vlan-list')
+        # Grant view permission only for Site 1
+        self.add_permissions('ipam.add_vlan')
+        obj_perm = ObjectPermission(name='Constrained view', constraints={'name': 'Site 1'}, actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Site))
+
+        # Referencing Site 2 by attributes must fail, as the user cannot view it
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(VLAN.objects.count(), 0)
+        self.assertTrue(response.data['site'][0].startswith("Related object not found"))
+
+        # Referencing Site 1 by attributes must succeed
+        data['site'] = {'name': 'Site 1'}
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['site']['id'], self.site1.pk)
 
     def test_related_by_invalid(self):
         data = {

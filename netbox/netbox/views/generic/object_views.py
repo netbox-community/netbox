@@ -603,10 +603,16 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         ))
 
                         # Redirect user on success
-                        if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
-                            return redirect(request.get_full_path())
+                        if '_addanother' in request.POST:
+                            redirect_url = request.path
+                            params = prepare_cloned_fields(new_objs[-1])
+                            if 'return_url' in request.GET:
+                                params['return_url'] = request.GET.get('return_url')
+                            if params:
+                                redirect_url += f"?{params.urlencode()}"
+                            if safe_for_redirect(redirect_url):
+                                return redirect(redirect_url)
                         return redirect(self.get_return_url(request))
-
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
