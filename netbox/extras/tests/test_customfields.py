@@ -1693,6 +1693,24 @@ class CustomFieldAPITestCase(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_url_scheme_validation(self):
+        """
+        Test that URL custom field values are restricted to ALLOWED_URL_SCHEMES (fixes #22640).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A disallowed scheme (not in ALLOWED_URL_SCHEMES) must be rejected
+        data = {'custom_fields': {'url_field': 'javascript:alert(1)'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # An allowed scheme must be accepted
+        data = {'custom_fields': {'url_field': 'https://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
     def test_json_schema_validation(self):
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
