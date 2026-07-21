@@ -12,6 +12,7 @@ from django.db import DatabaseError, connection
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_queue_by_index, get_redis_connection
@@ -761,7 +762,7 @@ class SystemView(UserPassesTestMixin, View):
                 },
             }
             response = HttpResponse(json.dumps(data, cls=ConfigJSONEncoder, indent=4), content_type='text/json')
-            response['Content-Disposition'] = 'attachment; filename="netbox.json"'
+            response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename='netbox.json')
             return response
 
         # Serialize any JSON-based classes

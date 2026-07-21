@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import storages
 from django.db import models
 from django.http import HttpResponse
+from django.utils.http import content_disposition_header
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
@@ -250,6 +251,7 @@ class RenderTemplateMixin(models.Model):
                 filename = filename_from_object(context)
             else:
                 filename = "output"
-            response['Content-Disposition'] = f'attachment; filename="{filename}{extension}"'
+            filename = f'{filename}{extension}'
+            response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
 
         return response
