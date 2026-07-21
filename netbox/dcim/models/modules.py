@@ -3,7 +3,7 @@ from collections.abc import Iterable, Mapping
 import jsonschema
 import yaml
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import OperationalError, models, router, transaction
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
@@ -14,12 +14,14 @@ from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
 from utilities.jsonschema import validate_schema
 from utilities.string import title
 from utilities.tracking import TrackingModelMixin
 
 from .device_components import *
+from .module_moves import ModuleMovePlan
 
 __all__ = (
     'Module',
@@ -430,6 +432,32 @@ class Module(TrackingModelMixin, PrimaryModel):
                     'module_bay': _("Cannot install a module in a disabled module bay.")
                 })
 
+        # Prevent installation into an occupied module bay
+        if hasattr(self, 'module_bay') and self.module_bay_id and (
+            occupant := Module.objects.filter(module_bay_id=self.module_bay_id).exclude(pk=self.pk).first()
+        ):
+            raise ValidationError({
+                'module_bay': _(
+                    "Module bay {module_bay} is already occupied by module {module}."
+                ).format(module_bay=self.module_bay, module=occupant)
+            })
+
+        # Validate a requested move (device and/or module bay change) of an existing module
+        if not self._state.adding and hasattr(self, 'module_bay') and self.module_bay_id and self.device_id:
+            old = Module.objects.filter(pk=self.pk).first()
+            if old and (old.device_id != self.device_id or old.module_bay_id != self.module_bay_id):
+                if old.module_type_id != self.module_type_id:
+                    raise ValidationError({
+                        'module_type': _(
+                            "Changing a module's type while moving it is not supported. Change the module "
+                            "type and move the module as separate operations."
+                        )
+                    })
+                try:
+                    ModuleMovePlan.from_module(old_module=old, new_module=self).validate()
+                except ValueError as e:
+                    raise ValidationError({'module_bay': str(e)}) from e
+
         # Check for recursion
         module = self
         module_bays = []
@@ -444,27 +472,27 @@ class Module(TrackingModelMixin, PrimaryModel):
             module = module_module_bay.module if module_module_bay else None
 
     def save(self, *args, **kwargs):
-        is_new = self.pk is None
-        old_module_bay_id = None
+        if self.pk is None:
+            self._save_new(*args, **kwargs)
+            return
 
-        if not is_new:
-            old_module_bay_id = Module.objects.filter(pk=self.pk).values_list(
-                'module_bay_id', flat=True
-            ).first()
+        update_fields = kwargs.get('update_fields')
+        placement_fields = {'device', 'device_id', 'module_bay', 'module_bay_id'}
+        if update_fields is not None and placement_fields.isdisjoint(update_fields):
+            # Placement columns cannot be written by this save, so no move can occur.
+            super().save(*args, **kwargs)
+            return
 
+        self._save_existing(*args, **kwargs)
+
+    def _save_new(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-        if old_module_bay_id is not None and old_module_bay_id != self.module_bay_id:
-            for child_bay in self.modulebays.select_related('module__module_bay'):
-                child_bay.snapshot()
-                child_bay.save()
 
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
 
-        # We skip adding components if the module is being edited or
-        # both replication and component adoption is disabled
-        if not is_new or (disable_replication and not adopt_components):
+        # We skip adding components if both replication and component adoption is disabled
+        if disable_replication and not adopt_components:
             return
 
         # Iterate all component types
@@ -565,3 +593,67 @@ class Module(TrackingModelMixin, PrimaryModel):
 
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
+
+    def _save_existing(self, *args, **kwargs):
+        try:
+            with transaction.atomic(using=router.db_for_write(Module)):
+                # Root row locks first (matches API ETag path); all routing below decides from this locked read
+                locked_old = Module.objects.select_for_update().only(
+                    'device', 'module_bay', 'module_type'
+                ).filter(pk=self.pk).first()
+                if locked_old is None:
+                    # A new pk, or a row concurrently deleted; create instead.
+                    self._save_new(*args, **kwargs)
+                    return
+
+                delta_fields = []
+                if locked_old.device_id != self.device_id:
+                    delta_fields.append('device')
+                if locked_old.module_bay_id != self.module_bay_id:
+                    delta_fields.append('module_bay')
+
+                if not delta_fields:
+                    super().save(*args, **kwargs)
+                    return
+
+                update_fields = kwargs.get('update_fields')
+                if update_fields is not None:
+                    field_attnames = {'device': 'device_id', 'module_bay': 'module_bay_id'}
+                    listed = {
+                        field for field in delta_fields
+                        if field in update_fields or field_attnames[field] in update_fields
+                    }
+                    if not listed:
+                        # None of the changed placement fields are part of this write, so no move happens.
+                        super().save(*args, **kwargs)
+                        return
+                    if listed != set(delta_fields):
+                        raise AbortRequest(_(
+                            "A module move must include every changed placement field in update_fields: "
+                            "'device' (or 'device_id') and/or 'module_bay' (or 'module_bay_id')."
+                        ))
+
+                if locked_old.module_type_id != self.module_type_id:
+                    raise AbortRequest(_(
+                        "Changing a module's type while moving it is not supported. Change the module type and "
+                        "move the module as separate operations."
+                    ))
+
+                try:
+                    plan = ModuleMovePlan.from_module(old_module=locked_old, new_module=self)
+                    plan.lock()
+                except ValueError as e:
+                    raise AbortRequest(str(e)) from e
+                try:
+                    plan.validate()
+                except ValidationError as e:
+                    raise AbortRequest(' '.join(e.messages)) from e
+
+                super().save(*args, **kwargs)
+                plan.apply_after_root_save()
+        except OperationalError as e:
+            if getattr(e.__cause__, 'sqlstate', None) == '40P01':
+                raise AbortRequest(_(
+                    "This module or its components are being modified by another request. Please try again."
+                )) from e
+            raise

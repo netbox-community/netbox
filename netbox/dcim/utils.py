@@ -8,25 +8,64 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
-def get_module_bay_positions(module_bay):
+def inherit_module_token(position, parent_positions):
     """
-    Given a module bay, traverse up the module hierarchy and return
-    a list of bay position strings from root to leaf, resolving any
-    {module} tokens in each position using the parent position
-    (position inheritance).
+    Resolve a single {module} token in a bay position by inheriting from the position
+    one level deeper in a module bay hierarchy. Returns position unchanged unless
+    parent_positions is non-empty and position contains {module}, in which case the
+    token is substituted with parent_positions[-1].
+
+    Used by resolve_position_chain(), the single inheritance implementation shared by
+    get_module_bay_positions() and the module move planner.
+    """
+    if parent_positions and MODULE_TOKEN in position:
+        return position.replace(MODULE_TOKEN, parent_positions[-1])
+    return position
+
+
+def get_module_bay_raw_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return the stored
+    (unresolved) bay position strings from root to leaf.
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
     """
     positions = []
+    visited = set()
     while module_bay:
-        pos = module_bay.position or ''
-        if positions and MODULE_TOKEN in pos:
-            pos = pos.replace(MODULE_TOKEN, positions[-1])
-        positions.append(pos)
-        if module_bay.module:
-            module_bay = module_bay.module.module_bay
-        else:
-            module_bay = None
+        if module_bay.pk in visited:
+            raise ValueError(_("Module bay hierarchy contains a cycle."))
+        visited.add(module_bay.pk)
+        positions.append(module_bay.position or '')
+        module_bay = module_bay.module.module_bay if module_bay.module else None
     positions.reverse()
     return positions
+
+
+def resolve_position_chain(raw_positions):
+    """
+    Apply leaf-to-root {module} token inheritance over a root-to-leaf list of raw bay
+    positions: each position inherits from the resolved position one level deeper, and
+    the leaf's own token is never resolved. Shared by get_module_bay_positions() and
+    the module move planner so a planned chain always equals what a fresh walk
+    computes once the planned positions are stored.
+    """
+    resolved = []
+    for position in reversed(raw_positions):
+        resolved.append(inherit_module_token(position, resolved))
+    resolved.reverse()
+    return resolved
+
+
+def get_module_bay_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return a list of bay
+    position strings from root to leaf, resolving any {module} tokens in each
+    position using the parent position (position inheritance).
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
+    """
+    return resolve_position_chain(get_module_bay_raw_positions(module_bay))
 
 
 def resolve_module_placeholder(value, positions):
@@ -127,12 +166,15 @@ def update_interface_bridges(device, interface_templates, module=None):
     Interface = apps.get_model('dcim', 'Interface')
 
     for interface_template in interface_templates.exclude(bridge=None):
-        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface = Interface.objects.get(
+            device=device,
+            name=interface_template.resolve_name(module=module, device=device)
+        )
 
         if interface_template.bridge:
             interface.bridge = Interface.objects.get(
                 device=device,
-                name=interface_template.bridge.resolve_name(module=module)
+                name=interface_template.bridge.resolve_name(module=module, device=device)
             )
             interface.full_clean()
             interface.save()
@@ -157,8 +199,8 @@ def create_port_mappings(device, device_or_module_type, module=None):
     # Replicate PortMappings
     mappings = []
     for template in templates:
-        front_port = front_ports.get(template.front_port.resolve_name(module=module))
-        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module))
+        front_port = front_ports.get(template.front_port.resolve_name(module=module, device=device))
+        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module, device=device))
         mappings.append(
             PortMapping(
                 device_id=front_port.device_id,
@@ -168,4 +210,53 @@ def create_port_mappings(device, device_or_module_type, module=None):
                 rear_port_position=template.rear_port_position,
             )
         )
+    # Bulk-created (no per-mapping ObjectChange) to match how every other component is instantiated.
     PortMapping.objects.bulk_create(mappings)
+
+
+def reconcile_port_mappings(mapping_model, parent_field, parent, desired):
+    """
+    Reconcile a parent port's mappings against `desired`, writing only the difference so unchanged
+    mappings keep their PK (and emit no changelog entry). Changed/removed rows are deleted before
+    replacements are created, all in one transaction, so position swaps don't trip the unique
+    constraint. Per-row create()/delete() let the change-logging signals fire naturally.
+
+    Args:
+        mapping_model: PortMapping or PortTemplateMapping.
+        parent_field: 'front_port' or 'rear_port' — the side being edited; its '<parent_field>_position'
+            is each mapping's stable identity within the set.
+        parent: the parent instance (FrontPort/RearPort or their templates).
+        desired: iterable of dicts of mapping field values EXCLUDING the parent FK, using '<field>_id'
+            for the opposite-port FK, e.g. {'front_port_position': 1, 'rear_port_id': 5,
+            'rear_port_position': 2}. save() derives device/device_type/module_type from the front port.
+    """
+    key_field = f'{parent_field}_position'
+    other_field = 'rear_port' if parent_field == 'front_port' else 'front_port'
+    value_fields = (f'{other_field}_id', f'{other_field}_position')
+
+    def target(source):
+        # The comparable "value" of a mapping: the opposite port and its position. Two mappings with
+        # the same parent-side position but a different target represent a re-pointing of that slot.
+        get = source.get if isinstance(source, dict) else lambda f: getattr(source, f)
+        return tuple(get(f) for f in value_fields)
+
+    desired_by_key = {d[key_field]: d for d in desired}
+
+    with transaction.atomic(using=router.db_for_write(mapping_model)):
+        # Lock the parent's existing mappings for the duration of the reconcile. Two requests editing
+        # the same port would otherwise read the same snapshot and race, the second colliding on a
+        # unique constraint when it recreates rows the first has already committed.
+        existing = {
+            getattr(m, key_field): m
+            for m in mapping_model.objects.filter(**{parent_field: parent}).select_for_update()
+        }
+
+        # Delete rows that no longer exist or whose target changed (before creating, to free the slots)
+        for key, mapping in existing.items():
+            if key not in desired_by_key or target(mapping) != target(desired_by_key[key]):
+                mapping.delete()
+
+        # Create rows that are new or whose target changed
+        for key, attrs in desired_by_key.items():
+            if key not in existing or target(existing[key]) != target(attrs):
+                mapping_model.objects.create(**{parent_field: parent, **attrs})

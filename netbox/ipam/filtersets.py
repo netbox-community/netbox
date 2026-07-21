@@ -1070,7 +1070,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         method='get_for_site'
     )
     available_on_device = django_filters.ModelChoiceFilter(
-        queryset=Device.objects.all(),
+        queryset=Device.objects.select_related('cluster'),
         method='get_for_device'
     )
     available_on_virtualmachine = django_filters.ModelChoiceFilter(

@@ -133,7 +133,7 @@ class Cable(PrimaryModel):
     )
     # Stores the normalized length (in meters) for database ordering
     _abs_length = models.DecimalField(
-        max_digits=10,
+        max_digits=14,
         decimal_places=4,
         blank=True,
         null=True
@@ -1169,10 +1169,14 @@ class CablePath(models.Model):
 
     def get_total_length(self):
         """
-        Return a tuple containing the sum of the length of each cable in the path
-        and a flag indicating whether the length is definitive.
+        Return a tuple containing the sum of the length of each cable and the distance of each circuit
+        crossed by the path, and a flag indicating whether the length is definitive.
         """
-        cable_ct = ObjectType.objects.get_for_model(Cable).pk
+        from circuits.models import CircuitTermination
+
+        object_types = ObjectType.objects.get_for_models(Cable, CircuitTermination)
+        cable_ct = object_types[Cable].pk
+        circuit_termination_ct = object_types[CircuitTermination].pk
 
         # Pre-cache cable lengths by ID
         cable_ids = self.get_cable_ids()
@@ -1181,20 +1185,51 @@ class CablePath(models.Model):
             for cable in Cable.objects.filter(id__in=cable_ids, _abs_length__isnull=False).values('pk', '_abs_length')
         }
 
+        # Pre-cache the circuit terminations within the path, along with their circuits
+        circuit_termination_ids = []
+        for node in self._nodes:
+            ct, pk = decompile_path_node(node)
+            if ct == circuit_termination_ct:
+                circuit_termination_ids.append(pk)
+        circuit_terminations = CircuitTermination.objects.select_related('circuit').in_bulk(circuit_termination_ids)
+
         # Iterate through each set of nodes in the path. For cables, add the length of the longest cable to the total
-        # length of the path.
+        # length of the path. Also map each set of nodes to its circuit terminations, keyed by circuit ID.
         total_length = 0
+        circuit_hops = []
         for node_set in self.path:
             hop_length = 0
+            hop_terminations = {}
             for node in node_set:
                 ct, pk = decompile_path_node(node)
-                if ct != cable_ct:
-                    break  # Not a cable
-                if pk in cables and cables[pk] > hop_length:
-                    hop_length = cables[pk]
+                if ct == cable_ct:
+                    if pk in cables and cables[pk] > hop_length:
+                        hop_length = cables[pk]
+                elif ct == circuit_termination_ct:
+                    termination = circuit_terminations.get(pk)
+                    if termination is not None:
+                        hop_terminations[termination.circuit_id] = termination
+                else:
+                    break  # Neither a cable nor a circuit termination
             total_length += hop_length
+            circuit_hops.append(hop_terminations)
 
-        is_definitive = len(cables) == len(cable_ids)
+        # Unresolvable circuit terminations may conceal a crossing, so they render the total non-definitive
+        is_definitive = len(cables) == len(cable_ids) and len(circuit_terminations) == len(set(circuit_termination_ids))
+
+        # A circuit crossing appears as two adjacent sets of opposing terminations of the same circuit. For each
+        # crossing, add the longest distance among the circuits crossed, mirroring the handling of parallel cables.
+        for near_hop, far_hop in itertools.pairwise(circuit_hops):
+            crossing_distance = 0
+            for circuit_id in near_hop.keys() & far_hop.keys():
+                if near_hop[circuit_id].term_side == far_hop[circuit_id].term_side:
+                    continue
+                distance = near_hop[circuit_id].circuit._abs_distance
+                if distance is None:
+                    is_definitive = False
+                elif distance > crossing_distance:
+                    crossing_distance = distance
+            total_length += crossing_distance
 
         return total_length, is_definitive
 

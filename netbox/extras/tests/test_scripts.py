@@ -1,11 +1,16 @@
+import io
+import sys
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from netaddr import IPAddress, IPNetwork
 
 from dcim.models import DeviceRole
+from extras.constants import SCRIPT_MODULE_NAME_PREFIX
+from extras.models import ScriptModule
 from extras.scripts import *
 
 CHOICES = (
@@ -388,3 +393,49 @@ class ScriptVariablesTestCase(TestCase):
         self.assertEqual(form.cleaned_data['var1'], input_datetime)
         # Validate required=False works for this Var type
         self.assertEqual(form.cleaned_data['var2'], None)
+
+
+class ScriptModuleLoadingTestCase(TestCase):
+
+    def test_module_does_not_shadow_core_app(self):
+        """
+        Loading a custom script whose filename matches a core app label must not replace that
+        app's package in sys.modules. Regression test for issue #22566.
+        """
+        import circuits  # The real core app package
+
+        script_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class TestScript(Script):\n    pass\n"
+        )
+
+        class _Storage:
+            def open(self, name, mode='rb'):
+                return io.BytesIO(script_content)
+
+        module = ScriptModule(file_root='scripts', file_path='circuits.py')
+        namespaced_key = f'{SCRIPT_MODULE_NAME_PREFIX}circuits'
+        self.addCleanup(lambda: sys.modules.pop(namespaced_key, None))
+
+        with patch('extras.models.mixins.storages') as mock_storages:
+            mock_storages.__getitem__.return_value = _Storage()
+            loaded = module.get_module()
+
+            # The script module is registered under the private, namespaced key, and its own
+            # __name__ matches that key (i.e. sys.modules[module.__name__] resolves to the module)
+            self.assertIs(sys.modules[namespaced_key], loaded)
+            self.assertEqual(loaded.__name__, namespaced_key)
+
+            # The namespacing must not leak into the derived script name stored in the database
+            self.assertEqual(next(iter(module.module_scripts)), 'TestScript')
+
+            # Nor into the user-facing names exposed on the Script class (used for logger
+            # namespaces, page headers, etc.): these must reflect the original filename.
+            script_class = loaded.TestScript
+            self.assertEqual(script_class.module, 'circuits')
+            self.assertEqual(script_class.full_name, 'circuits.TestScript')
+            self.assertEqual(script_class.root_module(), 'circuits')
+
+        # The real circuits app must be untouched and remain an importable package
+        self.assertIs(sys.modules['circuits'], circuits)
+        self.assertTrue(hasattr(circuits, '__path__'))

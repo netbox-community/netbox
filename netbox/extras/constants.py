@@ -28,6 +28,11 @@ IMAGE_ATTACHMENT_IMAGE_FORMATS = {
 # Template Export
 DEFAULT_MIME_TYPE = 'text/plain; charset=utf-8'
 
+# Scripts
+# Prefix applied to dynamically-loaded script/report module names so that a script whose filename
+# matches a core app or package (e.g. "circuits.py") cannot shadow it in sys.modules.
+SCRIPT_MODULE_NAME_PREFIX = '_netbox_script_module_'
+
 # Webhooks
 HTTP_CONTENT_TYPE_JSON = 'application/json'
 

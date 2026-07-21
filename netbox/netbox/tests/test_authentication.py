@@ -1,5 +1,7 @@
 import datetime
-from unittest.mock import MagicMock
+import sys
+from types import ModuleType
+from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -9,8 +11,11 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from social_core.exceptions import AuthFailed
 
-from core.models import ObjectType
+from core.choices import ManagedFileRootPathChoices
+from core.models import ManagedFile, ObjectType
 from dcim.models import Rack, Site
+from extras.models import ScriptModule
+from netbox.authentication import LDAPBackend
 from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
 from users.constants import TOKEN_PREFIX
@@ -560,6 +565,43 @@ class LDAPMirrorGroupsTestCase(TestCase):
         )
 
 
+class LDAPBackendTest(SimpleTestCase):
+    """The LDAP backend reads ldap_config.py from the active configuration directory."""
+
+    def test_backend_loads_ldap_config_from_configuration_dir(self):
+        with override_settings(CONFIGURATION_DIR='/srv/netbox/conf', NETBOX_INSTALL_MODE='checkout'):
+            backend, loader = self._build_backend()
+        loader.assert_called_once_with('/srv/netbox/conf', allow_legacy_fallback=True)
+        self.assertEqual(backend.settings.SERVER_URI, 'ldaps://example')
+
+    def test_backend_disables_legacy_fallback_for_wheel_installs(self):
+        with override_settings(CONFIGURATION_DIR='/opt/netbox/conf', NETBOX_INSTALL_MODE='wheel'):
+            backend, loader = self._build_backend()
+        loader.assert_called_once_with('/opt/netbox/conf', allow_legacy_fallback=False)
+        self.assertEqual(backend.settings.SERVER_URI, 'ldaps://example')
+
+    def _build_backend(self):
+        fake_ldap = ModuleType('ldap')
+        fake_ldap.set_option = MagicMock()
+        backend_module = ModuleType('django_auth_ldap.backend')
+        backend_module.LDAPSettings = type('LDAPSettings', (), {'_prefix': 'AUTH_LDAP_'})
+        package = ModuleType('django_auth_ldap')
+        package.backend = backend_module
+        ldap_config = ModuleType('netbox.ldap_config')
+        ldap_config.AUTH_LDAP_SERVER_URI = 'ldaps://example'
+        with (
+            patch.dict(sys.modules, {
+                'ldap': fake_ldap,
+                'django_auth_ldap': package,
+                'django_auth_ldap.backend': backend_module,
+            }),
+            patch('netbox.authentication.NBLDAPBackend', MagicMock(), create=True),
+            patch('netbox.authentication.load_ldap_config', return_value=ldap_config) as loader,
+        ):
+            backend = LDAPBackend()
+        return backend, loader
+
+
 class ObjectPermissionAPIViewTestCase(TestCase):
     client_class = APIClient
 
@@ -743,6 +785,54 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)
+
+
+class ObjectPermissionProxyModelTestCase(TestCase):
+    """
+    Object-level permission checks against proxy models (e.g. extras.ScriptModule proxying
+    core.ManagedFile) must evaluate the permission rather than raise ValueError.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.managed_file = ManagedFile.objects.create(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='proxy_permission_test.py'
+        )
+        cls.script_module = ScriptModule.objects.get(pk=cls.managed_file.pk)
+
+    def _grant_scriptmodule_permission(self, constraints=None):
+        obj_perm = ObjectPermission(name='ScriptModule change', actions=['change'], constraints=constraints)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ScriptModule, for_concrete_model=False))
+
+    def test_has_perm_cross_app_proxy_model(self):
+        """An unconstrained proxy-model permission grants access to a proxy instance."""
+        self._grant_scriptmodule_permission()
+        self.assertTrue(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_cross_app_proxy_model_matching_constraints(self):
+        """A constrained proxy-model permission grants access when the instance matches."""
+        self._grant_scriptmodule_permission(constraints={'file_path': 'proxy_permission_test.py'})
+        self.assertTrue(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_cross_app_proxy_model_nonmatching_constraints(self):
+        """A constrained proxy-model permission denies access when the instance does not match."""
+        self._grant_scriptmodule_permission(constraints={'file_path': 'other.py'})
+        self.assertFalse(self.user.has_perm('extras.change_scriptmodule', self.script_module))
+
+    def test_has_perm_invalid_permission_object_pair(self):
+        """A permission checked against an object of an unrelated model denies instead of raising."""
+        site = Site.objects.create(name='Proxy Test Site', slug='proxy-test-site')
+        self._grant_scriptmodule_permission()
+        self.assertFalse(self.user.has_perm('extras.change_scriptmodule', site))
+
+    @override_settings(DEFAULT_PERMISSIONS={'extras.change_nosuchmodel': None})
+    def test_has_perm_unknown_model_permission(self):
+        """A permission naming a nonexistent model denies and logs a warning instead of raising."""
+        self._grant_scriptmodule_permission()
+        with self.assertLogs('netbox.auth.ObjectPermissionBackend', level='WARNING'):
+            self.assertFalse(self.user.has_perm('extras.change_nosuchmodel', self.script_module))
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):

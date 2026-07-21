@@ -1,15 +1,20 @@
 import io
+import os
+import sys
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection
 from django.forms import ValidationError
 from django.test import TestCase, tag
+from django.test.utils import CaptureQueriesContext
 from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
 
@@ -1200,6 +1205,32 @@ class ConfigTemplateDebugTestCase(TestCase):
         with self.assertRaises(TemplateSyntaxError):
             render_jinja2("{% debug %}", {}, debug=False)
 
+    def test_format_render_error_debug_redacts_install_path(self):
+        """format_render_error() strips the repo install-path prefix from debug tracebacks."""
+        t = ConfigTemplate(name='redact-test', template_code='hello', debug=True)
+        try:
+            raise ValueError("deliberate test error")
+        except ValueError as exc:
+            result = t.format_render_error(exc)
+        install_root = os.path.dirname(settings.BASE_DIR) + os.sep
+        self.assertIn('Traceback', result)
+        self.assertNotIn(install_root, result)
+        # Also verify the venv prefix is stripped when running inside a virtualenv.
+        if sys.prefix != sys.base_prefix:
+            venv_root = sys.prefix + os.sep
+            if venv_root != install_root:
+                self.assertNotIn(venv_root, result)
+
+    def test_format_render_error_non_debug_returns_concise_message(self):
+        """format_render_error() returns a one-line message (no traceback) when debug=False."""
+        t = ConfigTemplate(name='nodebug-test', template_code='hello', debug=False)
+        try:
+            raise TemplateError("bad template")
+        except TemplateError as exc:
+            result = t.format_render_error(exc)
+        self.assertNotIn('Traceback', result)
+        self.assertIn('TemplateError', result)
+
 
 class JinjaEnvFilterTestCase(TestCase):
     """
@@ -1310,6 +1341,24 @@ class RenderTemplateMixinRenderTestCase(TestCase):
         self.assertNotEqual(plain.render(ctx), trimmed.render(ctx))
         self.assertEqual(trimmed.render(ctx).strip(), 'VALUE')
 
+    def test_configtemplate_autoescape_always_disabled(self):
+        """
+        ConfigTemplate renders plain text (network configs, scripts); autoescape must stay off
+        even if environment_params explicitly requests it (#22652).
+        """
+        t = ConfigTemplate(name='autoescape', template_code='{{ value }}', environment_params={'autoescape': True})
+        self.assertEqual(t.render({'value': '<script>'}), '<script>')
+
+    def test_exporttemplate_autoescape_is_configurable(self):
+        """
+        Unlike ConfigTemplate, ExportTemplate output may legitimately be HTML, so an explicit
+        autoescape=True in environment_params must be honored rather than forced off.
+        """
+        et = ExportTemplate(
+            name='autoescape', template_code='{{ value }}', environment_params={'autoescape': True}
+        )
+        self.assertEqual(et.render({'value': '<script>'}), '&lt;script&gt;')
+
     def test_environment_params_undefined_path_import(self):
         # Default Undefined renders nothing for a missing variable.
         default = ConfigTemplate(name='default', template_code='{{ missing }}')
@@ -1339,8 +1388,9 @@ class RenderTemplateMixinRenderTestCase(TestCase):
 
     def test_get_environment_params_handles_none(self):
         # The environment_params field may be cleared; ensure the mixin returns a dict (not None).
+        # ConfigTemplate always forces autoescape off (#22652).
         t = ConfigTemplate(name='empty', template_code='ok', environment_params=None)
-        self.assertEqual(t.get_environment_params(), {})
+        self.assertEqual(t.get_environment_params(), {'autoescape': False})
 
     def test_get_environment_params_resolves_path_imports(self):
         t = ConfigTemplate(
@@ -1397,6 +1447,37 @@ class RenderTemplateMixinResponseTestCase(TestCase):
         )
         response = t.render_to_response(queryset=Site.objects.all())
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+
+    def test_response_attachment_filename_from_empty_queryset(self):
+        """An empty (but non-None) queryset must still yield a model-derived filename."""
+        t = ExportTemplate(
+            name='t',
+            template_code='{% for obj in queryset %}{{ obj.name }}{% endfor %}',
+            file_extension='txt',
+            as_attachment=True,
+        )
+        response = t.render_to_response(queryset=Site.objects.none())
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+
+    def test_response_attachment_does_not_force_queryset_evaluation(self):
+        """A template that never references `queryset` must not force it to be evaluated."""
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(5)])
+        t = ExportTemplate(
+            name='t',
+            template_code='static output',  # deliberately does not reference `queryset`
+            file_extension='txt',
+            as_attachment=True,
+        )
+        with CaptureQueriesContext(connection) as ctx:
+            t.render_to_response(queryset=Site.objects.all())
+
+        table = Site._meta.db_table
+        site_queries = [q for q in ctx.captured_queries if table in q['sql']]
+        self.assertEqual(
+            site_queries, [],
+            f"render_to_response() queried {table} even though the template never "
+            f"references `queryset`:\n{site_queries}"
+        )
 
     def test_response_attachment_filename_from_device_context(self):
         t = ConfigTemplate(name='t', template_code='ok', as_attachment=True)
@@ -1666,9 +1747,11 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         self.assertEqual(template.environment_params['undefined'], 'jinja2.StrictUndefined')
 
     def test_none_environment_params(self):
+        # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template(None)
-        self.assertEqual(template.get_environment_params(), {})
+        self.assertEqual(template.get_environment_params(), {'autoescape': False})
 
     def test_empty_environment_params(self):
+        # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template({})
-        self.assertEqual(template.get_environment_params(), {})
+        self.assertEqual(template.get_environment_params(), {'autoescape': False})

@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.db import models
 from django.db.migrations.operations import AlterModelOptions
 from django.utils.translation import gettext as _
+from PIL import Image
 
 from core.events import *
 from netbox.events import EVENT_TYPE_KIND_DANGER, EVENT_TYPE_KIND_SUCCESS, EVENT_TYPE_KIND_WARNING, EventType
@@ -15,6 +16,12 @@ AlterModelOptions.ALTER_OPTION_KEYS.remove('verbose_name_plural')
 
 # Use our custom destructor to ignore certain attributes when calculating field migrations
 models.Field.deconstruct = custom_deconstruct
+
+# Cap the maximum size of an image Pillow will decode, to mitigate decompression-bomb DoS attacks. Pillow raises a
+# DecompressionBombError when an image's declared dimensions exceed 2x this value, before allocating pixel buffers.
+# Django's & DRF's ImageField already convert that exception into a validation error, so no additional handling is
+# required; this single assignment covers all image upload paths (UI forms, REST API, and direct model saves).
+Image.MAX_IMAGE_PIXELS = 25_000_000
 
 
 class CoreConfig(AppConfig):

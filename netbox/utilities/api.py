@@ -218,16 +218,31 @@ def get_annotations_for_serializer(serializer_class, fields=None, omit=None):
     return annotations
 
 
-def get_related_object_by_attrs(queryset, attrs):
+def get_related_object_by_attrs(queryset, attrs, user=None):
     """
     Return an object identified by either a dictionary of attributes or its numeric primary key (ID). This is used
     for referencing related objects when creating/updating objects via the REST API.
+
+    When a dictionary of attributes is provided, the queryset is first restricted to only those objects on which the
+    given user has been granted view permission. This prevents an unprivileged user from enumerating objects by their
+    attributes. Referencing an object directly by its numeric ID is always permitted, regardless of the user's view
+    permissions.
+
+    :param queryset: The base queryset from which to retrieve the related object
+    :param attrs: A dictionary of attributes or a numeric primary key identifying the related object
+    :param user: The user making the request (used to enforce view permissions on attribute-based lookups)
     """
     if attrs is None:
         return None
 
     # Dictionary of related object attributes
     if isinstance(attrs, dict):
+        # Restrict the queryset to only those objects the user is permitted to view. This ensures that filtering by
+        # attributes cannot be used to enumerate objects which the user is not otherwise permitted to see. Referencing
+        # an object solely by its numeric ID (e.g. {"id": 123}) is equivalent to passing the ID directly, and is
+        # always permitted regardless of the user's view permissions.
+        if list(attrs) != ['id'] and user is not None and hasattr(queryset, 'restrict'):
+            queryset = queryset.restrict(user, 'view')
         params = dict_to_filter_params(attrs)
         try:
             return queryset.get(**params)

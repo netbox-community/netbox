@@ -1,0 +1,328 @@
+name: Build and publish Python package
+
+# Least-privilege default for every job; the publish job grants itself id-token below.
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+      - 'pyproject.toml'
+      - 'README.md'
+      - 'LICENSE.txt'
+      - 'base_requirements.txt'
+      - 'requirements.txt'
+      - 'upgrade.sh'
+      - 'contrib/**'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'netbox/**'
+      - 'scripts/packaging/**'
+      - 'scripts/verify_*.py'
+      - 'scripts/smoketest_configuration.py'
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build package artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade build twine
+
+      - name: Install documentation toolchain
+        run: python -m pip install -r requirements.txt
+
+      - name: Render the documentation
+        # -c = clean cache, -s = strict (abort on warnings); verify_wheel_contents.py
+        # additionally guards against a partial render reaching the wheel.
+        run: zensical build -c -s
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Check package metadata
+        run: twine check dist/*
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+
+  verify-dependencies:
+    name: Verify dependency pins are in sync
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install packaging
+        run: python -m pip install packaging
+
+      - name: Verify requirements.txt is consistent with base_requirements.txt
+        run: python scripts/verify_dependencies.py
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Verify wheel Requires-Dist matches requirements.txt
+        run: python scripts/verify_wheel_metadata.py dist/*.whl
+
+      - name: Verify wheel excludes live configuration files
+        run: python scripts/verify_wheel_contents.py dist/*.whl
+
+  verify-sdist:
+    name: Verify the sdist builds a wheel
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install tooling
+        run: python -m pip install --upgrade pip packaging
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Verify the sdist contents
+        run: |
+          python scripts/verify_sdist_contents.py dist/*.tar.gz
+
+      - name: Build a wheel from the sdist
+        run: |
+          python -m pip wheel --no-deps dist/*.tar.gz -w sdist-wheel/
+
+      - name: Verify the sdist-built wheel
+        run: |
+          python scripts/verify_wheel_metadata.py sdist-wheel/*.whl
+          python scripts/verify_wheel_contents.py sdist-wheel/*.whl
+
+  cli-smoke-test:
+    name: Smoke test wheel CLI (no dependencies)
+    runs-on: ubuntu-latest
+    needs: build
+    # The pre-configuration CLI paths are stdlib-only, so a --no-deps install suffices.
+    # Unlike smoke-test, this job also runs on pull requests.
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Install wheel without dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/netbox-cli-venv"
+          "$RUNNER_TEMP/netbox-cli-venv/bin/python" -m pip install --no-deps dist/*.whl
+
+      - name: Exercise the pre-configuration CLI
+        run: |
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" --version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/python" -m netbox --version
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" secret-key | grep -Eq '^.{50}$' || { echo "secret-key not 50 chars"; exit 1; }
+
+      - name: Smoke-test netbox setup from the wheel
+        run: |
+          "$RUNNER_TEMP/netbox-cli-venv/bin/netbox" setup --target "$RUNNER_TEMP/nbroot"
+          for f in "$RUNNER_TEMP/nbroot/conf/__init__.py" "$RUNNER_TEMP/nbroot/conf/configuration.py" "$RUNNER_TEMP/nbroot/local_requirements.txt"; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
+          for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
+            test -s "$RUNNER_TEMP/nbroot/contrib/$f" || { echo "missing or empty contrib/$f"; exit 1; }
+          done
+
+  smoke-test:
+    name: Smoke test wheel install
+    runs-on: ubuntu-latest
+    needs: build
+    # The wheel install + database migration is expensive; only run it for tag
+    # pushes and manual dispatch, not on every packaging-related pull request.
+    # cli-smoke-test provides lightweight, dependency-free CLI coverage on every PR instead.
+    if: github.event_name != 'pull_request'
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: netbox
+          POSTGRES_USER: netbox
+          POSTGRES_PASSWORD: netbox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U netbox -d netbox"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NETBOX_CONFIGURATION: smoketest_configuration
+      POSTGRES_DB: netbox
+      POSTGRES_USER: netbox
+      POSTGRES_PASSWORD: netbox
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5432
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Install system build dependencies for psycopg
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev
+
+      - name: Install wheel into a clean virtual environment
+        run: |
+          python -m venv "$RUNNER_TEMP/netbox-wheel-venv"
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/python" -m pip install dist/*.whl
+
+      - name: Run NetBox smoke checks
+        env:
+          # STATIC_ROOT is not a configuration parameter; NETBOX_ROOT places it under the scratch base.
+          NETBOX_ROOT: ${{ runner.temp }}/netbox-smoketest
+          NETBOX_SMOKETEST_BASE: ${{ runner.temp }}/netbox-smoketest
+          PYTHONPATH: ${{ github.workspace }}/scripts
+        run: |
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" check
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" upgrade --no-input
+          test -f "$NETBOX_SMOKETEST_BASE/static/docs/index.html" || { echo "bundled documentation was not collected to STATIC_ROOT"; exit 1; }
+          test -f "$NETBOX_SMOKETEST_BASE/static/docs/models/dcim/device/index.html" || { echo "model documentation page was not collected"; exit 1; }
+
+      - name: Smoke-test netbox setup from the wheel
+        run: |
+          "$RUNNER_TEMP/netbox-wheel-venv/bin/netbox" setup --target "$RUNNER_TEMP/nbroot"
+          diff -q "$RUNNER_TEMP/nbroot/conf/configuration.py" netbox/netbox/configuration_example.py
+          for f in apache.conf gunicorn.py netbox-rq.service netbox.env netbox.service nginx.conf uwsgi.ini; do
+            diff -q "$RUNNER_TEMP/nbroot/contrib/$f" "contrib/$f"
+          done
+
+  publish-testpypi:
+    name: Publish package to Test PyPI
+    runs-on: ubuntu-latest
+    needs: [smoke-test, cli-smoke-test, verify-dependencies, verify-sdist]
+    # Publishing always requires a v* tag ref: a tag push publishes to Test PyPI
+    # automatically, and a manual dispatch does the same when the chosen ref is a v* tag.
+    # Branch dispatches still run the build, verify, and smoke-test jobs (a useful dry run)
+    # but the publish job is skipped. Production PyPI publishing is intentionally absent
+    # during the v4.6.x preview; it arrives with the v4.7.0 feature branch.
+    # startsWith() only routes to this job (workflow `if:` expressions cannot regex-match);
+    # the exact tag format (v<release.yaml version>) is enforced below by the "Enforce
+    # release tag format" step and scripts/verify_release_tag.py before any upload.
+    if: startsWith(github.ref, 'refs/tags/v') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/netbox
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Enforce release tag format
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]] || {
+            echo "Ref '$TAG' is not a release tag of the form vX.Y.Z[-designation]"
+            exit 1
+          }
+
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.12'
+      - name: Install tooling
+        run: python -m pip install --upgrade pip packaging
+
+      - name: Download package artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Verify the git tag matches the built version
+        run: python scripts/verify_release_tag.py "${{ github.ref_name }}" dist/*.whl
+
+      - name: Publish package distributions to Test PyPI
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        with:
+          repository-url: https://test.pypi.org/legacy/

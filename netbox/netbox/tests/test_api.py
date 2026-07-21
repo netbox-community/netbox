@@ -6,8 +6,9 @@ from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 
+from dcim.api.serializers import RackSerializer
 from netbox.api.exceptions import QuerySetNotOrdered
-from netbox.api.fields import IntegerRangeSerializer
+from netbox.api.fields import IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
 from users.models import Token
 from utilities.testing import APITestCase
@@ -46,6 +47,29 @@ class AppTestCase(APITestCase):
         response = self.client.get(f'{url}', **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['id'], self.user.pk)
+
+
+class RelatedObjectCountFieldTestCase(TestCase):
+    """
+    RelatedObjectCountFields are populated by annotations applied to a viewset's queryset, which are only
+    added when serializing an object via its own endpoint (including ?brief=1). They are never annotated when
+    the object is rendered as a nested related object, so they must be omitted from nested representations to
+    keep the generated OpenAPI schema honest. See #22154.
+    """
+    def test_count_field_omitted_when_nested(self):
+        """A nested serializer must drop RelatedObjectCountFields (e.g. RackSerializer.device_count)."""
+        serializer = RackSerializer(nested=True)
+        count_fields = [
+            name for name, field in serializer.fields.items() if isinstance(field, RelatedObjectCountField)
+        ]
+        self.assertEqual(count_fields, [])
+        self.assertNotIn('device_count', serializer.fields)
+
+    def test_count_field_retained_in_brief_mode(self):
+        """?brief=1 (fields=brief_fields, not nested) must retain RelatedObjectCountFields."""
+        serializer = RackSerializer(fields=RackSerializer.Meta.brief_fields)
+        self.assertIn('device_count', serializer.fields)
+        self.assertIsInstance(serializer.fields['device_count'], RelatedObjectCountField)
 
 
 class NetBoxPaginationTestCase(TestCase):

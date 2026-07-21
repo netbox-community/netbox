@@ -443,6 +443,18 @@ curl -X POST \
 http://netbox/api/extras/scripts/upload/
 ```
 
+### Updating an Uploaded Script
+
+An existing script module can be replaced in place by sending a `multipart/form-data` PUT or PATCH request to the module's detail URL. The module may be identified by its numeric ID or by its file name. The uploaded file name must match the existing module's file path, and the caller must have the `extras.change_scriptmodule` and `core.change_managedfile` permissions. The module's scripts are re-synchronized from the new content.
+
+```no-highlight
+curl -X PUT \
+-H "Authorization: Bearer $TOKEN" \
+-H "Accept: application/json; indent=4" \
+-F "file=@/path/to/myscript.py" \
+http://netbox/api/extras/scripts/upload/myscript.py/
+```
+
 ## Running Custom Scripts
 
 !!! note

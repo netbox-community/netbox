@@ -95,3 +95,23 @@ If you are able to connect but receive a 502 (bad gateway) error, check the foll
 * The WSGI worker processes (gunicorn) are running (`systemctl status netbox` should show a status of "active (running)")
 * Nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
 * SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`
+
+## What's Next?
+
+With NetBox up and running, you may want to extend its capabilities by installing one or more plugins. Plugins are optional components that add new models, views, integrations, and other functionality on top of core NetBox. Some of the most popular plugins include:
+
+* [**NetBox Branching**](https://github.com/netboxlabs/netbox-branching) — Create isolated, changeable branches of your NetBox data, allowing multiple users to work in parallel and merge their changes.
+* [**NetBox Custom Objects**](https://github.com/netboxlabs/netbox-custom-objects) — Define entirely new object types directly in the UI, without writing any code.
+* [**NetBox DNS**](https://github.com/sys4/netbox-plugin-dns) — Manage DNS zones, records, and related data as an authoritative source of truth.
+* [**NetBox BGP**](https://github.com/netbox-community/netbox-bgp) — Document and manage BGP sessions, communities, and routing policies.
+
+Installing a plugin generally involves adding its Python package to `/opt/netbox/local_requirements.txt`, enabling it in the `PLUGINS` list in `configuration.py`, and running NetBox's upgrade script:
+
+```no-highlight
+$ sudo sh -c "echo '<package>' >> /opt/netbox/local_requirements.txt"
+$ sudo /opt/netbox/upgrade.sh
+```
+
+Each plugin is different and may require additional configuration or setup steps, so always consult the plugin's own documentation as well as NetBox's [plugin installation guide](../plugins/installation.md) before getting started.
+
+To browse the full catalog of available plugins, visit [netboxlabs.com/plugins](https://netboxlabs.com/plugins/).

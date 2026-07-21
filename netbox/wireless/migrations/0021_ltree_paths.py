@@ -20,7 +20,7 @@ LEGACY_FIELDS = ('lft', 'rght', 'tree_id', 'level')
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wireless', '0019_default_ordering_indexes'),
+        ('wireless', '0020_alter_wirelesslan__region_and_more'),
     ]
 
     operations = [

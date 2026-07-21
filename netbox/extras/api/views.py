@@ -6,12 +6,13 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet
 
+from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
@@ -27,7 +28,7 @@ from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
 
 from . import serializers
-from .mixins import ConfigTemplateRenderMixin
+from .mixins import ConfigTemplateRenderMixin, SharedObjectQuerySetMixin
 
 
 class ExtrasRootView(APIRootView):
@@ -126,7 +127,7 @@ class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
 # Saved filters
 #
 
-class SavedFilterViewSet(NetBoxModelViewSet):
+class SavedFilterViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = SavedFilter.objects.all()
     serializer_class = serializers.SavedFilterSerializer
@@ -137,7 +138,7 @@ class SavedFilterViewSet(NetBoxModelViewSet):
 # Table Configs
 #
 
-class TableConfigViewSet(NetBoxModelViewSet):
+class TableConfigViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = TableConfig.objects.all()
     serializer_class = serializers.TableConfigSerializer
@@ -283,9 +284,28 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, BaseViewSet):
-    queryset = ScriptModule.objects.all()
+class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
+    queryset = ScriptModule.objects.filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
     serializer_class = serializers.ScriptModuleSerializer
+    lookup_value_regex = '[^/]+'  # Allow dots
+
+    def get_object(self):
+        """
+        Retrieve a ScriptModule by numeric ID or by file name (e.g. my_script.py).
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup = self.kwargs.get(self.lookup_url_kwarg or self.lookup_field, '')
+
+        # Support lookup by numeric PK or by file_path. Treat all-decimal values as PKs
+        # to preserve normal detail-route behavior; otherwise resolve the value as a
+        # script module filename, e.g. "myscript.py".
+        if lookup.isdecimal():
+            obj = get_object_or_404(queryset, pk=int(lookup))
+        else:
+            obj = get_object_or_404(queryset, file_path=lookup)
+
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 @extend_schema_view(

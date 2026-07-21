@@ -1,5 +1,12 @@
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
+  // Tabler forces `overflow-y: scroll` on the vertical navbar, which renders a
+  // permanent scrollbar in Chromium browsers even when scrolling isn't needed.
+  // Use `auto` so the scrollbar only appears when the menu overflows.
+  @include media-breakpoint-up(lg) {
+    overflow-y: auto;
+  }
+
   // Render the <button> menu headings identically to the surrounding nav links
   .navbar-collapse .nav-item.dropdown > button.nav-link {
     width: 100%;

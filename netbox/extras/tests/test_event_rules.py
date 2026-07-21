@@ -190,7 +190,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             ]
         }
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'extras.view_tag')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Site.objects.count(), 1)
@@ -241,7 +241,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             },
         ]
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'extras.view_tag')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(Site.objects.count(), 3)
@@ -275,7 +275,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             ]
         }
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
@@ -332,7 +332,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             },
         ]
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 

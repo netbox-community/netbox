@@ -22,6 +22,8 @@ If you would like to consider upgrading to NetBox Cloud or Enterprise, please co
 
 ## Reporting a Suspected Vulnerability
 
+Before reporting, please review our [Threat Model](THREAT_MODEL.md) to confirm that the behavior you've observed is an in-scope vulnerability and not an intended, privileged operation.
+
 If you believe you've uncovered a security vulnerability and wish to report it confidentially, you may do so by emailing `security@netboxlabs.com`. Please ensure that your report meets all the following conditions:
 
 * Affects the most recent stable release of NetBox, or a current beta release

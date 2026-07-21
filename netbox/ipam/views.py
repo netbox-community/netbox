@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import EmptyResultSet
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
@@ -569,8 +570,13 @@ class ChildAvailabilityMixin:
 
     @staticmethod
     def _where_signature(queryset):
-        # query.where is Django-internal, but it is the closest signal for "narrowed by a filter".
-        return str(queryset.query.where)
+        # Compare compiled SQL rather than str(query.where): the WHERE tree embeds default
+        # object reprs (memory addresses) for permission-constraint subqueries, so two
+        # otherwise identical querysets built via restrict() never match (#22539).
+        try:
+            return queryset.query.get_compiler(using=queryset.db).as_sql()
+        except EmptyResultSet:
+            return None
 
     def _set_children_filtered(self, is_filtered):
         self._child_queryset_is_filtered = is_filtered
