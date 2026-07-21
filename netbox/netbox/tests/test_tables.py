@@ -4,6 +4,8 @@ from django.test import RequestFactory, TestCase
 
 from dcim.models import Device, Site
 from dcim.tables import DeviceTable
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
@@ -119,3 +121,23 @@ class TagColumnTestCase(TestCase):
             'table': table
         })
         template.render(context)
+
+
+class CustomFieldColumnTestCase(TestCase):
+    """
+    A URL custom field value is rendered directly into an href, so its scheme must be validated
+    against ALLOWED_URL_SCHEMES to avoid rendering dangerous schemes (e.g. javascript:) as clickable
+    links (fixes #22640).
+    """
+
+    def _render(self, value):
+        customfield = CustomField(name='url_field', type=CustomFieldTypeChoices.TYPE_URL)
+        return columns.CustomFieldColumn(customfield).render(value)
+
+    def test_url_allowed_scheme_rendered_as_link(self):
+        self.assertEqual(self._render('https://example.com'), '<a href="https://example.com">https://example.com</a>')
+
+    def test_url_disallowed_scheme_not_rendered_as_link(self):
+        rendered = self._render('javascript:alert(1)')
+        self.assertNotIn('href', rendered)
+        self.assertIn('javascript:alert(1)', rendered)

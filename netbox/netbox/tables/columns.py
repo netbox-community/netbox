@@ -1,6 +1,6 @@
 import zoneinfo
 from dataclasses import dataclass
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import django_tables2 as tables
 from django.conf import settings
@@ -19,6 +19,7 @@ from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from netbox.config import get_config
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
@@ -562,7 +563,13 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES, to guard against
+            # dangerous schemes (e.g. javascript:) in values which bypassed validation. A schemeless
+            # (relative) value is considered safe.
+            scheme = urlparse(value).scheme
+            if not scheme or scheme.lower() in get_config().ALLOWED_URL_SCHEMES:
+                return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            return escape(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.customfield.get_choice_label(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:

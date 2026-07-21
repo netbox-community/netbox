@@ -6,6 +6,7 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
+from netbox.config import get_config
 from utilities.querydict import dict_to_querydict
 
 __all__ = (
@@ -48,6 +49,8 @@ def customfield_value(customfield, value):
     """
     color = None
     value_has_colors = False
+    # Determines whether a URL value may be rendered as a clickable link
+    url_allowed = False
 
     if value:
         if customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
@@ -58,11 +61,18 @@ def customfield_value(customfield, value):
             value_has_colors = any(choice_color for _, choice_color in value)
             if not value_has_colors:
                 value = [choice_label for choice_label, _ in value]
+        elif customfield.type == CustomFieldTypeChoices.TYPE_URL:
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES. This guards against
+            # dangerous schemes (e.g. javascript:) in values stored before validation was enforced or via
+            # paths which bypass model validation. A schemeless (relative) value is considered safe.
+            scheme = urlparse(value).scheme
+            url_allowed = not scheme or scheme.lower() in get_config().ALLOWED_URL_SCHEMES
     return {
         'customfield': customfield,
         'value': value,
         'color': color,
         'value_has_colors': value_has_colors,
+        'url_allowed': url_allowed,
     }
 
 
