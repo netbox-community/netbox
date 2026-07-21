@@ -4,6 +4,9 @@ from django.test import RequestFactory, TestCase
 
 from dcim.models import Device, Site
 from dcim.tables import DeviceTable
+from extras.choices import CustomFieldChoiceColorChoices, CustomFieldTypeChoices
+from extras.models import CustomField, CustomFieldChoiceSet
+from core.models import ObjectType
 from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
@@ -119,3 +122,127 @@ class TagColumnTestCase(TestCase):
             'table': table
         })
         template.render(context)
+
+
+class CustomFieldColumnTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.object_type = ObjectType.objects.get_for_model(Site)
+
+        # Choice set containing one colored and one uncolored choice
+        cls.mixed_choice_set = CustomFieldChoiceSet.objects.create(
+            name="Mixed Choice Set",
+            extra_choices=(
+                ("a", "Option A"),
+                ("b", "Option B"),
+            ),
+            choice_colors={
+                "a": CustomFieldChoiceColorChoices.RED,
+            },
+        )
+
+        # Choice set with no configured colors
+        cls.plain_choice_set = CustomFieldChoiceSet.objects.create(
+            name="Plain Choice Set",
+            extra_choices=(
+                ("a", "Option A"),
+                ("b", "Option B"),
+            ),
+        )
+
+        cls.select_cf = CustomField.objects.create(
+            name="select_field",
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choice_set=cls.mixed_choice_set,
+            required=False,
+        )
+        cls.select_cf.object_types.set([cls.object_type])
+
+        cls.multiselect_cf = CustomField.objects.create(
+            name="multiselect_field",
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choice_set=cls.mixed_choice_set,
+            required=False,
+        )
+        cls.multiselect_cf.object_types.set([cls.object_type])
+
+        cls.plain_multiselect_cf = CustomField.objects.create(
+            name="plain_multiselect_field",
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choice_set=cls.plain_choice_set,
+            required=False,
+        )
+        cls.plain_multiselect_cf.object_types.set([cls.object_type])
+
+    def test_colored_single_select(self):
+        column = columns.CustomFieldColumn(self.select_cf)
+
+        rendered = str(column.render("a"))
+
+        self.assertIn("badge", rendered)
+        self.assertIn("text-bg-red", rendered)
+        self.assertIn("Option A", rendered)
+
+    def test_uncolored_single_select(self):
+        column = columns.CustomFieldColumn(self.select_cf)
+
+        rendered = str(column.render("b"))
+
+        self.assertEqual(rendered, "Option B")
+        self.assertNotIn("badge", rendered)
+
+    def test_empty_multiselect(self):
+        column = columns.CustomFieldColumn(self.multiselect_cf)
+
+        rendered = column.render([])
+
+        self.assertEqual(rendered, "")
+
+    def test_multiselect_without_colored_choices(self):
+        column = columns.CustomFieldColumn(self.plain_multiselect_cf)
+
+        rendered = str(column.render(["a", "b"]))
+
+        self.assertEqual(rendered, "Option A, Option B")
+        self.assertNotIn("badge", rendered)
+
+    def test_multiselect_with_mixed_colored_choices(self):
+        column = columns.CustomFieldColumn(self.multiselect_cf)
+
+        rendered = str(column.render(["a", "b"]))
+
+        self.assertIn("Option A", rendered)
+        self.assertIn("Option B", rendered)
+
+        self.assertIn("text-bg-red", rendered)
+        self.assertIn("text-bg-secondary", rendered)
+
+        self.assertNotIn(",", rendered)
+
+    def test_html_sensitive_choice_labels(self):
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name="HTML Choice Set",
+            extra_choices=(
+                ("x", "<b>Bold Option</b>"),
+                ("y", "<script>alert('xss')</script>"),
+            ),
+            choice_colors={
+                "x": CustomFieldChoiceColorChoices.RED,
+            },
+        )
+
+        custom_field = CustomField.objects.create(
+            name="html_select_field",
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choice_set=choice_set,
+            required=False,
+        )
+        custom_field.object_types.set([self.object_type])
+
+        column = columns.CustomFieldColumn(custom_field)
+
+        rendered = str(column.render("x"))
+
+        self.assertIn("&lt;b&gt;Bold Option&lt;/b&gt;", rendered)
+        self.assertNotIn("&amp;lt;", rendered)
