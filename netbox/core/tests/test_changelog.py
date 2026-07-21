@@ -449,7 +449,7 @@ class ChangeLogAPITestCase(APITestCase):
         }
         self.assertEqual(ObjectChange.objects.count(), 0)
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'extras.view_tag')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -481,7 +481,7 @@ class ChangeLogAPITestCase(APITestCase):
             ]
         }
         self.assertEqual(ObjectChange.objects.count(), 0)
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
 
         response = self.client.put(url, data, format='json', **self.header)

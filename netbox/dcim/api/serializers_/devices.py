@@ -206,6 +206,23 @@ class ModuleSerializer(PrimaryModelSerializer):
         # construct a Module instance for full_clean(); restore them afterwards.
         replicate_components = data.pop('replicate_components', True)
         adopt_components = data.pop('adopt_components', False)
+
+        if self.instance is not None:
+            # Derive device from module_bay so full_clean() validates a consistent pair.
+            if 'module_bay' in data and 'device' not in data:
+                data['device'] = data['module_bay'].device
+            move_requested = (
+                ('module_bay' in data and data['module_bay'].pk != self.instance.module_bay_id) or
+                ('device' in data and data['device'].pk != self.instance.device_id)
+            )
+            if move_requested and 'module_type' in data and data['module_type'].pk != self.instance.module_type_id:
+                raise serializers.ValidationError({
+                    'module_type': _(
+                        "Changing a module's type while moving it is not supported. Change the module "
+                        "type and move the module as separate operations."
+                    )
+                })
+
         data = super().validate(data)
 
         # For updates these fields are not meaningful; omit them from validated_data so that
@@ -229,7 +246,10 @@ class ModuleSerializer(PrimaryModelSerializer):
         if not all([device, module_type, module_bay]):
             return data
 
-        positions = get_module_bay_positions(module_bay)
+        try:
+            positions = get_module_bay_positions(module_bay)
+        except ValueError as e:
+            raise serializers.ValidationError({'module_bay': str(e)}) from e
 
         for templates_attr, component_attr in [
             ('consoleporttemplates', 'consoleports'),

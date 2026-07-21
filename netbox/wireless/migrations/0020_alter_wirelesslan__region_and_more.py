@@ -1,0 +1,27 @@
+import django.db.models.deletion
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('dcim', '0239_add_portmapping_objectchange'),
+        ('wireless', '0019_default_ordering_indexes'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='wirelesslan',
+            name='_region',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.region'
+            ),
+        ),
+        migrations.AlterField(
+            model_name='wirelesslan',
+            name='_site_group',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dcim.sitegroup'
+            ),
+        ),
+    ]

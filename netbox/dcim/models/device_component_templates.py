@@ -11,7 +11,9 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
+from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.tracking import TrackingModelMixin
@@ -195,7 +197,11 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         if not has_module and not has_vc:
             return value
         if has_module and module:
-            positions = get_module_bay_positions(module.module_bay)
+            # Reached only from Module._save_new(); AbortRequest is what the view/viewset catches.
+            try:
+                positions = get_module_bay_positions(module.module_bay)
+            except ValueError as e:
+                raise AbortRequest(str(e)) from e
             value = resolve_module_placeholder(value, positions)
         if has_vc:
             resolved_device = (module.device if module else None) or device
@@ -538,7 +544,7 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         }
 
 
-class PortTemplateMapping(PortMappingBase):
+class PortTemplateMapping(ChangeLoggingMixin, PortMappingBase):
     """
     Maps a FrontPortTemplate & position to a RearPortTemplate & position.
     """
@@ -566,6 +572,10 @@ class PortTemplateMapping(PortMappingBase):
         on_delete=models.CASCADE,
         related_name='mappings',
     )
+
+    class Meta(PortMappingBase.Meta):
+        # Inherit the unique constraints from PortMappingBase.Meta.
+        pass
 
     def clean(self):
         super().clean()

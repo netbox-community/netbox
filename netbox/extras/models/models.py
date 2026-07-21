@@ -18,6 +18,7 @@ from extras.choices import *
 from extras.conditions import ConditionSet, InvalidCondition
 from extras.constants import *
 from extras.models.mixins import RenderTemplateMixin
+from extras.querysets import SharedObjectQuerySet
 from extras.utils import image_upload
 from netbox.config import get_config
 from netbox.events import get_event_type_choices
@@ -519,6 +520,8 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         verbose_name=_('parameters')
     )
 
+    objects = SharedObjectQuerySet.as_manager()
+
     clone_fields = (
         'object_types', 'weight', 'enabled', 'parameters',
     )
@@ -605,6 +608,8 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
         blank=True,
         null=True,
     )
+
+    objects = SharedObjectQuerySet.as_manager()
 
     clone_fields = ('object_type', 'table', 'enabled', 'shared', 'columns', 'ordering')
 

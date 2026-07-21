@@ -1676,6 +1676,7 @@ class PortTypeChoices(ChoiceSet):
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
+    TYPE_MDC = 'mdc'
     TYPE_SMA_905 = 'sma-905'
     TYPE_SMA_906 = 'sma-906'
     TYPE_URM_P2 = 'urm-p2'
@@ -1747,6 +1748,7 @@ class PortTypeChoices(ChoiceSet):
                 Choice(TYPE_ST, 'ST'),
                 Choice(TYPE_CS, 'CS'),
                 Choice(TYPE_SN, 'SN'),
+                Choice(TYPE_MDC, 'MDC'),
                 Choice(TYPE_SMA_905, 'SMA 905'),
                 Choice(TYPE_SMA_906, 'SMA 906'),
                 Choice(TYPE_URM_P2, 'URM-P2'),

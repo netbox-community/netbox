@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('extras', '0139_alter_customfieldchoiceset_extra_choices'),
         ('users', '0016_default_ordering_indexes'),
-        ('wireless', '0021_denormalization_triggers'),
+        ('wireless', '0022_denormalization_triggers'),
     ]
 
     operations = [

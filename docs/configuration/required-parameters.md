@@ -146,6 +146,9 @@ REDIS = {
     It is highly recommended to keep the task and cache databases separate. Using the same database number on the
     same Redis instance for both may result in queued background tasks being lost during cache flushing events.
 
+!!! danger "Redis is a trusted component"
+    NetBox's background workers deserialize and execute jobs read from the `tasks` Redis database, so any party with write access to it can run arbitrary code on a worker. Redis must be treated as trusted infrastructure, on par with the PostgreSQL database: keep it bound to a private network and require authentication.
+
 ### UNIX Socket Support
 
 Redis may alternatively be configured by specifying a complete URL instead of individual components. This approach supports the use of a UNIX socket connection. For example:

@@ -168,6 +168,9 @@ Or by a set of attributes which uniquely identify the rack:
 
 Note that if the provided parameters do not return exactly one object, a validation error is raised.
 
+!!! note "Permissions"
+    When a related object is referenced by a set of attributes, the lookup is restricted to only those objects which the requesting user has permission to view. This prevents the enumeration of objects by their attributes. Referencing a related object directly by its numeric ID is always permitted, regardless of the user's view permissions for that object.
+
 ### Generic Relations
 
 Some objects within NetBox have attributes which can reference an object of multiple types, known as _generic relations_. For example, an IP address can be assigned to either a device interface _or_ a virtual machine interface. When making this assignment via the REST API, we must specify two attributes:
@@ -853,6 +856,8 @@ By default, a token can be used to perform all actions via the API that a user w
 #### Client IP Restriction
 
 Each API token can optionally be restricted by client IP address. If one or more allowed IP prefixes/addresses is defined for a token, authentication will fail for any client connecting from an IP address outside the defined range(s). This enables restricting the use a token to a specific client. (By default, any client IP address is permitted.)
+
+The client IP address is determined from the HTTP headers configured by [`HTTP_CLIENT_IP_HEADERS`](../configuration/system.md#http_client_ip_headers); see the security note there regarding header trust.
 
 #### Creating Tokens for Other Users
 

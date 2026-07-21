@@ -298,6 +298,18 @@ class VLANQuerySet(RestrictedQuerySet):
 
         # Find all relevant VLANGroups
         q = Q()
+        if device.cluster_id:
+            # The Device's physical scope is evaluated below. For valid assignments,
+            # the Cluster's physical scope is already represented by that hierarchy.
+            q |= Q(
+                scope_type=ContentType.objects.get_by_natural_key('virtualization', 'cluster'),
+                scope_id=device.cluster_id
+            )
+            if device.cluster.group_id:
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
+                    scope_id=device.cluster.group_id
+                )
         if device.site.region:
             q |= Q(
                 scope_type=ContentType.objects.get_by_natural_key('dcim', 'region'),

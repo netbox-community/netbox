@@ -98,6 +98,9 @@ An ordered list of HTTP request headers inspected to determine the source IP add
 
 The client IP is used for source-address restrictions on API tokens and for logging failed login attempts.
 
+!!! warning "Client IP trust"
+    The headers listed here are trusted as the source of the client IP address. Trusting `X-Forwarded-For` (`HTTP_X_FORWARDED_FOR`) or `X-Real-IP` (`HTTP_X_REAL_IP`) is safe only when NetBox is deployed behind a reverse proxy that overwrites these headers with the real client address. If NetBox is reachable directly, or the proxy appends to or passes through a client-supplied value (NetBox uses the leftmost address, which the client controls when the proxy appends), a client can spoof its apparent IP address and defeat API token client IP restrictions. Deployments without a trusted proxy should set `HTTP_CLIENT_IP_HEADERS = ('REMOTE_ADDR',)`.
+
 ---
 
 ## HTTP_PROXIES

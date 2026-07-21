@@ -77,7 +77,7 @@ LEGACY_FIELDS = ('lft', 'rght', 'tree_id', 'level')
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0237_module_remove_local_context_data'),
+        ('dcim', '0239_add_portmapping_objectchange'),
     ]
 
     operations = [

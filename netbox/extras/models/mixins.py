@@ -13,7 +13,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_ALLOWED
+from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_ALLOWED, SCRIPT_MODULE_NAME_PREFIX
 from extras.utils import filename_from_model, filename_from_object
 from utilities.jinja2 import render_jinja2
 
@@ -71,12 +71,16 @@ class PythonModuleMixin:
         Load the module using importlib, but use a custom loader to use django-storages
         instead of the file system.
         """
-        spec = importlib.util.spec_from_file_location(self.python_name, self.name)
+        # Load the module under a namespaced name rather than its bare name. Using the bare name
+        # (e.g. "circuits") would replace the like-named core app package in sys.modules, breaking
+        # app and migration graph resolution.
+        module_name = f'{SCRIPT_MODULE_NAME_PREFIX}{self.python_name}'
+        spec = importlib.util.spec_from_file_location(module_name, self.name)
         if spec is None:
             raise ModuleNotFoundError(f"Could not find module: {self.python_name}")
         loader = CustomStoragesLoader(self.name)
         module = importlib.util.module_from_spec(spec)
-        sys.modules[self.python_name] = module
+        sys.modules[module_name] = module
         loader.exec_module(module)
 
         return module
@@ -255,7 +259,7 @@ class RenderTemplateMixin(models.Model):
             extension = f'.{self.file_extension}' if self.file_extension else ''
             if self.file_name:
                 filename = self.file_name
-            elif queryset:
+            elif queryset is not None:
                 filename = filename_from_model(queryset.model)
             elif context:
                 filename = filename_from_object(context)

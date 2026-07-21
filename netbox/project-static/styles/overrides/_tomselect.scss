@@ -7,8 +7,14 @@
   }
 }
 
-// Replicate styling of tom-selected <select> fields tagged with .is-invalid to
-// their corresponding TomSelect dropdowns
+// Replicate Bootstrap's invalid styling for widgets which explicitly use
+// the .is-invalid class.
 select.tomselected.is-invalid + div.ts-wrapper {
   @extend .is-invalid;
+}
+
+// Replicate NetBox's standard server-side error border on Tom Select's
+// visible wrapper.
+select.tomselected[aria-invalid='true']:not(.is-invalid) + div.ts-wrapper {
+  border: 1px solid $red;
 }
