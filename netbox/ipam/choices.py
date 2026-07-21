@@ -69,7 +69,7 @@ class IPAddressStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, _('Active'), 'blue'),
         (STATUS_RESERVED, _('Reserved'), 'cyan'),
         (STATUS_DEPRECATED, _('Deprecated'), 'red'),
-        (STATUS_DHCP, _('DHCP'), 'green'),
+        (STATUS_DHCP, _('DHCP'), 'purple'),
         (STATUS_SLAAC, _('SLAAC'), 'purple'),
     ]
 
