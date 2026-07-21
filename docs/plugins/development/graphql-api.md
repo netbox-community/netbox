@@ -45,6 +45,9 @@ An extension is a mixin class declaring a `models` attribute: a list of the lowe
 
 Each declared path must resolve to a list named `type_extensions` (or `filter_extensions`) - for example, defined in `graphql.py` alongside the schema, or re-exported from the plugin's `graphql` package.
 
+!!! warning
+    Do not import core GraphQL modules (e.g. `dcim.graphql.types`) from a plugin's `ready()`. Doing so assembles the affected core types before other plugins have registered their extensions, which are then silently dropped. A warning is logged under `netbox.graphql` if this occurs.
+
 ### Type Extensions
 
 An output-type extension is a `@strawberry.type` class whose fields and resolvers are spliced into the target type:

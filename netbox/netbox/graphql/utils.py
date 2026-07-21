@@ -116,6 +116,9 @@ def register_model_graphql_type(model, delegate, store_key, **kwargs):
     label = get_model_label(model)
 
     def wrapper(cls):
+        # Record that this type/filter has been assembled, so a plugin that registers an extension after this
+        # point (e.g. because its ready() imported a core graphql module early) can be warned it is too late.
+        registry['plugins']['graphql_extensions_assembled'].add((store_key, label))
         extensions = registry['plugins'][store_key].get(label)
         cls = splice_extension_bases(cls, extensions)
         return delegate(model, **kwargs)(cls)

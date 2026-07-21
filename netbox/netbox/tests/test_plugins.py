@@ -444,3 +444,29 @@ class RegisterGraphQLExtensionsTestCase(TestCase):
 
         with self.assertRaises(TypeError):
             register_graphql_filter_extensions([UndecoratedFilter])
+
+    def test_warns_when_registered_after_assembly(self):
+        # An extension registered after its core type was already assembled is warned and will be dropped.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class LateExt:
+            models = ['dcim.cable']
+            late_field: str
+
+        store, label = 'graphql_type_extensions', 'dcim.cable'
+        assembled = registry['plugins']['graphql_extensions_assembled']
+        was_present = (store, label) in assembled
+        assembled.add((store, label))
+        # Restore global registry state regardless of outcome so other tests are unaffected.
+        self.addCleanup(lambda: registry['plugins'][store].__setitem__(
+            label, [e for e in registry['plugins'][store][label] if e is not LateExt]
+        ))
+        if not was_present:
+            self.addCleanup(assembled.discard, (store, label))
+
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            register_graphql_type_extensions([LateExt])
+        self.assertTrue(any('after the core type was assembled' in msg for msg in cm.output))

@@ -126,7 +126,8 @@ def _register_graphql_extensions(class_list, store):
                 )
             )
         # Must be @strawberry.type-decorated for its fields to be collected. Check the class's own __dict__ (not
-        # hasattr) so an undecorated subclass of a @strawberry.type base is still rejected.
+        # hasattr) so an undecorated subclass of a @strawberry.type base is still rejected. `__strawberry_definition__`
+        # is a Strawberry internal (verified against strawberry-graphql 0.321.0); revisit on dependency upgrades.
         if '__strawberry_definition__' not in vars(extension):
             raise TypeError(
                 _("GraphQL extension {extension} must be decorated with @strawberry.type.").format(
@@ -144,7 +145,17 @@ def _register_graphql_extensions(class_list, store):
                         extension=extension, label=label
                     )
                 )
-            registry['plugins'][store][get_model_label(model)].append(extension)
+            canonical_label = get_model_label(model)
+            # If the core type/filter was already assembled (a plugin imported a core graphql module during
+            # ready()), this extension is too late to be spliced in and will not appear in the schema. Fetch the
+            # logger lazily (not the module-level one) so it isn't disabled by a `disable_existing_loggers` config.
+            if (store, canonical_label) in registry['plugins']['graphql_extensions_assembled']:
+                logging.getLogger('netbox.graphql').warning(
+                    "GraphQL extension %s for '%s' was registered after the core type was assembled and will be "
+                    "ignored. Avoid importing core GraphQL modules from a plugin's ready().",
+                    extension, canonical_label,
+                )
+            registry['plugins'][store][canonical_label].append(extension)
 
 
 def register_graphql_type_extensions(class_list):

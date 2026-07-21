@@ -1,7 +1,9 @@
 import json
 import re
+from unittest import skipIf
 
 import strawberry
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import override_settings
@@ -132,6 +134,26 @@ class GraphQLAPITestCase(APITestCase):
             Site(name='Site 7', slug='site-7'),
         )
         Site.objects.bulk_create(sites)
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_plugin_extensions_execute(self):
+        """
+        A plugin-provided filter extension and field extension execute end-to-end against a live query,
+        exercising the custom filter method's prefix plumbing and the type extension's resolver.
+        """
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+
+        query = '{ site_list(filters: {dummy_plugin_filter: "Site 1"}) { name dummy_plugin_field } }'
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        sites = data['data']['site_list']
+        self.assertEqual(len(sites), 1)
+        self.assertEqual(sites[0]['name'], 'Site 1')
+        self.assertEqual(sites[0]['dummy_plugin_field'], 'dummy-plugin-value')
 
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphql_filter_objects(self):

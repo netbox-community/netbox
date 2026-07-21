@@ -23,6 +23,9 @@ registry['plugins'].update({
     'jinja_filters': {},
     'graphql_type_extensions': collections.defaultdict(list),
     'graphql_filter_extensions': collections.defaultdict(list),
+    # (store_key, label) pairs whose core type/filter has already been assembled, used to detect extensions
+    # registered too late to be spliced in.
+    'graphql_extensions_assembled': set(),
     'menus': [],
     'menu_items': {},
     'preferences': {},
