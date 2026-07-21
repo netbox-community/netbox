@@ -7,8 +7,7 @@ from strawberry.types import Info
 from core.graphql.mixins import ChangelogMixin
 from core.models import ObjectType as ObjectType_
 from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
-from netbox.graphql.utils import splice_extension_bases
-from netbox.registry import registry
+from netbox.graphql.utils import register_model_graphql_type
 from users.graphql.mixins import OwnerMixin
 
 __all__ = (
@@ -30,21 +29,9 @@ def register_type(model, **kwargs):
     Drop-in replacement for `strawberry_django.type()` for model-bound NetBox GraphQL output types. Before delegating
     to `strawberry_django.type()`, any plugin-registered output-type mixins for the given model are spliced into the
     decorated class's bases. With no extensions registered this is an exact pass-through, leaving schema output
-    unchanged.
-
-    Note: the extension registry is read here at decoration (import) time, so all plugins must have registered their
-    extensions (via `PluginConfig.ready()`) before this module is imported. This holds because the GraphQL schema is
-    assembled lazily from the URLconf, after every app's `ready()` has run. Importing a core `graphql/types.py`
-    during app initialization would read the registry too early and silently drop later-registered extensions.
+    unchanged. See `register_model_graphql_type` for the registry-timing contract.
     """
-    label = f'{model._meta.app_label}.{model._meta.model_name}'
-
-    def wrapper(cls):
-        extensions = registry['plugins']['graphql_type_extensions'].get(label)
-        cls = splice_extension_bases(cls, extensions)
-        return strawberry_django.type(model, **kwargs)(cls)
-
-    return wrapper
+    return register_model_graphql_type(model, strawberry_django.type, 'graphql_type_extensions', **kwargs)
 
 
 #

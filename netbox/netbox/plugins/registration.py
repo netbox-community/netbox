@@ -1,8 +1,10 @@
 import inspect
 import logging
 
+from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
+from netbox.graphql.utils import get_model_label
 from netbox.registry import registry
 
 from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
@@ -104,10 +106,12 @@ def register_graphql_schema(graphql_schema):
     registry['plugins']['graphql_schemas'].extend(graphql_schema)
 
 
-def _register_graphql_extensions(class_list, store, require_strawberry_type=False):
+def _register_graphql_extensions(class_list, store):
     """
     Collect a list of GraphQL output-type or filter mixin classes into the given registry store, bucketed by the
-    model labels declared on each class's `models` attribute.
+    model labels declared on each class's `models` attribute. Each declared label is validated against the app
+    registry and normalized to the canonical `app_label.model_name` form (via `get_model_label`) so that the
+    stored key always matches the label `register_type`/`register_filter` look up.
     """
     for extension in class_list:
         if not inspect.isclass(extension):
@@ -121,30 +125,41 @@ def _register_graphql_extensions(class_list, store, require_strawberry_type=Fals
                     extension=extension
                 )
             )
-        # Output-type extensions must be @strawberry.type-decorated for their fields to be collected; catch this at
-        # registration time rather than surfacing an opaque error when the schema is assembled.
-        if require_strawberry_type and not hasattr(extension, '__strawberry_definition__'):
+        # Extensions must be @strawberry.type-decorated for their fields to be collected; catch this at
+        # registration time rather than surfacing an opaque error when the schema is assembled. Check the class's
+        # own __dict__ (not hasattr) so an undecorated subclass of a @strawberry.type base is still rejected.
+        if '__strawberry_definition__' not in vars(extension):
             raise TypeError(
-                _("GraphQL type extension {extension} must be decorated with @strawberry.type.").format(
+                _("GraphQL extension {extension} must be decorated with @strawberry.type.").format(
                     extension=extension
                 )
             )
-        for model in models:
-            registry['plugins'][store][model.lower()].append(extension)
+        for label in models:
+            # Resolve the target model to validate the label and derive its canonical key; a mistyped or unknown
+            # label would otherwise register into a bucket that is never consumed, silently dropping the extension.
+            try:
+                model = apps.get_model(label)
+            except (LookupError, ValueError):
+                raise TypeError(
+                    _("GraphQL extension {extension} targets unknown model '{label}'.").format(
+                        extension=extension, label=label
+                    )
+                )
+            registry['plugins'][store][get_model_label(model)].append(extension)
 
 
 def register_graphql_type_extensions(class_list):
     """
-    Register a list of GraphQL output-type mixin classes. Each class must declare a `models` attribute listing the
-    lowercased `app_label.model` labels of the core types it extends.
+    Register a list of GraphQL output-type mixin classes. Each class must be decorated with @strawberry.type and
+    declare a `models` attribute listing the `app_label.model` labels of the core types it extends.
     """
-    _register_graphql_extensions(class_list, 'graphql_type_extensions', require_strawberry_type=True)
+    _register_graphql_extensions(class_list, 'graphql_type_extensions')
 
 
 def register_graphql_filter_extensions(class_list):
     """
-    Register a list of GraphQL filter mixin classes. Each class must declare a `models` attribute listing the
-    lowercased `app_label.model` labels of the core filters it extends.
+    Register a list of GraphQL filter mixin classes. Each class must be decorated with @strawberry.type and declare
+    a `models` attribute listing the `app_label.model` labels of the core filters it extends.
     """
     _register_graphql_extensions(class_list, 'graphql_filter_extensions')
 

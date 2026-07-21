@@ -380,3 +380,67 @@ class PluginNavigationTestCase(TestCase):
         self.assertIsNot(item1.permissions, item2.permissions)
         self.assertEqual(item1.permissions, ['explicit_permission'])
         self.assertEqual(item2.permissions, ['different_permission'])
+
+
+class RegisterGraphQLExtensionsTestCase(TestCase):
+    """Validate registration-time checks for GraphQL type/filter extensions."""
+
+    def test_rejects_extension_without_models(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class NoModels:
+            pass
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([NoModels])
+
+    def test_rejects_undecorated_extension(self):
+        # A plain class (no @strawberry.type) must be rejected...
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        class Undecorated:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Undecorated])
+
+    def test_rejects_undecorated_subclass_of_strawberry_type(self):
+        # ...as must a subclass that only inherits __strawberry_definition__ without its own decoration.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class Base:
+            pass
+
+        class Child(Base):
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Child])
+
+    def test_rejects_unknown_model_label(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class BadTarget:
+            models = ['dcim.notamodel']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([BadTarget])
+
+    def test_filter_extension_requires_strawberry_type(self):
+        # The filter path enforces the same @strawberry.type requirement as the type path.
+        from netbox.plugins.registration import register_graphql_filter_extensions
+
+        class UndecoratedFilter:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_filter_extensions([UndecoratedFilter])

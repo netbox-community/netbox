@@ -56,12 +56,19 @@ from typing import Annotated
 import strawberry
 import strawberry_django
 
+from utilities.querysets import RestrictedPrefetch
+from my_plugin.models import Widget
+
 
 @strawberry.type
 class DeviceTypeExtension:
     models = ['dcim.device']
 
-    @strawberry_django.field(prefetch_related='widgets')
+    @strawberry_django.field(
+        prefetch_related=lambda info: RestrictedPrefetch(
+            'widgets', info.context.request.user, 'view', queryset=Widget.objects.all()
+        ),
+    )
     def widgets(self) -> list[Annotated['WidgetType', strawberry.lazy('my_plugin.graphql.types')]]:
         return self.widgets.all()
 
@@ -70,6 +77,9 @@ type_extensions = [
     DeviceTypeExtension,
 ]
 ```
+
+!!! warning
+    A resolver that returns related objects (`self.widgets.all()`) must scope the prefetch with `RestrictedPrefetch(..., info.context.request.user, 'view', ...)`, exactly as NetBox's own collection resolvers do. `BaseObjectType.get_queryset` only restricts the top-level queryset; a plain `prefetch_related='widgets'` would return **every** related object regardless of the requesting user's permissions, leaking data the user is not allowed to see.
 
 ### Filter Extensions
 

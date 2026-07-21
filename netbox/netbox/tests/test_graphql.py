@@ -671,13 +671,15 @@ class SpliceExtensionBasesTestCase(TestCase):
     def _make_core():
         @strawberry.type
         class CoreBase:
+            description: str  # inherited (non-protected) field
+
             @classmethod
             def get_queryset(cls, queryset, info, **kwargs):
                 return queryset
 
         @strawberry.type
         class CoreType(CoreBase):
-            name: str
+            name: str  # defined directly in the core type's own body
 
         return CoreType
 
@@ -703,20 +705,37 @@ class SpliceExtensionBasesTestCase(TestCase):
         # The extension precedes the core bases in the MRO
         self.assertLess(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
 
-    def test_warns_on_extension_shadowing_core_field(self):
+    def test_warns_when_extension_shadows_own_body_field(self):
+        # A name the core type defines directly wins; the extension's version is ignored (and warned).
         from netbox.graphql.utils import splice_extension_bases
 
         @strawberry.type
         class Extension:
             models = ['dcim.device']
-            name: str  # collides with CoreType.name
+            name: str  # collides with CoreType.name (own body)
 
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
             splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("already provided by core type" in msg for msg in cm.output))
+        self.assertTrue(any("core definition takes precedence" in msg for msg in cm.output))
 
-    def test_warns_on_extension_shadowing_inherited_hook(self):
+    def test_warns_when_extension_overrides_inherited_field(self):
+        # A name the core type only inherits is overridden by the extension via the MRO.
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            description: str  # collides with CoreBase.description (inherited)
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("takes precedence via MRO" in msg for msg in cm.output))
+
+    def test_protected_hook_cannot_be_overridden(self):
+        # An extension declaring a protected hook (get_queryset) is warned and does NOT win; the core
+        # permission-enforcing implementation is preserved.
         from netbox.graphql.utils import splice_extension_bases
 
         @strawberry.type
@@ -725,12 +744,33 @@ class SpliceExtensionBasesTestCase(TestCase):
 
             @classmethod
             def get_queryset(cls, queryset, info, **kwargs):
-                return queryset
+                return 'EXTENSION_WON'
 
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
-            splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("get_queryset" in msg and "core type" in msg for msg in cm.output))
+            result = splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("protected hook" in msg and "get_queryset" in msg for msg in cm.output))
+        # Core's get_queryset (identity) is retained, not the extension's override
+        self.assertEqual(result.get_queryset('CORE_QS', None), 'CORE_QS')
+
+    def test_mro_conflict_raises_clear_error(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        class A:
+            pass
+
+        class B:
+            pass
+
+        class Core(A, B):
+            name = 'core'
+
+        class Extension(B, A):  # reversed base order -> inconsistent MRO when spliced
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError) as ctx:
+            splice_extension_bases(Core, [Extension])
+        self.assertIn('Failed to splice', str(ctx.exception))
 
     def test_warns_on_collision_between_extensions(self):
         from netbox.graphql.utils import splice_extension_bases
