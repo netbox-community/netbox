@@ -43,7 +43,7 @@ In addition to registering its own top-level query fields, a plugin can inject f
 
 An extension is a mixin class declaring a `models` attribute: a list of the lowercased `app_label.model` labels of the core types it extends. Output-type extensions are collected from `graphql.type_extensions` and filter extensions from `graphql.filter_extensions` by default; these paths can be overridden via the `graphql_type_extensions` and `graphql_filter_extensions` attributes on the PluginConfig.
 
-Each declared path must resolve to a list named `type_extensions` (or `filter_extensions`) — for example, defined in `graphql.py` alongside the schema, or re-exported from the plugin's `graphql` package.
+Each declared path must resolve to a list named `type_extensions` (or `filter_extensions`) - for example, defined in `graphql.py` alongside the schema, or re-exported from the plugin's `graphql` package.
 
 ### Type Extensions
 
@@ -78,12 +78,12 @@ type_extensions = [
 ]
 ```
 
-!!! warning
-    A resolver that returns related objects (`self.widgets.all()`) must scope the prefetch with `RestrictedPrefetch(..., info.context.request.user, 'view', ...)`, exactly as NetBox's own collection resolvers do. `BaseObjectType.get_queryset` only restricts the top-level queryset; a plain `prefetch_related='widgets'` would return **every** related object regardless of the requesting user's permissions, leaking data the user is not allowed to see.
+!!! note
+    Scope any related-object resolver with `RestrictedPrefetch(..., info.context.request.user, 'view', ...)`, as shown above. Object permissions are only applied to the top-level queryset, so a plain `prefetch_related='widgets'` returns related objects the requesting user may not be permitted to see.
 
 ### Filter Extensions
 
-A filter extension is a `@strawberry.type` class declaring additional filters — either as annotated filter fields or as custom filter methods — which are spliced into the target filter:
+A filter extension is a `@strawberry.type` class declaring additional filters - either as annotated filter fields or as custom filter methods - which are spliced into the target filter:
 
 ```python
 # graphql.py (or graphql/filter_extensions.py)
@@ -116,9 +116,6 @@ query {
   }
 }
 ```
-
-!!! note
-    Extensions are spliced into the core types when the GraphQL schema is assembled, which occurs after all plugins' `ready()` methods have run. With no extensions registered, the core schema is unchanged.
 
 !!! warning
     Extensions are prepended ahead of the core type's base classes in the method resolution order. An extension should only *add* new fields; declaring a name that the core type already provides (for example a core field, or a hook such as `get_queryset`) will **override** that core behavior rather than supplement it. Such collisions are logged as warnings under the `netbox.graphql` logger. When two extensions on the same type declare the same name, the winner depends on plugin load order.
