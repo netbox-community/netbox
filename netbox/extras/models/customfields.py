@@ -796,9 +796,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
-                # Enforce a well-formed URL using a scheme permitted by ALLOWED_URL_SCHEMES. This applies
-                # the same validation used for values entered via the UI (LaxURLField), so the REST API and
-                # bulk import behave consistently with the form.
+                # Validate the URL and its scheme against ALLOWED_URL_SCHEMES, as the UI does (LaxURLField).
+                # Instantiated per call so a runtime change to the (dynamic) setting is honored.
                 EnhancedURLValidator()(value)
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
