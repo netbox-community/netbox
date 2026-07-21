@@ -1331,6 +1331,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
