@@ -855,6 +855,50 @@ class DeviceTestCase(TestCase):
                 cluster=clusters[1]
             ).full_clean()
 
+    @tag('regression')  # Ref: #22717
+    def test_device_mismatched_location_cluster(self):
+        """
+        A cluster scoped to a different location than the device must be rejected
+        with a field validation error naming that location.
+        """
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        locations = (
+            Location(site=site, name='Location A', slug='location-a'),
+            Location(site=site, name='Location B', slug='location-b'),
+        )
+        for location in locations:
+            location.save()
+
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type, scope=locations[0])
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device in the cluster's location should pass
+        Device(
+            name='device1',
+            site=site,
+            location=locations[0],
+            device_type=device_type,
+            role=device_role,
+            cluster=cluster
+        ).full_clean()
+
+        # Device in a different location of the same site should fail
+        with self.assertRaisesMessage(
+            ValidationError,
+            'The assigned cluster belongs to a different location (Location A)'
+        ):
+            Device(
+                name='device1',
+                site=site,
+                location=locations[1],
+                device_type=device_type,
+                role=device_role,
+                cluster=cluster
+            ).full_clean()
+
 
 class DeviceBayTestCase(TestCase):
 
