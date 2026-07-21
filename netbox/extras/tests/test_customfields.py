@@ -1695,23 +1695,22 @@ class CustomFieldAPITestCase(APITestCase):
 
     def test_url_scheme_validation(self):
         """
-        Test that URL custom field values are restricted to ALLOWED_URL_SCHEMES (fixes #22640).
+        Test that URL custom field values must be well-formed URLs using a scheme permitted by
+        ALLOWED_URL_SCHEMES, consistent with the UI (fixes #22640).
         """
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
         self.add_permissions('dcim.change_site')
 
-        # A disallowed scheme (not in ALLOWED_URL_SCHEMES) must be rejected with a scheme-specific error
+        # A dangerous scheme (e.g. javascript:) must be rejected
         data = {'custom_fields': {'url_field': 'javascript:alert(1)'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('javascript', str(response.data))
 
-        # A percent-encoded scheme has no scheme to a browser (it will not decode "%3A" to execute
-        # javascript:), so the value is treated as relative and accepted.
-        data = {'custom_fields': {'url_field': 'javascript%3Aalert(1)'}}
+        # A well-formed URL using a scheme outside ALLOWED_URL_SCHEMES must be rejected
+        data = {'custom_fields': {'url_field': 'gopher://example.com'}}
         response = self.client.patch(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
         # An allowed scheme must be accepted
         data = {'custom_fields': {'url_field': 'https://example.com'}}
