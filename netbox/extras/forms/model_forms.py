@@ -587,6 +587,7 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
             name=_('HTTP Request')
         ),
         FieldSet('ssl_verification', 'ca_file_path', name=_('SSL')),
+        FieldSet('timeout', name=_('Timeout')),
     )
 
     class Meta:

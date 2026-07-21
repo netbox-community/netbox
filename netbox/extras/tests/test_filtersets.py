@@ -227,6 +227,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?1',
                 http_method='GET',
                 ssl_verification=True,
+                timeout=10,
                 description='foobar1'
             ),
             Webhook(
@@ -234,6 +235,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?2',
                 http_method='POST',
                 ssl_verification=True,
+                timeout=20,
                 description='foobar2'
             ),
             Webhook(
@@ -241,6 +243,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?3',
                 http_method='PATCH',
                 ssl_verification=False,
+                timeout=30,
                 description='foobar3'
             ),
             Webhook(
@@ -276,6 +279,10 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 
     def test_ssl_verification(self):
         params = {'ssl_verification': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_timeout(self):
+        params = {'timeout': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

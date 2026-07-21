@@ -215,6 +215,7 @@ STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', None)
 STORAGES = getattr(configuration, 'STORAGES', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
+WEBHOOK_DEFAULT_TIMEOUT = getattr(configuration, 'WEBHOOK_DEFAULT_TIMEOUT', 30)
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
 if DISK_BASE_UNIT not in [1000, 1024]:
     raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")

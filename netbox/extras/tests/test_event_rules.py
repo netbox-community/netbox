@@ -427,6 +427,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(request.headers['X-Hook-Signature'], signature)
             self.assertEqual(request.headers['X-Foo'], 'Bar')
 
+            # The webhook does not define its own timeout, so the global default should be used
+            self.assertEqual(kwargs['timeout'], settings.WEBHOOK_DEFAULT_TIMEOUT)
+
             # Validate the outgoing request body
             body = json.loads(request.body)
             self.assertEqual(body['event'], 'created')
@@ -462,6 +465,37 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         job = self.queue.jobs[0]
 
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
+        with patch.object(Session, 'send', dummy_send):
+            send_webhook(**job.kwargs)
+
+    def test_send_webhook_per_webhook_timeout(self):
+        """
+        A webhook which defines its own timeout should use that value in preference to the
+        global WEBHOOK_DEFAULT_TIMEOUT.
+        """
+        webhook = Webhook.objects.get(name='Webhook 1')
+        webhook.timeout = 5
+        webhook.save()
+
+        def dummy_send(_, request, **kwargs):
+            self.assertEqual(kwargs['timeout'], 5)
+            return HttpResponse()
+
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        webhooks_queue = {}
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        enqueue_event(
+            webhooks_queue,
+            instance=site,
+            request=request,
+            event_type=OBJECT_CREATED,
+        )
+        flush_events(list(webhooks_queue.values()))
+
+        job = self.queue.jobs[0]
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
 

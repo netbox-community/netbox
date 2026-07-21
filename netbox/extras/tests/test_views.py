@@ -626,14 +626,15 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'payload_url': 'http://example.com/?x',
             'http_method': 'GET',
             'http_content_type': 'application/foo',
+            'timeout': 45,
             'description': 'My webhook',
         }
 
         cls.csv_data = (
-            "name,payload_url,http_method,http_content_type,description",
-            "Webhook 4,http://example.com/?4,GET,application/json,Foo",
-            "Webhook 5,http://example.com/?5,GET,application/json,Bar",
-            "Webhook 6,http://example.com/?6,GET,application/json,Baz",
+            "name,payload_url,http_method,http_content_type,timeout,description",
+            "Webhook 4,http://example.com/?4,GET,application/json,15,Foo",
+            "Webhook 5,http://example.com/?5,GET,application/json,,Bar",
+            "Webhook 6,http://example.com/?6,GET,application/json,,Baz",
         )
 
         cls.csv_update_data = (
@@ -645,6 +646,7 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'http_method': 'GET',
+            'timeout': 60,
         }
 
 

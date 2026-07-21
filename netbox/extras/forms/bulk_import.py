@@ -254,7 +254,7 @@ class WebhookImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         model = Webhook
         fields = (
             'name', 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template',
-            'secret', 'ssl_verification', 'ca_file_path', 'description', 'owner', 'tags'
+            'secret', 'ssl_verification', 'ca_file_path', 'timeout', 'description', 'owner', 'tags'
         )
 
 
