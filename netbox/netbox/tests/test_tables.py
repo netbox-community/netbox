@@ -141,3 +141,8 @@ class CustomFieldColumnTestCase(TestCase):
         rendered = self._render('javascript:alert(1)')
         self.assertNotIn('href', rendered)
         self.assertIn('javascript:alert(1)', rendered)
+
+    def test_url_percent_encoded_scheme_not_rendered_as_link(self):
+        # A percent-encoded scheme must not evade detection and become a clickable href.
+        rendered = self._render('javascript%3Aalert(1)')
+        self.assertNotIn('href', rendered)

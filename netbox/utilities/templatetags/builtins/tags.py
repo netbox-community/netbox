@@ -6,8 +6,8 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
-from netbox.config import get_config
 from utilities.querydict import dict_to_querydict
+from utilities.validators import is_url_scheme_allowed
 
 __all__ = (
     'badge',
@@ -65,8 +65,7 @@ def customfield_value(customfield, value):
             # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES. This guards against
             # dangerous schemes (e.g. javascript:) in values stored before validation was enforced or via
             # paths which bypass model validation. A schemeless (relative) value is considered safe.
-            scheme = urlparse(value).scheme
-            url_allowed = not scheme or scheme.lower() in get_config().ALLOWED_URL_SCHEMES
+            url_allowed = is_url_scheme_allowed(value)
     return {
         'customfield': customfield,
         'value': value,

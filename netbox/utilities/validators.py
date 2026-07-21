@@ -1,5 +1,6 @@
 import decimal
 import re
+from urllib.parse import unquote, urlparse
 
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator, RegexValidator, URLValidator, _lazy_re_compile
@@ -12,6 +13,8 @@ __all__ = (
     'EnhancedURLValidator',
     'ExclusionValidator',
     'MultipleOfValidator',
+    'get_url_scheme',
+    'is_url_scheme_allowed',
     'validate_regex',
 )
 
@@ -70,6 +73,23 @@ class MultipleOfValidator(BaseValidator):
             raise ValidationError(
                 _("{value} must be a multiple of {multiple}.").format(value=value, multiple=self.multiple)
             )
+
+
+def get_url_scheme(value):
+    """
+    Return the (lower-cased) scheme of a URL, or an empty string if it has none. The value is unquoted
+    before parsing so that a percent-encoded scheme (e.g. "javascript%3A…") cannot evade detection.
+    """
+    return urlparse(unquote(value)).scheme.lower()
+
+
+def is_url_scheme_allowed(value):
+    """
+    Return True if the URL's scheme is permitted by ALLOWED_URL_SCHEMES. A schemeless (relative) value
+    is considered permitted.
+    """
+    scheme = get_url_scheme(value)
+    return not scheme or scheme in get_config().ALLOWED_URL_SCHEMES
 
 
 def validate_regex(value):

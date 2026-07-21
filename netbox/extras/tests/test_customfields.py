@@ -1701,10 +1701,17 @@ class CustomFieldAPITestCase(APITestCase):
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
         self.add_permissions('dcim.change_site')
 
-        # A disallowed scheme (not in ALLOWED_URL_SCHEMES) must be rejected
+        # A disallowed scheme (not in ALLOWED_URL_SCHEMES) must be rejected with a scheme-specific error
         data = {'custom_fields': {'url_field': 'javascript:alert(1)'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('javascript', str(response.data))
+
+        # A percent-encoded scheme must not evade the check
+        data = {'custom_fields': {'url_field': 'javascript%3Aalert(1)'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('javascript', str(response.data))
 
         # An allowed scheme must be accepted
         data = {'custom_fields': {'url_field': 'https://example.com'}}

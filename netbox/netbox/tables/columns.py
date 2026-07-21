@@ -1,6 +1,6 @@
 import zoneinfo
 from dataclasses import dataclass
-from urllib.parse import quote, urlparse
+from urllib.parse import quote
 
 import django_tables2 as tables
 from django.conf import settings
@@ -19,11 +19,11 @@ from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
-from netbox.config import get_config
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
 from utilities.templatetags.builtins.filters import render_markdown
+from utilities.validators import is_url_scheme_allowed
 from utilities.views import get_action_url
 
 __all__ = (
@@ -566,8 +566,7 @@ class CustomFieldColumn(tables.Column):
             # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES, to guard against
             # dangerous schemes (e.g. javascript:) in values which bypassed validation. A schemeless
             # (relative) value is considered safe.
-            scheme = urlparse(value).scheme
-            if not scheme or scheme.lower() in get_config().ALLOWED_URL_SCHEMES:
+            if is_url_scheme_allowed(value):
                 return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
             return escape(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:

@@ -83,6 +83,11 @@ class CustomFieldValueTagTestCase(TestCase):
         self.assertNotIn('href', html)
         self.assertIn('javascript:alert(1)', html)
 
+    def test_url_percent_encoded_scheme_not_rendered_as_link(self):
+        # A percent-encoded scheme must not evade detection and become a clickable href.
+        html = self._render(self.url_field, 'javascript%3Aalert(1)')
+        self.assertNotIn('href', html)
+
 
 class StaticWithParamsTestCase(TestCase):
     """

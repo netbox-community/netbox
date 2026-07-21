@@ -22,6 +22,7 @@ from extras.choices import *
 from extras.constants import CUSTOMFIELD_DATA_BATCH_SIZE
 from extras.data import CHOICE_SETS
 from extras.fields import ChoiceSetField
+from netbox.config import get_config
 from netbox.context import query_cache
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
@@ -46,7 +47,7 @@ from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, Da
 from utilities.jsonschema import validate_schema
 from utilities.querysets import RestrictedQuerySet
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.validators import EnhancedURLValidator, validate_regex
+from utilities.validators import get_url_scheme, is_url_scheme_allowed, validate_regex
 
 __all__ = (
     'CustomField',
@@ -797,7 +798,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
                 # Enforce the schemes permitted by ALLOWED_URL_SCHEMES
-                EnhancedURLValidator()(value)
+                if not is_url_scheme_allowed(value):
+                    raise ValidationError(
+                        _("URL scheme '{scheme}' is not permitted. Allowed schemes: {schemes}").format(
+                            scheme=get_url_scheme(value),
+                            schemes=', '.join(get_config().ALLOWED_URL_SCHEMES)
+                        )
+                    )
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 
