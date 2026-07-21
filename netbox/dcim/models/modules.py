@@ -2,6 +2,7 @@ from collections.abc import Iterable, Mapping
 
 import jsonschema
 import yaml
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, models, router, transaction
 from django.db.models.signals import post_save
@@ -577,7 +578,9 @@ class Module(TrackingModelMixin, PrimaryModel):
                     instance.parent = self.module_bay
                 update_fields = ['module', 'parent']
 
-            component_model.objects.bulk_update(update_instances, update_fields)
+            component_model.objects.bulk_update(
+                update_instances, update_fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+            )
             for component in update_instances:
                 post_save.send(
                     sender=component_model,

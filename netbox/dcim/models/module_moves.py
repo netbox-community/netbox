@@ -17,6 +17,7 @@ from dcim.utils import (
 )
 from utilities.counters import update_counter
 from utilities.exceptions import AbortRequest
+from utilities.querysets import chunked_update
 
 from .device_components import (
     ConsolePort,
@@ -825,10 +826,13 @@ class ModuleMovePlan:
         moved_front_port_pks = [obj.pk for obj in self.components[FrontPort]]
         moved_rear_port_pks = [obj.pk for obj in self.components[RearPort]]
         if moved_front_port_pks and moved_rear_port_pks:
-            PortMapping.objects.filter(
-                front_port_id__in=moved_front_port_pks,
-                rear_port_id__in=moved_rear_port_pks,
-            ).update(device_id=self.new_device_id)
+            chunked_update(
+                PortMapping.objects.filter(
+                    front_port_id__in=moved_front_port_pks,
+                    rear_port_id__in=moved_rear_port_pks,
+                ),
+                device_id=self.new_device_id,
+            )
 
     def _recompute_counters(self):
         # bulk updates bypass the signal-driven counters; apply exact deltas for both devices

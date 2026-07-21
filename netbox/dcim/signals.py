@@ -6,6 +6,7 @@ from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
 from netbox.search.backends import search_backend
+from utilities.querysets import chunked_update
 from virtualization.models import VMInterface
 
 from .models import (
@@ -37,11 +38,11 @@ def handle_location_site_change(instance, created, **kwargs):
     (and to descendant Locations).
     """
     if not created:
-        instance.get_descendants().update(site=instance.site)
+        chunked_update(instance.get_descendants(), site=instance.site)
         locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
-        Rack.objects.filter(location__in=locations).update(site=instance.site)
-        Device.objects.filter(location__in=locations).update(site=instance.site)
-        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
+        chunked_update(Rack.objects.filter(location__in=locations), site=instance.site)
+        chunked_update(Device.objects.filter(location__in=locations), site=instance.site)
+        chunked_update(PowerPanel.objects.filter(location__in=locations), site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
@@ -50,7 +51,7 @@ def handle_rack_site_change(instance, created, **kwargs):
     Cascade a Rack's Site/Location assignment down to the Devices it contains.
     """
     if not created:
-        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
+        chunked_update(Device.objects.filter(rack=instance), site=instance.site, location=instance.location)
 
 
 #
@@ -123,7 +124,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     # Update status of CablePaths if Cable status has been changed
     elif instance.status != instance._orig_status:
         if instance.status != LinkStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(_nodes__contains=instance).update(is_active=False)
+            chunked_update(CablePath.objects.filter(_nodes__contains=instance), is_active=False)
         else:
             rebuild_paths([instance])
 

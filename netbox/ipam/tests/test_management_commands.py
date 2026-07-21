@@ -16,6 +16,7 @@ class RebuildPrefixesTestCase(TestCase):
             patch('ipam.management.commands.rebuild_prefixes.Prefix') as prefix_model,
             patch('ipam.management.commands.rebuild_prefixes.VRF') as vrf_model,
             patch('ipam.management.commands.rebuild_prefixes.rebuild_prefixes') as rebuild_prefixes,
+            patch('ipam.management.commands.rebuild_prefixes.chunked_update') as chunked_update,
         ):
             prefix_model.objects.count.return_value = 0
             prefix_model.objects.filter.return_value.count.return_value = 0
@@ -23,7 +24,7 @@ class RebuildPrefixesTestCase(TestCase):
             call_command('rebuild_prefixes', stdout=out)
 
         rebuild_prefixes.assert_called_once_with(None)
-        prefix_model.objects.update.assert_called_once_with(_depth=0, _children=0)
+        chunked_update.assert_called_once_with(prefix_model.objects.all.return_value, _depth=0, _children=0)
         self.assertIn('Rebuilding 0 prefixes', out.getvalue())
         self.assertIn('Finished.', out.getvalue())
 
@@ -68,6 +69,7 @@ class RebuildPrefixesTestCase(TestCase):
             patch('ipam.management.commands.rebuild_prefixes.Prefix') as prefix_model,
             patch('ipam.management.commands.rebuild_prefixes.VRF') as vrf_model,
             patch('ipam.management.commands.rebuild_prefixes.rebuild_prefixes') as rebuild_prefixes,
+            patch('ipam.management.commands.rebuild_prefixes.chunked_update'),
         ):
             prefix_model.objects.count.return_value = 3
             prefix_model.objects.filter.side_effect = [
