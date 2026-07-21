@@ -1707,11 +1707,11 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('javascript', str(response.data))
 
-        # A percent-encoded scheme must not evade the check
+        # A percent-encoded scheme has no scheme to a browser (it will not decode "%3A" to execute
+        # javascript:), so the value is treated as relative and accepted.
         data = {'custom_fields': {'url_field': 'javascript%3Aalert(1)'}}
         response = self.client.patch(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('javascript', str(response.data))
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
         # An allowed scheme must be accepted
         data = {'custom_fields': {'url_field': 'https://example.com'}}

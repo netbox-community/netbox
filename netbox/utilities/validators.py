@@ -1,6 +1,6 @@
 import decimal
 import re
-from urllib.parse import unquote, urlparse
+from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator, RegexValidator, URLValidator, _lazy_re_compile
@@ -77,10 +77,11 @@ class MultipleOfValidator(BaseValidator):
 
 def get_url_scheme(value):
     """
-    Return the (lower-cased) scheme of a URL, or an empty string if it has none. The value is unquoted
-    before parsing so that a percent-encoded scheme (e.g. "javascript%3A…") cannot evade detection.
+    Return the (lower-cased) scheme of a URL, or an empty string if it has none. A percent-encoded
+    scheme (e.g. "javascript%3A…") yields no scheme, matching browser behavior: a browser does not
+    decode the scheme portion of an href, so such a value is inert and is treated as relative.
     """
-    return urlparse(unquote(value)).scheme.lower()
+    return urlparse(value).scheme.lower()
 
 
 def is_url_scheme_allowed(value):
