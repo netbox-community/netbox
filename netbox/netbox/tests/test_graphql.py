@@ -662,3 +662,90 @@ class JSONStringLookupTestCase(TestCase):
                          'starts_with', 'i_starts_with', 'ends_with', 'i_ends_with',
                          'in_', 'isnull', 'regex', 'i_regex'):
             self.assertIn(expected, field_names, f"{expected!r} must be present on JSONStringLookup")
+
+
+class SpliceExtensionBasesTestCase(TestCase):
+    """Verify splice_extension_bases() behavior: pass-through, splicing, and collision warnings."""
+
+    @staticmethod
+    def _make_core():
+        @strawberry.type
+        class CoreBase:
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return queryset
+
+        @strawberry.type
+        class CoreType(CoreBase):
+            name: str
+
+        return CoreType
+
+    def test_no_extensions_is_passthrough(self):
+        from netbox.graphql.utils import splice_extension_bases
+        CoreType = self._make_core()
+        self.assertIs(splice_extension_bases(CoreType, []), CoreType)
+        self.assertIs(splice_extension_bases(CoreType, None), CoreType)
+
+    def test_extension_spliced_into_bases(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            extra: str
+
+        CoreType = self._make_core()
+        result = splice_extension_bases(CoreType, [Extension])
+        self.assertIsNot(result, CoreType)
+        self.assertEqual(result.__name__, CoreType.__name__)
+        self.assertIn(Extension, result.__mro__)
+        # The extension precedes the core bases in the MRO
+        self.assertLess(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
+
+    def test_warns_on_extension_shadowing_core_field(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            name: str  # collides with CoreType.name
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("already provided by core type" in msg for msg in cm.output))
+
+    def test_warns_on_extension_shadowing_inherited_hook(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return queryset
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("get_queryset" in msg and "core type" in msg for msg in cm.output))
+
+    def test_warns_on_collision_between_extensions(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class ExtensionA:
+            models = ['dcim.device']
+            widgets: str
+
+        @strawberry.type
+        class ExtensionB:
+            models = ['dcim.device']
+            widgets: str
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [ExtensionA, ExtensionB])
+        self.assertTrue(any("depends on plugin load order" in msg for msg in cm.output))

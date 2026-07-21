@@ -110,6 +110,9 @@ query {
 !!! note
     Extensions are spliced into the core types when the GraphQL schema is assembled, which occurs after all plugins' `ready()` methods have run. With no extensions registered, the core schema is unchanged.
 
+!!! warning
+    Extensions are prepended ahead of the core type's base classes in the method resolution order. An extension should only *add* new fields; declaring a name that the core type already provides (for example a core field, or a hook such as `get_queryset`) will **override** that core behavior rather than supplement it. Such collisions are logged as warnings under the `netbox.graphql` logger. When two extensions on the same type declare the same name, the winner depends on plugin load order.
+
 ## GraphQL Objects
 
 NetBox provides two object type classes for use by plugins.
