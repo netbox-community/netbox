@@ -702,11 +702,11 @@ class SpliceExtensionBasesTestCase(TestCase):
         self.assertIsNot(result, CoreType)
         self.assertEqual(result.__name__, CoreType.__name__)
         self.assertIn(Extension, result.__mro__)
-        # The extension precedes the core bases in the MRO
-        self.assertLess(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
+        # The extension is appended *after* the core bases in the MRO (additive, core wins collisions)
+        self.assertGreater(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
 
-    def test_warns_when_extension_shadows_own_body_field(self):
-        # A name the core type defines directly wins; the extension's version is ignored (and warned).
+    def test_warns_when_extension_collides_with_core_own_field(self):
+        # A name the core type defines directly always wins; the extension's version is ignored (and warned).
         from netbox.graphql.utils import splice_extension_bases
 
         @strawberry.type
@@ -717,10 +717,10 @@ class SpliceExtensionBasesTestCase(TestCase):
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
             splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("core definition takes precedence" in msg for msg in cm.output))
+        self.assertTrue(any("already provides" in msg and "core takes precedence" in msg for msg in cm.output))
 
-    def test_warns_when_extension_overrides_inherited_field(self):
-        # A name the core type only inherits is overridden by the extension via the MRO.
+    def test_warns_when_extension_collides_with_inherited_field(self):
+        # A name the core type inherits also wins over the extension (extensions are strictly additive).
         from netbox.graphql.utils import splice_extension_bases
 
         @strawberry.type
@@ -731,11 +731,11 @@ class SpliceExtensionBasesTestCase(TestCase):
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
             splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("takes precedence via MRO" in msg for msg in cm.output))
+        self.assertTrue(any("already provides" in msg for msg in cm.output))
 
-    def test_protected_hook_cannot_be_overridden(self):
-        # An extension declaring a protected hook (get_queryset) is warned and does NOT win; the core
-        # permission-enforcing implementation is preserved.
+    def test_core_hook_wins_over_extension(self):
+        # An extension declaring get_queryset is ignored; the core permission-enforcing hook is preserved by
+        # ordering (extensions are appended after the core bases).
         from netbox.graphql.utils import splice_extension_bases
 
         @strawberry.type
@@ -749,7 +749,7 @@ class SpliceExtensionBasesTestCase(TestCase):
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
             result = splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("protected hook" in msg and "get_queryset" in msg for msg in cm.output))
+        self.assertTrue(any("already provides" in msg and "get_queryset" in msg for msg in cm.output))
         # Core's get_queryset (identity) is retained, not the extension's override
         self.assertEqual(result.get_queryset('CORE_QS', None), 'CORE_QS')
 
@@ -788,4 +788,4 @@ class SpliceExtensionBasesTestCase(TestCase):
         CoreType = self._make_core()
         with self.assertLogs('netbox.graphql', level='WARNING') as cm:
             splice_extension_bases(CoreType, [ExtensionA, ExtensionB])
-        self.assertTrue(any("depends on plugin load order" in msg for msg in cm.output))
+        self.assertTrue(any("both define" in msg and "loaded first" in msg for msg in cm.output))

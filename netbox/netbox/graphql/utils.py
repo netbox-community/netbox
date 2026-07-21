@@ -1,4 +1,3 @@
-import inspect
 import logging
 
 from netbox.registry import registry
@@ -8,13 +7,6 @@ __all__ = (
     'register_model_graphql_type',
     'splice_extension_bases',
 )
-
-# Attributes an extension is not permitted to override. `get_queryset` enforces object-level permissions on the
-# core type's queryset; letting a plugin shadow it via the spliced MRO would silently bypass that enforcement.
-PROTECTED_ATTRS = frozenset({
-    'get_queryset',
-    'get_object',
-})
 
 
 def get_model_label(model):
@@ -36,19 +28,17 @@ def _own_names(klass):
     return names
 
 
-def _inherited_names(cls):
+def _core_names(cls):
     """
-    Return the set of names `cls` resolves only through its base classes (i.e. not defined in its own body). A
-    spliced extension is prepended ahead of these bases, so an extension declaring one of these names overrides it
-    via the MRO. Names in `cls`'s own body are excluded here because the rebuilt class carries them in its own
-    namespace, where they take precedence over any extension.
+    Return every name `cls` resolves (its own body and everything it inherits). Extensions are spliced in *after*
+    these bases, so any name already present here is provided by the core type and an extension cannot override it.
     """
     names = set()
     for klass in cls.__mro__:
-        if klass in (cls, object):
+        if klass is object:
             continue
         names |= _own_names(klass)
-    return names - _own_names(cls)
+    return names
 
 
 def splice_extension_bases(cls, extensions):
@@ -58,13 +48,12 @@ def splice_extension_bases(cls, extensions):
 
     If `extensions` is empty, `cls` is returned unchanged (an exact pass-through). Otherwise a new class is built
     with the same name and namespace as `cls` — preserving its own annotations, fields, and methods — with the
-    extension classes prepended to its bases.
+    extension classes appended to its bases.
 
-    Precedence: extensions are prepended *ahead* of `cls`'s base classes in the MRO. A name defined directly in
-    `cls`'s own body still wins over an extension; a name `cls` only *inherits* is overridden by an extension that
-    declares it. As an exception, the attributes in `PROTECTED_ATTRS` (notably `get_queryset`) are pinned into the
-    rebuilt class's own namespace so a plugin can never shadow the core permission-enforcing hooks; an extension
-    that tries to redefine one is ignored (and warned about).
+    Precedence: extensions are appended *after* `cls`'s base classes in the MRO, so extensions are strictly
+    additive. Any name the core type already provides (its own fields or anything it inherits, including hooks such
+    as `get_queryset`) always wins; an extension declaring such a name is ignored. When two extensions declare the
+    same new name, the one whose plugin loaded first wins (it is registered earlier). Both cases are warned about.
     """
     if not extensions:
         return cls
@@ -74,60 +63,33 @@ def splice_extension_bases(cls, extensions):
     # then would get it disabled by a `disable_existing_loggers` LOGGING config.
     logger = logging.getLogger('netbox.graphql')
 
+    # Warn on field-name collisions so they can be diagnosed in deployments with many plugins.
+    core_names = _core_names(cls)
+    seen = {}
+    for extension in extensions:
+        for name in _own_names(extension):
+            if name in core_names:
+                logger.warning(
+                    "GraphQL extension %s declares '%s', which core type %s already provides; the extension's "
+                    "version is ignored (core takes precedence).",
+                    extension, name, cls.__name__,
+                )
+            elif name in seen:
+                logger.warning(
+                    "GraphQL extensions %s and %s both define '%s' on %s; %s takes precedence because its "
+                    "plugin is loaded first.",
+                    seen[name], extension, name, cls.__name__, seen[name],
+                )
+            else:
+                seen[name] = extension
+
     namespace = dict(cls.__dict__)
     # Drop the descriptors that cannot (and need not) be copied to the rebuilt class; they are recreated by the
     # metaclass call below.
     namespace.pop('__dict__', None)
     namespace.pop('__weakref__', None)
 
-    # Pin the protected hooks into the rebuilt class's own body (unless `cls` already defines them directly) so
-    # that a prepended extension cannot override them via the MRO.
-    pinned = set()
-    for name in PROTECTED_ATTRS:
-        if name in namespace:
-            continue
-        attr = inspect.getattr_static(cls, name, None)
-        if attr is not None:
-            namespace[name] = attr
-            pinned.add(name)
-
-    # Names `cls` defines in its own body (which win over any extension) vs. names it only inherits (which an
-    # extension overrides via the MRO). Pinned hooks are treated as own-body names.
-    core_own = _own_names(cls) | pinned
-    core_inherited = _inherited_names(cls) - pinned
-
-    # Warn on field-name collisions so they can be diagnosed in deployments with many plugins.
-    seen = {}
-    for extension in extensions:
-        for name in _own_names(extension):
-            if name in pinned:
-                logger.warning(
-                    "GraphQL extension %s attempts to redefine the protected hook '%s' on core type %s; "
-                    "the core implementation is preserved and the extension's version is ignored.",
-                    extension, name, cls.__name__,
-                )
-            elif name in core_own:
-                logger.warning(
-                    "GraphQL extension %s declares '%s', which core type %s defines directly; the core "
-                    "definition takes precedence and the extension's version is ignored.",
-                    extension, name, cls.__name__,
-                )
-            elif name in core_inherited:
-                logger.warning(
-                    "GraphQL extension %s overrides '%s', which core type %s inherits; the extension's "
-                    "version takes precedence via MRO.",
-                    extension, name, cls.__name__,
-                )
-            if name in seen:
-                logger.warning(
-                    "GraphQL extension %s redefines field '%s' on %s, already introduced by %s; "
-                    "the effective field is resolved by MRO and depends on plugin load order.",
-                    extension, name, cls.__name__, seen[name],
-                )
-            else:
-                seen[name] = extension
-
-    bases = (*extensions, *cls.__bases__)
+    bases = (*cls.__bases__, *extensions)
     # Rebuild via the class's own metaclass rather than the built-in `type`, so a core type using a custom
     # metaclass is preserved. Pre-decoration Strawberry/dataclass types use the plain `type` metaclass.
     try:

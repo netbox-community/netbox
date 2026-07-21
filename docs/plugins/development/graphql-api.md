@@ -117,8 +117,8 @@ query {
 }
 ```
 
-!!! warning
-    Extensions are prepended ahead of the core type's base classes in the method resolution order. An extension should only *add* new fields; declaring a name that the core type already provides (for example a core field, or a hook such as `get_queryset`) will **override** that core behavior rather than supplement it. Such collisions are logged as warnings under the `netbox.graphql` logger. When two extensions on the same type declare the same name, the winner depends on plugin load order.
+!!! note
+    Extensions are strictly additive: they can only add new fields, never replace existing ones. If an extension declares a name the core type already provides, the core definition always takes precedence and the extension's version is ignored. If two extensions on the same type declare the same new name, the one whose plugin is loaded first (earlier in `PLUGINS`) wins. Both cases are logged as warnings under the `netbox.graphql` logger.
 
 ## GraphQL Objects
 
