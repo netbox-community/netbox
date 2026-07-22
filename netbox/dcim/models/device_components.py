@@ -860,6 +860,26 @@ class Interface(
         max_length=50,
         choices=InterfaceTypeChoices
     )
+    channels = models.PositiveSmallIntegerField(
+        verbose_name=_('channels'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The number of channels into which this interface is channelized')
+    )
+    channel_id = models.PositiveSmallIntegerField(
+        verbose_name=_('channel ID'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The channel on the parent interface to which this subinterface is bound')
+    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name=_('management only'),
@@ -989,14 +1009,33 @@ class Interface(
     )
 
     clone_fields = (
-        'device', 'module', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'speed', 'duplex', 'rf_role',
-        'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode', 'poe_type', 'vrf',
+        'device', 'module', 'parent', 'bridge', 'lag', 'type', 'channels', 'mgmt_only', 'mtu', 'mode', 'speed',
+        'duplex', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode',
+        'poe_type', 'vrf',
     )
 
     class Meta(ModularComponentModel.Meta):
         ordering = ('device', CollateAsChar('_name'))
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
+        constraints = (
+            *ModularComponentModel.Meta.constraints,
+            models.UniqueConstraint(
+                fields=('parent', 'channel_id'),
+                name='%(app_label)s_%(class)s_unique_parent_channel_id'
+            ),
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache channelization-related fields so post-save signal handlers can detect changes which require rebuilding
+        # cable paths (channelization does not involve modifying the Cable itself, so the cable signals do not fire).
+        # _original_channels is additionally used by InterfaceValidationMixin.clean() to detect a channel-count
+        # reduction that would orphan a bound subinterface.
+        self._original_channels = self.__dict__.get('channels')
+        self._original_channel_id = self.__dict__.get('channel_id')
+        self._original_parent_id = self.__dict__.get('parent_id')
 
     def clean(self):
         super().clean()
@@ -1017,15 +1056,7 @@ class Interface(
                 )
             })
 
-        # Parent validation
-
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': _("An interface cannot be its own parent.")})
-
-        # A physical interface cannot have a parent interface
-        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
-            raise ValidationError({'parent': _("Only virtual interfaces may be assigned to a parent interface.")})
+        # Parent validation (self-reference and interface-type restrictions are enforced by InterfaceValidationMixin)
 
         # An interface's parent must belong to the same device or virtual chassis
         if self.parent and self.parent.device != self.device:
@@ -1147,7 +1178,9 @@ class Interface(
 
     @property
     def is_wired(self):
-        return not self.is_virtual and not self.is_wireless
+        # Excludes virtual, wireless, and channel-type interfaces (channel subinterfaces derive their cable from the
+        # channelized parent and cannot be cabled directly).
+        return self.type not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):
@@ -1164,6 +1197,10 @@ class Interface(
     @property
     def is_bridge(self):
         return self.type == InterfaceTypeChoices.TYPE_BRIDGE
+
+    @property
+    def is_channel(self):
+        return self.type == InterfaceTypeChoices.TYPE_CHANNEL
 
     @property
     def link(self):
@@ -1191,6 +1228,58 @@ class Interface(
         if self.is_virtual and hasattr(self, 'virtual_circuit_termination'):
             return self.virtual_circuit_termination.peer_terminations
         return super().connected_endpoints
+
+    def set_cable_termination(self, termination):
+        super().set_cable_termination(termination)
+
+        # A channelized interface carries no path of its own; instead, its cable is mirrored onto each channel
+        # subinterface (occupying a single position of the shared connector) so that each channel traces independently.
+        if self.channels:
+            self.propagate_channel_cables()
+
+    def clear_cable_termination(self, termination):
+        super().clear_cable_termination(termination)
+
+        if self.channels:
+            self.clear_channel_cables()
+
+    def propagate_channel_cables(self):
+        """
+        Mirror this channelized interface's cable attributes onto each of its channel subinterfaces, restricting each
+        child to the single connector position identified by its channel_id. Only profiled cables map connector
+        positions to channels; a positionless (unprofiled) cable carries no per-channel path, so nothing is mirrored.
+        """
+        # Only a profiled cable defines the connector positions that channels map onto; without one, clear any
+        # previously-mirrored attributes rather than propagate an unusable cable reference.
+        if not (self.cable and self.cable.profile):
+            self.clear_channel_cables()
+            return
+
+        # Mirror via bulk_update() to issue a single UPDATE and, crucially, to bypass the post_save signal — a
+        # per-child save() would re-trigger update_channelized_cable_paths() and recurse indefinitely.
+        children = list(self.child_interfaces.filter(channel_id__isnull=False))
+        for child in children:
+            child.cable = self.cable
+            child.cable_end = self.cable_end
+            child.cable_connector = self.cable_connector
+            child.cable_positions = [child.channel_id]
+        type(self).objects.bulk_update(
+            children, ['cable', 'cable_end', 'cable_connector', 'cable_positions']
+        )
+
+    def clear_channel_cables(self):
+        """
+        Clear the mirrored cable attributes from this channelized interface's channel subinterfaces.
+        """
+        # A queryset update() clears every child in a single query and bypasses the post_save signal (see above).
+        # cable_end is cleared to '' to match the convention used elsewhere when nullifying a termination (see
+        # nullify_connected_endpoints() and update_channelized_cable_paths() in dcim.signals).
+        self.child_interfaces.filter(channel_id__isnull=False).update(
+            cable=None,
+            cable_end='',
+            cable_connector=None,
+            cable_positions=None,
+        )
 
 
 #

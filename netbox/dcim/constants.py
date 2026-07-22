@@ -48,6 +48,12 @@ PORT_POSITION_MAX = 1024
 INTERFACE_MTU_MIN = 1
 INTERFACE_MTU_MAX = 65536
 
+# The number of channels on a channelized interface, and the channel to which a subinterface is bound. A subinterface's
+# channel_id maps directly to a position on the parent interface's cable connector, so these are bounded by the maximum
+# cable position.
+INTERFACE_CHANNELS_MIN = CABLE_POSITION_MIN
+INTERFACE_CHANNELS_MAX = CABLE_POSITION_MAX
+
 VIRTUAL_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_VIRTUAL,
     InterfaceTypeChoices.TYPE_LAG,
@@ -73,7 +79,10 @@ WIRELESS_IFACE_TYPES = [
     InterfaceTypeChoices.TYPE_5G,
 ]
 
-NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
+NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES + [
+    # Channel subinterfaces derive their cable from the (channelized) parent interface and cannot be cabled directly
+    InterfaceTypeChoices.TYPE_CHANNEL,
+]
 
 
 #

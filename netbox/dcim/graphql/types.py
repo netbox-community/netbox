@@ -482,9 +482,11 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
 )
 class InterfaceTemplateType(ModularComponentTemplateType):
     _name: str
+    parent: Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')] | None
 
     bridge_interfaces: list[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    child_interfaces: list[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

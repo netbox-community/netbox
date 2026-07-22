@@ -914,6 +914,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_VIRTUAL = 'virtual'
     TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
+    TYPE_CHANNEL = 'channel'
 
     # FastEthernet
     TYPE_100ME_FX = '100base-fx'
@@ -1185,6 +1186,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 Choice(TYPE_VIRTUAL, _('Virtual')),
                 Choice(TYPE_BRIDGE, _('Bridge')),
                 Choice(TYPE_LAG, _('Link Aggregation Group (LAG)')),
+                Choice(TYPE_CHANNEL, _('Channel')),
             ),
         ),
         (

@@ -4,7 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
 from netbox.forms.mixins import OwnerMixin
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms.fields import (
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    ExpandableNameField,
+    ExpandableNumericField,
+)
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets import APISelect
 
@@ -105,9 +110,14 @@ class PowerOutletTemplateCreateForm(ComponentCreateForm, model_forms.PowerOutlet
 
 
 class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemplateForm):
+    channel_id = ExpandableNumericField(
+        label=_('Channel ID'),
+        required=False
+    )
+    replication_fields = ('name', 'label', 'channel_id')
 
     class Meta(model_forms.InterfaceTemplateForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'channel_id')
 
 
 class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
@@ -197,9 +207,14 @@ class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
 
 
 class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
+    channel_id = ExpandableNumericField(
+        label=_('Channel ID'),
+        required=False
+    )
+    replication_fields = ('name', 'label', 'channel_id')
 
     class Meta(model_forms.InterfaceForm.Meta):
-        exclude = ('name', 'label')
+        exclude = ('name', 'label', 'channel_id')
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):

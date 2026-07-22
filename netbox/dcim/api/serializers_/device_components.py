@@ -263,7 +263,8 @@ class InterfaceSerializer(
     class Meta:
         model = Interface
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'vdcs', 'module', 'name', 'label', 'type', 'enabled',
+            'id', 'url', 'display_url', 'display', 'device', 'vdcs', 'module', 'name', 'label', 'type', 'channels',
+            'channel_id', 'enabled',
             'parent', 'bridge', 'bridge_interfaces', 'lag', 'mtu', 'mac_address', 'primary_mac_address',
             'mac_addresses', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
             'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',

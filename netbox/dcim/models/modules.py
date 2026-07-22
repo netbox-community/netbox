@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
-from dcim.utils import create_port_mappings, update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
@@ -591,7 +591,9 @@ class Module(TrackingModelMixin, PrimaryModel):
         # Replicate any front/rear port mappings from the ModuleType
         create_port_mappings(self.device, self.module_type, self)
 
-        # Interface bridges have to be set after interface instantiation
+        # Interface parents & bridges have to be set after interface instantiation. Parents are applied first so that
+        # channel subinterfaces validate against a populated parent.
+        update_interface_parents(self.device, self.module_type.interfacetemplates, self)
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
 
     def _save_existing(self, *args, **kwargs):

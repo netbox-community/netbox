@@ -10,6 +10,7 @@ from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipnetwork_
 __all__ = (
     'ExpandableIPNetworkField',
     'ExpandableNameField',
+    'ExpandableNumericField',
 )
 
 
@@ -33,6 +34,19 @@ class ExpandableNameField(forms.CharField):
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
             return list(expand_alphanumeric_pattern(value))
         return [value]
+
+
+class ExpandableNumericField(ExpandableNameField):
+    """
+    An ExpandableNameField intended for numeric values, yielding integer-compatible strings suitable for bulk creation.
+      Example: '[1-3]' => ['1', '2', '3']
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Replace the inherited alphanumeric default with numeric-specific guidance (unless one was supplied)
+        if not kwargs.get('help_text'):
+            self.help_text = _("Numeric ranges are supported for bulk creation (example: <code>[1-24]</code>).")
 
 
 class ExpandableIPNetworkField(forms.CharField):

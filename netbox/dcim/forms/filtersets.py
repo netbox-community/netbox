@@ -1687,7 +1687,10 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = Interface
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only', name=_('Attributes')),
+        FieldSet(
+            'name', 'label', 'kind', 'type', 'channels', 'channel_id', 'speed', 'duplex', 'enabled', 'mgmt_only',
+            name=_('Attributes')
+        ),
         FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('mode', 'vlan_translation_policy_id', name=_('802.1Q Switching')),
@@ -1718,6 +1721,14 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     type = forms.MultipleChoiceField(
         label=_('Type'),
         choices=InterfaceTypeChoices,
+        required=False
+    )
+    channels = forms.IntegerField(
+        label=_('Channels'),
+        required=False
+    )
+    channel_id = forms.IntegerField(
+        label=_('Channel ID'),
         required=False
     )
     speed = PositiveBigIntegerField(
