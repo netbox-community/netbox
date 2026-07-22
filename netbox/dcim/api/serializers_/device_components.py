@@ -230,7 +230,7 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    cooling_outflow = RestrictedPrimaryKeyRelatedField(
+    cooling_outflow = serializers.PrimaryKeyRelatedField(
         queryset=CoolingOutflow.objects.all(),
         required=False,
         allow_null=True
