@@ -1,6 +1,5 @@
 import json
 import logging
-from unittest import skip
 
 from django.test import tag
 from django.urls import reverse
@@ -1449,14 +1448,6 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
-    @skip("port_mappings is a nested object list; GraphQL test harness support is pending (follow-up).")
-    def test_graphql_get_object(self):
-        pass
-
-    @skip("port_mappings is a nested object list; GraphQL test harness support is pending (follow-up).")
-    def test_graphql_list_objects(self):
-        pass
-
     def test_graphql_grouped_port_mappings(self):
         """port_mappings is exposed over GraphQL as a grouped list of {protocol, ports} objects."""
         self.add_permissions('ipam.view_servicetemplate')
@@ -1628,14 +1619,6 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
                 'port_mappings': [{'protocol': 'tcp', 'ports': [6]}],
             },
         ]
-
-    @skip("port_mappings is a nested object list; GraphQL test harness support is pending (follow-up).")
-    def test_graphql_get_object(self):
-        pass
-
-    @skip("port_mappings is a nested object list; GraphQL test harness support is pending (follow-up).")
-    def test_graphql_list_objects(self):
-        pass
 
     def test_graphql_protocol_and_port_filter(self):
         """Combined protocol + port filtering works over GraphQL (port mappings live in an array)."""
