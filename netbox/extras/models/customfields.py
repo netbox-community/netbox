@@ -796,10 +796,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
-                # Enforce ALLOWED_URL_SCHEMES to guard against dangerous schemes (e.g. javascript:), using
-                # the same check applied when rendering the value. The UI and REST API both normalize a
-                # schemeless value to an absolute URL (LaxURLField with assume_scheme='https'); a schemeless
-                # value reaching this point directly (e.g. via a script) is permitted and treated as relative.
+                # Enforce ALLOWED_URL_SCHEMES to guard against dangerous schemes (e.g. javascript:). A
+                # schemeless value is permitted and treated as relative.
                 if not url_scheme_is_allowed(value):
                     raise ValidationError(
                         _("URLs must use a scheme permitted by ALLOWED_URL_SCHEMES.")
