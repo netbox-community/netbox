@@ -7,7 +7,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Man
 from ipam.constants import SERVICE_PORT_MAX
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
-from ipam.forms.port_mappings import PortMappingField
+from ipam.forms.fields import PortMappingField
 
 
 class PrefixFormTestCase(TestCase):

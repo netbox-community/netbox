@@ -6,7 +6,7 @@ from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
-from ipam.forms.port_mappings import PortMappingField
+from ipam.forms.fields import PortMappingField
 from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm

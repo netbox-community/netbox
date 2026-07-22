@@ -4,67 +4,14 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from ipam.choices import ServiceProtocolChoices
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
-from ipam.validators import group_port_mappings, validate_port_mappings
+from ipam.forms.widgets import PortMappingWidget, group_mappings
+from ipam.validators import validate_port_mappings
 from utilities.forms.utils import parse_numeric_range
 
 __all__ = (
     'PortMappingField',
-    'PortMappingWidget',
 )
-
-
-def _group_mappings(mappings):
-    """
-    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into widget rows
-    ``[{'protocol': 'tcp', 'ports': '80,443'}, {'protocol': 'udp', 'ports': '53'}]``.
-    """
-    return [
-        {'protocol': protocol, 'ports': ','.join(ports)}
-        for protocol, ports in group_port_mappings(mappings).items()
-    ]
-
-
-class PortMappingWidget(forms.Widget):
-    """
-    Renders a dynamic set of (protocol, ports) rows. The rows are serialized to a JSON string held in a
-    single hidden input (client-side JS keeps the hidden input in sync as rows are added/removed). Each
-    row's ``ports`` value is a raw comma/range string (e.g. "80,443,8000-8010"); the server expands it.
-    """
-    template_name = 'ipam/widgets/port_mappings.html'
-
-    def get_context(self, name, value, attrs):
-        rows = []
-        if value:
-            try:
-                rows = json.loads(value)
-            except (TypeError, ValueError):
-                rows = []
-        # Always render at least one (blank) row so the entry fields are visible on an empty form
-        if not rows:
-            rows = [{'protocol': '', 'ports': ''}]
-        return {
-            'widget': {
-                'name': name,
-                'value': value or '[]',
-                'rows': rows,
-                'attrs': attrs or {},
-            },
-            'protocol_choices': list(ServiceProtocolChoices),
-        }
-
-    def value_from_datadict(self, data, files, name):
-        return data.get(name)
-
-    def format_value(self, value):
-        # Mirror PortMappingField.prepare_value: a raw flat list is grouped into rows; a pre-converted
-        # JSON string is passed through unchanged.
-        if value is None:
-            return '[]'
-        if isinstance(value, str):
-            return value
-        return json.dumps(_group_mappings(value))
 
 
 class PortMappingField(forms.Field):
@@ -81,7 +28,7 @@ class PortMappingField(forms.Field):
             return '[]'
         if isinstance(value, str):
             return value
-        return json.dumps(_group_mappings(value))
+        return json.dumps(group_mappings(value))
 
     def to_python(self, value):
         if value in (None, ''):
