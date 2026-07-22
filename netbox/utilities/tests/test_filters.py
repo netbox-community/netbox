@@ -23,7 +23,7 @@ from dcim.models import (
     Site,
 )
 from extras.filters import TagFilter
-from extras.models import SavedFilter, TaggedItem
+from extras.models import SavedFilter, Tag, TaggedItem
 from ipam.filtersets import ASNFilterSet
 from ipam.models import ASN, RIR
 from netbox.filtersets import BaseFilterSet
@@ -94,6 +94,64 @@ class TreeNodeMultipleChoiceFilterTestCase(TestCase):
         self.assertEqual(qs.count(), 2)
         self.assertEqual(qs[0], self.site1)
         self.assertEqual(qs[1], self.site3)
+
+
+class TagFilterTestCase(TestCase):
+    """
+    Verify the AND (default), OR (`any`), and NOR (`n`) semantics of TagFilter/TagIDFilter.
+    """
+    queryset = Site.objects.all()
+    filterset = SiteFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        tags = (
+            Tag(name='Tag 1', slug='tag-1'),
+            Tag(name='Tag 2', slug='tag-2'),
+            Tag(name='Tag 3', slug='tag-3'),
+        )
+        Tag.objects.bulk_create(tags)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+        sites[0].tags.set([tags[0], tags[1]])  # tag-1, tag-2
+        sites[1].tags.set([tags[1]])  # tag-2 only
+        sites[2].tags.set([tags[2]])  # tag-3 only
+
+    def test_tag_and(self):
+        tags = Tag.objects.filter(slug__in=('tag-1', 'tag-2'))
+        params = {'tag': [tags[0].slug, tags[1].slug]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs[0].slug, 'site-1')
+
+        params = {'tag_id': [tags[0].pk, tags[1].pk]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs[0].slug, 'site-1')
+
+    def test_tag_any(self):
+        tags = Tag.objects.filter(slug__in=('tag-1', 'tag-3'))
+        params = {'tag__any': [tags[0].slug, tags[1].slug]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual({site.slug for site in qs}, {'site-1', 'site-3'})
+
+        params = {'tag_id__any': [tags[0].pk, tags[1].pk]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual({site.slug for site in qs}, {'site-1', 'site-3'})
+
+    def test_tag_negation(self):
+        tags = Tag.objects.filter(slug__in=('tag-1', 'tag-3'))
+        params = {'tag__n': [tags[0].slug, tags[1].slug]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs[0].slug, 'site-2')
 
 
 class DummyModel(models.Model):
@@ -377,8 +435,13 @@ class BaseFilterSetTestCase(TestCase):
         self.assertIsInstance(self.filters['tagfield'], TagFilter)
         self.assertEqual(self.filters['tagfield'].lookup_expr, 'exact')
         self.assertEqual(self.filters['tagfield'].exclude, False)
+        self.assertEqual(self.filters['tagfield'].conjoined, True)
         self.assertEqual(self.filters['tagfield__n'].lookup_expr, 'exact')
         self.assertEqual(self.filters['tagfield__n'].exclude, True)
+        self.assertEqual(self.filters['tagfield__n'].conjoined, True)
+        self.assertEqual(self.filters['tagfield__any'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['tagfield__any'].exclude, False)
+        self.assertEqual(self.filters['tagfield__any'].conjoined, False)
 
     def test_tree_node_multiple_choice_filter(self):
         self.assertIsInstance(self.filters['treeforeignkeyfield'], TreeNodeMultipleChoiceFilter)

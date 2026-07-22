@@ -110,6 +110,21 @@ expression: `n`. Here is an example of a lookup expression on a foreign key, it 
 GET /api/ipam/vlans/?group_id__n=3203
 ```
 
+### Tags
+
+The `tag` and `tag_id` filters support negation (`n`) as well as an `any` lookup expression:
+
+| Filter | Description                                       |
+|--------|----------------------------------------------------|
+| `n`    | Does not have any of these tags                    |
+| `any`  | Has any of these tags (logical OR)                  |
+
+Passing multiple values for `tag`/`tag_id` without a lookup expression uses a logical AND: `GET /api/dcim/sites/?tag=foo&tag=bar` returns only sites tagged with both `foo` _and_ `bar`. To instead match sites tagged with `foo` _or_ `bar`, use the `any` lookup expression:
+
+```no-highlight
+GET /api/dcim/sites/?tag__any=foo&tag__any=bar
+```
+
 ## Ordering Objects
 
 To order results by a particular field, include the `ordering` query parameter. For example, order the list of sites according to their facility values:

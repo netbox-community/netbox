@@ -20,6 +20,7 @@ from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP,
     FILTER_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP,
+    FILTER_TAG_LOOKUP_MAP,
     FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
 from utilities.forms.fields import MACAddressField
@@ -153,10 +154,13 @@ class BaseFilterSet(django_filters.FilterSet):
             # TreeNodeMultipleChoiceFilter only support negation but must maintain the `in` lookup expression
             return FILTER_TREENODE_NEGATION_LOOKUP_MAP
 
+        if isinstance(existing_filter, (TagFilter, TagIDFilter)):
+            # Tags additionally support an "any of" (OR) mode, unlike other model choice filters
+            return FILTER_TAG_LOOKUP_MAP
+
         if isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
-            TagFilter
         )):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
@@ -236,6 +240,10 @@ class BaseFilterSet(django_filters.FilterSet):
                 # This is a negation filter which requires a queryset.exclude() clause
                 # Of course setting the negation of the existing filter's exclude attribute handles both cases
                 new_filter.exclude = not existing_filter.exclude
+
+            if lookup_name == 'any':
+                # "Any of" is an OR match, whereas TagFilter/TagIDFilter default to AND (conjoined=True)
+                new_filter.conjoined = False
 
             new_filters[new_filter_name] = new_filter
 

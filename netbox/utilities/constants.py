@@ -30,6 +30,11 @@ FILTER_NEGATION_LOOKUP_MAP = dict(
     n='exact'
 )
 
+FILTER_TAG_LOOKUP_MAP = dict(
+    n='exact',
+    any='exact',
+)
+
 FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
     n='in'
 )

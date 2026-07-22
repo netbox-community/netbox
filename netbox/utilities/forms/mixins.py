@@ -80,6 +80,7 @@ FORM_FIELD_LOOKUPS = {
     ],
     TagFilterField: [
         ('exact', _('has these tags')),
+        ('any', _('has any of these tags')),
         ('n', _('does not have these tags')),
         (MODIFIER_EMPTY_TRUE, _('is empty')),
         (MODIFIER_EMPTY_FALSE, _('is not empty')),
