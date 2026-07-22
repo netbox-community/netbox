@@ -4,9 +4,9 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from ipam.choices import *
-from ipam.constants import SERVICE_ASSIGNMENT_MODELS
+from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
-from ipam.validators import validate_port_mappings
+from ipam.validators import group_port_mappings, validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
@@ -19,34 +19,111 @@ __all__ = (
 )
 
 
-class PortMappingsValidationMixin:
+# Legacy single-protocol fields, retained on the serializers for backward compatibility. Declared via
+# factories (rather than on the shared mixin) because DRF's serializer metaclass only collects declared
+# fields from the class itself and other serializers — not from a plain mixin. default=None keeps them
+# from being sourced off the (now nonexistent) model attributes; the real values are filled in by
+# PortMappingsSerializerMixin.to_representation().
+def _legacy_protocol_field():
+    return serializers.ChoiceField(
+        choices=ServiceProtocolChoices,
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
+    )
+
+
+def _legacy_ports_field():
+    return serializers.ListField(
+        child=serializers.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
+    )
+
+
+class PortMappingsSerializerMixin:
+    """
+    Shared port-mapping handling for the Service and ServiceTemplate serializers, including backward
+    compatibility for the legacy single-protocol ``protocol``/``ports`` representation.
+
+    Read: alongside the ``port_mappings`` list, a service that uses a single protocol also reports the
+    legacy ``protocol`` and ``ports`` fields; a multi-protocol service reports ``null`` for both (it
+    cannot be expressed in the old single-protocol format).
+
+    Write: either format is accepted. ``port_mappings`` takes precedence when supplied; otherwise the
+    legacy ``protocol``/``ports`` pair is translated into ``port_mappings``.
+    """
+
     def validate_port_mappings(self, value):
-        # Enforce the same rules as the model/UI form so invalid input returns a 400 keyed under
-        # port_mappings (rather than surfacing as a non-field error from the model's full_clean()).
-        # The non-empty check lives here rather than in the shared validator because the shared
-        # validator is also used by the create-from-template form field, which is legitimately empty
-        # until clean() copies the template's mappings.
+        # Enforce the same format rules as the model/UI form so invalid input returns a 400 keyed under
+        # port_mappings (rather than surfacing as a non-field error from the model's full_clean()). The
+        # "at least one mapping" rule is enforced in validate() instead, so the legacy protocol/ports
+        # format (which leaves port_mappings empty on input) can be translated first.
         try:
-            value = validate_port_mappings(value)
+            return validate_port_mappings(value)
         except DjangoValidationError as exc:
             raise serializers.ValidationError(exc.messages)
-        if not value:
-            raise serializers.ValidationError(_("At least one port mapping is required."))
-        return value
+
+    def validate(self, data):
+        # Consume the legacy fields and translate them into port_mappings *before* calling super(),
+        # which instantiates the model (via full_clean()) and would choke on these now-nonexistent
+        # kwargs. port_mappings takes precedence when both formats are supplied.
+        legacy_protocol = data.pop('protocol', None)
+        legacy_ports = data.pop('ports', None)
+        if not data.get('port_mappings') and legacy_protocol and legacy_ports:
+            try:
+                data['port_mappings'] = validate_port_mappings(
+                    [f'{legacy_protocol}/{port}' for port in legacy_ports]
+                )
+            except DjangoValidationError as exc:
+                raise serializers.ValidationError({'ports': exc.messages})
+
+        # Require at least one mapping whenever they're being written (a create, or an update that sets
+        # them). A partial update that touches neither format leaves the existing mappings intact.
+        writing_mappings = 'port_mappings' in data or not self.partial
+        if writing_mappings and not data.get('port_mappings'):
+            raise serializers.ValidationError({'port_mappings': _("At least one port mapping is required.")})
+
+        return super().validate(data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        # Populate the legacy single-protocol representation for backward compatibility. Skipped in
+        # brief mode, where these fields are not exposed.
+        if 'protocol' in self.fields and 'ports' in self.fields:
+            grouped = group_port_mappings(instance.port_mappings)
+            if len(grouped) == 1:
+                protocol, ports = next(iter(grouped.items()))
+                data['protocol'] = protocol
+                data['ports'] = sorted(int(port) for port in ports)
+            else:
+                # Multiple protocols can't be represented in the old single-protocol format.
+                data['protocol'] = None
+                data['ports'] = None
+
+        return data
 
 
-class ServiceTemplateSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
+class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
+    protocol = _legacy_protocol_field()
+    ports = _legacy_ports_field()
 
     class Meta:
         model = ServiceTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'port_mappings', 'description', 'owner', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'port_mappings', 'protocol', 'ports', 'description',
+            'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'port_mappings', 'description')
 
 
-class ServiceSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
+class ServiceSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
+    protocol = _legacy_protocol_field()
+    ports = _legacy_ports_field()
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=IPAddressSerializer,
@@ -63,7 +140,7 @@ class ServiceSerializer(PortMappingsValidationMixin, PrimaryModelSerializer):
         model = Service
         fields = [
             'id', 'url', 'display_url', 'display', 'parent_object_type', 'parent_object_id', 'parent', 'name',
-            'port_mappings', 'ipaddresses', 'description', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'port_mappings', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'port_mappings', 'description')

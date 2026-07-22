@@ -27,6 +27,10 @@ A service or protocol name.
 
 The protocol/port pairs on which the service runs, stored as a list of `protocol/port` values (e.g. `tcp/80`, `tcp/443`, `udp/53`). Each pair uses a wire protocol (UDP, TCP, or SCTP) and a port number. A service may expose the same port on multiple protocols — for example, DNS listening on both `tcp/53` and `udp/53`. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
 
+!!! note "Changed in NetBox v4.7"
+
+    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field. For backward compatibility, the REST API continues to accept the legacy `protocol` and `ports` fields on write and to return them for services that use a single protocol; a service exposing multiple protocols returns `null` for both. **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
+
 ### IP Addresses
 
 The [IP address(es)](./ipaddress.md) to which this service is bound. If no IP addresses are bound, the service is assumed to be reachable via any assigned IP address.

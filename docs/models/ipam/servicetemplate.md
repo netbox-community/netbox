@@ -16,6 +16,10 @@ A service or protocol name.
 
 The protocol/port pairs on which the service runs, stored as a list of `protocol/port` values (e.g. `tcp/80`, `tcp/443`, `udp/53`). Each pair uses a wire protocol (UDP, TCP, or SCTP) and a port number. The same port may be exposed on multiple protocols. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
 
+!!! note "Changed in NetBox v4.7"
+
+    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field. For backward compatibility, the REST API continues to accept the legacy `protocol` and `ports` fields on write and to return them for templates that use a single protocol; a template exposing multiple protocols returns `null` for both. **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
+
 ## Bulk Import (CSV)
 
 When importing services or service templates via CSV, all port mappings for a row are given in a single `port_mappings` column, formatted as `protocol:ports` pairs separated by semicolons (ports within a pair use the same comma/hyphen syntax). For example, `tcp:80,443;udp:53`.

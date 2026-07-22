@@ -1475,6 +1475,51 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.get(name='LeadingZero')
         self.assertEqual(template.port_mappings, ['tcp/80'])
 
+    def test_legacy_read_single_protocol(self):
+        """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Single', port_mappings=['tcp/80', 'tcp/443'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['protocol'], 'tcp')
+        self.assertEqual(response.data['ports'], [80, 443])
+        self.assertEqual(response.data['port_mappings'], ['tcp/80', 'tcp/443'])
+
+    def test_legacy_read_multiple_protocols_null(self):
+        """A multi-protocol service can't be expressed in the old format, so protocol/ports are null."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Multi', port_mappings=['tcp/53', 'udp/53'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['protocol'])
+        self.assertIsNone(response.data['ports'])
+        self.assertEqual(response.data['port_mappings'], ['tcp/53', 'udp/53'])
+
+    def test_create_via_legacy_format(self):
+        """The deprecated protocol/ports format is accepted on write and translated to port_mappings."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy Create', 'protocol': 'tcp', 'ports': [80, 443]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='Legacy Create')
+        self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/443'])
+
+    def test_port_mappings_takes_precedence_over_legacy(self):
+        """When both formats are supplied, the new port_mappings field wins."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Both Formats', 'port_mappings': ['udp/53'], 'protocol': 'tcp', 'ports': [80]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='Both Formats')
+        self.assertEqual(template.port_mappings, ['udp/53'])
+
+    def test_create_legacy_port_out_of_range_rejected(self):
+        """A legacy ports value outside the permitted range is rejected with a 400 (not a 500)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy OOR', 'protocol': 'tcp', 'ports': [70000]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
@@ -1535,3 +1580,28 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['service_list']), 1)
         self.assertEqual(data['data']['service_list'][0]['name'], 'Service 1')
+
+    def test_legacy_read_single_protocol(self):
+        """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
+        self.add_permissions('ipam.view_service')
+        service = Service.objects.get(name='Service 1')  # port_mappings=['tcp/1']
+        response = self.client.get(self._get_detail_url(service), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['protocol'], 'tcp')
+        self.assertEqual(response.data['ports'], [1])
+
+    def test_create_via_legacy_format(self):
+        """The deprecated protocol/ports format is accepted on write and translated to port_mappings."""
+        self.add_permissions('ipam.add_service')
+        device = Device.objects.first()
+        data = {
+            'parent_object_type': 'dcim.device',
+            'parent_object_id': device.pk,
+            'name': 'Legacy Service',
+            'protocol': 'udp',
+            'ports': [53, 67],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        service = Service.objects.get(name='Legacy Service')
+        self.assertEqual(service.port_mappings, ['udp/53', 'udp/67'])
