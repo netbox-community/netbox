@@ -13,8 +13,7 @@ __all__ = (
     'EnhancedURLValidator',
     'ExclusionValidator',
     'MultipleOfValidator',
-    'get_url_scheme',
-    'is_url_scheme_allowed',
+    'url_scheme_is_allowed',
     'validate_regex',
 )
 
@@ -75,21 +74,20 @@ class MultipleOfValidator(BaseValidator):
             )
 
 
-def get_url_scheme(value):
-    """
-    Return the (lower-cased) scheme of a URL, or an empty string if it has none. A percent-encoded
-    scheme (e.g. "javascript%3A…") yields no scheme, matching browser behavior: a browser does not
-    decode the scheme portion of an href, so such a value is inert and is treated as relative.
-    """
-    return urlparse(value).scheme.lower()
-
-
-def is_url_scheme_allowed(value):
+def url_scheme_is_allowed(value):
     """
     Return True if the URL's scheme is permitted by ALLOWED_URL_SCHEMES. A schemeless (relative) value
     is considered permitted.
+
+    The scheme is compared in lower case. A percent-encoded scheme (e.g. "javascript%3A…") yields no
+    scheme, matching browser behavior: a browser does not decode the scheme portion of an href, so such
+    a value is inert and is treated as relative. A malformed URL which cannot be parsed (e.g.
+    "http://[::1/foo") likewise yields no scheme.
     """
-    scheme = get_url_scheme(value)
+    try:
+        scheme = urlparse(value).scheme.lower()
+    except ValueError:
+        scheme = ''
     return not scheme or scheme in get_config().ALLOWED_URL_SCHEMES
 
 

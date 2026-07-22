@@ -46,7 +46,7 @@ from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, Da
 from utilities.jsonschema import validate_schema
 from utilities.querysets import RestrictedQuerySet
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.validators import EnhancedURLValidator, validate_regex
+from utilities.validators import url_scheme_is_allowed, validate_regex
 
 __all__ = (
     'CustomField',
@@ -796,9 +796,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
-                # Validate the URL and its scheme against ALLOWED_URL_SCHEMES, as the UI does (LaxURLField).
-                # Instantiated per call so a runtime change to the (dynamic) setting is honored.
-                EnhancedURLValidator()(value)
+                # Enforce ALLOWED_URL_SCHEMES to guard against dangerous schemes (e.g. javascript:), using
+                # the same check applied when rendering the value. The UI and REST API both normalize a
+                # schemeless value to an absolute URL (LaxURLField with assume_scheme='https'); a schemeless
+                # value reaching this point directly (e.g. via a script) is permitted and treated as relative.
+                if not url_scheme_is_allowed(value):
+                    raise ValidationError(
+                        _("URLs must use a scheme permitted by ALLOWED_URL_SCHEMES.")
+                    )
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 

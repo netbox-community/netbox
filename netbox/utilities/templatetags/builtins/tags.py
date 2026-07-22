@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
-from utilities.validators import is_url_scheme_allowed
+from utilities.validators import url_scheme_is_allowed
 
 __all__ = (
     'badge',
@@ -65,7 +65,7 @@ def customfield_value(customfield, value):
             # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES. This guards against
             # dangerous schemes (e.g. javascript:) in values stored before validation was enforced or via
             # paths which bypass model validation. A schemeless (relative) value is considered safe.
-            url_allowed = is_url_scheme_allowed(value)
+            url_allowed = url_scheme_is_allowed(value)
     return {
         'customfield': customfield,
         'value': value,

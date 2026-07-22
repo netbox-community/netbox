@@ -1695,8 +1695,9 @@ class CustomFieldAPITestCase(APITestCase):
 
     def test_url_scheme_validation(self):
         """
-        Test that URL custom field values must be well-formed URLs using a scheme permitted by
-        ALLOWED_URL_SCHEMES, consistent with the UI (fixes #22640).
+        Test that URL custom field values must use a scheme permitted by ALLOWED_URL_SCHEMES (fixes
+        #22640), and that a schemeless value is normalized to an absolute URL (assume_scheme='https'),
+        consistent with the UI.
         """
         site2 = Site.objects.get(name='Site 2')
         url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
@@ -1716,6 +1717,13 @@ class CustomFieldAPITestCase(APITestCase):
         data = {'custom_fields': {'url_field': 'https://example.com'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # A schemeless value must be accepted and normalized to https, matching the UI
+        data = {'custom_fields': {'url_field': 'example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['url_field'], 'https://example.com')
 
     def test_json_schema_validation(self):
         site2 = Site.objects.get(name='Site 2')
