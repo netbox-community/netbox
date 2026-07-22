@@ -125,6 +125,8 @@ Passing multiple values for `tag`/`tag_id` without a lookup expression uses a lo
 GET /api/dcim/sites/?tag__any=foo&tag__any=bar
 ```
 
+Note that `n` is not the logical complement of the default (AND) behavior: passing multiple values applies NOR logic, matching only objects which have _none_ of the specified tags, rather than objects which are simply missing at least one of them.
+
 ## Ordering Objects
 
 To order results by a particular field, include the `ordering` query parameter. For example, order the list of sites according to their facility values:

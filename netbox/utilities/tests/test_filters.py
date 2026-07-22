@@ -153,6 +153,11 @@ class TagFilterTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
         self.assertEqual(qs[0].slug, 'site-2')
 
+        params = {'tag_id__n': [tags[0].pk, tags[1].pk]}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs[0].slug, 'site-2')
+
 
 class DummyModel(models.Model):
     """

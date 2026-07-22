@@ -241,7 +241,7 @@ class BaseFilterSet(django_filters.FilterSet):
                 # Of course setting the negation of the existing filter's exclude attribute handles both cases
                 new_filter.exclude = not existing_filter.exclude
 
-            if lookup_name == 'any':
+            if lookup_name == 'any' and isinstance(new_filter, (TagFilter, TagIDFilter)):
                 # "Any of" is an OR match, whereas TagFilter/TagIDFilter default to AND (conjoined=True)
                 new_filter.conjoined = False
 
