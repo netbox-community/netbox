@@ -1,4 +1,33 @@
+import type TomSelect from 'tom-select';
+import { NetBoxTomSelect } from '../select/classes/netboxTomSelect';
+import { getPlugins } from '../select/config';
 import { getElements } from '../util';
+
+/**
+ * Return the TomSelect instance attached to a protocol <select>, if it has been initialized.
+ */
+function getProtocolSelect(select: HTMLSelectElement): TomSelect | undefined {
+  return (select as HTMLSelectElement & { tomselect?: TomSelect }).tomselect;
+}
+
+/**
+ * Apply NetBox's standard TomSelect styling to a protocol <select>. The widget manages these instances
+ * itself (rather than leaving them to the global static-select initializer) so it can keep TomSelect in
+ * sync as rows are added, removed, and their available protocols change.
+ */
+function initProtocolSelect(select: HTMLSelectElement, widget: HTMLElement): void {
+  if (getProtocolSelect(select)) return;
+  new NetBoxTomSelect(select, {
+    ...getPlugins(select),
+    maxOptions: undefined,
+    // TomSelect emits its own (non-DOM) change event rather than a bubbling native one, so the widget's
+    // delegated 'change' listener never sees protocol selections. Refresh/serialize from here instead.
+    onChange: () => {
+      refreshProtocolOptions(widget);
+      serialize(widget);
+    },
+  });
+}
 
 /**
  * Serialize the visible protocol/port rows of a widget into its hidden input as a JSON array of
@@ -10,7 +39,8 @@ function serialize(widget: HTMLElement): void {
 
   const rows: Array<{ protocol: string; ports: string }> = [];
   for (const row of widget.querySelectorAll<HTMLElement>('[data-port-mapping-row]')) {
-    const protocol = row.querySelector<HTMLSelectElement>('.port-mapping-protocol')?.value ?? '';
+    const protocol =
+      row.querySelector<HTMLSelectElement>('select.port-mapping-protocol')?.value ?? '';
     const ports = row.querySelector<HTMLInputElement>('.port-mapping-ports')?.value.trim() ?? '';
     if (protocol === '' && ports === '') continue;
     rows.push({ protocol, ports });
@@ -22,7 +52,7 @@ function serialize(widget: HTMLElement): void {
  * The set of protocol values currently selected across the widget's rows.
  */
 function usedProtocols(widget: HTMLElement): Set<string> {
-  const selects = widget.querySelectorAll<HTMLSelectElement>('.port-mapping-protocol');
+  const selects = widget.querySelectorAll<HTMLSelectElement>('select.port-mapping-protocol');
   return new Set(
     Array.from(selects)
       .map(select => select.value)
@@ -31,28 +61,61 @@ function usedProtocols(widget: HTMLElement): Set<string> {
 }
 
 /**
- * Disable protocol options already chosen in another row so each protocol can be selected at most
- * once, and disable the "Add mapping" button when every protocol is in use.
+ * The full list of protocol (value, label) choices, read from the widget's pristine `<template>` so it
+ * remains available even after options have been removed from the live selects.
+ */
+function protocolChoices(widget: HTMLElement): Array<{ value: string; text: string }> {
+  const template = widget.querySelector<HTMLTemplateElement>(
+    'template[data-port-mapping-template]',
+  );
+  const source = template?.content.querySelector<HTMLSelectElement>('select.port-mapping-protocol');
+  return Array.from(source?.options ?? [])
+    .filter(option => option.value !== '')
+    .map(option => ({ value: option.value, text: option.textContent?.trim() ?? option.value }));
+}
+
+/**
+ * Ensure each row offers only protocols not already chosen in another row (so each protocol can be
+ * selected at most once), and disable the "Add mapping" button when every protocol is in use.
  */
 function refreshProtocolOptions(widget: HTMLElement): void {
-  const selects = Array.from(widget.querySelectorAll<HTMLSelectElement>('.port-mapping-protocol'));
+  const choices = protocolChoices(widget);
+  const selects = Array.from(
+    widget.querySelectorAll<HTMLSelectElement>('select.port-mapping-protocol'),
+  );
   const used = new Set(selects.map(select => select.value).filter(value => value !== ''));
 
-  let protocolCount = 0;
   for (const select of selects) {
-    let selectableCount = 0;
-    for (const option of Array.from(select.options)) {
-      if (option.value === '') continue;
-      selectableCount += 1;
-      // Keep the option enabled in the row that currently owns it
-      option.disabled = used.has(option.value) && option.value !== select.value;
+    const current = select.value;
+    const ts = getProtocolSelect(select);
+    if (ts) {
+      // TomSelect renders its dropdown from its own option map, ignoring later changes to the native
+      // <option> disabled attribute — so add/remove options in that map to control what's offered.
+      // A protocol is offered only if it's free or already chosen in this row (never remove the row's
+      // own selection).
+      choices.forEach(({ value, text }, index) => {
+        const allowed = value === current || !used.has(value);
+        const exists = Object.prototype.hasOwnProperty.call(ts.options, value);
+        if (allowed && !exists) {
+          // Preserve the original ordering by mirroring the choice's index as TomSelect's $order.
+          ts.addOption({ value, text, $order: index + 1 });
+        } else if (!allowed && exists) {
+          ts.removeOption(value, true);
+        }
+      });
+      ts.refreshOptions(false);
+    } else {
+      // Fallback for a not-yet-enhanced select: toggle the native disabled attribute.
+      for (const option of Array.from(select.options)) {
+        if (option.value === '') continue;
+        option.disabled = used.has(option.value) && option.value !== current;
+      }
     }
-    protocolCount = Math.max(protocolCount, selectableCount);
   }
 
   const addButton = widget.querySelector<HTMLButtonElement>('[data-port-mapping-add]');
   if (addButton !== null) {
-    addButton.disabled = protocolCount > 0 && used.size >= protocolCount;
+    addButton.disabled = choices.length > 0 && used.size >= choices.length;
   }
 }
 
@@ -73,13 +136,22 @@ function addRow(widget: HTMLElement): void {
 
   // Default the new row to the first protocol not already selected elsewhere
   const rows = body.querySelectorAll<HTMLElement>('[data-port-mapping-row]');
-  const newSelect =
-    rows[rows.length - 1]?.querySelector<HTMLSelectElement>('.port-mapping-protocol');
+  const newSelect = rows[rows.length - 1]?.querySelector<HTMLSelectElement>(
+    'select.port-mapping-protocol',
+  );
   if (newSelect) {
-    const available = Array.from(newSelect.options).find(
-      option => option.value !== '' && !used.has(option.value),
-    );
-    if (available) newSelect.value = available.value;
+    // Cloned rows come from an inert <template>, so their select is a plain element that hasn't been
+    // enhanced yet; style it before setting a value so the change is reflected in the TomSelect control.
+    initProtocolSelect(newSelect, widget);
+    const available = protocolChoices(widget).find(choice => !used.has(choice.value));
+    if (available) {
+      const ts = getProtocolSelect(newSelect);
+      if (ts) {
+        ts.setValue(available.value, true);
+      } else {
+        newSelect.value = available.value;
+      }
+    }
   }
 
   refreshProtocolOptions(widget);
@@ -91,6 +163,13 @@ function addRow(widget: HTMLElement): void {
  * and on form submission.
  */
 function initWidget(widget: HTMLElement): void {
+  // Style the server-rendered protocol selects. TomSelect emits change events through its own callback
+  // (wired in initProtocolSelect), so the widget-level 'change' listener below only handles the ports
+  // inputs.
+  for (const select of widget.querySelectorAll<HTMLSelectElement>('select.port-mapping-protocol')) {
+    initProtocolSelect(select, widget);
+  }
+
   const addButton = widget.querySelector<HTMLButtonElement>('[data-port-mapping-add]');
   addButton?.addEventListener('click', () => addRow(widget));
 
@@ -104,7 +183,7 @@ function initWidget(widget: HTMLElement): void {
     serialize(widget);
   });
 
-  // Keep the hidden input in sync as the user edits rows
+  // Keep the hidden input in sync as the user edits the ports fields
   widget.addEventListener('input', () => serialize(widget));
   widget.addEventListener('change', () => {
     refreshProtocolOptions(widget);

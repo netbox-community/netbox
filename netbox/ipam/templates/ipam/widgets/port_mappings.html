@@ -13,7 +13,7 @@
       {% for row in widget.rows %}
         <tr data-port-mapping-row>
           <td>
-            <select class="form-select form-select-sm no-ts port-mapping-protocol">
+            <select class="form-select form-select-sm port-mapping-protocol">
               <option value=""{% if not row.protocol %} selected{% endif %}>---------</option>
               {% for value, label in protocol_choices %}
                 <option value="{{ value }}"{% if value == row.protocol %} selected{% endif %}>{{ label }}</option>
@@ -39,7 +39,7 @@
   <template data-port-mapping-template>
     <tr data-port-mapping-row>
       <td>
-        <select class="form-select form-select-sm no-ts port-mapping-protocol">
+        <select class="form-select form-select-sm port-mapping-protocol">
           <option value="">---------</option>
           {% for value, label in protocol_choices %}
             <option value="{{ value }}">{{ label }}</option>
