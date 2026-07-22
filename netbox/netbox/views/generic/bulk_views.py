@@ -14,6 +14,7 @@ from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import content_disposition_header
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from mptt.models import MPTTModel
@@ -197,7 +198,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             if hasattr(model, 'to_yaml'):
                 response = HttpResponse(self.export_yaml(), content_type='text/yaml')
                 filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
-                response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+                response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
                 return response
 
             # Fall back to default table/YAML export

@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import content_disposition_header
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
@@ -1273,7 +1274,7 @@ class ObjectRenderConfigView(generic.ObjectView):
             content = context['rendered_config'] or context['error_message']
             response = HttpResponse(content, content_type='text')
             filename = f"{instance.name or 'config'}.txt"
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
             return response
 
         return render(
@@ -1882,7 +1883,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             content = (job.data.get("output") or "").encode()
             response = HttpResponse(content, content_type='text')
             filename = f"{job.object.name or 'script-output'}_{job.completed.strftime('%Y-%m-%d_%H%M%S')}.txt"
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
             return response
 
         if job.completed:
