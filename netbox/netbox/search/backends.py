@@ -2,10 +2,13 @@ import logging
 from collections import defaultdict
 
 import netaddr
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError, ProgrammingError, transaction
 from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from netaddr.core import AddrFormatError
 
@@ -124,10 +127,10 @@ class CachedValueSearchBackend(SearchBackend):
     # netbox-branching). Deferral is internal to this backend; the public contract is unchanged.
     #
     # mark_for_deferred_indexing() etc. are imported inside each method rather than at module level:
-    # get_backend() (netbox.search.backend) dynamically imports this module by the class path in
-    # settings.SEARCH_BACKEND, and deferred.py imports the search_backend singleton from
-    # netbox.search.backend for its own inline-fallback path. A module-level import here would close
-    # that loop into a backends -> deferred -> backend -> backends cycle. See #22485.
+    # this module's own top would import deferred.py *before* search_backend is defined further down
+    # this same file, and deferred.py (plus jobs.py) need that singleton at their own module level.
+    # A module-level import here would close that loop into a backends -> deferred -> backends
+    # cycle. See #22485.
     def caching_handler(self, sender, instance, created, using=None, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
@@ -429,3 +432,19 @@ class CachedValueSearchBackend(SearchBackend):
     @property
     def size(self):
         return CachedValue.objects.count()
+
+
+def get_backend():
+    """
+    Initializes and returns the configured search backend.
+    """
+    try:
+        backend_cls = import_string(settings.SEARCH_BACKEND)
+    except AttributeError:
+        raise ImproperlyConfigured(f"Failed to import configured SEARCH_BACKEND: {settings.SEARCH_BACKEND}")
+
+    # Initialize and return the backend instance
+    return backend_cls()
+
+
+search_backend = get_backend()

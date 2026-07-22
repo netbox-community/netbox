@@ -12,8 +12,7 @@ from dcim.models import Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
-from netbox.search.backend import search_backend
-from netbox.search.backends import SearchBackend
+from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
 
 
@@ -776,27 +775,32 @@ class SearchModuleImportCycleTestCase(TestCase):
     Regression test for #22485.
 
     netbox.search.backends previously had a module-level dependency on netbox.search.deferred
-    (needed by CachedValueSearchBackend's signal-handling methods), while netbox.search.deferred and
-    netbox.search.jobs both depended on the search_backend singleton originally defined at the bottom
-    of backends.py. Since get_backend() (now in netbox.search.backend) resolves settings.SEARCH_BACKEND
-    by dynamically importing backends.py, that closed a real
-    backends -> deferred -> backend -> backends cycle, raising ImportError for whichever module
-    happened to be imported first.
+    (CachedValueSearchBackend's signal-handling methods used mark_for_deferred_indexing), while
+    netbox.search.deferred and netbox.search.jobs both depend on the search_backend singleton
+    defined at the bottom of backends.py. Since backends.py's own module-level top imported
+    deferred.py *before* search_backend was defined further down the same file, a module-level
+    "from netbox.search.backends import search_backend" in deferred.py would close a real
+    backends -> deferred -> backends cycle, raising ImportError for whichever module happened to
+    be imported first.
 
-    This clears the four modules from sys.modules and re-imports them from scratch (in the same order
-    Django's app loading exercises: netbox.search.backend, transitively pulling in the others) to catch
-    a reintroduced cycle for real, rather than by asserting on source code.
+    The fix scopes backends.py's dependency on mark_for_deferred_indexing to the two methods that
+    need it (see CachedValueSearchBackend.caching_handler/removal_handler), rather than importing
+    it at module level. That lets deferred.py's and jobs.py's imports of search_backend live at
+    module level without incident, since nothing forces deferred.py to load during backends.py's
+    own module-level execution anymore.
+
+    This clears the three modules from sys.modules and re-imports them from scratch to catch a
+    reintroduced cycle for real, rather than by asserting on source code.
     """
     def test_search_modules_import_without_cycle(self):
         module_names = (
-            'netbox.search.backend',
             'netbox.search.backends',
             'netbox.search.deferred',
             'netbox.search.jobs',
         )
         saved_modules = {name: sys.modules.pop(name, None) for name in module_names}
         try:
-            importlib.import_module('netbox.search.backend')
+            importlib.import_module('netbox.search.backends')
         finally:
             for name, module in saved_modules.items():
                 if module is not None:

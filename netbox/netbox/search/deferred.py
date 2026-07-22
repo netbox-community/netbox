@@ -4,7 +4,7 @@ from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from redis.exceptions import RedisError
 
 from netbox.constants import RQ_QUEUE_DEFAULT
-from netbox.search.backend import search_backend
+from netbox.search.backends import search_backend
 from netbox.search.jobs import SearchCacheJob
 from utilities.rqworker import any_workers_for_queue
 

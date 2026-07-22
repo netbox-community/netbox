@@ -5,7 +5,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
-from netbox.search.backend import search_backend
+from netbox.search.backends import search_backend
 from virtualization.models import VMInterface
 
 from .models import (

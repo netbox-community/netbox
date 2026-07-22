@@ -10,7 +10,7 @@ import netbox.search first.
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .backend import search_backend
+from .backends import search_backend
 
 
 @receiver(post_save)

@@ -12,7 +12,7 @@ from packaging import version
 from core.models import Job, ObjectChange
 from netbox.config import Config
 from netbox.jobs import JobRunner, system_job
-from netbox.search.backend import search_backend
+from netbox.search.backends import search_backend
 from utilities.proxy import resolve_proxies
 
 from .choices import DataSourceStatusChoices, JobIntervalChoices, ObjectChangeActionChoices
