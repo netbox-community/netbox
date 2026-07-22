@@ -9,7 +9,7 @@ from django.urls import reverse
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.models import ImageAttachment
 from netbox.constants import EMPTY_TABLE_TEXT
-from netbox.search.backends import search_backend
+from netbox.search.backend import search_backend
 from utilities.testing import TestCase
 
 

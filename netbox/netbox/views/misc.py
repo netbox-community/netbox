@@ -22,7 +22,7 @@ from extras.dashboard.utils import get_dashboard, get_default_dashboard
 from extras.models import ImageAttachment
 from netbox.forms import SearchForm
 from netbox.search import LookupTypes
-from netbox.search.backends import search_backend
+from netbox.search.backend import search_backend
 from netbox.tables import SearchTable
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count

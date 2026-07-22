@@ -4,6 +4,8 @@ from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from redis.exceptions import RedisError
 
 from netbox.constants import RQ_QUEUE_DEFAULT
+from netbox.search.backend import search_backend
+from netbox.search.jobs import SearchCacheJob
 from utilities.rqworker import any_workers_for_queue
 
 # This module is internal plumbing for the search signal handlers; nothing here
@@ -156,14 +158,6 @@ def _flush(batch, using):
     for (object_type_id, pk), op in batch.items():
         groups = remove_groups if op == OP_REMOVE else cache_groups
         groups.setdefault(object_type_id, []).append(pk)
-
-    # Imported here, not at module load, to avoid an import cycle: backends.py
-    # imports this module at module level (for the signal handlers), and
-    # netbox.search.jobs imports the search_backend singleton from backends.py,
-    # which is bound at the bottom of that module. A proper fix is tracked in
-    # #22485.
-    from netbox.search.backends import search_backend
-    from netbox.search.jobs import SearchCacheJob
 
     try:
         # Both the worker-availability check and the job enqueue talk to Redis,

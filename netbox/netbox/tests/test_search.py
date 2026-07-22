@@ -1,3 +1,5 @@
+import importlib
+import sys
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
@@ -10,7 +12,8 @@ from dcim.models import Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
-from netbox.search.backends import SearchBackend, search_backend
+from netbox.search.backend import search_backend
+from netbox.search.backends import SearchBackend
 from netbox.search.jobs import SearchCacheJob
 
 
@@ -741,7 +744,8 @@ class CustomBackendContractTestCase(TransactionTestCase):
         backend = _MinimalSearchBackend()
 
         # Connect the custom backend's (inherited, synchronous) handlers, exactly as
-        # backends.py connects the configured backend at import. Same call site, no type-check.
+        # netbox.search.signals connects the configured backend from CoreConfig.ready(). Same
+        # call site, no type-check.
         post_save.connect(backend.caching_handler, sender=Site)
         post_delete.connect(backend.removal_handler, sender=Site)
         self.addCleanup(post_save.disconnect, backend.caching_handler, sender=Site)
@@ -757,10 +761,45 @@ class CustomBackendContractTestCase(TransactionTestCase):
         self.assertEqual(len(backend.removed), 1)
 
     def test_default_backend_defers_via_same_call_path(self):
-        # The default backend (CachedValueSearchBackend) IS connected at import, and reaches the
-        # SAME caching_handler call path -- but its override defers instead of indexing inline.
-        # This contrasts with the custom backend above: identical dispatch, polymorphic behavior.
+        # The default backend (CachedValueSearchBackend) IS connected via netbox.search.signals, and
+        # reaches the SAME caching_handler call path -- but its override defers instead of indexing
+        # inline. This contrasts with the custom backend above: identical dispatch, polymorphic
+        # behavior.
         with transaction.atomic():
             Site.objects.create(name='Default Defers', slug='default-defers')
             scheduled = scheduled_search_flushes()
             self.assertEqual(len(scheduled), 1)
+
+
+class SearchModuleImportCycleTestCase(TestCase):
+    """
+    Regression test for #22485.
+
+    netbox.search.backends previously had a module-level dependency on netbox.search.deferred
+    (needed by CachedValueSearchBackend's signal-handling methods), while netbox.search.deferred and
+    netbox.search.jobs both depended on the search_backend singleton originally defined at the bottom
+    of backends.py. Since get_backend() (now in netbox.search.backend) resolves settings.SEARCH_BACKEND
+    by dynamically importing backends.py, that closed a real
+    backends -> deferred -> backend -> backends cycle, raising ImportError for whichever module
+    happened to be imported first.
+
+    This clears the four modules from sys.modules and re-imports them from scratch (in the same order
+    Django's app loading exercises: netbox.search.backend, transitively pulling in the others) to catch
+    a reintroduced cycle for real, rather than by asserting on source code.
+    """
+    def test_search_modules_import_without_cycle(self):
+        module_names = (
+            'netbox.search.backend',
+            'netbox.search.backends',
+            'netbox.search.deferred',
+            'netbox.search.jobs',
+        )
+        saved_modules = {name: sys.modules.pop(name, None) for name in module_names}
+        try:
+            importlib.import_module('netbox.search.backend')
+        finally:
+            for name, module in saved_modules.items():
+                if module is not None:
+                    sys.modules[name] = module
+                else:
+                    sys.modules.pop(name, None)

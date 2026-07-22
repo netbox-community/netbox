@@ -1,7 +1,7 @@
 import logging
 
 from netbox.jobs import JobRunner
-from netbox.search.backends import search_backend
+from netbox.search.backend import search_backend
 
 # Internal search-indexing machinery; not part of the public/plugin API.
 

@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 
 from netbox.registry import registry
-from netbox.search.backends import search_backend
+from netbox.search.backend import search_backend
 
 
 class Command(BaseCommand):
