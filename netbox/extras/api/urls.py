@@ -33,6 +33,14 @@ app_name = 'extras-api'
 urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
     path(
+        'scripts/upload/',
+        views.ScriptModuleViewSet.as_view(
+            {
+                'post': 'create',
+            }
+        ),
+    ),
+    path(
         'scripts/<str:pk>/',
         views.ScriptViewSet.as_view(
             {
