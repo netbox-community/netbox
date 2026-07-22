@@ -290,6 +290,23 @@ class VLANQuerySet(RestrictedQuerySet):
             Q(group__isnull=True, site__isnull=True)  # Global VLANs
         )
 
+    def get_for_site_group(self, site_group):
+        """
+        Return all VLANs available to the specified site group.
+        """
+        if site_group is None:
+            return self.none()
+        from .models import VLANGroup
+        q = Q(
+            scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+            scope_id__in=site_group.get_ancestors(include_self=True)
+        )
+        return self.filter(
+            Q(group__in=VLANGroup.objects.filter(q)) |
+            Q(group__scope_id__isnull=True, site__isnull=True) |  # Global group VLANs
+            Q(group__isnull=True, site__isnull=True)  # Global VLANs
+        )
+
     def get_for_device(self, device):
         """
         Return all VLANs available to the specified Device.
