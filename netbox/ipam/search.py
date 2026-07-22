@@ -22,6 +22,7 @@ class ASNIndex(SearchIndex):
         ('asn', 100),
         ('prefixed_name', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('rir', 'role', 'tenant', 'description')
 
