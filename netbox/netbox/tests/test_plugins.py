@@ -1,3 +1,4 @@
+import re
 from unittest import skipIf
 
 from django.conf import settings
@@ -216,6 +217,26 @@ class PluginTestCase(TestCase):
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
 
+    def test_graphql_type_extensions(self):
+        """
+        Validate that plugin GraphQL type & filter extensions are registered and spliced into the built schema.
+        """
+        from netbox.graphql.schema import schema
+        from netbox.tests.dummy_plugin.graphql import SiteFilterExtension, SiteTypeExtension
+
+        # Extensions are registered against the targeted core model
+        self.assertIn(SiteTypeExtension, registry['plugins']['graphql_type_extensions']['dcim.site'])
+        self.assertIn(SiteFilterExtension, registry['plugins']['graphql_filter_extensions']['dcim.site'])
+
+        # The injected field and filter appear in the assembled schema
+        schema_str = schema.as_str()
+        site_type = re.search(r'\ntype SiteType \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_type, "SiteType not found in GraphQL schema")
+        self.assertIn('dummy_plugin_field', site_type.group(0))
+        site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_filter, "SiteFilter not found in GraphQL schema")
+        self.assertIn('dummy_plugin_filter', site_filter.group(0))
+
     @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):
         """
@@ -359,3 +380,93 @@ class PluginNavigationTestCase(TestCase):
         self.assertIsNot(item1.permissions, item2.permissions)
         self.assertEqual(item1.permissions, ['explicit_permission'])
         self.assertEqual(item2.permissions, ['different_permission'])
+
+
+class RegisterGraphQLExtensionsTestCase(TestCase):
+    """Validate registration-time checks for GraphQL type/filter extensions."""
+
+    def test_rejects_extension_without_models(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class NoModels:
+            pass
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([NoModels])
+
+    def test_rejects_undecorated_extension(self):
+        # A plain class (no @strawberry.type) must be rejected...
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        class Undecorated:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Undecorated])
+
+    def test_rejects_undecorated_subclass_of_strawberry_type(self):
+        # ...as must a subclass that only inherits __strawberry_definition__ without its own decoration.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class Base:
+            pass
+
+        class Child(Base):
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Child])
+
+    def test_rejects_unknown_model_label(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class BadTarget:
+            models = ['dcim.notamodel']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([BadTarget])
+
+    def test_filter_extension_requires_strawberry_type(self):
+        # The filter path enforces the same @strawberry.type requirement as the type path.
+        from netbox.plugins.registration import register_graphql_filter_extensions
+
+        class UndecoratedFilter:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_filter_extensions([UndecoratedFilter])
+
+    def test_warns_when_registered_after_assembly(self):
+        # An extension registered after its core type was already assembled is warned and will be dropped.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class LateExt:
+            models = ['dcim.cable']
+            late_field: str
+
+        store, label = 'graphql_type_extensions', 'dcim.cable'
+        assembled = registry['plugins']['graphql_extensions_assembled']
+        was_present = (store, label) in assembled
+        assembled.add((store, label))
+        # Restore global registry state regardless of outcome so other tests are unaffected.
+        self.addCleanup(lambda: registry['plugins'][store].__setitem__(
+            label, [e for e in registry['plugins'][store][label] if e is not LateExt]
+        ))
+        if not was_present:
+            self.addCleanup(assembled.discard, (store, label))
+
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            register_graphql_type_extensions([LateExt])
+        self.assertTrue(any('after the core type was assembled' in msg for msg in cm.output))

@@ -25,7 +25,7 @@ from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
-from utilities.querysets import RestrictedQuerySet
+from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
 
@@ -636,6 +636,14 @@ class CableTermination(ChangeLoggedModel):
                     cable_pk=existing_termination.cable.pk
                 )
             )
+        # A channel subinterface derives its cable from its parent interface and cannot be cabled directly. Checked
+        # ahead of the generic type validation below (channel is a nonconnectable type) to surface the more specific
+        # guidance.
+        if self.termination_type.model == 'interface' and self.termination.channel_id:
+            raise ValidationError(
+                _("Cables cannot be terminated directly to a channel subinterface; cable the parent interface instead.")
+            )
+
         # Validate the interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
             raise ValidationError(
@@ -783,7 +791,7 @@ class CablePath(models.Model):
         # Record a direct reference to this CablePath on its originating object(s)
         origin_model = self.origin_type.model_class()
         origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-        origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
+        chunked_update(origin_model.objects.filter(pk__in=origin_ids), _path=self.pk)
 
     def delete(self, *args, **kwargs):
         # Mirror save() - clear _path on origins to prevent stale references
@@ -791,7 +799,7 @@ class CablePath(models.Model):
         if self.path:
             origin_model = self.origin_type.model_class()
             origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-            origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
+            chunked_update(origin_model.objects.filter(pk__in=origin_ids, _path=self.pk), _path=None)
 
         super().delete(*args, **kwargs)
 
@@ -971,6 +979,12 @@ class CablePath(models.Model):
                     peer_results = cable_profile.get_peer_terminations(term_position_pairs)
                     seen = set()
                     for peer, new_pos in peer_results:
+                        # If the far-end termination is a channelized interface, resolve to the specific channel
+                        # subinterface bound to the mapped connector position (the far end is channelized on the same
+                        # physical connector, so the peer lookup returns the parent rather than the channel). A
+                        # channelized parent is never itself a path endpoint, so an unoccupied position yields no peer.
+                        if new_pos is not None and getattr(peer, 'channels', None):
+                            peer = peer.child_interfaces.filter(channel_id=new_pos).first()
                         # Deduplicate peer terminations by model type & PK.
                         key = None if peer is None else (peer._meta.concrete_model, peer.pk)
                         if key not in seen:

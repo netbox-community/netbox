@@ -1191,6 +1191,14 @@ class InterfaceTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         choices=add_blank_choice(InterfaceTypeChoices),
         required=False
     )
+    channels = forms.IntegerField(
+        label=_('Channels'),
+        required=False
+    )
+    channel_id = forms.IntegerField(
+        label=_('Channel ID'),
+        required=False
+    )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
         required=False,
@@ -1224,7 +1232,7 @@ class InterfaceTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         label=_('Wireless role')
     )
 
-    nullable_fields = ('label', 'description', 'poe_mode', 'poe_type', 'rf_role')
+    nullable_fields = ('label', 'channels', 'channel_id', 'description', 'poe_mode', 'poe_type', 'rf_role')
 
 
 class FrontPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
@@ -1477,9 +1485,9 @@ class PowerOutletBulkEditForm(
 class InterfaceBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
-        'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'wireless_lans', 'vlan_translation_policy'
+        'label', 'type', 'channels', 'channel_id', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu',
+        'mgmt_only', 'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+        'rf_channel_width', 'tx_power', 'wireless_lans', 'vlan_translation_policy'
     ])
 ):
     enabled = forms.NullBooleanField(
@@ -1627,11 +1635,11 @@ class InterfaceBulkEditForm(
 
     model = Interface
     fieldsets = (
-        FieldSet('module', 'type', 'label', 'speed', 'duplex', 'description'),
+        FieldSet('module', 'type', 'channels', 'label', 'speed', 'duplex', 'description'),
         FieldSet('vrf', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
-        FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
+        FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'qinq_svlan', 'vlan_translation_policy', name=_('802.1Q Switching')
         ),
@@ -1647,9 +1655,9 @@ class InterfaceBulkEditForm(
         ),
     )
     nullable_fields = (
-        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu', 'description',
-        'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans', 'vlan_translation_policy',
+        'module', 'label', 'channels', 'channel_id', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs',
+        'mtu', 'description', 'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
+        'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans', 'vlan_translation_policy',
     )
 
     def __init__(self, *args, **kwargs):

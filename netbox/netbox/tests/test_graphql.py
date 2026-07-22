@@ -1,7 +1,9 @@
 import json
 import re
+from unittest import skipIf
 
 import strawberry
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import override_settings
@@ -132,6 +134,26 @@ class GraphQLAPITestCase(APITestCase):
             Site(name='Site 7', slug='site-7'),
         )
         Site.objects.bulk_create(sites)
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_plugin_extensions_execute(self):
+        """
+        A plugin-provided filter extension and field extension execute end-to-end against a live query,
+        exercising the custom filter method's prefix plumbing and the type extension's resolver.
+        """
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+
+        query = '{ site_list(filters: {dummy_plugin_filter: "Site 1"}) { name dummy_plugin_field } }'
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        sites = data['data']['site_list']
+        self.assertEqual(len(sites), 1)
+        self.assertEqual(sites[0]['name'], 'Site 1')
+        self.assertEqual(sites[0]['dummy_plugin_field'], 'dummy-plugin-value')
 
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphql_filter_objects(self):
@@ -662,3 +684,130 @@ class JSONStringLookupTestCase(TestCase):
                          'starts_with', 'i_starts_with', 'ends_with', 'i_ends_with',
                          'in_', 'isnull', 'regex', 'i_regex'):
             self.assertIn(expected, field_names, f"{expected!r} must be present on JSONStringLookup")
+
+
+class SpliceExtensionBasesTestCase(TestCase):
+    """Verify splice_extension_bases() behavior: pass-through, splicing, and collision warnings."""
+
+    @staticmethod
+    def _make_core():
+        @strawberry.type
+        class CoreBase:
+            description: str  # inherited (non-protected) field
+
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return queryset
+
+        @strawberry.type
+        class CoreType(CoreBase):
+            name: str  # defined directly in the core type's own body
+
+        return CoreType
+
+    def test_no_extensions_is_passthrough(self):
+        from netbox.graphql.utils import splice_extension_bases
+        CoreType = self._make_core()
+        self.assertIs(splice_extension_bases(CoreType, []), CoreType)
+        self.assertIs(splice_extension_bases(CoreType, None), CoreType)
+
+    def test_extension_spliced_into_bases(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            extra: str
+
+        CoreType = self._make_core()
+        result = splice_extension_bases(CoreType, [Extension])
+        self.assertIsNot(result, CoreType)
+        self.assertEqual(result.__name__, CoreType.__name__)
+        self.assertIn(Extension, result.__mro__)
+        # The extension is appended *after* the core bases in the MRO (additive, core wins collisions)
+        self.assertGreater(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
+
+    def test_warns_when_extension_collides_with_core_own_field(self):
+        # A name the core type defines directly always wins; the extension's version is ignored (and warned).
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            name: str  # collides with CoreType.name (own body)
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("already provides" in msg and "core takes precedence" in msg for msg in cm.output))
+
+    def test_warns_when_extension_collides_with_inherited_field(self):
+        # A name the core type inherits also wins over the extension (extensions are strictly additive).
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+            description: str  # collides with CoreBase.description (inherited)
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("already provides" in msg for msg in cm.output))
+
+    def test_core_hook_wins_over_extension(self):
+        # An extension declaring get_queryset is ignored; the core permission-enforcing hook is preserved by
+        # ordering (extensions are appended after the core bases).
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.device']
+
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return 'EXTENSION_WON'
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            result = splice_extension_bases(CoreType, [Extension])
+        self.assertTrue(any("already provides" in msg and "get_queryset" in msg for msg in cm.output))
+        # Core's get_queryset (identity) is retained, not the extension's override
+        self.assertEqual(result.get_queryset('CORE_QS', None), 'CORE_QS')
+
+    def test_mro_conflict_raises_clear_error(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        class A:
+            pass
+
+        class B:
+            pass
+
+        class Core(A, B):
+            name = 'core'
+
+        class Extension(B, A):  # reversed base order -> inconsistent MRO when spliced
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError) as ctx:
+            splice_extension_bases(Core, [Extension])
+        self.assertIn('Failed to splice', str(ctx.exception))
+
+    def test_warns_on_collision_between_extensions(self):
+        from netbox.graphql.utils import splice_extension_bases
+
+        @strawberry.type
+        class ExtensionA:
+            models = ['dcim.device']
+            widgets: str
+
+        @strawberry.type
+        class ExtensionB:
+            models = ['dcim.device']
+            widgets: str
+
+        CoreType = self._make_core()
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            splice_extension_bases(CoreType, [ExtensionA, ExtensionB])
+        self.assertTrue(any("both define" in msg and "loaded first" in msg for msg in cm.output))

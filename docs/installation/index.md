@@ -18,10 +18,15 @@ The following sections detail how to set up a new instance of NetBox:
 
 1. [PostgreSQL database](1-postgresql.md)
 2. [Redis](2-redis.md)
-3. [NetBox components](3-netbox.md)
+3. Install the NetBox application using either:
+    * a [release archive or Git checkout](3-netbox.md); or
+    * the [Python package](3b-python-package.md) (experimental)
 4. [Gunicorn](4a-gunicorn.md) or [uWSGI](4b-uwsgi.md)
 5. [HTTP server](5-http-server.md)
 6. [LDAP authentication](6-ldap.md) (optional)
+
+!!! warning "Experimental Python package installation"
+    Installing NetBox from the Python package is experimental in NetBox v4.7 and is not recommended for production use. It is intended for evaluation and feedback. The release archive and Git workflows remain supported and are the established installation methods.
 
 ## Requirements
 

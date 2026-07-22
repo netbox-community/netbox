@@ -7,7 +7,7 @@ from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup, StrFilterLookup
 
 from core import models
-from netbox.graphql.filters import BaseModelFilter, PrimaryModelFilter
+from netbox.graphql.filters import BaseModelFilter, PrimaryModelFilter, register_filter
 
 from .enums import *
 
@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(models.DataFile, lookups=True)
+@register_filter(models.DataFile, lookups=True)
 class DataFileFilter(BaseModelFilter):
     created: DatetimeFilterLookup | None = strawberry_django.filter_field()
     last_updated: DatetimeFilterLookup | None = strawberry_django.filter_field()
@@ -38,7 +38,7 @@ class DataFileFilter(BaseModelFilter):
     hash: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.DataSource, lookups=True)
+@register_filter(models.DataSource, lookups=True)
 class DataSourceFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     type: StrFilterLookup | None = strawberry_django.filter_field()
@@ -57,7 +57,7 @@ class DataSourceFilter(PrimaryModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.ObjectChange, lookups=True)
+@register_filter(models.ObjectChange, lookups=True)
 class ObjectChangeFilter(BaseModelFilter):
     time: DatetimeFilterLookup | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
@@ -84,7 +84,7 @@ class ObjectChangeFilter(BaseModelFilter):
     )
 
 
-@strawberry_django.filter_type(DjangoContentType, lookups=True)
+@register_filter(DjangoContentType, lookups=True)
 class ContentTypeFilter(BaseModelFilter):
     app_label: StrFilterLookup | None = strawberry_django.filter_field()
     model: StrFilterLookup | None = strawberry_django.filter_field()

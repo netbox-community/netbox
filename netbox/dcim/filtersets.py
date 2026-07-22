@@ -1058,6 +1058,11 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         distinct=False,
         null_value=None
     )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent',
+        queryset=InterfaceTemplate.objects.all(),
+        distinct=False,
+    )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
         field_name='bridge',
         queryset=InterfaceTemplate.objects.all(),
@@ -1078,7 +1083,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = InterfaceTemplate
-        fields = ('id', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')
+        fields = ('id', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mgmt_only', 'description')
 
 
 @register_filterset
@@ -2416,9 +2421,9 @@ class InterfaceFilterSet(
     class Meta:
         model = Interface
         fields = (
-            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end', 'cable_connector',
+            'id', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mtu', 'mgmt_only', 'poe_mode',
+            'poe_type', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+            'description', 'mark_connected', 'cable_id', 'cable_end', 'cable_connector',
         )
 
     def filter_virtual_chassis_member_or_master(self, queryset, name, value):

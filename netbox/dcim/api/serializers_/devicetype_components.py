@@ -184,6 +184,10 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=InterfaceTypeChoices)
+    parent = NestedInterfaceTemplateSerializer(
+        required=False,
+        allow_null=True
+    )
     bridge = NestedInterfaceTemplateSerializer(
         required=False,
         allow_null=True
@@ -210,8 +214,9 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
-            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id',
+            'enabled', 'mgmt_only', 'description', 'parent', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

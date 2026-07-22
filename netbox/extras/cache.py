@@ -12,6 +12,7 @@ from django.db.models import F, Q
 from dcim.models import Device
 from extras.jobs import RenderConfigContextJob
 from extras.models.tags import TaggedItem
+from utilities.querysets import chunked_update
 from virtualization.models import VirtualMachine
 
 
@@ -30,7 +31,8 @@ def invalidate_config_context_for_objects(model_label, pks):
         return
 
     Model = apps.get_model(model_label)
-    updated = Model.objects.filter(pk__in=pks).update(
+    updated = chunked_update(
+        Model.objects.filter(pk__in=pks),
         _config_context_data=None,
         _config_context_generation=F('_config_context_generation') + 1,
     )

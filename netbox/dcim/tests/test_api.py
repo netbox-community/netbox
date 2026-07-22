@@ -1372,9 +1372,11 @@ class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         interface_templates = (
             InterfaceTemplate(device_type=devicetype, name='Interface Template 1', type='1000base-t'),
             InterfaceTemplate(device_type=devicetype, name='Interface Template 2', type='1000base-t'),
-            InterfaceTemplate(device_type=devicetype, name='Interface Template 3', type='1000base-t'),
+            # Interface Template 3 is channelized, so that channel subinterface templates may be bound to it
+            InterfaceTemplate(device_type=devicetype, name='Interface Template 3', type='1000base-t', channels=4),
         )
         InterfaceTemplate.objects.bulk_create(interface_templates)
+        channelized_parent = interface_templates[2]
 
         cls.create_data = [
             {
@@ -1396,6 +1398,21 @@ class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
                 'module_type': moduletype.pk,
                 'name': 'Interface Template 7',
                 'type': '1000base-t',
+            },
+            {
+                # A channelized parent template
+                'device_type': devicetype.pk,
+                'name': 'Interface Template 8',
+                'type': InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+                'channels': 4,
+            },
+            {
+                # A channel subinterface template bound to a channelized parent
+                'device_type': devicetype.pk,
+                'name': 'Interface Template 9',
+                'type': InterfaceTypeChoices.TYPE_CHANNEL,
+                'parent': channelized_parent.pk,
+                'channel_id': 1,
             },
         ]
 
@@ -2923,9 +2940,11 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         interfaces = (
             Interface(device=device, name='Interface 1', type='1000base-t'),
             Interface(device=device, name='Interface 2', type='1000base-t'),
-            Interface(device=device, name='Interface 3', type='1000base-t'),
+            # Interface 3 is channelized, so that channel subinterfaces may be bound to it
+            Interface(device=device, name='Interface 3', type='1000base-t', channels=4),
         )
         Interface.objects.bulk_create(interfaces)
+        channelized_parent = interfaces[2]
 
         vdcs = (
             VirtualDeviceContext(name='VDC 1', identifier=1, device=device),
@@ -3012,6 +3031,21 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
                 'rf_channel': "",
                 'qinq_svlan': vlans[3].pk,
+            },
+            {
+                # A channelized parent interface
+                'device': device.pk,
+                'name': 'Interface 9',
+                'type': InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+                'channels': 4,
+            },
+            {
+                # A channel subinterface bound to a channelized parent
+                'device': device.pk,
+                'name': 'Interface 10',
+                'type': InterfaceTypeChoices.TYPE_CHANNEL,
+                'parent': channelized_parent.pk,
+                'channel_id': 1,
             },
         ]
 
