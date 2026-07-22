@@ -15,7 +15,7 @@ from utilities.migration import InstallDenormalizationTrigger
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("dcim", "0242_add_devicetype_end_of_life"),
+        ("dcim", "0247_interface_channels"),
         ("extras", "0139_alter_customfieldchoiceset_extra_choices"),
         ("tenancy", "0025_ltree_paths"),
         ("users", "0016_default_ordering_indexes"),
