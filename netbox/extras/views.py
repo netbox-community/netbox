@@ -1637,6 +1637,7 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
 class ScriptModuleCreateView(generic.ObjectEditView):
     queryset = ScriptModule.objects.all()
     form = forms.ScriptFileForm
+    default_return_url = 'extras:script_list'
 
     def alter_object(self, obj, *args, **kwargs):
         obj.file_root = ManagedFileRootPathChoices.SCRIPTS
