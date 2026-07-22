@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as _
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from ipam.choices import *
@@ -17,6 +18,45 @@ __all__ = (
     'ServiceSerializer',
     'ServiceTemplateSerializer',
 )
+
+
+class PortMappingSerializer(serializers.Serializer):
+    """A single protocol and its associated ports, e.g. ``{"protocol": "tcp", "ports": [80, 443]}``."""
+    protocol = serializers.ChoiceField(choices=ServiceProtocolChoices)
+    ports = serializers.ListField(
+        child=serializers.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
+        allow_empty=False,
+    )
+
+
+@extend_schema_field(PortMappingSerializer(many=True))
+class PortMappingsField(serializers.Field):
+    """
+    Presents a service's port mappings as a grouped list of ``{protocol, ports}`` objects (one entry per
+    protocol) in both directions, while the model stores them flat as ``protocol/port`` strings. The
+    grouped shape mirrors the legacy single-protocol representation, easing migration.
+    """
+
+    def to_representation(self, value):
+        return [
+            {'protocol': protocol, 'ports': sorted(int(port) for port in ports)}
+            for protocol, ports in group_port_mappings(value).items()
+        ]
+
+    def to_internal_value(self, data):
+        # Validate the grouped structure, then flatten to the model's canonical protocol/port strings
+        # (which also merges any repeated protocols and normalizes/deduplicates ports).
+        entries = PortMappingSerializer(data=data, many=True)
+        entries.is_valid(raise_exception=True)
+        mappings = [
+            f'{entry["protocol"]}/{port}'
+            for entry in entries.validated_data
+            for port in entry['ports']
+        ]
+        try:
+            return validate_port_mappings(mappings)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages)
 
 
 # Legacy single-protocol fields, retained on the serializers for backward compatibility. Declared via
@@ -56,16 +96,6 @@ class PortMappingsSerializerMixin:
     Write: either format is accepted. ``port_mappings`` takes precedence when supplied; otherwise the
     legacy ``protocol``/``ports`` pair is translated into ``port_mappings``.
     """
-
-    def validate_port_mappings(self, value):
-        # Enforce the same format rules as the model/UI form so invalid input returns a 400 keyed under
-        # port_mappings (rather than surfacing as a non-field error from the model's full_clean()). The
-        # "at least one mapping" rule is enforced in validate() instead, so the legacy protocol/ports
-        # format (which leaves port_mappings empty on input) can be translated first.
-        try:
-            return validate_port_mappings(value)
-        except DjangoValidationError as exc:
-            raise serializers.ValidationError(exc.messages)
 
     def validate(self, data):
         # Consume the legacy fields and translate them into port_mappings *before* calling super(),
@@ -116,6 +146,7 @@ class PortMappingsSerializerMixin:
 
 
 class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
+    port_mappings = PortMappingsField(required=False)
     protocol = _legacy_protocol_field()
     ports = _legacy_ports_field()
 
@@ -129,6 +160,7 @@ class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSeriali
 
 
 class ServiceSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
+    port_mappings = PortMappingsField(required=False)
     protocol = _legacy_protocol_field()
     ports = _legacy_ports_field()
     ipaddresses = SerializedPKRelatedField(

@@ -14,11 +14,20 @@ A service or protocol name.
 
 ### Port Mappings
 
-The protocol/port pairs on which the service runs, stored as a list of `protocol/port` values (e.g. `tcp/80`, `tcp/443`, `udp/53`). Each pair uses a wire protocol (UDP, TCP, or SCTP) and a port number. The same port may be exposed on multiple protocols. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
+The protocols and ports on which the service runs. The same port may be exposed on multiple protocols. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
+
+In the REST and GraphQL APIs, port mappings are represented as a list of `{protocol, ports}` objects — one entry per protocol:
+
+```json
+[
+  {"protocol": "tcp", "ports": [80, 443]},
+  {"protocol": "udp", "ports": [53]}
+]
+```
 
 !!! note "Changed in NetBox v4.7"
 
-    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field. For backward compatibility, the REST API continues to accept the legacy `protocol` and `ports` fields on write and to return them for templates that use a single protocol. A template that exposes multiple protocols cannot be represented in the legacy format, so both fields are returned as `null`; a template with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
+    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field (which supports multiple protocols per template, in the grouped form shown above). For backward compatibility, the REST and GraphQL APIs still expose the legacy `protocol` and `ports` fields, and the REST API still accepts them on write as an alternative to `port_mappings`. They are populated for single-protocol templates; a template with multiple protocols cannot be represented in the legacy format and returns `null` for both, while a template with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
 
 ## Bulk Import (CSV)
 
