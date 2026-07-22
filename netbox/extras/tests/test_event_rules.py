@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import django_rq
 from django.conf import settings
 from django.http import HttpResponse
-from django.test import RequestFactory, tag
+from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
 from PIL import Image
 from requests import Session
@@ -801,3 +801,50 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], event_rule)
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
+
+
+class WebhookRenderHeadersTest(TestCase):
+
+    def test_render_headers(self):
+        """Basic header rendering with Jinja2 interpolation."""
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Foo: Bar\nX-Object: {{ data.name }}',
+        )
+        headers = webhook.render_headers({'data': {'name': 'Site 1'}})
+        self.assertEqual(headers, {'X-Foo': 'Bar', 'X-Object': 'Site 1'})
+
+    def test_render_headers_strips_control_characters(self):
+        """
+        Control characters (including null bytes) in a rendered header value must be stripped to
+        prevent header injection via crafted context data.
+        """
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Object: {{ data.name }}',
+        )
+
+        # A value smuggling a null byte and a carriage return must be sanitized in place
+        headers = webhook.render_headers({'data': {'name': 'foo\x00\rbar'}})
+        self.assertEqual(headers, {'X-Object': 'foobar'})
+
+    def test_render_headers_crlf_injection_is_neutralized(self):
+        """
+        A newline embedded in an interpolated value must NOT be able to introduce an additional header
+        (CR/LF injection). The value is rendered in isolation, so the newline is stripped in place.
+        """
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Object: {{ data.name }}',
+        )
+        headers = webhook.render_headers({'data': {'name': 'legit\r\nX-Injected: evil'}})
+
+        # Exactly one header is produced; no smuggled X-Injected header, no residual control characters
+        self.assertEqual(list(headers.keys()), ['X-Object'])
+        self.assertNotIn('X-Injected', headers)
+        for name, value in headers.items():
+            self.assertNotRegex(name, r'[\x00-\x1f\x7f]')
+            self.assertNotRegex(value, r'[\x00-\x1f\x7f]')

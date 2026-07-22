@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.parse
 from pathlib import Path
 
@@ -284,10 +285,18 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.additional_headers:
             return {}
         ret = {}
-        data = render_jinja2(self.additional_headers, context)
-        for line in data.splitlines():
+        for line in self.additional_headers.splitlines():
+            if not line.strip():
+                continue
             header, value = line.split(':', 1)
-            ret[header.strip()] = value.strip()
+            # Render each header name & value independently so that interpolated context data (which may contain
+            # newlines or other control characters) cannot introduce additional headers via CR/LF injection.
+            header = render_jinja2(header, context)
+            value = render_jinja2(value, context)
+            # Strip any control characters (including CR/LF & null bytes) that survive rendering
+            header = re.sub(r'[\x00-\x1f\x7f]', '', header).strip()
+            value = re.sub(r'[\x00-\x1f\x7f]', '', value).strip()
+            ret[header] = value
         return ret
 
     def render_body(self, context):
