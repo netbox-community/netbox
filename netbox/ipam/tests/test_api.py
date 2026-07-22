@@ -1495,6 +1495,18 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIsNone(response.data['ports'])
         self.assertEqual(response.data['port_mappings'], ['tcp/53', 'udp/53'])
 
+    def test_legacy_read_empty_distinct_from_multiple(self):
+        """An empty service is distinguishable from a multi-protocol one: ports=[] vs ports=null."""
+        self.add_permissions('ipam.view_servicetemplate')
+        # A mapping-less template is normally prevented by validation, but can exist via migrated data;
+        # objects.create() bypasses full_clean() so we can exercise the read path here.
+        template = ServiceTemplate.objects.create(name='Legacy Empty', port_mappings=[])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['protocol'])
+        self.assertEqual(response.data['ports'], [])
+        self.assertEqual(response.data['port_mappings'], [])
+
     def test_create_via_legacy_format(self):
         """The deprecated protocol/ports format is accepted on write and translated to port_mappings."""
         self.add_permissions('ipam.add_servicetemplate')

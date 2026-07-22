@@ -93,13 +93,20 @@ class PortMappingsSerializerMixin:
         data = super().to_representation(instance)
 
         # Populate the legacy single-protocol representation for backward compatibility. Skipped in
-        # brief mode, where these fields are not exposed.
+        # brief mode, where these fields are not exposed. The empty and multi-protocol cases are kept
+        # distinct: an empty service reports ports=[] (as the old API always did), whereas a service
+        # with multiple protocols reports ports=null to signal "not representable in the legacy format;
+        # use port_mappings".
         if 'protocol' in self.fields and 'ports' in self.fields:
             grouped = group_port_mappings(instance.port_mappings)
             if len(grouped) == 1:
                 protocol, ports = next(iter(grouped.items()))
                 data['protocol'] = protocol
                 data['ports'] = sorted(int(port) for port in ports)
+            elif not grouped:
+                # No mappings: representable in the legacy format as an empty ports list.
+                data['protocol'] = None
+                data['ports'] = []
             else:
                 # Multiple protocols can't be represented in the old single-protocol format.
                 data['protocol'] = None

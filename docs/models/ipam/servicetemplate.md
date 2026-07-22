@@ -18,7 +18,7 @@ The protocol/port pairs on which the service runs, stored as a list of `protocol
 
 !!! note "Changed in NetBox v4.7"
 
-    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field. For backward compatibility, the REST API continues to accept the legacy `protocol` and `ports` fields on write and to return them for templates that use a single protocol; a template exposing multiple protocols returns `null` for both. **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
+    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field. For backward compatibility, the REST API continues to accept the legacy `protocol` and `ports` fields on write and to return them for templates that use a single protocol. A template that exposes multiple protocols cannot be represented in the legacy format, so both fields are returned as `null`; a template with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in a future release; use `port_mappings` instead.**
 
 ## Bulk Import (CSV)
 
