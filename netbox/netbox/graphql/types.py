@@ -7,6 +7,7 @@ from strawberry.types import Info
 from core.graphql.mixins import ChangelogMixin
 from core.models import ObjectType as ObjectType_
 from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
+from netbox.graphql.utils import register_model_graphql_type
 from users.graphql.mixins import OwnerMixin
 
 __all__ = (
@@ -19,7 +20,18 @@ __all__ = (
     'ObjectType',
     'OrganizationalObjectType',
     'PrimaryObjectType',
+    'register_type',
 )
+
+
+def register_type(model, **kwargs):
+    """
+    Drop-in replacement for `strawberry_django.type()` for model-bound NetBox GraphQL output types. Before delegating
+    to `strawberry_django.type()`, any plugin-registered output-type mixins for the given model are spliced into the
+    decorated class's bases. With no extensions registered this is an exact pass-through, leaving schema output
+    unchanged. See `register_model_graphql_type` for the registry-timing contract.
+    """
+    return register_model_graphql_type(model, strawberry_django.type, 'graphql_type_extensions', **kwargs)
 
 
 #
@@ -159,7 +171,7 @@ class NetBoxObjectType(
 # Miscellaneous types
 #
 
-@strawberry_django.type(
+@register_type(
     ContentType,
     fields=['id', 'app_label', 'model'],
     pagination=True
@@ -168,7 +180,7 @@ class ContentTypeType:
     pass
 
 
-@strawberry_django.type(
+@register_type(
     ObjectType_,
     fields=['id', 'app_label', 'model'],
     pagination=True

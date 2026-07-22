@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 from strawberry_django import DatetimeFilterLookup, FilterLookup, StrFilterLookup
 
-from netbox.graphql.filters import BaseModelFilter
+from netbox.graphql.filters import BaseModelFilter, register_filter
 from users import models
 
 __all__ = (
@@ -15,13 +15,13 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(models.Group, lookups=True)
+@register_filter(models.Group, lookups=True)
 class GroupFilter(BaseModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.User, lookups=True)
+@register_filter(models.User, lookups=True)
 class UserFilter(BaseModelFilter):
     username: StrFilterLookup | None = strawberry_django.filter_field()
     first_name: StrFilterLookup | None = strawberry_django.filter_field()
@@ -34,7 +34,7 @@ class UserFilter(BaseModelFilter):
     groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Owner, lookups=True)
+@register_filter(models.Owner, lookups=True)
 class OwnerFilter(BaseModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -47,7 +47,7 @@ class OwnerFilter(BaseModelFilter):
     users: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.OwnerGroup, lookups=True)
+@register_filter(models.OwnerGroup, lookups=True)
 class OwnerGroupFilter(BaseModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()

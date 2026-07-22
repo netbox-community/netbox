@@ -8,7 +8,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, FilterLo
 from dcim.graphql.filter_mixins import InterfaceBaseFilterMixin, RenderConfigFilterMixin, ScopedFilterMixin
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
 from netbox.graphql.filter_mixins import ImageAttachmentFilterMixin
-from netbox.graphql.filters import NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter
+from netbox.graphql.filters import NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter, register_filter
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization import models
 from virtualization.graphql.filter_mixins import VMComponentFilterMixin
@@ -38,7 +38,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(models.Cluster, lookups=True)
+@register_filter(models.Cluster, lookups=True)
 class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     type: Annotated['ClusterTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
@@ -57,19 +57,19 @@ class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, P
     )
 
 
-@strawberry_django.filter_type(models.ClusterGroup, lookups=True)
+@register_filter(models.ClusterGroup, lookups=True)
 class ClusterGroupFilter(ContactFilterMixin, OrganizationalModelFilter):
     vlan_groups: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter_type(models.ClusterType, lookups=True)
+@register_filter(models.ClusterType, lookups=True)
 class ClusterTypeFilter(OrganizationalModelFilter):
     pass
 
 
-@strawberry_django.filter_type(models.VirtualMachineType, lookups=True)
+@register_filter(models.VirtualMachineType, lookups=True)
 class VirtualMachineTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter):
     default_platform: Annotated['PlatformFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -87,7 +87,7 @@ class VirtualMachineTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter):
     virtual_machine_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.VirtualMachine, lookups=True)
+@register_filter(models.VirtualMachine, lookups=True)
 class VirtualMachineFilter(
     ContactFilterMixin,
     ImageAttachmentFilterMixin,
@@ -157,7 +157,7 @@ class VirtualMachineFilter(
     )
 
 
-@strawberry_django.filter_type(models.VMInterface, lookups=True)
+@register_filter(models.VMInterface, lookups=True)
 class VMInterfaceFilter(InterfaceBaseFilterMixin, VMComponentFilterMixin, NetBoxModelFilter):
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -182,7 +182,7 @@ class VMInterfaceFilter(InterfaceBaseFilterMixin, VMComponentFilterMixin, NetBox
     )
 
 
-@strawberry_django.filter_type(models.VirtualDisk, lookups=True)
+@register_filter(models.VirtualDisk, lookups=True)
 class VirtualDiskFilter(VMComponentFilterMixin, NetBoxModelFilter):
     size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()

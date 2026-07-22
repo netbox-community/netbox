@@ -31,6 +31,7 @@ from netbox.graphql.filters import (
     NetBoxModelFilter,
     OrganizationalModelFilter,
     PrimaryModelFilter,
+    register_filter,
 )
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization.models import VMInterface
@@ -121,12 +122,12 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(models.CableBundle, lookups=True)
+@register_filter(models.CableBundle, lookups=True)
 class CableBundleFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Cable, lookups=True)
+@register_filter(models.Cable, lookups=True)
 class CableFilter(TenancyFilterMixin, PrimaryModelFilter):
     type: BaseFilterLookup[Annotated['CableTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -149,7 +150,7 @@ class CableFilter(TenancyFilterMixin, PrimaryModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.CableTermination, lookups=True)
+@register_filter(models.CableTermination, lookups=True)
 class CableTerminationFilter(ChangeLoggedModelFilter):
     cable: Annotated['CableFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     cable_id: ID | None = strawberry_django.filter_field()
@@ -176,7 +177,7 @@ class CableTerminationFilter(ChangeLoggedModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.ConsolePort, lookups=True)
+@register_filter(models.ConsolePort, lookups=True)
 class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -186,14 +187,14 @@ class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
     )
 
 
-@strawberry_django.filter_type(models.ConsolePortTemplate, lookups=True)
+@register_filter(models.ConsolePortTemplate, lookups=True)
 class ConsolePortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter_type(models.ConsoleServerPort, lookups=True)
+@register_filter(models.ConsoleServerPort, lookups=True)
 class ConsoleServerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -203,14 +204,14 @@ class ConsoleServerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilt
     )
 
 
-@strawberry_django.filter_type(models.ConsoleServerPortTemplate, lookups=True)
+@register_filter(models.ConsoleServerPortTemplate, lookups=True)
 class ConsoleServerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter_type(models.Device, lookups=True)
+@register_filter(models.Device, lookups=True)
 class DeviceFilter(
     ContactFilterMixin,
     TenancyFilterMixin,
@@ -329,7 +330,7 @@ class DeviceFilter(
     inventory_item_count: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.DeviceBay, lookups=True)
+@register_filter(models.DeviceBay, lookups=True)
 class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     installed_device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -338,12 +339,12 @@ class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
     installed_device_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.DeviceBayTemplate, lookups=True)
+@register_filter(models.DeviceBayTemplate, lookups=True)
 class DeviceBayTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.InventoryItemTemplate, lookups=True)
+@register_filter(models.InventoryItemTemplate, lookups=True)
 class InventoryItemTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     parent: Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -363,7 +364,7 @@ class InventoryItemTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedMode
     part_id: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.DeviceRole, lookups=True)
+@register_filter(models.DeviceRole, lookups=True)
 class DeviceRoleFilter(RenderConfigFilterMixin, OrganizationalModelFilter):
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -371,7 +372,7 @@ class DeviceRoleFilter(RenderConfigFilterMixin, OrganizationalModelFilter):
     vm_role: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.DeviceType, lookups=True)
+@register_filter(models.DeviceType, lookups=True)
 class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -448,7 +449,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     device_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.FrontPort, lookups=True)
+@register_filter(models.FrontPort, lookups=True)
 class FrontPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -458,7 +459,7 @@ class FrontPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin,
     )
 
 
-@strawberry_django.filter_type(models.FrontPortTemplate, lookups=True)
+@register_filter(models.FrontPortTemplate, lookups=True)
 class FrontPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -468,7 +469,7 @@ class FrontPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     )
 
 
-@strawberry_django.filter_type(models.PortMapping, lookups=True)
+@register_filter(models.PortMapping, lookups=True)
 class PortMappingFilter(BaseModelFilter):
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     front_port: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -481,7 +482,7 @@ class PortMappingFilter(BaseModelFilter):
     rear_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.PortTemplateMapping, lookups=True)
+@register_filter(models.PortTemplateMapping, lookups=True)
 class PortTemplateMappingFilter(BaseModelFilter):
     device_type: Annotated['DeviceTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -499,7 +500,7 @@ class PortTemplateMappingFilter(BaseModelFilter):
     rear_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.MACAddress, lookups=True)
+@register_filter(models.MACAddress, lookups=True)
 class MACAddressFilter(PrimaryModelFilter):
     mac_address: StrFilterLookup | None = strawberry_django.filter_field()
     assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
@@ -525,7 +526,7 @@ class MACAddressFilter(PrimaryModelFilter):
         return ~Q(query)
 
 
-@strawberry_django.filter_type(models.Interface, lookups=True)
+@register_filter(models.Interface, lookups=True)
 class InterfaceFilter(
     ModularComponentFilterMixin,
     InterfaceBaseFilterMixin,
@@ -630,7 +631,7 @@ class InterfaceFilter(
         return queryset, Q()
 
 
-@strawberry_django.filter_type(models.InterfaceTemplate, lookups=True)
+@register_filter(models.InterfaceTemplate, lookups=True)
 class InterfaceTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['InterfaceTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -662,7 +663,7 @@ class InterfaceTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     )
 
 
-@strawberry_django.filter_type(models.InventoryItem, lookups=True)
+@register_filter(models.InventoryItem, lookups=True)
 class InventoryItemFilter(ComponentModelFilterMixin, NetBoxModelFilter):
     parent: Annotated['InventoryItemFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -689,14 +690,14 @@ class InventoryItemFilter(ComponentModelFilterMixin, NetBoxModelFilter):
     discovered: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.InventoryItemRole, lookups=True)
+@register_filter(models.InventoryItemRole, lookups=True)
 class InventoryItemRoleFilter(OrganizationalModelFilter):
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter_type(models.Location, lookups=True)
+@register_filter(models.Location, lookups=True)
 class LocationFilter(ContactFilterMixin, ImageAttachmentFilterMixin, TenancyFilterMixin, NestedGroupModelFilter):
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     site_id: ID | None = strawberry_django.filter_field()
@@ -712,12 +713,12 @@ class LocationFilter(ContactFilterMixin, ImageAttachmentFilterMixin, TenancyFilt
     )
 
 
-@strawberry_django.filter_type(models.Manufacturer, lookups=True)
+@register_filter(models.Manufacturer, lookups=True)
 class ManufacturerFilter(ContactFilterMixin, OrganizationalModelFilter):
     pass
 
 
-@strawberry_django.filter_type(models.Module, lookups=True)
+@register_filter(models.Module, lookups=True)
 class ModuleFilter(ConfigContextFilterMixin, PrimaryModelFilter):
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
@@ -766,7 +767,7 @@ class ModuleFilter(ConfigContextFilterMixin, PrimaryModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.ModuleBay, lookups=True)
+@register_filter(models.ModuleBay, lookups=True)
 class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     parent: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -780,7 +781,7 @@ class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     module_bay_type_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ModuleBayTemplate, lookups=True)
+@register_filter(models.ModuleBayTemplate, lookups=True)
 class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     position: StrFilterLookup | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
@@ -790,7 +791,7 @@ class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     module_bay_type_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ModuleBayType, lookups=True)
+@register_filter(models.ModuleBayType, lookups=True)
 class ModuleBayTypeFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     slug: StrFilterLookup | None = strawberry_django.filter_field()
@@ -800,12 +801,12 @@ class ModuleBayTypeFilter(PrimaryModelFilter):
     manufacturer_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ModuleTypeProfile, lookups=True)
+@register_filter(models.ModuleTypeProfile, lookups=True)
 class ModuleTypeProfileFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ModuleType, lookups=True)
+@register_filter(models.ModuleType, lookups=True)
 class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -858,7 +859,7 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     module_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Platform, lookups=True)
+@register_filter(models.Platform, lookups=True)
 class PlatformFilter(OrganizationalModelFilter):
     manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -870,7 +871,7 @@ class PlatformFilter(OrganizationalModelFilter):
     config_template_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.PowerFeed, lookups=True)
+@register_filter(models.PowerFeed, lookups=True)
 class PowerFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
     power_panel: Annotated['PowerPanelFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -905,7 +906,7 @@ class PowerFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, PrimaryM
     )
 
 
-@strawberry_django.filter_type(models.PowerOutlet, lookups=True)
+@register_filter(models.PowerOutlet, lookups=True)
 class PowerOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PowerOutletTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -925,7 +926,7 @@ class PowerOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
     )
 
 
-@strawberry_django.filter_type(models.PowerOutletTemplate, lookups=True)
+@register_filter(models.PowerOutletTemplate, lookups=True)
 class PowerOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['PowerOutletTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -939,7 +940,7 @@ class PowerOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLogge
     )
 
 
-@strawberry_django.filter_type(models.PowerPanel, lookups=True)
+@register_filter(models.PowerPanel, lookups=True)
 class PowerPanelFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryModelFilter):
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     site_id: ID | None = strawberry_django.filter_field()
@@ -952,7 +953,7 @@ class PowerPanelFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryMo
     name: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.PowerPort, lookups=True)
+@register_filter(models.PowerPort, lookups=True)
 class PowerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PowerPortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -965,7 +966,7 @@ class PowerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin,
     )
 
 
-@strawberry_django.filter_type(models.PowerPortTemplate, lookups=True)
+@register_filter(models.PowerPortTemplate, lookups=True)
 class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['PowerPortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -978,7 +979,7 @@ class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     )
 
 
-@strawberry_django.filter_type(models.RackType, lookups=True)
+@register_filter(models.RackType, lookups=True)
 class RackTypeFilter(ImageAttachmentFilterMixin, RackFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     form_factor: BaseFilterLookup[Annotated['RackFormFactorEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -993,7 +994,7 @@ class RackTypeFilter(ImageAttachmentFilterMixin, RackFilterMixin, WeightFilterMi
     rack_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Rack, lookups=True)
+@register_filter(models.Rack, lookups=True)
 class RackFilter(
     ContactFilterMixin,
     ImageAttachmentFilterMixin,
@@ -1038,12 +1039,12 @@ class RackFilter(
     )
 
 
-@strawberry_django.filter_type(models.RackGroup, lookups=True)
+@register_filter(models.RackGroup, lookups=True)
 class RackGroupFilter(OrganizationalModelFilter):
     pass
 
 
-@strawberry_django.filter_type(models.RackReservation, lookups=True)
+@register_filter(models.RackReservation, lookups=True)
 class RackReservationFilter(TenancyFilterMixin, PrimaryModelFilter):
     rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     rack_id: ID | None = strawberry_django.filter_field()
@@ -1059,14 +1060,14 @@ class RackReservationFilter(TenancyFilterMixin, PrimaryModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.RackRole, lookups=True)
+@register_filter(models.RackRole, lookups=True)
 class RackRoleFilter(OrganizationalModelFilter):
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
 
-@strawberry_django.filter_type(models.RearPort, lookups=True)
+@register_filter(models.RearPort, lookups=True)
 class RearPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -1079,7 +1080,7 @@ class RearPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, 
     )
 
 
-@strawberry_django.filter_type(models.RearPortTemplate, lookups=True)
+@register_filter(models.RearPortTemplate, lookups=True)
 class RearPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -1092,7 +1093,7 @@ class RearPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedMo
     )
 
 
-@strawberry_django.filter_type(models.Region, lookups=True)
+@register_filter(models.Region, lookups=True)
 class RegionFilter(ContactFilterMixin, NestedGroupModelFilter):
     prefixes: Annotated['PrefixFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -1102,7 +1103,7 @@ class RegionFilter(ContactFilterMixin, NestedGroupModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.Site, lookups=True)
+@register_filter(models.Site, lookups=True)
 class SiteFilter(ContactFilterMixin, ImageAttachmentFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     slug: StrFilterLookup | None = strawberry_django.filter_field()
@@ -1138,7 +1139,7 @@ class SiteFilter(ContactFilterMixin, ImageAttachmentFilterMixin, TenancyFilterMi
     )
 
 
-@strawberry_django.filter_type(models.SiteGroup, lookups=True)
+@register_filter(models.SiteGroup, lookups=True)
 class SiteGroupFilter(ContactFilterMixin, NestedGroupModelFilter):
     prefixes: Annotated['PrefixFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -1148,7 +1149,7 @@ class SiteGroupFilter(ContactFilterMixin, NestedGroupModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.VirtualChassis, lookups=True)
+@register_filter(models.VirtualChassis, lookups=True)
 class VirtualChassisFilter(PrimaryModelFilter):
     master: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     master_id: ID | None = strawberry_django.filter_field()
@@ -1160,7 +1161,7 @@ class VirtualChassisFilter(PrimaryModelFilter):
     member_count: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.VirtualDeviceContext, lookups=True)
+@register_filter(models.VirtualDeviceContext, lookups=True)
 class VirtualDeviceContextFilter(TenancyFilterMixin, PrimaryModelFilter):
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()

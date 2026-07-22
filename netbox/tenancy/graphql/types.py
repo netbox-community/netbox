@@ -1,10 +1,15 @@
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
-import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, NestedLtreeGroupObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import (
+    BaseObjectType,
+    NestedLtreeGroupObjectType,
+    OrganizationalObjectType,
+    PrimaryObjectType,
+    register_type,
+)
 from tenancy import models
 
 from .filters import *
@@ -52,7 +57,7 @@ __all__ = (
 # Tenants
 #
 
-@strawberry_django.type(
+@register_type(
     models.Tenant,
     fields='__all__',
     filters=TenantFilter,
@@ -86,7 +91,7 @@ class TenantType(ContactsMixin, PrimaryObjectType):
     l2vpns: list[Annotated['L2VPNType', strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.TenantGroup,
     exclude=['path', 'sort_path'],
     filters=TenantGroupFilter,
@@ -103,7 +108,7 @@ class TenantGroupType(NestedLtreeGroupObjectType):
 # Contacts
 #
 
-@strawberry_django.type(
+@register_type(
     models.Contact,
     fields='__all__',
     filters=ContactFilter,
@@ -113,7 +118,7 @@ class ContactType(ContactAssignmentsMixin, PrimaryObjectType):
     groups: list[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactRole,
     fields='__all__',
     filters=ContactRoleFilter,
@@ -123,7 +128,7 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     pass
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactGroup,
     exclude=['path', 'sort_path'],
     filters=ContactGroupFilter,
@@ -136,7 +141,7 @@ class ContactGroupType(NestedLtreeGroupObjectType):
     children: list[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactAssignment,
     fields='__all__',
     filters=ContactAssignmentFilter,

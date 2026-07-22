@@ -6,7 +6,7 @@ import strawberry_django
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType, register_type
 from users.graphql.mixins import OwnerMixin
 from virtualization import models
 
@@ -46,7 +46,7 @@ class ComponentType(OwnerMixin, NetBoxObjectType):
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
 
 
-@strawberry_django.type(
+@register_type(
     models.Cluster,
     exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
     filters=ClusterFilter,
@@ -70,7 +70,7 @@ class ClusterType(ContactsMixin, VLANGroupsMixin, PrimaryObjectType):
         return self.scope
 
 
-@strawberry_django.type(
+@register_type(
     models.ClusterGroup,
     fields='__all__',
     filters=ClusterGroupFilter,
@@ -81,7 +81,7 @@ class ClusterGroupType(ContactsMixin, VLANGroupsMixin, OrganizationalObjectType)
     clusters: list[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ClusterType,
     fields='__all__',
     filters=ClusterTypeFilter,
@@ -92,7 +92,7 @@ class ClusterTypeType(OrganizationalObjectType):
     clusters: list[ClusterType]
 
 
-@strawberry_django.type(
+@register_type(
     models.VirtualMachineType,
     fields='__all__',
     filters=VirtualMachineTypeFilter,
@@ -105,7 +105,7 @@ class VirtualMachineTypeType(PrimaryObjectType):
     instances: list[Annotated['VirtualMachineType', strawberry.lazy('virtualization.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.VirtualMachine,
     fields='__all__',
     filters=VirtualMachineFilter,
@@ -131,7 +131,7 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, PrimaryObjectType):
     virtualdisks: list[Annotated["VirtualDiskType", strawberry.lazy('virtualization.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.VMInterface,
     fields='__all__',
     filters=VMInterfaceFilter,
@@ -154,7 +154,7 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     mac_addresses: list[Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.VirtualDisk,
     fields='__all__',
     filters=VirtualDiskFilter,
