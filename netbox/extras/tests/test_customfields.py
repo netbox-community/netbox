@@ -1,10 +1,9 @@
 import datetime
 import json
 from decimal import Decimal
-from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from rest_framework import status
 
@@ -674,7 +673,7 @@ class CustomFieldTestCase(TestCase):
         self.assertNotIn('field1', site.custom_field_data)
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
 
-    @patch('extras.models.customfields.CUSTOMFIELD_DATA_BATCH_SIZE', 2)
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=2)
     def test_batched_object_data_updates(self):
         """
         Provisioning, renaming, and removing custom field data is applied in batches. Use a small
