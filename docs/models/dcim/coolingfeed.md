@@ -34,4 +34,4 @@ The heat-removal capacity of the feed, in kilowatts (kW).
 
 ### Rated Flow Rate
 
-The rated (design) coolant flow rate, expressed as a numeric value with a selectable unit (L/min, m³/h, or GPM).
+The rate of coolant flow supported by the feed, expressed as a numeric value with a selectable unit (L/min, m³/h, or GPM).
