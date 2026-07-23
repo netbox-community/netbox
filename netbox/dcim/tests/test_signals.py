@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import SimpleTestCase, TestCase
 
 from dcim import signals
-from dcim.choices import CableEndChoices, LinkStatusChoices
+from dcim.choices import CableEndChoices, CableProfileChoices, LinkStatusChoices
 from dcim.models import (
     Cable,
     CablePath,
@@ -274,6 +274,36 @@ class CableSignalTestCase(TestCase):
         self.assertIsNone(interface_b.cable_id)
         self.assertEqual(interface_a.cable_end, '')
         self.assertEqual(interface_b.cable_end, '')
+
+    def test_deleting_profiled_cable_nullifies_endpoints(self):
+        """
+        Deleting a profiled cable must clear the cached connector and position data on both endpoints.
+        """
+        interface_a = Interface.objects.create(device=self.device, name='Interface A')
+        interface_b = Interface.objects.create(device=self.device, name='Interface B')
+        cable = Cable(
+            a_terminations=[interface_a],
+            b_terminations=[interface_b],
+            profile=CableProfileChoices.SINGLE_1C1P,
+        )
+        cable.save()
+
+        # Confirm the profile metadata was cached on both endpoints.
+        interface_a.refresh_from_db()
+        interface_b.refresh_from_db()
+        self.assertEqual(interface_a.cable_connector, 1)
+        self.assertEqual(interface_a.cable_positions, [1])
+        self.assertEqual(interface_b.cable_connector, 1)
+        self.assertEqual(interface_b.cable_positions, [1])
+
+        cable.delete()
+
+        for interface in (interface_a, interface_b):
+            interface.refresh_from_db()
+            self.assertIsNone(interface.cable_id)
+            self.assertEqual(interface.cable_end, '')
+            self.assertIsNone(interface.cable_connector)
+            self.assertIsNone(interface.cable_positions)
 
     def test_deleting_cable_skips_per_termination_retrace(self):
         """

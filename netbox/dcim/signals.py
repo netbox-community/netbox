@@ -203,7 +203,12 @@ def nullify_connected_endpoints(instance, **kwargs):
     Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
     model = instance.termination_type.model_class()
-    model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
+    model.objects.filter(pk=instance.termination_id).update(
+        cable=None,
+        cable_end='',
+        cable_connector=None,
+        cable_positions=None,
+    )
 
     # If the parent Cable is being deleted in this same operation, skip the
     # per-termination retrace; retrace_cable_paths() will retrace each affected
