@@ -50,6 +50,51 @@ class ConsoleServerPortIndex(SearchIndex):
 
 
 @register_search
+class CoolingFeedIndex(SearchIndex):
+    model = models.CoolingFeed
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('cooling_source', 'rack', 'status', 'description')
+
+
+@register_search
+class CoolingOutflowIndex(SearchIndex):
+    model = models.CoolingOutflow
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+    )
+    display_attrs = ('device', 'label', 'type', 'description')
+
+
+@register_search
+class CoolingIntakeIndex(SearchIndex):
+    model = models.CoolingIntake
+    fields = (
+        ('name', 100),
+        ('label', 200),
+        ('description', 500),
+        ('maximum_flow', 2000),
+    )
+    display_attrs = ('device', 'label', 'type', 'description')
+
+
+@register_search
+class CoolingSourceIndex(SearchIndex):
+    model = models.CoolingSource
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('site', 'location', 'description')
+
+
+@register_search
 class DeviceIndex(SearchIndex):
     model = models.Device
     fields = (

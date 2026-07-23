@@ -7,7 +7,9 @@ __all__ = (
     'ButtonColorChoices',
     'CSVDelimiterChoices',
     'ColorChoices',
+    'DiameterUnitChoices',
     'DistanceUnitChoices',
+    'FlowRateUnitChoices',
     'ImportFormatChoices',
     'ImportMethodChoices',
     'WeightUnitChoices',
@@ -196,4 +198,36 @@ class WeightUnitChoices(ChoiceSet):
         Choice(UNIT_GRAM, _('Grams')),
         Choice(UNIT_POUND, _('Pounds')),
         Choice(UNIT_OUNCE, _('Ounces')),
+    )
+
+
+class DiameterUnitChoices(ChoiceSet):
+
+    # Metric
+    UNIT_MILLIMETER = 'mm'
+    UNIT_CENTIMETER = 'cm'
+
+    # Imperial
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_MILLIMETER, _('Millimeters')),
+        (UNIT_CENTIMETER, _('Centimeters')),
+        (UNIT_INCH, _('Inches')),
+    )
+
+
+class FlowRateUnitChoices(ChoiceSet):
+
+    # Metric
+    UNIT_LITERS_PER_MINUTE = 'lpm'
+    UNIT_CUBIC_METERS_PER_HOUR = 'm3ph'
+
+    # Imperial
+    UNIT_GALLONS_PER_MINUTE = 'gpm'
+
+    CHOICES = (
+        (UNIT_LITERS_PER_MINUTE, _('Liters per minute (L/min)')),
+        (UNIT_CUBIC_METERS_PER_HOUR, _('Cubic meters per hour (m³/h)')),
+        (UNIT_GALLONS_PER_MINUTE, _('Gallons per minute (GPM)')),
     )

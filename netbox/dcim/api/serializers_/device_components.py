@@ -8,6 +8,8 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePort,
     ConsoleServerPort,
+    CoolingIntake,
+    CoolingOutflow,
     DeviceBay,
     FrontPort,
     Interface,
@@ -25,6 +27,7 @@ from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
 from users.api.serializers_.mixins import OwnerMixin
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
@@ -38,12 +41,14 @@ from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, V
 from .devicetypes import ModuleBayTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .mixins import _UNSET, MACAddressShortcutMixin
-from .nested import NestedInterfaceSerializer
+from .nested import NestedCoolingOutflowSerializer, NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
 
 __all__ = (
     'ConsolePortSerializer',
     'ConsoleServerPortSerializer',
+    'CoolingIntakeSerializer',
+    'CoolingOutflowSerializer',
     'DeviceBaySerializer',
     'FrontPortSerializer',
     'InterfaceSerializer',
@@ -197,6 +202,83 @@ class PowerOutletSerializer(
             'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
+
+
+class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
+    device = DeviceSerializer(nested=True)
+    module = ModuleSerializer(
+        nested=True,
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
+        required=False,
+        allow_null=True
+    )
+    type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    maximum_flow_unit = ChoiceField(
+        choices=FlowRateUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    cooling_outflow = NestedCoolingOutflowSerializer(
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = [
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
+            'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
+
+
+class CoolingOutflowSerializer(OwnerMixin, NetBoxModelSerializer):
+    device = DeviceSerializer(nested=True)
+    module = ModuleSerializer(
+        nested=True,
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
+        required=False,
+        allow_null=True
+    )
+    type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    cooling_intake = CoolingIntakeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = [
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'cooling_intake', 'description', 'owner', 'tags', 'custom_fields',
+            'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 
 
 class InterfaceSerializer(

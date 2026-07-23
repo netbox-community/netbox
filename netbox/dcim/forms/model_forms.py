@@ -51,6 +51,12 @@ __all__ = (
     'ConsolePortTemplateForm',
     'ConsoleServerPortForm',
     'ConsoleServerPortTemplateForm',
+    'CoolingFeedForm',
+    'CoolingIntakeForm',
+    'CoolingIntakeTemplateForm',
+    'CoolingOutflowForm',
+    'CoolingOutflowTemplateForm',
+    'CoolingSourceForm',
     'DeviceBayForm',
     'DeviceBayTemplateForm',
     'DeviceForm',
@@ -309,6 +315,7 @@ class RackTypeForm(PrimaryModelForm):
             'mounting_depth', name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
     )
 
     class Meta:
@@ -316,7 +323,7 @@ class RackTypeForm(PrimaryModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -382,6 +389,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
             'site', 'location', 'group', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
             name=_('Rack')
         ),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -391,8 +399,8 @@ class RackForm(TenancyForm, PrimaryModelForm):
         fields = [
             'site', 'location', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability',
+            'cooling_capacity', 'weight', 'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -509,9 +517,10 @@ class DeviceTypeForm(PrimaryModelForm):
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
         FieldSet(
-            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
+            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role',
             'weight', 'weight_unit', name=_('Chassis')
         ),
+        FieldSet('cooling_method', 'airflow', name=_('Cooling')),
         FieldSet('end_of_life', name=_('Lifecycle')),
         FieldSet('front_image', 'rear_image', name=_('Images')),
     )
@@ -520,7 +529,8 @@ class DeviceTypeForm(PrimaryModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'front_image',
+            'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'weight', 'weight_unit', 'end_of_life',
+            'front_image',
             'rear_image', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
@@ -604,7 +614,8 @@ class ModuleTypeForm(PrimaryModelForm):
     def fieldsets(self):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-            FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('cooling_method', 'airflow', name=_('Cooling')),
             FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
             FieldSet('end_of_life', name=_('Lifecycle')),
             FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
@@ -613,8 +624,8 @@ class ModuleTypeForm(PrimaryModelForm):
     class Meta:
         model = ModuleType
         fields = [
-            'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
+            'profile', 'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight',
+            'weight_unit', 'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'end_of_life': DatePicker(),
@@ -855,7 +866,8 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         model = Device
         fields = [
             'name', 'role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
-            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
+            'latitude', 'longitude', 'status', 'airflow', 'cooling_method', 'platform', 'primary_ip4', 'primary_ip6',
+            'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
             'owner', 'comments', 'tags', 'local_context_data',
         ]
@@ -1131,6 +1143,74 @@ class PowerFeedForm(TenancyForm, PrimaryModelForm):
 
 
 #
+# Cooling
+#
+
+class CoolingSourceForm(PrimaryModelForm):
+    site = DynamicModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        selector=True
+    )
+    location = DynamicModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
+
+    fieldsets = (
+        FieldSet('site', 'location', 'name', 'type', 'status', 'description', 'tags', name=_('Cooling Source')),
+        FieldSet('fluid_type', 'cooling_capacity', name=_('Characteristics')),
+    )
+
+    class Meta:
+        model = CoolingSource
+        fields = [
+            'site', 'location', 'name', 'type', 'status', 'fluid_type', 'cooling_capacity', 'description', 'owner',
+            'comments', 'tags',
+        ]
+
+
+class CoolingFeedForm(TenancyForm, PrimaryModelForm):
+    cooling_source = DynamicModelChoiceField(
+        label=_('Cooling source'),
+        queryset=CoolingSource.objects.all(),
+        selector=True,
+        quick_add=True
+    )
+    rack = DynamicModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+        selector=True
+    )
+
+    fieldsets = (
+        FieldSet(
+            'cooling_source', 'rack', 'name', 'status', 'description', 'tags',
+            name=_('Cooling Feed')
+        ),
+        FieldSet(
+            'cooling_capacity',
+            InlineFields('rated_flow_rate', 'rated_flow_rate_unit', label=_('Rated flow rate')),
+            name=_('Characteristics')
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
+    class Meta:
+        model = CoolingFeed
+        fields = [
+            'cooling_source', 'rack', 'name', 'status', 'cooling_capacity',
+            'rated_flow_rate', 'rated_flow_rate_unit', 'tenant_group', 'tenant', 'description', 'owner', 'comments',
+            'tags',
+        ]
+
+
+#
 # Virtual chassis
 #
 
@@ -1368,6 +1448,58 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
         model = PowerOutletTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description',
+        ]
+
+
+class CoolingIntakeTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            'description',
+        ),
+    )
+
+    class Meta:
+        model = CoolingIntakeTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'maximum_flow', 'maximum_flow_unit', 'description',
+        ]
+
+
+class CoolingOutflowTemplateForm(ModularComponentTemplateForm):
+    cooling_intake = DynamicModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntakeTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type',
+        }
+    )
+
+    fieldsets = (
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'cooling_intake', 'description',
+        ),
+    )
+
+    class Meta:
+        model = CoolingOutflowTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description',
         ]
 
 
@@ -1809,6 +1941,59 @@ class PowerOutletForm(ModularDeviceComponentForm):
         fields = [
             'device', 'module', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'mark_connected',
             'description', 'tags',
+        ]
+
+
+class CoolingIntakeForm(ModularDeviceComponentForm):
+    cooling_outflow = DynamicModelChoiceField(
+        label=_('Cooling outflow'),
+        queryset=CoolingOutflow.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
+
+    fieldsets = (
+        FieldSet(
+            'device', 'module', 'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            'cooling_outflow', 'description', 'tags',
+        ),
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = [
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'maximum_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
+        ]
+
+
+class CoolingOutflowForm(ModularDeviceComponentForm):
+    cooling_intake = DynamicModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntake.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
+
+    fieldsets = (
+        FieldSet(
+            'device', 'module', 'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'cooling_intake', 'description', 'tags',
+        ),
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = [
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description', 'tags',
         ]
 
 

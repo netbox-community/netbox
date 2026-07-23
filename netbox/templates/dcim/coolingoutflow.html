@@ -1,0 +1,9 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item">
+    <a href="{% url 'dcim:device_coolingoutflows' pk=object.device.pk %}">{{ object.device }}</a>
+  </li>
+{% endblock %}

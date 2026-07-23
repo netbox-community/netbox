@@ -52,6 +52,10 @@ WEIGHT = """
 {% display_weight record.weight record.weight_unit record.abs_weight %}
 """
 
+DIAMETER = """
+{% if record.diameter %}{{ record.diameter }} {{ record.get_diameter_unit_display }}{% endif %}
+"""
+
 DEVICE_LINK = """
 {{ record.label|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
 """

@@ -19,7 +19,13 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
+from netbox.choices import (
+    CSVDelimiterChoices,
+    DiameterUnitChoices,
+    FlowRateUnitChoices,
+    ImportFormatChoices,
+    WeightUnitChoices,
+)
 from tenancy.models import Tenant
 from users.models import ObjectPermission, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
@@ -991,6 +997,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1087,6 +1095,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1139,6 +1149,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1175,6 +1187,8 @@ console-ports: {value}
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1299,6 +1313,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1315,6 +1331,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1331,6 +1349,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1352,6 +1372,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1574,6 +1596,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -4552,6 +4576,358 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         response = self.client.get(reverse('dcim:powerfeed_trace', kwargs={'pk': powerfeed.pk}))
         self.assertHttpStatus(response, 200)
+
+
+class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingIntakeTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingIntakeTemplate.objects.bulk_create((
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+
+class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingOutflowTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingOutflowTemplate.objects.bulk_create((
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        ))
+
+        coolingintakes = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+        )
+        CoolingIntakeTemplate.objects.bulk_create(coolingintakes)
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[0].pk,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[0].pk,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+        }
+
+
+class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingIntake
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+            CoolingIntake(device=device, name='Cooling Port 3'),
+        )
+        CoolingIntake.objects.bulk_create(cooling_intakes)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Port X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Port [4-6]]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'maximum_flow': 100,
+            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Port 4",
+            "Device 1,Cooling Port 5",
+            "Device 1,Cooling Port 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_intakes[0].pk},Cooling Port 7,New description7",
+            f"{cooling_intakes[1].pk},Cooling Port 8,New description8",
+            f"{cooling_intakes[2].pk},Cooling Port 9,New description9",
+        )
+
+
+class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingOutflow
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        coolingintakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+        )
+        CoolingIntake.objects.bulk_create(coolingintakes)
+
+        cooling_outflows = (
+            CoolingOutflow(device=device, name='Cooling Outlet 1', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 2', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 3', cooling_intake=coolingintakes[0]),
+        )
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Outlet 4",
+            "Device 1,Cooling Outlet 5",
+            "Device 1,Cooling Outlet 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_outflows[0].pk},Cooling Outlet 7,New description7",
+            f"{cooling_outflows[1].pk},Cooling Outlet 8,New description8",
+            f"{cooling_outflows[2].pk},Cooling Outlet 9,New description9",
+        )
+
+
+class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingSource
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+        )
+        for location in locations:
+            location.save()
+
+        cooling_sources = (
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 1',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 2',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 3',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+            'name': 'Cooling Source X',
+            'type': CoolingSourceTypeChoices.TYPE_COOLING_TOWER,
+            'status': CoolingSourceStatusChoices.STATUS_ACTIVE,
+            'fluid_type': FluidTypeChoices.FLUID_WATER,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,location,name,type,status",
+            "Site 1,Location 1,Cooling Source 4,chiller,active",
+            "Site 1,Location 1,Cooling Source 5,chiller,active",
+            "Site 1,Location 1,Cooling Source 6,chiller,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{cooling_sources[0].pk},Cooling Source 7",
+            f"{cooling_sources[1].pk},Cooling Source 8",
+            f"{cooling_sources[2].pk},Cooling Source 9",
+        )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+        }
+
+
+class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingFeed
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        cooling_sources = (
+            CoolingSource(site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER),
+            CoolingSource(site=site, name='Cooling Source 2', type=CoolingSourceTypeChoices.TYPE_CHILLER),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cooling_feeds = (
+            CoolingFeed(name='Cooling Feed 1', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 2', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 3', cooling_source=cooling_sources[0], rack=racks[0]),
+        )
+        CoolingFeed.objects.bulk_create(cooling_feeds)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cooling Feed X',
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'cooling_capacity': 100,
+            'rated_flow_rate': 50,
+            'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'comments': 'New comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,cooling_source,name,status",
+            "Site 1,Cooling Source 1,Cooling Feed 4,active",
+            "Site 1,Cooling Source 1,Cooling Feed 5,active",
+            "Site 1,Cooling Source 1,Cooling Feed 6,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name,status",
+            f"{cooling_feeds[0].pk},Cooling Feed 7,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[1].pk},Cooling Feed 8,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[2].pk},Cooling Feed 9,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+        )
+
+        cls.bulk_edit_data = {
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'cooling_capacity': 100,
+            'rated_flow_rate': 50,
+            'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'comments': 'New comments',
+        }
 
 
 class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):

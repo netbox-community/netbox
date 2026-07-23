@@ -1,6 +1,7 @@
 import strawberry
 
 from dcim.choices import *
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
 
 __all__ = (
     'CableEndEnum',
@@ -8,9 +9,17 @@ __all__ = (
     'CableTypeEnum',
     'ConsolePortSpeedEnum',
     'ConsolePortTypeEnum',
+    'CoolingConnectorTypeEnum',
+    'CoolingFeedStatusEnum',
+    'CoolingMethodEnum',
+    'CoolingSourceStatusEnum',
+    'CoolingSourceTypeEnum',
     'DeviceAirflowEnum',
     'DeviceFaceEnum',
     'DeviceStatusEnum',
+    'DiameterUnitEnum',
+    'FlowRateUnitEnum',
+    'FluidTypeEnum',
     'InterfaceDuplexEnum',
     'InterfaceKindEnum',
     'InterfaceModeEnum',
@@ -32,6 +41,7 @@ __all__ = (
     'PowerOutletTypeEnum',
     'PowerPortTypeEnum',
     'RackAirflowEnum',
+    'RackCoolingCapabilityEnum',
     'RackDimensionUnitEnum',
     'RackFormFactorEnum',
     'RackReservationStatusEnum',
@@ -47,9 +57,17 @@ CableLengthUnitEnum = strawberry.enum(CableLengthUnitChoices.as_enum(prefix='uni
 CableTypeEnum = strawberry.enum(CableTypeChoices.as_enum(prefix='type'))
 ConsolePortSpeedEnum = strawberry.enum(ConsolePortSpeedChoices.as_enum(prefix='speed'))
 ConsolePortTypeEnum = strawberry.enum(ConsolePortTypeChoices.as_enum(prefix='type'))
+CoolingConnectorTypeEnum = strawberry.enum(CoolingConnectorTypeChoices.as_enum(prefix='type'))
+CoolingFeedStatusEnum = strawberry.enum(CoolingFeedStatusChoices.as_enum(prefix='status'))
+CoolingMethodEnum = strawberry.enum(CoolingMethodChoices.as_enum(prefix='method'))
+CoolingSourceStatusEnum = strawberry.enum(CoolingSourceStatusChoices.as_enum(prefix='status'))
+CoolingSourceTypeEnum = strawberry.enum(CoolingSourceTypeChoices.as_enum(prefix='type'))
 DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow'))
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
+DiameterUnitEnum = strawberry.enum(DiameterUnitChoices.as_enum(prefix='unit'))
+FlowRateUnitEnum = strawberry.enum(FlowRateUnitChoices.as_enum(prefix='unit'))
+FluidTypeEnum = strawberry.enum(FluidTypeChoices.as_enum(prefix='fluid'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
 InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
 InterfaceModeEnum = strawberry.enum(InterfaceModeChoices.as_enum(prefix='mode'))
@@ -71,6 +89,7 @@ PowerOutletStatusEnum = strawberry.enum(PowerOutletStatusChoices.as_enum(prefix=
 PowerOutletTypeEnum = strawberry.enum(PowerOutletTypeChoices.as_enum(prefix='type'))
 PowerPortTypeEnum = strawberry.enum(PowerPortTypeChoices.as_enum(prefix='type'))
 RackAirflowEnum = strawberry.enum(RackAirflowChoices.as_enum())
+RackCoolingCapabilityEnum = strawberry.enum(RackCoolingCapabilityChoices.as_enum())
 RackDimensionUnitEnum = strawberry.enum(RackDimensionUnitChoices.as_enum(prefix='unit'))
 RackFormFactorEnum = strawberry.enum(RackFormFactorChoices.as_enum(prefix='type'))
 RackReservationStatusEnum = strawberry.enum(RackReservationStatusChoices.as_enum(prefix='status'))

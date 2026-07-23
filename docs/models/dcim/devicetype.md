@@ -57,6 +57,10 @@ Indicates whether this is a parent type (capable of housing child devices), a ch
 
 The default direction in which airflow circulates within the device chassis. This may be configured differently for instantiated devices (e.g. because of different fan modules).
 
+### Cooling Method
+
+The default cooling method employed by devices of this type (air, liquid, hybrid, or immersion). Instantiated devices inherit this value unless overridden.
+
 ### Weight
 
 The numeric weight of the device, including a unit designation (e.g. 10 kilograms or 20 pounds).

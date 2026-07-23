@@ -1,0 +1,9 @@
+{% extends 'generic/object.html' %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:coolingsource_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
+  {% if object.location %}
+    <li class="breadcrumb-item">{{ object.location|linkify }}</li>
+  {% endif %}
+{% endblock %}

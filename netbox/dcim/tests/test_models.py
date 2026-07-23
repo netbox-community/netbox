@@ -11,7 +11,7 @@ from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
-from netbox.choices import WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
@@ -242,6 +242,8 @@ class RackTypeTestCase(TestCase):
             weight_unit=WeightUnitChoices.UNIT_POUND,
             max_weight=7777,
             mounting_depth=8,
+            cooling_capability=RackCoolingCapabilityChoices.LIQUID_ONLY,
+            cooling_capacity=80,
         )
 
     def test_rack_creation(self):
@@ -261,7 +263,7 @@ class RackTypeTestCase(TestCase):
             facility_id='A101',
             site=sites[0],
             location=locations[0],
-            rack_type=rack_type
+            rack_type=rack_type,
         )
         self.assertEqual(rack.width, rack_type.width)
         self.assertEqual(rack.u_height, rack_type.u_height)
@@ -274,6 +276,9 @@ class RackTypeTestCase(TestCase):
         self.assertEqual(rack.weight_unit, rack_type.weight_unit)
         self.assertEqual(rack.max_weight, rack_type.max_weight)
         self.assertEqual(rack.mounting_depth, rack_type.mounting_depth)
+        # Cooling capability/capacity are inherited from the rack type
+        self.assertEqual(rack.cooling_capability, rack_type.cooling_capability)
+        self.assertEqual(rack.cooling_capacity, rack_type.cooling_capacity)
 
 
 class RackTestCase(TestCase):
@@ -3075,3 +3080,164 @@ class InventoryItemTemplateCycleTestCase(TestCase):
         a.parent = a
         with self.assertRaises(ValidationError):
             a.full_clean()
+
+
+class CoolingComponentTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+    def test_cooling_method_inherited_from_device_type(self):
+        """
+        A new Device should inherit its cooling_method from the DeviceType when not explicitly set.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
+        )
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 1'
+        )
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_LIQUID)
+
+    def test_cooling_method_not_overridden_when_set(self):
+        """
+        A new Device with an explicitly-set cooling_method should not be overridden by the DeviceType.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 2',
+            slug='device-type-2',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
+        )
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 2',
+            cooling_method=CoolingMethodChoices.METHOD_AIR
+        )
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_AIR)
+
+    def test_device_creation_instantiates_cooling_components(self):
+        """
+        Creating a Device from a DeviceType with cooling component templates should auto-instantiate
+        matching CoolingIntake and CoolingOutflow components.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 3',
+            slug='device-type-3'
+        )
+
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            maximum_flow=100,
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+        )
+
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 3'
+        )
+
+        cooling_intake = CoolingIntake.objects.get(
+            device=device,
+            name='Cooling Port 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            maximum_flow=100,
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+        )
+        self.assertEqual(cooling_intake_template.maximum_flow, cooling_intake.maximum_flow)
+
+        CoolingOutflow.objects.get(
+            device=device,
+            name='Cooling Outlet 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+        )
+
+    def test_cooling_outflow_clean_different_device(self):
+        """
+        CoolingOutflow.clean() should raise a ValidationError when its cooling_intake belongs to a
+        different device.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 4',
+            slug='device-type-4'
+        )
+        device1 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device A'
+        )
+        device2 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device B'
+        )
+
+        cooling_intake = CoolingIntake.objects.create(device=device1, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow(device=device2, name='Cooling Outlet 1', cooling_intake=cooling_intake)
+
+        with self.assertRaises(ValidationError):
+            cooling_outflow.full_clean()
+
+    def test_cooling_source_location_site_mismatch(self):
+        """
+        CoolingSource.clean() should raise a ValidationError when its location belongs to a different site.
+        """
+        site2 = Site.objects.create(name='Site 2', slug='site-2')
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site2)
+        cooling_source = CoolingSource(
+            site=self.site,
+            location=location,
+            name='Cooling Source 1',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_source.full_clean()
+
+    def test_cooling_feed_rack_site_mismatch(self):
+        """
+        CoolingFeed.clean() should raise a ValidationError when its rack is in a different site than the
+        cooling source.
+        """
+        site2 = Site.objects.create(name='Site 3', slug='site-3')
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 3',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        rack = Rack.objects.create(name='Rack 1', site=site2, status=RackStatusChoices.STATUS_ACTIVE)
+        cooling_feed = CoolingFeed(
+            cooling_source=cooling_source,
+            rack=rack,
+            name='Cooling Feed 1',
+            status=CoolingFeedStatusChoices.STATUS_ACTIVE,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_feed.full_clean()

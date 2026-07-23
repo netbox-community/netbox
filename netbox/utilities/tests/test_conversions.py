@@ -1,8 +1,17 @@
 from decimal import Decimal
 
 from dcim.choices import CableLengthUnitChoices
-from netbox.choices import WeightUnitChoices
-from utilities.conversion import to_grams, to_meters
+from netbox.choices import (
+    DiameterUnitChoices,
+    FlowRateUnitChoices,
+    WeightUnitChoices,
+)
+from utilities.conversion import (
+    to_grams,
+    to_liters_per_minute,
+    to_meters,
+    to_millimeters,
+)
 from utilities.testing.base import TestCase
 
 
@@ -51,3 +60,37 @@ class ConversionsTestCase(TestCase):
             to_meters(1, CableLengthUnitChoices.UNIT_INCH),
             Decimal('0.0254')
         )
+
+    def test_to_millimeters(self):
+        self.assertEqual(
+            to_millimeters(1, DiameterUnitChoices.UNIT_MILLIMETER),
+            Decimal('1')
+        )
+        self.assertEqual(
+            to_millimeters(1, DiameterUnitChoices.UNIT_CENTIMETER),
+            Decimal('10')
+        )
+        self.assertEqual(
+            to_millimeters(1, DiameterUnitChoices.UNIT_INCH),
+            Decimal('25.4')
+        )
+        with self.assertRaises(ValueError):
+            to_millimeters(1, 'invalid')
+
+    def test_to_liters_per_minute(self):
+        self.assertEqual(
+            to_liters_per_minute(10, FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE),
+            Decimal('10')
+        )
+        self.assertAlmostEqual(
+            to_liters_per_minute(6, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR),
+            Decimal('100'),
+            places=4
+        )
+        self.assertAlmostEqual(
+            to_liters_per_minute(10, FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE),
+            Decimal('37.8541'),
+            places=4
+        )
+        with self.assertRaises(ValueError):
+            to_liters_per_minute(10, 'invalid')

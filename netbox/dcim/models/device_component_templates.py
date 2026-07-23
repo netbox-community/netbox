@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import InterfaceValidationMixin
+from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaximumFlowMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
@@ -22,6 +22,8 @@ from wireless.choices import WirelessRoleChoices
 from .device_components import (
     ConsolePort,
     ConsoleServerPort,
+    CoolingIntake,
+    CoolingOutflow,
     DeviceBay,
     FrontPort,
     Interface,
@@ -35,6 +37,8 @@ from .device_components import (
 __all__ = (
     'ConsolePortTemplate',
     'ConsoleServerPortTemplate',
+    'CoolingIntakeTemplate',
+    'CoolingOutflowTemplate',
     'DeviceBayTemplate',
     'FrontPortTemplate',
     'InterfaceTemplate',
@@ -433,6 +437,125 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             'color': self.color,
             'power_port': self.power_port.name if self.power_port else None,
             'feed_leg': self.feed_leg,
+            'label': self.label,
+            'description': self.description,
+        }
+
+
+class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTemplateModel):
+    """
+    A template for a CoolingIntake to be created for a new Device.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
+
+    component_model = CoolingIntake
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('cooling intake template')
+        verbose_name_plural = _('cooling intake templates')
+
+    def instantiate(self, **kwargs):
+        return self.component_model(
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            type=self.type,
+            diameter=self.diameter,
+            diameter_unit=self.diameter_unit,
+            maximum_flow=self.maximum_flow,
+            maximum_flow_unit=self.maximum_flow_unit,
+            **kwargs
+        )
+    instantiate.do_not_call_in_templates = True
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'diameter': float(self.diameter) if self.diameter is not None else None,
+            'diameter_unit': self.diameter_unit,
+            'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
+            'maximum_flow_unit': self.maximum_flow_unit,
+            'label': self.label,
+            'description': self.description,
+        }
+
+
+class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
+    """
+    A template for a CoolingOutflow to be created for a new Device.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    cooling_intake = models.ForeignKey(
+        to='dcim.CoolingIntakeTemplate',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingoutflow_templates'
+    )
+
+    component_model = CoolingOutflow
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('cooling outflow template')
+        verbose_name_plural = _('cooling outflow templates')
+
+    def clean(self):
+        super().clean()
+
+        # Validate cooling intake assignment
+        if self.cooling_intake:
+            if self.device_type and self.cooling_intake.device_type != self.device_type:
+                raise ValidationError(
+                    _("Parent cooling intake ({cooling_intake}) must belong to the same device type").format(
+                        cooling_intake=self.cooling_intake
+                    )
+                )
+            if self.module_type and self.cooling_intake.module_type != self.module_type:
+                raise ValidationError(
+                    _("Parent cooling intake ({cooling_intake}) must belong to the same module type").format(
+                        cooling_intake=self.cooling_intake
+                    )
+                )
+
+    def instantiate(self, **kwargs):
+        if self.cooling_intake:
+            cooling_intake_name = self.cooling_intake.resolve_name(kwargs.get('module'), kwargs.get('device'))
+            cooling_intake = CoolingIntake.objects.get(name=cooling_intake_name, **kwargs)
+        else:
+            cooling_intake = None
+        return self.component_model(
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            type=self.type,
+            diameter=self.diameter,
+            diameter_unit=self.diameter_unit,
+            cooling_intake=cooling_intake,
+            **kwargs
+        )
+    instantiate.do_not_call_in_templates = True
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'diameter': float(self.diameter) if self.diameter is not None else None,
+            'diameter_unit': self.diameter_unit,
+            'cooling_intake': self.cooling_intake.name if self.cooling_intake else None,
             'label': self.label,
             'description': self.description,
         }

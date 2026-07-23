@@ -51,5 +51,19 @@ The unique physical serial number assigned to this rack.
 
 A unique, locally-administered label used to identify hardware resources.
 
+### Cooling Capability
+
+Describes how the rack is able to cool the equipment installed in it, which indicates what kind of equipment it can accommodate:
+
+- **Air-only**: The rack is cooled by airflow only; no coolant is delivered to it. Only air-cooled equipment can be installed.
+- **Hybrid**: Coolant can be delivered to the rack (e.g. via a [cooling feed](./coolingfeed.md)), but it can also house air-cooled equipment. Suitable for mixed or hybrid deployments.
+- **Liquid-only**: The rack is intended exclusively for liquid-cooled equipment (such as direct-to-chip or immersion systems) and does not provide adequate air cooling on its own.
+
+This attribute documents the rack's intended use so that incompatible equipment—such as high-density liquid-cooled hardware in an air-only rack—can be identified. When the rack is assigned a [rack type](./racktype.md), this value is inherited from the rack type.
+
+### Cooling Capacity
+
+The rack's cooling capacity, expressed in kilowatts (kW). When the rack is assigned a [rack type](./racktype.md), this value is inherited from the rack type.
+
 !!! note
     Some additional fields pertaining to physical attributes such as height and weight can also be defined on each rack, but should generally be defined instead on the [rack type](./racktype.md).

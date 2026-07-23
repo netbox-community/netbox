@@ -30,6 +30,10 @@ The hardware [device type](./devicetype.md) which defines the device's make & mo
 
 The direction in which air circulates through the device chassis for cooling.
 
+### Cooling Method
+
+The cooling method employed by the device (air, liquid, hybrid, or immersion). If not set, this is inherited from the assigned [device type](./devicetype.md) when the device is created.
+
 ### Serial Number
 
 The unique physical serial number assigned to this device by its manufacturer.

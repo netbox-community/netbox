@@ -332,6 +332,18 @@ class PowerOutletTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.PowerOutletTemplateFilterSet
 
 
+class CoolingIntakeTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntakeTemplate.objects.all()
+    serializer_class = serializers.CoolingIntakeTemplateSerializer
+    filterset_class = filtersets.CoolingIntakeTemplateFilterSet
+
+
+class CoolingOutflowTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflowTemplate.objects.all()
+    serializer_class = serializers.CoolingOutflowTemplateSerializer
+    filterset_class = filtersets.CoolingOutflowTemplateFilterSet
+
+
 class InterfaceTemplateViewSet(NetBoxModelViewSet):
     queryset = InterfaceTemplate.objects.all()
     serializer_class = serializers.InterfaceTemplateSerializer
@@ -477,6 +489,22 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     filterset_class = filtersets.PowerOutletFilterSet
 
 
+class CoolingIntakeViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntake.objects.prefetch_related(
+        'cooling_outflow',
+    )
+    serializer_class = serializers.CoolingIntakeSerializer
+    filterset_class = filtersets.CoolingIntakeFilterSet
+
+
+class CoolingOutflowViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflow.objects.prefetch_related(
+        'cooling_intake',
+    )
+    serializer_class = serializers.CoolingOutflowSerializer
+    filterset_class = filtersets.CoolingOutflowFilterSet
+
+
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.prefetch_related(
         GenericPrefetch(
@@ -619,6 +647,28 @@ class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet
+
+
+#
+# Cooling sources
+#
+
+class CoolingSourceViewSet(NetBoxModelViewSet):
+    queryset = CoolingSource.objects.all()
+    serializer_class = serializers.CoolingSourceSerializer
+    filterset_class = filtersets.CoolingSourceFilterSet
+
+
+#
+# Cooling feeds
+#
+
+class CoolingFeedViewSet(NetBoxModelViewSet):
+    queryset = CoolingFeed.objects.prefetch_related(
+        'cooling_source', 'rack', 'tenant',
+    )
+    serializer_class = serializers.CoolingFeedSerializer
+    filterset_class = filtersets.CoolingFeedFilterSet
 
 
 #

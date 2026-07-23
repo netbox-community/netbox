@@ -83,6 +83,9 @@ class ModuleTypeTable(PrimaryModelTable):
         linkify=True,
         verbose_name=_('Module Type')
     )
+    cooling_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Method'),
+    )
     weight = columns.TemplateColumn(
         verbose_name=_('Weight'),
         template_code=WEIGHT,
@@ -103,8 +106,8 @@ class ModuleTypeTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'end_of_life',
-            'module_bay_types',
+            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'cooling_method', 'weight',
+            'end_of_life', 'module_bay_types',
             'description', 'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
