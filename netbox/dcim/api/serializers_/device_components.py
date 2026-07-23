@@ -41,7 +41,7 @@ from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, V
 from .devicetypes import ModuleBayTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .mixins import _UNSET, MACAddressShortcutMixin
-from .nested import NestedInterfaceSerializer
+from .nested import NestedCoolingOutflowSerializer, NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
 
 __all__ = (
@@ -230,8 +230,7 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    cooling_outflow = serializers.PrimaryKeyRelatedField(
-        queryset=CoolingOutflow.objects.all(),
+    cooling_outflow = NestedCoolingOutflowSerializer(
         required=False,
         allow_null=True
     )
