@@ -15,7 +15,11 @@
 {% elif customfield.type == 'datetime' and value %}
   {{ value|isodatetime }}
 {% elif customfield.type == 'url' and value %}
-  <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+  {% if url_allowed %}
+    <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+  {% else %}
+    {{ value|truncatechars:70 }}
+  {% endif %}
 {% elif customfield.type == 'json' and value is not None %}
   <pre>{{ value|json }}</pre>
 {% elif customfield.type == 'select' and value %}

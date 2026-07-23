@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -8,6 +9,7 @@ from extras.choices import CustomFieldTypeChoices
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.models import CustomField
 from utilities.api import get_serializer_for_model
+from utilities.forms.fields import LaxURLField
 
 #
 # Custom fields
@@ -119,6 +121,15 @@ class CustomFieldsDataField(Field):
                     data[cf.name] = [obj['id'] for obj in serializer.data] if many else serializer.data['id']
                 else:
                     raise ValidationError(_("Unknown related object(s): {name}").format(name=data[cf.name]))
+
+            # Normalize URL values the same way the UI does (LaxURLField with assume_scheme='https'), so a
+            # schemeless value (e.g. "example.com") is stored as an absolute URL ("https://example.com").
+            # Malformed values are left untouched for CustomField.validate() to report.
+            elif cf.type == CustomFieldTypeChoices.TYPE_URL and isinstance(data.get(cf.name), str) and data[cf.name]:
+                try:
+                    data[cf.name] = LaxURLField(assume_scheme='https').to_python(data[cf.name])
+                except DjangoValidationError:
+                    pass
 
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:

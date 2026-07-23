@@ -1,10 +1,9 @@
 import datetime
 import json
 from decimal import Decimal
-from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from rest_framework import status
 
@@ -674,7 +673,7 @@ class CustomFieldTestCase(TestCase):
         self.assertNotIn('field1', site.custom_field_data)
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
 
-    @patch('extras.models.customfields.CUSTOMFIELD_DATA_BATCH_SIZE', 2)
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=2)
     def test_batched_object_data_updates(self):
         """
         Provisioning, renaming, and removing custom field data is applied in batches. Use a small
@@ -1692,6 +1691,38 @@ class CustomFieldAPITestCase(APITestCase):
         data = {'custom_fields': {'url_field': 'https://example.com'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_url_scheme_validation(self):
+        """
+        Test that URL custom field values must use a scheme permitted by ALLOWED_URL_SCHEMES (fixes
+        #22640), and that a schemeless value is normalized to an absolute URL (assume_scheme='https'),
+        consistent with the UI.
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A dangerous scheme (e.g. javascript:) must be rejected
+        data = {'custom_fields': {'url_field': 'javascript:alert(1)'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # A well-formed URL using a scheme outside ALLOWED_URL_SCHEMES must be rejected
+        data = {'custom_fields': {'url_field': 'gopher://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # An allowed scheme must be accepted
+        data = {'custom_fields': {'url_field': 'https://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # A schemeless value must be accepted and normalized to https, matching the UI
+        data = {'custom_fields': {'url_field': 'example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['url_field'], 'https://example.com')
 
     def test_json_schema_validation(self):
         site2 = Site.objects.get(name='Site 2')

@@ -47,10 +47,12 @@ class InlineFields:
     Parameters:
         fields: An iterable of form field names
         label: The label text to render for the row (optional)
+        help_text: Explanatory text rendered beneath the entire set of fields (optional)
     """
-    def __init__(self, *fields, label=None):
+    def __init__(self, *fields, label=None, help_text=None):
         self.fields = fields
         self.label = label
+        self.help_text = help_text
 
 
 class TabbedGroups:

@@ -12,6 +12,20 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## BULK_UPDATE_CHUNK_SIZE
+
+Default: `5000`
+
+The maximum number of rows to affect in a single SQL `UPDATE` statement when NetBox performs a bulk update across many objects (for example, when recalculating cached counters or backfilling custom field data). On very large tables, an unbounded update spanning millions of rows can exceed the database's configured statement timeout; splitting the work into batches of at most this many rows bounds each statement while keeping the overall operation atomic.
+
+Must be a positive integer, or `None` to disable chunking and issue each bulk update as a single unbounded statement.
+
+```python
+BULK_UPDATE_CHUNK_SIZE = 5000
+```
+
+---
+
 ## DATABASE_ROUTERS
 
 Default: `[]` (empty list)
