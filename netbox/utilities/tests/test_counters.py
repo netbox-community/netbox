@@ -76,6 +76,10 @@ class CountersTestCase(TestCase):
         device_type = device1.device_type
         self.assertEqual(device_type.device_count, 2)
 
+        # The Device must have tracked children for the suppression to be meaningful; otherwise the
+        # assertions below would pass trivially with nothing to suppress
+        self.assertEqual(device1.interfaces.count(), 2)
+
         # Wrap update_counter so the real counter logic still runs while we record each call
         with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
             device1.delete()
@@ -101,8 +105,12 @@ class CountersTestCase(TestCase):
         object. Counter updates for children whose parent belongs to that QuerySet must be
         suppressed, while counters on surviving related objects are still updated.
         """
-        device_type = Device.objects.get(name='Device 1').device_type
+        device1 = Device.objects.get(name='Device 1')
+        device_type = device1.device_type
         self.assertEqual(device_type.device_count, 2)
+
+        # The Device must have tracked children for the suppression to be meaningful
+        self.assertEqual(device1.interfaces.count(), 2)
 
         # Wrap update_counter so the real counter logic still runs while we record each call
         with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
