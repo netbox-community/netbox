@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext as _
@@ -112,7 +111,10 @@ class ContentTypeField(RelatedField):
     def to_internal_value(self, data):
         try:
             app_label, model = data.split('.')
-            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
+            # Resolve against the field's own declared queryset (e.g. ObjectType.objects.with_feature(...))
+            # rather than the raw, unfiltered ContentType table, so a caller can't reference a content type
+            # outside the set the serializer actually intends to permit (e.g. Django/NetBox-internal models).
+            return self.get_queryset().get(app_label=app_label, model=model)
         except ObjectDoesNotExist:
             self.fail('does_not_exist', content_type=data)
         except (AttributeError, TypeError, ValueError):
