@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -7,8 +8,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 
 from dcim.api.serializers import RackSerializer
+from dcim.models import Device, Site
 from netbox.api.exceptions import QuerySetNotOrdered
-from netbox.api.fields import IntegerRangeSerializer, RelatedObjectCountField
+from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
 from users.models import Token
 from utilities.testing import APITestCase
@@ -178,3 +180,60 @@ class IntegerRangeSerializerTestCase(TestCase):
             serializer.to_internal_value(['100', '200'])
         with self.assertRaises(ValidationError):
             serializer.to_internal_value([100.5, 200.5])
+
+
+class ContentTypeFieldTestCase(TestCase):
+
+    def test_to_internal_value_resolves_content_type_within_queryset(self):
+        """A content type present in the field's declared queryset resolves successfully."""
+        site_ct = ContentType.objects.get_for_model(Site)
+        field = ContentTypeField(queryset=ContentType.objects.filter(pk=site_ct.pk))
+        self.assertEqual(field.to_internal_value('dcim.site'), site_ct)
+
+    def test_to_internal_value_rejects_content_type_outside_queryset(self):
+        """
+        Regression test for #22748: ContentTypeField.to_internal_value() previously resolved
+        against the raw, unfiltered ContentType table via get_by_natural_key(), ignoring the
+        field's own declared queryset entirely. A content type that is real and resolvable in
+        general, but falls outside the specific queryset a given field declares, must be
+        rejected rather than silently accepted.
+        """
+        site_ct = ContentType.objects.get_for_model(Site)
+        device_ct = ContentType.objects.get_for_model(Device)
+
+        # Scope the field to a single, unrelated content type so `dcim.site` is guaranteed to
+        # fall outside it.
+        field = ContentTypeField(queryset=ContentType.objects.filter(pk=device_ct.pk))
+        with self.assertRaises(ValidationError):
+            field.to_internal_value('dcim.site')
+
+        # Sanity check: the rejected content type is a genuine, generally-resolvable content
+        # type, so the rejection above is attributable to queryset scoping and not a bogus value.
+        self.assertTrue(ContentType.objects.filter(pk=site_ct.pk).exists())
+
+    def test_to_internal_value_rejects_malformed_input(self):
+        """Input must be exactly '<app_label>.<model>'."""
+        field = ContentTypeField(queryset=ContentType.objects.all())
+        with self.assertRaises(ValidationError):
+            field.to_internal_value('not-a-valid-format')
+        with self.assertRaises(ValidationError):
+            field.to_internal_value('too.many.dots')
+
+    def test_to_internal_value_rejects_nonexistent_content_type(self):
+        """A syntactically valid but nonexistent content type must be rejected."""
+        field = ContentTypeField(queryset=ContentType.objects.all())
+        with self.assertRaises(ValidationError):
+            field.to_internal_value('nonexistent_app.nonexistent_model')
+
+    def test_to_internal_value_many_rejects_content_type_outside_queryset(self):
+        """
+        many=True wraps the field in a ManyRelatedField, which delegates per-item validation to
+        the child field's to_internal_value() unconditionally; the same queryset scoping must
+        hold there too.
+        """
+        device_ct = ContentType.objects.get_for_model(Device)
+        field = ContentTypeField(queryset=ContentType.objects.filter(pk=device_ct.pk), many=True)
+
+        self.assertEqual(field.to_internal_value(['dcim.device']), [device_ct])
+        with self.assertRaises(ValidationError):
+            field.to_internal_value(['dcim.device', 'dcim.site'])

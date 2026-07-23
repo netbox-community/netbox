@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext as _
@@ -112,7 +111,8 @@ class ContentTypeField(RelatedField):
     def to_internal_value(self, data):
         try:
             app_label, model = data.split('.')
-            return ContentType.objects.get_by_natural_key(app_label=app_label, model=model)
+            # Scoped to the field's declared queryset, not the raw ContentType table (#22748).
+            return self.get_queryset().get(app_label=app_label, model=model)
         except ObjectDoesNotExist:
             self.fail('does_not_exist', content_type=data)
         except (AttributeError, TypeError, ValueError):
