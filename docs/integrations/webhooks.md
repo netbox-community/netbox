@@ -41,6 +41,16 @@ The following data is available as context for Jinja2 templates:
 
     Use `request.user` and `request.id` from the `request` object included in the callback context instead.
 
+### Sanitizing Header Values
+
+When rendering the `additional_headers` field, a `header_safe` filter is made available for sanitizing a value for safe inclusion in a raw HTTP header. It strips newlines and other control characters from the rendered value, preventing HTTP header (CR/LF) injection.
+
+Whenever a header value incorporates data which may be influenced by other users (such as an object's attributes), pass it through this filter to avoid smuggling of additional headers. For example:
+
+```
+X-Object-Name: {{ data.name | header_safe }}
+```
+
 ### Default Request Body
 
 If no body template is specified, the request body will be populated with a JSON object containing the context data. For example, a newly created site might appear as follows:

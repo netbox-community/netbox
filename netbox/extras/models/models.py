@@ -34,7 +34,7 @@ from netbox.models.features import (
 )
 from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
-from utilities.jinja2 import render_jinja2
+from utilities.jinja2 import render_jinja2, sanitize_http_header
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
 from utilities.tables import get_table_for_model
@@ -212,7 +212,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         help_text=_(
             "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers "
             "should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with "
-            "the same context as the request body (below)."
+            "the same context as the request body (below). When interpolating untrusted data (such as object "
+            "attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header "
+            "injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
         )
     )
     body_template = models.TextField(
@@ -284,8 +286,12 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.additional_headers:
             return {}
         ret = {}
-        data = render_jinja2(self.additional_headers, context)
+        # Expose the `header_safe` filter so template authors can sanitize interpolated values (e.g. user-controlled
+        # object data) against HTTP header (CR/LF) injection. See utilities.jinja2.sanitize_http_header.
+        data = render_jinja2(self.additional_headers, context, filters={'header_safe': sanitize_http_header})
         for line in data.splitlines():
+            if ':' not in line:
+                continue
             header, value = line.split(':', 1)
             ret[header.strip()] = value.strip()
         return ret

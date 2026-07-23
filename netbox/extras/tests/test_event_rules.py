@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import django_rq
 from django.conf import settings
 from django.http import HttpResponse
-from django.test import RequestFactory, tag
+from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
 from PIL import Image
 from requests import Session
@@ -801,3 +801,71 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], event_rule)
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
+
+
+class WebhookRenderHeadersTest(TestCase):
+
+    def test_render_headers(self):
+        """Basic header rendering with Jinja2 interpolation."""
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Foo: Bar\nX-Object: {{ data.name }}',
+        )
+        headers = webhook.render_headers({'data': {'name': 'Site 1'}})
+        self.assertEqual(headers, {'X-Foo': 'Bar', 'X-Object': 'Site 1'})
+
+    def test_render_headers_multiline_block(self):
+        """A multi-line Jinja2 block (e.g. a loop generating headers) must render against the full template."""
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers=(
+                '{% for k, v in data.headers.items() %}X-{{ k }}: {{ v }}\n'
+                '{% endfor %}'
+            ),
+        )
+        headers = webhook.render_headers({'data': {'headers': {'Foo': '1', 'Bar': '2'}}})
+        self.assertEqual(headers, {'X-Foo': '1', 'X-Bar': '2'})
+
+    def test_render_headers_skips_blank_lines(self):
+        """Blank lines in the rendered output (e.g. from Jinja2 block tags) must be skipped, not raise."""
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            # Block tags on their own lines leave behind blank lines once rendered
+            additional_headers=(
+                '{% for k, v in data.headers.items() %}\n'
+                'X-{{ k }}: {{ v }}\n'
+                '{% endfor %}'
+            ),
+        )
+        headers = webhook.render_headers({'data': {'headers': {'Foo': '1', 'Bar': '2'}}})
+        self.assertEqual(headers, {'X-Foo': '1', 'X-Bar': '2'})
+
+    def test_render_headers_skips_lines_without_separator(self):
+        """A non-blank line lacking a 'Name: Value' separator must be skipped, not raise."""
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Foo: Bar\nthis line has no colon\nX-Baz: Qux',
+        )
+        headers = webhook.render_headers({})
+        self.assertEqual(headers, {'X-Foo': 'Bar', 'X-Baz': 'Qux'})
+
+    def test_render_headers_header_safe_filter_available(self):
+        """
+        The `header_safe` filter must be available when rendering headers, and must strip control characters
+        (including CR/LF) so that untrusted data cannot smuggle additional headers via CR/LF injection.
+        """
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            additional_headers='X-Object: {{ data.name | header_safe }}',
+        )
+        headers = webhook.render_headers({'data': {'name': 'legit\r\nX-Injected: evil\x00'}})
+
+        # The injected newline is stripped, so only a single (sanitized) header is produced
+        self.assertEqual(list(headers.keys()), ['X-Object'])
+        self.assertNotIn('X-Injected', headers)
+        self.assertEqual(headers['X-Object'], 'legitX-Injected: evil')
