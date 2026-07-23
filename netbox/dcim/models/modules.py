@@ -2,6 +2,7 @@ from collections.abc import Iterable, Mapping
 
 import jsonschema
 import yaml
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import OperationalError, models, router, transaction
 from django.db.models.signals import post_save
@@ -9,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
-from dcim.utils import create_port_mappings, update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
@@ -577,7 +578,9 @@ class Module(TrackingModelMixin, PrimaryModel):
                     instance.parent = self.module_bay
                 update_fields = ['module', 'parent']
 
-            component_model.objects.bulk_update(update_instances, update_fields)
+            component_model.objects.bulk_update(
+                update_instances, update_fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+            )
             for component in update_instances:
                 post_save.send(
                     sender=component_model,
@@ -591,7 +594,9 @@ class Module(TrackingModelMixin, PrimaryModel):
         # Replicate any front/rear port mappings from the ModuleType
         create_port_mappings(self.device, self.module_type, self)
 
-        # Interface bridges have to be set after interface instantiation
+        # Interface parents & bridges have to be set after interface instantiation. Parents are applied first so that
+        # channel subinterfaces validate against a populated parent.
+        update_interface_parents(self.device, self.module_type.interfacetemplates, self)
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
 
     def _save_existing(self, *args, **kwargs):

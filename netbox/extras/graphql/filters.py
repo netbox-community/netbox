@@ -9,7 +9,7 @@ from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLook
 from extras import models
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filter_mixins import SyncedDataFilterMixin
-from netbox.graphql.filters import BaseModelFilter, ChangeLoggedModelFilter, PrimaryModelFilter
+from netbox.graphql.filters import BaseModelFilter, ChangeLoggedModelFilter, PrimaryModelFilter, register_filter
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
@@ -59,7 +59,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter_type(models.ConfigContext, lookups=True)
+@register_filter(models.ConfigContext, lookups=True)
 class ConfigContextFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -116,14 +116,14 @@ class ConfigContextFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
+@register_filter(models.ConfigContextProfile, lookups=True)
 class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
     tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ConfigTemplate, lookups=True)
+@register_filter(models.ConfigTemplate, lookups=True)
 class ConfigTemplateFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -137,7 +137,7 @@ class ConfigTemplateFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.CustomField, lookups=True)
+@register_filter(models.CustomField, lookups=True)
 class CustomFieldFilter(ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['CustomFieldTypeEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -197,7 +197,7 @@ class CustomFieldFilter(ChangeLoggedModelFilter):
     comments: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.CustomFieldChoiceSet, lookups=True)
+@register_filter(models.CustomFieldChoiceSet, lookups=True)
 class CustomFieldChoiceSetFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -239,7 +239,7 @@ class CustomFieldChoiceSetFilter(ChangeLoggedModelFilter):
         return queryset, params
 
 
-@strawberry_django.filter_type(models.CustomLink, lookups=True)
+@register_filter(models.CustomLink, lookups=True)
 class CustomLinkFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
@@ -257,7 +257,7 @@ class CustomLinkFilter(ChangeLoggedModelFilter):
     new_window: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ExportTemplate, lookups=True)
+@register_filter(models.ExportTemplate, lookups=True)
 class ExportTemplateFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -271,7 +271,7 @@ class ExportTemplateFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
     as_attachment: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.ImageAttachment, lookups=True)
+@register_filter(models.ImageAttachment, lookups=True)
 class ImageAttachmentFilter(ChangeLoggedModelFilter):
     object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -289,7 +289,7 @@ class ImageAttachmentFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.JournalEntry, lookups=True)
+@register_filter(models.JournalEntry, lookups=True)
 class JournalEntryFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -305,7 +305,7 @@ class JournalEntryFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedM
     comments: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Notification, lookups=True)
+@register_filter(models.Notification, lookups=True)
 class NotificationFilter(BaseModelFilter):
     created: DatetimeFilterLookup | None = strawberry_django.filter_field()
     read: DatetimeFilterLookup | None = strawberry_django.filter_field()
@@ -320,7 +320,7 @@ class NotificationFilter(BaseModelFilter):
     event_type: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.NotificationGroup, lookups=True)
+@register_filter(models.NotificationGroup, lookups=True)
 class NotificationGroupFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -328,7 +328,7 @@ class NotificationGroupFilter(ChangeLoggedModelFilter):
     users: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.SavedFilter, lookups=True)
+@register_filter(models.SavedFilter, lookups=True)
 class SavedFilterFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     slug: StrFilterLookup | None = strawberry_django.filter_field()
@@ -345,7 +345,7 @@ class SavedFilterFilter(ChangeLoggedModelFilter):
     )
 
 
-@strawberry_django.filter_type(models.Subscription, lookups=True)
+@register_filter(models.Subscription, lookups=True)
 class SubscriptionFilter(BaseModelFilter):
     created: DatetimeFilterLookup | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
@@ -357,7 +357,7 @@ class SubscriptionFilter(BaseModelFilter):
     object_id: ID | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.TableConfig, lookups=True)
+@register_filter(models.TableConfig, lookups=True)
 class TableConfigFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -370,7 +370,7 @@ class TableConfigFilter(ChangeLoggedModelFilter):
     shared: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Tag, lookups=True)
+@register_filter(models.Tag, lookups=True)
 class TagFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     slug: StrFilterLookup | None = strawberry_django.filter_field()
@@ -380,7 +380,7 @@ class TagFilter(ChangeLoggedModelFilter):
     description: StrFilterLookup | None = strawberry_django.filter_field()
 
 
-@strawberry_django.filter_type(models.Webhook, lookups=True)
+@register_filter(models.Webhook, lookups=True)
 class WebhookFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()
@@ -402,7 +402,7 @@ class WebhookFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelF
     )
 
 
-@strawberry_django.filter_type(models.EventRule, lookups=True)
+@register_filter(models.EventRule, lookups=True)
 class EventRuleFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()

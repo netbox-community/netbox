@@ -89,6 +89,11 @@ AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     },
 ])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
+BULK_UPDATE_CHUNK_SIZE = getattr(configuration, 'BULK_UPDATE_CHUNK_SIZE', 5000)
+if BULK_UPDATE_CHUNK_SIZE is not None and (type(BULK_UPDATE_CHUNK_SIZE) is not int or BULK_UPDATE_CHUNK_SIZE < 1):
+    raise ImproperlyConfigured(
+        f"BULK_UPDATE_CHUNK_SIZE must be a positive integer or None (found {BULK_UPDATE_CHUNK_SIZE!r})"
+    )
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)

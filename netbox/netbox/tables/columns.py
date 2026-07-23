@@ -23,6 +23,7 @@ from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
 from utilities.templatetags.builtins.filters import render_markdown
+from utilities.validators import url_scheme_is_allowed
 from utilities.views import get_action_url
 
 __all__ = (
@@ -562,7 +563,12 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES, to guard against
+            # dangerous schemes (e.g. javascript:) in values which bypassed validation. A schemeless
+            # (relative) value is considered safe.
+            if url_scheme_is_allowed(value):
+                return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            return escape(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
             return self.customfield.get_choice_label(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
