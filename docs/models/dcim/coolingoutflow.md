@@ -23,10 +23,6 @@ The name of the cooling outflow. Must be unique to the parent device.
 
 An alternative physical label identifying the cooling outflow.
 
-### Type
-
-Indicates whether the outlet carries supply (cold) or return (warm) coolant.
-
 ### Connector Type
 
 The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded NPT/BSP).
