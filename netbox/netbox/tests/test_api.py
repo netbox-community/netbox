@@ -224,3 +224,16 @@ class ContentTypeFieldTestCase(TestCase):
         field = ContentTypeField(queryset=ContentType.objects.all())
         with self.assertRaises(ValidationError):
             field.to_internal_value('nonexistent_app.nonexistent_model')
+
+    def test_to_internal_value_many_rejects_content_type_outside_queryset(self):
+        """
+        many=True wraps the field in a ManyRelatedField, which delegates per-item validation to
+        the child field's to_internal_value() unconditionally; the same queryset scoping must
+        hold there too.
+        """
+        device_ct = ContentType.objects.get_for_model(Device)
+        field = ContentTypeField(queryset=ContentType.objects.filter(pk=device_ct.pk), many=True)
+
+        self.assertEqual(field.to_internal_value(['dcim.device']), [device_ct])
+        with self.assertRaises(ValidationError):
+            field.to_internal_value(['dcim.device', 'dcim.site'])
