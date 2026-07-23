@@ -249,6 +249,34 @@ class PortMappingFieldTestCase(TestCase):
         field = PortMappingField()
         self.assertEqual(field.clean('[{"protocol": "tcp", "ports": "080"}]'), ['tcp/80'])
 
+    def test_prepare_value_grouped_json_passthrough(self):
+        """An already-grouped JSON string (bound-form re-render) is passed to the widget unchanged."""
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value('[{"protocol": "tcp", "ports": "80"}]'),
+            '[{"protocol": "tcp", "ports": "80"}]',
+        )
+
+    def test_prepare_value_flat_list_grouped(self):
+        """A flat protocol/port list (e.g. a multi-mapping clone) is grouped into widget rows."""
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value(['tcp/80', 'tcp/443']),
+            '[{"protocol": "tcp", "ports": "80,443"}]',
+        )
+
+    def test_prepare_value_bare_string_grouped(self):
+        """
+        Cloning a single-mapping object collapses port_mappings to a bare 'protocol/port' string
+        (normalize_querydict single-value collapse); it must group into a row, not blank the widget.
+        Regression guard for the single-protocol clone losing its port mapping.
+        """
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value('tcp/80'),
+            '[{"protocol": "tcp", "ports": "80"}]',
+        )
+
 
 class ServiceTemplateImportFormTestCase(TestCase):
 

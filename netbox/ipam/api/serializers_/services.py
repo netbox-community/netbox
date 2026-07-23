@@ -103,7 +103,15 @@ class PortMappingsSerializerMixin:
         # kwargs. port_mappings takes precedence when both formats are supplied.
         legacy_protocol = data.pop('protocol', None)
         legacy_ports = data.pop('ports', None)
-        if not data.get('port_mappings') and legacy_protocol and legacy_ports:
+        if not data.get('port_mappings') and (legacy_protocol is not None or legacy_ports is not None):
+            # The legacy fields only form a mapping as a pair. Supplying just one is ambiguous (we can't
+            # infer the other), so reject it explicitly rather than silently ignoring the input — the old
+            # behavior of updating a single field is no longer possible now that they're derived.
+            if not (legacy_protocol and legacy_ports):
+                raise serializers.ValidationError(_(
+                    "Both 'protocol' and 'ports' are required when writing via the deprecated legacy "
+                    "format; use port_mappings instead."
+                ))
             try:
                 data['port_mappings'] = validate_port_mappings(
                     [f'{legacy_protocol}/{port}' for port in legacy_ports]

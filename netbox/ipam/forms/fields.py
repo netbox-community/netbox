@@ -27,6 +27,14 @@ class PortMappingField(forms.Field):
         if value in (None, ''):
             return '[]'
         if isinstance(value, str):
+            # An already-grouped JSON string (e.g. re-rendering a bound form) is passed through. A bare
+            # 'protocol/port' string arrives when cloning a single-mapping object: the querystring
+            # single-value collapse (normalize_querydict) yields a str rather than a list, so group it
+            # like the list case instead of handing the widget unparseable JSON (which blanks the row).
+            try:
+                json.loads(value)
+            except (TypeError, ValueError):
+                return json.dumps(group_mappings([value]))
             return value
         return json.dumps(group_mappings(value))
 

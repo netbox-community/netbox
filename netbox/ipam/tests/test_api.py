@@ -1569,6 +1569,24 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_legacy_protocol_without_ports_rejected(self):
+        """One half of the legacy pair is ambiguous and must 400, not silently drop the input."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy Half', 'protocol': 'tcp'}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_legacy_ports_only_rejected(self):
+        """A partial update supplying only legacy 'ports' must 400 rather than silently no-op."""
+        self.add_permissions('ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Patch', port_mappings=['tcp/80'])
+        response = self.client.patch(
+            self._get_detail_url(template), {'ports': [8080]}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/80'])
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
