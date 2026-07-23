@@ -1,6 +1,8 @@
 import json
 import logging
+import threading
 import uuid
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
 from unittest import skipIf
 from unittest.mock import Mock, patch
@@ -10,8 +12,10 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
+from django.utils import timezone
 from PIL import Image
 from requests import Session
+from requests.exceptions import RequestException
 from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
@@ -869,3 +873,73 @@ class WebhookRenderHeadersTest(TestCase):
         self.assertEqual(list(headers.keys()), ['X-Object'])
         self.assertNotIn('X-Injected', headers)
         self.assertEqual(headers['X-Object'], 'legitX-Injected: evil')
+
+
+class WebhookRedirectTest(TestCase):
+    """
+    Regression test for #22761: a webhook destination's response must not be able to redirect
+    the request elsewhere. A destination that is legitimate at configuration time but is later
+    compromised (or is malicious from the outset while appearing legitimate) could otherwise
+    respond with a redirect to an arbitrary address -- including an internal one -- that was
+    never configured as the webhook's target.
+    """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.redirect_target_hits = []
+
+        class RedirectTargetHandler(BaseHTTPRequestHandler):
+            def do_GET(handler_self):
+                cls.redirect_target_hits.append(handler_self.path)
+                handler_self.send_response(200)
+                handler_self.end_headers()
+
+            def log_message(handler_self, *args):
+                pass
+
+        class RedirectingHandler(BaseHTTPRequestHandler):
+            def do_POST(handler_self):
+                handler_self.send_response(302)
+                handler_self.send_header('Location', cls.redirect_target_url)
+                handler_self.end_headers()
+
+            def log_message(handler_self, *args):
+                pass
+
+        cls.redirect_target_server = HTTPServer(('127.0.0.1', 0), RedirectTargetHandler)
+        cls.redirect_target_url = f'http://127.0.0.1:{cls.redirect_target_server.server_port}/unexpected-target'
+        cls.webhook_server = HTTPServer(('127.0.0.1', 0), RedirectingHandler)
+        cls.webhook_url = f'http://127.0.0.1:{cls.webhook_server.server_port}/webhook'
+
+        threading.Thread(target=cls.redirect_target_server.serve_forever, daemon=True).start()
+        threading.Thread(target=cls.webhook_server.serve_forever, daemon=True).start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.redirect_target_server.shutdown()
+        cls.webhook_server.shutdown()
+        super().tearDownClass()
+
+    def test_redirect_is_not_followed(self):
+        webhook = Webhook.objects.create(name='Redirect Test', payload_url=self.webhook_url)
+        event_rule = EventRule.objects.create(
+            name='Redirect Test',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=ObjectType.objects.get(app_label='extras', model='webhook'),
+            action_object_id=webhook.id,
+        )
+
+        with self.assertRaises(RequestException):
+            send_webhook(
+                event_rule=event_rule,
+                object_type=ObjectType.objects.get_for_model(Site),
+                event_type=OBJECT_CREATED,
+                data={'name': 'Test Site'},
+                timestamp=timezone.now().isoformat(),
+                username='testuser',
+            )
+
+        # The webhook's configured destination redirected to this address; it must never
+        # actually have been reached.
+        self.assertEqual(self.redirect_target_hits, [])
