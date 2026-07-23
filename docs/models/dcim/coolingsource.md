@@ -6,7 +6,7 @@ A cooling source represents a facility-level source of cooling, such as a chille
 
 ### Site
 
-The [site](../../models/dcim/site.md) at which the cooling source is located.
+The [site](./site.md) at which the cooling source is located.
 
 ### Location
 
