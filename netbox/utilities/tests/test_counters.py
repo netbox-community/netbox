@@ -90,6 +90,31 @@ class CountersTestCase(TestCase):
         device_type.refresh_from_db()
         self.assertEqual(device_type.device_count, 1)
 
+        # Exactly one update should fire (DeviceType.device_count). Without the optimization the two
+        # cascaded Interfaces on Device 1 would each have triggered an interface_count update.
+        self.assertEqual(mock_update.call_count, 1)
+
+    def test_counter_skipped_when_parent_deleted_via_queryset(self):
+        """
+        A bulk QuerySet delete (e.g. Device.objects.filter(...).delete(), as used by scripts,
+        plugins, and programmatic callers) sets `origin` to the QuerySet rather than a single
+        object. Counter updates for children whose parent belongs to that QuerySet must be
+        suppressed, while counters on surviving related objects are still updated.
+        """
+        device_type = Device.objects.get(name='Device 1').device_type
+        self.assertEqual(device_type.device_count, 2)
+
+        # Wrap update_counter so the real counter logic still runs while we record each call
+        with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
+            Device.objects.filter(name='Device 1').delete()
+
+        # The deleted Device's interface_count must not be decremented per cascaded Interface, and
+        # the only update should be the surviving DeviceType's device_count
+        counter_names = [call.args[2] for call in mock_update.call_args_list]
+        self.assertEqual(counter_names, ['device_count'])
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.device_count, 1)
+
     def test_interface_count_move(self):
         """
         When a tracked object (Interface) is moved, the tracking counter should be updated.
