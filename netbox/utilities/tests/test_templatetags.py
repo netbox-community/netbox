@@ -39,6 +39,15 @@ class CustomFieldValueTagTestCase(TestCase):
         )
         cls.multiselect_field.object_types.set([object_type])
 
+        cls.url_field = CustomField.objects.create(
+            name='url_field',
+            type=CustomFieldTypeChoices.TYPE_URL,
+        )
+        cls.url_field.object_types.set([object_type])
+
+    def _render(self, customfield, value):
+        return render_to_string('builtins/customfield_value.html', customfield_value(customfield, value))
+
     def test_select_choice_context_includes_color(self):
         context = customfield_value(self.select_field, 'a')
 
@@ -62,6 +71,23 @@ class CustomFieldValueTagTestCase(TestCase):
 
         self.assertFalse(context['value_has_colors'])
         self.assertEqual(context['value'], ['Option B'])
+
+    def test_url_allowed_scheme_rendered_as_link(self):
+        html = self._render(self.url_field, 'https://example.com')
+        self.assertInHTML('<a href="https://example.com">https://example.com</a>', html)
+
+    def test_url_disallowed_scheme_not_rendered_as_link(self):
+        # A dangerous scheme (e.g. one stored before validation was enforced) must not become a
+        # clickable href (fixes #22640).
+        html = self._render(self.url_field, 'javascript:alert(1)')
+        self.assertNotIn('href', html)
+        self.assertIn('javascript:alert(1)', html)
+
+    def test_url_percent_encoded_scheme_rendered_as_relative_link(self):
+        # A percent-encoded scheme is inert: a browser will not decode "%3A" to execute javascript:,
+        # so the value has no scheme and is rendered as a link as-is.
+        html = self._render(self.url_field, 'javascript%3Aalert(1)')
+        self.assertInHTML('<a href="javascript%3Aalert(1)">javascript%3Aalert(1)</a>', html)
 
 
 class StaticWithParamsTestCase(TestCase):

@@ -45,7 +45,7 @@ from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, Da
 from utilities.jsonschema import validate_schema
 from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.validators import validate_regex
+from utilities.validators import url_scheme_is_allowed, validate_regex
 
 __all__ = (
     'CustomField',
@@ -769,6 +769,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
+                # Enforce ALLOWED_URL_SCHEMES to guard against dangerous schemes (e.g. javascript:). A
+                # schemeless value is permitted and treated as relative.
+                if not url_scheme_is_allowed(value):
+                    raise ValidationError(
+                        _("URLs must use a scheme permitted by ALLOWED_URL_SCHEMES.")
+                    )
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 
