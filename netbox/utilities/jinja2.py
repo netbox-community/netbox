@@ -1,5 +1,6 @@
 import fnmatch
 import os
+import re
 
 from django.apps import apps
 from jinja2 import BaseLoader, TemplateNotFound
@@ -13,7 +14,12 @@ __all__ = (
     'DataFileLoader',
     'env_filter',
     'render_jinja2',
+    'sanitize_http_header',
 )
+
+# Control characters (C0 range plus DEL) which are invalid in an HTTP header value. Notably, this includes the
+# carriage return and line feed characters used to smuggle additional headers (CR/LF injection).
+HTTP_HEADER_INVALID_CHARS_RE = re.compile(r'[\x00-\x1f\x7f]')
 
 
 def env_filter(name):
@@ -26,6 +32,15 @@ def env_filter(name):
     if not any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns):
         return None
     return os.environ.get(name)
+
+
+def sanitize_http_header(value):
+    """
+    Jinja2 filter which sanitizes a value for safe inclusion in a raw HTTP header by stripping newlines and other
+    control characters. This guards against HTTP header (CR/LF) injection when interpolating untrusted data (e.g.
+    user-controlled object attributes) into a webhook's additional headers.
+    """
+    return HTTP_HEADER_INVALID_CHARS_RE.sub('', str(value))
 
 
 DEFAULT_JINJA2_FILTERS = {
@@ -71,11 +86,14 @@ class DataFileLoader(BaseLoader):
 # Utility functions
 #
 
-def render_jinja2(template_code, context, environment_params=None, data_file=None, debug=False):
+def render_jinja2(template_code, context, environment_params=None, data_file=None, debug=False, filters=None):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
 
     If debug is True, the Jinja2 debug extension is enabled to assist with template development.
+
+    The optional `filters` argument is a mapping of additional Jinja2 filters to make available for this render only
+    (e.g. context-specific sanitization filters). These take precedence over the default and user-configured filters.
     """
     environment_params = dict(environment_params or {})
 
@@ -98,9 +116,10 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
     environment = SandboxedEnvironment(**environment_params)
 
     # Register default filters, then apply any user-defined filters. User-defined entries take precedence so that
-    # existing JINJA2_FILTERS configurations are never overridden.
-    filters = {**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS}
-    environment.filters.update(filters)
+    # existing JINJA2_FILTERS configurations are never overridden. Any filters passed for this render take precedence
+    # over both so that context-specific (e.g. sanitization) filters cannot be shadowed.
+    all_filters = {**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS, **(filters or {})}
+    environment.filters.update(all_filters)
 
     if data_file:
         template = environment.get_template(data_file.path)

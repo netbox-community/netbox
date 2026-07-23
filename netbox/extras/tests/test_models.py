@@ -36,7 +36,7 @@ from extras.models import (
 from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
-from utilities.jinja2 import env_filter, render_jinja2
+from utilities.jinja2 import env_filter, render_jinja2, sanitize_http_header
 from utilities.tables import get_table_for_model
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -1272,6 +1272,48 @@ class JinjaEnvFilterTestCase(TestCase):
         with self.settings(JINJA2_FILTERS={'env': lambda name: 'overridden'}):
             output = render_jinja2("{{ 'NETBOX_TEST_TOKEN' | env }}", {})
             self.assertEqual(output, 'overridden')
+
+
+class SanitizeHTTPHeaderFilterTestCase(TestCase):
+    """
+    Tests for the sanitize_http_header() Jinja2 filter (exposed as `header_safe`) and the render_jinja2()
+    `filters` argument used to make it available.
+    """
+
+    def test_strips_crlf(self):
+        self.assertEqual(sanitize_http_header('legit\r\nX-Injected: evil'), 'legitX-Injected: evil')
+
+    def test_strips_control_characters(self):
+        self.assertEqual(sanitize_http_header('foo\x00\x1f\x7fbar'), 'foobar')
+
+    def test_preserves_normal_value(self):
+        self.assertEqual(sanitize_http_header('application/json'), 'application/json')
+
+    def test_coerces_non_string(self):
+        self.assertEqual(sanitize_http_header(42), '42')
+
+    def test_available_via_render_filters_argument(self):
+        output = render_jinja2(
+            "{{ value | header_safe }}",
+            {'value': 'a\r\nb'},
+            filters={'header_safe': sanitize_http_header},
+        )
+        self.assertEqual(output, 'ab')
+
+    def test_render_filters_take_precedence_over_user_config(self):
+        # A per-render filter cannot be shadowed by a user-configured filter of the same name
+        with self.settings(JINJA2_FILTERS={'header_safe': lambda v: 'shadowed'}):
+            output = render_jinja2(
+                "{{ value | header_safe }}",
+                {'value': 'a\r\nb'},
+                filters={'header_safe': sanitize_http_header},
+            )
+            self.assertEqual(output, 'ab')
+
+    def test_not_registered_without_filters_argument(self):
+        # The filter must not leak into general-purpose rendering
+        with self.assertRaises(TemplateError):
+            render_jinja2("{{ 'x' | header_safe }}", {})
 
 
 class ExportTemplateContextTestCase(TestCase):
