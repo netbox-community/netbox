@@ -98,17 +98,24 @@ class PortMappingsSerializerMixin:
     legacy ``protocol`` and ``ports`` fields; a multi-protocol service reports ``null`` for both (it
     cannot be expressed in the old single-protocol format).
 
-    Write: either format is accepted. ``port_mappings`` takes precedence when supplied; otherwise the
-    legacy ``protocol``/``ports`` pair is translated into ``port_mappings``.
+    Write: either format is accepted, but not both in the same request. When the legacy
+    ``protocol``/``ports`` pair is supplied (and ``port_mappings`` is not), it is translated into
+    ``port_mappings``; supplying both formats together is rejected as ambiguous.
     """
 
     def validate(self, data):
         # Consume the legacy fields and translate them into port_mappings *before* calling super(),
-        # which instantiates the model (via full_clean()) and would choke on these now-nonexistent
-        # kwargs. port_mappings takes precedence when both formats are supplied.
+        # which instantiates the model (via full_clean()) and would choke on these now-nonexistent kwargs.
         legacy_protocol = data.pop('protocol', None)
         legacy_ports = data.pop('ports', None)
-        if not data.get('port_mappings') and (legacy_protocol is not None or legacy_ports is not None):
+        legacy_supplied = legacy_protocol is not None or legacy_ports is not None
+        if legacy_supplied:
+            # The two formats are mutually exclusive. Rather than silently dropping one when they conflict,
+            # reject the request so the caller picks a single representation.
+            if 'port_mappings' in data:
+                raise serializers.ValidationError(_(
+                    "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
+                ))
             # The legacy fields only form a mapping as a pair. Supplying just one is ambiguous (we can't
             # infer the other), so reject it explicitly rather than silently ignoring the input — the old
             # behavior of updating a single field is no longer possible now that they're derived.

@@ -1548,8 +1548,8 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.get(name='Legacy Create')
         self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/443'])
 
-    def test_port_mappings_takes_precedence_over_legacy(self):
-        """When both formats are supplied, the new port_mappings field wins."""
+    def test_both_formats_rejected(self):
+        """Supplying both port_mappings and the legacy protocol/ports is ambiguous and must 400."""
         self.add_permissions('ipam.add_servicetemplate')
         data = {
             'name': 'Both Formats',
@@ -1558,9 +1558,8 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
             'ports': [80],
         }
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        template = ServiceTemplate.objects.get(name='Both Formats')
-        self.assertEqual(template.port_mappings, ['udp/53'])
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(ServiceTemplate.objects.filter(name='Both Formats').exists())
 
     def test_create_legacy_port_out_of_range_rejected(self):
         """A legacy ports value outside the permitted range is rejected with a 400 (not a 500)."""
