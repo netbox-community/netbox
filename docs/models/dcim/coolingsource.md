@@ -1,6 +1,6 @@
 # Cooling Source
 
-A cooling source represents a facility-level source of cooling, such as a chiller, cooling tower, or dry cooler. It is the cooling equivalent of a [power panel](./powerpanel.md): it serves as the upstream origin for one or more [cooling feeds](./coolingfeed.md) which distribute coolant to racks and devices. A cooling source is not modeled as a device; it represents external facility plant.
+A cooling source represents a facility-level source of cooling, such as a chiller, cooling tower, or dry cooler. It serves as the upstream origin for one or more [cooling feeds](./coolingfeed.md) which distribute coolant to racks and devices. A cooling source is not modeled as a device; it represents external facility plant.
 
 ## Fields
 
