@@ -24,7 +24,7 @@ A [cooling source](../models/dcim/coolingsource.md) is the furthest upstream coo
 
 ## Cooling Feeds
 
-A [cooling feed](../models/dcim/coolingfeed.md) represents a coolant loop originating from a cooling source and serving a particular rack. Each feed records an operational status, a rated cooling capacity, and a rated (design) flow rate.
+A [cooling feed](../models/dcim/coolingfeed.md) represents a coolant loop running between a cooling source and a particular rack. Each feed records an operational status, a rated cooling capacity, and a rated (design) flow rate.
 
 ## Device Components
 
