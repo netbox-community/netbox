@@ -237,7 +237,7 @@ class FlowRateUnitChoices(ChoiceSet):
 
     # Metric
     UNIT_LITERS_PER_MINUTE = 'lpm'
-    UNIT_CUBIC_METERS_PER_HOUR = 'm3h'
+    UNIT_CUBIC_METERS_PER_HOUR = 'm3ph'
 
     # Imperial
     UNIT_GALLONS_PER_MINUTE = 'gpm'
