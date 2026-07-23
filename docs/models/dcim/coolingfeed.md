@@ -4,8 +4,6 @@ A cooling feed represents a coolant loop delivered from a [cooling source](./coo
 
 A single feed represents the entire loop, covering both the supply (cold) and return (warm) paths.
 
-The rated flow rate recorded on a feed is a design specification (the intended operating envelope), not live telemetry; runtime readings belong in an external monitoring system.
-
 !!! tip
     In-rack cooling equipment — coolant distribution units (CDUs), manifolds, and rear-door heat exchangers (RDHx) — is modeled as an ordinary (typically zero-U) [device](./device.md) installed in the rack. The device's make and model come from its [device type](./devicetype.md), and a [cooling intake](./coolingintake.md) component connects it to cooling. The feed serving such a device is derived from its rack.
 
