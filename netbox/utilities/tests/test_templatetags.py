@@ -372,3 +372,20 @@ class RenderFieldsetInlineRequiredTestCase(TestCase):
         )
         html = self._render(fieldset)
         self.assertNotIn('col-form-label text-lg-end required', html)
+
+    def test_inline_help_text_rendered(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'another_optional', label='Combined', help_text='Shared guidance'),
+        )
+        html = self._render(fieldset)
+        # The shared help text is rendered in its own row (col offset-3) beneath the fields
+        self.assertIn('Shared guidance', html)
+        self.assertIn('col offset-3', html)
+
+    def test_inline_help_text_omitted_when_not_provided(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'another_optional', label='Combined'),
+        )
+        html = self._render(fieldset)
+        # With no help text, the shared help-text row (col offset-3) must not be rendered
+        self.assertNotIn('col offset-3', html)
