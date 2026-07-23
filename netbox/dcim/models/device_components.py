@@ -692,7 +692,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
 class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
     """
-    A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake). A
+    A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
     CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
     """
     type = models.CharField(
