@@ -45,10 +45,3 @@ Racks and devices carry lightweight cooling attributes independent of the feed/c
 - A [rack](../models/dcim/rack.md) records a **cooling capability** (air-only, liquid-capable, or liquid-required) and a **cooling capacity** in kilowatts, typically inherited from its rack type.
 - A [device](../models/dcim/device.md) records a **cooling method** (air, liquid, hybrid, or immersion), inherited from its device type and overridable per device.
 
-!!! note "Scope of the initial version"
-    The cooling model captures topology and design specifications. A few capabilities are intentionally left out at this point:
-
-    - **The return path is implicit.** A single feed models the whole loop; the supply and return legs are not traced as separate objects.
-    - **Path tracing and impact analysis are not yet surfaced.** The reference chain supports tracing a loop, but there is no graphical trace or "what does this source feed?" view yet.
-    - **Individual hoses are not inventoried.** Connections are modeled as direct references, not as first-class cable objects.
-    - **No design pressure or temperature.** These are operating conditions with no stable design value independent of live readings, so they are recorded in a monitoring system rather than in NetBox.
