@@ -20,7 +20,7 @@ There are two intentional differences from the power model:
 
 ## Cooling Sources
 
-A [cooling source](../models/dcim/coolingsource.md) is the furthest upstream cooling element modeled in NetBox, representing facility plant such as a chiller, cooling tower, dry cooler, or CRAC/CRAH unit. Each source is associated with a site, and may optionally be associated with a particular location within that site. A cooling source is not a device; it represents external facility plant, and records the coolant (fluid type) and total rated cooling capacity for the loops it originates.
+A [cooling source](../models/dcim/coolingsource.md) is the furthest upstream cooling element modeled in NetBox, representing a chiller, cooling tower, dry cooler, or CRAC/CRAH unit. Each source is associated with a site, and may optionally be associated with a particular location within that site. A cooling source is not a device; it represents external facility plant, and records the coolant (fluid type) and total rated cooling capacity for the loops it originates.
 
 ## Cooling Feeds
 
