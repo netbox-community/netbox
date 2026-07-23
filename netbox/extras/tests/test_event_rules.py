@@ -638,6 +638,13 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         Pre-existing non-dict action_data must not cause flush_events() to
         raise.
         """
+        # flush_events() logs a warning about the invalid action_data; mute it so the expected
+        # message doesn't clutter the test runner's output.
+        events_logger = logging.getLogger('netbox.events_processor')
+        original_level = events_logger.level
+        events_logger.setLevel(logging.CRITICAL)
+        self.addCleanup(events_logger.setLevel, original_level)
+
         site_type = ObjectType.objects.get_for_model(Site)
         webhook = Webhook.objects.get(name='Webhook 1')
         webhook_type = ObjectType.objects.get_for_model(Webhook)
