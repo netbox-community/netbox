@@ -1,6 +1,6 @@
 # Cooling Intakes
 
-A cooling intake is a device component which represents a coolant intake on a device, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling intake optionally references the upstream [cooling outflow](./coolingoutflow.md) which supplies it. The [cooling feed](./coolingfeed.md) an intake belongs to is derived from the rack in which its device is installed, rather than referenced directly.
+A cooling intake is a device component which consumes coolant, such as a server cold-plate inlet or a coolant distribution unit (CDU) intake. A cooling intake optionally references the upstream [cooling outflow](./coolingoutflow.md) which supplies it. The [cooling feed](./coolingfeed.md) an intake belongs to is derived from the rack in which its device is installed, rather than referenced directly.
 
 !!! tip
     Like most device components, cooling intakes are instantiated automatically from [cooling intake templates](./coolingintaketemplate.md) assigned to the selected device type when a device is created.
