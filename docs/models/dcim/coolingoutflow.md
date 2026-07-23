@@ -2,6 +2,8 @@
 
 A cooling outflow is a device component which delivers coolant to a downstream [cooling intake](./coolingintake.md), and generally represents an outlet on a coolant distribution unit (CDU) or manifold. A cooling outflow may optionally be associated with an upstream cooling intake on the same device for path tracing.
 
+A cooling outflow is a **supply** point on the cold, coolant-distribution side of a loop: it passes coolant onward to downstream equipment. It does **not** represent the return of warmed coolant back to the cooling source. The return path is not modeled per-component; instead, a single [cooling feed](./coolingfeed.md) represents the entire loop, covering both the supply (cold) and return (warm) paths.
+
 !!! tip
     Like most device components, cooling outflows are instantiated automatically from [cooling outflow templates](./coolingoutflowtemplate.md) assigned to the selected device type when a device is created.
 
