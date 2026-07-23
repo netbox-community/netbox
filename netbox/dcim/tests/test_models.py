@@ -242,7 +242,7 @@ class RackTypeTestCase(TestCase):
             weight_unit=WeightUnitChoices.UNIT_POUND,
             max_weight=7777,
             mounting_depth=8,
-            cooling_capability=RackCoolingCapabilityChoices.LIQUID_REQUIRED,
+            cooling_capability=RackCoolingCapabilityChoices.LIQUID_ONLY,
             cooling_capacity=80,
         )
 

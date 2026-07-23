@@ -40,6 +40,6 @@ Devices participate in cooling through two component types, instantiated from te
 
 Racks and devices carry lightweight cooling attributes independent of the feed/component topology:
 
-- A [rack](../models/dcim/rack.md) records a **cooling capability** (air-only, liquid-capable, or liquid-required) and a **cooling capacity** in kilowatts, typically inherited from its rack type.
+- A [rack](../models/dcim/rack.md) records a **cooling capability** (air-only, hybrid, or liquid-only) and a **cooling capacity** in kilowatts, typically inherited from its rack type.
 - A [device](../models/dcim/device.md) records a **cooling method** (air, liquid, hybrid, or immersion), inherited from its device type and overridable per device.
 

@@ -56,7 +56,7 @@ The maximum total weight capacity for all installed devices, inclusive of the ra
 
 ### Cooling Capability
 
-The rack design's coolant capability: air-only, liquid-capable, or liquid-required. Racks of this type inherit this value.
+The rack design's coolant capability: air-only, hybrid, or liquid-only. Racks of this type inherit this value.
 
 ### Cooling Capacity
 

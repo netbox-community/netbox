@@ -6,15 +6,11 @@ from dcim.choices import CableLengthUnitChoices
 from netbox.choices import (
     DiameterUnitChoices,
     FlowRateUnitChoices,
-    PressureUnitChoices,
-    TemperatureUnitChoices,
     WeightUnitChoices,
 )
 
 __all__ = (
-    'to_celsius',
     'to_grams',
-    'to_kilopascals',
     'to_liters_per_minute',
     'to_meters',
     'to_millimeters',
@@ -78,79 +74,6 @@ def to_meters(length, unit) -> Decimal:
     )
 
 
-def to_liters_per_minute(flow_rate, unit) -> Decimal:
-    """
-    Convert the given flow rate to liters per minute, returning a Decimal value.
-    """
-    try:
-        flow_rate = Decimal(flow_rate)
-    except InvalidOperation:
-        raise TypeError(_("Invalid value '{flow_rate}' for flow rate (must be a number)").format(flow_rate=flow_rate))
-    if flow_rate < 0:
-        raise ValueError(_("Flow rate must be a positive number"))
-
-    if unit == FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE:
-        return round(Decimal(flow_rate), 4)
-    if unit == FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR:
-        return round(flow_rate * Decimal(1000) / Decimal(60), 4)
-    if unit == FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE:
-        return round(flow_rate * Decimal('3.785411784'), 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(FlowRateUnitChoices.values())
-        )
-    )
-
-
-def to_kilopascals(pressure, unit) -> Decimal:
-    """
-    Convert the given pressure to kilopascals, returning a Decimal value.
-    """
-    try:
-        pressure = Decimal(pressure)
-    except InvalidOperation:
-        raise TypeError(_("Invalid value '{pressure}' for pressure (must be a number)").format(pressure=pressure))
-    if pressure < 0:
-        raise ValueError(_("Pressure must be a positive number"))
-
-    if unit == PressureUnitChoices.UNIT_KILOPASCAL:
-        return round(Decimal(pressure), 4)
-    if unit == PressureUnitChoices.UNIT_BAR:
-        return round(pressure * Decimal(100), 4)
-    if unit == PressureUnitChoices.UNIT_PSI:
-        return round(pressure * Decimal('6.894757'), 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(PressureUnitChoices.values())
-        )
-    )
-
-
-def to_celsius(temperature, unit) -> Decimal:
-    """
-    Convert the given temperature to degrees Celsius, returning a Decimal value. Temperatures may be negative.
-    """
-    try:
-        temperature = Decimal(temperature)
-    except InvalidOperation:
-        raise TypeError(
-            _("Invalid value '{temperature}' for temperature (must be a number)").format(temperature=temperature)
-        )
-
-    if unit == TemperatureUnitChoices.UNIT_CELSIUS:
-        return round(Decimal(temperature), 4)
-    if unit == TemperatureUnitChoices.UNIT_FAHRENHEIT:
-        return round((Decimal(temperature) - 32) * 5 / 9, 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(TemperatureUnitChoices.values())
-        )
-    )
-
-
 def to_millimeters(diameter, unit) -> Decimal:
     """
     Convert the given diameter to millimeters, returning a Decimal value.
@@ -172,5 +95,30 @@ def to_millimeters(diameter, unit) -> Decimal:
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,
             valid_units=', '.join(DiameterUnitChoices.values())
+        )
+    )
+
+
+def to_liters_per_minute(flow_rate, unit) -> Decimal:
+    """
+    Convert the given flow rate to liters per minute, returning a Decimal value.
+    """
+    try:
+        flow_rate = Decimal(flow_rate)
+    except InvalidOperation:
+        raise TypeError(_("Invalid value '{flow_rate}' for flow rate (must be a number)").format(flow_rate=flow_rate))
+    if flow_rate < 0:
+        raise ValueError(_("Flow rate must be a positive number"))
+
+    if unit == FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE:
+        return round(Decimal(flow_rate), 4)
+    if unit == FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR:
+        return round(flow_rate * Decimal(1000) / Decimal(60), 4)
+    if unit == FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE:
+        return round(flow_rate * Decimal('3.785411784'), 4)
+    raise ValueError(
+        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+            unit=unit,
+            valid_units=', '.join(FlowRateUnitChoices.values())
         )
     )

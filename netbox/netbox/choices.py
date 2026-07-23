@@ -12,8 +12,6 @@ __all__ = (
     'FlowRateUnitChoices',
     'ImportFormatChoices',
     'ImportMethodChoices',
-    'PressureUnitChoices',
-    'TemperatureUnitChoices',
     'WeightUnitChoices',
 )
 
@@ -219,20 +217,6 @@ class DiameterUnitChoices(ChoiceSet):
     )
 
 
-class TemperatureUnitChoices(ChoiceSet):
-
-    # Metric
-    UNIT_CELSIUS = 'c'
-
-    # Imperial
-    UNIT_FAHRENHEIT = 'f'
-
-    CHOICES = (
-        (UNIT_CELSIUS, _('Celsius')),
-        (UNIT_FAHRENHEIT, _('Fahrenheit')),
-    )
-
-
 class FlowRateUnitChoices(ChoiceSet):
 
     # Metric
@@ -246,20 +230,4 @@ class FlowRateUnitChoices(ChoiceSet):
         (UNIT_LITERS_PER_MINUTE, _('Liters per minute (L/min)')),
         (UNIT_CUBIC_METERS_PER_HOUR, _('Cubic meters per hour (m³/h)')),
         (UNIT_GALLONS_PER_MINUTE, _('Gallons per minute (GPM)')),
-    )
-
-
-class PressureUnitChoices(ChoiceSet):
-
-    # Metric
-    UNIT_KILOPASCAL = 'kpa'
-    UNIT_BAR = 'bar'
-
-    # Imperial
-    UNIT_PSI = 'psi'
-
-    CHOICES = (
-        (UNIT_KILOPASCAL, _('Kilopascals (kPa)')),
-        (UNIT_BAR, _('Bar')),
-        (UNIT_PSI, _('Pounds per square inch (PSI)')),
     )
