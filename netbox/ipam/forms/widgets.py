@@ -51,12 +51,3 @@ class PortMappingWidget(forms.Widget):
 
     def value_from_datadict(self, data, files, name):
         return data.get(name)
-
-    def format_value(self, value):
-        # Mirror PortMappingField.prepare_value: a raw flat list is grouped into rows; a pre-converted
-        # JSON string is passed through unchanged.
-        if value is None:
-            return '[]'
-        if isinstance(value, str):
-            return value
-        return json.dumps(group_mappings(value))

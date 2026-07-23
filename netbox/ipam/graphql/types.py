@@ -7,7 +7,7 @@ from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
-from ipam.validators import group_port_mappings, legacy_protocol_and_ports
+from ipam.validators import group_port_mappings, legacy_protocol_and_ports, sorted_int_ports
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
@@ -264,7 +264,7 @@ _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-
 
 def _grouped_port_mappings(obj):
     return [
-        ServicePortMappingType(protocol=protocol, ports=sorted(int(port) for port in ports))
+        ServicePortMappingType(protocol=protocol, ports=sorted_int_ports(ports))
         for protocol, ports in group_port_mappings(obj.port_mappings).items()
     ]
 

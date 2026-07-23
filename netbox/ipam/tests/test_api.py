@@ -1587,6 +1587,17 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template.refresh_from_db()
         self.assertEqual(template.port_mappings, ['tcp/80'])
 
+    def test_read_malformed_port_mapping_degrades(self):
+        """A malformed stored mapping (validation bypassed) must degrade on API read, not raise a 500."""
+        self.add_permissions('ipam.view_servicetemplate')
+        # objects.create bypasses full_clean, simulating a raw-DB/plugin write of a non-numeric port
+        template = ServiceTemplate.objects.create(name='Malformed', port_mappings=['tcp/80', 'tcp/abc'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        # The bad port is dropped rather than crashing the serializer
+        self.assertEqual(response.data['port_mappings'], [{'protocol': 'tcp', 'ports': [80]}])
+        self.assertEqual(response.data['ports'], [80])
+
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service

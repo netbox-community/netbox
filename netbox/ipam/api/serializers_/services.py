@@ -7,7 +7,12 @@ from rest_framework import serializers
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
-from ipam.validators import group_port_mappings, legacy_protocol_and_ports, validate_port_mappings
+from ipam.validators import (
+    group_port_mappings,
+    legacy_protocol_and_ports,
+    sorted_int_ports,
+    validate_port_mappings,
+)
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
@@ -39,7 +44,7 @@ class PortMappingsField(serializers.Field):
 
     def to_representation(self, value):
         return [
-            {'protocol': protocol, 'ports': sorted(int(port) for port in ports)}
+            {'protocol': protocol, 'ports': sorted_int_ports(ports)}
             for protocol, ports in group_port_mappings(value).items()
         ]
 
