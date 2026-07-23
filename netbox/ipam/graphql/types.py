@@ -7,7 +7,7 @@ from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
-from ipam.validators import group_port_mappings
+from ipam.validators import group_port_mappings, legacy_protocol_and_ports
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
@@ -270,16 +270,11 @@ def _grouped_port_mappings(obj):
 
 
 def _legacy_protocol(obj):
-    grouped = group_port_mappings(obj.port_mappings)
-    return next(iter(grouped)) if len(grouped) == 1 else None
+    return legacy_protocol_and_ports(obj.port_mappings)[0]
 
 
 def _legacy_ports(obj):
-    grouped = group_port_mappings(obj.port_mappings)
-    if len(grouped) == 1:
-        return sorted(int(port) for port in next(iter(grouped.values())))
-    # Empty is representable as an empty list; multiple protocols can't be, so return null.
-    return [] if not grouped else None
+    return legacy_protocol_and_ports(obj.port_mappings)[1]
 
 
 @register_type(

@@ -25,6 +25,24 @@ def group_port_mappings(mappings):
     return grouped
 
 
+def legacy_protocol_and_ports(mappings):
+    """
+    Collapse port mappings into the deprecated single-protocol ``(protocol, ports)`` representation.
+    Single source of truth for the backward-compatibility contract shared by the REST serializers and
+    the GraphQL types:
+
+      * single protocol    -> ``(protocol, [sorted int ports])``
+      * no mappings         -> ``(None, [])``   (representable as an empty legacy ports list)
+      * multiple protocols  -> ``(None, None)`` (not representable; ``ports=None`` signals "read
+        port_mappings instead")
+    """
+    grouped = group_port_mappings(mappings)
+    if len(grouped) == 1:
+        protocol, ports = next(iter(grouped.items()))
+        return protocol, sorted(int(port) for port in ports)
+    return (None, []) if not grouped else (None, None)
+
+
 def validate_port_mappings(mappings):
     """
     Validate a list of service port mappings, i.e. ``protocol/port`` strings such as ``'tcp/80'``.

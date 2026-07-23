@@ -7,7 +7,7 @@ from rest_framework import serializers
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
-from ipam.validators import group_port_mappings, validate_port_mappings
+from ipam.validators import group_port_mappings, legacy_protocol_and_ports, validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
@@ -136,19 +136,7 @@ class PortMappingsSerializerMixin:
         # with multiple protocols reports ports=null to signal "not representable in the legacy format;
         # use port_mappings".
         if 'protocol' in self.fields and 'ports' in self.fields:
-            grouped = group_port_mappings(instance.port_mappings)
-            if len(grouped) == 1:
-                protocol, ports = next(iter(grouped.items()))
-                data['protocol'] = protocol
-                data['ports'] = sorted(int(port) for port in ports)
-            elif not grouped:
-                # No mappings: representable in the legacy format as an empty ports list.
-                data['protocol'] = None
-                data['ports'] = []
-            else:
-                # Multiple protocols can't be represented in the old single-protocol format.
-                data['protocol'] = None
-                data['ports'] = None
+            data['protocol'], data['ports'] = legacy_protocol_and_ports(instance.port_mappings)
 
         return data
 
