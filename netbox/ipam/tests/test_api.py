@@ -1575,16 +1575,38 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_legacy_ports_only_rejected(self):
-        """A partial update supplying only legacy 'ports' must 400 rather than silently no-op."""
+    def test_update_legacy_ports_only(self):
+        """A partial update supplying only legacy 'ports' keeps the existing single protocol."""
         self.add_permissions('ipam.change_servicetemplate')
         template = ServiceTemplate.objects.create(name='Legacy Patch', port_mappings=['tcp/80'])
         response = self.client.patch(
             self._get_detail_url(template), {'ports': [8080]}, format='json', **self.header
         )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/8080'])
+
+    def test_update_legacy_protocol_only(self):
+        """A partial update supplying only legacy 'protocol' keeps the existing ports."""
+        self.add_permissions('ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Patch', port_mappings=['tcp/80', 'tcp/443'])
+        response = self.client.patch(
+            self._get_detail_url(template), {'protocol': 'udp'}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['udp/80', 'udp/443'])
+
+    def test_update_legacy_single_field_multiprotocol_rejected(self):
+        """A single legacy field can't patch a multi-protocol service (no single-protocol form)."""
+        self.add_permissions('ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Patch', port_mappings=['tcp/80', 'udp/53'])
+        response = self.client.patch(
+            self._get_detail_url(template), {'ports': [8080]}, format='json', **self.header
+        )
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         template.refresh_from_db()
-        self.assertEqual(template.port_mappings, ['tcp/80'])
+        self.assertEqual(template.port_mappings, ['tcp/80', 'udp/53'])
 
     def test_read_malformed_port_mapping_degrades(self):
         """A malformed stored mapping (validation bypassed) must degrade on API read, not raise a 500."""

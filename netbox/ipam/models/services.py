@@ -79,10 +79,13 @@ class ServiceBase(models.Model):
     def port_list(self):
         # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
         # numerically within each protocol so the display is stable regardless of stored order.
+        # Render each protocol via its defined label, falling back to the stored value if unknown.
+        protocol_labels = dict(ServiceProtocolChoices)
         return ', '.join(
             # Guard the numeric sort so a malformed entry that bypassed validation (e.g. a raw SQL
             # insert) degrades gracefully instead of raising ValueError when the service is rendered.
-            f'{protocol.upper()}/{",".join(sorted(ports, key=lambda p: int(p) if p.isdigit() else 0))}'
+            f'{protocol_labels.get(protocol, protocol)}/'
+            f'{",".join(sorted(ports, key=lambda p: int(p) if p.isdigit() else 0))}'
             for protocol, ports in group_port_mappings(self.port_mappings).items()
         )
 

@@ -117,9 +117,18 @@ class PortMappingsSerializerMixin:
                 raise serializers.ValidationError(_(
                     "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
                 ))
-            # The legacy fields only form a mapping as a pair. Supplying just one is ambiguous (we can't
-            # infer the other), so reject it explicitly rather than silently ignoring the input — the old
-            # behavior of updating a single field is no longer possible now that they're derived.
+            # The legacy API let either field be updated on its own (e.g. a PATCH that adjusts only the
+            # port list). Preserve that by backfilling the omitted field from the instance's current
+            # single-protocol representation.
+            if not (legacy_protocol and legacy_ports):
+                existing_protocol, existing_ports = (
+                    legacy_protocol_and_ports(self.instance.port_mappings) if self.instance else (None, None)
+                )
+                legacy_protocol = legacy_protocol or existing_protocol
+                if legacy_ports is None:
+                    legacy_ports = existing_ports
+            # If the pair still can't be resolved — a create, or an existing multi-protocol service that
+            # has no single-protocol form — the request can't be expressed in the legacy format.
             if not (legacy_protocol and legacy_ports):
                 raise serializers.ValidationError(_(
                     "Both 'protocol' and 'ports' are required when writing via the deprecated legacy "
