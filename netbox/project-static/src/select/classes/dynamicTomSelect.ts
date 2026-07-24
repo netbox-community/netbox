@@ -19,6 +19,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
   private readonly pathValues: PathFilter = new Map();
 
+  // Incremented on every load() call. Lets us detect and discard stale responses: if a
+  // newer load() has started (e.g. because two dependencies changed in quick succession)
+  // before an older request's response arrives, the older response is out of date and
+  // must not be allowed to overwrite state set by the newer one.
+  private loadSequence = 0;
+
   /**
    * Overrides
    */
@@ -71,7 +77,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     this.addEventListeners();
   }
 
-  load(value: string, preserveValue?: string | string[]) {
+  load(value: string, preserveValue?: string | string[], notifyChange = false) {
     const self = this;
 
     // Automatically clear any cached options. (Only options included
@@ -92,6 +98,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
 
+    // Record which request this is. If another load() call starts before this one's
+    // response comes back, `self.loadSequence` will have moved on and this response is
+    // stale -- it must be discarded rather than applied.
+    self.loadSequence += 1;
+    const sequence = self.loadSequence;
+
     // Make the API request
     fetch(url)
       .then(response => response.json())
@@ -106,17 +118,37 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       })
       // Pass the options to the callback function
       .then(options => {
+        // A newer load() has since been issued (e.g. two dependencies changed in quick
+        // succession). This response is stale; applying it now would risk clobbering
+        // state already set by the newer, still-in-flight or already-resolved request.
+        if (sequence !== self.loadSequence) {
+          return;
+        }
         self.loadCallback(options, []);
         // Restore the previous selection if it is still valid under the new filter.
+        let restored = false;
         if (preserveValue !== undefined) {
           const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
           const validValues = values.filter(v => v !== '' && v in self.options);
           if (validValues.length > 0) {
             self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
+            restored = true;
           }
+        }
+        // If this reload was triggered by one of our own dependencies changing, and we
+        // had a previous value that could *not* be restored (i.e. it's no longer valid
+        // under the new filter), this field's value has genuinely changed as a side
+        // effect. `clear()` and the silent `setValue()` call above don't dispatch a
+        // native `change` event, so without this, any other field that depends on this
+        // one would never learn that its value changed and would keep stale data.
+        if (notifyChange && preserveValue !== undefined && !restored) {
+          self.input.dispatchEvent(new Event('change'));
         }
       })
       .catch(() => {
+        if (sequence !== self.loadSequence) {
+          return;
+        }
         self.loadCallback([], []);
       });
   }
@@ -358,6 +390,6 @@ export class DynamicTomSelect extends NetBoxTomSelect {
 
     // Load new data, restoring the previous selection if it is still valid under the new filter.
     const preserve = previousValue !== '' && previousValue !== null ? previousValue : undefined;
-    this.load(this.lastValue, preserve);
+    this.load(this.lastValue, preserve, true);
   }
 }
