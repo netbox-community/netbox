@@ -34,33 +34,7 @@ class PortMappingsField(serializers.ListField):
             raise serializers.ValidationError(exc.messages)
 
 
-# Legacy single-protocol fields, retained on the serializers for backward compatibility. Declared via
-# factories (rather than on the shared mixin) because DRF's serializer metaclass only collects declared
-# fields from the class itself and other serializers — not from a plain mixin. default=None keeps them
-# from being sourced off the (now nonexistent) model attributes; the real values are filled in by
-# PortMappingsSerializerMixin.to_representation().
-# TODO: Remove in v5.0 along with the legacy handling in PortMappingsSerializerMixin.
-def _legacy_protocol_field():
-    return serializers.ChoiceField(
-        choices=ServiceProtocolChoices,
-        required=False,
-        allow_null=True,
-        default=None,
-        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
-    )
-
-
-def _legacy_ports_field():
-    return serializers.ListField(
-        child=serializers.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        required=False,
-        allow_null=True,
-        default=None,
-        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
-    )
-
-
-class PortMappingsSerializerMixin:
+class PortMappingsSerializerMixin(serializers.Serializer):
     """
     Shared port-mapping handling for the Service and ServiceTemplate serializers, including backward
     compatibility for the legacy single-protocol ``protocol``/``ports`` representation.
@@ -72,7 +46,30 @@ class PortMappingsSerializerMixin:
     Write: either format is accepted, but not both in the same request. When the legacy
     ``protocol``/``ports`` pair is supplied (and ``port_mappings`` is not), it is translated into
     ``port_mappings``; supplying both formats together is rejected as ambiguous.
+
+    Subclassing ``serializers.Serializer`` (rather than a plain mixin) lets DRF's metaclass collect the
+    fields declared here into the inheriting serializers.
     """
+    port_mappings = PortMappingsField(required=False)
+
+    # Legacy single-protocol fields, retained for backward compatibility. default=None keeps them from
+    # being sourced off the (now nonexistent) model attributes; the real values are filled in by
+    # to_representation() below.
+    # TODO: Remove protocol/ports in v5.0 along with the legacy handling in validate()/to_representation().
+    protocol = serializers.ChoiceField(
+        choices=ServiceProtocolChoices,
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
+    )
+    ports = serializers.ListField(
+        child=serializers.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text=_("Deprecated; use port_mappings. Reported only for single-protocol services."),
+    )
 
     def validate(self, data):
         # Consume the legacy fields and translate them into port_mappings *before* calling super(),
@@ -128,9 +125,6 @@ class PortMappingsSerializerMixin:
 
 
 class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
-    port_mappings = PortMappingsField(required=False)
-    protocol = _legacy_protocol_field()
-    ports = _legacy_ports_field()
 
     class Meta:
         model = ServiceTemplate
@@ -142,9 +136,6 @@ class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSeriali
 
 
 class ServiceSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
-    port_mappings = PortMappingsField(required=False)
-    protocol = _legacy_protocol_field()
-    ports = _legacy_ports_field()
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
         serializer=IPAddressSerializer,
