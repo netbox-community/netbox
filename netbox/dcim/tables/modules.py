@@ -67,12 +67,16 @@ class ModuleTypeTable(PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
+    image_count = tables.Column(
+        verbose_name=_('Images'),
+        orderable=False,
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
-            'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
+            'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated', 'image_count',
         )
         default_columns = (
             'pk', 'model', 'profile', 'manufacturer', 'part_number', 'module_count',

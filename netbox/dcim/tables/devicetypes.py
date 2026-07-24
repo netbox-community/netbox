@@ -146,6 +146,18 @@ class DeviceTypeTable(PrimaryModelTable):
     inventory_item_template_count = tables.Column(
         verbose_name=_('Inventory Items')
     )
+    front_image = columns.BooleanColumn(
+        verbose_name=_('Front Image'),
+        false_mark=None
+    )
+    rear_image = columns.BooleanColumn(
+        verbose_name=_('Rear Image'),
+        false_mark=None
+    )
+    image_count = tables.Column(
+        verbose_name=_('Images'),
+        orderable=False,
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = models.DeviceType
@@ -153,6 +165,7 @@ class DeviceTypeTable(PrimaryModelTable):
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
             'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
             'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
+            'front_image', 'rear_image', 'image_count',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'device_count',
