@@ -7,7 +7,7 @@ from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
-from ipam.validators import group_port_mappings, legacy_protocol_and_ports, sorted_int_ports
+from ipam.validators import legacy_protocol_and_ports
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
@@ -46,7 +46,6 @@ __all__ = (
     'RIRType',
     'RoleType',
     'RouteTargetType',
-    'ServicePortMappingType',
     'ServiceTemplateType',
     'ServiceType',
     'VLANGroupType',
@@ -250,23 +249,9 @@ class RouteTargetType(PrimaryObjectType):
     exporting_vrfs: list[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry.type
-class ServicePortMappingType:
-    """A single protocol and its associated ports, e.g. ``{protocol: "tcp", ports: [80, 443]}``."""
-    protocol: str
-    ports: list[int]
-
-
-# Shared logic for the port-mapping GraphQL fields. The fields themselves are declared on each type
-# (rather than via a mixin) so they reliably override the auto-generated model field of the same name.
+# Shared logic for the legacy port-mapping GraphQL fields. The fields themselves are declared on each
+# type (rather than via a mixin) so they reliably override the auto-generated model field of the same name.
 _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-protocol services."
-
-
-def _grouped_port_mappings(obj):
-    return [
-        ServicePortMappingType(protocol=protocol, ports=sorted_int_ports(ports))
-        for protocol, ports in group_port_mappings(obj.port_mappings).items()
-    ]
 
 
 def _legacy_protocol(obj):
@@ -279,17 +264,13 @@ def _legacy_ports(obj):
 
 @register_type(
     models.Service,
-    # port_mappings is excluded from auto-generation and re-declared below as a grouped resolver.
-    exclude=('parent_object_type', 'parent_object_id', 'port_mappings'),
+    exclude=('parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
+    port_mappings: list[str]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
-
-    @strawberry_django.field
-    def port_mappings(self) -> list[ServicePortMappingType]:
-        return _grouped_port_mappings(self)
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def protocol(self) -> str | None:
@@ -311,16 +292,12 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @register_type(
     models.ServiceTemplate,
-    # All fields except port_mappings, which is re-declared below as a grouped resolver.
-    exclude=('port_mappings',),
+    fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
-
-    @strawberry_django.field
-    def port_mappings(self) -> list[ServicePortMappingType]:
-        return _grouped_port_mappings(self)
+    port_mappings: list[str]
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def protocol(self) -> str | None:

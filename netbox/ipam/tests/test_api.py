@@ -1421,9 +1421,6 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     graphql_base_name = 'service_template'
-    # port_mappings is a grouped {protocol, ports} representation on the API but a flat string list on
-    # the model, so exclude it from the generic instance/data comparison (covered by explicit tests).
-    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1436,44 +1433,41 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'name': 'Service Template 4',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [7, 8]}],
+                'port_mappings': ['tcp/7', 'tcp/8'],
             },
             {
                 'name': 'Service Template 5',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [53]}, {'protocol': 'udp', 'ports': [53]}],
+                'port_mappings': ['tcp/53', 'udp/53'],
             },
             {
                 'name': 'Service Template 6',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [11, 12]}],
+                'port_mappings': ['tcp/11', 'tcp/12'],
             },
         ]
 
-    def test_graphql_grouped_port_mappings(self):
-        """port_mappings is exposed over GraphQL as a grouped list of {protocol, ports} objects."""
+    def test_graphql_port_mappings(self):
+        """port_mappings is exposed over GraphQL as a flat list of protocol/port strings."""
         self.add_permissions('ipam.view_servicetemplate')
-        template = ServiceTemplate.objects.create(name='GQL Grouped', port_mappings=['tcp/80', 'udp/53'])
+        template = ServiceTemplate.objects.create(name='GQL Mappings', port_mappings=['tcp/80', 'udp/53'])
         url = reverse('graphql')
-        query = f'{{ service_template(id: {template.pk}) {{ port_mappings {{ protocol ports }} }} }}'
+        query = f'{{ service_template(id: {template.pk}) {{ port_mappings }} }}'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
-        self.assertEqual(data['data']['service_template']['port_mappings'], [
-            {'protocol': 'tcp', 'ports': [80]},
-            {'protocol': 'udp', 'ports': [53]},
-        ])
+        self.assertEqual(data['data']['service_template']['port_mappings'], ['tcp/80', 'udp/53'])
 
     def test_create_duplicate_mapping_rejected(self):
         """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
         self.add_permissions('ipam.add_servicetemplate')
-        data = {'name': 'Duplicate', 'port_mappings': [{'protocol': 'tcp', 'ports': [80, 80]}]}
+        data = {'name': 'Duplicate', 'port_mappings': ['tcp/80', 'tcp/80']}
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_create_port_out_of_range_rejected(self):
         """Ports outside SERVICE_PORT_MIN..SERVICE_PORT_MAX are rejected with a 400."""
         self.add_permissions('ipam.add_servicetemplate')
-        data = {'name': 'OutOfRange', 'port_mappings': [{'protocol': 'tcp', 'ports': [70000]}]}
+        data = {'name': 'OutOfRange', 'port_mappings': ['tcp/70000']}
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
@@ -1485,24 +1479,21 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_create_normalizes_port_mappings(self):
-        """Grouped input is flattened and normalized (deduplicated) into the model's canonical form."""
+        """Input is normalized (e.g. leading zeros stripped) into the model's canonical form."""
         self.add_permissions('ipam.add_servicetemplate')
-        data = {'name': 'Normalized', 'port_mappings': [{'protocol': 'tcp', 'ports': [443, 80]}]}
+        data = {'name': 'Normalized', 'port_mappings': ['tcp/443', 'tcp/080']}
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         template = ServiceTemplate.objects.get(name='Normalized')
         self.assertEqual(template.port_mappings, ['tcp/443', 'tcp/80'])
 
-    def test_grouped_read_round_trip(self):
-        """port_mappings reads back as a grouped {protocol, ports} list with ports sorted per protocol."""
+    def test_port_mappings_read(self):
+        """port_mappings reads back as the stored flat list of protocol/port strings."""
         self.add_permissions('ipam.view_servicetemplate')
-        template = ServiceTemplate.objects.create(name='Grouped', port_mappings=['tcp/443', 'tcp/80', 'udp/53'])
+        template = ServiceTemplate.objects.create(name='Mappings', port_mappings=['tcp/443', 'tcp/80', 'udp/53'])
         response = self.client.get(self._get_detail_url(template), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['port_mappings'], [
-            {'protocol': 'tcp', 'ports': [80, 443]},
-            {'protocol': 'udp', 'ports': [53]},
-        ])
+        self.assertEqual(response.data['port_mappings'], ['tcp/443', 'tcp/80', 'udp/53'])
 
     def test_legacy_read_single_protocol(self):
         """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
@@ -1512,7 +1503,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['protocol'], 'tcp')
         self.assertEqual(response.data['ports'], [80, 443])
-        self.assertEqual(response.data['port_mappings'], [{'protocol': 'tcp', 'ports': [80, 443]}])
+        self.assertEqual(response.data['port_mappings'], ['tcp/80', 'tcp/443'])
 
     def test_legacy_read_multiple_protocols_null(self):
         """A multi-protocol service can't be expressed in the old format, so protocol/ports are null."""
@@ -1522,10 +1513,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIsNone(response.data['protocol'])
         self.assertIsNone(response.data['ports'])
-        self.assertEqual(response.data['port_mappings'], [
-            {'protocol': 'tcp', 'ports': [53]},
-            {'protocol': 'udp', 'ports': [53]},
-        ])
+        self.assertEqual(response.data['port_mappings'], ['tcp/53', 'udp/53'])
 
     def test_legacy_read_empty_distinct_from_multiple(self):
         """An empty service is distinguishable from a multi-protocol one: ports=[] vs ports=null."""
@@ -1615,8 +1603,9 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.create(name='Malformed', port_mappings=['tcp/80', 'tcp/abc'])
         response = self.client.get(self._get_detail_url(template), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        # The bad port is dropped rather than crashing the serializer
-        self.assertEqual(response.data['port_mappings'], [{'protocol': 'tcp', 'ports': [80]}])
+        # port_mappings echoes the stored values verbatim (no reformatting); the legacy ports field,
+        # which does coerce to integers, drops the bad entry rather than crashing the serializer.
+        self.assertEqual(response.data['port_mappings'], ['tcp/80', 'tcp/abc'])
         self.assertEqual(response.data['ports'], [80])
 
 
@@ -1627,8 +1616,6 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     graphql_base_name = 'service'
-    # See ServiceTemplateTestCase: port_mappings is grouped on the API but flat on the model.
-    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1654,19 +1641,19 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 4',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [4]}],
+                'port_mappings': ['tcp/4'],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'dns',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [53]}, {'protocol': 'udp', 'ports': [53]}],
+                'port_mappings': ['tcp/53', 'udp/53'],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 6',
-                'port_mappings': [{'protocol': 'tcp', 'ports': [6]}],
+                'port_mappings': ['tcp/6'],
             },
         ]
 
@@ -1682,21 +1669,18 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(data['data']['service_list']), 1)
         self.assertEqual(data['data']['service_list'][0]['name'], 'Service 1')
 
-    def test_graphql_grouped_port_mappings(self):
-        """port_mappings is exposed over GraphQL as a grouped list of {protocol, ports} objects."""
+    def test_graphql_port_mappings(self):
+        """port_mappings is exposed over GraphQL as a flat list of protocol/port strings."""
         self.add_permissions('ipam.view_service')
         device = Device.objects.first()
-        service = Service.objects.create(parent=device, name='GQL Grouped', port_mappings=['tcp/80', 'udp/53'])
+        service = Service.objects.create(parent=device, name='GQL Mappings', port_mappings=['tcp/80', 'udp/53'])
         url = reverse('graphql')
-        query = f'{{ service(id: {service.pk}) {{ port_mappings {{ protocol ports }} }} }}'
+        query = f'{{ service(id: {service.pk}) {{ port_mappings }} }}'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
-        self.assertEqual(data['data']['service']['port_mappings'], [
-            {'protocol': 'tcp', 'ports': [80]},
-            {'protocol': 'udp', 'ports': [53]},
-        ])
+        self.assertEqual(data['data']['service']['port_mappings'], ['tcp/80', 'udp/53'])
 
     def test_legacy_read_single_protocol(self):
         """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""

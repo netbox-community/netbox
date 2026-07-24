@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
-from ipam.validators import group_port_mappings, validate_port_mappings
+from ipam.validators import split_port_mapping, validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
 
@@ -77,16 +77,13 @@ class ServiceBase(models.Model):
 
     @property
     def port_list(self):
-        # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
-        # numerically within each protocol so the display is stable regardless of stored order.
-        # Render each protocol via its defined label, falling back to the stored value if unknown.
+        # List each protocol/port pair individually for display, e.g. "TCP/80, TCP/443, UDP/53". Each
+        # protocol is rendered via its defined label (falling back to the stored value if unknown); the
+        # port is taken verbatim from the stored mapping, so no reformatting of the raw data is needed.
         protocol_labels = dict(ServiceProtocolChoices)
         return ', '.join(
-            # Guard the numeric sort so a malformed entry that bypassed validation (e.g. a raw SQL
-            # insert) degrades gracefully instead of raising ValueError when the service is rendered.
-            f'{protocol_labels.get(protocol, protocol)}/'
-            f'{",".join(sorted(ports, key=lambda p: int(p) if p.isdigit() else 0))}'
-            for protocol, ports in group_port_mappings(self.port_mappings).items()
+            f'{protocol_labels.get(protocol, protocol)}/{port}'
+            for protocol, port in (split_port_mapping(mapping) for mapping in self.port_mappings)
         )
 
 

@@ -1,18 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
-from ipam.validators import (
-    group_port_mappings,
-    legacy_protocol_and_ports,
-    sorted_int_ports,
-    validate_port_mappings,
-)
+from ipam.validators import legacy_protocol_and_ports, validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
@@ -25,39 +19,15 @@ __all__ = (
 )
 
 
-class PortMappingSerializer(serializers.Serializer):
-    """A single protocol and its associated ports, e.g. ``{"protocol": "tcp", "ports": [80, 443]}``."""
-    protocol = serializers.ChoiceField(choices=ServiceProtocolChoices)
-    ports = serializers.ListField(
-        child=serializers.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        allow_empty=False,
-    )
-
-
-@extend_schema_field(PortMappingSerializer(many=True))
-class PortMappingsField(serializers.Field):
+class PortMappingsField(serializers.ListField):
     """
-    Presents a service's port mappings as a grouped list of ``{protocol, ports}`` objects (one entry per
-    protocol) in both directions, while the model stores them flat as ``protocol/port`` strings. The
-    grouped shape mirrors the legacy single-protocol representation, easing migration.
+    A service's port mappings as a flat list of ``protocol/port`` strings (e.g. ``["tcp/80", "udp/53"]``),
+    matching how they are stored. Each entry is validated (and normalized) on write.
     """
-
-    def to_representation(self, value):
-        return [
-            {'protocol': protocol, 'ports': sorted_int_ports(ports)}
-            for protocol, ports in group_port_mappings(value).items()
-        ]
+    child = serializers.CharField()
 
     def to_internal_value(self, data):
-        # Validate the grouped structure, then flatten to the model's canonical protocol/port strings
-        # (which also merges any repeated protocols and normalizes/deduplicates ports).
-        entries = PortMappingSerializer(data=data, many=True)
-        entries.is_valid(raise_exception=True)
-        mappings = [
-            f'{entry["protocol"]}/{port}'
-            for entry in entries.validated_data
-            for port in entry['ports']
-        ]
+        mappings = super().to_internal_value(data)
         try:
             return validate_port_mappings(mappings)
         except DjangoValidationError as exc:

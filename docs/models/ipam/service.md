@@ -27,18 +27,19 @@ A service or protocol name.
 
 The protocols and ports on which the service runs. A service may expose the same port on multiple protocols — for example, DNS listening on both `tcp/53` and `udp/53`. In the UI, ports for a given protocol may be entered together using commas and/or hyphens (e.g. `80,8001-8003`).
 
-In the REST and GraphQL APIs, port mappings are represented as a list of `{protocol, ports}` objects — one entry per protocol:
+In the REST and GraphQL APIs, port mappings are represented as a flat list of `protocol/port` strings — matching how they are stored:
 
 ```json
 [
-  {"protocol": "tcp", "ports": [80, 443]},
-  {"protocol": "udp", "ports": [53]}
+  "tcp/80",
+  "tcp/443",
+  "udp/53"
 ]
 ```
 
 !!! note "Changed in NetBox v4.7"
 
-    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field (which supports multiple protocols per service, in the grouped form shown above). For backward compatibility, the REST and GraphQL APIs still expose the legacy `protocol` and `ports` fields, and the REST API still accepts them on write as an alternative to `port_mappings`. They are populated for single-protocol services; a service with multiple protocols cannot be represented in the legacy format and returns `null` for both, while a service with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in NetBox v5.0; use `port_mappings` instead.**
+    The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field, which supports multiple protocols per service. For backward compatibility, the REST and GraphQL APIs still expose the legacy `protocol` and `ports` fields, and the REST API still accepts them on write as an alternative to `port_mappings`. They are populated for single-protocol services; a service with multiple protocols cannot be represented in the legacy format and returns `null` for both, while a service with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in NetBox v5.0; use `port_mappings` instead.**
 
 ### IP Addresses
 

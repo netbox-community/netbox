@@ -1998,12 +1998,11 @@ class ServiceTestCase(TestCase):
 
     def test_port_list_summary(self):
         """
-        The port_list property groups mappings by protocol across the service.
+        The port_list property renders each protocol/port pair individually for display.
         """
         service = Service.objects.create(
             name='dns',
             parent=VirtualMachine.objects.first(),
             port_mappings=['tcp/53', 'udp/53'],
         )
-        self.assertIn('TCP/53', service.port_list)
-        self.assertIn('UDP/53', service.port_list)
+        self.assertEqual(service.port_list, 'TCP/53, UDP/53')
