@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-23 05:58+0000\n"
+"POT-Creation-Date: 2026-07-24 05:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1405,8 +1405,8 @@ msgstr ""
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:98
 #: netbox/extras/models/configs.py:289 netbox/extras/models/customfields.py:153
 #: netbox/extras/models/models.py:73 netbox/extras/models/models.py:182
-#: netbox/extras/models/models.py:429 netbox/extras/models/models.py:497
-#: netbox/extras/models/models.py:581 netbox/extras/models/models.py:724
+#: netbox/extras/models/models.py:435 netbox/extras/models/models.py:503
+#: netbox/extras/models/models.py:587 netbox/extras/models/models.py:730
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
 #: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
@@ -1440,9 +1440,9 @@ msgstr ""
 #: netbox/dcim/models/sites.py:175 netbox/extras/models/configs.py:40
 #: netbox/extras/models/configs.py:82 netbox/extras/models/configs.py:285
 #: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:68
-#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:319
-#: netbox/extras/models/models.py:425 netbox/extras/models/models.py:487
-#: netbox/extras/models/models.py:577 netbox/extras/models/models.py:719
+#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:325
+#: netbox/extras/models/models.py:431 netbox/extras/models/models.py:493
+#: netbox/extras/models/models.py:583 netbox/extras/models/models.py:725
 #: netbox/extras/models/notifications.py:127 netbox/extras/models/scripts.py:29
 #: netbox/ipam/models/asns.py:18 netbox/ipam/models/fhrp.py:24
 #: netbox/ipam/models/services.py:63 netbox/ipam/models/services.py:91
@@ -1471,7 +1471,7 @@ msgstr ""
 
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
 #: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:182
-#: netbox/extras/models/models.py:492 netbox/ipam/models/asns.py:24
+#: netbox/extras/models/models.py:498 netbox/ipam/models/asns.py:24
 #: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
 #: netbox/tenancy/models/tenants.py:50
@@ -2331,7 +2331,7 @@ msgstr ""
 
 #: netbox/core/models/config.py:22 netbox/core/models/data.py:290
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:932 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:938 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
 #: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
 msgid "created"
@@ -2401,8 +2401,8 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:696
 #: netbox/dcim/models/device_components.py:1379
 #: netbox/dcim/models/device_components.py:1480
-#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:324
-#: netbox/extras/models/models.py:512 netbox/extras/models/models.py:596
+#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:330
+#: netbox/extras/models/models.py:518 netbox/extras/models/models.py:602
 #: netbox/users/models/permissions.py:32 netbox/users/models/tokens.py:65
 msgid "enabled"
 msgstr ""
@@ -2419,7 +2419,7 @@ msgstr ""
 msgid "Patterns (one per line) matching files or paths to ignore when syncing"
 msgstr ""
 
-#: netbox/core/models/data.py:75 netbox/extras/models/models.py:520
+#: netbox/core/models/data.py:75 netbox/extras/models/models.py:526
 msgid "parameters"
 msgstr ""
 
@@ -7089,7 +7089,7 @@ msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
 #: netbox/dcim/models/devices.py:1298 netbox/extras/models/customfields.py:264
-#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:892
+#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:898
 #: netbox/netbox/models/__init__.py:154 netbox/netbox/models/__init__.py:193
 #: netbox/netbox/models/__init__.py:243
 msgid "comments"
@@ -8808,7 +8808,7 @@ msgstr ""
 msgid "Payload URL"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:238
+#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:240
 #: netbox/extras/ui/panels.py:347
 msgid "SSL verification"
 msgstr ""
@@ -8912,11 +8912,11 @@ msgstr ""
 msgid "Duplicate color mapping defined for choice '{value}'."
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:346
+#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:352
 msgid "button class"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:350
+#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:356
 msgid ""
 "The class of the first link in a group will be used for the dropdown button"
 msgstr ""
@@ -9369,8 +9369,8 @@ msgstr ""
 msgid "config context profiles"
 msgstr ""
 
-#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:336
-#: netbox/extras/models/models.py:508 netbox/extras/models/models.py:592
+#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:342
+#: netbox/extras/models/models.py:514 netbox/extras/models/models.py:598
 #: netbox/extras/models/search.py:49 netbox/extras/models/tags.py:45
 #: netbox/ipam/models/ip.py:200 netbox/netbox/models/mixins.py:32
 msgid "weight"
@@ -9457,7 +9457,7 @@ msgid ""
 "will be used)"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:340
+#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:346
 msgid "group name"
 msgstr ""
 
@@ -9913,14 +9913,17 @@ msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
 "HTTP content type. Headers should be defined in the format <code>Name: "
 "Value</code>. Jinja2 template processing is supported with the same context "
-"as the request body (below)."
+"as the request body (below). When interpolating untrusted data (such as "
+"object attributes) into a header value, apply the <code>header_safe</code> "
+"filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data."
+"name | header_safe }}</code>."
 msgstr ""
 
-#: netbox/extras/models/models.py:219
+#: netbox/extras/models/models.py:221
 msgid "body template"
 msgstr ""
 
-#: netbox/extras/models/models.py:222
+#: netbox/extras/models/models.py:224
 msgid ""
 "Jinja2 template for a custom request body. If blank, a JSON object "
 "representing the change will be included. Available context data includes: "
@@ -9928,197 +9931,197 @@ msgid ""
 "<code>username</code>, <code>request_id</code>, and <code>data</code>."
 msgstr ""
 
-#: netbox/extras/models/models.py:228
+#: netbox/extras/models/models.py:230
 msgid "secret"
 msgstr ""
 
-#: netbox/extras/models/models.py:232
+#: netbox/extras/models/models.py:234
 msgid ""
 "When provided, the request will include a <code>X-Hook-Signature</code> "
 "header containing a HMAC hex digest of the payload body using the secret as "
 "the key. The secret is not transmitted in the request."
 msgstr ""
 
-#: netbox/extras/models/models.py:239
+#: netbox/extras/models/models.py:241
 msgid "Enable SSL certificate verification. Disable with caution!"
 msgstr ""
 
-#: netbox/extras/models/models.py:245
+#: netbox/extras/models/models.py:247
 msgid "CA File Path"
 msgstr ""
 
-#: netbox/extras/models/models.py:247
+#: netbox/extras/models/models.py:249
 msgid ""
 "The specific CA certificate file to use for SSL verification. Leave blank to "
 "use the system defaults."
 msgstr ""
 
-#: netbox/extras/models/models.py:258
+#: netbox/extras/models/models.py:260
 msgid "webhook"
 msgstr ""
 
-#: netbox/extras/models/models.py:259
+#: netbox/extras/models/models.py:261
 msgid "webhooks"
 msgstr ""
 
-#: netbox/extras/models/models.py:277
+#: netbox/extras/models/models.py:279
 msgid "Do not specify a CA certificate file if SSL verification is disabled."
 msgstr ""
 
-#: netbox/extras/models/models.py:316
+#: netbox/extras/models/models.py:322
 msgid "The object type(s) to which this link applies."
 msgstr ""
 
-#: netbox/extras/models/models.py:328
+#: netbox/extras/models/models.py:334
 msgid "link text"
 msgstr ""
 
-#: netbox/extras/models/models.py:329
+#: netbox/extras/models/models.py:335
 msgid "Jinja2 template code for link text"
 msgstr ""
 
-#: netbox/extras/models/models.py:332
+#: netbox/extras/models/models.py:338
 msgid "link URL"
 msgstr ""
 
-#: netbox/extras/models/models.py:333
+#: netbox/extras/models/models.py:339
 msgid "Jinja2 template code for link URL"
 msgstr ""
 
-#: netbox/extras/models/models.py:343
+#: netbox/extras/models/models.py:349
 msgid "Links with the same group will appear as a dropdown menu"
 msgstr ""
 
-#: netbox/extras/models/models.py:353
+#: netbox/extras/models/models.py:359
 msgid "new window"
 msgstr ""
 
-#: netbox/extras/models/models.py:355
+#: netbox/extras/models/models.py:361
 msgid "Force link to open in a new window"
 msgstr ""
 
-#: netbox/extras/models/models.py:367
+#: netbox/extras/models/models.py:373
 msgid "custom link"
 msgstr ""
 
-#: netbox/extras/models/models.py:368
+#: netbox/extras/models/models.py:374
 msgid "custom links"
 msgstr ""
 
-#: netbox/extras/models/models.py:422
+#: netbox/extras/models/models.py:428
 msgid "The object type(s) to which this template applies."
 msgstr ""
 
-#: netbox/extras/models/models.py:443
+#: netbox/extras/models/models.py:449
 msgid "export template"
 msgstr ""
 
-#: netbox/extras/models/models.py:444
+#: netbox/extras/models/models.py:450
 msgid "export templates"
 msgstr ""
 
-#: netbox/extras/models/models.py:461
+#: netbox/extras/models/models.py:467
 #, python-brace-format
 msgid "\"{name}\" is a reserved name. Please choose a different name."
 msgstr ""
 
-#: netbox/extras/models/models.py:484
+#: netbox/extras/models/models.py:490
 msgid "The object type(s) to which this filter applies."
 msgstr ""
 
-#: netbox/extras/models/models.py:516 netbox/extras/models/models.py:600
+#: netbox/extras/models/models.py:522 netbox/extras/models/models.py:606
 msgid "shared"
 msgstr ""
 
-#: netbox/extras/models/models.py:534
+#: netbox/extras/models/models.py:540
 msgid "saved filter"
 msgstr ""
 
-#: netbox/extras/models/models.py:535
+#: netbox/extras/models/models.py:541
 msgid "saved filters"
 msgstr ""
 
-#: netbox/extras/models/models.py:553
+#: netbox/extras/models/models.py:559
 msgid "Filter parameters must be stored as a dictionary of keyword arguments."
 msgstr ""
 
-#: netbox/extras/models/models.py:570
+#: netbox/extras/models/models.py:576
 msgid "The table's object type"
 msgstr ""
 
-#: netbox/extras/models/models.py:573
+#: netbox/extras/models/models.py:579
 msgid "table"
 msgstr ""
 
-#: netbox/extras/models/models.py:621
+#: netbox/extras/models/models.py:627
 msgid "table config"
 msgstr ""
 
-#: netbox/extras/models/models.py:622
+#: netbox/extras/models/models.py:628
 msgid "table configs"
 msgstr ""
 
-#: netbox/extras/models/models.py:664
+#: netbox/extras/models/models.py:670
 #, python-brace-format
 msgid "Unknown table: {name}"
 msgstr ""
 
-#: netbox/extras/models/models.py:675 netbox/extras/models/models.py:682
+#: netbox/extras/models/models.py:681 netbox/extras/models/models.py:688
 #, python-brace-format
 msgid "Unknown column: {name}"
 msgstr ""
 
-#: netbox/extras/models/models.py:705
+#: netbox/extras/models/models.py:711
 msgid "image height"
 msgstr ""
 
-#: netbox/extras/models/models.py:708
+#: netbox/extras/models/models.py:714
 msgid "image width"
 msgstr ""
 
-#: netbox/extras/models/models.py:714
+#: netbox/extras/models/models.py:720
 msgid "image size"
 msgstr ""
 
-#: netbox/extras/models/models.py:760
+#: netbox/extras/models/models.py:766
 msgid "image attachment"
 msgstr ""
 
-#: netbox/extras/models/models.py:761
+#: netbox/extras/models/models.py:767
 msgid "image attachments"
 msgstr ""
 
-#: netbox/extras/models/models.py:775
+#: netbox/extras/models/models.py:781
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr ""
 
-#: netbox/extras/models/models.py:886
+#: netbox/extras/models/models.py:892
 msgid "kind"
 msgstr ""
 
-#: netbox/extras/models/models.py:901
+#: netbox/extras/models/models.py:907
 msgid "journal entry"
 msgstr ""
 
-#: netbox/extras/models/models.py:902
+#: netbox/extras/models/models.py:908
 msgid "journal entries"
 msgstr ""
 
-#: netbox/extras/models/models.py:920
+#: netbox/extras/models/models.py:926
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/extras/models/models.py:963
+#: netbox/extras/models/models.py:969
 msgid "bookmark"
 msgstr ""
 
-#: netbox/extras/models/models.py:964
+#: netbox/extras/models/models.py:970
 msgid "bookmarks"
 msgstr ""
 
-#: netbox/extras/models/models.py:980
+#: netbox/extras/models/models.py:986
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr ""
@@ -12106,27 +12109,27 @@ msgstr ""
 msgid "Add a Prefix"
 msgstr ""
 
-#: netbox/netbox/api/fields.py:69
+#: netbox/netbox/api/fields.py:68
 msgid "This field may not be blank."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:74
+#: netbox/netbox/api/fields.py:73
 msgid ""
 "Value must be passed directly (e.g. \"foo\": 123); do not use a dictionary "
 "or list."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:95
+#: netbox/netbox/api/fields.py:94
 #, python-brace-format
 msgid "{value} is not a valid choice."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:108
+#: netbox/netbox/api/fields.py:107
 #, python-brace-format
 msgid "Invalid content type: {content_type}"
 msgstr ""
 
-#: netbox/netbox/api/fields.py:109
+#: netbox/netbox/api/fields.py:108
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr ""
 
