@@ -9,6 +9,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
+from ipam.forms.fields import PortMappingField
 from ipam.models import *
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
@@ -19,11 +20,10 @@ from utilities.forms.fields import (
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
-    NumericArrayField,
     NumericRangeArrayField,
     TypedChoiceField,
 )
-from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
+from utilities.forms.rendering import FieldSet, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -800,48 +800,37 @@ class VLANTranslationRuleForm(NetBoxModelForm):
         ]
 
 
-class ServiceTemplateForm(PrimaryModelForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-    )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
+class ServicePortMappingsMixin(forms.Form):
+    """
+    Adds a ``port_mappings`` field (protocol + ports rows) to a Service/ServiceTemplate form. The field
+    maps directly to the model's ``port_mappings`` ArrayField, so no custom save handling is required.
+    """
+    port_mappings = PortMappingField(
+        label=_('Port Mappings'),
+        help_text=_(
+            "One protocol per row, each with one or more port numbers. A range may be specified using a "
+            "hyphen (e.g. 80,443,8000-8010)."
         ),
-        help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
     )
 
+
+class ServiceTemplateForm(ServicePortMappingsMixin, PrimaryModelForm):
     fieldsets = (
-        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
+        FieldSet('name', 'port_mappings', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'port_mappings', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-    )
+class ServiceForm(ServicePortMappingsMixin, GenericObjectFormMixin, PrimaryModelForm):
     parent = GenericObjectChoiceField(
         label=_('Parent'),
         content_type_queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
         selector=True,
         hx_target_id='service',
-    )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
-        ),
-        help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
     )
     ipaddresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
@@ -851,8 +840,7 @@ class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
 
     fieldsets = (
         FieldSet(
-            'parent', 'name',
-            InlineFields('protocol', 'ports', label=_('Port(s)')),
+            'parent', 'name', 'port_mappings',
             'ipaddresses', 'description', 'tags', name=_('Application Service'),
             html_id='service',
         ),
@@ -861,7 +849,7 @@ class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
+            'name', 'port_mappings', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -890,7 +878,7 @@ class ServiceCreateForm(ServiceForm):
             'parent',
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
-                FieldSet('name', 'protocol', 'ports', name=_('Custom')),
+                FieldSet('name', 'port_mappings', name=_('Custom')),
             ),
             'ipaddresses', 'description', 'tags', name=_('Application Service'),
             html_id='service',
@@ -899,7 +887,7 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'service_template', 'name', 'port_mappings', 'ipaddresses', 'description',
             'comments', 'tags',
         ]
 
@@ -907,7 +895,7 @@ class ServiceCreateForm(ServiceForm):
         super().__init__(*args, **kwargs)
 
         # Fields which may be populated from a ServiceTemplate are not required
-        for field in ('name', 'protocol', 'ports'):
+        for field in ('name', 'port_mappings'):
             self.fields[field].required = False
             self.fields[field].widget.is_required = False
 
@@ -917,11 +905,10 @@ class ServiceCreateForm(ServiceForm):
             # Create a new Service from the specified template
             service_template = self.cleaned_data['service_template']
             self.cleaned_data['name'] = service_template.name
-            self.cleaned_data['protocol'] = service_template.protocol
-            self.cleaned_data['ports'] = service_template.ports
+            self.cleaned_data['port_mappings'] = list(service_template.port_mappings)
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
-        elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
+        elif not self.cleaned_data.get('name') or not self.cleaned_data.get('port_mappings'):
             raise forms.ValidationError(
-                _("Must specify name, protocol, and port(s) if not using an application service template.")
+                _("Must specify name and port mapping(s) if not using an application service template.")
             )

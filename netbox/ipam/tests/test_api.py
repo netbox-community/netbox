@@ -1416,47 +1416,197 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
 
 class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
-    brief_fields = ['description', 'display', 'id', 'name', 'ports', 'protocol', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
     graphql_base_name = 'service_template'
+    # port_mappings is a grouped {protocol, ports} representation on the API but a flat string list on
+    # the model, so exclude it from the generic instance/data comparison (covered by explicit tests).
+    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
-        service_templates = (
-            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1, 2]),
-            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3, 4]),
-            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[5, 6]),
-        )
-        ServiceTemplate.objects.bulk_create(service_templates)
+        ServiceTemplate.objects.bulk_create([
+            ServiceTemplate(name='Service Template 1', port_mappings=['tcp/1', 'tcp/2']),
+            ServiceTemplate(name='Service Template 2', port_mappings=['tcp/3', 'tcp/4']),
+            ServiceTemplate(name='Service Template 3', port_mappings=['tcp/5', 'tcp/6']),
+        ])
 
         cls.create_data = [
             {
                 'name': 'Service Template 4',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [7, 8],
+                'port_mappings': [{'protocol': 'tcp', 'ports': [7, 8]}],
             },
             {
                 'name': 'Service Template 5',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [9, 10],
+                'port_mappings': [{'protocol': 'tcp', 'ports': [53]}, {'protocol': 'udp', 'ports': [53]}],
             },
             {
                 'name': 'Service Template 6',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [11, 12],
+                'port_mappings': [{'protocol': 'tcp', 'ports': [11, 12]}],
             },
         ]
+
+    def test_graphql_grouped_port_mappings(self):
+        """port_mappings is exposed over GraphQL as a grouped list of {protocol, ports} objects."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='GQL Grouped', port_mappings=['tcp/80', 'udp/53'])
+        url = reverse('graphql')
+        query = f'{{ service_template(id: {template.pk}) {{ port_mappings {{ protocol ports }} }} }}'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['service_template']['port_mappings'], [
+            {'protocol': 'tcp', 'ports': [80]},
+            {'protocol': 'udp', 'ports': [53]},
+        ])
+
+    def test_create_duplicate_mapping_rejected(self):
+        """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Duplicate', 'port_mappings': [{'protocol': 'tcp', 'ports': [80, 80]}]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_port_out_of_range_rejected(self):
+        """Ports outside SERVICE_PORT_MIN..SERVICE_PORT_MAX are rejected with a 400."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'OutOfRange', 'port_mappings': [{'protocol': 'tcp', 'ports': [70000]}]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_without_port_mappings_rejected(self):
+        """A service (template) must define at least one port mapping (400, not a portless object)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Portless', 'port_mappings': []}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_normalizes_port_mappings(self):
+        """Grouped input is flattened and normalized (deduplicated) into the model's canonical form."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Normalized', 'port_mappings': [{'protocol': 'tcp', 'ports': [443, 80]}]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='Normalized')
+        self.assertEqual(template.port_mappings, ['tcp/443', 'tcp/80'])
+
+    def test_grouped_read_round_trip(self):
+        """port_mappings reads back as a grouped {protocol, ports} list with ports sorted per protocol."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Grouped', port_mappings=['tcp/443', 'tcp/80', 'udp/53'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['port_mappings'], [
+            {'protocol': 'tcp', 'ports': [80, 443]},
+            {'protocol': 'udp', 'ports': [53]},
+        ])
+
+    def test_legacy_read_single_protocol(self):
+        """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Single', port_mappings=['tcp/80', 'tcp/443'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['protocol'], 'tcp')
+        self.assertEqual(response.data['ports'], [80, 443])
+        self.assertEqual(response.data['port_mappings'], [{'protocol': 'tcp', 'ports': [80, 443]}])
+
+    def test_legacy_read_multiple_protocols_null(self):
+        """A multi-protocol service can't be expressed in the old format, so protocol/ports are null."""
+        self.add_permissions('ipam.view_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Multi', port_mappings=['tcp/53', 'udp/53'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['protocol'])
+        self.assertIsNone(response.data['ports'])
+        self.assertEqual(response.data['port_mappings'], [
+            {'protocol': 'tcp', 'ports': [53]},
+            {'protocol': 'udp', 'ports': [53]},
+        ])
+
+    def test_legacy_read_empty_distinct_from_multiple(self):
+        """An empty service is distinguishable from a multi-protocol one: ports=[] vs ports=null."""
+        self.add_permissions('ipam.view_servicetemplate')
+        # A mapping-less template is normally prevented by validation, but can exist via migrated data;
+        # objects.create() bypasses full_clean() so we can exercise the read path here.
+        template = ServiceTemplate.objects.create(name='Legacy Empty', port_mappings=[])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['protocol'])
+        self.assertEqual(response.data['ports'], [])
+        self.assertEqual(response.data['port_mappings'], [])
+
+    def test_create_via_legacy_format(self):
+        """The deprecated protocol/ports format is accepted on write and translated to port_mappings."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy Create', 'protocol': 'tcp', 'ports': [80, 443]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='Legacy Create')
+        self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/443'])
+
+    def test_both_formats_rejected(self):
+        """Supplying both port_mappings and the legacy protocol/ports is ambiguous and must 400."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {
+            'name': 'Both Formats',
+            'port_mappings': [{'protocol': 'udp', 'ports': [53]}],
+            'protocol': 'tcp',
+            'ports': [80],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(ServiceTemplate.objects.filter(name='Both Formats').exists())
+
+    def test_create_legacy_port_out_of_range_rejected(self):
+        """A legacy ports value outside the permitted range is rejected with a 400 (not a 500)."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy OOR', 'protocol': 'tcp', 'ports': [70000]}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_legacy_protocol_without_ports_rejected(self):
+        """One half of the legacy pair is ambiguous and must 400, not silently drop the input."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy Half', 'protocol': 'tcp'}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_legacy_ports_only_rejected(self):
+        """A partial update supplying only legacy 'ports' must 400 rather than silently no-op."""
+        self.add_permissions('ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.create(name='Legacy Patch', port_mappings=['tcp/80'])
+        response = self.client.patch(
+            self._get_detail_url(template), {'ports': [8080]}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/80'])
+
+    def test_read_malformed_port_mapping_degrades(self):
+        """A malformed stored mapping (validation bypassed) must degrade on API read, not raise a 500."""
+        self.add_permissions('ipam.view_servicetemplate')
+        # objects.create bypasses full_clean, simulating a raw-DB/plugin write of a non-numeric port
+        template = ServiceTemplate.objects.create(name='Malformed', port_mappings=['tcp/80', 'tcp/abc'])
+        response = self.client.get(self._get_detail_url(template), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        # The bad port is dropped rather than crashing the serializer
+        self.assertEqual(response.data['port_mappings'], [{'protocol': 'tcp', 'ports': [80]}])
+        self.assertEqual(response.data['ports'], [80])
 
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
-    brief_fields = ['description', 'display', 'id', 'name', 'ports', 'protocol', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
     graphql_base_name = 'service'
+    # See ServiceTemplateTestCase: port_mappings is grouped on the API but flat on the model.
+    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1471,33 +1621,82 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         )
         Device.objects.bulk_create(devices)
 
-        services = (
-            Service(parent=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(parent=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
-            Service(parent=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
-        )
-        Service.objects.bulk_create(services)
+        Service.objects.bulk_create([
+            Service(parent=devices[0], name='Service 1', port_mappings=['tcp/1']),
+            Service(parent=devices[0], name='Service 2', port_mappings=['tcp/2']),
+            Service(parent=devices[0], name='Service 3', port_mappings=['tcp/3']),
+        ])
 
         cls.create_data = [
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 4',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [4],
+                'port_mappings': [{'protocol': 'tcp', 'ports': [4]}],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
-                'name': 'Service 5',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [5],
+                'name': 'dns',
+                'port_mappings': [{'protocol': 'tcp', 'ports': [53]}, {'protocol': 'udp', 'ports': [53]}],
             },
             {
                 'parent_object_id': devices[1].pk,
                 'parent_object_type': 'dcim.device',
                 'name': 'Service 6',
-                'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-                'ports': [6],
+                'port_mappings': [{'protocol': 'tcp', 'ports': [6]}],
             },
         ]
+
+    def test_graphql_protocol_and_port_filter(self):
+        """Combined protocol + port filtering works over GraphQL (port mappings live in an array)."""
+        self.add_permissions('ipam.view_service')
+        url = reverse('graphql')
+        query = '{ service_list(filters: {protocol: [ROLE_TCP], port: [1]}) { id name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['service_list']), 1)
+        self.assertEqual(data['data']['service_list'][0]['name'], 'Service 1')
+
+    def test_graphql_grouped_port_mappings(self):
+        """port_mappings is exposed over GraphQL as a grouped list of {protocol, ports} objects."""
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        service = Service.objects.create(parent=device, name='GQL Grouped', port_mappings=['tcp/80', 'udp/53'])
+        url = reverse('graphql')
+        query = f'{{ service(id: {service.pk}) {{ port_mappings {{ protocol ports }} }} }}'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['service']['port_mappings'], [
+            {'protocol': 'tcp', 'ports': [80]},
+            {'protocol': 'udp', 'ports': [53]},
+        ])
+
+    def test_legacy_read_single_protocol(self):
+        """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
+        self.add_permissions('ipam.view_service')
+        service = Service.objects.get(name='Service 1')  # port_mappings=['tcp/1']
+        response = self.client.get(self._get_detail_url(service), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['protocol'], 'tcp')
+        self.assertEqual(response.data['ports'], [1])
+
+    def test_create_via_legacy_format(self):
+        """The deprecated protocol/ports format is accepted on write and translated to port_mappings."""
+        self.add_permissions('ipam.add_service')
+        device = Device.objects.first()
+        data = {
+            'parent_object_type': 'dcim.device',
+            'parent_object_id': device.pk,
+            'name': 'Legacy Service',
+            'protocol': 'udp',
+            'ports': [53, 67],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        service = Service.objects.get(name='Legacy Service')
+        self.assertEqual(service.port_mappings, ['udp/53', 'udp/67'])

@@ -1,14 +1,15 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
+from ipam.validators import group_port_mappings, validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
-from utilities.data import array_to_string
 
 __all__ = (
     'Service',
@@ -17,42 +18,75 @@ __all__ = (
 
 
 class ServiceBase(models.Model):
-    protocol = models.CharField(
-        verbose_name=_('protocol'),
-        max_length=50,
-        choices=ServiceProtocolChoices
-    )
-    ports = ArrayField(
-        base_field=models.PositiveIntegerField(
-            validators=[
-                MinValueValidator(SERVICE_PORT_MIN),
-                MaxValueValidator(SERVICE_PORT_MAX)
-            ]
-        ),
-        verbose_name=_('port numbers')
-    )
-    _ports_lowest = models.PositiveIntegerField(
-        null=True,
+    """
+    Shared behavior for Service and ServiceTemplate. Protocol/port data is stored as a single array of
+    ``protocol/port`` strings (e.g. ``['tcp/80', 'tcp/443', 'udp/53']``), allowing a service to expose
+    the same port on multiple protocols.
+    """
+    port_mappings = ArrayField(
+        base_field=models.CharField(max_length=63),
+        verbose_name=_('port mappings'),
+        help_text=_("Protocol/port pairs, e.g. tcp/80"),
         blank=True,
+        default=list,
     )
 
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        # On saving find the smallest port and save for default ordering
-        self._ports_lowest = min(self.ports) if self.ports else None
-        update_fields = kwargs.get('update_fields')
-        if update_fields is not None and '_ports_lowest' not in update_fields:
-            kwargs['update_fields'] = list(update_fields) + ['_ports_lowest']
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
+        if self.port_mappings:
+            return f'{self.name} ({self.port_list})'
+        return self.name
+
+    def clean(self):
+        super().clean()
+        self._apply_bulk_port_mapping_modifiers()
+        # validate_port_mappings returns the canonical form (integer ports), so storing its result
+        # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080').
+        self.port_mappings = validate_port_mappings(self.port_mappings)
+        if not self.port_mappings:
+            raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
+
+    def _apply_bulk_port_mapping_modifiers(self):
+        """
+        Fold bulk-edit add/remove deltas into ``port_mappings`` before validation.
+
+        The generic ``BulkEditView`` has no per-object pre-save hook, but it does assign the
+        ``add_port_mappings`` / ``remove_port_mappings`` bulk-edit form values onto the instance ahead
+        of ``full_clean()`` (its "form field used to modify a field" handling). Consuming them here keeps
+        the change within the single bulk-edit save (one change-log entry). This is a no-op everywhere
+        else, since those attributes are only present during a bulk edit.
+        """
+        add = getattr(self, 'add_port_mappings', None)
+        remove = getattr(self, 'remove_port_mappings', None)
+        if add is None and remove is None:
+            return
+
+        # Consume the transient attributes so a repeated clean() can't re-apply the delta
+        for attr in ('add_port_mappings', 'remove_port_mappings'):
+            try:
+                delattr(self, attr)
+            except AttributeError:
+                pass
+
+        mappings = list(self.port_mappings)
+        if add:
+            mappings += [mapping for mapping in add if mapping not in mappings]
+        if remove:
+            mappings = [mapping for mapping in mappings if mapping not in remove]
+        self.port_mappings = mappings
 
     @property
     def port_list(self):
-        return array_to_string(self.ports)
+        # Group ports by protocol for a compact display, e.g. "TCP/80,443, UDP/53". Ports are sorted
+        # numerically within each protocol so the display is stable regardless of stored order.
+        return ', '.join(
+            # Guard the numeric sort so a malformed entry that bypassed validation (e.g. a raw SQL
+            # insert) degrades gracefully instead of raising ValueError when the service is rendered.
+            f'{protocol.upper()}/{",".join(sorted(ports, key=lambda p: int(p) if p.isdigit() else 0))}'
+            for protocol, ports in group_port_mappings(self.port_mappings).items()
+        )
 
 
 class ServiceTemplate(ServiceBase, PrimaryModel):
@@ -65,7 +99,13 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         unique=True
     )
 
+    clone_fields = ('port_mappings', 'description')
+
     class Meta:
+        indexes = (
+            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            GinIndex(fields=('port_mappings',)),
+        )
         ordering = ('name',)
         verbose_name = _('application service template')
         verbose_name_plural = _('application service templates')
@@ -99,14 +139,16 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
     )
 
     clone_fields = (
-        'protocol', 'ports', 'description', 'parent', 'ipaddresses',
+        'port_mappings', 'description', 'parent', 'ipaddresses',
     )
 
     class Meta:
         indexes = (
-            models.Index(fields=('protocol', '_ports_lowest', 'id')),  # Default ordering
+            models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
+            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            GinIndex(fields=('port_mappings',)),
         )
-        ordering = ('protocol', '_ports_lowest', 'id')
+        ordering = ('name', 'id')
         verbose_name = _('application service')
         verbose_name_plural = _('application services')

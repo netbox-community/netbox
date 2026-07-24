@@ -643,9 +643,9 @@ class ServiceTemplateFilterForm(PrimaryModelFilterSetForm):
         FieldSet('protocol', 'port', name=_('Attributes')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    protocol = forms.ChoiceField(
+    protocol = forms.MultipleChoiceField(
         label=_('Protocol'),
-        choices=add_blank_choice(ServiceProtocolChoices),
+        choices=ServiceProtocolChoices,
         required=False
     )
     port = forms.IntegerField(

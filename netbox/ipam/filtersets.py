@@ -2,7 +2,8 @@ import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import F, Func, Q, TextField, Value
+from django.db.models.functions import Concat
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -22,7 +23,6 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
-    NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -1206,16 +1206,101 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-@register_filterset
-class ServiceTemplateFilterSet(PrimaryModelFilterSet):
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
+class _ArrayToString(Func):
+    """Postgres array_to_string(<array>, ',') for searching within an ArrayField of strings."""
+    function = 'array_to_string'
+    template = "%(function)s(%(expressions)s, ',')"
+    output_field = TextField()
+
+
+def annotate_port_mappings(queryset):
+    # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
+    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port, ',tcp/80,' for a pair).
+    # Re-annotating with the same alias is a harmless no-op, so both the protocol and port filters may
+    # call this on the same queryset.
+    return queryset.annotate(
+        _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
+                                  output_field=TextField())
     )
+
+
+def port_mapping_q(protocols, ports):
+    """
+    Build a filter for services by protocol and/or port, returning ``(needs_annotation, Q)``.
+
+    When both protocols and ports are given, a match must come from the *same* mapping: this uses exact
+    ArrayField containment (``port_mappings @> ['tcp/80']``), which is precise and GIN-indexable, so no
+    annotation is required (``needs_annotation`` is False). When only one is given, there is no way to
+    match a protocol prefix or port suffix via containment, so we fall back to a substring match against
+    the ``_port_mappings_str`` annotation (``needs_annotation`` is True).
+    """
+    qs_filter = Q()
+    if protocols and ports:
+        for protocol in protocols:
+            for port in ports:
+                qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
+        return False, qs_filter
+    if protocols:
+        for protocol in protocols:
+            qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
+        return True, qs_filter
+    for port in ports:
+        qs_filter |= Q(_port_mappings_str__contains=f'/{port},')
+    return True, qs_filter
+
+
+def port_mapping_filter_qs(queryset, protocols, ports):
+    """
+    Return ``(queryset, Q)`` for a protocol/port filter, annotating the queryset only when the Q needs
+    the ``_port_mappings_str`` string form. Shared by the FilterSet and the GraphQL filters.
+    """
+    if not protocols and not ports:
+        return queryset, Q()
+    needs_annotation, qs_filter = port_mapping_q(protocols, ports)
+    if needs_annotation:
+        queryset = annotate_port_mappings(queryset)
+    return queryset, qs_filter
+
+
+class ServicePortMappingFilterMixin(django_filters.FilterSet):
+    """
+    Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate. Both operate on the
+    ``port_mappings`` array; when both are supplied they must match a single mapping (see
+    ``port_mapping_filter_qs``).
+    """
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+        method='filter_protocol',
+    )
+    port = MultiValueNumberFilter(
+        method='filter_port',
+    )
+
+    def _filter_port_mappings(self, queryset):
+        # Correlate the protocol and port filters so a combined query matches a single mapping rather
+        # than protocol and port independently across the whole array.
+        protocols = self.form.cleaned_data.get('protocol') or []
+        ports = self.form.cleaned_data.get('port') or []
+        queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
+        return queryset.filter(qs_filter)
+
+    def filter_protocol(self, queryset, name, value):
+        return self._filter_port_mappings(queryset)
+
+    def filter_port(self, queryset, name, value):
+        # When protocol is also supplied, filter_protocol applies the combined protocol+port filter;
+        # skip here so the queryset isn't filtered (and annotated) a second time.
+        if self.form.cleaned_data.get('protocol'):
+            return queryset
+        return self._filter_port_mappings(queryset)
+
+
+@register_filterset
+class ServiceTemplateFilterSet(ServicePortMappingFilterMixin, PrimaryModelFilterSet):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('id', 'name', 'protocol', 'description')
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1228,7 +1313,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
-class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
+class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
@@ -1271,14 +1356,10 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
-    )
 
     class Meta:
         model = Service
-        fields = ('id', 'name', 'protocol', 'description', 'parent_object_type', 'parent_object_id')
+        fields = ('id', 'name', 'description', 'parent_object_type', 'parent_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

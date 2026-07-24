@@ -1,10 +1,13 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
+from ipam.constants import SERVICE_PORT_MAX
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
-from ipam.forms.bulk_import import IPAddressImportForm
+from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
+from ipam.forms.fields import PortMappingField
 
 
 class PrefixFormTestCase(TestCase):
@@ -196,3 +199,105 @@ class VLANFormTestCase(TestCase):
                 form = VLANIDBulkCreateForm({'pattern': pattern})
                 self.assertFalse(form.is_valid())
                 self.assertIn('pattern', form.errors)
+
+
+class PortMappingFieldTestCase(TestCase):
+
+    def test_ports_and_ranges_expand(self):
+        """A protocol row's comma/range port string expands into individual protocol/port mappings."""
+        field = PortMappingField()
+        value = field.clean('[{"protocol": "tcp", "ports": "80,443,8000-8002"}]')
+        self.assertEqual(value, ['tcp/80', 'tcp/443', 'tcp/8000', 'tcp/8001', 'tcp/8002'])
+
+    def test_out_of_range_rejected_without_expanding(self):
+        """
+        An out-of-bounds range is rejected before it is expanded, so a pathological range cannot
+        exhaust memory (regression guard for the unbounded parse_numeric_range expansion).
+        """
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "1-9999999999"}]')
+        with self.assertRaises(ValidationError):
+            field.clean(f'[{{"protocol": "tcp", "ports": "1-{SERVICE_PORT_MAX + 1}"}}]')
+
+    def test_protocol_without_ports_reports_clear_error(self):
+        """A protocol chosen with no ports reports the 'protocol/port' error, not 'Range \"\" is invalid'."""
+        field = PortMappingField()
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean('[{"protocol": "tcp", "ports": ""}]')
+        self.assertTrue(any('tcp/' in msg for msg in ctx.exception.messages))
+
+    def test_reversed_range_rejected(self):
+        """A reversed range must raise rather than silently expanding to an empty (dropped) list."""
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "9000-53"}]')
+
+    def test_invalid_subrange_alongside_valid_rejected(self):
+        """
+        An invalid range combined with a valid one must raise rather than silently dropping the
+        invalid sub-range (the valid range would otherwise mask the empty expansion).
+        """
+        field = PortMappingField()
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "80,9000-53"}]')
+        with self.assertRaises(ValidationError):
+            field.clean('[{"protocol": "tcp", "ports": "80,70000-80"}]')
+
+    def test_normalizes_leading_zero_ports(self):
+        """Leading-zero ports are normalized so they remain matchable by the port filter."""
+        field = PortMappingField()
+        self.assertEqual(field.clean('[{"protocol": "tcp", "ports": "080"}]'), ['tcp/80'])
+
+    def test_prepare_value_grouped_json_passthrough(self):
+        """An already-grouped JSON string (bound-form re-render) is passed to the widget unchanged."""
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value('[{"protocol": "tcp", "ports": "80"}]'),
+            '[{"protocol": "tcp", "ports": "80"}]',
+        )
+
+    def test_prepare_value_flat_list_grouped(self):
+        """A flat protocol/port list (e.g. a multi-mapping clone) is grouped into widget rows."""
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value(['tcp/80', 'tcp/443']),
+            '[{"protocol": "tcp", "ports": "80,443"}]',
+        )
+
+    def test_prepare_value_bare_string_grouped(self):
+        """
+        Cloning a single-mapping object collapses port_mappings to a bare 'protocol/port' string
+        (normalize_querydict single-value collapse); it must group into a row, not blank the widget.
+        Regression guard for the single-protocol clone losing its port mapping.
+        """
+        field = PortMappingField()
+        self.assertEqual(
+            field.prepare_value('tcp/80'),
+            '[{"protocol": "tcp", "ports": "80"}]',
+        )
+
+
+class ServiceTemplateImportFormTestCase(TestCase):
+
+    def test_valid_port_mappings_parsed_and_normalized(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:080,443;udp:53'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['port_mappings'], ['tcp/80', 'tcp/443', 'udp/53'])
+
+    def test_reversed_range_rejected(self):
+        """A reversed range must error rather than silently dropping the token's mappings."""
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80;udp:9000-53'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
+    def test_invalid_subrange_alongside_valid_rejected(self):
+        """An invalid range combined with a valid one in the same token must error, not be dropped."""
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80,9000-53'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
+    def test_empty_ports_token_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)

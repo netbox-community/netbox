@@ -1931,42 +1931,41 @@ class PrefixGetChildIPsTestCase(TestCase):
 
 class ServiceTemplateTestCase(TestCase):
 
-    def test_servicetemplate_lowest_port(self):
+    def test_multiple_protocols_same_port(self):
         """
-        Test lowest port setting for servicetemplate
+        A template may expose the same port on multiple protocols (e.g. DNS on tcp/53 and udp/53).
         """
-        template = ServiceTemplate(
-            name='Template 1',
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=[80, 443, 22, 8080],  # small test list
-        )
+        template = ServiceTemplate(name='DNS', port_mappings=['tcp/53', 'udp/53'])
         template.full_clean()
         template.save()
-        self.assertEqual(template._ports_lowest, 22)
+        self.assertEqual(template.port_mappings, ['tcp/53', 'udp/53'])
 
-    def test_servicetemplate_single_port(self):
-        """
-        Test with a single port
-        """
-        template = ServiceTemplate(
-            name='Template 2',
-            protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-            ports=[53],
-        )
-        template.full_clean()
-        template.save()
-        self.assertEqual(template._ports_lowest, 53)
+    def test_duplicate_mapping_not_allowed(self):
+        template = ServiceTemplate(name='Duplicate', port_mappings=['tcp/80', 'tcp/80'])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
 
-    def test_servicetemplate_empty_ports(self):
-        """
-        Test with empty ports list
-        """
-        template = ServiceTemplate(
-            name='Template 3',
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=[],
-        )
-        self.assertRaises(ValidationError, template.full_clean)
+    def test_invalid_protocol(self):
+        template = ServiceTemplate(name='Bad Protocol', port_mappings=['bogus/80'])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_port_out_of_range(self):
+        template = ServiceTemplate(name='Out Of Range', port_mappings=[f'tcp/{SERVICE_PORT_MAX + 1}'])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_empty_port_mappings(self):
+        # A service (template) must define at least one port mapping
+        template = ServiceTemplate(name='Empty', port_mappings=[])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_duplicate_normalized_port(self):
+        # tcp/80 and tcp/080 are the same mapping and must be rejected as a duplicate
+        template = ServiceTemplate(name='DupNorm', port_mappings=['tcp/80', 'tcp/080'])
+        with self.assertRaises(ValidationError):
+            template.full_clean()
 
 
 class ServiceTestCase(TestCase):
@@ -1984,16 +1983,27 @@ class ServiceTestCase(TestCase):
 
     def test_large_service(self):
         """
-        Test creation of service with large number of ports.
+        Test creation of a service with a large number of port mappings.
         Related to issue #22273
         """
         service = Service(
             name='Service 1',
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=list(range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)),
             parent=VirtualMachine.objects.first(),
+            port_mappings=[f'tcp/{port}' for port in range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)],
         )
         service.full_clean()
         # Testing .save() is the important part, to check for database problems
         service.save()
-        self.assertEqual(service._ports_lowest, SERVICE_PORT_MIN)
+        self.assertEqual(len(service.port_mappings), SERVICE_PORT_MAX - SERVICE_PORT_MIN)
+
+    def test_port_list_summary(self):
+        """
+        The port_list property groups mappings by protocol across the service.
+        """
+        service = Service.objects.create(
+            name='dns',
+            parent=VirtualMachine.objects.first(),
+            port_mappings=['tcp/53', 'udp/53'],
+        )
+        self.assertIn('TCP/53', service.port_list)
+        self.assertIn('UDP/53', service.port_list)

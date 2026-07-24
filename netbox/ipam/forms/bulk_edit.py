@@ -6,6 +6,7 @@ from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
+from ipam.forms.fields import PortMappingField
 from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
@@ -16,7 +17,6 @@ from utilities.forms.fields import (
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     GenericObjectChoiceField,
-    NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
@@ -476,23 +476,20 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
-        choices=add_blank_choice(ServiceProtocolChoices),
-        required=False
+    add_port_mappings = PortMappingField(
+        label=_('Add port mappings'),
+        required=False,
+        help_text=_("Port mappings to add to each selected object"),
     )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
-        ),
-        required=False
+    remove_port_mappings = PortMappingField(
+        label=_('Remove port mappings'),
+        required=False,
+        help_text=_("Port mappings to remove from each selected object (if present)"),
     )
 
     model = ServiceTemplate
     fieldsets = (
-        FieldSet('protocol', 'ports', 'description'),
+        FieldSet('add_port_mappings', 'remove_port_mappings', 'description'),
     )
     nullable_fields = ('description', 'comments')
 

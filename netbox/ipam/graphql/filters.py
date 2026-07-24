@@ -11,7 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.graphql.filter_mixins import ServiceFilterMixin
+from ipam.filtersets import port_mapping_filter_qs
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -345,8 +345,61 @@ class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilter):
     )
 
 
+# Custom (method-based) GraphQL filters can't be inherited from a mixin — strawberry_django only picks
+# up filter_field methods declared on the filter_type class itself — so the two filters below keep thin
+# wrappers here. Each method reads its sibling's value off ``self`` so a combined protocol+port query
+# matches a single mapping rather than protocol and port independently.
+
+def _sibling_protocols(filters):
+    value = getattr(filters, 'protocol', None)
+    if value in (None, strawberry.UNSET):
+        return []
+    return [v.value for v in value]
+
+
+def _sibling_ports(filters):
+    value = getattr(filters, 'port', None)
+    if value in (None, strawberry.UNSET):
+        return []
+    return list(value)
+
+
+def _port_mapping_prefix_q(model, protocols, ports, prefix):
+    # Resolve the matching object PKs on the model itself, then match them via ``prefix`` so the filter
+    # is correct whether the filter type is the query root (prefix='') or a nested relation
+    # (e.g. prefix='services__'). Filtering the incoming queryset directly would target the wrong model
+    # for nested use and the ``port_mappings`` annotation/lookup would not resolve.
+    queryset, qs_filter = port_mapping_filter_qs(model.objects.all(), protocols, ports)
+    matched = queryset.filter(qs_filter)
+    return Q(**{f'{prefix}pk__in': matched.values('pk')})
+
+
+def _make_port_mapping_filters(model):
+    # strawberry_django only collects filter_field methods declared on the filter_type class itself (not
+    # from a mixin), so the two Service/ServiceTemplate filters are produced by this factory and assigned
+    # into each class body. This keeps the protocol/port correlation logic in a single place.
+    @strawberry_django.filter_field
+    def protocol(
+        self,
+        queryset,
+        value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
+        prefix,
+    ):
+        return _port_mapping_prefix_q(model, [v.value for v in value], _sibling_ports(self), prefix)
+
+    @strawberry_django.filter_field
+    def port(self, queryset, value: list[int], prefix):
+        # When protocol is also supplied, the protocol resolver applies the combined filter; skip here
+        # so the same subquery isn't built and ANDed twice.
+        if _sibling_protocols(self):
+            return Q()
+        return _port_mapping_prefix_q(model, [], list(value), prefix)
+
+    return protocol, port
+
+
 @register_filter(models.Service, lookups=True)
-class ServiceFilter(ContactFilterMixin, ServiceFilterMixin, PrimaryModelFilter):
+class ServiceFilter(ContactFilterMixin, PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -355,11 +408,13 @@ class ServiceFilter(ContactFilterMixin, ServiceFilterMixin, PrimaryModelFilter):
         strawberry_django.filter_field()
     )
     parent_object_id: ID | None = strawberry_django.filter_field()
+    protocol, port = _make_port_mapping_filters(models.Service)
 
 
 @register_filter(models.ServiceTemplate, lookups=True)
-class ServiceTemplateFilter(ServiceFilterMixin, PrimaryModelFilter):
+class ServiceTemplateFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
+    protocol, port = _make_port_mapping_filters(models.ServiceTemplate)
 
 
 @register_filter(models.VLAN, lookups=True)

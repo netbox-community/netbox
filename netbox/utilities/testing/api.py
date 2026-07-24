@@ -65,6 +65,39 @@ __all__ = (
 )
 
 
+def _unwrap_strawberry_type(field_type):
+    """Strip ``Optional``/``List`` wrappers to reach the core inner type."""
+    while type(field_type) in (StrawberryOptional, StrawberryList):
+        field_type = field_type.of_type
+    return field_type
+
+
+def _is_plain_object_type(field_type):
+    """
+    True if the (unwrapped) type is a plain Strawberry object type — i.e. one that requires a subfield
+    selection in a GraphQL query but is not a lazily-referenced related model (those select ``id``).
+    """
+    core = _unwrap_strawberry_type(field_type)
+    return type(core) is not LazyType and inspect.isclass(core) and hasattr(core, '__strawberry_definition__')
+
+
+def _leaf_subfield_names(object_type):
+    """
+    The names of an object type's leaf fields — scalars, scalar lists, and enums — skipping nested
+    objects, related models, and unions (which would need their own selection). Used to auto-select a
+    minimal valid selection for a nested object field, analogous to selecting ``id`` for related models.
+    """
+    names = []
+    for field in object_type.__strawberry_definition__.fields:
+        core = _unwrap_strawberry_type(field.type)
+        if type(core) in (LazyType, StrawberryUnion):
+            continue
+        if inspect.isclass(core) and hasattr(core, '__strawberry_definition__'):
+            continue
+        names.append(field.name)
+    return names
+
+
 @dataclass(frozen=True)
 class GraphQLFilterTest:
     """
@@ -753,6 +786,13 @@ class APIViewTestCases:
                     continue
                 elif type(field.type) is StrawberryOptional and type(field.type.of_type) is LazyType:
                     fields_string += f'{field.name} {{ id }}\n'
+                elif type(field.type) in (StrawberryList, StrawberryOptional) and _is_plain_object_type(
+                    field.type.of_type
+                ):
+                    # List/Optional of a plain (non-model) object type, e.g. a service's grouped
+                    # port_mappings; select its leaf (scalar) subfields.
+                    subfields = ' '.join(_leaf_subfield_names(_unwrap_strawberry_type(field.type.of_type)))
+                    fields_string += f'{field.name} {{ {subfields} }}\n'
                 elif hasattr(field, 'is_relation') and field.is_relation:
                     # Ignore private fields
                     if field.name.startswith('_'):
