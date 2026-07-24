@@ -35,8 +35,6 @@ class ServiceBase(models.Model):
         abstract = True
 
     def __str__(self):
-        if self.port_mappings:
-            return f'{self.name} ({self.port_list})'
         return self.name
 
     def clean(self):

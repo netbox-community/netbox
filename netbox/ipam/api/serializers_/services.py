@@ -69,6 +69,7 @@ class PortMappingsField(serializers.Field):
 # fields from the class itself and other serializers — not from a plain mixin. default=None keeps them
 # from being sourced off the (now nonexistent) model attributes; the real values are filled in by
 # PortMappingsSerializerMixin.to_representation().
+# TODO: Remove in v5.0 along with the legacy handling in PortMappingsSerializerMixin.
 def _legacy_protocol_field():
     return serializers.ChoiceField(
         choices=ServiceProtocolChoices,
