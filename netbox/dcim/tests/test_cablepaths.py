@@ -2620,6 +2620,7 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         self.assertPathIsSet(interface2, path2)
 
     def test_224_single_path_via_multiple_pass_throughs_with_breakouts(self):
+
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
         [IF2]        [FP2] [RP2]        [IF4]
@@ -2679,6 +2680,145 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_225_duplex_single_front_port_cross_connect_two_devices(self):
+
+        """
+        Duplex QSFP model on device B: one multi-position front port maps to two rear ports that cross-connect to a
+        peer (device A) where two strands converge on one interface. Regression for convergent paths without cable
+        position context at the duplex front port.
+        """
+        device_a = self.device
+        device_b = Device.objects.create(
+            site=self.site,
+            device_type=self.device.device_type,
+            role=self.device.role,
+            name='Router B',
+        )
+        if_a = Interface.objects.create(device=device_a, name='ce0')
+        if_b = Interface.objects.create(device=device_b, name='ce0')
+
+        rp_a_tx = RearPort.objects.create(device=device_a, name='ce0-TX', positions=1)
+        rp_a_rx = RearPort.objects.create(device=device_a, name='ce0-RX', positions=1)
+        fp_a_tx = FrontPort.objects.create(device=device_a, name='ce0-tx', positions=1)
+        fp_a_rx = FrontPort.objects.create(device=device_a, name='ce0-rx', positions=1)
+
+        rp_b_tx = RearPort.objects.create(device=device_b, name='ce0-TX', positions=1)
+        rp_b_rx = RearPort.objects.create(device=device_b, name='ce0-RX', positions=1)
+        fp_b_ce0 = FrontPort.objects.create(device=device_b, name='ce0', positions=2)
+
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=device_a,
+                front_port=fp_a_tx,
+                front_port_position=1,
+                rear_port=rp_a_tx,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_a,
+                front_port=fp_a_rx,
+                front_port_position=1,
+                rear_port=rp_a_rx,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b,
+                front_port=fp_b_ce0,
+                front_port_position=1,
+                rear_port=rp_b_tx,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b,
+                front_port=fp_b_ce0,
+                front_port_position=2,
+                rear_port=rp_b_rx,
+                rear_port_position=1,
+            ),
+        ])
+
+        cable_a_mod = Cable(a_terminations=[if_a], b_terminations=[fp_a_tx, fp_a_rx])
+        cable_a_mod.save()
+        cable_b_mod = Cable(a_terminations=[if_b], b_terminations=[fp_b_ce0])
+        cable_b_mod.save()
+
+        Cable(a_terminations=[rp_a_tx], b_terminations=[rp_b_rx]).save()
+        Cable(a_terminations=[rp_a_rx], b_terminations=[rp_b_tx]).save()
+
+        if_a.refresh_from_db()
+        if_b.refresh_from_db()
+
+        self.assertTrue(if_b._path.is_complete)
+        self.assertEqual(len(if_b.connected_endpoints), 1)
+        self.assertEqual(if_b.connected_endpoints[0].pk, if_a.pk)
+
+        self.assertTrue(if_a._path.is_complete)
+        self.assertEqual(len(if_a.connected_endpoints), 1)
+        self.assertEqual(if_a.connected_endpoints[0].pk, if_b.pk)
+
+    def test_226_divergent_multi_position_front_port_remains_split(self):
+        """
+        A multi-position FrontPort whose positions map to RearPorts on *different*
+        parent devices must still be flagged as a split path.
+
+        This ensures the convergent-path fix (test_225) does not accidentally allow
+        divergent paths through with is_split=False.
+        """
+        device_a = self.device
+        device_b = Device.objects.create(
+            site=self.site,
+            device_type=self.device.device_type,
+            role=self.device.role,
+            name='Router B',
+        )
+        device_c = Device.objects.create(
+            site=self.site,
+            device_type=self.device.device_type,
+            role=self.device.role,
+            name='Router C',
+        )
+
+        if_b = Interface.objects.create(device=device_b, name='ce0')
+
+        # Device B: one duplex front port, two rear ports
+        fp_b = FrontPort.objects.create(device=device_b, name='ce0', positions=2)
+        rp_b_1 = RearPort.objects.create(device=device_b, name='ce0-1', positions=1)
+        rp_b_2 = RearPort.objects.create(device=device_b, name='ce0-2', positions=1)
+
+        # Device A and C each have a single rear port
+        rp_a = RearPort.objects.create(device=device_a, name='rp0', positions=1)
+        rp_c = RearPort.objects.create(device=device_c, name='rp0', positions=1)
+
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=device_b,
+                front_port=fp_b,
+                front_port_position=1,
+                rear_port=rp_b_1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=device_b,
+                front_port=fp_b,
+                front_port_position=2,
+                rear_port=rp_b_2,
+                rear_port_position=1,
+            ),
+        ])
+
+        # if_b → fp_b (duplex)
+        Cable(a_terminations=[if_b], b_terminations=[fp_b]).save()
+
+        # Each strand goes to a *different* device → genuinely divergent
+        Cable(a_terminations=[rp_b_1], b_terminations=[rp_a]).save()
+        Cable(a_terminations=[rp_b_2], b_terminations=[rp_c]).save()
+
+        if_b.refresh_from_db()
+        path = if_b._path
+
+        self.assertTrue(path.is_split)
+        self.assertFalse(path.is_complete)
 
     def test_301_create_path_via_existing_cable(self):
         """
