@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
-from ipam.validators import split_port_mapping, validate_port_mappings
+from ipam.validators import legacy_protocol_and_ports, split_port_mapping, validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
 
@@ -74,6 +74,18 @@ class ServiceBase(models.Model):
         if remove:
             mappings = [mapping for mapping in mappings if mapping not in remove]
         self.port_mappings = mappings
+
+    # Read-only legacy accessors mirroring the deprecated REST/GraphQL protocol/ports fields, retained
+    # for backward compatibility with code that read the old single-protocol fields. A multi-protocol
+    # service has no single-protocol form, so both return None (ports=[] when there are no mappings).
+    # TODO: Remove in v5.0 once backward compatibility is dropped.
+    @property
+    def protocol(self):
+        return legacy_protocol_and_ports(self.port_mappings)[0]
+
+    @property
+    def ports(self):
+        return legacy_protocol_and_ports(self.port_mappings)[1]
 
     @property
     def port_list(self):

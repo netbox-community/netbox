@@ -2006,3 +2006,22 @@ class ServiceTestCase(TestCase):
             port_mappings=['tcp/53', 'udp/53'],
         )
         self.assertEqual(service.port_list, 'TCP/53, UDP/53')
+
+    def test_legacy_protocol_ports_properties(self):
+        """The read-only protocol/ports properties expose the deprecated single-protocol representation."""
+        vm = VirtualMachine.objects.first()
+
+        # Single protocol: reported as (protocol, sorted ports)
+        single = Service.objects.create(name='http', parent=vm, port_mappings=['tcp/443', 'tcp/80'])
+        self.assertEqual(single.protocol, 'tcp')
+        self.assertEqual(single.ports, [80, 443])
+
+        # Multiple protocols: not representable in the legacy format, so both are None
+        multi = Service.objects.create(name='dns', parent=vm, port_mappings=['tcp/53', 'udp/53'])
+        self.assertIsNone(multi.protocol)
+        self.assertIsNone(multi.ports)
+
+        # No mappings: protocol is None but ports is an empty list (as the old API always reported)
+        empty = Service.objects.create(name='empty', parent=vm, port_mappings=[])
+        self.assertIsNone(empty.protocol)
+        self.assertEqual(empty.ports, [])
