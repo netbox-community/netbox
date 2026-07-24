@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.utils import reconcile_port_mappings
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup
@@ -1118,12 +1119,81 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         choices=PortTypeChoices,
         help_text=_('Physical medium classification')
     )
+    rear_port = CSVModelChoiceField(
+        label=_('Rear port'),
+        queryset=RearPort.objects.all(),
+        to_field_name='name',
+        help_text=_('Corresponding rear port')
+    )
+    rear_port_position = forms.IntegerField(
+        label=_('Rear port position'),
+        required=False,
+        initial=1,
+        help_text=_('Mapped position on the corresponding rear port')
+    )
 
     class Meta:
         model = FrontPort
         fields = (
-            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'owner', 'tags'
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'rear_port',
+            'rear_port_position', 'description', 'owner', 'tags'
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit RearPort choices to those belonging to this device (or VC master)
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['rear_port'].queryset = RearPort.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['rear_port'].queryset = RearPort.objects.none()
+
+    def clean(self):
+        super().clean()
+
+        # Validate the rear port position against the selected rear port
+        rear_port = self.cleaned_data.get('rear_port')
+        rear_port_position = self.cleaned_data.get('rear_port_position') or 1
+        if rear_port and rear_port_position > rear_port.positions:
+            raise forms.ValidationError({
+                'rear_port_position': _(
+                    "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
+                    "positions."
+                ).format(
+                    rear_port_position=rear_port_position,
+                    name=rear_port.name,
+                    positions=rear_port.positions
+                )
+            })
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        # Map the front port's first position to the specified rear port & position
+        if rear_port := self.cleaned_data.get('rear_port'):
+            reconcile_port_mappings(
+                PortMapping,
+                parent_field='front_port',
+                parent=self.instance,
+                desired=[{
+                    'front_port_position': 1,
+                    'rear_port_id': rear_port.pk,
+                    'rear_port_position': self.cleaned_data.get('rear_port_position') or 1,
+                }],
+            )
 
 
 class RearPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
