@@ -1123,13 +1123,12 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         label=_('Rear port'),
         queryset=RearPort.objects.all(),
         to_field_name='name',
-        help_text=_('Corresponding rear port')
+        help_text=_('Corresponding rear port (mapped to the front port\'s first position)')
     )
     rear_port_position = forms.IntegerField(
         label=_('Rear port position'),
         required=False,
-        initial=1,
-        help_text=_('Mapped position on the corresponding rear port')
+        help_text=_('Mapped position on the corresponding rear port (defaults to 1)')
     )
 
     class Meta:
@@ -1164,10 +1163,13 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     def clean(self):
         super().clean()
 
-        # Validate the rear port position against the selected rear port
         rear_port = self.cleaned_data.get('rear_port')
         rear_port_position = self.cleaned_data.get('rear_port_position') or 1
-        if rear_port and rear_port_position > rear_port.positions:
+        if not rear_port:
+            return
+
+        # Validate the rear port position against the selected rear port
+        if rear_port_position > rear_port.positions:
             raise forms.ValidationError({
                 'rear_port_position': _(
                     "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
@@ -1176,6 +1178,22 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
                     rear_port_position=rear_port_position,
                     name=rear_port.name,
                     positions=rear_port.positions
+                )
+            })
+
+        # Ensure the target rear port position isn't already occupied. reconcile_port_mappings() creates the
+        # mapping via create() (bypassing validate_unique()), so without this check a collision would surface
+        # as an uncaught IntegrityError (HTTP 500) rather than a row-level validation error.
+        occupied = PortMapping.objects.filter(
+            rear_port=rear_port, rear_port_position=rear_port_position
+        ).exclude(front_port=self.instance.pk)
+        if occupied.exists():
+            raise forms.ValidationError({
+                'rear_port_position': _(
+                    "Rear port {name} position {rear_port_position} is already occupied."
+                ).format(
+                    name=rear_port.name,
+                    rear_port_position=rear_port_position
                 )
             })
 
