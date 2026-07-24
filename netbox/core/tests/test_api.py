@@ -371,7 +371,10 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         queue = get_queue('default')
         worker = get_worker('default')
         job = queue.enqueue(self.dummy_job_default)
-        worker.prepare_job_execution(job)
+        # prepare_job_execution() invokes the worker heartbeat, which logs a "re-registering"
+        # warning for this freshly-created (unregistered) worker; suppress the expected noise.
+        with disable_logging():
+            worker.prepare_job_execution(job)
         url = reverse('core-api:rqtask-stop', args=[job.id])
         self.assertEqual(job.get_status(), JobStatus.STARTED)
 
