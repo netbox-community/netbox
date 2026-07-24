@@ -5,7 +5,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator, ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -245,6 +245,19 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         verbose_name=_('CA File Path'),
         help_text=_(
             "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
+        )
+    )
+    timeout = models.PositiveSmallIntegerField(
+        verbose_name=_('timeout'),
+        null=True,
+        blank=True,
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(3600),
+        ),
+        help_text=_(
+            "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
+            "the system default (WEBHOOK_DEFAULT_TIMEOUT)."
         )
     )
     events = GenericRelation(
