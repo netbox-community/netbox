@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.db.models import Count, F, OuterRef, Subquery
+from django.db.models import Count, F, OuterRef, QuerySet, Subquery
 from django.db.models.signals import post_delete, post_save, pre_delete
 
 from netbox.registry import registry
@@ -63,22 +63,59 @@ def post_save_receiver(sender, instance, created, **kwargs):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
+def _parent_is_being_deleted(origin, parent_model, parent_pk):
+    """
+    Return True if `origin` (the object or queryset that `delete()` was called on) indicates that
+    the parent identified by (parent_model, parent_pk) is itself being deleted as part of the same
+    operation. In that case, decrementing its counter is wasted work: the parent row is going away,
+    so the UPDATE would be a no-op. Skipping it avoids an N+1 storm of pointless UPDATEs when a
+    parent with many tracked children is deleted (e.g. a Device with thousands of Interfaces).
+
+    Note: only the *direct* parent is detected, since `origin` is just the top-level object/queryset
+    delete() was called on. In a deeper cascade (DeviceType -> Device -> Interface) `origin` stays
+    the DeviceType, so intermediate Devices' interface counters still get the (harmless) no-op
+    UPDATE. Suppressing that would require the full deletion set, which the signals don't expose.
+    """
+    if origin is None:
+        return False
+    if isinstance(origin, QuerySet):
+        # A bulk delete; every collected child belongs to an object in this queryset by construction
+        return origin.model is parent_model
+    # A single object delete
+    return isinstance(origin, parent_model) and origin.pk == parent_pk
+
+
 def pre_delete_receiver(sender, instance, origin, **kwargs):
-    model = instance._meta.model
-    if not model.objects.filter(pk=instance.pk).exists():
-        instance._previously_removed = True
+    """
+    Before a tracked object is deleted, check whether its row has already been removed (e.g. by an
+    earlier cascade) and, if so, flag it so post_delete_receiver skips the now-redundant counter
+    update. The existence check is skipped when the tracked parent is itself being deleted, since
+    the counter update would be skipped regardless — this avoids a SELECT per cascaded child.
+    """
+    for field_name, counter_name in get_counters_for_model(sender):
+        parent_model = sender._meta.get_field(field_name).related_model
+        parent_pk = getattr(instance, field_name, None)
+        if parent_pk is None or _parent_is_being_deleted(origin, parent_model, parent_pk):
+            continue
+        # A tracked parent will survive this operation, so the double-delete guard is needed
+        if not sender.objects.filter(pk=instance.pk).exists():
+            instance._previously_removed = True
+        return
 
 
 def post_delete_receiver(sender, instance, origin, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is deleted.
     """
+    if hasattr(instance, '_previously_removed'):
+        return
+
     for field_name, counter_name in get_counters_for_model(sender):
         parent_model = sender._meta.get_field(field_name).related_model
         parent_pk = getattr(instance, field_name, None)
 
-        # Decrement the parent's counter by one
-        if parent_pk is not None and not hasattr(instance, '_previously_removed'):
+        # Decrement the parent's counter by one, unless the parent is itself being deleted
+        if parent_pk is not None and not _parent_is_being_deleted(origin, parent_model, parent_pk):
             update_counter(parent_model, parent_pk, counter_name, -1)
 
 
