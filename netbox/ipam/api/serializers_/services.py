@@ -132,12 +132,6 @@ class PortMappingsSerializerMixin:
             except DjangoValidationError as exc:
                 raise serializers.ValidationError({'ports': exc.messages})
 
-        # Require at least one mapping whenever they're being written (a create, or an update that sets
-        # them). A partial update that touches neither format leaves the existing mappings intact.
-        writing_mappings = 'port_mappings' in data or not self.partial
-        if writing_mappings and not data.get('port_mappings'):
-            raise serializers.ValidationError({'port_mappings': _("At least one port mapping is required.")})
-
         return super().validate(data)
 
     def to_representation(self, instance):
