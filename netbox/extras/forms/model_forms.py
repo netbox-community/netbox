@@ -584,7 +584,7 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
         FieldSet('name', 'description', 'tags', name=_('Webhook')),
         FieldSet(
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            name=_('HTTP Request')
+            'timeout', name=_('HTTP Request')
         ),
         FieldSet('ssl_verification', 'ca_file_path', name=_('SSL')),
     )

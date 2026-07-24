@@ -43,6 +43,7 @@ class WebhookTestCase(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Webhook 4',
             'payload_url': 'http://example.com/?4',
+            'timeout': 15,
         },
         {
             'name': 'Webhook 5',

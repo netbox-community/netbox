@@ -306,3 +306,11 @@ The base unit for disk sizes. Set this to `1024` to use binary prefixes (MiB, Gi
 Default: `1000`
 
 The base unit for RAM sizes. Set this to `1024` to use binary prefixes (MiB, GiB, etc.) instead of decimal prefixes (MB, GB, etc.).
+
+---
+
+## WEBHOOK_DEFAULT_TIMEOUT
+
+Default: `30`
+
+The default maximum time (in seconds) to wait for a response when sending a webhook. This value is used for any webhook which does not define its own timeout. Setting a value lower than [`RQ_DEFAULT_TIMEOUT`](#rq_default_timeout) prevents an unresponsive receiver from holding a background worker open for the full duration of the job.

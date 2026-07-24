@@ -220,6 +220,11 @@ STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', None)
 STORAGES = getattr(configuration, 'STORAGES', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
+WEBHOOK_DEFAULT_TIMEOUT = getattr(configuration, 'WEBHOOK_DEFAULT_TIMEOUT', 30)
+if not isinstance(WEBHOOK_DEFAULT_TIMEOUT, int) or not 1 <= WEBHOOK_DEFAULT_TIMEOUT <= 3600:
+    raise ImproperlyConfigured(
+        f"WEBHOOK_DEFAULT_TIMEOUT must be an integer between 1 and 3600 (found {WEBHOOK_DEFAULT_TIMEOUT!r})"
+    )
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
 if DISK_BASE_UNIT not in [1000, 1024]:
     raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
