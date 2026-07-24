@@ -32,9 +32,17 @@ def parse_numeric_range(string, base=10, min_value=None, max_value=None):
       '0-3,5' => [0, 1, 2, 3, 5]
       '2,8-b,d,f' => [2, 8, 9, a, b, d, f]
 
-    If ``min_value`` and/or ``max_value`` are given, each range is validated against those bounds
-    *before* it is expanded, so an out-of-bounds range raises rather than materializing a huge list.
+    Pass BOTH ``min_value`` and ``max_value`` to validate each range against those bounds *before* it is
+    expanded: a reversed or out-of-bounds range then raises rather than materializing a huge list or
+    silently expanding to nothing (which would be swallowed when combined with valid ranges, e.g.
+    "80,9000-53"). Bounds are all-or-nothing — supplying only one raises ``ValueError`` — so a caller
+    can't opt into a lower bound while leaving the expansion size uncapped. With no bounds (e.g.
+    IP/pattern expansion) a reversed range yields an empty list, as before.
     """
+    bounded = min_value is not None or max_value is not None
+    if bounded and (min_value is None or max_value is None):
+        raise ValueError("parse_numeric_range() requires both min_value and max_value, or neither.")
+
     values = list()
     for dash_range in string.split(','):
         try:
@@ -45,15 +53,11 @@ def parse_numeric_range(string, base=10, min_value=None, max_value=None):
             begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         except ValueError:
             raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
-        # When bounds are supplied (e.g. service ports), validate each range before expanding: reject
-        # reversed ranges and endpoints outside the permitted range so invalid input errors instead of
-        # silently expanding to nothing — which would otherwise be swallowed when combined with other
-        # valid ranges (e.g. "80,9000-53"). Bounds are intentionally not enforced when they are omitted
-        # (e.g. IP/pattern expansion), where a reversed range is expected to yield an empty list.
-        if min_value is not None or max_value is not None:
+        if bounded:
+            # Reject reversed ranges and endpoints outside the permitted range before expanding.
             if begin > end - 1:
                 raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
-            if (min_value is not None and begin < min_value) or (max_value is not None and end - 1 > max_value):
+            if begin < min_value or end - 1 > max_value:
                 raise forms.ValidationError(
                     _('Range "{value}" is not within the permitted range ({min}-{max}).').format(
                         value=dash_range, min=min_value, max=max_value

@@ -4,10 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.forms.widgets import PortMappingWidget, group_mappings
-from ipam.validators import validate_port_mappings
-from utilities.forms.utils import parse_numeric_range
+from ipam.validators import expand_port_mapping, validate_port_mappings
 
 __all__ = (
     'PortMappingField',
@@ -61,19 +59,13 @@ class PortMappingField(forms.Field):
                 # Ignore entirely-empty rows (e.g. the default blank row on an untouched form)
                 if not protocol and not raw_ports:
                     continue
-                # A protocol chosen without any ports is preserved as a bare 'protocol/' token so the
-                # shared validator reports a clear "expected protocol/port" error (rather than
-                # parse_numeric_range raising a confusing 'Range "" is invalid').
-                if not raw_ports:
-                    mappings.append(f'{protocol}/')
-                    continue
-                # parse_numeric_range validates each range against the port bounds (rejecting reversed
-                # and out-of-range values before expansion), so a non-empty string always yields >=1 port.
-                ports = (
-                    parse_numeric_range(raw_ports, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
-                    if isinstance(raw_ports, str) else (raw_ports or [])
-                )
-                mappings.extend(f'{protocol}/{port}' for port in ports)
+                if isinstance(raw_ports, list):
+                    # Ports already expanded (e.g. set programmatically as a flat list)
+                    mappings.extend(f'{protocol}/{port}' for port in raw_ports)
+                else:
+                    # A comma/range string (the widget's format); expand it via the shared helper, which
+                    # also preserves a protocol-without-ports row as a bare 'protocol/' token.
+                    mappings.extend(expand_port_mapping(protocol, raw_ports))
 
         # Shared validation returns the canonical (normalized) list of protocol/port strings
         return validate_port_mappings(mappings)

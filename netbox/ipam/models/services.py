@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
@@ -39,53 +41,54 @@ class ServiceBase(models.Model):
 
     def clean(self):
         super().clean()
-        self._apply_bulk_port_mapping_modifiers()
         # validate_port_mappings returns the canonical form (integer ports), so storing its result
         # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080').
         self.port_mappings = validate_port_mappings(self.port_mappings)
+        self.__dict__.pop('_legacy_protocol_ports', None)  # invalidate the cached legacy view
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
 
-    def _apply_bulk_port_mapping_modifiers(self):
+    def apply_port_mapping_delta(self, add=None, remove=None):
         """
-        Fold bulk-edit add/remove deltas into ``port_mappings`` before validation.
+        Merge bulk-edit add/remove port-mapping deltas into ``port_mappings``. ``add``/``remove`` hold
+        canonical ``protocol/port`` strings; existing entries are normalized for the comparison so a
+        non-canonical stored value (e.g. a raw-DB 'tcp/080') is still matched by a 'tcp/80' remove. The
+        merged list is left for ``clean()`` to validate (range, duplicates, and the at-least-one rule).
 
-        The generic ``BulkEditView`` has no per-object pre-save hook, but it does assign the
-        ``add_port_mappings`` / ``remove_port_mappings`` bulk-edit form values onto the instance ahead
-        of ``full_clean()`` (its "form field used to modify a field" handling). Consuming them here keeps
-        the change within the single bulk-edit save (one change-log entry). This is a no-op everywhere
-        else, since those attributes are only present during a bulk edit.
+        Called from the Service/ServiceTemplate bulk-edit views' pre_save_operations() hook, so the
+        merge is part of the single bulk-edit save (one change-log entry) and the model stays unaware of
+        the bulk-edit form.
         """
-        add = getattr(self, 'add_port_mappings', None)
-        remove = getattr(self, 'remove_port_mappings', None)
-        if add is None and remove is None:
-            return
-
-        # Consume the transient attributes so a repeated clean() can't re-apply the delta
-        for attr in ('add_port_mappings', 'remove_port_mappings'):
-            try:
-                delattr(self, attr)
-            except AttributeError:
-                pass
+        def _normalize(mapping):
+            protocol, port = split_port_mapping(mapping)
+            return f'{protocol}/{int(port)}' if port.isdigit() else mapping
 
         mappings = list(self.port_mappings)
+        remove = {_normalize(mapping) for mapping in (remove or [])}
         if add:
-            mappings += [mapping for mapping in add if mapping not in mappings]
+            existing = {_normalize(mapping) for mapping in mappings}
+            mappings += [mapping for mapping in add if _normalize(mapping) not in existing]
         if remove:
-            mappings = [mapping for mapping in mappings if mapping not in remove]
+            mappings = [mapping for mapping in mappings if _normalize(mapping) not in remove]
         self.port_mappings = mappings
 
     # Read-only legacy accessors mirroring the deprecated REST/GraphQL protocol/ports fields, retained
     # for backward compatibility with code that read the old single-protocol fields. A multi-protocol
     # service has no single-protocol form, so both return None (ports=[] when there are no mappings).
     # TODO: Remove in v5.0 once backward compatibility is dropped.
+    @cached_property
+    def _legacy_protocol_ports(self):
+        # Derived once per instance and shared by the protocol/ports accessors (and the GraphQL
+        # resolvers, which read these properties), so selecting both doesn't re-group port_mappings twice.
+        return legacy_protocol_and_ports(self.port_mappings)
+
     @property
     def protocol(self):
-        return legacy_protocol_and_ports(self.port_mappings)[0]
+        return self._legacy_protocol_ports[0]
 
     @property
     def ports(self):
-        return legacy_protocol_and_ports(self.port_mappings)[1]
+        return self._legacy_protocol_ports[1]
 
     @property
     def port_list(self):

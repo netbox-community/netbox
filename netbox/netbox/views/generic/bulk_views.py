@@ -806,6 +806,15 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
+    def pre_save_operations(self, form, obj):
+        """
+        This method is called for each object in _update_objects immediately before full_clean() and
+        save(). Override to modify the object from form fields that don't map directly to a model field
+        (e.g. add/remove-style deltas), so the change is validated and persisted within the single
+        bulk-edit save. No-op by default.
+        """
+        pass
+
     def post_save_operations(self, form, obj):
         """
         This method is called for each object in _update_objects. Override to perform additional object-level
@@ -882,6 +891,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     obj._m2m_values[field.name] = list(value)
                 elif field.name in nullified_fields:
                     obj._m2m_values[field.name] = []
+
+            # Apply any form-driven modifications that don't map directly to a model field (e.g.
+            # add/remove deltas) before validation, so they're part of this single save.
+            self.pre_save_operations(form, obj)
 
             obj.full_clean()
             obj.save()

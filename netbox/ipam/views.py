@@ -1914,8 +1914,21 @@ class ServiceTemplateBulkImportView(generic.BulkImportView):
     model_form = forms.ServiceTemplateImportForm
 
 
+class ServicePortMappingsBulkEditMixin:
+    """
+    Fold the ``add_port_mappings`` / ``remove_port_mappings`` bulk-edit deltas into each object before it
+    is validated and saved, keeping the model unaware of the bulk-edit form's fields.
+    """
+    def pre_save_operations(self, form, obj):
+        super().pre_save_operations(form, obj)
+        add = form.cleaned_data.get('add_port_mappings')
+        remove = form.cleaned_data.get('remove_port_mappings')
+        if add or remove:
+            obj.apply_port_mapping_delta(add=add, remove=remove)
+
+
 @register_model_view(ServiceTemplate, 'bulk_edit', path='edit', detail=False)
-class ServiceTemplateBulkEditView(generic.BulkEditView):
+class ServiceTemplateBulkEditView(ServicePortMappingsBulkEditMixin, generic.BulkEditView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
     table = tables.ServiceTemplateTable
@@ -1998,7 +2011,7 @@ class ServiceBulkImportView(generic.BulkImportView):
 
 
 @register_model_view(Service, 'bulk_edit', path='edit', detail=False)
-class ServiceBulkEditView(generic.BulkEditView):
+class ServiceBulkEditView(ServicePortMappingsBulkEditMixin, generic.BulkEditView):
     queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable

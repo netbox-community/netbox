@@ -364,14 +364,16 @@ def _sibling_ports(filters):
     return list(value)
 
 
-def _port_mapping_prefix_q(model, protocols, ports, prefix):
-    # Resolve the matching object PKs on the model itself, then match them via ``prefix`` so the filter
-    # is correct whether the filter type is the query root (prefix='') or a nested relation
-    # (e.g. prefix='services__'). Filtering the incoming queryset directly would target the wrong model
-    # for nested use and the ``port_mappings`` annotation/lookup would not resolve.
-    queryset, qs_filter = port_mapping_filter_qs(model.objects.all(), protocols, ports)
-    matched = queryset.filter(qs_filter)
-    return Q(**{f'{prefix}pk__in': matched.values('pk')})
+def _port_mapping_prefix_q(model, protocols, ports, prefix, queryset):
+    if prefix:
+        # Nested relation (e.g. prefix='services__'): the incoming queryset is a *different* model, so
+        # resolve the matching PKs on the target model and match them through the prefix.
+        matched_qs, qs_filter = port_mapping_filter_qs(model.objects.all(), protocols, ports)
+        return Q(**{f'{prefix}pk__in': matched_qs.filter(qs_filter).values('pk')})
+    # Root query: the incoming queryset already targets this model, so filter (and annotate) it directly
+    # — running the GIN-indexable containment lookup against it rather than an extra pk__in self-subquery.
+    queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
+    return queryset, qs_filter
 
 
 def _make_port_mapping_filters(model):
@@ -385,7 +387,7 @@ def _make_port_mapping_filters(model):
         value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
         prefix,
     ):
-        return _port_mapping_prefix_q(model, [v.value for v in value], _sibling_ports(self), prefix)
+        return _port_mapping_prefix_q(model, [v.value for v in value], _sibling_ports(self), prefix, queryset)
 
     @strawberry_django.filter_field
     def port(self, queryset, value: list[int], prefix):
@@ -393,7 +395,7 @@ def _make_port_mapping_filters(model):
         # so the same subquery isn't built and ANDed twice.
         if _sibling_protocols(self):
             return Q()
-        return _port_mapping_prefix_q(model, [], list(value), prefix)
+        return _port_mapping_prefix_q(model, [], list(value), prefix, queryset)
 
     return protocol, port
 

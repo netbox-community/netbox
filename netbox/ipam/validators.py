@@ -53,6 +53,28 @@ def legacy_protocol_and_ports(mappings):
     return (None, []) if not grouped else (None, None)
 
 
+def expand_port_mapping(protocol, ports_str):
+    """
+    Expand a single protocol plus a comma/range port string (e.g. ``('tcp', '80,443,8000-8010')``) into
+    the model's flat ``['tcp/80', 'tcp/443', ...]`` tokens. An empty ``ports_str`` yields a single bare
+    ``'protocol/'`` token so ``validate_port_mappings`` reports a clear "expected protocol/port" error
+    (rather than ``parse_numeric_range`` raising a confusing 'Range "" is invalid'). Shared by the model
+    form field and the CSV import form so the protocol/port string is parsed in exactly one place.
+    """
+    # Imported lazily to avoid a circular import during settings load (see validate_port_mappings).
+    from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+    from utilities.forms.utils import parse_numeric_range
+
+    protocol = (protocol or '').strip().lower()
+    ports_str = (ports_str or '').strip()
+    if not ports_str:
+        return [f'{protocol}/']
+    # parse_numeric_range validates each range against the port bounds (rejecting reversed and
+    # out-of-range values before expansion), so a non-empty string always yields >=1 port.
+    ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+    return [f'{protocol}/{port}' for port in ports]
+
+
 def validate_port_mappings(mappings):
     """
     Validate a list of service port mappings, i.e. ``protocol/port`` strings such as ``'tcp/80'``.

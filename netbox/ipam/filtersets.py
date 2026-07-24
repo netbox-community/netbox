@@ -1214,10 +1214,9 @@ class _ArrayToString(Func):
 
 
 def annotate_port_mappings(queryset):
-    # Join port_mappings into a comma-delimited string bracketed with commas, so each element can be
-    # matched at its boundaries (e.g. ',tcp/' for a protocol, '/80,' for a port, ',tcp/80,' for a pair).
-    # Re-annotating with the same alias is a harmless no-op, so both the protocol and port filters may
-    # call this on the same queryset.
+    # Join port_mappings into a comma-delimited string bracketed with commas, so each protocol can be
+    # matched at its boundaries (e.g. ',tcp/' for a protocol). Only the protocol-only filter path needs
+    # this annotation, and it's applied at most once per queryset.
     return queryset.annotate(
         _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
                                   output_field=TextField())
@@ -1228,24 +1227,31 @@ def port_mapping_q(protocols, ports):
     """
     Build a filter for services by protocol and/or port, returning ``(needs_annotation, Q)``.
 
-    When both protocols and ports are given, a match must come from the *same* mapping: this uses exact
-    ArrayField containment (``port_mappings @> ['tcp/80']``), which is precise and GIN-indexable, so no
-    annotation is required (``needs_annotation`` is False). When only one is given, there is no way to
-    match a protocol prefix or port suffix via containment, so we fall back to a substring match against
-    the ``_port_mappings_str`` annotation (``needs_annotation`` is True).
+    Whenever the ports are known — either explicitly, or (for a port-only query) by pairing each port
+    with every valid protocol — a match is expressed as exact ArrayField containment
+    (``port_mappings @> ['tcp/80']``), which is precise and GIN-indexable, so no annotation is required
+    (``needs_annotation`` is False). Only a protocol-only query can't enumerate the (unbounded) ports,
+    so it falls back to a substring match against the ``_port_mappings_str`` annotation
+    (``needs_annotation`` is True).
     """
     qs_filter = Q()
     if protocols and ports:
+        # Both given: a match must come from the *same* mapping.
         for protocol in protocols:
             for port in ports:
                 qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
         return False, qs_filter
-    if protocols:
-        for protocol in protocols:
-            qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
-        return True, qs_filter
-    for port in ports:
-        qs_filter |= Q(_port_mappings_str__contains=f'/{port},')
+    if ports:
+        # Port-only: the protocol set is small and fixed, so enumerate it to keep the GIN-indexable
+        # containment lookup instead of a full-table scan over the _port_mappings_str annotation.
+        for port in ports:
+            for protocol in ServiceProtocolChoices.values():
+                qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
+        return False, qs_filter
+    # Protocol-only: ports are unbounded, so containment can't enumerate them; match the protocol prefix
+    # against the annotated string form.
+    for protocol in protocols:
+        qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
     return True, qs_filter
 
 

@@ -163,6 +163,12 @@ function addRow(widget: HTMLElement): void {
  * and on form submission.
  */
 function initWidget(widget: HTMLElement): void {
+  // Guard against re-initialization: initForms() runs on every document-wide htmx:afterSettle, so an
+  // unrelated htmx swap on this (htmx-heavy) form would otherwise stack duplicate listeners on the
+  // persistent widget — making "Add mapping" insert several rows per click and re-serializing N times.
+  if (widget.dataset.portMappingInitialized === 'true') return;
+  widget.dataset.portMappingInitialized = 'true';
+
   // Style the server-rendered protocol selects. TomSelect emits change events through its own callback
   // (wired in initProtocolSelect), so the widget-level 'change' listener below only handles the ports
   // inputs.

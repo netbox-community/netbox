@@ -8,7 +8,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from ipam.validators import validate_port_mappings
+from ipam.validators import expand_port_mapping, validate_port_mappings
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -19,7 +19,6 @@ from utilities.forms.fields import (
     NumericRangeArrayField,
     SlugField,
 )
-from utilities.forms.utils import parse_numeric_range
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -617,18 +616,9 @@ class ServicePortMappingsImportMixin(forms.Form):
                 raise forms.ValidationError(
                     _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
                 )
-            protocol = protocol.strip().lower()
-            ports_str = ports_str.strip()
-            # A token with no ports (e.g. "tcp:") becomes a bare 'protocol/' entry so the shared
-            # validator reports a clear error rather than parse_numeric_range raising on an empty range.
-            if not ports_str:
-                mappings.append(f'{protocol}/')
-                continue
-            # parse_numeric_range validates each range against the port bounds (rejecting reversed and
-            # out-of-range values before expansion), so a non-empty ports_str always yields >=1 port.
-            ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
-            for port in ports:
-                mappings.append(f'{protocol}/{port}')
+            # Expand via the shared helper (also used by the UI form field), so CSV and UI parse the
+            # protocol/port string identically.
+            mappings.extend(expand_port_mapping(protocol, ports_str))
         # Validate protocol/range/duplicates consistently with the model and UI form, storing the
         # normalized (canonical) list it returns
         try:

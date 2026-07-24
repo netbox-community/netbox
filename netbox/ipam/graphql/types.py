@@ -7,7 +7,6 @@ from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
-from ipam.validators import legacy_protocol_and_ports
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
@@ -249,17 +248,11 @@ class RouteTargetType(PrimaryObjectType):
     exporting_vrfs: list[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
-# Shared logic for the legacy port-mapping GraphQL fields. The fields themselves are declared on each
-# type (rather than via a mixin) so they reliably override the auto-generated model field of the same name.
+# Shared deprecation reason for the legacy port-mapping GraphQL fields. The fields themselves are
+# declared on each type (rather than via a mixin) so they reliably override the auto-generated model
+# field of the same name; each delegates to the model's protocol/ports properties (single source of
+# truth for the legacy view, computed once per object via the model's cached_property).
 _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-protocol services."
-
-
-def _legacy_protocol(obj):
-    return legacy_protocol_and_ports(obj.port_mappings)[0]
-
-
-def _legacy_ports(obj):
-    return legacy_protocol_and_ports(obj.port_mappings)[1]
 
 
 @register_type(
@@ -274,11 +267,11 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def protocol(self) -> str | None:
-        return _legacy_protocol(self)
+        return self.protocol
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def ports(self) -> list[int] | None:
-        return _legacy_ports(self)
+        return self.ports
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
@@ -301,11 +294,11 @@ class ServiceTemplateType(PrimaryObjectType):
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def protocol(self) -> str | None:
-        return _legacy_protocol(self)
+        return self.protocol
 
     @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
     def ports(self) -> list[int] | None:
-        return _legacy_ports(self)
+        return self.ports
 
 
 @register_type(

@@ -1539,9 +1539,11 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     def test_both_formats_rejected(self):
         """Supplying both port_mappings and the legacy protocol/ports is ambiguous and must 400."""
         self.add_permissions('ipam.add_servicetemplate')
+        # port_mappings is a well-formed flat list so it passes field-level parsing and actually reaches
+        # the validate() mutual-exclusion guard (rather than 400ing on a malformed value first).
         data = {
             'name': 'Both Formats',
-            'port_mappings': [{'protocol': 'udp', 'ports': [53]}],
+            'port_mappings': ['udp/53'],
             'protocol': 'tcp',
             'ports': [80],
         }
@@ -1668,6 +1670,32 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['service_list']), 1)
         self.assertEqual(data['data']['service_list'][0]['name'], 'Service 1')
+
+    def test_graphql_protocol_and_port_filter_multiprotocol(self):
+        """
+        A combined protocol+port filter must match a single mapping, not protocol and port matched
+        independently across different mappings on the same object (GraphQL parity with the FilterSet).
+        """
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='dns-multi', port_mappings=['tcp/8080', 'udp/53'])
+        url = reverse('graphql')
+
+        # tcp/8080 exists on the service -> matches
+        query = '{ service_list(filters: {protocol: [ROLE_TCP], port: [8080]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([s['name'] for s in data['data']['service_list']], ['dns-multi'])
+
+        # udp/8080 does not exist, even though the service has udp (on 53) and 8080 (on tcp)
+        query = '{ service_list(filters: {protocol: [ROLE_UDP], port: [8080]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['service_list'], [])
 
     def test_graphql_port_mappings(self):
         """port_mappings is exposed over GraphQL as a flat list of protocol/port strings."""
