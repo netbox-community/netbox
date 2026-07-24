@@ -28,6 +28,9 @@ The rack's name or identifier. Must be unique to the rack's location, if assigne
 
 The [physical type](./racktype.md) of this rack. The rack type defines physical attributes such as height and weight.
 
+!!! warning "Rack type assignment will become mandatory"
+    Beginning in NetBox v5.0, the assignment of a rack type will be required, and several physical attributes will be inferred from it rather than being set directly on the rack. See the note under [Physical Attributes](#physical-attributes) below.
+
 ### Status
 
 Operational status.
@@ -51,5 +54,18 @@ The unique physical serial number assigned to this rack.
 
 A unique, locally-administered label used to identify hardware resources.
 
-!!! note
-    Some additional fields pertaining to physical attributes such as height and weight can also be defined on each rack, but should generally be defined instead on the [rack type](./racktype.md).
+## Physical Attributes
+
+Several physical attributes may be defined on each rack, including its width, height, outer dimensions, mounting depth, and weight. These should generally be defined on the [rack type](./racktype.md) assigned to the rack rather than on the rack itself.
+
+!!! warning "Some rack fields are deprecated"
+    The following fields have been **deprecated** on the rack model and are planned for removal in NetBox v5.0:
+
+    * Form factor
+    * Width
+    * Outer width
+    * Outer height
+    * Outer depth
+    * Outer unit
+
+    In a future release, the values for these attributes will be inferred from the rack's assigned [rack type](./racktype.md), which will become a mandatory assignment. Users are strongly encouraged to define these attributes on a rack type and assign it to each rack. (Note that the U height, starting unit, descending units, and mounting depth fields will be retained on the rack model, as these may legitimately vary among individual racks of the same type.)
