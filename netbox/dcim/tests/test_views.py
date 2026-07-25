@@ -3677,6 +3677,69 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{module_bays[2].pk},Module Bay 9,New description9",
         )
 
+    @tag('regression')  # Issue #22773
+    def test_bulk_add_module_bays_to_devices(self):
+        """
+        Bulk-adding module bays expands the name pattern per device and applies enabled to every new bay.
+        """
+        self.add_permissions('dcim.add_modulebay')
+        device1 = Device.objects.get(name='Device 1')
+        device2 = create_test_device('Device 2')
+        initial_count = self._get_queryset().count()
+
+        # An unchecked box is not submitted by the browser at all
+        request = {
+            'path': reverse('dcim:device_bulk_add_modulebay'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'PCI-Slot[1-2]',
+                '_create': True,
+            }),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(
+                ModuleBay.objects.filter(name__startswith='PCI-Slot')
+                .order_by('device_id', 'name')
+                .values_list('device_id', 'name', 'enabled')
+            ),
+            [
+                (device1.pk, 'PCI-Slot1', False),
+                (device1.pk, 'PCI-Slot2', False),
+                (device2.pk, 'PCI-Slot1', False),
+                (device2.pk, 'PCI-Slot2', False),
+            ]
+        )
+
+        # A checked box applies True to every bay created
+        request = {
+            'path': reverse('dcim:device_bulk_add_modulebay'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'PSU-Slot[1-2]',
+                'enabled': True,
+                '_create': True,
+            }),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(
+                ModuleBay.objects.filter(name__startswith='PSU-Slot')
+                .order_by('device_id', 'name')
+                .values_list('device_id', 'name', 'enabled')
+            ),
+            [
+                (device1.pk, 'PSU-Slot1', True),
+                (device1.pk, 'PSU-Slot2', True),
+                (device2.pk, 'PSU-Slot1', True),
+                (device2.pk, 'PSU-Slot2', True),
+            ]
+        )
+
+        self.assertEqual(initial_count + 8, self._get_queryset().count())
+
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = DeviceBay
