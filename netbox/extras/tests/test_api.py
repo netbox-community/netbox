@@ -23,7 +23,7 @@ from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
 class AppTestCase(APITestCase):
@@ -1442,6 +1442,68 @@ class ScriptTestCase(APITestCase):
         finally:
             # Restore the original setting for other tests
             self.TestScriptClass.Meta.scheduling_enabled = original
+
+    def test_run_script_read_only_token(self):
+        """
+        Running a script is a write operation and must be rejected for a read-only token.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # A write-disabled token should be rejected
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        response = self.client.post(self.url, payload, format='json', **ro_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # The default (write-enabled) token should succeed
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_delete_script_without_permission(self):
+        """
+        A user with only view_script must not be able to delete a script.
+        """
+        script = Script.objects.first()
+        with disable_warnings('django.request'):
+            response = self.client.delete(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
+
+    def test_delete_script_read_only_token(self):
+        """
+        A read-only token must not be able to delete a script, even with the delete_script permission.
+        """
+        self.add_permissions('extras.delete_script')
+        script = Script.objects.first()
+
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        with disable_warnings('django.request'):
+            response = self.client.delete(self.url, **ro_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
+
+    def test_delete_script(self):
+        """
+        A user with delete_script and a write-enabled token can delete a script.
+        """
+        self.add_permissions('extras.delete_script')
+        script = Script.objects.first()
+
+        response = self.client.delete(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Script.objects.filter(pk=script.pk).exists())
+
+    def test_update_script_without_permission(self):
+        """
+        A user with only view_script must not be able to update a script via PUT/PATCH.
+        """
+        for method in ('put', 'patch'):
+            with self.subTest(method=method):
+                with disable_warnings('django.request'):
+                    response = getattr(self.client, method)(self.url, {}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):

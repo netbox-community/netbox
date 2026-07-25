@@ -16,12 +16,13 @@ from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenPermissions, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
+from users.models import Token
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
@@ -312,20 +313,37 @@ class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, UpdateModelMi
     partial_update=extend_schema(request=serializers.ScriptInputSerializer),
 )
 class ScriptViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
     filterset_class = filtersets.ScriptFilterSet
 
-    _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
+
+    # Map each HTTP method to the object action used to restrict the view's QuerySet. POST on the detail
+    # route runs a script; the remaining methods map to standard CRUD actions.
+    queryset_actions = {
+        'GET': 'view',
+        'POST': 'run',
+        'PUT': 'change',
+        'PATCH': 'change',
+        'DELETE': 'delete',
+    }
+
+    def get_permissions(self):
+        # Standard CRUD operations are gated by the corresponding model permission and (for token auth)
+        # a write-enabled token.
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [TokenPermissions()]
+        # Retrieving/listing scripts and running one (POST to the detail route) only require authentication.
+        # The run() handler performs its own run_script permission and token write-ability checks.
+        return [IsAuthenticatedOrLoginNotRequired()]
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
         # Restrict the view's QuerySet to allow only the permitted objects
         if request.user.is_authenticated:
-            action = 'run' if request.method == 'POST' else 'view'
+            action = self.queryset_actions.get(request.method, 'view')
             self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):
@@ -353,6 +371,10 @@ class ScriptViewSet(ModelViewSet):
         """
 
         script = self._get_script(pk)
+
+        # Running a script is a write operation; reject read-only tokens.
+        if isinstance(request.auth, Token) and not request.auth.write_enabled:
+            raise PermissionDenied("This token does not permit write operations (running a script).")
 
         if not request.user.has_perm('extras.run_script', obj=script):
             raise PermissionDenied("This user does not have permission to run this script.")
