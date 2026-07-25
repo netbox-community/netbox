@@ -319,14 +319,13 @@ class ScriptViewSet(ModelViewSet):
 
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    # Map each HTTP method to the object action used to restrict the view's QuerySet. POST on the detail
-    # route runs a script; the remaining methods map to standard CRUD actions.
+    # Map each standard viewset action to the object action used to restrict the view's QuerySet. Running a
+    # script (POST to the detail route) is not a standard action and is handled separately in initial().
     queryset_actions = {
-        'GET': 'view',
-        'POST': 'run',
-        'PUT': 'change',
-        'PATCH': 'change',
-        'DELETE': 'delete',
+        'create': 'add',
+        'update': 'change',
+        'partial_update': 'change',
+        'destroy': 'delete',
     }
 
     def get_permissions(self):
@@ -341,9 +340,18 @@ class ScriptViewSet(ModelViewSet):
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
-        # Restrict the view's QuerySet to allow only the permitted objects
+        # Restrict the view's QuerySet to allow only the permitted objects. Key off self.action (not the HTTP
+        # method) so that create is restricted with 'add' rather than 'run': POST is used both to create a
+        # script (list route) and to run one (detail route), but only the latter is a run operation.
         if request.user.is_authenticated:
-            action = self.queryset_actions.get(request.method, 'view')
+            if self.action:
+                # A standard viewset action (list, retrieve, create, update, partial_update, destroy)
+                action = self.queryset_actions.get(self.action, 'view')
+            elif request.method == 'POST':
+                # POST to the detail route runs a script (not a standard viewset action, so self.action is None)
+                action = 'run'
+            else:
+                action = 'view'
             self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):

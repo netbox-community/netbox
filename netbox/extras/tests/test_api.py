@@ -1505,6 +1505,21 @@ class ScriptTestCase(APITestCase):
                     response = getattr(self.client, method)(self.url, {}, format='json', **self.header)
                 self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
+    def test_update_script_read_only_token(self):
+        """
+        A read-only token must not be able to update a script via PUT/PATCH, even with the change_script
+        permission.
+        """
+        self.add_permissions('extras.change_script')
+
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        for method in ('put', 'patch'):
+            with self.subTest(method=method):
+                with disable_warnings('django.request'):
+                    response = getattr(self.client, method)(self.url, {}, format='json', **ro_header)
+                self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
 
 class CreatedUpdatedFilterTestCase(APITestCase):
 
