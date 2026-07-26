@@ -553,13 +553,13 @@ class CustomFieldColumn(tables.Column):
             if not value:
                 return ""
             parts = []
-            
+
             for v in value:
                 label = self.customfield.get_choice_label(v)
                 color = self.customfield.get_choice_color(v)
                 if color:
                     has_color = True
-                parts.append((label,color)) 
+                parts.append((label, color))
             if has_color:
                 badges = []
                 for label, color in parts:
@@ -567,9 +567,8 @@ class CustomFieldColumn(tables.Column):
                         f'<span class="badge text-bg-{escape(color or "secondary")}">{escape(label)}</span>'
                         )
                 return mark_safe(' '.join(badges))
-            else:
-                return ', '.join(label for label, _ in parts)
-            
+            return ', '.join(label for label, _ in parts)
+
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)
