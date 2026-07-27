@@ -137,12 +137,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
           const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
           const validValues = values.filter(v => v !== '' && v in self.options);
           if (validValues.length > 0) {
-            // A full restore (every previous value is still valid) doesn't need to notify
-            // dependents, since nothing has actually changed from their perspective. A
-            // partial restore -- relevant to multi-select fields, e.g. [a, b] surviving as
-            // just [a] -- is a real change and should be announced like any other change.
-            const fullyRestored = validValues.length === values.length;
-            self.setValue(validValues.length === 1 ? validValues[0] : validValues, fullyRestored);
+            self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
           }
         }
       })
