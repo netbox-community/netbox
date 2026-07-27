@@ -1,5 +1,5 @@
 import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
-import { addClasses } from 'tom-select/src/vanilla.ts';
+import { addClasses, removeClasses } from 'tom-select/src/vanilla.ts';
 import queryString from 'query-string';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
@@ -77,8 +77,17 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     this.addEventListeners();
   }
 
-  load(value: string, preserveValue?: string | string[], notifyChange = false) {
+  load(value: string, preserveValue?: string | string[]) {
     const self = this;
+
+    // Record which request this is. Incremented unconditionally, before any early return
+    // below, so that an already-in-flight request from a previous call is always correctly
+    // invalidated by any newer call to load() -- even one that itself aborts early (e.g. no
+    // valid URL). If another load() call starts before this one's response comes back,
+    // `self.loadSequence` will have moved on and this response is stale -- it must be
+    // discarded rather than applied.
+    self.loadSequence += 1;
+    const sequence = self.loadSequence;
 
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
@@ -98,12 +107,6 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
 
-    // Record which request this is. If another load() call starts before this one's
-    // response comes back, `self.loadSequence` will have moved on and this response is
-    // stale -- it must be discarded rather than applied.
-    self.loadSequence += 1;
-    const sequence = self.loadSequence;
-
     // Make the API request
     fetch(url)
       .then(response => response.json())
@@ -122,31 +125,33 @@ export class DynamicTomSelect extends NetBoxTomSelect {
         // succession). This response is stale; applying it now would risk clobbering
         // state already set by the newer, still-in-flight or already-resolved request.
         if (sequence !== self.loadSequence) {
+          self.loading = Math.max(self.loading - 1, 0);
+          if (!self.loading) {
+            removeClasses(self.wrapper, self.settings.loadingClass);
+          }
           return;
         }
         self.loadCallback(options, []);
         // Restore the previous selection if it is still valid under the new filter.
-        let restored = false;
         if (preserveValue !== undefined) {
           const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
           const validValues = values.filter(v => v !== '' && v in self.options);
           if (validValues.length > 0) {
-            self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
-            restored = true;
+            // A full restore (every previous value is still valid) doesn't need to notify
+            // dependents, since nothing has actually changed from their perspective. A
+            // partial restore -- relevant to multi-select fields, e.g. [a, b] surviving as
+            // just [a] -- is a real change and should be announced like any other change.
+            const fullyRestored = validValues.length === values.length;
+            self.setValue(validValues.length === 1 ? validValues[0] : validValues, fullyRestored);
           }
-        }
-        // If this reload was triggered by one of our own dependencies changing, and we
-        // had a previous value that could *not* be restored (i.e. it's no longer valid
-        // under the new filter), this field's value has genuinely changed as a side
-        // effect. `clear()` and the silent `setValue()` call above don't dispatch a
-        // native `change` event, so without this, any other field that depends on this
-        // one would never learn that its value changed and would keep stale data.
-        if (notifyChange && preserveValue !== undefined && !restored) {
-          self.input.dispatchEvent(new Event('change'));
         }
       })
       .catch(() => {
         if (sequence !== self.loadSequence) {
+          self.loading = Math.max(self.loading - 1, 0);
+          if (!self.loading) {
+            removeClasses(self.wrapper, self.settings.loadingClass);
+          }
           return;
         }
         self.loadCallback([], []);
@@ -390,6 +395,6 @@ export class DynamicTomSelect extends NetBoxTomSelect {
 
     // Load new data, restoring the previous selection if it is still valid under the new filter.
     const preserve = previousValue !== '' && previousValue !== null ? previousValue : undefined;
-    this.load(this.lastValue, preserve, true);
+    this.load(this.lastValue, preserve);
   }
 }
