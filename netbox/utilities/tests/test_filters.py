@@ -805,6 +805,23 @@ class SavedFilterApplicationTestCase(TestCase):
         data = QueryDict('filter=private')
         self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=request).qs.count(), 2)
 
+    def test_private_filter_applied_for_owner(self):
+        # The owner of a private SavedFilter can still apply it (#22790)
+        owner = User.objects.create_user('owner')
+        private_filter = SavedFilter.objects.create(
+            name='Private',
+            slug='private',
+            user=owner,
+            shared=False,
+            parameters={'status': [SiteStatusChoices.STATUS_ACTIVE]},
+        )
+        private_filter.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        request = RequestFactory().get('/')
+        request.user = owner
+        data = QueryDict('filter=private')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=request).qs.count(), 1)
+
     def test_shared_filter_applied_without_request(self):
         # Without a request, a shared SavedFilter is still applied (anonymous visibility)
         data = QueryDict('filter=active-sites')
