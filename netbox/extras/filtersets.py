@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 
 from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from netbox.event_rules import get_event_rule_action_choices
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
@@ -112,7 +113,7 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         method='filter_event_type'
     )
     action_type = django_filters.MultipleChoiceFilter(
-        choices=EventRuleActionChoices,
+        choices=get_event_rule_action_choices,
         distinct=False,
     )
     action_object_type = MultiValueContentTypeFilter()

@@ -47,6 +47,9 @@ The type of action to take when the rule triggers. This must be one of the follo
 * Custom script
 * Notification
 
+!!! tip "Custom Action Types"
+    The above list includes only built-in action types. NetBox plugins can also [register their own custom action types](../../plugins/development/event-rule-actions.md). If the plugin providing an event rule's action type is uninstalled or disabled, the event rule is not deleted, but it is marked as unavailable and will not run until the plugin is reinstalled.
+
 ### Action Data
 
 An optional dictionary of JSON data to pass when executing the rule. This can be useful to include additional context data, e.g. when transmitting a webhook.

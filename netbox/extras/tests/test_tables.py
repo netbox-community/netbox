@@ -1,4 +1,9 @@
-from extras.models import Bookmark, Notification, Subscription
+from django.test import TestCase
+
+from core.events import OBJECT_CREATED
+from core.models import ObjectType
+from dcim.models import Site
+from extras.models import Bookmark, EventRule, Notification, Subscription
 from extras.tables import *
 from utilities.testing import TableTestCases
 
@@ -67,6 +72,35 @@ class WebhookTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
     table = EventRuleTable
+
+
+class EventRuleTableActionTypeRenderingTestCase(TestCase):
+    """
+    Regression tests for #22770: EventRule.action_type deliberately has no model-field `choices=`
+    (see EventRule.clean()), so django-tables2's built-in choices-driven get_FOO_display()
+    auto-rendering doesn't apply; EventRuleTable.render_action_type() must render the label (and
+    an "unavailable" badge) explicitly instead.
+    """
+
+    def test_render_action_type_for_registered_action(self):
+        rule = EventRule.objects.create(name='Render Test Rule', event_types=[OBJECT_CREATED], action_type='webhook')
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
+        self.assertEqual(table.render_action_type(rule), 'Webhook')
+
+    def test_render_action_type_for_unregistered_action(self):
+        rule = EventRule.objects.create(
+            name='Render Test Unavailable Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed_render_test',
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
+        rendered = table.render_action_type(rule)
+        self.assertIn('someplugin.not_installed_render_test (unavailable)', rendered)
+        self.assertIn('badge text-bg-red', rendered)
 
 
 class TagTableTestCase(TableTestCases.StandardTableTestCase):

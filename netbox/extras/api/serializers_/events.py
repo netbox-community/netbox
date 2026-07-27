@@ -4,6 +4,7 @@ from extras.models import EventRule, Webhook
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.event_rules import get_event_rule_action_choices
 from users.api.serializers_.mixins import OwnerMixin
 
 __all__ = (
@@ -21,9 +22,11 @@ class EventRuleSerializer(OwnerMixin, NetBoxModelSerializer):
         queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
     )
-    action_type = ChoiceField(choices=EventRuleActionChoices)
+    action_type = ChoiceField(choices=get_event_rule_action_choices())
     action_object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('event_rules'),
+        required=False,
+        allow_null=True,
     )
     action_object = GFKSerializerField(read_only=True)
 

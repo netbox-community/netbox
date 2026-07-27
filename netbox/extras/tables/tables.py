@@ -552,6 +552,16 @@ class EventRuleTable(NetBoxTable):
             'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'event_types',
         )
 
+    def render_action_type(self, record):
+        # EventRule.action_type deliberately has no model-field `choices=` (see EventRule.clean()),
+        # so django-tables2's built-in choices-driven get_FOO_display() auto-rendering (which
+        # checks field.choices) doesn't apply here; render explicitly instead, adding a red
+        # "unavailable" badge if the action type has no registered provider.
+        label = record.get_action_type_display()
+        if not record.is_action_available:
+            return format_html('<span class="badge text-bg-red">{}</span>', label)
+        return label
+
 
 class TagTable(NetBoxTable):
     name = tables.Column(

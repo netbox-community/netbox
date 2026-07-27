@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import DataFile, DataSource, ObjectType
 from extras.choices import *
 from extras.models import *
+from netbox.event_rules import get_event_rule_action, get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
 from users.models import Group, User
@@ -269,6 +270,10 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         label=_('Event types'),
         help_text=_('The event type(s) which will trigger this rule')
     )
+    action_type = CSVChoiceField(
+        choices=get_event_rule_action_choices(),
+        label=_('Action type'),
+    )
     action_object = forms.CharField(
         label=_('Action object'),
         required=True,
@@ -287,24 +292,46 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
         action_object = self.cleaned_data.get('action_object')
         action_type = self.cleaned_data.get('action_type')
-        if action_object and action_type:
-            # Webhook
-            if action_type == EventRuleActionChoices.WEBHOOK:
-                try:
-                    webhook = Webhook.objects.get(name=action_object)
-                except Webhook.DoesNotExist:
-                    raise forms.ValidationError(_("Webhook {name} not found").format(name=action_object))
-                self.instance.action_object = webhook
-            # Script
-            elif action_type == EventRuleActionChoices.SCRIPT:
-                from extras.scripts import get_module_and_script
-                module_name, script_name = action_object.split('.', 1)
-                try:
-                    script = get_module_and_script(module_name, script_name)[1]
-                except ObjectDoesNotExist:
-                    raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
-                self.instance.action_object = script
-                self.instance.action_object_type = ObjectType.objects.get_for_model(script, for_concrete_model=False)
+        if not (action_object and action_type):
+            return
+
+        action = get_event_rule_action(action_type)
+        if action is None:
+            raise forms.ValidationError({
+                'action_type': _('"{action_type}" is not a registered action type.').format(action_type=action_type)
+            })
+
+        try:
+            obj = action.resolve_import_object(action_object)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError({
+                'action_object': _("{name} not found").format(name=action_object)
+            })
+        if obj is None:
+            raise forms.ValidationError({
+                'action_object': _("This action type does not support bulk import.")
+            })
+
+        self.instance.action_object = obj
+        if action.object_model:
+            self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
+
+    def _post_clean(self):
+        try:
+            super()._post_clean()
+        except ValueError:
+            # EventRule.clean() delegates to the registered action's validate(), which can raise
+            # an error keyed by action_object_id/action_object_type -- real model fields this
+            # form doesn't expose (this form resolves the target object via the free-text
+            # action_object field in clean() above instead). When that resolution already failed,
+            # nothing above assigned self.instance.action_object, so action_provider.validate()
+            # (called from EventRule.clean(), invoked here via instance.full_clean()) raises an
+            # object-required error Django's add_error() can't attach to any field on this form,
+            # surfacing as ValueError instead of a normal validation failure. clean() above already
+            # reports the real problem via the action_object/action_type fields, so only suppress
+            # this if that's genuinely what happened; anything else should still propagate.
+            if 'action_object' not in self.errors and 'action_type' not in self.errors:
+                raise
 
 
 class TagImportForm(OwnerCSVMixin, CSVModelForm):

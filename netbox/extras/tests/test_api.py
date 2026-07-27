@@ -157,6 +157,55 @@ class EventRuleTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class EventRuleActionAPITestCase(APITestCase):
+    """
+    REST API tests for #22770.
+
+    Note: EventRuleSerializer.action_type's ChoiceField materializes get_event_rule_action_choices()
+    once, at class-body-evaluation time (when extras.api.serializers_.events is first imported --
+    which happens well before any individual test runs, as part of URLconf loading). A registration
+    made from within a test's setUp() therefore can never appear in this serializer's choices; that's
+    an accepted, documented trade-off (see EventRuleSerializer), identical to the pre-#22770 static
+    EventRuleActionChoices. Because none of the three core actions have object_model=None, the
+    "no target object" write path can't be exercised through a live end-to-end API test in this
+    process; it's covered instead at the model layer (test_event_rules.py) and the form layer
+    (test_forms.py), both of which resolve their choices lazily per-request/per-instantiation.
+    """
+
+    def test_create_event_rule_with_unregistered_action_type_fails(self):
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API Bad Action Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': 'this.is.not.registered',
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_type', response.data)
+
+    def test_update_unrelated_field_on_unavailable_action_rule_succeeds(self):
+        """
+        Regression for #22770: PATCHing an unrelated field on a rule whose action_type has since
+        become unavailable (its providing plugin uninstalled) must not be blocked.
+        """
+        rule = EventRule.objects.create(
+            name='API Unavailable Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='some.plugin.not_installed',
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        self.add_permissions('extras.change_eventrule')
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': rule.pk})
+        response = self.client.patch(url, {'enabled': False}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        rule.refresh_from_db()
+        self.assertFalse(rule.enabled)
+
+
 class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomField
     brief_fields = ['description', 'display', 'id', 'name', 'url']

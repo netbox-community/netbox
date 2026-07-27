@@ -5,6 +5,7 @@ from core.models import DataFile, DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from netbox.event_rules import get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import OwnerFilterMixin, SavedFiltersMixin
@@ -352,7 +353,7 @@ class EventRuleFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         label=_('Event type')
     )
     action_type = forms.ChoiceField(
-        choices=add_blank_choice(EventRuleActionChoices),
+        choices=add_blank_choice(get_event_rule_action_choices()),
         required=False,
         label=_('Action type')
     )

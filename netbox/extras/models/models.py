@@ -21,6 +21,7 @@ from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import SharedObjectQuerySet
 from extras.utils import image_upload
 from netbox.config import get_config
+from netbox.event_rules import get_event_rule_action
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
@@ -91,15 +92,20 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
 
     # Action to take
     action_type = models.CharField(
-        max_length=30,
-        choices=EventRuleActionChoices,
+        # No `choices=` here: validity is enforced in clean() instead, which can tolerate an
+        # already-persisted, currently-unregistered value (e.g. a plugin that's temporarily
+        # uninstalled) in a way Django's own Field.validate() (always applied by full_clean(),
+        # before clean() runs) cannot. See get_action_type_display()/is_action_available below.
+        max_length=100,
         default=EventRuleActionChoices.WEBHOOK,
         verbose_name=_('action type')
     )
     action_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         related_name='eventrule_actions',
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
     )
     action_object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -134,6 +140,26 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
     def get_absolute_url(self):
         return reverse('extras:eventrule', args=[self.pk])
 
+    @property
+    def action_provider(self):
+        """
+        Return the registered EventRuleAction instance for this rule's action_type, or None if it
+        is not currently registered (e.g. the providing plugin is not installed).
+        """
+        return get_event_rule_action(self.action_type)
+
+    @property
+    def is_action_available(self):
+        return self.action_provider is not None
+
+    def get_action_type_display(self):
+        if action := self.action_provider:
+            return action.label
+        return _('%(slug)s (unavailable)') % {'slug': self.action_type}
+
+    def get_action_type_color(self):
+        return None if self.is_action_available else 'red'
+
     def clean(self):
         super().clean()
 
@@ -147,6 +173,31 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
         # action_data must be a JSON object (or null)
         if self.action_data is not None and not isinstance(self.action_data, dict):
             raise ValidationError({'action_data': _('Action data must be a JSON object or null.')})
+
+        # Validate action_type. Only hard-reject an unregistered action_type when it is being
+        # newly assigned (a fresh row, or a change from the persisted value). An existing,
+        # unchanged action_type is tolerated even if currently unavailable, so that toggling an
+        # unrelated field (e.g. `enabled`) on a row whose providing plugin is temporarily
+        # uninstalled does not fail validation, and the row becomes fully usable again
+        # automatically as soon as the plugin reinstalls, with no need to re-save it in the
+        # interim. Forms/the API only ever offer currently-registered slugs as choices, so in
+        # practice this only matters for direct ORM/script usage and for rows whose plugin has
+        # since been removed.
+        if not self.is_action_available:
+            is_new_value = self.pk is None
+            if not is_new_value:
+                original_action_type = EventRule.objects.filter(pk=self.pk).values_list(
+                    'action_type', flat=True
+                ).first()
+                is_new_value = original_action_type != self.action_type
+            if is_new_value:
+                raise ValidationError({
+                    'action_type': _('"{action_type}" is not a registered event rule action.').format(
+                        action_type=self.action_type
+                    )
+                })
+        else:
+            self.action_provider.validate(action_object=self.action_object, action_data=self.action_data)
 
     def eval_conditions(self, data):
         """

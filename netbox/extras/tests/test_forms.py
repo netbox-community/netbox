@@ -6,14 +6,18 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from core.choices import ManagedFileRootPathChoices
+from core.events import OBJECT_CREATED
 from core.models import DataSource, ObjectType
 from dcim.forms import SiteForm
 from dcim.models import Site
-from extras.choices import CustomFieldTypeChoices
+from extras.choices import CustomFieldTypeChoices, EventRuleActionChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
-from extras.forms.model_forms import CustomFieldChoiceSetForm
+from extras.forms.bulk_import import EventRuleImportForm
+from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm
 from extras.forms.scripts import ScriptFileForm
-from extras.models import CustomField, CustomFieldChoiceSet, ScriptModule
+from extras.models import CustomField, CustomFieldChoiceSet, NotificationGroup, Script, ScriptModule, Webhook
+from netbox.event_rules import EventRuleAction, register_event_rule_action
+from netbox.registry import registry
 
 
 class CustomFieldModelFormTestCase(TestCase):
@@ -337,3 +341,153 @@ class TableConfigFormTestCase(TestCase):
         form = TableConfigBulkEditForm()
         self.assertIn('changelog_message', form.fields)
         self.assertIn('changelog_message', form.meta_fields)
+
+
+class EventRuleFormTestCase(TestCase):
+    """
+    Regression tests for #22770: EventRuleForm's action_choice field must be built dynamically
+    from the EventRuleAction registry, for both core actions and (unlike the REST API serializer,
+    see EventRuleActionAPITestCase in test_api.py) a runtime-registered plugin-style action, since
+    this form's action_type field uses a bare (lazily re-evaluated) choices callable rather than a
+    materialized-at-import-time list.
+    """
+
+    def tearDown(self):
+        super().tearDown()
+        registry['event_rule_actions'].pop('test.form_no_object_action', None)
+
+    def test_action_choice_field_for_webhook(self):
+        webhook = Webhook.objects.create(name='Form Test Webhook', payload_url='http://localhost:9000/')
+        form = EventRuleForm(data={'action_type': EventRuleActionChoices.WEBHOOK})
+        self.assertIn('action_choice', form.fields)
+        self.assertIn(webhook, form.fields['action_choice'].queryset)
+
+    def test_action_choice_field_for_script(self):
+        form = EventRuleForm(data={'action_type': EventRuleActionChoices.SCRIPT})
+        self.assertIn('action_choice', form.fields)
+        self.assertEqual(form.fields['action_choice'].queryset.model, Script)
+
+    def test_action_choice_field_for_notification(self):
+        form = EventRuleForm(data={'action_type': EventRuleActionChoices.NOTIFICATION})
+        self.assertIn('action_choice', form.fields)
+        self.assertEqual(form.fields['action_choice'].queryset.model, NotificationGroup)
+
+    def test_action_choice_field_omitted_for_registered_no_object_action(self):
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.form_no_object_action'
+            label = 'Form No-Object Action'
+            object_required = False
+
+        register_event_rule_action(NoObjectAction)
+
+        form = EventRuleForm(data={'action_type': 'test.form_no_object_action'})
+        self.assertNotIn('action_choice', form.fields)
+
+    def test_action_choice_field_falls_back_to_initial_for_unregistered_action(self):
+        """
+        get_field_value() falls back to the field's own `initial` (webhook) when the submitted
+        action_type isn't a valid/registered choice, so init_action_choice() still builds a
+        sensible picker rather than being left in an inconsistent state.
+        """
+        form = EventRuleForm(data={'action_type': 'not.a.registered.action'})
+        self.assertIn('action_choice', form.fields)
+        self.assertEqual(form.fields['action_choice'].queryset.model, Webhook)
+
+    def test_submit_and_save_with_registered_no_object_action(self):
+        """
+        A runtime-registered action (proving the form's bare-callable action_type choices are
+        genuinely re-evaluated live, unlike the REST API's eagerly-materialized ChoiceField)
+        can be submitted and saved end-to-end through the form.
+        """
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.form_no_object_action'
+            label = 'Form No-Object Action'
+            object_required = False
+
+            def enqueue(self, **kwargs):
+                pass
+
+        register_event_rule_action(NoObjectAction)
+
+        object_type = ObjectType.objects.get_for_model(Site)
+        form = EventRuleForm(data={
+            'name': 'Form No-Object Rule',
+            'object_types': [object_type.pk],
+            'event_types': [OBJECT_CREATED],
+            'action_type': 'test.form_no_object_action',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        rule = form.save()
+        self.assertIsNone(rule.action_object_type)
+        self.assertIsNone(rule.action_object_id)
+
+    def test_submit_and_save_webhook_action(self):
+        """Parity check: the generalized form still saves a core Webhook action correctly."""
+        webhook = Webhook.objects.create(name='Form Submit Webhook', payload_url='http://localhost:9000/')
+        object_type = ObjectType.objects.get_for_model(Site)
+        form = EventRuleForm(data={
+            'name': 'Form Webhook Rule',
+            'object_types': [object_type.pk],
+            'event_types': [OBJECT_CREATED],
+            'action_type': EventRuleActionChoices.WEBHOOK,
+            'action_choice': webhook.pk,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        rule = form.save()
+        self.assertEqual(rule.action_object, webhook)
+
+
+class EventRuleImportFormTestCase(TestCase):
+    """
+    Regression tests for #22770: EventRuleImportForm's action_object resolution must be driven by
+    each registered action's resolve_import_object() hook. Also covers the notification group case,
+    which the pre-#22770 hardcoded per-type branches never handled (a gap fixed as part of this
+    generalization).
+    """
+
+    def test_resolves_webhook_by_name(self):
+        webhook = Webhook.objects.create(name='Import Test Webhook', payload_url='http://localhost:9000/')
+        form = EventRuleImportForm(data={
+            'name': 'Import Webhook Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': EventRuleActionChoices.WEBHOOK,
+            'action_object': webhook.name,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.instance.action_object, webhook)
+
+    def test_resolves_notification_group_by_name(self):
+        """Regression: the pre-#22770 import form never handled NOTIFICATION at all."""
+        group = NotificationGroup.objects.create(name='Import Test Group')
+        form = EventRuleImportForm(data={
+            'name': 'Import Notification Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': EventRuleActionChoices.NOTIFICATION,
+            'action_object': group.name,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.instance.action_object, group)
+
+    def test_unresolvable_webhook_name_is_rejected(self):
+        form = EventRuleImportForm(data={
+            'name': 'Import Bad Webhook Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': EventRuleActionChoices.WEBHOOK,
+            'action_object': 'Does Not Exist',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('action_object', form.errors)
+
+    def test_unregistered_action_type_is_rejected(self):
+        form = EventRuleImportForm(data={
+            'name': 'Import Bad Type Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': 'not.a.registered.action',
+            'action_object': 'whatever',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('action_type', form.errors)

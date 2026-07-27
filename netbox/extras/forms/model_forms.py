@@ -12,6 +12,7 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.models import *
+from netbox.event_rules import get_event_rule_action, get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
@@ -601,7 +602,11 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
 class EventRuleForm(OwnerMixin, NetBoxModelForm):
     action_type = ChoiceField(
         label=_('Action type'),
-        choices=EventRuleActionChoices,
+        # Bare callable (not called here), unlike EventRuleSerializer's DRF ChoiceField, which
+        # can't support this: re-evaluated fresh on each ChoiceField.choices access via Django's
+        # CallableChoiceIterator, so a plugin registered after this module was first imported is
+        # still picked up correctly by this form.
+        choices=get_event_rule_action_choices,
         initial=EventRuleActionChoices.WEBHOOK,
     )
     object_types = ContentTypeMultipleChoiceField(
@@ -645,40 +650,27 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
             'action_object_id': forms.HiddenInput,
         }
 
-    def init_script_choice(self):
-        initial = None
-        if self.instance.action_type == EventRuleActionChoices.SCRIPT:
-            script_id = get_field_value(self, 'action_object_id')
-            initial = Script.objects.get(pk=script_id) if script_id else None
-        self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Script'),
-            queryset=Script.objects.all(),
-            required=True,
-            initial=initial
-        )
+    def init_action_choice(self):
+        action_type = get_field_value(self, 'action_type')
+        action = get_event_rule_action(action_type)
 
-    def init_webhook_choice(self):
-        initial = None
-        if self.instance.action_type == EventRuleActionChoices.WEBHOOK:
-            webhook_id = get_field_value(self, 'action_object_id')
-            initial = Webhook.objects.get(pk=webhook_id) if webhook_id else None
-        self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Webhook'),
-            queryset=Webhook.objects.all(),
-            required=True,
-            initial=initial
-        )
+        if action is None or action.object_model is None:
+            # Either an unregistered action_type (e.g. the providing plugin is not installed), or
+            # an action that doesn't operate on a target object at all -- no object picker needed.
+            self.fields.pop('action_choice', None)
+            return
 
-    def init_notificationgroup_choice(self):
         initial = None
-        if self.instance.action_type == EventRuleActionChoices.NOTIFICATION:
-            notificationgroup_id = get_field_value(self, 'action_object_id')
-            initial = NotificationGroup.objects.get(pk=notificationgroup_id) if notificationgroup_id else None
+        if self.instance.action_type == action_type:
+            object_id = get_field_value(self, 'action_object_id')
+            if object_id:
+                initial = action.get_object_queryset().filter(pk=object_id).first()
+
         self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Notification group'),
-            queryset=NotificationGroup.objects.all(),
-            required=True,
-            initial=initial
+            label=action.label,
+            queryset=action.get_object_queryset(),
+            required=action.object_required,
+            initial=initial,
         )
 
     def __init__(self, *args, **kwargs):
@@ -686,35 +678,26 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         self.fields['action_object_type'].required = False
         self.fields['action_object_id'].required = False
 
-        # Determine the action type
-        action_type = get_field_value(self, 'action_type')
-
-        if action_type == EventRuleActionChoices.WEBHOOK:
-            self.init_webhook_choice()
-        elif action_type == EventRuleActionChoices.SCRIPT:
-            self.init_script_choice()
-        elif action_type == EventRuleActionChoices.NOTIFICATION:
-            self.init_notificationgroup_choice()
+        self.init_action_choice()
 
     def clean(self):
         super().clean()
 
+        action = get_event_rule_action(self.cleaned_data.get('action_type'))
         action_choice = self.cleaned_data.get('action_choice')
-        # Webhook
-        if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
-            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
-            self.cleaned_data['action_object_id'] = action_choice.id
-        # Script
-        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+
+        if action and action.object_model and action_choice:
             self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(
-                Script,
-                for_concrete_model=False
+                action.object_model, for_concrete_model=False
             )
-            self.cleaned_data['action_object_id'] = action_choice.id
-        # Notification
-        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.NOTIFICATION:
-            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
-            self.cleaned_data['action_object_id'] = action_choice.id
+            self.cleaned_data['action_object_id'] = action_choice.pk
+        elif action and not action.object_model:
+            self.cleaned_data['action_object_type'] = None
+            self.cleaned_data['action_object_id'] = None
+        # If action is None (an unregistered/unavailable action_type persisted on an existing
+        # row), leave action_object_type/action_object_id untouched -- this branch is unreachable
+        # for new values since action_type's ChoiceField only ever offers registered slugs, and
+        # for an existing unchanged row we don't want to clobber its stored action_object.
 
         return self.cleaned_data
 

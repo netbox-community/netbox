@@ -10,7 +10,6 @@ __all__ = (
     'CustomFieldUIEditableEnum',
     'CustomFieldUIVisibleEnum',
     'CustomLinkButtonClassEnum',
-    'EventRuleActionEnum',
     'JournalEntryKindEnum',
     'WebhookHttpMethodEnum',
 )
@@ -23,6 +22,7 @@ CustomFieldTypeEnum = strawberry.enum(CustomFieldTypeChoices.as_enum(prefix='typ
 CustomFieldUIEditableEnum = strawberry.enum(CustomFieldUIEditableChoices.as_enum())
 CustomFieldUIVisibleEnum = strawberry.enum(CustomFieldUIVisibleChoices.as_enum())
 CustomLinkButtonClassEnum = strawberry.enum(CustomLinkButtonClassChoices.as_enum())
-EventRuleActionEnum = strawberry.enum(EventRuleActionChoices.as_enum())
+# No EventRuleActionEnum: action_type is plugin-extensible (netbox.event_rules), incompatible
+# with Strawberry's closed-membership enum. See EventRuleFilter.action_type in filters.py.
 JournalEntryKindEnum = strawberry.enum(JournalEntryKindChoices.as_enum(prefix='kind'))
 WebhookHttpMethodEnum = strawberry.enum(WebhookHttpMethodChoices.as_enum())

@@ -413,9 +413,9 @@ class EventRuleFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedMode
     conditions: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    action_type: BaseFilterLookup[Annotated['EventRuleActionEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
+    # Plain string lookup, not an enum: action_type is plugin-extensible (netbox.event_rules),
+    # incompatible with Strawberry's closed-membership enum. See enums.py.
+    action_type: StrFilterLookup | None = strawberry_django.filter_field()
     action_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
