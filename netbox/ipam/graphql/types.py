@@ -2,13 +2,17 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.prefetch import GenericPrefetch
+from strawberry.types import Info
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
+from dcim.models import Interface
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
+from virtualization.models import VMInterface
 
 from .filters import *
 from .mixins import IPAddressesMixin
@@ -153,7 +157,29 @@ class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='assigned_object')
+    @classmethod
+    def get_queryset(cls, queryset, info: Info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+
+        # Prevent an N+1 query per row when resolving assigned_object (a GenericForeignKey),
+        # matching the approach already used by IPAddressViewSet in the REST API.
+        selected = {f.name for f in info.selected_fields[0].selections}
+        if 'assigned_object' in selected:
+            return queryset.prefetch_related(
+                GenericPrefetch(
+                    'assigned_object',
+                    [
+                        models.FHRPGroup.objects.all(),
+                        Interface.objects.select_related('cable', 'device'),
+                        VMInterface.objects.select_related('virtual_machine'),
+                    ],
+                ),
+            )
+
+        return queryset
+
+    # Ensure assigned_object_type/assigned_object_id are fetched when assigned_object is requested
+    @strawberry_django.field(only=['assigned_object_type', 'assigned_object_id'])
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
