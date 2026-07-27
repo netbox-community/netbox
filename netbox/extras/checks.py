@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from django.core.checks import Tags, Warning, register
+from django.db.utils import Error as DatabaseError
 
 from netbox.event_rules import get_event_rule_action
 
@@ -16,11 +17,24 @@ def check_event_rule_actions(app_configs, **kwargs):
     """
     Warn about any EventRules whose action_type is not currently registered (e.g. because the
     plugin which provides it is not installed).
+
+    Tagged Tags.models (not Tags.database) so this runs by default for `manage.py check` and
+    `runserver`, neither of which pass a populated `databases` kwarg to system checks in normal
+    use -- a Tags.database check gated on that kwarg would effectively never fire for either.
+    This does mean the query below can run before any tables exist (e.g. `makemigrations --check`
+    on a brand new database, or `migrate` itself, which runs checks before applying migrations),
+    so failures are swallowed the same way check_postgresql_version tolerates a database that
+    isn't ready/reachable.
     """
     warnings = []
     unavailable = defaultdict(list)
 
-    for event_rule in EventRule.objects.only('id', 'name', 'action_type'):
+    try:
+        event_rules = list(EventRule.objects.only('id', 'name', 'action_type'))
+    except DatabaseError:
+        return []
+
+    for event_rule in event_rules:
         if get_event_rule_action(event_rule.action_type) is None:
             unavailable[event_rule.action_type].append(event_rule.name)
 
