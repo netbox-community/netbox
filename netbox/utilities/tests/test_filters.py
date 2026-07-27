@@ -1,8 +1,9 @@
 import django_filters
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.http import QueryDict
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
@@ -37,6 +38,8 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from wireless.choices import WirelessRoleChoices
+
+User = get_user_model()
 
 
 class TreeNodeMultipleChoiceFilterTestCase(TestCase):
@@ -761,22 +764,63 @@ class SavedFilterApplicationTestCase(TestCase):
         )
         cls.saved_filter.object_types.set([ObjectType.objects.get_for_model(Site)])
 
+    def setUp(self):
+        self.request = RequestFactory().get('/')
+        self.request.user = User.objects.create_user('testuser')
+
     def test_filter_id_valid(self):
         # A referenced SavedFilter's parameters are applied to the queryset
         data = QueryDict(f'filter_id={self.saved_filter.pk}')
-        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 1)
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=self.request).qs.count(), 1)
 
     def test_filter_id_nonexistent(self):
         # A non-existent (but valid integer) filter_id is ignored
         data = QueryDict('filter_id=999999')
-        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=self.request).qs.count(), 2)
 
     def test_filter_id_non_integer(self):
         # A non-integer filter_id is ignored rather than raising a ValueError (#22568)
         data = QueryDict('filter_id=abc')
-        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=self.request).qs.count(), 2)
 
     def test_filter_slug(self):
         # A referenced SavedFilter may also be applied by slug
         data = QueryDict('filter=active-sites')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=self.request).qs.count(), 1)
+
+    def test_private_filter_not_applied_for_other_user(self):
+        # A private SavedFilter owned by another user must not be applied (#22790)
+        owner = User.objects.create_user('owner')
+        private_filter = SavedFilter.objects.create(
+            name='Private',
+            slug='private',
+            user=owner,
+            shared=False,
+            parameters={'status': [SiteStatusChoices.STATUS_ACTIVE]},
+        )
+        private_filter.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        request = RequestFactory().get('/')
+        request.user = User.objects.create_user('other')
+        data = QueryDict('filter=private')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all(), request=request).qs.count(), 2)
+
+    def test_shared_filter_applied_without_request(self):
+        # Without a request, a shared SavedFilter is still applied (anonymous visibility)
+        data = QueryDict('filter=active-sites')
         self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 1)
+
+    def test_private_filter_not_applied_without_request(self):
+        # Without a request, a private SavedFilter is not applied (#22790)
+        owner = User.objects.create_user('owner')
+        private_filter = SavedFilter.objects.create(
+            name='Private',
+            slug='private',
+            user=owner,
+            shared=False,
+            parameters={'status': [SiteStatusChoices.STATUS_ACTIVE]},
+        )
+        private_filter.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        data = QueryDict('filter=private')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 2)
