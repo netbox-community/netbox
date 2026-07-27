@@ -34,7 +34,6 @@ class ExtrasRootView(APIRootView):
     """
     Extras API root view
     """
-
     def get_view_name(self):
         return 'Extras'
 
@@ -42,7 +41,6 @@ class ExtrasRootView(APIRootView):
 #
 # EventRules
 #
-
 
 class EventRuleViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -55,7 +53,6 @@ class EventRuleViewSet(NetBoxModelViewSet):
 # Webhooks
 #
 
-
 class WebhookViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Webhook.objects.all()
@@ -66,7 +63,6 @@ class WebhookViewSet(NetBoxModelViewSet):
 #
 # Custom fields
 #
-
 
 class CustomFieldViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -95,7 +91,9 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
 
         # Paginate data
         if page := self.paginate_queryset(choices):
-            data = [{'id': c[0], 'display': c[1]} for c in page]
+            data = [
+                {'id': c[0], 'display': c[1]} for c in page
+            ]
         else:
             data = []
 
@@ -105,7 +103,6 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
 #
 # Custom links
 #
-
 
 class CustomLinkViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -118,7 +115,6 @@ class CustomLinkViewSet(NetBoxModelViewSet):
 # Export templates
 #
 
-
 class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = ExportTemplate.objects.all()
@@ -129,7 +125,6 @@ class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
 #
 # Saved filters
 #
-
 
 class SavedFilterViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -142,7 +137,6 @@ class SavedFilterViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
 # Table Configs
 #
 
-
 class TableConfigViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = TableConfig.objects.all()
@@ -154,7 +148,6 @@ class TableConfigViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
 # Bookmarks
 #
 
-
 class BookmarkViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = Bookmark.objects.all()
@@ -165,7 +158,6 @@ class BookmarkViewSet(NetBoxModelViewSet):
 #
 # Notifications & subscriptions
 #
-
 
 class NotificationViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -188,7 +180,6 @@ class SubscriptionViewSet(NetBoxModelViewSet):
 # Tags
 #
 
-
 class TagViewSet(NetBoxModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
@@ -196,9 +187,9 @@ class TagViewSet(NetBoxModelViewSet):
 
 
 class TaggedItemViewSet(RetrieveModelMixin, ListModelMixin, BaseViewSet):
-    queryset = TaggedItem.objects.prefetch_related('content_type', 'content_object', 'tag').order_by(
-        'tag__weight', 'tag__name'
-    )
+    queryset = TaggedItem.objects.prefetch_related(
+        'content_type', 'content_object', 'tag'
+    ).order_by('tag__weight', 'tag__name')
     serializer_class = serializers.TaggedItemSerializer
     filterset_class = filtersets.TaggedItemFilterSet
 
@@ -206,7 +197,6 @@ class TaggedItemViewSet(RetrieveModelMixin, ListModelMixin, BaseViewSet):
 #
 # Image attachments
 #
-
 
 class ImageAttachmentViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
@@ -219,7 +209,6 @@ class ImageAttachmentViewSet(NetBoxModelViewSet):
 # Journal entries
 #
 
-
 class JournalEntryViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = JournalEntry.objects.all()
@@ -230,7 +219,6 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 #
 # Config contexts
 #
-
 
 class ConfigContextProfileViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContextProfile.objects.all()
@@ -247,7 +235,6 @@ class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
 #
 # Config templates
 #
-
 
 class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
     queryset = ConfigTemplate.objects.all()
@@ -266,13 +253,13 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
             200: OpenApiResponse(
                 response=serializers.RenderedConfigSerializer,
                 description=_(
-                    'The rendered config template. When the client requests `text/plain`, the raw '
-                    'rendered content is returned in place of the JSON object.'
+                    "The rendered config template. When the client requests `text/plain`, the raw "
+                    "rendered content is returned in place of the JSON object."
                 ),
             ),
             500: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
-                description=_('An error occurred while rendering the config template.'),
+                description=_("An error occurred while rendering the config template."),
             ),
         },
     )
@@ -295,7 +282,6 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 #
 # Scripts
 #
-
 
 class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, UpdateModelMixin, BaseViewSet):
     queryset = ScriptModule.objects.filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
@@ -361,6 +347,11 @@ class ScriptViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+    @extend_schema(
+        operation_id='extras_scripts_run',
+        request=serializers.ScriptInputSerializer,
+        responses={200: serializers.ScriptDetailSerializer},
+    )
     def post(self, request, pk):
         """
         Run a Script identified by its numeric PK or module & name and return the
@@ -370,9 +361,12 @@ class ScriptViewSet(ModelViewSet):
         script = self._get_script(pk)
 
         if not request.user.has_perm('extras.run_script', obj=script):
-            raise PermissionDenied('This user does not have permission to run this script.')
+            raise PermissionDenied("This user does not have permission to run this script.")
 
-        input_serializer = serializers.ScriptInputSerializer(data=request.data, context={'script': script})
+        input_serializer = serializers.ScriptInputSerializer(
+            data=request.data,
+            context={'script': script}
+        )
 
         # Check that at least one RQ worker is running
         if not any_workers_for_queue('default'):
@@ -400,7 +394,6 @@ class ScriptViewSet(ModelViewSet):
 #
 # User dashboard
 #
-
 
 class DashboardView(RetrieveUpdateDestroyAPIView):
     queryset = Dashboard.objects.all()

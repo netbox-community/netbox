@@ -2236,3 +2236,21 @@ class ScriptModuleTestCase(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(fake_storage.files['zz_lost_file.py'], updated_content)
+
+    def test_scripts_upload_route_not_shadowed(self):
+        """
+        POST /api/extras/scripts/upload/ and its format-suffixed variant must
+        still dispatch to ScriptModuleViewSet, not be captured by the Script
+        detail route's broader URL pattern.
+
+        Refs: #22569
+        """
+        for url in ('/api/extras/scripts/upload/', '/api/extras/scripts/upload.json/'):
+            with self.subTest(url=url):
+                response = self.client.post(url, {}, format='multipart')
+                # A 400/403 (missing file / permission) proves ScriptModuleViewSet
+                # handled the request; a 404 would mean it was misrouted to
+                # ScriptViewSet instead.
+                self.assertNotEqual(
+                    response.status_code, 404, f'{url} was misrouted — expected ScriptModuleViewSet, got 404'
+                )

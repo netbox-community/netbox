@@ -115,3 +115,25 @@ class OpenAPISchemaTestCase(TestCase):
         # Confirm the other detail-route methods are still present and untouched
         for method in ('get', 'put', 'patch', 'delete'):
             self.assertIn(method, operations, f'{method.upper()} {path} unexpectedly missing from schema')
+
+        post_op = operations['post']
+
+        self.assertEqual(
+            post_op['operationId'],
+            'extras_scripts_run',
+            'POST /api/extras/scripts/{id}/ should have a stable, distinct operationId',
+        )
+
+        request_schema = post_op['requestBody']['content']['application/json']['schema']
+        self.assertEqual(
+            request_schema.get('$ref'),
+            '#/components/schemas/ScriptInputRequest',
+            'POST request body should document ScriptInputSerializer, not ScriptSerializer',
+        )
+
+        response_schema = post_op['responses']['200']['content']['application/json']['schema']
+        self.assertEqual(
+            response_schema.get('$ref'),
+            '#/components/schemas/ScriptDetail',
+            'POST response should document ScriptDetailSerializer, not ScriptSerializer',
+        )
