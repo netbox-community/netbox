@@ -2,6 +2,7 @@ import json
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models.fields.related import ManyToManyRel
 
 from extras.choices import *
@@ -103,6 +104,23 @@ class NetBoxModelForm(
                 self.instance._m2m_values[name] = list((current | add_values) - remove_values)
 
         return super()._post_clean()
+
+    def _update_errors(self, errors):
+        """
+        Override to handle ValidationErrors from model.full_clean() that reference
+        fields not present on this form (e.g. during bulk import). Rather than
+        crashing with a ValueError, remap those errors to non-field errors so the
+        user sees a clean validation message instead of a 500.
+        """
+        if hasattr(errors, 'error_dict'):
+            new_error_dict = {}
+            for field, error_list in errors.error_dict.items():
+                if field != '__all__' and field not in self.fields:
+                    new_error_dict.setdefault('__all__', []).extend(error_list)
+                else:
+                    new_error_dict[field] = error_list
+            errors = ValidationError(new_error_dict)
+        super()._update_errors(errors)
 
     def _save_m2m(self):
         """
