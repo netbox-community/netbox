@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -69,6 +70,23 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
                     cleaned[name] = None
 
         return cleaned
+
+    def _update_errors(self, errors):
+        """
+        Override to handle ValidationErrors from model.full_clean() that reference
+        fields not present on this import form. Rather than crashing with a ValueError,
+        remap those errors to non-field errors so bulk import surfaces a readable
+        validation message instead of a 500.
+        """
+        if hasattr(errors, 'error_dict'):
+            new_error_dict = {}
+            for field, error_list in errors.error_dict.items():
+                if field == NON_FIELD_ERRORS or field not in self.fields:
+                    new_error_dict.setdefault(NON_FIELD_ERRORS, []).extend(error_list)
+                else:
+                    new_error_dict[field] = error_list
+            errors = ValidationError(new_error_dict)
+        super()._update_errors(errors)
 
 
 class OwnerCSVMixin(forms.Form):
