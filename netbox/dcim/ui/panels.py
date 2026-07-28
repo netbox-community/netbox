@@ -447,7 +447,7 @@ class CoolingFeedPanel(panels.ObjectAttributesPanel):
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
 
 
-class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
+class CoolingFeedCharacteristicsPanel(panels.ObjectAttributesPanel):
     title = _('Cooling Characteristics')
 
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))

@@ -145,10 +145,11 @@ class RackBase(WeightMixin, PrimaryModel):
     )
     cooling_capacity = models.DecimalField(
         verbose_name=_('cooling capacity'),
-        max_digits=8,
+        max_digits=10,
         decimal_places=2,
         blank=True,
         null=True,
+        validators=[MinValueValidator(0)],
         help_text=_('Cooling capacity (kW)')
     )
 

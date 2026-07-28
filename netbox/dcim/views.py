@@ -5642,7 +5642,7 @@ class CoolingFeedView(generic.ObjectView):
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CoolingFeedPanel(),
-            panels.CoolingFeedElectricalPanel(),
+            panels.CoolingFeedCharacteristicsPanel(),
             CustomFieldsPanel(),
             TagsPanel(),
         ],

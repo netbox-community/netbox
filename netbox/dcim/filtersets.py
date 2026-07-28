@@ -3300,7 +3300,8 @@ class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
             return queryset
         qs_filter = (
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)
 

@@ -36,7 +36,3 @@ The connector diameter, expressed as a numeric value with a selectable unit (mil
 ### Cooling Intake
 
 The upstream [cooling intake](./coolingintake.md) on the same device which feeds this outlet (optional).
-
-### Mark Connected
-
-If selected, this component will be treated as if a cable has been connected.
