@@ -59,13 +59,23 @@
   {% render_field form.label %}
   {% render_field form.description %}
   {% render_field form.color %}
-  <div class="row mb-3">
+  <div class="row mb-3{% if form.length.errors or form.length_unit.errors %} has-errors{% endif %}">
     <label class="col-sm-3 col-form-label text-lg-end">{{ form.length.label }}</label>
     <div class="col-md-5">
-      {{ form.length }}
+      {% render_field_with_aria form.length %}
+      {% if form.length.errors %}
+        <div class="form-text text-danger" id="{{ form.length.auto_id }}_errors" role="alert">
+          {% for error in form.length.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+        </div>
+      {% endif %}
     </div>
     <div class="col-md-4">
-      {{ form.length_unit }}
+      {% render_field_with_aria form.length_unit %}
+      {% if form.length_unit.errors %}
+        <div class="form-text text-danger" id="{{ form.length_unit.auto_id }}_errors" role="alert">
+          {% for error in form.length_unit.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+        </div>
+      {% endif %}
     </div>
   </div>
   {% render_field form.tags %}

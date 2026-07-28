@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
 
@@ -858,6 +859,50 @@ class DeviceTestCase(TestCase):
                 device_type=device_type,
                 role=device_role,
                 cluster=clusters[1]
+            ).full_clean()
+
+    @tag('regression')  # Ref: #22717
+    def test_device_mismatched_location_cluster(self):
+        """
+        A cluster scoped to a different location than the device must be rejected
+        with a field validation error naming that location.
+        """
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        locations = (
+            Location(site=site, name='Location A', slug='location-a'),
+            Location(site=site, name='Location B', slug='location-b'),
+        )
+        for location in locations:
+            location.save()
+
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type, scope=locations[0])
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device in the cluster's location should pass
+        Device(
+            name='device1',
+            site=site,
+            location=locations[0],
+            device_type=device_type,
+            role=device_role,
+            cluster=cluster
+        ).full_clean()
+
+        # Device in a different location of the same site should fail
+        with self.assertRaisesMessage(
+            ValidationError,
+            'The assigned cluster belongs to a different location (Location A)'
+        ):
+            Device(
+                name='device1',
+                site=site,
+                location=locations[1],
+                device_type=device_type,
+                role=device_role,
+                cluster=cluster
             ).full_clean()
 
 
@@ -2577,6 +2622,59 @@ class VirtualChassisTestCase(TestCase):
         self.assertIsNone(device2.virtual_chassis)
         self.assertIsNone(device2.vc_position)
         self.assertIsNone(device2.vc_priority)
+
+    @tag('regression')  # Ref: #22720
+    def test_virtualchassis_deletion_blocked_by_cross_chassis_lag(self):
+        """
+        Deleting a VirtualChassis whose members form a cross-chassis LAG must
+        raise ProtectedError exposing the blocking interfaces, leaving the VC
+        and its member assignments unchanged.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+
+        device1.virtual_chassis = vc
+        device1.vc_position = 1
+        device1.vc_priority = 10
+        device1.save()
+
+        device2.virtual_chassis = vc
+        device2.vc_position = 2
+        device2.vc_priority = 20
+        device2.save()
+
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        member_interface = Interface(
+            device=device2,
+            name='eth0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            lag=lag,
+        )
+        # A cross-chassis LAG member is valid while both devices share the VC
+        member_interface.full_clean()
+        member_interface.save()
+
+        with self.assertRaises(ProtectedError) as cm:
+            vc.delete()
+
+        self.assertEqual(
+            cm.exception.args[0],
+            'Unable to delete virtual chassis Test VC. One or more member interfaces form a cross-chassis LAG.'
+        )
+        self.assertEqual(set(cm.exception.protected_objects), {member_interface})
+
+        # The failed deletion must not clear the VC or its member assignments
+        self.assertTrue(VirtualChassis.objects.filter(pk=vc.pk).exists())
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+        self.assertEqual(device1.virtual_chassis, vc)
+        self.assertEqual(device1.vc_position, 1)
+        self.assertEqual(device1.vc_priority, 10)
+        self.assertEqual(device2.virtual_chassis, vc)
+        self.assertEqual(device2.vc_position, 2)
+        self.assertEqual(device2.vc_priority, 20)
 
     def test_virtualchassis_duplicate_vc_position(self):
         """

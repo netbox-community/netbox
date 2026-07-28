@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('ipam', '0093_alter_prefix__region_alter_prefix__site_group'),
         # Source tables (dcim_site, dcim_location) must already exist.
-        ('dcim', '0240_ltree_paths'),
+        ('dcim', '0242_ltree_paths'),
     ]
 
     operations = [

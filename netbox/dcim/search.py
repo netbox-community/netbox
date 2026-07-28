@@ -129,6 +129,7 @@ class DeviceRoleIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -162,6 +163,7 @@ class MACAddressIndex(SearchIndex):
     fields = (
         ('mac_address', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('assigned_object', 'description')
 
@@ -296,6 +298,7 @@ class PlatformIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('manufacturer', 'description')
 

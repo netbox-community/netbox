@@ -453,6 +453,19 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         Prefix.objects.bulk_create(prefixes)
 
     @tag('regression')
+    def test_create_with_invalid_prefix(self):
+        """
+        POST of a malformed prefix value returns a 400 validation error.
+        """
+        self.add_permissions('ipam.add_prefix')
+        url = reverse('ipam-api:prefix-list')
+
+        response = self.client.post(url, {'prefix': 'invalid'}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['prefix'][0], 'Invalid IP prefix format: invalid')
+
+    @tag('regression')
     def test_clean_validates_scope(self):
         prefix = Prefix.objects.first()
         site = Site.objects.create(name='Test Site', slug='test-site')
@@ -857,6 +870,19 @@ class IPAddressTestCase(APIViewTestCases.APIViewTestCase):
             IPAddress(address=IPNetwork('192.168.0.3/24')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
+
+    @tag('regression')
+    def test_create_with_invalid_address(self):
+        """
+        POST of a malformed address value returns a 400 validation error.
+        """
+        self.add_permissions('ipam.add_ipaddress')
+        url = reverse('ipam-api:ipaddress-list')
+
+        response = self.client.post(url, {'address': 'invalid'}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['address'][0], 'Invalid IP address format: invalid')
 
     def test_assign_object(self):
         """

@@ -137,9 +137,15 @@ def disable_logging(level=logging.CRITICAL):
     """
     Temporarily suppress log messages at or below the specified level (default: critical).
     """
+    # Capture the current disable level so it can be restored on exit (rather than assuming
+    # NOTSET), which keeps nested calls well-behaved. The teardown runs inside a finally block so
+    # logging is always restored even if the wrapped block raises.
+    previous_level = logging.root.manager.disable
     logging.disable(level)
-    yield
-    logging.disable(logging.NOTSET)
+    try:
+        yield
+    finally:
+        logging.disable(previous_level)
 
 
 #

@@ -1,3 +1,4 @@
+import logging
 import uuid
 from unittest.mock import PropertyMock, patch
 
@@ -466,6 +467,16 @@ class ImageAttachmentTestCase(
     # populate image_height / image_width, which fails when fixtures use
     # placeholder URLs instead of real images on disk.
     model = ImageAttachment
+
+    def setUp(self):
+        super().setUp()
+        # The fixtures use placeholder image URLs with no file on disk, so rendering the thumbnail
+        # column logs a FileNotFoundError traceback for every attachment. The missing files are
+        # expected here, so mute the sorl-thumbnail logger to keep the test output clean.
+        logger = logging.getLogger('sorl.thumbnail')
+        original_level = logger.level
+        logger.setLevel(logging.CRITICAL)
+        self.addCleanup(logger.setLevel, original_level)
 
     @classmethod
     def setUpTestData(cls):
@@ -1148,6 +1159,20 @@ class ScriptListViewTestCase(TestCase):
         response = self.client.get(url, {'embedded': 'true'})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')
+
+
+class ScriptModuleCreateViewTestCase(TestCase):
+    user_permissions = ['core.add_managedfile', 'extras.add_scriptmodule']
+
+    @tag('regression')
+    def test_default_return_url(self):
+        """
+        The add view should fall back to the scripts list as its return URL.
+        """
+        response = self.client.get(reverse('extras:scriptmodule_add'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['return_url'], reverse('extras:script_list'))
 
 
 class ScriptValidationErrorTestCase(TestCase):

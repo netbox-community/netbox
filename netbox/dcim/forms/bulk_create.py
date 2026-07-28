@@ -144,7 +144,7 @@ class ModuleBayBulkCreateForm(
 ):
     model = ModuleBay
     field_order = ('name', 'label', 'position', 'enabled', 'description', 'tags')
-    replication_fields = ('name', 'label', 'position', 'enabled')
+    replication_fields = ('name', 'label', 'position')
     position = ExpandableNameField(
         label=_('Position'),
         required=False,

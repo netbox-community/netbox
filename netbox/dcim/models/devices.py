@@ -985,7 +985,7 @@ class Device(
         if self.cluster and self.cluster._location is not None and self.cluster._location != self.location:
             raise ValidationError({
                 'cluster': _("The assigned cluster belongs to a different location ({location})").format(
-                    site=self.cluster._location
+                    location=self.cluster._location
                 )
             })
 
@@ -1280,10 +1280,13 @@ class VirtualChassis(PrimaryModel):
             lag__device=F('device')
         )
         if interfaces:
-            raise ProtectedError(_(
-                "Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG "
-                "interfaces."
-            ).format(self=self, interfaces=InterfaceSpeedChoices))
+            raise ProtectedError(
+                _(
+                    "Unable to delete virtual chassis {virtual_chassis}. One or more member interfaces form a "
+                    "cross-chassis LAG."
+                ).format(virtual_chassis=self),
+                set(interfaces),
+            )
 
         # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
         # This must be done here because on_delete=SET_NULL executes before pre_delete signal

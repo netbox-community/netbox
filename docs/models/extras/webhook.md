@@ -52,6 +52,13 @@ The content type to indicate in the outgoing HTTP request header. See [this list
 
 Any additional header to include with the outgoing HTTP request. These should be defined in the format `Name: Value`, with each header on a separate line. Jinja2 templating is supported for this field.
 
+!!! warning "Sanitize interpolated header values"
+    When interpolating data which may be influenced by other users (such as object attributes) into a header value, apply the `header_safe` filter to guard against HTTP header (CR/LF) injection. This filter strips newlines and other control characters which could otherwise be used to smuggle additional headers into the request. For example:
+
+    ```
+    X-Object-Name: {{ data.name | header_safe }}
+    ```
+
 ### Body Template
 
 Jinja2 template for a custom request body, if desired. If not defined, NetBox will populate the request body with a raw dump of the webhook context.

@@ -36,6 +36,16 @@ The following data is available as context for Jinja2 templates:
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
 
+### Sanitizing Header Values
+
+When rendering the `additional_headers` field, a `header_safe` filter is made available for sanitizing a value for safe inclusion in a raw HTTP header. It strips newlines and other control characters from the rendered value, preventing HTTP header (CR/LF) injection.
+
+Whenever a header value incorporates data which may be influenced by other users (such as an object's attributes), pass it through this filter to avoid smuggling of additional headers. For example:
+
+```
+X-Object-Name: {{ data.name | header_safe }}
+```
+
 ### Default Request Body
 
 If no body template is specified, the request body will be populated with a JSON object containing the context data. For example, a newly created site might appear as follows:

@@ -1069,6 +1069,10 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         queryset=Site.objects.all(),
         method='get_for_site'
     )
+    available_at_site_group = django_filters.ModelChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        method='get_for_site_group'
+    )
     available_on_device = django_filters.ModelChoiceFilter(
         queryset=Device.objects.select_related('cluster'),
         method='get_for_device'
@@ -1129,6 +1133,10 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_site(self, queryset, name, value):
         return queryset.get_for_site(value)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_for_site_group(self, queryset, name, value):
+        return queryset.get_for_site_group(value)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_device(self, queryset, name, value):

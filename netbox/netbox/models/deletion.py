@@ -79,7 +79,9 @@ class DeleteMixin:
                 )
             )
 
-        collector = CustomCollector(using=using)
+        # Pass origin=self (matching Django's Model.delete) so signal receivers can tell that
+        # cascaded child objects are being deleted as part of deleting this object.
+        collector = CustomCollector(using=using, origin=self)
         collector.collect([self], keep_parents=keep_parents)
 
         return collector.delete()

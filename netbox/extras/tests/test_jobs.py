@@ -1,3 +1,4 @@
+import logging
 from contextlib import contextmanager
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -45,6 +46,16 @@ class DummyScript:
 
 
 class RunScriptTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+        # The failure/abort paths log via the module logger `netbox.scripts.<full_name>`. These
+        # tests deliberately exercise those paths, so mute the logger to keep the expected error
+        # messages and tracebacks out of the test runner's output.
+        logger = logging.getLogger('netbox.scripts')
+        original_level = logger.level
+        logger.setLevel(logging.CRITICAL)
+        self.addCleanup(logger.setLevel, original_level)
+
     def test_run_script_success_commit_true_sets_output_and_job_data(self):
         runner = _make_runner()
         script = DummyScript(run_result='hello')
