@@ -308,8 +308,8 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         a field absent from the import form, is_valid() should return False with a
         non-field error rather than raising ValueError. Regression test for #22683.
         """
-        from unittest.mock import patch
         from django.core.exceptions import ValidationError as DjangoValidationError
+        from unittest.mock import patch
 
         form = InterfaceImportForm(
             data={
