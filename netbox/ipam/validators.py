@@ -3,78 +3,6 @@ from django.core.validators import BaseValidator, RegexValidator
 from django.utils.translation import gettext_lazy as _
 
 
-def split_port_mapping(mapping):
-    """
-    Split a ``protocol/port`` string (e.g. ``'tcp/80'``) into its ``(protocol, port)`` parts. A missing
-    separator or port yields an empty string for that part, leaving validation to report the problem.
-    """
-    protocol, _sep, port = mapping.partition('/')
-    return protocol, port
-
-
-def group_port_mappings(mappings):
-    """
-    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into an ordered ``{protocol: [ports]}`` dict,
-    preserving first-seen protocol order. Shared by the display property and the form widget so the
-    ``protocol/port`` string is parsed in exactly one place.
-    """
-    grouped = {}
-    for mapping in mappings:
-        protocol, port = split_port_mapping(mapping)
-        grouped.setdefault(protocol, []).append(port)
-    return grouped
-
-
-def sorted_int_ports(ports):
-    """
-    Sort a protocol's port strings numerically and return them as integers. Any entry that bypassed
-    validation (a raw SQL write, a plugin, or an unmigrated row) and isn't a plain integer is skipped
-    rather than raising, so a single malformed mapping degrades gracefully on API reads instead of
-    raising a 500 — mirroring the tolerance of ``ServiceBase.port_list``.
-    """
-    return sorted(int(port) for port in ports if str(port).isdigit())
-
-
-def legacy_protocol_and_ports(mappings):
-    """
-    Collapse port mappings into the deprecated single-protocol ``(protocol, ports)`` representation.
-    Single source of truth for the backward-compatibility contract shared by the REST serializers and
-    the GraphQL types:
-
-      * single protocol    -> ``(protocol, [sorted int ports])``
-      * no mappings         -> ``(None, [])``   (representable as an empty legacy ports list)
-      * multiple protocols  -> ``(None, None)`` (not representable; ``ports=None`` signals "read
-        port_mappings instead")
-    """
-    grouped = group_port_mappings(mappings)
-    if len(grouped) == 1:
-        protocol, ports = next(iter(grouped.items()))
-        return protocol, sorted_int_ports(ports)
-    return (None, []) if not grouped else (None, None)
-
-
-def expand_port_mapping(protocol, ports_str):
-    """
-    Expand a single protocol plus a comma/range port string (e.g. ``('tcp', '80,443,8000-8010')``) into
-    the model's flat ``['tcp/80', 'tcp/443', ...]`` tokens. An empty ``ports_str`` yields a single bare
-    ``'protocol/'`` token so ``validate_port_mappings`` reports a clear "expected protocol/port" error
-    (rather than ``parse_numeric_range`` raising a confusing 'Range "" is invalid'). Shared by the model
-    form field and the CSV import form so the protocol/port string is parsed in exactly one place.
-    """
-    # Imported lazily to avoid a circular import during settings load (see validate_port_mappings).
-    from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
-    from utilities.forms.utils import parse_numeric_range
-
-    protocol = (protocol or '').strip().lower()
-    ports_str = (ports_str or '').strip()
-    if not ports_str:
-        return [f'{protocol}/']
-    # parse_numeric_range validates each range against the port bounds (rejecting reversed and
-    # out-of-range values before expansion), so a non-empty string always yields >=1 port.
-    ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
-    return [f'{protocol}/{port}' for port in ports]
-
-
 def validate_port_mappings(mappings):
     """
     Validate a list of service port mappings, i.e. ``protocol/port`` strings such as ``'tcp/80'``.
@@ -91,6 +19,7 @@ def validate_port_mappings(mappings):
     # ipam.models, and ipam.constants pulls in ipam.choices, which reads settings.FIELD_CHOICES).
     from ipam.choices import ServiceProtocolChoices
     from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+    from ipam.utils import split_port_mapping
 
     valid_protocols = ServiceProtocolChoices.values()
     seen = set()

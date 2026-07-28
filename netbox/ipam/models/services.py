@@ -9,7 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
-from ipam.validators import legacy_protocol_and_ports, split_port_mapping, validate_port_mappings
+from ipam.utils import legacy_protocol_and_ports, split_port_mapping
+from ipam.validators import validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
 

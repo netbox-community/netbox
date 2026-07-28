@@ -3,7 +3,7 @@ import json
 from django import forms
 
 from ipam.choices import ServiceProtocolChoices
-from ipam.validators import group_port_mappings
+from ipam.utils import group_port_mappings
 
 __all__ = (
     'PortMappingWidget',

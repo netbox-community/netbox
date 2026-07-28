@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from ipam.forms.widgets import PortMappingWidget, group_mappings
-from ipam.validators import expand_port_mapping, validate_port_mappings
+from ipam.utils import expand_port_mapping
+from ipam.validators import validate_port_mappings
 
 __all__ = (
     'PortMappingField',

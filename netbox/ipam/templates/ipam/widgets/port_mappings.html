@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="port-mapping-widget" data-name="{{ widget.name }}">
-  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value }}">
+  <input id="{{ widget.attrs.id }}" type="hidden" name="{{ widget.name }}" value="{{ widget.value }}">
   <table class="table table-sm mb-1">
     <thead>
       <tr>
