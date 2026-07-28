@@ -2137,6 +2137,7 @@ class CoolingMethodChoices(ChoiceSet):
 
 
 class CoolingSourceTypeChoices(ChoiceSet):
+    key = 'CoolingSource.type'
 
     TYPE_CHILLER = 'chiller'
     TYPE_COOLING_TOWER = 'cooling-tower'
@@ -2186,19 +2187,18 @@ class CoolingFeedStatusChoices(ChoiceSet):
 
 
 class FluidTypeChoices(ChoiceSet):
+    key = 'CoolingSource.fluid_type'
 
     FLUID_WATER = 'water'
     FLUID_WATER_GLYCOL = 'water-glycol'
     FLUID_DIELECTRIC = 'dielectric'
     FLUID_REFRIGERANT = 'refrigerant'
-    FLUID_OTHER = 'other'
 
     CHOICES = [
         (FLUID_WATER, _('Water')),
         (FLUID_WATER_GLYCOL, _('Water/glycol')),
         (FLUID_DIELECTRIC, _('Dielectric')),
         (FLUID_REFRIGERANT, _('Refrigerant')),
-        (FLUID_OTHER, _('Other')),
     ]
 
 

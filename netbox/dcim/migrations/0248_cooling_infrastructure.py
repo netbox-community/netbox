@@ -735,7 +735,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                related_name="cooling_intakes",
+                related_name="coolingintakes",
                 to="dcim.coolingoutflow",
             ),
         ),

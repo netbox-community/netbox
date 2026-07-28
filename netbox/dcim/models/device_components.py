@@ -710,7 +710,7 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='cooling_intakes',
+        related_name='coolingintakes',
         help_text=_('The upstream cooling outflow supplying this intake')
     )
 
