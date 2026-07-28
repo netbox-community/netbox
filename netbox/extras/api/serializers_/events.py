@@ -48,6 +48,6 @@ class WebhookSerializer(OwnerMixin, NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'payload_url', 'http_method',
             'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path',
-            'custom_fields', 'owner', 'tags', 'created', 'last_updated',
+            'timeout', 'custom_fields', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

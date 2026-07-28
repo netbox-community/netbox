@@ -82,7 +82,7 @@ class WebhookFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         model = Webhook
         fields = (
             'id', 'name', 'payload_url', 'http_method', 'http_content_type', 'secret', 'ssl_verification',
-            'ca_file_path', 'description',
+            'ca_file_path', 'timeout', 'description',
         )
 
     def search(self, queryset, name, value):

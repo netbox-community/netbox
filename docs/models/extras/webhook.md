@@ -75,6 +75,10 @@ Controls whether validation of the receiver's SSL certificate is enforced when H
 
 The file path to a particular certificate authority (CA) file to use when validating the receiver's SSL certificate (if not using the system defaults).
 
+### Timeout
+
+The maximum time (in seconds) to wait for a response from the receiver before the request is considered failed. If left blank, the global [`WEBHOOK_DEFAULT_TIMEOUT`](../../configuration/miscellaneous.md#webhook_default_timeout) configuration value is used.
+
 ## Context Data
 
 The following context variables are available to the text and link templates.
