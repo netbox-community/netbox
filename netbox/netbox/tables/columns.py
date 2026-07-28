@@ -550,7 +550,7 @@ class CustomFieldColumn(tables.Column):
             return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
             if not value:
-                return ""
+                return ''
 
             has_color = False
             parts = []
