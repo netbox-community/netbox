@@ -66,26 +66,28 @@ class ServiceBase(models.Model):
         protocol, port = split_port_mapping(mapping)
         return f'{protocol}/{int(port)}' if port.isdigit() else mapping
 
-    def add_port_mappings(self, mappings):
+    def _add_port_mappings(self, mappings):
         """
         Add the given canonical ``protocol/port`` strings to ``port_mappings``, skipping any already
         present (matched by normalized form). The merged list is left for ``clean()`` to validate.
 
-        Called from the Service/ServiceTemplate bulk-edit view's pre_save_operations() hook, so the
-        merge is part of the single bulk-edit save (one change-log entry) and the model stays unaware of
-        the bulk-edit form.
+        Internal helper called from the Service/ServiceTemplate bulk-edit view's pre_save_operations()
+        hook, so the merge is part of the single bulk-edit save (one change-log entry) and the model
+        stays unaware of the bulk-edit form. Underscore-prefixed to keep it out of the way of the
+        identically-named ``add_port_mappings`` bulk-edit form field (which the generic bulk-edit view
+        assigns onto the object).
         """
         existing = {self._normalize_mapping(mapping) for mapping in self.port_mappings}
         self.port_mappings = list(self.port_mappings) + [
             mapping for mapping in mappings if self._normalize_mapping(mapping) not in existing
         ]
 
-    def remove_port_mappings(self, mappings):
+    def _remove_port_mappings(self, mappings):
         """
         Remove the given canonical ``protocol/port`` strings from ``port_mappings`` (matched by
         normalized form). The result is left for ``clean()`` to validate (range, duplicates, and the
-        at-least-one rule). Called from the bulk-edit view's pre_save_operations() hook (see
-        ``add_port_mappings``).
+        at-least-one rule). Internal helper called from the bulk-edit view's pre_save_operations() hook
+        (see ``_add_port_mappings``).
         """
         remove = {self._normalize_mapping(mapping) for mapping in mappings}
         self.port_mappings = [
