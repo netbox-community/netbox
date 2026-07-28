@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('virtualization', '0057_alter_cluster__region_alter_cluster__site_group'),
         # Source tables (dcim_site, dcim_location) must already exist.
-        ('dcim', '0240_ltree_paths'),
+        ('dcim', '0242_ltree_paths'),
     ]
 
     operations = [

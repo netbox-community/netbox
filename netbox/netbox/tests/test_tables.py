@@ -2,8 +2,11 @@ from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template
 from django.test import RequestFactory, TestCase
 
+from core.models import ObjectType
 from dcim.models import Device, Site
 from dcim.tables import DeviceTable
+from extras.choices import CustomFieldChoiceColorChoices, CustomFieldTypeChoices
+from extras.models import CustomField, CustomFieldChoiceSet
 from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
@@ -119,3 +122,139 @@ class TagColumnTestCase(TestCase):
             'table': table
         })
         template.render(context)
+
+
+class CustomFieldColumnTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.object_type = ObjectType.objects.get_for_model(Site)
+
+        # Choice set containing one colored and two uncolored choices
+        cls.mixed_choice_set = CustomFieldChoiceSet.objects.create(
+            name='Mixed Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+                ('c', 'Option C'),
+            ),
+            choice_colors={
+                'a': CustomFieldChoiceColorChoices.RED,
+            },
+        )
+
+        cls.select_cf = CustomField.objects.create(
+            name='select_field',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choice_set=cls.mixed_choice_set,
+            required=False,
+        )
+        cls.select_cf.object_types.set([cls.object_type])
+
+        cls.multiselect_cf = CustomField.objects.create(
+            name='multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choice_set=cls.mixed_choice_set,
+            required=False,
+        )
+        cls.multiselect_cf.object_types.set([cls.object_type])
+
+    def test_colored_single_select(self):
+        column = columns.CustomFieldColumn(self.select_cf)
+
+        rendered = str(column.render('a'))
+
+        self.assertIn('badge', rendered)
+        self.assertIn('text-bg-red', rendered)
+        self.assertIn('Option A', rendered)
+
+    def test_uncolored_single_select(self):
+        column = columns.CustomFieldColumn(self.select_cf)
+
+        rendered = str(column.render('b'))
+
+        self.assertEqual(rendered, 'Option B')
+        self.assertNotIn('badge', rendered)
+
+    def test_empty_multiselect(self):
+        column = columns.CustomFieldColumn(self.multiselect_cf)
+
+        rendered = column.render([])
+
+        self.assertEqual(rendered, '')
+
+    def test_multiselect_without_selected_colored_choices(self):
+        column = columns.CustomFieldColumn(self.multiselect_cf)
+
+        rendered = str(column.render(['b', 'c']))
+
+        self.assertEqual(rendered, 'Option B, Option C')
+        self.assertNotIn('badge', rendered)
+
+    def test_multiselect_with_mixed_colored_choices(self):
+        column = columns.CustomFieldColumn(self.multiselect_cf)
+
+        rendered = str(column.render(['a', 'b']))
+
+        self.assertIn('Option A', rendered)
+        self.assertIn('Option B', rendered)
+
+        self.assertIn('text-bg-red', rendered)
+        self.assertIn('text-bg-secondary', rendered)
+
+        self.assertNotIn(',', rendered)
+
+    def test_html_sensitive_multiselect_labels(self):
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='HTML Choice Set',
+            extra_choices=(
+                ('x', '<b>Bold Option</b>'),
+                ('y', "<script>alert('xss')</script>"),
+            ),
+            choice_colors={
+                'x': CustomFieldChoiceColorChoices.RED,
+            },
+        )
+
+        custom_field = CustomField.objects.create(
+            name='html_multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choice_set=choice_set,
+            required=False,
+        )
+        custom_field.object_types.set([self.object_type])
+
+        column = columns.CustomFieldColumn(custom_field)
+
+        rendered = str(column.render(['x', 'y']))
+
+        self.assertIn('&lt;b&gt;Bold Option&lt;/b&gt;', rendered)
+        self.assertNotIn('&amp;lt;', rendered)
+        self.assertIn('&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;', rendered,)
+        self.assertNotIn('<script>', rendered)
+
+        self.assertIn('text-bg-red', rendered)
+        self.assertIn('text-bg-secondary', rendered)
+
+    def _render_url(self, value):
+        customfield = CustomField(name='url_field', type=CustomFieldTypeChoices.TYPE_URL)
+        return columns.CustomFieldColumn(customfield).render(value)
+
+    # A URL custom field value is rendered directly into an href, so its scheme must be validated
+    # against ALLOWED_URL_SCHEMES to avoid rendering dangerous schemes (e.g. javascript:) as
+    # clickable links (fixes #22640).
+
+    def test_url_allowed_scheme_rendered_as_link(self):
+        self.assertEqual(
+            self._render_url('https://example.com'), '<a href="https://example.com">https://example.com</a>'
+        )
+
+    def test_url_disallowed_scheme_not_rendered_as_link(self):
+        rendered = self._render_url('javascript:alert(1)')
+        self.assertNotIn('href', rendered)
+        self.assertIn('javascript:alert(1)', rendered)
+
+    def test_url_percent_encoded_scheme_rendered_as_relative_link(self):
+        # A percent-encoded scheme is inert: a browser will not decode "%3A" to execute javascript:,
+        # so the value has no scheme and is rendered as a link as-is.
+        rendered = self._render_url('javascript%3Aalert(1)')
+        self.assertEqual(rendered, '<a href="javascript%3Aalert(1)">javascript%3Aalert(1)</a>')

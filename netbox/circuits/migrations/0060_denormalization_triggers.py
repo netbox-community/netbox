@@ -10,9 +10,9 @@ from utilities.migration import InstallDenormalizationTrigger
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0057_default_ordering_indexes'),
+        ('circuits', '0059_nullify_empty_cable_end'),
         # Source tables (dcim_site, dcim_location) must already exist.
-        ('dcim', '0240_ltree_paths'),
+        ('dcim', '0242_ltree_paths'),
     ]
 
     operations = [

@@ -6,7 +6,7 @@
 
 Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp')`
 
-A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all the default values as well (excluding those schemes which are not desirable).
+A list of permitted URL schemes referenced when rendering links within NetBox. This list is also enforced when validating the value of URL custom fields. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all the default values as well (excluding those schemes which are not desirable).
 
 ---
 

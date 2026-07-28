@@ -279,8 +279,14 @@ class WebhookBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         required=False,
         label=_('CA file path')
     )
+    timeout = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=3600,
+        label=_('Timeout')
+    )
 
-    nullable_fields = ('secret', 'ca_file_path')
+    nullable_fields = ('secret', 'ca_file_path', 'timeout')
 
 
 class EventRuleBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):

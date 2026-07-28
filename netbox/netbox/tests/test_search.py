@@ -741,7 +741,8 @@ class CustomBackendContractTestCase(TransactionTestCase):
         backend = _MinimalSearchBackend()
 
         # Connect the custom backend's (inherited, synchronous) handlers, exactly as
-        # backends.py connects the configured backend at import. Same call site, no type-check.
+        # netbox.search.signals connects the configured backend from CoreConfig.ready(). Same
+        # call site, no type-check.
         post_save.connect(backend.caching_handler, sender=Site)
         post_delete.connect(backend.removal_handler, sender=Site)
         self.addCleanup(post_save.disconnect, backend.caching_handler, sender=Site)
@@ -757,9 +758,10 @@ class CustomBackendContractTestCase(TransactionTestCase):
         self.assertEqual(len(backend.removed), 1)
 
     def test_default_backend_defers_via_same_call_path(self):
-        # The default backend (CachedValueSearchBackend) IS connected at import, and reaches the
-        # SAME caching_handler call path -- but its override defers instead of indexing inline.
-        # This contrasts with the custom backend above: identical dispatch, polymorphic behavior.
+        # The default backend (CachedValueSearchBackend) IS connected via netbox.search.signals, and
+        # reaches the SAME caching_handler call path -- but its override defers instead of indexing
+        # inline. This contrasts with the custom backend above: identical dispatch, polymorphic
+        # behavior.
         with transaction.atomic():
             Site.objects.create(name='Default Defers', slug='default-defers')
             scheduled = scheduled_search_flushes()

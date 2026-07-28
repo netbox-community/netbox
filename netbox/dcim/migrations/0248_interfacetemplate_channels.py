@@ -5,12 +5,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0246_interfacetemplate_channels'),
+        ('dcim', '0247_modulebaytype'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='interface',
+            model_name='interfacetemplate',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.RESTRICT,
+                related_name='child_interfaces',
+                to='dcim.interfacetemplate',
+            ),
+        ),
+        migrations.AddField(
+            model_name='interfacetemplate',
             name='channel_id',
             field=models.PositiveSmallIntegerField(
                 blank=True,
@@ -22,7 +33,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name='interface',
+            model_name='interfacetemplate',
             name='channels',
             field=models.PositiveSmallIntegerField(
                 blank=True,
@@ -34,10 +45,10 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddConstraint(
-            model_name='interface',
+            model_name='interfacetemplate',
             constraint=models.UniqueConstraint(
                 fields=('parent', 'channel_id'),
-                name='dcim_interface_unique_parent_channel_id',
+                name='dcim_interfacetemplate_unique_parent_channel_id',
             ),
         ),
     ]

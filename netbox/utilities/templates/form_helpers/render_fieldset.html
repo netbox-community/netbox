@@ -6,28 +6,28 @@
       <h2 class="col-9 offset-3">{{ heading }}</h2>
     </div>
   {% endif %}
-  {% for layout, title, items in rows %}
+  {% for row in rows %}
 
-    {% if layout == 'field' %}
+    {% if row.layout == 'field' %}
       {# Single form field #}
-      {% render_field items.0 %}
+      {% render_field row.items.0 %}
 
-    {% elif layout == 'attribute' %}
+    {% elif row.layout == 'attribute' %}
       {# A static attribute of the form's instance #}
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label text-lg-end required">{{ title }}</label>
+        <label class="col-sm-3 col-form-label text-lg-end required">{{ row.title }}</label>
         <div class="col">
           <div class="form-control-plaintext">
-            {{ items.0|linkify }}
+            {{ row.items.0|linkify }}
           </div>
         </div>
       </div>
 
-    {% elif layout == 'inline' %}
+    {% elif row.layout == 'inline' %}
       {# Multiple form fields on the same line #}
-      <div class="row mb-3"{% if title %} role="group" aria-label="{{ title }}"{% endif %}>
-        <label class="col col-3 col-form-label text-lg-end{% if items|any_required %} required{% endif %}">{{ title|default:'' }}</label>
-        {% for field in items %}
+      <div class="row{% if not row.help_text %} mb-3{% endif %}"{% if row.title %} role="group" aria-label="{{ row.title }}"{% endif %}>
+        <label class="col col-3 col-form-label text-lg-end{% if row.items|any_required %} required{% endif %}">{{ row.title|default:'' }}</label>
+        {% for field in row.items %}
           <div class="col mb-1">
             {% render_field_with_aria field has_helptext=True %}
             <div class="form-text" id="{{ field.auto_id }}_helptext">{% trans field.label %}</div>
@@ -39,13 +39,21 @@
           </div>
         {% endfor %}
       </div>
+      {% if row.help_text %}
+        {# Shared help text rendered beneath the entire set of inline fields #}
+        <div class="row mb-3">
+          <div class="col offset-3">
+            <span class="form-text">{{ row.help_text|safe }}</span>
+          </div>
+        </div>
+      {% endif %}
 
-    {% elif layout == 'tabs' %}
+    {% elif row.layout == 'tabs' %}
       {# Tabbed groups of fields #}
       <div class="row">
         <div class="col offset-3">
           <ul class="nav nav-pills mb-1" role="tablist">
-            {% for tab in items %}
+            {% for tab in row.items %}
               <li role="presentation" class="nav-item">
                 <button role="tab" type="button" id="{{ tab.id }}_tab" data-bs-toggle="tab" aria-controls="{{ tab.id }}" aria-selected="{% if tab.active %}true{% else %}false{% endif %}" data-bs-target="#{{ tab.id }}" class="nav-link {% if tab.active %}active{% endif %}">
                   {% trans tab.title %}
@@ -56,7 +64,7 @@
         </div>
       </div>
       <div class="tab-content p-0 border-0">
-        {% for tab in items %}
+        {% for tab in row.items %}
           <div class="tab-pane {% if tab.active %}active{% endif %}" id="{{ tab.id }}" role="tabpanel" aria-labelledby="{{ tab.id }}_tab">
             {% for field in tab.fields %}
               {% render_field field %}

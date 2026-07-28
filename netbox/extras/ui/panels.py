@@ -340,6 +340,7 @@ class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     payload_url = attrs.TextAttr('payload_url', label=_('Payload URL'), style='font-monospace')
     http_content_type = attrs.TextAttr('http_content_type', label=_('HTTP content type'))
     secret = attrs.TextAttr('secret')
+    timeout = attrs.TextAttr('timeout')
 
 
 class WebhookSSLPanel(panels.ObjectAttributesPanel):

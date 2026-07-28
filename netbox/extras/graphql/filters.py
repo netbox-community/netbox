@@ -396,6 +396,7 @@ class WebhookFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelF
     secret: StrFilterLookup | None = strawberry_django.filter_field()
     ssl_verification: FilterLookup[bool] | None = strawberry_django.filter_field()
     ca_file_path: StrFilterLookup | None = strawberry_django.filter_field()
+    timeout: FilterLookup[int] | None = strawberry_django.filter_field()
     events: Annotated['EventRuleFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

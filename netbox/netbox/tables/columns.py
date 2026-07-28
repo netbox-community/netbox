@@ -23,6 +23,7 @@ from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
 from utilities.templatetags.builtins.filters import render_markdown
+from utilities.validators import url_scheme_is_allowed
 from utilities.views import get_action_url
 
 __all__ = (
@@ -562,11 +563,44 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES, to guard against
+            # dangerous schemes (e.g. javascript:) in values which bypassed validation. A schemeless
+            # (relative) value is considered safe.
+            if url_scheme_is_allowed(value):
+                return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            return escape(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
-            return self.customfield.get_choice_label(value)
+            if value is None:
+                return self.default
+            label = self.customfield.get_choice_label(value)
+            color = self.customfield.get_choice_color(value)
+            if color:
+                return mark_safe(
+                    f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
+                )
+            return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            return ', '.join(self.customfield.get_choice_label(v) for v in value)
+            if not value:
+                return ''
+
+            has_color = False
+            parts = []
+
+            for v in value:
+                label = self.customfield.get_choice_label(v)
+                color = self.customfield.get_choice_color(v)
+                if color:
+                    has_color = True
+                parts.append((label, color))
+            if has_color:
+                badges = []
+                for label, color in parts:
+                    badges.append(
+                        f'<span class="badge text-bg-{escape(color or "secondary")}">{escape(label)}</span>'
+                    )
+                return mark_safe(' '.join(badges))
+            return ', '.join(label for label, _ in parts)
+
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)

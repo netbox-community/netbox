@@ -8,7 +8,6 @@ from django.db import DatabaseError, ProgrammingError, transaction
 from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
-from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from netaddr.core import AddrFormatError
@@ -21,7 +20,6 @@ from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
 
 from . import FieldTypes, LookupTypes, get_indexer
-from .deferred import OP_CACHE, OP_REMOVE, mark_for_deferred_indexing
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 MAX_RESULTS = 1000
@@ -64,11 +62,11 @@ class SearchBackend:
         """
         raise NotImplementedError
 
-    # caching_handler() and removal_handler() are the default, synchronous signal receivers connected
-    # to post_save/post_delete at module load. They are internal plumbing for signal dispatch, not a
-    # documented extension point: the public backend contract is cache()/remove()/clear(). A backend
-    # that needs to do something other than index inline (e.g. defer the work) overrides these in its
-    # subclass; see CachedValueSearchBackend.
+    # caching_handler() and removal_handler() are the default, synchronous signal receivers; they are
+    # connected to post_save/post_delete from netbox.search.signals (wired from CoreConfig.ready()).
+    # They are internal plumbing for signal dispatch, not a documented extension point: the public
+    # backend contract is cache()/remove()/clear(). A backend that needs to do something other than
+    # index inline (e.g. defer the work) overrides these in its subclass; see CachedValueSearchBackend.
     def caching_handler(self, sender, instance, created, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
@@ -127,10 +125,18 @@ class CachedValueSearchBackend(SearchBackend):
     # the originating routing context is gone, so the alias must be captured here and replayed on the
     # deferred write to keep cache entries in the originating schema (e.g. a branch schema under
     # netbox-branching). Deferral is internal to this backend; the public contract is unchanged.
+    #
+    # mark_for_deferred_indexing() etc. are imported inside each method rather than at module level:
+    # this module's own top would import deferred.py *before* search_backend is defined further down
+    # this same file, and deferred.py (plus jobs.py) need that singleton at their own module level.
+    # A module-level import here would close that loop into a backends -> deferred -> backends
+    # cycle. See #22485.
     def caching_handler(self, sender, instance, created, using=None, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
+        from .deferred import OP_CACHE, mark_for_deferred_indexing
+
         # Skip non-cacheable objects without scheduling any deferred work.
         try:
             indexer = get_indexer(instance)
@@ -150,6 +156,8 @@ class CachedValueSearchBackend(SearchBackend):
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
+        from .deferred import OP_REMOVE, mark_for_deferred_indexing
+
         # Skip non-cacheable objects without scheduling any deferred work.
         try:
             indexer = get_indexer(instance)
@@ -440,7 +448,3 @@ def get_backend():
 
 
 search_backend = get_backend()
-
-# Connect handlers to the appropriate model signals
-post_save.connect(search_backend.caching_handler)
-post_delete.connect(search_backend.removal_handler)

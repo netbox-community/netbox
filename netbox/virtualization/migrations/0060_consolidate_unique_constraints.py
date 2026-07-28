@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0243_consolidate_unique_constraints'),
+        ('dcim', '0245_consolidate_unique_constraints'),
         ('extras', '0139_alter_customfieldchoiceset_extra_choices'),
         ('ipam', '0094_denormalization_triggers'),
         ('tenancy', '0026_consolidate_unique_constraints'),

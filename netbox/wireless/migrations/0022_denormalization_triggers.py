@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('wireless', '0021_ltree_paths'),
         # Source tables (dcim_site, dcim_location) must already exist.
-        ('dcim', '0240_ltree_paths'),
+        ('dcim', '0242_ltree_paths'),
     ]
 
     operations = [

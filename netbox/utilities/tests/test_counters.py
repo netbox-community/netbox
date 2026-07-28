@@ -1,7 +1,9 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 
 from dcim.models import *
-from utilities.counters import connect_counters
+from utilities.counters import connect_counters, update_counter
 from utilities.testing.base import TestCase
 from utilities.testing.utils import create_test_device
 
@@ -63,6 +65,63 @@ class CountersTestCase(TestCase):
         device2.refresh_from_db()
         self.assertEqual(device1.interface_count, 1)
         self.assertEqual(device2.interface_count, 1)
+
+    def test_counter_skipped_when_parent_deleted(self):
+        """
+        Deleting a parent object should not issue a counter update for each cascaded child on that
+        same parent (the row is being removed, so the UPDATE is a no-op). Counters on surviving
+        related objects must still be updated.
+        """
+        device1 = Device.objects.get(name='Device 1')
+        device_type = device1.device_type
+        self.assertEqual(device_type.device_count, 2)
+
+        # The Device must have tracked children for the suppression to be meaningful; otherwise the
+        # assertions below would pass trivially with nothing to suppress
+        self.assertEqual(device1.interfaces.count(), 2)
+
+        # Wrap update_counter so the real counter logic still runs while we record each call
+        with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
+            device1.delete()
+
+        # The Device's own interface counter must not be updated per cascaded Interface, since the
+        # Device is itself being deleted
+        counter_names = [call.args[2] for call in mock_update.call_args_list]
+        self.assertNotIn('interface_count', counter_names)
+
+        # The counter on the surviving parent (DeviceType) must still be decremented
+        self.assertIn('device_count', counter_names)
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.device_count, 1)
+
+        # Exactly one update should fire (DeviceType.device_count). Without the optimization the two
+        # cascaded Interfaces on Device 1 would each have triggered an interface_count update.
+        self.assertEqual(mock_update.call_count, 1)
+
+    def test_counter_skipped_when_parent_deleted_via_queryset(self):
+        """
+        A bulk QuerySet delete (e.g. Device.objects.filter(...).delete(), as used by scripts,
+        plugins, and programmatic callers) sets `origin` to the QuerySet rather than a single
+        object. Counter updates for children whose parent belongs to that QuerySet must be
+        suppressed, while counters on surviving related objects are still updated.
+        """
+        device1 = Device.objects.get(name='Device 1')
+        device_type = device1.device_type
+        self.assertEqual(device_type.device_count, 2)
+
+        # The Device must have tracked children for the suppression to be meaningful
+        self.assertEqual(device1.interfaces.count(), 2)
+
+        # Wrap update_counter so the real counter logic still runs while we record each call
+        with patch('utilities.counters.update_counter', wraps=update_counter) as mock_update:
+            Device.objects.filter(name='Device 1').delete()
+
+        # The deleted Device's interface_count must not be decremented per cascaded Interface, and
+        # the only update should be the surviving DeviceType's device_count
+        counter_names = [call.args[2] for call in mock_update.call_args_list]
+        self.assertEqual(counter_names, ['device_count'])
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.device_count, 1)
 
     def test_interface_count_move(self):
         """

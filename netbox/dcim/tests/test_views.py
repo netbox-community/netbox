@@ -3628,10 +3628,10 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,type,positions",
-            "Device 1,Front Port 4,8p8c,1",
-            "Device 1,Front Port 5,8p8c,1",
-            "Device 1,Front Port 6,8p8c,1",
+            "device,name,type,positions,rear_port,rear_port_position",
+            "Device 1,Front Port 4,8p8c,1,Rear Port 4,1",
+            "Device 1,Front Port 5,8p8c,1,Rear Port 5,1",
+            "Device 1,Front Port 6,8p8c,1,Rear Port 6,1",
         )
 
         cls.csv_update_data = (
@@ -3640,6 +3640,49 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{front_ports[1].pk},Front Port 8,New description8",
             f"{front_ports[2].pk},Front Port 9,New description9",
         )
+
+    def test_bulk_import_objects_with_permission(self):
+        # Importing front ports with a rear_port (and position) should create the corresponding PortMapping
+        def check_port_mappings(scenario_name):
+            front_port = FrontPort.objects.get(name='Front Port 4')
+            mapping = PortMapping.objects.get(front_port=front_port)
+            self.assertEqual(mapping.rear_port.name, 'Rear Port 4')
+            self.assertEqual(mapping.front_port_position, 1)
+            self.assertEqual(mapping.rear_port_position, 1)
+
+        super().test_bulk_import_objects_with_permission(post_import_callback=check_port_mappings)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_rear_port_position_exceeds_capacity(self):
+        # A rear_port_position beyond the rear port's capacity is rejected without creating the front port
+        self.add_permissions('dcim.add_frontport')
+        csv_data = (
+            "device,name,type,positions,rear_port,rear_port_position",
+            "Device 1,Front Port 10,8p8c,1,Rear Port 4,2",
+        )
+        response = self.client.post(self._get_url('bulk_import'), {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(FrontPort.objects.filter(name='Front Port 10').exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_rear_port_position_occupied(self):
+        # An already-occupied rear port position is rejected (rather than raising an IntegrityError)
+        self.add_permissions('dcim.add_frontport')
+        csv_data = (
+            "device,name,type,positions,rear_port,rear_port_position",
+            "Device 1,Front Port 10,8p8c,1,Rear Port 1,1",
+        )
+        response = self.client.post(self._get_url('bulk_import'), {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(FrontPort.objects.filter(name='Front Port 10').exists())
 
     def test_trace(self):
         self.add_permissions(
@@ -3782,6 +3825,69 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{module_bays[1].pk},Module Bay 8,New description8",
             f"{module_bays[2].pk},Module Bay 9,New description9",
         )
+
+    @tag('regression')  # Issue #22773
+    def test_bulk_add_module_bays_to_devices(self):
+        """
+        Bulk-adding module bays expands the name pattern per device and applies enabled to every new bay.
+        """
+        self.add_permissions('dcim.add_modulebay')
+        device1 = Device.objects.get(name='Device 1')
+        device2 = create_test_device('Device 2')
+        initial_count = self._get_queryset().count()
+
+        # An unchecked box is not submitted by the browser at all
+        request = {
+            'path': reverse('dcim:device_bulk_add_modulebay'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'PCI-Slot[1-2]',
+                '_create': True,
+            }),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(
+                ModuleBay.objects.filter(name__startswith='PCI-Slot')
+                .order_by('device_id', 'name')
+                .values_list('device_id', 'name', 'enabled')
+            ),
+            [
+                (device1.pk, 'PCI-Slot1', False),
+                (device1.pk, 'PCI-Slot2', False),
+                (device2.pk, 'PCI-Slot1', False),
+                (device2.pk, 'PCI-Slot2', False),
+            ]
+        )
+
+        # A checked box applies True to every bay created
+        request = {
+            'path': reverse('dcim:device_bulk_add_modulebay'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'PSU-Slot[1-2]',
+                'enabled': True,
+                '_create': True,
+            }),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(
+                ModuleBay.objects.filter(name__startswith='PSU-Slot')
+                .order_by('device_id', 'name')
+                .values_list('device_id', 'name', 'enabled')
+            ),
+            [
+                (device1.pk, 'PSU-Slot1', True),
+                (device1.pk, 'PSU-Slot2', True),
+                (device2.pk, 'PSU-Slot1', True),
+                (device2.pk, 'PSU-Slot2', True),
+            ]
+        )
+
+        self.assertEqual(initial_count + 8, self._get_queryset().count())
 
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):

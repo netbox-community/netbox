@@ -30,7 +30,7 @@ COMPONENT_TABLES = (
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0240_ltree_paths'),
+        ('dcim', '0242_ltree_paths'),
     ]
 
     operations = [

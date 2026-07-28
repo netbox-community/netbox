@@ -14,7 +14,17 @@ from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
-from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
+from dcim.models import (
+    Device,
+    DeviceRole,
+    DeviceType,
+    Location,
+    Manufacturer,
+    Rack,
+    RackReservation,
+    Site,
+    VirtualChassis,
+)
 from extras.models import TableConfig, Tag
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
@@ -336,6 +346,68 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['device_list']), 3)
+
+    def test_graphql_array_length_lookup(self):
+        """
+        The public GraphQL ``length`` array lookup must map to Django's ``len`` transform.
+        Regression test for #22766 using a standard array field (RackReservation.units).
+        """
+        self.add_permissions('dcim.view_rackreservation')
+        url = reverse('graphql')
+
+        site = Site.objects.first()
+        rack = Rack.objects.create(name='Reservation Rack', site=site)
+        RackReservation.objects.create(rack=rack, units=[1, 2], user=self.user, description='Two units')
+        RackReservation.objects.create(rack=rack, units=[3, 4, 5], user=self.user, description='Three units')
+
+        query = """
+        {
+            rack_reservation_list(filters: {units: {length: 2}}) {
+                id units
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['rack_reservation_list']), 1)
+        self.assertEqual(data['data']['rack_reservation_list'][0]['units'], [1, 2])
+
+    def test_graphql_array_lookups(self):
+        """
+        The ``contains``, ``contained_by``, and ``overlap`` array lookups share their name with the
+        corresponding ORM transform. Verify they still resolve after #22766 replaced the auto-generated
+        filter fields with a manual ``filter()`` method.
+        """
+        self.add_permissions('dcim.view_rackreservation')
+        url = reverse('graphql')
+
+        site = Site.objects.first()
+        rack = Rack.objects.create(name='Array Lookup Rack', site=site)
+        RackReservation.objects.create(rack=rack, units=[1, 2], user=self.user, description='Low units')
+        RackReservation.objects.create(rack=rack, units=[3, 4, 5], user=self.user, description='High units')
+
+        def run(lookup):
+            query = f"""
+            {{
+                rack_reservation_list(filters: {{units: {lookup}}}) {{
+                    id units
+                }}
+            }}
+            """
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            return [r['units'] for r in data['data']['rack_reservation_list']]
+
+        # contains: arrays that include all of the given elements
+        self.assertEqual(run('{contains: [1]}'), [[1, 2]])
+        # contained_by: arrays whose elements all fall within the given set
+        self.assertEqual(run('{contained_by: [1, 2, 3]}'), [[1, 2]])
+        # overlap: arrays sharing at least one element with the given set
+        self.assertCountEqual(run('{overlap: [2, 3]}'), [[1, 2], [3, 4, 5]])
 
     def test_graphql_tableconfig_object_type_exposes_id(self):
         """TableConfigType.object_type must expose ContentType fields (e.g. id)."""

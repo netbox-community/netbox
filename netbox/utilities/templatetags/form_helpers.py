@@ -1,4 +1,6 @@
 import warnings
+from collections.abc import Sequence
+from typing import Any, NamedTuple
 
 from django import forms, template
 from django.conf import settings
@@ -18,6 +20,17 @@ __all__ = (
 
 
 register = template.Library()
+
+
+class FieldsetRow(NamedTuple):
+    """
+    A single row within a rendered fieldset. `layout` determines how the row's items are
+    rendered by the template (e.g. 'field', 'inline', 'tabs', 'attribute').
+    """
+    layout: str
+    items: Sequence
+    title: Any = None
+    help_text: Any = None
 
 
 #
@@ -131,7 +144,7 @@ def render_fieldset(form, fieldset):
                 form[name] for name in item.fields if name in form.fields
             ]
             rows.append(
-                ('inline', item.label, fields)
+                FieldsetRow('inline', fields, title=item.label, help_text=item.help_text)
             )
 
         # Tabbed groups of fields
@@ -148,28 +161,28 @@ def render_fieldset(form, fieldset):
             if not any(tab['active'] for tab in tabs):
                 tabs[0]['active'] = True
             rows.append(
-                ('tabs', None, tabs)
+                FieldsetRow('tabs', tabs)
             )
 
         elif type(item) is M2MAddRemoveFields:
             if item.name in form.fields:
                 # Simple mode: render a single multi-select field
                 rows.append(
-                    ('field', None, [form[item.name]])
+                    FieldsetRow('field', [form[item.name]])
                 )
             else:
                 # Add/remove mode: render separate add and remove fields
                 for field_name in (f'add_{item.name}', f'remove_{item.name}'):
                     if field_name in form.fields:
                         rows.append(
-                            ('field', None, [form[field_name]])
+                            FieldsetRow('field', [form[field_name]])
                         )
 
         elif type(item) is ObjectAttribute:
             value = getattr(form.instance, item.name)
             label = value._meta.verbose_name if hasattr(value, '_meta') else item.name
             rows.append(
-                ('attribute', label.title(), [value])
+                FieldsetRow('attribute', [value], title=label.title())
             )
 
         # A single form field
@@ -179,7 +192,7 @@ def render_fieldset(form, fieldset):
             if field.name in getattr(form, 'nullable_fields', []):
                 field._nullable = True
             rows.append(
-                ('field', None, [field])
+                FieldsetRow('field', [field])
             )
 
     return {

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -410,14 +411,36 @@ class RackForm(TenancyForm, PrimaryModelForm):
             for field_name in Rack.RACKTYPE_FIELDS:
                 del self.fields[field_name]
         else:
+            # The form_factor, width, and outer_* fields are deprecated on the Rack model and will be removed in
+            # NetBox v5.0. Their values should instead be defined on an assigned rack type. (See #22593.)
+            deprecation_warning = format_html(
+                '<span class="text-warning"><i class="mdi mdi-alert"></i> {}</span>',
+                _(
+                    'Deprecated and will be removed in NetBox v5.0. Assign a rack type to define this attribute '
+                    'instead.'
+                )
+            )
+            self.fields['form_factor'].help_text = deprecation_warning
+            self.fields['width'].help_text = deprecation_warning
+
             self.fieldsets = (
                 *self.fieldsets,
                 FieldSet(
-                    'form_factor', 'width', 'starting_unit', 'u_height',
-                    InlineFields('outer_width', 'outer_height', 'outer_depth', 'outer_unit',
-                                 label=_('Outer Dimensions')),
-                    InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-                    'mounting_depth', 'desc_units', name=_('Dimensions')
+                    'form_factor',
+                    'width',
+                    'starting_unit',
+                    'u_height',
+                    InlineFields(
+                        'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
+                        label=_('Outer Dimensions'),
+                        help_text=deprecation_warning,
+                    ),
+                    InlineFields(
+                        'weight', 'max_weight', 'weight_unit', label=_('Weight'),
+                    ),
+                    'mounting_depth',
+                    'desc_units',
+                    name=_('Dimensions')
                 ),
             )
 
