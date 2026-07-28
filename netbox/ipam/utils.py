@@ -297,7 +297,7 @@ def sorted_int_ports(ports):
     Sort a protocol's port strings numerically and return them as integers. Any entry that bypassed
     validation (a raw SQL write, a plugin, or an unmigrated row) and isn't a plain integer is skipped
     rather than raising, so a single malformed mapping degrades gracefully on API reads instead of
-    raising a 500 — mirroring the tolerance of ``ServiceBase.port_list``.
+    raising a 500 — mirroring the tolerance of ``ServiceBase.port_mappings_list``.
     """
     return sorted(int(port) for port in ports if str(port).isdigit())
 

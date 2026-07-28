@@ -1923,8 +1923,10 @@ class ServicePortMappingsBulkEditMixin:
         super().pre_save_operations(form, obj)
         add = form.cleaned_data.get('add_port_mappings')
         remove = form.cleaned_data.get('remove_port_mappings')
-        if add or remove:
-            obj.apply_port_mapping_delta(add=add, remove=remove)
+        if add:
+            obj.add_port_mappings(add)
+        if remove:
+            obj.remove_port_mappings(remove)
 
 
 @register_model_view(ServiceTemplate, 'bulk_edit', path='edit', detail=False)

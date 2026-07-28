@@ -18,7 +18,7 @@ class ServiceTemplateTable(PrimaryModelTable):
     )
     ports = tables.Column(
         verbose_name=_('Port Mappings'),
-        accessor=tables.A('port_list'),
+        accessor=tables.A('port_mappings_list'),
         orderable=False,
     )
     tags = columns.TagColumn(
@@ -45,7 +45,7 @@ class ServiceTable(ContactsColumnMixin, PrimaryModelTable):
     )
     ports = tables.Column(
         verbose_name=_('Port Mappings'),
-        accessor=tables.A('port_list'),
+        accessor=tables.A('port_mappings_list'),
         orderable=False,
     )
     tags = columns.TagColumn(

@@ -2023,16 +2023,16 @@ class ServiceTestCase(TestCase):
         service.save()
         self.assertEqual(len(service.port_mappings), SERVICE_PORT_MAX - SERVICE_PORT_MIN)
 
-    def test_port_list_summary(self):
+    def test_port_mappings_list_summary(self):
         """
-        The port_list property renders each protocol/port pair individually for display.
+        The port_mappings_list property renders each protocol/port pair individually for display.
         """
         service = Service.objects.create(
             name='dns',
             parent=VirtualMachine.objects.first(),
             port_mappings=['tcp/53', 'udp/53'],
         )
-        self.assertEqual(service.port_list, 'TCP/53, UDP/53')
+        self.assertEqual(service.port_mappings_list, 'TCP/53, UDP/53')
 
     def test_legacy_protocol_ports_properties(self):
         """The read-only protocol/ports properties expose the deprecated single-protocol representation."""

@@ -59,29 +59,38 @@ class ServiceBase(models.Model):
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
 
-    def apply_port_mapping_delta(self, add=None, remove=None):
-        """
-        Merge bulk-edit add/remove port-mapping deltas into ``port_mappings``. ``add``/``remove`` hold
-        canonical ``protocol/port`` strings; existing entries are normalized for the comparison so a
-        non-canonical stored value (e.g. a raw-DB 'tcp/080') is still matched by a 'tcp/80' remove. The
-        merged list is left for ``clean()`` to validate (range, duplicates, and the at-least-one rule).
+    @staticmethod
+    def _normalize_mapping(mapping):
+        # Normalize a stored/incoming mapping's port to an integer so a non-canonical value (e.g. a
+        # raw-DB 'tcp/080') compares equal to its canonical form ('tcp/80').
+        protocol, port = split_port_mapping(mapping)
+        return f'{protocol}/{int(port)}' if port.isdigit() else mapping
 
-        Called from the Service/ServiceTemplate bulk-edit views' pre_save_operations() hook, so the
+    def add_port_mappings(self, mappings):
+        """
+        Add the given canonical ``protocol/port`` strings to ``port_mappings``, skipping any already
+        present (matched by normalized form). The merged list is left for ``clean()`` to validate.
+
+        Called from the Service/ServiceTemplate bulk-edit view's pre_save_operations() hook, so the
         merge is part of the single bulk-edit save (one change-log entry) and the model stays unaware of
         the bulk-edit form.
         """
-        def _normalize(mapping):
-            protocol, port = split_port_mapping(mapping)
-            return f'{protocol}/{int(port)}' if port.isdigit() else mapping
+        existing = {self._normalize_mapping(mapping) for mapping in self.port_mappings}
+        self.port_mappings = list(self.port_mappings) + [
+            mapping for mapping in mappings if self._normalize_mapping(mapping) not in existing
+        ]
 
-        mappings = list(self.port_mappings)
-        remove = {_normalize(mapping) for mapping in (remove or [])}
-        if add:
-            existing = {_normalize(mapping) for mapping in mappings}
-            mappings += [mapping for mapping in add if _normalize(mapping) not in existing]
-        if remove:
-            mappings = [mapping for mapping in mappings if _normalize(mapping) not in remove]
-        self.port_mappings = mappings
+    def remove_port_mappings(self, mappings):
+        """
+        Remove the given canonical ``protocol/port`` strings from ``port_mappings`` (matched by
+        normalized form). The result is left for ``clean()`` to validate (range, duplicates, and the
+        at-least-one rule). Called from the bulk-edit view's pre_save_operations() hook (see
+        ``add_port_mappings``).
+        """
+        remove = {self._normalize_mapping(mapping) for mapping in mappings}
+        self.port_mappings = [
+            mapping for mapping in self.port_mappings if self._normalize_mapping(mapping) not in remove
+        ]
 
     # Read-only legacy accessors mirroring the deprecated REST/GraphQL protocol/ports fields, retained
     # for backward compatibility with code that read the old single-protocol fields. A multi-protocol
@@ -102,7 +111,7 @@ class ServiceBase(models.Model):
         return self._legacy_protocol_ports[1]
 
     @property
-    def port_list(self):
+    def port_mappings_list(self):
         # List each protocol/port pair individually for display, e.g. "TCP/80, TCP/443, UDP/53". Each
         # protocol is rendered via its defined label (falling back to the stored value if unknown); the
         # port is taken verbatim from the stored mapping, so no reformatting of the raw data is needed.
