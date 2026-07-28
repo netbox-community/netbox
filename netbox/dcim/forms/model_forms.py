@@ -1949,9 +1949,8 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False,
-        query_params={
-            'device_id': '$device',
-        }
+        # The supplying outflow is typically an outlet on an upstream device (e.g. a CDU or manifold),
+        # so it is not restricted to the intake's own device.
     )
 
     fieldsets = (
