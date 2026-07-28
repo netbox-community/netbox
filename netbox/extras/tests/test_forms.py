@@ -18,6 +18,7 @@ from extras.forms.scripts import ScriptFileForm
 from extras.models import CustomField, CustomFieldChoiceSet, NotificationGroup, Script, ScriptModule, Webhook
 from netbox.event_rules import EventRuleAction, register_event_rule_action
 from netbox.registry import registry
+from utilities.forms.widgets import HTMXSelect
 
 
 class CustomFieldModelFormTestCase(TestCase):
@@ -355,6 +356,20 @@ class EventRuleFormTestCase(TestCase):
     def tearDown(self):
         super().tearDown()
         registry['event_rule_actions'].pop('test.form_no_object_action', None)
+
+    def test_action_type_widget_is_htmx_select(self):
+        """
+        Regression test: action_type is declared as an explicit class-level field on EventRuleForm,
+        which means Django's ModelForm machinery silently ignores any Meta.widgets override for it
+        (Meta.widgets only applies to fields the ModelForm auto-generates from the model). The
+        HTMXSelect widget -- needed so action_choice's label/queryset/required-ness refreshes live
+        when action_type changes -- must therefore be set directly on the field itself, not via
+        Meta.widgets (where it silently did nothing, both before and after #22770's rewrite).
+        """
+        form = EventRuleForm()
+        widget = form.fields['action_type'].widget
+        self.assertIsInstance(widget, HTMXSelect)
+        self.assertEqual(widget.attrs.get('hx-target'), '#event-rule-action')
 
     def test_action_choice_field_for_webhook(self):
         webhook = Webhook.objects.create(name='Form Test Webhook', payload_url='http://localhost:9000/')

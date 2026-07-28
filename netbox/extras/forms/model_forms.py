@@ -608,6 +608,9 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         # still picked up correctly by this form.
         choices=get_event_rule_action_choices,
         initial=EventRuleActionChoices.WEBHOOK,
+        # Set here rather than in Meta.widgets: Meta.widgets only applies to fields the ModelForm
+        # auto-generates from the model, and is silently ignored for explicitly-declared fields.
+        widget=HTMXSelect(hx_target_id='event-rule-action'),
     )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -645,7 +648,6 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         )
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'action_type': HTMXSelect(hx_target_id='event-rule-action'),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
         }
