@@ -55,8 +55,13 @@ class ServiceBase(models.Model):
     def clean(self):
         super().clean()
         # validate_port_mappings returns the canonical form (integer ports), so storing its result
-        # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080').
-        self.port_mappings = validate_port_mappings(self.port_mappings)
+        # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080'). Key
+        # its errors to the field — it raises unkeyed, which full_clean() would otherwise file as a
+        # non-field (__all__) error rather than against port_mappings.
+        try:
+            self.port_mappings = validate_port_mappings(self.port_mappings)
+        except ValidationError as e:
+            raise ValidationError({'port_mappings': e.messages})
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
         # Mirror the trigger-maintained protocol set in Python so change-log snapshots (and any read

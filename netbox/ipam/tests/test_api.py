@@ -1551,7 +1551,8 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.create(name='Legacy Single', port_mappings=['tcp/80', 'tcp/443'])
         response = self.client.get(self._get_detail_url(template), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['protocol'], 'tcp')
+        # The legacy protocol field keeps the standard choice-field {value, label} read shape.
+        self.assertEqual(response.data['protocol'], {'value': 'tcp', 'label': 'TCP'})
         self.assertEqual(response.data['ports'], [80, 443])
         self.assertEqual(response.data['port_mappings'], ['tcp/80', 'tcp/443'])
 
@@ -1819,7 +1820,9 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
             'parent_object_id': service.parent_object_id,
             'name': service.name,
             'port_mappings': read['port_mappings'],
-            'protocol': read['protocol'],
+            # The legacy protocol field reads as {value, label}; on write NetBox choice fields take the
+            # raw value, so a well-behaved round-trip resubmits read['protocol']['value'].
+            'protocol': read['protocol']['value'],
             'ports': read['ports'],
         }
         response = self.client.put(self._get_detail_url(service), put_data, format='json', **self.header)
@@ -1836,7 +1839,8 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         service = Service.objects.get(name='Service 1')  # port_mappings=['tcp/1']
         response = self.client.get(self._get_detail_url(service), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['protocol'], 'tcp')
+        # The legacy protocol field keeps the standard choice-field {value, label} read shape.
+        self.assertEqual(response.data['protocol'], {'value': 'tcp', 'label': 'TCP'})
         self.assertEqual(response.data['ports'], [1])
 
     def test_create_via_legacy_format(self):

@@ -8,7 +8,7 @@ from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_
 from ipam.models import IPAddress, Service, ServiceTemplate
 from ipam.utils import legacy_protocol_and_ports
 from ipam.validators import validate_port_mappings
-from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
 
@@ -44,20 +44,22 @@ class PortMappingsSerializerMixin(serializers.Serializer):
     legacy ``protocol`` and ``ports`` fields; a multi-protocol service reports ``null`` for both (it
     cannot be expressed in the old single-protocol format).
 
-    Write: either format is accepted, but not both in the same request. When the legacy
-    ``protocol``/``ports`` pair is supplied (and ``port_mappings`` is not), it is translated into
-    ``port_mappings``; supplying both formats together is rejected as ambiguous.
+    Write: either format is accepted. When the legacy ``protocol``/``ports`` pair is supplied (and
+    ``port_mappings`` is not), it is translated into ``port_mappings``. Supplying both together is
+    accepted only when the legacy fields agree with what ``port_mappings`` implies (e.g. a full-object
+    round-trip that echoes back the read representation); a genuine conflict is rejected as ambiguous.
 
     Subclassing ``serializers.Serializer`` (rather than a plain mixin) lets DRF's metaclass collect the
     fields declared here into the inheriting serializers.
     """
     port_mappings = PortMappingsField(required=False)
 
-    # Legacy single-protocol fields, retained for backward compatibility. default=None keeps them from
-    # being sourced off the (now nonexistent) model attributes; the real values are filled in by
-    # to_representation() below.
-    # TODO: Remove protocol/ports in v5.0 along with the legacy handling in validate()/to_representation().
-    protocol = serializers.ChoiceField(
+    # Legacy single-protocol fields, retained for backward compatibility. They are read straight off the
+    # model's protocol/ports properties (which share these field names), so DRF sources them directly —
+    # matching the {"value", "label"} shape every other choice field uses. default=None applies only on
+    # write, where validate() consumes them.
+    # TODO: Remove protocol/ports in v5.0 along with the legacy handling in validate().
+    protocol = ChoiceField(
         choices=ServiceProtocolChoices,
         required=False,
         allow_null=True,
@@ -117,20 +119,6 @@ class PortMappingsSerializerMixin(serializers.Serializer):
                 raise serializers.ValidationError({'ports': exc.messages})
 
         return super().validate(data)
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
-        # Populate the legacy single-protocol representation for backward compatibility. Skipped in
-        # brief mode, where these fields are not exposed. The empty and multi-protocol cases are kept
-        # distinct: an empty service reports ports=[] (as the old API always did), whereas a service
-        # with multiple protocols reports ports=null to signal "not representable in the legacy format;
-        # use port_mappings".
-        if 'protocol' in self.fields and 'ports' in self.fields:
-            data['protocol'] = instance.protocol
-            data['ports'] = instance.ports
-
-        return data
 
 
 class ServiceTemplateSerializer(PortMappingsSerializerMixin, PrimaryModelSerializer):
