@@ -814,7 +814,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingFeed,
-    exclude=['_path', '_abs_rated_flow_rate'],
+    exclude=['_abs_rated_flow_rate'],
     filters=CoolingFeedFilter,
     pagination=True
 )
@@ -826,7 +826,7 @@ class CoolingFeedType(PrimaryObjectType):
 
 @register_type(
     models.CoolingOutflow,
-    exclude=['_path', '_abs_diameter'],
+    exclude=['_abs_diameter'],
     filters=CoolingOutflowFilter,
     pagination=True
 )
@@ -846,7 +846,7 @@ class CoolingOutflowTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingIntake,
-    exclude=['_path', '_abs_diameter', '_abs_maximum_flow'],
+    exclude=['_abs_diameter', '_abs_maximum_flow'],
     filters=CoolingIntakeFilter,
     pagination=True
 )

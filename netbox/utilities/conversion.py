@@ -43,82 +43,62 @@ def to_grams(weight, unit) -> int:
     )
 
 
+def _normalized_measurement(value, unit, converters, quantity) -> Decimal:
+    """
+    Shared implementation for the Decimal-based unit-normalization helpers below. Coerce `value` to a
+    non-negative Decimal, apply the matching per-unit converter, and round the result to 4 decimal
+    places. `converters` maps each valid unit to a callable receiving the Decimal value; `quantity`
+    labels the value in error messages.
+    """
+    try:
+        value = Decimal(value)
+    except InvalidOperation:
+        raise TypeError(
+            _("Invalid value '{value}' for {quantity} (must be a number)").format(value=value, quantity=quantity)
+        )
+    if value < 0:
+        raise ValueError(_("{quantity} must be a positive number").format(quantity=quantity).capitalize())
+    if unit not in converters:
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit,
+                valid_units=', '.join(converters)
+            )
+        )
+    return round(converters[unit](value), 4)
+
+
 def to_meters(length, unit) -> Decimal:
     """
     Convert the given length to meters, returning a Decimal value.
     """
-    try:
-        length = Decimal(length)
-    except InvalidOperation:
-        raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
-    if length < 0:
-        raise ValueError(_("Length must be a positive number"))
-
-    if unit == CableLengthUnitChoices.UNIT_KILOMETER:
-        return round(Decimal(length * 1000), 4)
-    if unit == CableLengthUnitChoices.UNIT_METER:
-        return round(Decimal(length), 4)
-    if unit == CableLengthUnitChoices.UNIT_CENTIMETER:
-        return round(Decimal(length / 100), 4)
-    if unit == CableLengthUnitChoices.UNIT_MILE:
-        return round(length * Decimal(1609.344), 4)
-    if unit == CableLengthUnitChoices.UNIT_FOOT:
-        return round(length * Decimal(0.3048), 4)
-    if unit == CableLengthUnitChoices.UNIT_INCH:
-        return round(length * Decimal(0.0254), 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(CableLengthUnitChoices.values())
-        )
-    )
+    return _normalized_measurement(length, unit, {
+        CableLengthUnitChoices.UNIT_KILOMETER: lambda v: v * 1000,
+        CableLengthUnitChoices.UNIT_METER: lambda v: v,
+        CableLengthUnitChoices.UNIT_CENTIMETER: lambda v: v / 100,
+        CableLengthUnitChoices.UNIT_MILE: lambda v: v * Decimal(1609.344),
+        CableLengthUnitChoices.UNIT_FOOT: lambda v: v * Decimal(0.3048),
+        CableLengthUnitChoices.UNIT_INCH: lambda v: v * Decimal(0.0254),
+    }, _('length'))
 
 
 def to_millimeters(diameter, unit) -> Decimal:
     """
     Convert the given diameter to millimeters, returning a Decimal value.
     """
-    try:
-        diameter = Decimal(diameter)
-    except InvalidOperation:
-        raise TypeError(_("Invalid value '{diameter}' for diameter (must be a number)").format(diameter=diameter))
-    if diameter < 0:
-        raise ValueError(_("Diameter must be a positive number"))
-
-    if unit == DiameterUnitChoices.UNIT_MILLIMETER:
-        return round(Decimal(diameter), 4)
-    if unit == DiameterUnitChoices.UNIT_CENTIMETER:
-        return round(Decimal(diameter * 10), 4)
-    if unit == DiameterUnitChoices.UNIT_INCH:
-        return round(diameter * Decimal('25.4'), 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(DiameterUnitChoices.values())
-        )
-    )
+    return _normalized_measurement(diameter, unit, {
+        DiameterUnitChoices.UNIT_MILLIMETER: lambda v: v,
+        DiameterUnitChoices.UNIT_CENTIMETER: lambda v: v * 10,
+        DiameterUnitChoices.UNIT_INCH: lambda v: v * Decimal('25.4'),
+    }, _('diameter'))
 
 
 def to_liters_per_minute(flow_rate, unit) -> Decimal:
     """
     Convert the given flow rate to liters per minute, returning a Decimal value.
     """
-    try:
-        flow_rate = Decimal(flow_rate)
-    except InvalidOperation:
-        raise TypeError(_("Invalid value '{flow_rate}' for flow rate (must be a number)").format(flow_rate=flow_rate))
-    if flow_rate < 0:
-        raise ValueError(_("Flow rate must be a positive number"))
-
-    if unit == FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE:
-        return round(Decimal(flow_rate), 4)
-    if unit == FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR:
-        return round(flow_rate * Decimal(1000) / Decimal(60), 4)
-    if unit == FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE:
-        return round(flow_rate * Decimal('3.785411784'), 4)
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(FlowRateUnitChoices.values())
-        )
-    )
+    return _normalized_measurement(flow_rate, unit, {
+        FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE: lambda v: v,
+        FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR: lambda v: v * Decimal(1000) / Decimal(60),
+        FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE: lambda v: v * Decimal('3.785411784'),
+    }, _('flow rate'))

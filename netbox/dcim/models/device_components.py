@@ -695,18 +695,32 @@ def validate_cooling_loop(component):
     Walk the upstream cooling chain and raise a ValidationError if it forms a loop. A CoolingIntake is
     supplied by an upstream CoolingOutflow (via `cooling_outflow`), which may in turn be supplied by an
     upstream CoolingIntake (via `cooling_intake`), and so on; this chain must remain acyclic.
+
+    Each hop resolves only the next FK id (a single indexed column lookup) rather than loading full
+    related objects, and the `seen` set of (model, pk) pairs guarantees termination.
     """
     seen = set()
     if component.pk:
         seen.add((type(component), component.pk))
 
-    upstream = component.cooling_outflow if isinstance(component, CoolingIntake) else component.cooling_intake
-    while upstream is not None:
-        key = (type(upstream), upstream.pk)
+    # Seed the walk from the (possibly unsaved) component's in-memory FK, alternating intake <-> outflow.
+    if isinstance(component, CoolingIntake):
+        next_model, next_pk = CoolingOutflow, component.cooling_outflow_id
+    else:
+        next_model, next_pk = CoolingIntake, component.cooling_intake_id
+
+    while next_pk is not None:
+        key = (next_model, next_pk)
         if key in seen:
             raise ValidationError(_("Cooling intake and outflow assignments cannot form a loop."))
         seen.add(key)
-        upstream = upstream.cooling_outflow if isinstance(upstream, CoolingIntake) else upstream.cooling_intake
+
+        if next_model is CoolingIntake:
+            next_pk = CoolingIntake.objects.filter(pk=next_pk).values_list('cooling_outflow_id', flat=True).first()
+            next_model = CoolingOutflow
+        else:
+            next_pk = CoolingOutflow.objects.filter(pk=next_pk).values_list('cooling_intake_id', flat=True).first()
+            next_model = CoolingIntake
 
 
 class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):

@@ -3181,6 +3181,26 @@ class CoolingComponentTestCase(TestCase):
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
         )
 
+    def test_cooling_intake_negative_diameter_rejected(self):
+        """
+        A negative diameter should raise a ValidationError (via MinValueValidator) rather than a raw
+        ValueError from the unit conversion in save().
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 8', slug='device-type-8'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device F'
+        )
+        cooling_intake = CoolingIntake(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('-5'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_intake.full_clean()
+
     def test_cooling_outflow_clean_different_device(self):
         """
         CoolingOutflow.clean() should raise a ValidationError when its cooling_intake belongs to a

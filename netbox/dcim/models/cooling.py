@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
+from dcim.models.mixins import normalize_measurement_field, validate_measurement_unit
 from netbox.choices import FlowRateUnitChoices
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
@@ -196,16 +197,10 @@ class CoolingFeed(PrimaryModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        # Store the given rated flow rate (if any) in liters per minute for use in database ordering
-        if self.rated_flow_rate is not None and self.rated_flow_rate_unit:
-            self._abs_rated_flow_rate = to_liters_per_minute(self.rated_flow_rate, self.rated_flow_rate_unit)
-        else:
-            self._abs_rated_flow_rate = None
-
-        # Clear rated_flow_rate_unit if no rated flow rate is defined
-        if self.rated_flow_rate is None:
-            self.rated_flow_rate_unit = None
-
+        # Store the normalized rated flow rate (in liters per minute) for use in database ordering
+        normalize_measurement_field(
+            self, 'rated_flow_rate', 'rated_flow_rate_unit', '_abs_rated_flow_rate', to_liters_per_minute
+        )
         super().save(*args, **kwargs)
 
     def clean(self):
@@ -223,8 +218,10 @@ class CoolingFeed(PrimaryModel):
             ))
 
         # A rated flow rate unit is required when a rated flow rate is set
-        if self.rated_flow_rate is not None and not self.rated_flow_rate_unit:
-            raise ValidationError(_("Must specify a unit when setting a rated flow rate"))
+        validate_measurement_unit(
+            self, 'rated_flow_rate', 'rated_flow_rate_unit',
+            _("Must specify a unit when setting a rated flow rate")
+        )
 
     @property
     def abs_rated_flow_rate(self):

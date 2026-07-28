@@ -19,6 +19,8 @@ __all__ = (
     'InterfaceValidationMixin',
     'MaximumFlowMixin',
     'RenderConfigMixin',
+    'normalize_measurement_field',
+    'validate_measurement_unit',
 )
 
 
@@ -239,6 +241,28 @@ class InterfaceValidationMixin:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
 
 
+def normalize_measurement_field(instance, value_field, unit_field, abs_field, converter):
+    """
+    Populate `abs_field` on `instance` with the normalized (canonical-unit) value of `value_field`, or
+    None when either the value or its unit is unset, and clear `unit_field` when the value is None.
+    Shared by the quantity mixins' save() and by component instantiation (which bypasses save() via
+    bulk_create), so the normalization logic has a single source of truth.
+    """
+    value = getattr(instance, value_field)
+    unit = getattr(instance, unit_field)
+    setattr(instance, abs_field, converter(value, unit) if value is not None and unit else None)
+    if value is None:
+        setattr(instance, unit_field, None)
+
+
+def validate_measurement_unit(instance, value_field, unit_field, error_message):
+    """
+    Raise ValidationError(error_message) if `value_field` is set on `instance` without `unit_field`.
+    """
+    if getattr(instance, value_field) is not None and not getattr(instance, unit_field):
+        raise ValidationError(error_message)
+
+
 class DiameterMixin(models.Model):
     diameter = models.DecimalField(
         verbose_name=_('diameter'),
@@ -246,6 +270,7 @@ class DiameterMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
+        validators=[MinValueValidator(0)],
     )
     diameter_unit = models.CharField(
         verbose_name=_('diameter unit'),
@@ -271,24 +296,15 @@ class DiameterMixin(models.Model):
         return self._abs_diameter
 
     def save(self, *args, **kwargs):
-        # Store the given diameter (if any) in millimeters for use in database ordering
-        if self.diameter is not None and self.diameter_unit:
-            self._abs_diameter = to_millimeters(self.diameter, self.diameter_unit)
-        else:
-            self._abs_diameter = None
-
-        # Clear diameter_unit if no diameter is defined
-        if self.diameter is None:
-            self.diameter_unit = None
-
+        # Store the normalized diameter (in millimeters) for use in database ordering
+        normalize_measurement_field(self, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
-
-        # Validate diameter and diameter_unit
-        if self.diameter is not None and not self.diameter_unit:
-            raise ValidationError(_("Must specify a unit when setting a diameter"))
+        validate_measurement_unit(
+            self, 'diameter', 'diameter_unit', _("Must specify a unit when setting a diameter")
+        )
 
 
 class MaximumFlowMixin(models.Model):
@@ -324,21 +340,14 @@ class MaximumFlowMixin(models.Model):
         return self._abs_maximum_flow
 
     def save(self, *args, **kwargs):
-        # Store the given maximum flow (if any) in liters per minute for use in database ordering
-        if self.maximum_flow is not None and self.maximum_flow_unit:
-            self._abs_maximum_flow = to_liters_per_minute(self.maximum_flow, self.maximum_flow_unit)
-        else:
-            self._abs_maximum_flow = None
-
-        # Clear maximum_flow_unit if no maximum flow is defined
-        if self.maximum_flow is None:
-            self.maximum_flow_unit = None
-
+        # Store the normalized maximum flow (in liters per minute) for use in database ordering
+        normalize_measurement_field(
+            self, 'maximum_flow', 'maximum_flow_unit', '_abs_maximum_flow', to_liters_per_minute
+        )
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
-
-        # Validate maximum_flow and maximum_flow_unit
-        if self.maximum_flow is not None and not self.maximum_flow_unit:
-            raise ValidationError(_("Must specify a unit when setting a maximum flow"))
+        validate_measurement_unit(
+            self, 'maximum_flow', 'maximum_flow_unit', _("Must specify a unit when setting a maximum flow")
+        )

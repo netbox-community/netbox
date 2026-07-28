@@ -151,7 +151,11 @@ class Migration(migrations.Migration):
                 (
                     "diameter",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -287,7 +291,11 @@ class Migration(migrations.Migration):
                 (
                     "diameter",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -405,7 +413,11 @@ class Migration(migrations.Migration):
                 (
                     "diameter",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (
@@ -489,7 +501,11 @@ class Migration(migrations.Migration):
                 (
                     "diameter",
                     models.DecimalField(
-                        blank=True, decimal_places=2, max_digits=8, null=True
+                        blank=True,
+                        decimal_places=2,
+                        max_digits=8,
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
                     ),
                 ),
                 (

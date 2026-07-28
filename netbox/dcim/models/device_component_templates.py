@@ -8,11 +8,17 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaximumFlowMixin
+from dcim.models.mixins import (
+    DiameterMixin,
+    InterfaceValidationMixin,
+    MaximumFlowMixin,
+    normalize_measurement_field,
+)
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
+from utilities.conversion import to_liters_per_minute, to_millimeters
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -463,18 +469,22 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
         verbose_name_plural = _('cooling intake templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
-            _abs_diameter=self._abs_diameter,
             maximum_flow=self.maximum_flow,
             maximum_flow_unit=self.maximum_flow_unit,
-            _abs_maximum_flow=self._abs_maximum_flow,
             **kwargs
         )
+        # bulk_create bypasses save(), so populate the normalized _abs_* fields here
+        normalize_measurement_field(component, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
+        normalize_measurement_field(
+            component, 'maximum_flow', 'maximum_flow_unit', '_abs_maximum_flow', to_liters_per_minute
+        )
+        return component
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -540,16 +550,18 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
             cooling_intake = CoolingIntake.objects.get(name=cooling_intake_name, **kwargs)
         else:
             cooling_intake = None
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
-            _abs_diameter=self._abs_diameter,
             cooling_intake=cooling_intake,
             **kwargs
         )
+        # bulk_create bypasses save(), so populate the normalized _abs_diameter here
+        normalize_measurement_field(component, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
+        return component
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
