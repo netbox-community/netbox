@@ -62,11 +62,11 @@ urlpatterns = [
     path('power-outlet-templates/', include(get_model_urls('dcim', 'poweroutlettemplate', detail=False))),
     path('power-outlet-templates/<int:pk>/', include(get_model_urls('dcim', 'poweroutlettemplate'))),
 
-    path('cooling-port-templates/', include(get_model_urls('dcim', 'coolingintaketemplate', detail=False))),
-    path('cooling-port-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingintaketemplate'))),
+    path('cooling-intake-templates/', include(get_model_urls('dcim', 'coolingintaketemplate', detail=False))),
+    path('cooling-intake-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingintaketemplate'))),
 
-    path('cooling-outlet-templates/', include(get_model_urls('dcim', 'coolingoutflowtemplate', detail=False))),
-    path('cooling-outlet-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingoutflowtemplate'))),
+    path('cooling-outflow-templates/', include(get_model_urls('dcim', 'coolingoutflowtemplate', detail=False))),
+    path('cooling-outflow-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingoutflowtemplate'))),
 
     path('interface-templates/', include(get_model_urls('dcim', 'interfacetemplate', detail=False))),
     path('interface-templates/<int:pk>/', include(get_model_urls('dcim', 'interfacetemplate'))),
@@ -129,18 +129,18 @@ urlpatterns = [
         name='device_bulk_add_poweroutlet'
     ),
 
-    path('cooling-ports/', include(get_model_urls('dcim', 'coolingintake', detail=False))),
-    path('cooling-ports/<int:pk>/', include(get_model_urls('dcim', 'coolingintake'))),
+    path('cooling-intakes/', include(get_model_urls('dcim', 'coolingintake', detail=False))),
+    path('cooling-intakes/<int:pk>/', include(get_model_urls('dcim', 'coolingintake'))),
     path(
-        'devices/cooling-ports/add/',
+        'devices/cooling-intakes/add/',
         views.DeviceBulkAddCoolingIntakeView.as_view(),
         name='device_bulk_add_coolingintake'
     ),
 
-    path('cooling-outlets/', include(get_model_urls('dcim', 'coolingoutflow', detail=False))),
-    path('cooling-outlets/<int:pk>/', include(get_model_urls('dcim', 'coolingoutflow'))),
+    path('cooling-outflows/', include(get_model_urls('dcim', 'coolingoutflow', detail=False))),
+    path('cooling-outflows/<int:pk>/', include(get_model_urls('dcim', 'coolingoutflow'))),
     path(
-        'devices/cooling-outlets/add/',
+        'devices/cooling-outflows/add/',
         views.DeviceBulkAddCoolingOutflowView.as_view(),
         name='device_bulk_add_coolingoutflow'
     ),

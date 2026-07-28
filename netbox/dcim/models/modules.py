@@ -330,11 +330,11 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 c.to_yaml() for c in self.poweroutlettemplates.all()
             ]
         if self.coolingintaketemplates.exists():
-            data['cooling-ports'] = [
+            data['cooling-intakes'] = [
                 c.to_yaml() for c in self.coolingintaketemplates.all()
             ]
         if self.coolingoutflowtemplates.exists():
-            data['cooling-outlets'] = [
+            data['cooling-outflows'] = [
                 c.to_yaml() for c in self.coolingoutflowtemplates.all()
             ]
         if self.interfacetemplates.exists():

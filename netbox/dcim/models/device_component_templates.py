@@ -469,8 +469,10 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
+            _abs_diameter=self._abs_diameter,
             maximum_flow=self.maximum_flow,
             maximum_flow_unit=self.maximum_flow_unit,
+            _abs_maximum_flow=self._abs_maximum_flow,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -544,6 +546,7 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
+            _abs_diameter=self._abs_diameter,
             cooling_intake=cooling_intake,
             **kwargs
         )

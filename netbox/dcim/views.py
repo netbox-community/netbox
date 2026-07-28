@@ -1546,7 +1546,7 @@ class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     )
 
 
-@register_model_view(DeviceType, 'coolingintakes', path='cooling-ports')
+@register_model_view(DeviceType, 'coolingintakes', path='cooling-intakes')
 class DeviceTypeCoolingIntakesView(DeviceTypeComponentsView):
     child_model = CoolingIntakeTemplate
     table = tables.CoolingIntakeTemplateTable
@@ -1561,7 +1561,7 @@ class DeviceTypeCoolingIntakesView(DeviceTypeComponentsView):
     )
 
 
-@register_model_view(DeviceType, 'coolingoutflows', path='cooling-outlets')
+@register_model_view(DeviceType, 'coolingoutflows', path='cooling-outflows')
 class DeviceTypeCoolingOutflowsView(DeviceTypeComponentsView):
     child_model = CoolingOutflowTemplate
     table = tables.CoolingOutflowTemplateTable
@@ -1690,8 +1690,8 @@ class DeviceTypeImportView(generic.BulkImportView):
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
         'power-ports': forms.PowerPortTemplateImportForm,
         'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-ports': forms.CoolingIntakeTemplateImportForm,
-        'cooling-outlets': forms.CoolingOutflowTemplateImportForm,
+        'cooling-intakes': forms.CoolingIntakeTemplateImportForm,
+        'cooling-outflows': forms.CoolingOutflowTemplateImportForm,
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
@@ -2032,7 +2032,7 @@ class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     )
 
 
-@register_model_view(ModuleType, 'coolingintakes', path='cooling-ports')
+@register_model_view(ModuleType, 'coolingintakes', path='cooling-intakes')
 class ModuleTypeCoolingIntakesView(ModuleTypeComponentsView):
     child_model = CoolingIntakeTemplate
     table = tables.CoolingIntakeTemplateTable
@@ -2047,7 +2047,7 @@ class ModuleTypeCoolingIntakesView(ModuleTypeComponentsView):
     )
 
 
-@register_model_view(ModuleType, 'coolingoutflows', path='cooling-outlets')
+@register_model_view(ModuleType, 'coolingoutflows', path='cooling-outflows')
 class ModuleTypeCoolingOutflowsView(ModuleTypeComponentsView):
     child_model = CoolingOutflowTemplate
     table = tables.CoolingOutflowTemplateTable
@@ -2144,8 +2144,8 @@ class ModuleTypeImportView(generic.BulkImportView):
         'console-server-ports': forms.ConsoleServerPortTemplateImportForm,
         'power-ports': forms.PowerPortTemplateImportForm,
         'power-outlets': forms.PowerOutletTemplateImportForm,
-        'cooling-ports': forms.CoolingIntakeTemplateImportForm,
-        'cooling-outlets': forms.CoolingOutflowTemplateImportForm,
+        'cooling-intakes': forms.CoolingIntakeTemplateImportForm,
+        'cooling-outflows': forms.CoolingOutflowTemplateImportForm,
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
@@ -3071,7 +3071,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     )
 
 
-@register_model_view(Device, 'coolingintakes', path='cooling-ports')
+@register_model_view(Device, 'coolingintakes', path='cooling-intakes')
 class DeviceCoolingIntakesView(DeviceComponentsView):
     child_model = CoolingIntake
     table = tables.DeviceCoolingIntakeTable
@@ -3087,7 +3087,7 @@ class DeviceCoolingIntakesView(DeviceComponentsView):
     )
 
 
-@register_model_view(Device, 'coolingoutflows', path='cooling-outlets')
+@register_model_view(Device, 'coolingoutflows', path='cooling-outflows')
 class DeviceCoolingOutflowsView(DeviceComponentsView):
     child_model = CoolingOutflow
     table = tables.DeviceCoolingOutflowTable
