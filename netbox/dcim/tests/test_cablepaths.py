@@ -60,11 +60,11 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         interface2.refresh_from_db()
 
         self.assertIsNone(interface1.cable_id)
-        self.assertEqual(interface1.cable_end, '')
+        self.assertIsNone(interface1.cable_end)
         self.assertPathIsNotSet(interface1)
 
         self.assertIsNone(interface2.cable_id)
-        self.assertEqual(interface2.cable_end, '')
+        self.assertIsNone(interface2.cable_end)
         self.assertPathIsNotSet(interface2)
 
     def test_102_consoleport_to_consoleserverport(self):

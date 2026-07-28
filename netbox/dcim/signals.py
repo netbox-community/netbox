@@ -205,7 +205,7 @@ def nullify_connected_endpoints(instance, **kwargs):
     model = instance.termination_type.model_class()
     model.objects.filter(pk=instance.termination_id).update(
         cable=None,
-        cable_end='',
+        cable_end=None,
         cable_connector=None,
         cable_positions=None,
     )

@@ -539,9 +539,37 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
-            return self.customfield.get_choice_label(value)
+            if value is None:
+                return self.default
+            label = self.customfield.get_choice_label(value)
+            color = self.customfield.get_choice_color(value)
+            if color:
+                return mark_safe(
+                    f'<span class="badge text-bg-{escape(color)}">{escape(label)}</span>'
+                )
+            return label
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            return ', '.join(self.customfield.get_choice_label(v) for v in value)
+            if not value:
+                return ''
+
+            has_color = False
+            parts = []
+
+            for v in value:
+                label = self.customfield.get_choice_label(v)
+                color = self.customfield.get_choice_color(v)
+                if color:
+                    has_color = True
+                parts.append((label, color))
+            if has_color:
+                badges = []
+                for label, color in parts:
+                    badges.append(
+                        f'<span class="badge text-bg-{escape(color or "secondary")}">{escape(label)}</span>'
+                    )
+                return mark_safe(' '.join(badges))
+            return ', '.join(label for label, _ in parts)
+
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)

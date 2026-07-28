@@ -272,8 +272,8 @@ class CableSignalTestCase(TestCase):
         self.assertIsNone(interface_b._path_id)
         self.assertIsNone(interface_a.cable_id)
         self.assertIsNone(interface_b.cable_id)
-        self.assertEqual(interface_a.cable_end, '')
-        self.assertEqual(interface_b.cable_end, '')
+        self.assertIsNone(interface_a.cable_end)
+        self.assertIsNone(interface_b.cable_end)
 
     def test_deleting_profiled_cable_nullifies_endpoints(self):
         """
@@ -301,7 +301,7 @@ class CableSignalTestCase(TestCase):
         for interface in (interface_a, interface_b):
             interface.refresh_from_db()
             self.assertIsNone(interface.cable_id)
-            self.assertEqual(interface.cable_end, '')
+            self.assertIsNone(interface.cable_end)
             self.assertIsNone(interface.cable_connector)
             self.assertIsNone(interface.cable_positions)
 
@@ -367,7 +367,7 @@ class CableSignalTestCase(TestCase):
         termination.delete()
         interface_a.refresh_from_db()
         self.assertIsNone(interface_a.cable_id)
-        self.assertEqual(interface_a.cable_end, '')
+        self.assertIsNone(interface_a.cable_end)
 
 
 class MACAddressInterfaceSignalTestCase(TestCase):

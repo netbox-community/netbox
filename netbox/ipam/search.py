@@ -172,6 +172,7 @@ class VLANTranslationPolicyIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 

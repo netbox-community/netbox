@@ -2,6 +2,7 @@ import json
 from copy import deepcopy
 
 import django_filters
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
@@ -118,7 +119,11 @@ class BaseFilterSet(django_filters.FilterSet):
                 except (ValueError, TypeError):
                     pass
 
-            saved_filters = SavedFilter.objects.filter(
+            # Only apply SavedFilters the requesting user is permitted to see (#22790). Fall back to
+            # anonymous visibility (shared filters only) when no request is available.
+            request = kwargs.get('request')
+            user = request.user if request else AnonymousUser()
+            saved_filters = SavedFilter.objects.restrict_to_shared(user).filter(
                 Q(slug__in=data.pop('filter', [])) |
                 Q(pk__in=filter_ids)
             )

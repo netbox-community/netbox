@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.6.5",
+        "version": "4.6.6",
         "license": {
             "name": "Apache v2 License"
         }
@@ -806,6 +806,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -819,6 +831,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -2233,6 +2257,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -2246,6 +2282,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -4156,6 +4204,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -4169,6 +4229,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -6275,6 +6347,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -6288,6 +6372,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -8487,6 +8583,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -8500,6 +8608,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -10312,6 +10432,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -10325,6 +10457,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -11766,6 +11910,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -11779,6 +11935,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -13450,6 +13618,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -13463,6 +13643,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -14765,6 +14957,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -14778,6 +14982,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -16408,6 +16624,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -16421,6 +16649,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -17954,6 +18194,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -17967,6 +18219,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -21389,6 +21653,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -21402,6 +21678,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -25631,6 +25919,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -25644,6 +25944,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -28749,6 +29061,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -28762,6 +29086,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -33118,6 +33454,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -33131,6 +33479,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -37409,6 +37769,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -37422,6 +37794,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -41083,6 +41467,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -41096,6 +41492,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -42870,6 +43278,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -42883,6 +43303,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -45899,6 +46331,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -45912,6 +46356,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -50445,6 +50901,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -50458,6 +50926,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -55140,6 +55620,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -55153,6 +55645,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -61603,6 +62107,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -61616,6 +62132,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -64080,6 +64608,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -64093,6 +64633,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -68605,6 +69157,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -68618,6 +69182,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -70751,6 +71327,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -70764,6 +71352,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -72299,6 +72899,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -72312,6 +72924,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -73854,6 +74478,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -73867,6 +74503,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -77531,6 +78179,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -77544,6 +78204,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -78886,6 +79558,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -78899,6 +79583,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -81380,6 +82076,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -81393,6 +82101,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -83677,6 +84397,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -83690,6 +84422,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -85268,6 +86012,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -85281,6 +86037,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -87745,6 +88513,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -87758,6 +88538,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -92828,6 +93620,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -92841,6 +93645,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -94682,6 +95498,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -94695,6 +95523,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -98804,6 +99644,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -98817,6 +99669,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -100561,6 +101425,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -100574,6 +101450,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -102098,6 +102986,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -102111,6 +103011,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -103870,6 +104782,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -103883,6 +104807,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -106246,6 +107182,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -106259,6 +107207,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -110104,6 +111064,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -110117,6 +111089,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -115172,6 +116156,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -115185,6 +116181,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -117083,6 +118091,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -117096,6 +118116,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -118663,6 +119695,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -118676,6 +119720,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -120779,6 +121835,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -120792,6 +121860,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -122716,6 +123796,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -122729,6 +123821,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -124457,6 +125561,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -124470,6 +125586,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -126799,6 +127927,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -126812,6 +127952,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -130896,6 +132048,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -130909,6 +132073,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -139117,6 +140293,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -139130,6 +140318,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -143744,6 +144944,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -143757,6 +144969,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -153083,6 +154307,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -153096,6 +154332,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -154411,6 +155659,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -154424,6 +155684,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -156124,6 +157396,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -156137,6 +157421,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -157796,6 +159092,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -157809,6 +159117,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -160804,6 +162124,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -160817,6 +162149,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -162845,6 +164189,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -162858,6 +164214,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -164637,6 +166005,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -164650,6 +166030,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -166898,6 +168290,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -166911,6 +168315,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -168873,6 +170289,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -168886,6 +170314,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -170275,6 +171715,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -170288,6 +171740,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -171843,6 +173307,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -171856,6 +173332,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -173402,6 +174890,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -173415,6 +174915,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -175146,6 +176658,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -175159,6 +176683,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -176745,6 +178281,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -176758,6 +178306,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -178310,6 +179870,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -178323,6 +179895,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -179526,6 +181110,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -179539,6 +181135,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -180007,6 +181615,13 @@
                     {
                         "in": "query",
                         "name": "available_at_site",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "available_at_site_group",
                         "schema": {
                             "type": "string"
                         }
@@ -181616,6 +183231,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -181629,6 +183256,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -183323,6 +184962,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -183336,6 +184987,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -184846,6 +186509,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -184859,6 +186534,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -186376,6 +188063,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -186389,6 +188088,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -187778,6 +189489,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -187791,6 +189514,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -189681,6 +191416,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -189694,6 +191441,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -191336,6 +193095,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -191349,6 +193120,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -192862,6 +194645,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -192875,6 +194670,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -201439,6 +203246,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -201452,6 +203271,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -202841,6 +204672,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -202854,6 +204697,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -204690,6 +206545,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -204703,6 +206570,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -206735,6 +208614,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -206748,6 +208639,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -208247,6 +210150,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -208260,6 +210175,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -209919,6 +211846,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -209932,6 +211871,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -212815,6 +214766,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -212828,6 +214791,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -214805,6 +216780,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -214818,6 +216805,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -217018,6 +219017,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -217031,6 +219042,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -218497,6 +220520,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -218510,6 +220545,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -220015,6 +222062,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -220028,6 +222087,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -221862,6 +223933,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -221875,6 +223958,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -223046,6 +225141,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -223059,6 +225166,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -225088,6 +227207,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -225101,6 +227232,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -226831,6 +228974,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -226844,6 +228999,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -227915,6 +230082,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -227928,6 +230107,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -229889,6 +232080,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -229902,6 +232105,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -231576,6 +233791,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -231589,6 +233816,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -233892,6 +236131,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -233905,6 +236156,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -236253,6 +238516,18 @@
                     },
                     {
                         "in": "query",
+                        "name": "tag__any",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "tag__n",
                         "schema": {
                             "type": "array",
@@ -236266,6 +238541,18 @@
                     {
                         "in": "query",
                         "name": "tag_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "tag_id__any",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -255246,7 +257533,7 @@
                     },
                     "additional_headers": {
                         "type": "string",
-                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below)."
+                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below). When interpolating untrusted data (such as object attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
                     },
                     "body_template": {
                         "type": "string",
@@ -292601,7 +294888,7 @@
                     },
                     "additional_headers": {
                         "type": "string",
-                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below)."
+                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below). When interpolating untrusted data (such as object attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
                     },
                     "body_template": {
                         "type": "string",
@@ -296328,7 +298615,7 @@
                     },
                     "additional_headers": {
                         "type": "string",
-                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below)."
+                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below). When interpolating untrusted data (such as object attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
                     },
                     "body_template": {
                         "type": "string",
@@ -318649,7 +320936,7 @@
                     },
                     "additional_headers": {
                         "type": "string",
-                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below)."
+                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below). When interpolating untrusted data (such as object attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
                     },
                     "body_template": {
                         "type": "string",
@@ -318752,7 +321039,7 @@
                     },
                     "additional_headers": {
                         "type": "string",
-                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below)."
+                        "description": "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with the same context as the request body (below). When interpolating untrusted data (such as object attributes) into a header value, apply the <code>header_safe</code> filter to guard against HTTP header injection, e.g. <code>X-Object: {{ data.name | header_safe }}</code>."
                     },
                     "body_template": {
                         "type": "string",
