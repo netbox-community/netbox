@@ -490,17 +490,13 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
 
 
 class CoolingIntakeViewSet(NetBoxModelViewSet):
-    queryset = CoolingIntake.objects.prefetch_related(
-        'cooling_outflow',
-    )
+    queryset = CoolingIntake.objects.all()
     serializer_class = serializers.CoolingIntakeSerializer
     filterset_class = filtersets.CoolingIntakeFilterSet
 
 
 class CoolingOutflowViewSet(NetBoxModelViewSet):
-    queryset = CoolingOutflow.objects.prefetch_related(
-        'cooling_intake',
-    )
+    queryset = CoolingOutflow.objects.all()
     serializer_class = serializers.CoolingOutflowSerializer
     filterset_class = filtersets.CoolingOutflowFilterSet
 
@@ -664,9 +660,7 @@ class CoolingSourceViewSet(NetBoxModelViewSet):
 #
 
 class CoolingFeedViewSet(NetBoxModelViewSet):
-    queryset = CoolingFeed.objects.prefetch_related(
-        'cooling_source', 'rack', 'tenant',
-    )
+    queryset = CoolingFeed.objects.all()
     serializer_class = serializers.CoolingFeedSerializer
     filterset_class = filtersets.CoolingFeedFilterSet
 

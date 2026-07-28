@@ -1556,7 +1556,7 @@ class DeviceTypeCoolingIntakesView(DeviceTypeComponentsView):
         label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_template_count,
         permission='dcim.view_coolingintaketemplate',
-        weight=570,
+        weight=600,
         hide_if_empty=True
     )
 
@@ -1571,7 +1571,7 @@ class DeviceTypeCoolingOutflowsView(DeviceTypeComponentsView):
         label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_template_count,
         permission='dcim.view_coolingoutflowtemplate',
-        weight=580,
+        weight=610,
         hide_if_empty=True
     )
 
@@ -2042,7 +2042,7 @@ class ModuleTypeCoolingIntakesView(ModuleTypeComponentsView):
         label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_template_count,
         permission='dcim.view_coolingintaketemplate',
-        weight=550,
+        weight=580,
         hide_if_empty=True
     )
 
@@ -2057,7 +2057,7 @@ class ModuleTypeCoolingOutflowsView(ModuleTypeComponentsView):
         label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_template_count,
         permission='dcim.view_coolingoutflowtemplate',
-        weight=560,
+        weight=590,
         hide_if_empty=True
     )
 
@@ -3082,7 +3082,7 @@ class DeviceCoolingIntakesView(DeviceComponentsView):
         label=_('Cooling Intakes'),
         badge=lambda obj: obj.cooling_intake_count,
         permission='dcim.view_coolingintake',
-        weight=570,
+        weight=600,
         hide_if_empty=True
     )
 
@@ -3098,7 +3098,7 @@ class DeviceCoolingOutflowsView(DeviceComponentsView):
         label=_('Cooling Outflows'),
         badge=lambda obj: obj.cooling_outflow_count,
         permission='dcim.view_coolingoutflow',
-        weight=580,
+        weight=610,
         hide_if_empty=True
     )
 
