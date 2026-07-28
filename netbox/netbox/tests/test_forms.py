@@ -304,10 +304,11 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
 
     def test_missing_field_validation_error_becomes_non_field_error(self):
         """
-        _update_errors should remap ValidationErrors keyed to fields absent from
-        the import form to non-field errors, rather than raising ValueError.
-        Regression test for #22683.
+        Integration test: when model.full_clean() raises a ValidationError keyed to
+        a field absent from the import form, is_valid() should return False with a
+        non-field error rather than raising ValueError. Regression test for #22683.
         """
+        from unittest.mock import patch
         from django.core.exceptions import ValidationError as DjangoValidationError
 
         form = InterfaceImportForm(
@@ -317,8 +318,14 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
                 'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             }
         )
-        form.is_valid()  # Initialize form._errors
-        form._update_errors(DjangoValidationError({'absent_field': ['Field error.']}))
+        with patch.object(
+            form.instance,
+            'full_clean',
+            side_effect=DjangoValidationError({'absent_field': ['Field error.']}),
+        ):
+            result = form.is_valid()
+
+        self.assertFalse(result)
         self.assertIn('Field error.', form.non_field_errors())
 
     def test_non_field_error_not_overwritten_by_remapped_missing_field_error(self):
@@ -337,9 +344,10 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
             }
         )
         form.is_valid()  # Initialize form._errors
+        # absent_field appears first to expose the former overwrite bug
         form._update_errors(DjangoValidationError({
-            '__all__': ['A general error.'],
             'absent_field': ['Field error.'],
+            '__all__': ['A general error.'],
         }))
         non_field_errors = form.non_field_errors()
         self.assertIn('A general error.', non_field_errors)
