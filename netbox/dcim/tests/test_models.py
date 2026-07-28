@@ -3241,3 +3241,59 @@ class CoolingComponentTestCase(TestCase):
         )
         with self.assertRaises(ValidationError):
             cooling_feed.full_clean()
+
+    def test_cooling_chain_valid(self):
+        """
+        A non-looping intake/outflow assignment should pass validation.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 5', slug='device-type-5'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device C'
+        )
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_intake = CoolingIntake(device=device, name='Cooling Port 1', cooling_outflow=cooling_outflow)
+
+        # Should not raise
+        cooling_intake.full_clean()
+
+    def test_cooling_intake_loop_rejected(self):
+        """
+        Closing the intake/outflow chain into a loop from the intake side should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 6', slug='device-type-6'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device D'
+        )
+        cooling_intake = CoolingIntake.objects.create(device=device, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow.objects.create(
+            device=device, name='Cooling Outlet 1', cooling_intake=cooling_intake
+        )
+
+        # The outflow is fed by the intake; supplying that same intake from the outflow closes the loop
+        cooling_intake.cooling_outflow = cooling_outflow
+        with self.assertRaises(ValidationError):
+            cooling_intake.full_clean()
+
+    def test_cooling_outflow_loop_rejected(self):
+        """
+        Closing the intake/outflow chain into a loop from the outflow side should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 7', slug='device-type-7'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device E'
+        )
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_intake = CoolingIntake.objects.create(
+            device=device, name='Cooling Port 1', cooling_outflow=cooling_outflow
+        )
+
+        # The intake is supplied by the outflow; feeding that same intake into the outflow closes the loop
+        cooling_outflow.cooling_intake = cooling_intake
+        with self.assertRaises(ValidationError):
+            cooling_outflow.full_clean()

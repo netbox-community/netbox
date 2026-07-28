@@ -690,6 +690,25 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
+def validate_cooling_loop(component):
+    """
+    Walk the upstream cooling chain and raise a ValidationError if it forms a loop. A CoolingIntake is
+    supplied by an upstream CoolingOutflow (via `cooling_outflow`), which may in turn be supplied by an
+    upstream CoolingIntake (via `cooling_intake`), and so on; this chain must remain acyclic.
+    """
+    seen = set()
+    if component.pk:
+        seen.add((type(component), component.pk))
+
+    upstream = component.cooling_outflow if isinstance(component, CoolingIntake) else component.cooling_intake
+    while upstream is not None:
+        key = (type(upstream), upstream.pk)
+        if key in seen:
+            raise ValidationError(_("Cooling intake and outflow assignments cannot form a loop."))
+        seen.add(key)
+        upstream = upstream.cooling_outflow if isinstance(upstream, CoolingIntake) else upstream.cooling_intake
+
+
 class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
@@ -722,6 +741,12 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling intake')
         verbose_name_plural = _('cooling intakes')
+
+    def clean(self):
+        super().clean()
+
+        # Prevent the intake/outflow chain from forming a loop
+        validate_cooling_loop(self)
 
 
 class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
@@ -761,6 +786,9 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
                 _("Parent cooling intake ({cooling_intake}) must belong to the same device").format(
                     cooling_intake=self.cooling_intake)
             )
+
+        # Prevent the intake/outflow chain from forming a loop
+        validate_cooling_loop(self)
 
 
 #
