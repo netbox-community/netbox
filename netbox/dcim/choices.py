@@ -2203,6 +2203,7 @@ class FluidTypeChoices(ChoiceSet):
 
 
 class RackCoolingCapabilityChoices(ChoiceSet):
+    key = 'Rack.cooling_capability'
 
     AIR_ONLY = 'air-only'
     HYBRID = 'hybrid'
@@ -2216,6 +2217,7 @@ class RackCoolingCapabilityChoices(ChoiceSet):
 
 
 class CoolingConnectorTypeChoices(ChoiceSet):
+    key = 'CoolingIntake.type'
 
     TYPE_UQD = 'uqd'
     TYPE_UQDB = 'uqdb'
