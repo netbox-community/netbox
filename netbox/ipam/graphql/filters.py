@@ -11,7 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.filtersets import port_mapping_q
+from ipam.utils import port_mapping_q
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -352,14 +352,17 @@ class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilter):
 
 def _sibling_protocols(filters):
     value = getattr(filters, 'protocol', None)
-    if value in (None, strawberry.UNSET):
+    # Only a supplied list of enum members is a real sibling value; guard against None/UNSET and against
+    # `protocol` resolving to anything non-iterable (e.g. the bound filter method) so a strawberry_django
+    # change surfaces as an empty sibling rather than a TypeError in the comprehension below.
+    if not isinstance(value, (list, tuple)):
         return []
     return [v.value for v in value]
 
 
 def _sibling_ports(filters):
     value = getattr(filters, 'port', None)
-    if value in (None, strawberry.UNSET):
+    if not isinstance(value, (list, tuple)):
         return []
     return list(value)
 
@@ -371,7 +374,7 @@ def _port_mapping_prefix_q(model, protocols, ports, prefix, queryset):
         # resolve the matching PKs on the target model and match them through the prefix.
         return Q(**{f'{prefix}pk__in': model.objects.filter(qs_filter).values('pk')})
     # Root query: the incoming queryset already targets this model, so return the GIN-indexable
-    # containment lookup directly rather than an extra pk__in self-subquery.
+    # overlap lookup directly rather than an extra pk__in self-subquery.
     return qs_filter
 
 

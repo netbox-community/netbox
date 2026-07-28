@@ -1,5 +1,3 @@
-from functools import cached_property
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
@@ -38,7 +36,7 @@ class ServiceBase(models.Model):
         default=list,
     )
     # Denormalized set of the distinct protocols present in port_mappings, maintained by a PostgreSQL
-    # trigger (see the migration) so a protocol-only filter can hit a GIN index (_protocols @> ['tcp'])
+    # trigger (see the migration) so a protocol-only filter can hit a GIN index (_protocols && ['tcp'])
     # instead of scanning a computed string form of port_mappings. Ports are unbounded, so only protocols
     # are denormalized; port and protocol+port filters query port_mappings directly.
     _protocols = ArrayField(
@@ -59,9 +57,12 @@ class ServiceBase(models.Model):
         # validate_port_mappings returns the canonical form (integer ports), so storing its result
         # normalizes any entry that bypassed the form field (e.g. a raw REST payload of 'tcp/080').
         self.port_mappings = validate_port_mappings(self.port_mappings)
-        self.__dict__.pop('_legacy_protocol_ports', None)  # invalidate the cached legacy view
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
+        # Mirror the trigger-maintained protocol set in Python so change-log snapshots (and any read
+        # before refresh_from_db) see the correct value. The DB trigger remains the source of truth for
+        # write paths that bypass clean() (bulk_create, raw SQL).
+        self._protocols = sorted({split_port_mapping(mapping)[0] for mapping in self.port_mappings})
 
     @staticmethod
     def _normalize_mapping(mapping):
@@ -102,10 +103,11 @@ class ServiceBase(models.Model):
     # for backward compatibility with code that read the old single-protocol fields. A multi-protocol
     # service has no single-protocol form, so both return None (ports=[] when there are no mappings).
     # TODO: Remove in v5.0 once backward compatibility is dropped.
-    @cached_property
+    @property
     def _legacy_protocol_ports(self):
-        # Derived once per instance and shared by the protocol/ports accessors (and the GraphQL
-        # resolvers, which read these properties), so selecting both doesn't re-group port_mappings twice.
+        # Recomputed on access (grouping a handful of strings is cheap) rather than cached, so a mutation
+        # of port_mappings — e.g. via _add_port_mappings()/_remove_port_mappings() — is always reflected
+        # by the protocol/ports accessors, with no cache to invalidate.
         return legacy_protocol_and_ports(self.port_mappings)
 
     @property
@@ -141,9 +143,9 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
 
     class Meta:
         indexes = (
-            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            # Supports protocol/port overlap lookups (port_mappings && ['tcp/80'])
             GinIndex(fields=('port_mappings',)),
-            # Supports protocol-only containment lookups (_protocols @> ['tcp'])
+            # Supports protocol-only overlap lookups (_protocols && ['tcp'])
             GinIndex(fields=('_protocols',)),
         )
         ordering = ('name',)
@@ -186,9 +188,9 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
-            # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+            # Supports protocol/port overlap lookups (port_mappings && ['tcp/80'])
             GinIndex(fields=('port_mappings',)),
-            # Supports protocol-only containment lookups (_protocols @> ['tcp'])
+            # Supports protocol-only overlap lookups (_protocols && ['tcp'])
             GinIndex(fields=('_protocols',)),
         )
         ordering = ('name', 'id')

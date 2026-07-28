@@ -30,6 +30,7 @@ from vpn.models import L2VPN
 
 from .choices import *
 from .models import *
+from .utils import port_mapping_q
 
 __all__ = (
     'ASNFilterSet',
@@ -1211,30 +1212,6 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
-
-
-def port_mapping_q(protocols, ports):
-    """
-    Build a ``Q`` filtering services by protocol and/or port. Every case reduces to a single
-    GIN-indexable array-overlap (``&&``) lookup: an explicit protocol+port pair (or a port-only query,
-    by pairing each port with every valid protocol) overlaps ``port_mappings`` directly
-    (``port_mappings && ['tcp/80', ...]`` — each element is one mapping, so overlap means "shares any
-    mapping"), while a protocol-only query — whose ports are unbounded and can't be enumerated — overlaps
-    the denormalized ``_protocols`` array (``_protocols && ['tcp']``), maintained by a trigger. Shared by
-    the FilterSet and the GraphQL filters.
-    """
-    if not protocols and not ports:
-        return Q()
-    if ports:
-        # protocol+port: overlap the explicit pairs. port-only: enumerate the (small, fixed) protocol
-        # set so the lookup stays a single overlap on port_mappings (ports are unbounded and can't be
-        # denormalized). Every stored mapping's protocol is validated against ServiceProtocolChoices, so
-        # the enumeration covers all valid data.
-        mapping_protocols = protocols or ServiceProtocolChoices.values()
-        combos = [f'{protocol}/{port}' for protocol in mapping_protocols for port in ports]
-        return Q(port_mappings__overlap=combos)
-    # Protocol-only: match the denormalized per-service protocol set.
-    return Q(_protocols__overlap=list(protocols))
 
 
 class ServicePortMappingFilterMixin(django_filters.FilterSet):

@@ -6,6 +6,7 @@ from rest_framework import serializers
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
+from ipam.utils import legacy_protocol_and_ports
 from ipam.validators import validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
@@ -80,12 +81,20 @@ class PortMappingsSerializerMixin(serializers.Serializer):
         # value (including a falsy ports=[]) is a legacy write and must be handled — checking `is not None`
         # rather than truthiness so an intentional empty list isn't silently dropped.
         if legacy_protocol is not None or legacy_ports is not None:
-            # `port_mappings` and `protocol`/`ports` are mutually exclusive. Rather than silently dropping
-            # one when they conflict, reject the request so the caller picks a single representation.
+            # `port_mappings` and `protocol`/`ports` are mutually exclusive as *representations*, but a
+            # full-object round-trip (GET then PUT/PATCH) legitimately resubmits port_mappings alongside
+            # the legacy protocol/ports the read emitted. Only reject a genuine *conflict*: when the legacy
+            # fields agree with what port_mappings already implies they're merely redundant, so accept the
+            # request and let port_mappings win.
             if 'port_mappings' in data:
-                raise serializers.ValidationError(_(
-                    "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
-                ))
+                expected_protocol, expected_ports = legacy_protocol_and_ports(data['port_mappings'])
+                protocol_agrees = legacy_protocol is None or legacy_protocol == expected_protocol
+                ports_agree = legacy_ports is None or sorted(legacy_ports) == (expected_ports or [])
+                if not (protocol_agrees and ports_agree):
+                    raise serializers.ValidationError(_(
+                        "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
+                    ))
+                return super().validate(data)
             # The legacy API let either field be updated on its own (e.g. a PATCH that adjusts only the
             # port list). Preserve that by backfilling the omitted field from the instance's current
             # single-protocol representation.

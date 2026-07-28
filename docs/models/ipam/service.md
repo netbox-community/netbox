@@ -41,6 +41,14 @@ In the REST and GraphQL APIs, port mappings are represented as a flat list of `p
 
     The single-protocol `protocol` and `ports` fields have been replaced by the unified `port_mappings` field, which supports multiple protocols per service. For backward compatibility, the REST and GraphQL APIs still expose the legacy `protocol` and `ports` fields, and the REST API still accepts them on write as an alternative to `port_mappings`. They are populated for single-protocol services; a service with multiple protocols cannot be represented in the legacy format and returns `null` for both, while a service with no mappings returns `protocol: null` and `ports: []`. In other words, `ports: null` specifically signals "multiple protocols — read `port_mappings` instead." **These legacy fields are deprecated and will be removed in NetBox v5.0; use `port_mappings` instead.**
 
+!!! warning "GraphQL filter change in NetBox v4.7"
+
+    The GraphQL filters for `Service` and `ServiceTemplate` have changed shape. The former `protocol` lookup and `ports` integer lookup (which supported `exact`/`gt`/`lt`/`range`/etc.) are replaced by `protocol` and `port`, each accepting a list of values — for example `filters: {protocol: [TCP], port: [80]}`. When both are supplied, a service matches only if a single mapping satisfies both. Existing GraphQL queries using the old `ports` filter or its range/comparison lookups must be updated.
+
 ### IP Addresses
 
 The [IP address(es)](./ipaddress.md) to which this service is bound. If no IP addresses are bound, the service is assumed to be reachable via any assigned IP address.
+
+## Bulk Import (CSV)
+
+When importing application services or [application service templates](./servicetemplate.md) via CSV, all port mappings for a row are given in a single `port_mappings` column as a comma-separated list of `protocol/port` pairs enclosed in double quotes. For example, `"tcp/80,tcp/443,udp/53"`. Protocols may be specified in any case.

@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="port-mapping-widget" data-name="{{ widget.name }}">
-  <input id="{{ widget.attrs.id }}" type="hidden" name="{{ widget.name }}" value="{{ widget.value }}">
+  <input type="hidden" name="{{ widget.name }}" value="{{ widget.value }}">
   <table class="table table-sm mb-1">
     <thead>
       <tr>
@@ -13,7 +13,8 @@
       {% for row in widget.rows %}
         <tr data-port-mapping-row>
           <td>
-            <select class="form-select form-select-sm port-mapping-protocol">
+            {# id on the first row's select so the field label focuses a real control, not the hidden input #}
+            <select class="form-select form-select-sm port-mapping-protocol"{% if forloop.first %} id="{{ widget.attrs.id }}"{% endif %}>
               <option value=""{% if not row.protocol %} selected{% endif %}>---------</option>
               {% for value, label in protocol_choices %}
                 <option value="{{ value }}"{% if value == row.protocol %} selected{% endif %}>{{ label }}</option>

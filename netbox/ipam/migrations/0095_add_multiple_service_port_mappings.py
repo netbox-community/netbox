@@ -73,7 +73,7 @@ def restore_legacy_fields(apps, schema_editor):
 
 # Maintain the denormalized Service/ServiceTemplate._protocols column (the distinct set of protocols
 # present in port_mappings) via a BEFORE INSERT/UPDATE trigger, so a protocol-only filter can hit a GIN
-# index (_protocols @> ['tcp']) instead of scanning a computed string form of port_mappings. A trigger
+# index (_protocols && ['tcp']) instead of scanning a computed string form of port_mappings. A trigger
 # (rather than a Python save/clean hook) keeps the column correct for every write path, including
 # bulk_create and raw SQL. Both tables share one trigger function, which reads only NEW.port_mappings /
 # NEW._protocols — columns common to both. Existing rows are backfilled with a single set-based UPDATE
@@ -245,7 +245,7 @@ class Migration(migrations.Migration):
             model_name="service",
             name="protocol",
         ),
-        # GIN indexes supporting exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
+        # GIN indexes supporting protocol/port overlap lookups (port_mappings && ['tcp/80'])
         migrations.AddIndex(
             model_name="service",
             index=django.contrib.postgres.indexes.GinIndex(
@@ -258,7 +258,7 @@ class Migration(migrations.Migration):
                 fields=["port_mappings"], name="ipam_servic_port_ma_39e070_gin"
             ),
         ),
-        # GIN indexes supporting protocol-only containment lookups (_protocols @> ['tcp'])
+        # GIN indexes supporting protocol-only overlap lookups (_protocols && ['tcp'])
         migrations.AddIndex(
             model_name="service",
             index=django.contrib.postgres.indexes.GinIndex(

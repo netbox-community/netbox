@@ -18,4 +18,4 @@ The protocols and ports on which the service runs. See [Port Mappings](./service
 
 ## Bulk Import (CSV)
 
-When importing services or service templates via CSV, all port mappings for a row are given in a single `port_mappings` column as a comma-separated list of `protocol/port` pairs enclosed in double quotes. For example, `"tcp/80,tcp/443,udp/53"`. Protocols may be specified in any case.
+Application service templates are imported via CSV using the same `port_mappings` column format as application services. See [Bulk Import (CSV)](./service.md#bulk-import-csv) on the application service model for details.

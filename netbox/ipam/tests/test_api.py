@@ -1483,6 +1483,30 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(data['data']['service_template']['port_mappings'], ['tcp/80', 'udp/53'])
 
+    def test_graphql_protocol_and_port_filter(self):
+        """Combined protocol+port filtering works for ServiceTemplate over GraphQL."""
+        self.add_permissions('ipam.view_servicetemplate')
+        url = reverse('graphql')
+        query = '{ service_template_list(filters: {protocol: [ROLE_TCP], port: [1]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        # Only Service Template 1 exposes tcp/1.
+        self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 1'])
+
+    def test_graphql_port_only_filter(self):
+        """A port-only GraphQL filter (no protocol) works for ServiceTemplate."""
+        self.add_permissions('ipam.view_servicetemplate')
+        url = reverse('graphql')
+        query = '{ service_template_list(filters: {port: [3]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        # Only Service Template 2 exposes port 3 (tcp/3).
+        self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 2'])
+
     def test_create_duplicate_mapping_rejected(self):
         """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
         self.add_permissions('ipam.add_servicetemplate')
@@ -1735,6 +1759,76 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(data['data']['service']['port_mappings'], ['tcp/80', 'udp/53'])
+
+    def test_graphql_port_only_filter(self):
+        """A port-only GraphQL filter (no protocol) matches the port across any protocol."""
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='udp-on-1', port_mappings=['udp/1'])
+        url = reverse('graphql')
+        query = '{ service_list(filters: {port: [1]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        # Service 1 (tcp/1) and the new udp-on-1 both expose port 1, on different protocols.
+        self.assertEqual({s['name'] for s in data['data']['service_list']}, {'Service 1', 'udp-on-1'})
+
+    def test_graphql_protocol_only_filter(self):
+        """A protocol-only GraphQL filter matches via the denormalized protocol set."""
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='udp-svc', port_mappings=['udp/9'])
+        url = reverse('graphql')
+        query = '{ service_list(filters: {protocol: [ROLE_UDP]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        # Only the udp service matches; the seeded Service 1-3 are all tcp.
+        self.assertEqual([s['name'] for s in data['data']['service_list']], ['udp-svc'])
+
+    def test_port_mapping_prefix_branch(self):
+        """
+        The nested-relation (prefix) branch of the shared port filter resolves matches through a
+        relation. No GraphQL type currently exposes a nested Service filter, so exercise the helper
+        directly via the IPAddress -> services reverse relation.
+        """
+        from ipam.graphql.filters import _port_mapping_prefix_q
+
+        device = Device.objects.first()
+        service = Service.objects.create(parent=device, name='svc-with-ip', port_mappings=['tcp/1'])
+        ip = IPAddress.objects.create(address='192.0.2.1/32')
+        service.ipaddresses.add(ip)
+
+        match = _port_mapping_prefix_q(Service, ['tcp'], [1], 'services__', IPAddress.objects.all())
+        self.assertIn(ip, IPAddress.objects.filter(match))
+        miss = _port_mapping_prefix_q(Service, ['tcp'], [999], 'services__', IPAddress.objects.all())
+        self.assertNotIn(ip, IPAddress.objects.filter(miss))
+
+    def test_update_full_body_roundtrip(self):
+        """
+        A full-object round-trip (GET then PUT of the same body, including the legacy protocol/ports the
+        read emitted alongside port_mappings) succeeds; only a genuine conflict is rejected.
+        """
+        self.add_permissions('ipam.view_service', 'ipam.change_service')
+        service = Service.objects.get(name='Service 1')  # tcp/1
+        read = self.client.get(self._get_detail_url(service), **self.header).data
+        put_data = {
+            'parent_object_type': 'dcim.device',
+            'parent_object_id': service.parent_object_id,
+            'name': service.name,
+            'port_mappings': read['port_mappings'],
+            'protocol': read['protocol'],
+            'ports': read['ports'],
+        }
+        response = self.client.put(self._get_detail_url(service), put_data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # A legacy field that disagrees with port_mappings is still rejected as a conflict.
+        put_data['protocol'] = 'udp'
+        response = self.client.put(self._get_detail_url(service), put_data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_legacy_read_single_protocol(self):
         """A single-protocol service reports the deprecated protocol/ports fields for compatibility."""
