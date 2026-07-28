@@ -71,6 +71,49 @@ def restore_legacy_fields(apps, schema_editor):
             model.objects.bulk_update(batch, ['protocol', 'ports', '_ports_lowest'])
 
 
+# Maintain the denormalized Service/ServiceTemplate._protocols column (the distinct set of protocols
+# present in port_mappings) via a BEFORE INSERT/UPDATE trigger, so a protocol-only filter can hit a GIN
+# index (_protocols @> ['tcp']) instead of scanning a computed string form of port_mappings. A trigger
+# (rather than a Python save/clean hook) keeps the column correct for every write path, including
+# bulk_create and raw SQL. Both tables share one trigger function, which reads only NEW.port_mappings /
+# NEW._protocols — columns common to both. The trailing backfill fires the trigger on existing rows
+# (it runs after populate_port_mappings, so port_mappings is already populated).
+INSTALL_PROTOCOLS_TRIGGER_SQL = """
+    CREATE OR REPLACE FUNCTION ipam_service_set_protocols_fn() RETURNS TRIGGER AS $$
+    BEGIN
+        NEW._protocols := COALESCE(
+            (
+                SELECT array_agg(DISTINCT split_part(mapping, '/', 1))::varchar[]
+                FROM unnest(NEW.port_mappings) AS mapping
+            ),
+            ARRAY[]::varchar[]
+        );
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    DROP TRIGGER IF EXISTS ipam_service_set_protocols ON ipam_service;
+    CREATE TRIGGER ipam_service_set_protocols
+        BEFORE INSERT OR UPDATE ON ipam_service
+        FOR EACH ROW EXECUTE FUNCTION ipam_service_set_protocols_fn();
+
+    DROP TRIGGER IF EXISTS ipam_servicetemplate_set_protocols ON ipam_servicetemplate;
+    CREATE TRIGGER ipam_servicetemplate_set_protocols
+        BEFORE INSERT OR UPDATE ON ipam_servicetemplate
+        FOR EACH ROW EXECUTE FUNCTION ipam_service_set_protocols_fn();
+
+    -- Backfill existing rows; the BEFORE UPDATE trigger recomputes _protocols.
+    UPDATE ipam_service SET port_mappings = port_mappings;
+    UPDATE ipam_servicetemplate SET port_mappings = port_mappings;
+"""
+
+DROP_PROTOCOLS_TRIGGER_SQL = """
+    DROP TRIGGER IF EXISTS ipam_service_set_protocols ON ipam_service;
+    DROP TRIGGER IF EXISTS ipam_servicetemplate_set_protocols ON ipam_servicetemplate;
+    DROP FUNCTION IF EXISTS ipam_service_set_protocols_fn();
+"""
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -94,6 +137,22 @@ class Migration(migrations.Migration):
             name="port_mappings",
             field=django.contrib.postgres.fields.ArrayField(
                 base_field=models.CharField(max_length=63), blank=True, default=list
+            ),
+        ),
+        # Denormalized set of distinct protocols, maintained by the trigger installed at the end of this
+        # migration (see INSTALL_PROTOCOLS_TRIGGER_SQL).
+        migrations.AddField(
+            model_name="service",
+            name="_protocols",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=63), blank=True, default=list, editable=False
+            ),
+        ),
+        migrations.AddField(
+            model_name="servicetemplate",
+            name="_protocols",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=63), blank=True, default=list, editable=False
             ),
         ),
         # Relax NOT NULL on the legacy protocol/ports columns before migrating the data. This makes the
@@ -189,4 +248,20 @@ class Migration(migrations.Migration):
                 fields=["port_mappings"], name="ipam_servic_port_ma_39e070_gin"
             ),
         ),
+        # GIN indexes supporting protocol-only containment lookups (_protocols @> ['tcp'])
+        migrations.AddIndex(
+            model_name="service",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["_protocols"], name="ipam_servic__protoc_f3ab73_gin"
+            ),
+        ),
+        migrations.AddIndex(
+            model_name="servicetemplate",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["_protocols"], name="ipam_servic__protoc_f836e3_gin"
+            ),
+        ),
+        # Install the trigger and backfill _protocols. Runs last so port_mappings is fully populated
+        # (by populate_port_mappings above) before the backfill fires the trigger.
+        migrations.RunSQL(sql=INSTALL_PROTOCOLS_TRIGGER_SQL, reverse_sql=DROP_PROTOCOLS_TRIGGER_SQL),
     ]

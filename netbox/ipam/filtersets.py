@@ -2,8 +2,7 @@ import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import F, Func, Q, TextField, Value
-from django.db.models.functions import Concat
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -1214,33 +1213,14 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class _ArrayToString(Func):
-    """Postgres array_to_string(<array>, ',') for searching within an ArrayField of strings."""
-    function = 'array_to_string'
-    template = "%(function)s(%(expressions)s, ',')"
-    output_field = TextField()
-
-
-def annotate_port_mappings(queryset):
-    # Join port_mappings into a comma-delimited string bracketed with commas, so each protocol can be
-    # matched at its boundaries (e.g. ',tcp/' for a protocol). Only the protocol-only filter path needs
-    # this annotation, and it's applied at most once per queryset.
-    return queryset.annotate(
-        _port_mappings_str=Concat(Value(','), _ArrayToString(F('port_mappings')), Value(','),
-                                  output_field=TextField())
-    )
-
-
 def port_mapping_q(protocols, ports):
     """
-    Build a filter for services by protocol and/or port, returning ``(needs_annotation, Q)``.
-
-    Whenever the ports are known — either explicitly, or (for a port-only query) by pairing each port
-    with every valid protocol — a match is expressed as exact ArrayField containment
-    (``port_mappings @> ['tcp/80']``), which is precise and GIN-indexable, so no annotation is required
-    (``needs_annotation`` is False). Only a protocol-only query can't enumerate the (unbounded) ports,
-    so it falls back to a substring match against the ``_port_mappings_str`` annotation
-    (``needs_annotation`` is True).
+    Build a ``Q`` filtering services by protocol and/or port. Every case is GIN-indexable containment:
+    an explicit protocol+port pair (or a port-only query, by pairing each port with every valid
+    protocol) matches ``port_mappings`` directly (``port_mappings @> ['tcp/80']``), while a protocol-only
+    query — whose ports are unbounded and can't be enumerated — matches the denormalized ``_protocols``
+    array (``_protocols @> ['tcp']``), maintained by a trigger. Shared by the FilterSet and the GraphQL
+    filters.
     """
     qs_filter = Q()
     if protocols and ports:
@@ -1248,39 +1228,24 @@ def port_mapping_q(protocols, ports):
         for protocol in protocols:
             for port in ports:
                 qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
-        return False, qs_filter
-    if ports:
+    elif ports:
         # Port-only: the protocol set is small and fixed, so enumerate it to keep the GIN-indexable
-        # containment lookup instead of a full-table scan over the _port_mappings_str annotation.
+        # containment lookup on port_mappings.
         for port in ports:
             for protocol in ServiceProtocolChoices.values():
                 qs_filter |= Q(port_mappings__contains=[f'{protocol}/{port}'])
-        return False, qs_filter
-    # Protocol-only: ports are unbounded, so containment can't enumerate them; match the protocol prefix
-    # against the annotated string form.
-    for protocol in protocols:
-        qs_filter |= Q(_port_mappings_str__contains=f',{protocol}/')
-    return True, qs_filter
-
-
-def port_mapping_filter_qs(queryset, protocols, ports):
-    """
-    Return ``(queryset, Q)`` for a protocol/port filter, annotating the queryset only when the Q needs
-    the ``_port_mappings_str`` string form. Shared by the FilterSet and the GraphQL filters.
-    """
-    if not protocols and not ports:
-        return queryset, Q()
-    needs_annotation, qs_filter = port_mapping_q(protocols, ports)
-    if needs_annotation:
-        queryset = annotate_port_mappings(queryset)
-    return queryset, qs_filter
+    else:
+        # Protocol-only: match the denormalized per-service protocol set.
+        for protocol in protocols:
+            qs_filter |= Q(_protocols__contains=[protocol])
+    return qs_filter
 
 
 class ServicePortMappingFilterMixin(django_filters.FilterSet):
     """
     Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate. Both operate on the
-    ``port_mappings`` array; when both are supplied they must match a single mapping (see
-    ``port_mapping_filter_qs``).
+    ``port_mappings`` array (protocol-only queries use the denormalized ``_protocols`` array); when both
+    are supplied they must match a single mapping (see ``port_mapping_q``).
     """
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
@@ -1295,8 +1260,9 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         # than protocol and port independently across the whole array.
         protocols = self.form.cleaned_data.get('protocol') or []
         ports = self.form.cleaned_data.get('port') or []
-        queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
-        return queryset.filter(qs_filter)
+        if not protocols and not ports:
+            return queryset
+        return queryset.filter(port_mapping_q(protocols, ports))
 
     def filter_protocol(self, queryset, name, value):
         return self._filter_port_mappings(queryset)

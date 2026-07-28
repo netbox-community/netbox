@@ -11,7 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.filtersets import port_mapping_filter_qs
+from ipam.filtersets import port_mapping_q
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -365,15 +365,14 @@ def _sibling_ports(filters):
 
 
 def _port_mapping_prefix_q(model, protocols, ports, prefix, queryset):
+    qs_filter = port_mapping_q(protocols, ports)
     if prefix:
         # Nested relation (e.g. prefix='services__'): the incoming queryset is a *different* model, so
         # resolve the matching PKs on the target model and match them through the prefix.
-        matched_qs, qs_filter = port_mapping_filter_qs(model.objects.all(), protocols, ports)
-        return Q(**{f'{prefix}pk__in': matched_qs.filter(qs_filter).values('pk')})
-    # Root query: the incoming queryset already targets this model, so filter (and annotate) it directly
-    # — running the GIN-indexable containment lookup against it rather than an extra pk__in self-subquery.
-    queryset, qs_filter = port_mapping_filter_qs(queryset, protocols, ports)
-    return queryset, qs_filter
+        return Q(**{f'{prefix}pk__in': model.objects.filter(qs_filter).values('pk')})
+    # Root query: the incoming queryset already targets this model, so return the GIN-indexable
+    # containment lookup directly rather than an extra pk__in self-subquery.
+    return qs_filter
 
 
 def _make_port_mapping_filters(model):

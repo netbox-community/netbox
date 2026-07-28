@@ -32,6 +32,16 @@ class ServiceBase(models.Model):
         blank=True,
         default=list,
     )
+    # Denormalized set of the distinct protocols present in port_mappings, maintained by a PostgreSQL
+    # trigger (see the migration) so a protocol-only filter can hit a GIN index (_protocols @> ['tcp'])
+    # instead of scanning a computed string form of port_mappings. Ports are unbounded, so only protocols
+    # are denormalized; port and protocol+port filters query port_mappings directly.
+    _protocols = ArrayField(
+        base_field=models.CharField(max_length=63),
+        blank=True,
+        default=list,
+        editable=False,
+    )
 
     class Meta:
         abstract = True
@@ -118,6 +128,8 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
         indexes = (
             # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
             GinIndex(fields=('port_mappings',)),
+            # Supports protocol-only containment lookups (_protocols @> ['tcp'])
+            GinIndex(fields=('_protocols',)),
         )
         ordering = ('name',)
         verbose_name = _('application service template')
@@ -161,6 +173,8 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
             models.Index(fields=('parent_object_type', 'parent_object_id')),
             # Supports exact protocol/port containment lookups (port_mappings @> ['tcp/80'])
             GinIndex(fields=('port_mappings',)),
+            # Supports protocol-only containment lookups (_protocols @> ['tcp'])
+            GinIndex(fields=('_protocols',)),
         )
         ordering = ('name', 'id')
         verbose_name = _('application service')

@@ -1967,6 +1967,33 @@ class ServiceTemplateTestCase(TestCase):
         with self.assertRaises(ValidationError):
             template.full_clean()
 
+    def test_protocols_denormalized_on_save(self):
+        # The _protocols column is maintained by a DB trigger: it holds the distinct protocols present
+        # in port_mappings, deduplicated (tcp/80 + tcp/443 => a single 'tcp').
+        template = ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/80', 'tcp/443', 'udp/53'])
+        template.refresh_from_db()
+        self.assertEqual(set(template._protocols), {'tcp', 'udp'})
+
+    def test_protocols_denormalized_on_bulk_create(self):
+        # The trigger fires for bulk_create too (which bypasses Model.save()), so protocol filtering
+        # remains correct for rows created that way.
+        ServiceTemplate.objects.bulk_create([
+            ServiceTemplate(name='Bulk 1', port_mappings=['tcp/80']),
+            ServiceTemplate(name='Bulk 2', port_mappings=['udp/53', 'tcp/53']),
+        ])
+        bulk1 = ServiceTemplate.objects.get(name='Bulk 1')
+        bulk2 = ServiceTemplate.objects.get(name='Bulk 2')
+        self.assertEqual(set(bulk1._protocols), {'tcp'})
+        self.assertEqual(set(bulk2._protocols), {'tcp', 'udp'})
+
+    def test_protocols_denormalized_on_update(self):
+        # Reducing the mappings must drop the now-absent protocol from _protocols.
+        template = ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/53', 'udp/53'])
+        template.port_mappings = ['udp/53']
+        template.save()
+        template.refresh_from_db()
+        self.assertEqual(set(template._protocols), {'udp'})
+
 
 class ServiceTestCase(TestCase):
 
