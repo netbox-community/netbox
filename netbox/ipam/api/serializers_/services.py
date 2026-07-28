@@ -6,7 +6,7 @@ from rest_framework import serializers
 from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS, SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, Service, ServiceTemplate
-from ipam.validators import legacy_protocol_and_ports, validate_port_mappings
+from ipam.validators import validate_port_mappings
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
@@ -76,10 +76,9 @@ class PortMappingsSerializerMixin(serializers.Serializer):
         # which instantiates the model (via full_clean()) and would choke on these now-nonexistent kwargs.
         legacy_protocol = data.pop('protocol', None)
         legacy_ports = data.pop('ports', None)
-        legacy_supplied = legacy_protocol is not None or legacy_ports is not None
-        if legacy_supplied:
-            # The two formats are mutually exclusive. Rather than silently dropping one when they conflict,
-            # reject the request so the caller picks a single representation.
+        if any([legacy_protocol, legacy_ports]):
+            # `port_mappings` and `protocol`/`ports` are mutually exclusive. Rather than silently dropping
+            # one when they conflict, reject the request so the caller picks a single representation.
             if 'port_mappings' in data:
                 raise serializers.ValidationError(_(
                     "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
@@ -88,12 +87,9 @@ class PortMappingsSerializerMixin(serializers.Serializer):
             # port list). Preserve that by backfilling the omitted field from the instance's current
             # single-protocol representation.
             if not (legacy_protocol and legacy_ports):
-                existing_protocol, existing_ports = (
-                    legacy_protocol_and_ports(self.instance.port_mappings) if self.instance else (None, None)
-                )
-                legacy_protocol = legacy_protocol or existing_protocol
+                legacy_protocol = legacy_protocol or (self.instance.protocol if self.instance else None)
                 if legacy_ports is None:
-                    legacy_ports = existing_ports
+                    legacy_ports = self.instance.ports if self.instance else None
             # If the pair still can't be resolved — a create, or an existing multi-protocol service that
             # has no single-protocol form — the request can't be expressed in the legacy format.
             if not (legacy_protocol and legacy_ports):
@@ -119,7 +115,8 @@ class PortMappingsSerializerMixin(serializers.Serializer):
         # with multiple protocols reports ports=null to signal "not representable in the legacy format;
         # use port_mappings".
         if 'protocol' in self.fields and 'ports' in self.fields:
-            data['protocol'], data['ports'] = legacy_protocol_and_ports(instance.port_mappings)
+            data['protocol'] = instance.protocol
+            data['ports'] = instance.ports
 
         return data
 

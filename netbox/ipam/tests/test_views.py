@@ -1868,9 +1868,9 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,port_mappings,description",
-            "Service Template 4,tcp:1,First service template",
-            "Service Template 5,tcp:2,Second service template",
-            "Service Template 6,udp:3;tcp:4,Third service template",
+            "Service Template 4,tcp/1,First service template",
+            "Service Template 5,tcp/2,Second service template",
+            'Service Template 6,"udp/3,tcp/4",Third service template',
         )
 
         cls.csv_update_data = (
@@ -1932,10 +1932,10 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "parent_object_type,parent,name,port_mappings,ipaddresses,description",
-            "dcim.device,Device 1,Service 1,tcp:1,192.0.2.1/24,First service",
-            "dcim.device,Device 1,Service 2,tcp:2,192.0.2.2/24,Second service",
-            "dcim.device,Device 1,Service 3,udp:3,,Third service",
-            "ipam.fhrpgroup,Group 1,Service 4,tcp:4;udp:4,192.0.2.3/24,Fourth service",
+            "dcim.device,Device 1,Service 1,tcp/1,192.0.2.1/24,First service",
+            "dcim.device,Device 1,Service 2,tcp/2,192.0.2.2/24,Second service",
+            "dcim.device,Device 1,Service 3,udp/3,,Third service",
+            'ipam.fhrpgroup,Group 1,Service 4,"tcp/4,udp/4",192.0.2.3/24,Fourth service',
         )
 
         cls.csv_update_data = (
@@ -1955,7 +1955,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         addr = IPAddress.objects.create(address='192.0.2.4/24')
         csv_data = (
             "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp:10,{addr.address},Eleventh service",
+            f"dcim.device,{device.pk},Service 11,tcp/10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()
@@ -1986,7 +1986,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         addr = IPAddress.objects.create(assigned_object=interface, address='192.0.2.3/24')
         csv_data = (
             "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp:10,{addr.address},Eleventh service",
+            f"dcim.device,{device.pk},Service 11,tcp/10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()

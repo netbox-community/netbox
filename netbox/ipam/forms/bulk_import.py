@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -8,7 +9,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from ipam.validators import expand_port_mapping, validate_port_mappings
+from ipam.validators import validate_port_mappings
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -590,37 +591,24 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
 
 class ServicePortMappingsImportMixin(forms.Form):
     """
-    Adds a ``port_mappings`` CSV column parsed from a compact string (e.g. "tcp:80,443;udp:53") into the
-    model's flat ``['tcp/80', 'tcp/443', 'udp/53']`` list.
+    Adds a ``port_mappings`` CSV column parsed from a comma-separated list of ``protocol/port`` pairs
+    (e.g. "tcp/80,udp/53") into the model's flat ``['tcp/80', 'udp/53']`` list.
     """
-    port_mappings = forms.CharField(
+    port_mappings = SimpleArrayField(
+        base_field=forms.CharField(),
         label=_('Port mappings'),
         required=True,
-        help_text=_(
-            'Protocol/port pairs in the form "tcp:80,443;udp:53" (pairs separated by semicolons; ports '
-            'may use commas and hyphenated ranges).'
-        )
+        help_text=_('Comma-separated list of protocol/port pairs in double quotes (e.g. "tcp/80,udp/53").')
     )
 
     def clean_port_mappings(self):
-        value = self.cleaned_data.get('port_mappings')
-        if not value:
+        mappings = self.cleaned_data.get('port_mappings')
+        if not mappings:
             return []
-        mappings = []
-        for token in value.split(';'):
-            token = token.strip()
-            if not token:
-                continue
-            protocol, sep, ports_str = token.partition(':')
-            if not sep:
-                raise forms.ValidationError(
-                    _('Invalid port mapping "{token}". Expected format protocol:ports.').format(token=token)
-                )
-            # Expand via the shared helper (also used by the UI form field), so CSV and UI parse the
-            # protocol/port string identically.
-            mappings.extend(expand_port_mapping(protocol, ports_str))
-        # Validate protocol/range/duplicates consistently with the model and UI form, storing the
-        # normalized (canonical) list it returns
+        # Lowercase so protocols may be specified in any case (e.g. "TCP/80"). Validate protocol/range/
+        # duplicates consistently with the model and UI form, storing the normalized (canonical) list it
+        # returns.
+        mappings = [mapping.strip().lower() for mapping in mappings]
         try:
             mappings = validate_port_mappings(mappings)
         except DjangoValidationError as exc:

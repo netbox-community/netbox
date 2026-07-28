@@ -289,23 +289,27 @@ class PortMappingFieldTestCase(TestCase):
 class ServiceTemplateImportFormTestCase(TestCase):
 
     def test_valid_port_mappings_parsed_and_normalized(self):
-        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:080,443;udp:53'})
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/080,tcp/443,udp/53'})
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data['port_mappings'], ['tcp/80', 'tcp/443', 'udp/53'])
 
-    def test_reversed_range_rejected(self):
-        """A reversed range must error rather than silently dropping the token's mappings."""
-        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80;udp:9000-53'})
+    def test_protocol_lowercased(self):
+        """Protocols may be given in any case; the input is lowercased before validation."""
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'TCP/80,UDP/53'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['port_mappings'], ['tcp/80', 'udp/53'])
+
+    def test_invalid_protocol_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/80,bogus/53'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
 
-    def test_invalid_subrange_alongside_valid_rejected(self):
-        """An invalid range combined with a valid one in the same token must error, not be dropped."""
-        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:80,9000-53'})
+    def test_duplicate_mapping_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/80,tcp/080'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
 
-    def test_empty_ports_token_rejected(self):
-        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp:'})
+    def test_empty_port_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
