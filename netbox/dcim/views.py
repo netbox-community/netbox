@@ -3765,7 +3765,11 @@ class CoolingIntakeListView(generic.ObjectListView):
 @register_model_view(CoolingIntake)
 class CoolingIntakeView(generic.ObjectView):
     queryset = CoolingIntake.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_coolingintakes')),
+        ],
         left_panels=[
             panels.CoolingIntakePanel(),
             CustomFieldsPanel(),
@@ -3838,7 +3842,11 @@ class CoolingOutflowListView(generic.ObjectListView):
 @register_model_view(CoolingOutflow)
 class CoolingOutflowView(generic.ObjectView):
     queryset = CoolingOutflow.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_coolingoutflows')),
+        ],
         left_panels=[
             panels.CoolingOutflowPanel(),
             CustomFieldsPanel(),
@@ -5555,7 +5563,12 @@ class CoolingSourceListView(generic.ObjectListView):
 @register_model_view(CoolingSource)
 class CoolingSourceView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CoolingSource.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site', url=filtered_list_url('dcim:coolingsource_list', 'site_id')),
+            Breadcrumb('location'),
+        ],
         left_panels=[
             panels.CoolingSourcePanel(),
             TagsPanel(),
@@ -5639,7 +5652,13 @@ class CoolingFeedListView(generic.ObjectListView):
 @register_model_view(CoolingFeed)
 class CoolingFeedView(generic.ObjectView):
     queryset = CoolingFeed.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('cooling_source.site', url=filtered_list_url('dcim:coolingfeed_list', 'site_id')),
+            Breadcrumb('cooling_source', url=filtered_list_url('dcim:coolingfeed_list', 'cooling_source_id')),
+            Breadcrumb('rack', url=filtered_list_url('dcim:coolingfeed_list', 'rack_id')),
+        ],
         left_panels=[
             panels.CoolingFeedPanel(),
             panels.CoolingFeedCharacteristicsPanel(),
