@@ -206,8 +206,8 @@ class FilterModifierMixinTestCase(TestCase):
 
         self.assertIsInstance(form.fields['tag'].widget, FilterModifierWidget)
         tag_lookups = [lookup[0] for lookup in form.fields['tag'].widget.lookups]
-        # Device filterset has tag and tag__n but not tag__empty
-        expected_lookups = ['exact', 'n']
+        # Device filterset has tag, tag__any, and tag__n but not tag__empty
+        expected_lookups = ['exact', 'any', 'n']
         self.assertEqual(tag_lookups, expected_lookups)
 
     def test_mixin_enhances_integer_field(self):

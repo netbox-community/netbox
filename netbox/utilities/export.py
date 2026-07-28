@@ -2,6 +2,7 @@ import csv
 
 from django.http import StreamingHttpResponse
 from django.utils.encoding import force_str
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
 from django_tables2.export import TableExport as TableExport_
@@ -88,5 +89,5 @@ def stream_table_csv_response(table, exclude_columns=None, filename=None, delimi
 
     response = StreamingHttpResponse(row_generator(), content_type='text/csv; charset=utf-8')
     if filename is not None:
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Disposition'] = content_disposition_header(as_attachment=True, filename=filename)
     return response

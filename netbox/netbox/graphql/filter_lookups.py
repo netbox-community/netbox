@@ -308,10 +308,24 @@ class ArrayLookup(Generic[T]):
     Class for Array field lookups
     """
 
-    contains: list[T] | None = strawberry_django.filter_field(description='Contains the value')
-    contained_by: list[T] | None = strawberry_django.filter_field(description='Contained by the value')
-    overlap: list[T] | None = strawberry_django.filter_field(description='Overlaps with the value')
-    length: int | None = strawberry_django.filter_field(description='Length of the array')
+    contains: list[T] | None = strawberry.field(default=strawberry.UNSET, description='Contains the value')
+    contained_by: list[T] | None = strawberry.field(default=strawberry.UNSET, description='Contained by the value')
+    overlap: list[T] | None = strawberry.field(default=strawberry.UNSET, description='Overlaps with the value')
+    length: int | None = strawberry.field(default=strawberry.UNSET, description='Length of the array')
+
+    @strawberry_django.filter_field
+    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> tuple[QuerySet, Q]:
+        # Map the public GraphQL ``length`` field to Django's ``len`` array transform; the
+        # remaining lookups share their name with the corresponding ORM transform.
+        if self.contains is not strawberry.UNSET and self.contains is not None:
+            return queryset, Q(**{f'{prefix}contains': self.contains})
+        if self.contained_by is not strawberry.UNSET and self.contained_by is not None:
+            return queryset, Q(**{f'{prefix}contained_by': self.contained_by})
+        if self.overlap is not strawberry.UNSET and self.overlap is not None:
+            return queryset, Q(**{f'{prefix}overlap': self.overlap})
+        if self.length is not strawberry.UNSET and self.length is not None:
+            return queryset, Q(**{f'{prefix}len': self.length})
+        return queryset, Q()
 
 
 @strawberry.input(one_of=True, description='Lookup for Array fields. Only one of the lookup fields can be set.')

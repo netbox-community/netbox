@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import MagicMock, patch
 
 from django.test import TestCase
@@ -32,6 +33,16 @@ class NetBoxRQWorkerHeartbeatTestCase(TestCase):
     missing from the rq:workers registry set, and must always invoke
     super().heartbeat().
     """
+
+    def setUp(self):
+        super().setUp()
+        # These tests exercise the recovery branches, which log a "re-registering" warning (and,
+        # for the Redis-failure case, an exception traceback). Mute the logger so the expected
+        # messages don't clutter the test runner's output.
+        logger = logging.getLogger('netbox.rqworker')
+        original_level = logger.level
+        logger.setLevel(logging.CRITICAL)
+        self.addCleanup(logger.setLevel, original_level)
 
     def _make_subject(self, is_member, hash_exists=False, marked_dead=False):
         worker = NetBoxRQWorker.__new__(NetBoxRQWorker)

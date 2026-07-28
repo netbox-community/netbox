@@ -44,6 +44,11 @@ class ScaffoldInstanceTest(SimpleTestCase):
         self.enterContext(patch('netbox.scaffold._config_template', return_value=template))
         self.enterContext(patch('netbox.scaffold._contrib_dir', return_value=contrib_src))
 
+        # scaffold_instance()/main() print per-file progress to stdout (legitimate `netbox setup`
+        # CLI feedback); swallow it here so it doesn't clutter the test runner's output. Tests that
+        # assert on captured output redirect stdout themselves within the individual test method.
+        self.enterContext(contextlib.redirect_stdout(StringIO()))
+
     def test_scaffolds_configuration_and_contrib_examples(self):
         """A fresh target gets conf/__init__.py, conf/configuration.py, local_requirements.txt, and contrib/."""
         written = scaffold.scaffold_instance(self.target)
