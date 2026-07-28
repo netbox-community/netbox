@@ -76,8 +76,10 @@ def restore_legacy_fields(apps, schema_editor):
 # index (_protocols @> ['tcp']) instead of scanning a computed string form of port_mappings. A trigger
 # (rather than a Python save/clean hook) keeps the column correct for every write path, including
 # bulk_create and raw SQL. Both tables share one trigger function, which reads only NEW.port_mappings /
-# NEW._protocols — columns common to both. The trailing backfill fires the trigger on existing rows
-# (it runs after populate_port_mappings, so port_mappings is already populated).
+# NEW._protocols — columns common to both. Existing rows are backfilled with a single set-based UPDATE
+# (computing _protocols directly, the same expression the trigger uses) *before* the triggers are
+# installed, so the backfill doesn't rewrite every row through the trigger. It runs after
+# populate_port_mappings, so port_mappings is already populated.
 INSTALL_PROTOCOLS_TRIGGER_SQL = """
     CREATE OR REPLACE FUNCTION ipam_service_set_protocols_fn() RETURNS TRIGGER AS $$
     BEGIN
@@ -92,6 +94,18 @@ INSTALL_PROTOCOLS_TRIGGER_SQL = """
     END;
     $$ LANGUAGE plpgsql;
 
+    -- Backfill existing rows directly, before the triggers exist (avoids a per-row trigger rewrite).
+    UPDATE ipam_service SET _protocols = COALESCE(
+        (SELECT array_agg(DISTINCT split_part(mapping, '/', 1))::varchar[]
+         FROM unnest(port_mappings) AS mapping),
+        ARRAY[]::varchar[]
+    );
+    UPDATE ipam_servicetemplate SET _protocols = COALESCE(
+        (SELECT array_agg(DISTINCT split_part(mapping, '/', 1))::varchar[]
+         FROM unnest(port_mappings) AS mapping),
+        ARRAY[]::varchar[]
+    );
+
     DROP TRIGGER IF EXISTS ipam_service_set_protocols ON ipam_service;
     CREATE TRIGGER ipam_service_set_protocols
         BEFORE INSERT OR UPDATE ON ipam_service
@@ -101,10 +115,6 @@ INSTALL_PROTOCOLS_TRIGGER_SQL = """
     CREATE TRIGGER ipam_servicetemplate_set_protocols
         BEFORE INSERT OR UPDATE ON ipam_servicetemplate
         FOR EACH ROW EXECUTE FUNCTION ipam_service_set_protocols_fn();
-
-    -- Backfill existing rows; the BEFORE UPDATE trigger recomputes _protocols.
-    UPDATE ipam_service SET port_mappings = port_mappings;
-    UPDATE ipam_servicetemplate SET port_mappings = port_mappings;
 """
 
 DROP_PROTOCOLS_TRIGGER_SQL = """

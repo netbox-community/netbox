@@ -339,4 +339,3 @@ def expand_port_mapping(protocol, ports_str):
     # out-of-range values before expansion), so a non-empty string always yields >=1 port.
     ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
     return [f'{protocol}/{port}' for port in ports]
-    return None

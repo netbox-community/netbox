@@ -76,7 +76,10 @@ class PortMappingsSerializerMixin(serializers.Serializer):
         # which instantiates the model (via full_clean()) and would choke on these now-nonexistent kwargs.
         legacy_protocol = data.pop('protocol', None)
         legacy_ports = data.pop('ports', None)
-        if any([legacy_protocol, legacy_ports]):
+        # protocol/ports carry default=None, so an omitted field arrives as None; an explicitly-supplied
+        # value (including a falsy ports=[]) is a legacy write and must be handled — checking `is not None`
+        # rather than truthiness so an intentional empty list isn't silently dropped.
+        if legacy_protocol is not None or legacy_ports is not None:
             # `port_mappings` and `protocol`/`ports` are mutually exclusive. Rather than silently dropping
             # one when they conflict, reject the request so the caller picks a single representation.
             if 'port_mappings' in data:

@@ -19,6 +19,10 @@ __all__ = (
     'ServiceTemplate',
 )
 
+# Fixed protocol value -> label map, built once (the choice set is static per process) rather than
+# rebuilt on every port_mappings_list render.
+SERVICE_PROTOCOL_LABELS = dict(ServiceProtocolChoices)
+
 
 class ServiceBase(models.Model):
     """
@@ -117,9 +121,8 @@ class ServiceBase(models.Model):
         # List each protocol/port pair individually for display, e.g. "TCP/80, TCP/443, UDP/53". Each
         # protocol is rendered via its defined label (falling back to the stored value if unknown); the
         # port is taken verbatim from the stored mapping, so no reformatting of the raw data is needed.
-        protocol_labels = dict(ServiceProtocolChoices)
         return ', '.join(
-            f'{protocol_labels.get(protocol, protocol)}/{port}'
+            f'{SERVICE_PROTOCOL_LABELS.get(protocol, protocol)}/{port}'
             for protocol, port in (split_port_mapping(mapping) for mapping in self.port_mappings)
         )
 
