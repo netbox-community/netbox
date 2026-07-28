@@ -11,6 +11,7 @@ from dcim.models import Interface
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.scalars import BigInt
+from netbox.graphql.selections import get_selected_field_names
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
 from virtualization.models import VMInterface
 
@@ -163,7 +164,7 @@ class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
 
         # Prevent an N+1 query per row when resolving assigned_object (a GenericForeignKey),
         # matching the approach already used by IPAddressViewSet in the REST API.
-        selected = {f.name for f in info.selected_fields[0].selections}
+        selected = get_selected_field_names(info)
         if 'assigned_object' in selected:
             return queryset.prefetch_related(
                 GenericPrefetch(
