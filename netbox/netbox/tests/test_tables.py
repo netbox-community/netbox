@@ -2,11 +2,11 @@ from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template
 from django.test import RequestFactory, TestCase
 
+from core.models import ObjectType
 from dcim.models import Device, Site
 from dcim.tables import DeviceTable
 from extras.choices import CustomFieldChoiceColorChoices, CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
-from core.models import ObjectType
 from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
@@ -229,8 +229,8 @@ class CustomFieldColumnTestCase(TestCase):
 
         self.assertIn('&lt;b&gt;Bold Option&lt;/b&gt;', rendered)
         self.assertNotIn('&amp;lt;', rendered)
-        self.assertIn("&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;", rendered,)
-        self.assertNotIn("<script>", rendered)
+        self.assertIn('&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;', rendered,)
+        self.assertNotIn('<script>', rendered)
 
         self.assertIn('text-bg-red', rendered)
         self.assertIn('text-bg-secondary', rendered)
