@@ -1,3 +1,4 @@
+import django_filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
@@ -557,13 +558,6 @@ class ChildAvailabilityMixin:
     """
 
     @staticmethod
-    def _is_populated(value):
-        # Recurse into lists and tuples so multi-value widgets count only real input.
-        if isinstance(value, (list, tuple)):
-            return any(ChildAvailabilityMixin._is_populated(v) for v in value)
-        return value not in EMPTY_VALUES
-
-    @staticmethod
     def _is_filter_param(param, base_filters):
         """
         Return whether a query parameter could activate a filter. Saved filter references are read as
@@ -598,17 +592,21 @@ class ChildAvailabilityMixin:
         # activate a filter, so it never builds a filterset.
         base_filters = self.filterset.base_filters
         if not any(
-            self._is_filter_param(param, base_filters) and self._is_populated(request.GET.getlist(param))
+            self._is_filter_param(param, base_filters) and any(request.GET.getlist(param))
             for param in request.GET
         ):
             return False
 
-        # A non-empty cleaned value means the request activated a declared filter. The raw
-        # widget value guards absent multi-value fields that clean to an empty queryset.
+        # A non-empty cleaned value means the request activated a declared filter. Emptiness
+        # follows each filter's own semantics, so absent multi-value fields stay inactive.
         filterset = self.filterset(request.GET, request=request)
         filterset.form.is_valid()
         for name, value in filterset.form.cleaned_data.items():
-            if self._is_populated(filterset.form[name].data) and self._is_populated(value):
+            if isinstance(filterset.filters[name], django_filters.MultipleChoiceFilter):
+                if value:  # mirrors MultipleChoiceFilter.filter()
+                    self._active_child_filters = True
+                    break
+            elif value not in EMPTY_VALUES:  # mirrors Filter.filter()
                 self._active_child_filters = True
                 break
 
@@ -938,7 +936,8 @@ class PrefixIPAddressesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
         # Ordering is checked first: it reads request.GET directly, so a sorted request never
         # builds the detection filterset.
         if not get_table_ordering(request, self.table) and not self._has_active_child_filters(request):
-            return annotate_ip_space(parent)
+            ip_ranges = parent.get_child_ranges(mark_populated=True).restrict(request.user, 'view')
+            return annotate_ip_space(parent, ip_addresses=queryset, ip_ranges=ip_ranges)
 
         return super().prep_table_data(request, queryset, parent)
 

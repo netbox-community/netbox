@@ -458,20 +458,9 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request.user = self.user
         return view._has_active_child_filters(request)
 
-    def test_is_populated_semantics(self):
-        """_is_populated treats empty input as no filter while keeping 0 and False."""
-        self.assertFalse(ChildAvailabilityMixin._is_populated(''))
-        self.assertFalse(ChildAvailabilityMixin._is_populated(None))
-        self.assertFalse(ChildAvailabilityMixin._is_populated([]))
-        self.assertFalse(ChildAvailabilityMixin._is_populated(['']))
-        self.assertTrue(ChildAvailabilityMixin._is_populated('5'))
-        self.assertTrue(ChildAvailabilityMixin._is_populated(['5']))
-        self.assertTrue(ChildAvailabilityMixin._is_populated(0))
-        self.assertTrue(ChildAvailabilityMixin._is_populated(False))
-
     def test_is_filter_param_semantics(self):
         """_is_filter_param recognizes declared filters, saved filter references, custom fields, and lookups."""
-        base_filters = {'description': None, 'tenant_id': None}
+        base_filters = {'description': None, 'tenant_id': None, 'mask_length__gte': None}
 
         self.assertTrue(ChildAvailabilityMixin._is_filter_param('tenant_id', base_filters))
         self.assertTrue(ChildAvailabilityMixin._is_filter_param('filter', base_filters))
@@ -479,6 +468,8 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertTrue(ChildAvailabilityMixin._is_filter_param('cf_anything', base_filters))
         # A lookup variant may be registered only on the instance, so it is deliberately absent here.
         self.assertTrue(ChildAvailabilityMixin._is_filter_param('description__empty', base_filters))
+        # A declared name may contain a lookup separator without a bare base filter.
+        self.assertTrue(ChildAvailabilityMixin._is_filter_param('mask_length__gte', base_filters))
         self.assertFalse(ChildAvailabilityMixin._is_filter_param('page', base_filters))
         self.assertFalse(ChildAvailabilityMixin._is_filter_param('unknown__empty', base_filters))
 
@@ -1325,7 +1316,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIPAvailabilityShown(response, ip)
 
     def test_prefix_ipaddresses_partial_visibility_shows_available(self):
-        """A constraint that hides one child IP does not suppress the available-IP rows."""
+        """A constraint that hides one child IP keeps availability rows and omits the hidden IP."""
         self.add_permissions('ipam.view_prefix')
         visible_tenant = Tenant.objects.create(name='Partial Vis', slug='partial-vis')
 
@@ -1345,9 +1336,50 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         response = self.client.get(url)
 
-        # Pins that a constraint does not suppress availability, not how the hidden child is handled.
+        # The hidden IP is omitted and its slot is counted as available space.
         self.assertHttpStatus(response, 200)
         self.assertIPAvailabilityShown(response, visible_ip)
+        records = list(response.context['table'].data)
+        self.assertNotIn(hidden_ip.pk, {r.pk for r in records if isinstance(r, IPAddress)})
+        self.assertEqual(sum(r.size for r in records if isinstance(r, AvailableIPSpace)), 5)
+
+    def test_prefix_ipaddresses_partial_visibility_omits_hidden_range(self):
+        """A constraint on child ranges keeps the permitted range and omits the hidden one."""
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress')
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'))
+        ip = IPAddress.objects.create(address=IPNetwork('192.0.2.1/29'))
+        visible_range = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.2/29'),
+            end_address=IPNetwork('192.0.2.3/29'),
+            size=2,
+            mark_populated=True,
+            description='visible',
+        )
+        hidden_range = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.4/29'),
+            end_address=IPNetwork('192.0.2.5/29'),
+            size=2,
+            mark_populated=True,
+        )
+
+        obj_perm = ObjectPermission(name='View ranges', actions=['view'], constraints={'description': 'visible'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(IPRange))
+
+        # Exactly one child range is visible, so the constraint is doing real work.
+        self.assertIn(visible_range, IPRange.objects.restrict(self.user, 'view'))
+        self.assertNotIn(hidden_range, IPRange.objects.restrict(self.user, 'view'))
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        self.assertIPAvailabilityShown(response, ip)
+        records = list(response.context['table'].data)
+        self.assertEqual({r.pk for r in records if isinstance(r, IPRange)}, {visible_range.pk})
+        self.assertEqual(sum(r.size for r in records if isinstance(r, AvailableIPSpace)), 3)
 
     def test_prefix_ipaddresses_sorted_suppresses_available(self):
         """A sorted IP Addresses tab drops synthetic rows so ordering stays in SQL."""
