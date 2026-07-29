@@ -13,10 +13,11 @@ from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, SavedFilter
+from ipam import filtersets
 from ipam.choices import *
 from ipam.models import *
 from ipam.utils import AvailableIPSpace
-from ipam.views import AggregatePrefixesView, ChildAvailabilityMixin, PrefixPrefixesView
+from ipam.views import AggregatePrefixesView, PrefixPrefixesView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
 from users.models import Group, ObjectPermission
@@ -458,21 +459,6 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request.user = self.user
         return view._has_active_child_filters(request)
 
-    def test_is_filter_param_semantics(self):
-        """_is_filter_param recognizes declared filters, saved filter references, custom fields, and lookups."""
-        base_filters = {'description': None, 'tenant_id': None, 'mask_length__gte': None}
-
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('tenant_id', base_filters))
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('filter', base_filters))
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('filter_id', base_filters))
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('cf_anything', base_filters))
-        # A lookup variant may be registered only on the instance, so it is deliberately absent here.
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('description__empty', base_filters))
-        # A declared name may contain a lookup separator without a bare base filter.
-        self.assertTrue(ChildAvailabilityMixin._is_filter_param('mask_length__gte', base_filters))
-        self.assertFalse(ChildAvailabilityMixin._is_filter_param('page', base_filters))
-        self.assertFalse(ChildAvailabilityMixin._is_filter_param('unknown__empty', base_filters))
-
     def test_has_active_child_filters_declared_filters(self):
         """A declared filter with a real value counts as active filtering."""
         self.add_permissions('ipam.view_aggregate', 'ipam.view_prefix')
@@ -565,38 +551,48 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request.user = self.user
         self.assertFalse(view._has_active_child_filters(request))
 
-    def test_has_active_child_filters_skips_table_controls(self):
-        """Table controls do not build the detector's filterset."""
-        filterset_class = AggregatePrefixesView.filterset
+    def test_has_active_child_filters_reuses_view_filterset(self):
+        """The detector evaluates the FilterSet already bound by the view, not a fresh one."""
+        aggregate = Aggregate.objects.create(prefix=IPNetwork('203.0.115.0/24'), rir=RIR.objects.first())
+        tenant = Tenant.objects.create(name='Reuse Tenant', slug='reuse-tenant')
+
         view = AggregatePrefixesView()
-        request = RequestFactory().get('/', {
-            'page': '2',
-            'per_page': '100',
-            'sort': 'prefix',
-            'tableconfig_id': '1',
-        })
+        request = RequestFactory().get('/')
         request.user = self.user
 
-        with patch.object(AggregatePrefixesView, 'filterset') as mock_filterset:
-            # A bare mock reports no members, so the real filter names must be supplied.
-            mock_filterset.base_filters = filterset_class.base_filters
-            self.assertFalse(view._has_active_child_filters(request))
+        # The bound FilterSet is authoritative: it reports a filter the request itself does not carry.
+        view.filterset_instance = AggregatePrefixesView.filterset(
+            {'tenant_id': [str(tenant.pk)]}, view.get_children(request, aggregate), request=request
+        )
 
-        mock_filterset.assert_not_called()
-
-    def test_has_active_child_filters_skips_empty_filter_values(self):
-        """Filters submitted without a value do not build the detector's filterset."""
-        filterset_class = AggregatePrefixesView.filterset
-        view = AggregatePrefixesView()
-        request = RequestFactory().get('/', {'tenant_id': '', 'status': ''})
+        request = RequestFactory().get('/', {'page': '2'})
         request.user = self.user
+        self.assertTrue(view._has_active_child_filters(request))
 
-        with patch.object(AggregatePrefixesView, 'filterset') as mock_filterset:
-            # A bare mock reports no members, so the real filter names must be supplied.
-            mock_filterset.base_filters = filterset_class.base_filters
-            self.assertFalse(view._has_active_child_filters(request))
+    def test_child_tab_binds_filterset_once(self):
+        """A filtered child tab binds the FilterSet once; the detector reuses it instead of rebuilding."""
+        self.add_permissions('ipam.view_aggregate', 'ipam.view_prefix')
+        aggregate = Aggregate.objects.create(prefix=IPNetwork('203.0.116.0/24'), rir=RIR.objects.first())
+        tenant = Tenant.objects.create(name='Bind Once Tenant', slug='bind-once-tenant')
+        Prefix.objects.create(prefix=IPNetwork('203.0.116.0/26'), tenant=tenant)
 
-        mock_filterset.assert_not_called()
+        # Count only data-bound instantiations: the filter form separately builds an unbound
+        # FilterSet to resolve field modifiers, which is unrelated to filter detection.
+        bound = []
+        original_init = filtersets.PrefixFilterSet.__init__
+
+        def counting_init(fs, *args, **kwargs):
+            if args or 'data' in kwargs:
+                bound.append(fs)
+            original_init(fs, *args, **kwargs)
+
+        url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
+        with patch.object(filtersets.PrefixFilterSet, '__init__', counting_init):
+            response = self.client.get(url, {'tenant_id': tenant.pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(bound), 1)
+        self.assertFalse(response.context['show_available'])
 
 
 class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
