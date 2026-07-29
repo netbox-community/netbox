@@ -11,7 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.utils import port_mapping_q
+from ipam.utils import normalize_port_mapping, port_mapping_q
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -380,7 +380,7 @@ def _port_mapping_prefix_q(model, protocols, ports, prefix, queryset):
 
 def _make_port_mapping_filters(model):
     # strawberry_django only collects filter_field methods declared on the filter_type class itself (not
-    # from a mixin), so the two Service/ServiceTemplate filters are produced by this factory and assigned
+    # from a mixin), so the Service/ServiceTemplate filters are produced by this factory and assigned
     # into each class body. This keeps the protocol/port correlation logic in a single place.
     @strawberry_django.filter_field
     def protocol(
@@ -399,7 +399,15 @@ def _make_port_mapping_filters(model):
             return Q()
         return _port_mapping_prefix_q(model, [], list(value), prefix, queryset)
 
-    return protocol, port
+    @strawberry_django.filter_field
+    def port_mappings(self, queryset, value: list[str], prefix):
+        # Whole-mapping lookup (e.g. ["tcp/80", "udp/53"], matching any). Each value names one complete
+        # protocol/port pair, so unlike protocol/port this needs no correlation and reduces to a
+        # GIN-indexable array overlap. Values are normalized so 'TCP/080' finds the stored 'tcp/80'.
+        mappings = [normalize_port_mapping(mapping) for mapping in value]
+        return Q(**{f'{prefix}port_mappings__overlap': mappings})
+
+    return protocol, port, port_mappings
 
 
 @register_filter(models.Service, lookups=True)
@@ -412,13 +420,13 @@ class ServiceFilter(ContactFilterMixin, PrimaryModelFilter):
         strawberry_django.filter_field()
     )
     parent_object_id: ID | None = strawberry_django.filter_field()
-    protocol, port = _make_port_mapping_filters(models.Service)
+    protocol, port, port_mappings = _make_port_mapping_filters(models.Service)
 
 
 @register_filter(models.ServiceTemplate, lookups=True)
 class ServiceTemplateFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
-    protocol, port = _make_port_mapping_filters(models.ServiceTemplate)
+    protocol, port, port_mappings = _make_port_mapping_filters(models.ServiceTemplate)
 
 
 @register_filter(models.VLAN, lookups=True)

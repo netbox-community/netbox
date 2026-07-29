@@ -1507,6 +1507,25 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         # Only Service Template 2 exposes port 3 (tcp/3).
         self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 2'])
 
+    def test_graphql_port_mappings_filter(self):
+        """The whole-mapping GraphQL filter matches an exact protocol/port pair for ServiceTemplate."""
+        self.add_permissions('ipam.view_servicetemplate')
+        url = reverse('graphql')
+        query = '{ service_template_list(filters: {port_mappings: ["tcp/3"]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 2'])
+
+        # udp/3 does not exist, though tcp/3 does
+        query = '{ service_template_list(filters: {port_mappings: ["udp/3"]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['service_template_list'], [])
+
     def test_create_duplicate_mapping_rejected(self):
         """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
         self.add_permissions('ipam.add_servicetemplate')
@@ -1795,6 +1814,29 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         # Service 1 (tcp/1) and the new udp-on-1 both expose port 1, on different protocols.
+        self.assertEqual({s['name'] for s in data['data']['service_list']}, {'Service 1', 'udp-on-1'})
+
+    def test_graphql_port_mappings_filter(self):
+        """The whole-mapping GraphQL filter matches an exact protocol/port pair, OR'd across values."""
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='udp-on-1', port_mappings=['udp/1'])
+        url = reverse('graphql')
+
+        # tcp/1 must not match the udp-only service, even though both expose port 1
+        query = '{ service_list(filters: {port_mappings: ["tcp/1"]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([s['name'] for s in data['data']['service_list']], ['Service 1'])
+
+        # Multiple values are OR'd, and input is normalized ('UDP/001' -> 'udp/1')
+        query = '{ service_list(filters: {port_mappings: ["tcp/1", "UDP/001"]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
         self.assertEqual({s['name'] for s in data['data']['service_list']}, {'Service 1', 'udp-on-1'})
 
     def test_graphql_protocol_only_filter(self):

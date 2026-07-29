@@ -30,7 +30,7 @@ from vpn.models import L2VPN
 
 from .choices import *
 from .models import *
-from .utils import port_mapping_q
+from .utils import normalize_port_mapping, port_mapping_q
 
 __all__ = (
     'ASNFilterSet',
@@ -1216,12 +1216,23 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
 
 class ServicePortMappingFilterMixin(django_filters.FilterSet):
     """
-    Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate, operating on the
-    ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are correlated: they must all
-    be satisfied by one single mapping, so ``?protocol=tcp&port__gt=1000`` does not match a service whose
-    only tcp mapping is tcp/80, and ``?port__gte=1000&port__lte=2000`` does not match a service exposing
-    only ports 500 and 5000. See ``ipam.utils.port_mapping_q``.
+    Shared ``port_mappings``, ``protocol`` and ``port`` filtering for Service and ServiceTemplate, all
+    operating on the ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are
+    correlated: they must all be satisfied by one single mapping, so ``?protocol=tcp&port__gt=1000`` does
+    not match a service whose only tcp mapping is tcp/80, and ``?port__gte=1000&port__lte=2000`` does not
+    match a service exposing only ports 500 and 5000. See ``ipam.utils.port_mapping_q``.
     """
+    # Whole-mapping lookup, e.g. ?port_mappings=tcp/80. Each value already names one complete
+    # protocol/port pair, so this needs none of the protocol/port correlation machinery below and is
+    # simply ANDed with the other filters.
+    port_mappings = MultiValueCharFilter(
+        method='filter_port_mappings',
+        label=_('Port mapping (protocol/port)'),
+    )
+    port_mappings__n = MultiValueCharFilter(
+        method='filter_port_mappings_negated',
+        label=_('Port mapping (protocol/port)'),
+    )
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
         method='filter_protocol',
@@ -1300,6 +1311,18 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
             return queryset
         self._port_mappings_filter_applied = True
         return queryset.filter(port_mapping_q(protocols, port_tests))
+
+    def filter_port_mappings(self, queryset, name, value: list[str]):
+        # Array overlap (&&) is served by the GIN index on port_mappings and gives the multi-value OR
+        # semantics used throughout NetBox: ?port_mappings=tcp/80&port_mappings=udp/53 matches either.
+        if not value:
+            return queryset
+        return queryset.filter(port_mappings__overlap=[normalize_port_mapping(v) for v in value])
+
+    def filter_port_mappings_negated(self, queryset, name, value: list[str]):
+        if not value:
+            return queryset
+        return queryset.exclude(port_mappings__overlap=[normalize_port_mapping(v) for v in value])
 
     def filter_protocol(self, queryset, name, value: list[str]):
         return self._apply_port_mappings(queryset)

@@ -19,6 +19,7 @@ __all__ = (
     'get_next_available_prefix',
     'group_port_mappings',
     'legacy_protocol_and_ports',
+    'normalize_port_mapping',
     'port_mapping_q',
     'rebuild_prefixes',
     'sorted_int_ports',
@@ -282,6 +283,32 @@ def split_port_mapping(mapping):
     """
     protocol, _sep, port = mapping.partition('/')
     return protocol, port
+
+
+def normalize_port_mapping(mapping):
+    """
+    Canonicalize a single ``protocol/port`` string as far as possible *without raising*: the protocol is
+    folded to its matching ``ServiceProtocolChoices`` value and a numeric port loses any leading zeros, so
+    ``'TCP/080'`` becomes ``'tcp/80'``. Anything unrecognized is returned unchanged, in which case it
+    simply won't match a stored (always-canonical) mapping.
+
+    This is the lookup-side counterpart to ``validate_port_mappings()``, which enforces the same
+    canonical form on write but rejects bad input. Filtering must not 400 on an unknown protocol or a
+    malformed pair — an empty result set is the right answer there — hence the separate, lenient variant.
+    """
+    # Imported lazily to avoid a circular import during settings load (ipam.choices reads
+    # settings.FIELD_CHOICES), matching validate_port_mappings().
+    from ipam.choices import ServiceProtocolChoices
+
+    protocol, port = split_port_mapping(mapping)
+    if not port or not port.isdigit():
+        return mapping
+    canonical_protocol = {value.lower(): value for value in ServiceProtocolChoices.values()}.get(
+        protocol.lower()
+    )
+    if canonical_protocol is None:
+        return mapping
+    return f'{canonical_protocol}/{int(port)}'
 
 
 def group_port_mappings(mappings):
