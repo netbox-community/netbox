@@ -4,6 +4,7 @@ import importlib
 import importlib.util
 import os
 import sys
+import threading
 import warnings
 from typing import NamedTuple
 
@@ -91,32 +92,48 @@ def _import_module(name):
         raise
 
 
+# Serializes cache checks, module execution, and the temporary sys.path change.
+# Reentrant because configuration code may load another path-based module.
+_import_lock = threading.RLock()
+
+
 def _import_from_path(module_name, path):
     """Load a configuration module from an explicit file path.
 
-    The module is registered in sys.modules (and removed again if execution fails), and the
-    file's directory is placed on sys.path for the duration of execution so the module can
-    import siblings, matching normal import semantics closely enough for configuration files.
+    The module is registered in sys.modules while it executes, and the file's directory is
+    placed on sys.path for that duration so the module can import siblings, matching normal
+    import semantics closely enough for configuration files. A module already loaded under the
+    same name from the same path is reused, while the same name from a different path replaces
+    it. A failed load leaves the previous entry in place. Loading is serialized so that a
+    concurrent caller cannot observe a module mid-execution.
     """
     path = os.path.abspath(path)
-    module_dir = os.path.dirname(path)
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    if spec is None or spec.loader is None:
-        raise ImproperlyConfigured(f"Unable to load configuration file {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    sys.path.insert(0, module_dir)
-    try:
-        spec.loader.exec_module(module)
-    except Exception:
-        if sys.modules.get(module_name) is module:
-            del sys.modules[module_name]
-        raise
-    finally:
-        # Remove only the entry this helper inserted at index 0.
-        if sys.path and sys.path[0] == module_dir:
-            sys.path.pop(0)
-    return module
+    with _import_lock:
+        existing = sys.modules.get(module_name)
+        existing_path = getattr(existing, '__file__', None)
+        if existing_path and os.path.abspath(existing_path) == path:
+            return existing
+        module_dir = os.path.dirname(path)
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        if spec is None or spec.loader is None:
+            raise ImproperlyConfigured(f"Unable to load configuration file {path}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        sys.path.insert(0, module_dir)
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            if sys.modules.get(module_name) is module:
+                if existing is None:
+                    del sys.modules[module_name]
+                else:
+                    sys.modules[module_name] = existing
+            raise
+        finally:
+            # Remove only the entry this helper inserted at index 0.
+            if sys.path and sys.path[0] == module_dir:
+                sys.path.pop(0)
+        return module
 
 
 def get_configuration_dir(module):
