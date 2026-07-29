@@ -1267,16 +1267,27 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         'port__lte': 'lte',
     }
 
+    # Set for the duration of a filter_queryset() run; see _apply_port_mappings().
+    _port_mappings_filter_applied = False
+
+    def filter_queryset(self, queryset):
+        # Reset the once-per-run guard used by _apply_port_mappings() so each pass over this FilterSet
+        # applies the port-mapping predicate afresh. Without this the flag would persist on the instance,
+        # silently dropping the predicate from any subsequent call (django-filter treats filter_queryset()
+        # as idempotent, and subclasses may invoke it more than once).
+        self._port_mappings_filter_applied = False
+        return super().filter_queryset(queryset)
+
     def _apply_port_mappings(self, queryset):
         """
         Apply `protocol` and every active `port*` lookup as a single correlated predicate.
 
         All of those filters route here, and each call builds the predicate for the whole set, so it is
         applied only on the first one to run and skipped thereafter — otherwise a query combining N of
-        them would emit N redundant copies of the same scan. The FilterSet is constructed per request and
-        `filter_queryset()` runs once over it, so a per-instance flag is safe here.
+        them would emit N redundant copies of the same scan. The flag tracking this is cleared at the
+        start of each filter_queryset() run (see above), so the dedup is per-run rather than per-instance.
         """
-        if getattr(self, '_port_mappings_filter_applied', False):
+        if self._port_mappings_filter_applied:
             return queryset
         cleaned_data = self.form.cleaned_data
         protocols = cleaned_data.get('protocol') or []

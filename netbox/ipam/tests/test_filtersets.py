@@ -2450,6 +2450,14 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port__gt': [1000]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_port_mappings_filter_is_idempotent(self):
+        # The protocol/port filters share a once-per-run guard so a combined query emits only one
+        # predicate. That guard must not persist across runs: filtering twice with the same FilterSet
+        # instance must yield the same result, not silently drop the predicate on the second pass.
+        filterset = self.filterset({'protocol': [ServiceProtocolChoices.PROTOCOL_UDP]}, self.queryset)
+        self.assertEqual(filterset.qs.count(), 2)
+        self.assertEqual(filterset.filter_queryset(self.queryset).count(), 2)
+
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

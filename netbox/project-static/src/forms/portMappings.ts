@@ -49,6 +49,24 @@ function serialize(widget: HTMLElement): void {
 }
 
 /**
+ * Keep the field's `<label for="...">` target on whichever protocol `<select>` is currently first, so
+ * removing the first row doesn't leave the label pointing at an element that no longer exists. The id is
+ * derived the same way as the server-side widget's `id_for_label()`.
+ */
+function syncLabelTarget(widget: HTMLElement): void {
+  if (!widget.id) return;
+  const targetId = `${widget.id}_protocol_0`;
+  const selects = Array.from(
+    widget.querySelectorAll<HTMLSelectElement>('select.port-mapping-protocol'),
+  );
+  for (const select of selects) {
+    // Clear the id everywhere first so it is never present on two rows at once.
+    if (select.id === targetId) select.removeAttribute('id');
+  }
+  if (selects.length > 0) selects[0].id = targetId;
+}
+
+/**
  * The set of protocol values currently selected across the widget's rows.
  */
 function usedProtocols(widget: HTMLElement): Set<string> {
@@ -154,6 +172,7 @@ function addRow(widget: HTMLElement): void {
     }
   }
 
+  syncLabelTarget(widget);
   refreshProtocolOptions(widget);
   serialize(widget);
 }
@@ -185,6 +204,7 @@ function initWidget(widget: HTMLElement): void {
     const removeButton = target.closest('[data-port-mapping-remove]');
     if (removeButton === null) return;
     removeButton.closest('[data-port-mapping-row]')?.remove();
+    syncLabelTarget(widget);
     refreshProtocolOptions(widget);
     serialize(widget);
   });
@@ -200,6 +220,7 @@ function initWidget(widget: HTMLElement): void {
   widget.closest('form')?.addEventListener('submit', () => serialize(widget));
 
   // Initialize option state and the hidden input from whatever rows are present on load
+  syncLabelTarget(widget);
   refreshProtocolOptions(widget);
   serialize(widget);
 }

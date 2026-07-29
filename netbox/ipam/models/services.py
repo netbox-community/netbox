@@ -90,10 +90,20 @@ class ServiceBase(models.Model):
             mapping for mapping in self.port_mappings if self._normalize_mapping(mapping) not in remove
         ]
 
+    @property
+    def port_mappings_list(self):
+        """
+        Return a user-friendly list of port mappings, e.g. "TCP/80, TCP/443, UDP/53".
+        """
+        return ', '.join(
+            f'{SERVICE_PROTOCOL_LABELS.get(protocol, protocol)}/{port}'
+            for protocol, port in (split_port_mapping(mapping) for mapping in self.port_mappings)
+        )
+
     # Read-only legacy accessors mirroring the deprecated REST/GraphQL protocol/ports fields, retained
     # for backward compatibility with code that read the old single-protocol fields. A multi-protocol
     # service has no single-protocol form, so both return None (ports=[] when there are no mappings).
-    # TODO: Remove in v5.0 once backward compatibility is dropped.
+    # TODO: Remove these in v5.0 once backward compatibility is dropped.
     @property
     def _legacy_protocol_ports(self):
         # Recomputed on access (grouping a handful of strings is cheap) rather than cached, so a mutation
@@ -111,16 +121,6 @@ class ServiceBase(models.Model):
     def ports(self) -> list[int] | None:
         return self._legacy_protocol_ports[1]
 
-    @property
-    def port_mappings_list(self):
-        # List each protocol/port pair individually for display, e.g. "TCP/80, TCP/443, UDP/53". Each
-        # protocol is rendered via its defined label (falling back to the stored value if unknown); the
-        # port is taken verbatim from the stored mapping, so no reformatting of the raw data is needed.
-        return ', '.join(
-            f'{SERVICE_PROTOCOL_LABELS.get(protocol, protocol)}/{port}'
-            for protocol, port in (split_port_mapping(mapping) for mapping in self.port_mappings)
-        )
-
 
 class ServiceTemplate(ServiceBase, PrimaryModel):
     """
@@ -136,9 +136,6 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
 
     class Meta:
         indexes = (
-            # Supports exact protocol/port lookups (port_mappings && ['tcp/80']). Protocol-only and
-            # range lookups can't use an array index at all (GIN array_ops supports only =, &&, @>, <@)
-            # and are served by a correlated scan instead — see ipam.utils.PortMappingMatch.
             GinIndex(fields=('port_mappings',)),
         )
         ordering = ('name',)
@@ -181,9 +178,6 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
-            # Supports exact protocol/port lookups (port_mappings && ['tcp/80']). Protocol-only and
-            # range lookups can't use an array index at all (GIN array_ops supports only =, &&, @>, <@)
-            # and are served by a correlated scan instead — see ipam.utils.PortMappingMatch.
             GinIndex(fields=('port_mappings',)),
         )
         ordering = ('name', 'id')

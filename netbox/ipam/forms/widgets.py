@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.forms.utils import flatatt
 
 from ipam.choices import ServiceProtocolChoices
 from ipam.utils import group_port_mappings
@@ -29,7 +30,18 @@ class PortMappingWidget(forms.Widget):
     """
     template_name = 'ipam/widgets/port_mappings.html'
 
+    # aria-* attributes which render_field_with_aria() sets per-field, and which must be copied onto the
+    # row controls: the wrapping <div> isn't a form control, so assistive technology ignores them there.
+    CONTROL_ATTRS = ('aria-describedby', 'aria-invalid')
+
+    def id_for_label(self, id_):
+        # The field's <label for="..."> must point at a real form control, not the wrapping <div> which
+        # carries the widget's id. Target the first row's protocol <select>; the client-side widget keeps
+        # this id on whichever row is first as rows are added and removed.
+        return f'{id_}_protocol_0' if id_ else ''
+
     def get_context(self, name, value, attrs):
+        attrs = attrs or {}
         rows = []
         if value:
             try:
@@ -44,7 +56,11 @@ class PortMappingWidget(forms.Widget):
                 'name': name,
                 'value': value or '[]',
                 'rows': rows,
-                'attrs': attrs or {},
+                'attrs': attrs,
+                'label_id': self.id_for_label(attrs.get('id')),
+                'control_attrs': flatatt({
+                    key: value for key, value in attrs.items() if key in self.CONTROL_ATTRS
+                }),
             },
             'protocol_choices': list(ServiceProtocolChoices),
         }
