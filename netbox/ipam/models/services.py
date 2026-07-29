@@ -35,16 +35,6 @@ class ServiceBase(models.Model):
         blank=True,
         default=list,
     )
-    # Denormalized set of the distinct protocols present in port_mappings, maintained by a PostgreSQL
-    # trigger (see the migration) so a protocol-only filter can hit a GIN index (_protocols && ['tcp'])
-    # instead of scanning a computed string form of port_mappings. Ports are unbounded, so only protocols
-    # are denormalized; port and protocol+port filters query port_mappings directly.
-    _protocols = ArrayField(
-        base_field=models.CharField(max_length=63),
-        blank=True,
-        default=list,
-        editable=False,
-    )
 
     class Meta:
         abstract = True
@@ -64,15 +54,6 @@ class ServiceBase(models.Model):
             raise ValidationError({'port_mappings': e.messages})
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
-
-    def save(self, *args, **kwargs):
-        # Maintain the denormalized protocol set on every Python write path — including ones that skip
-        # full_clean() (objects.create(), scripts, plugins) — mirroring how _ports_lowest was maintained
-        # previously. The DB trigger remains the source of truth for bulk_create/raw SQL, but computing
-        # it here keeps the in-memory instance (and its change-log snapshot) correct without a
-        # refresh_from_db().
-        self._protocols = sorted({split_port_mapping(mapping)[0] for mapping in self.port_mappings})
-        super().save(*args, **kwargs)
 
     @staticmethod
     def _normalize_mapping(mapping):
@@ -120,12 +101,14 @@ class ServiceBase(models.Model):
         # by the protocol/ports accessors, with no cache to invalidate.
         return legacy_protocol_and_ports(self.port_mappings)
 
+    # Return types are annotated so drf-spectacular can resolve these properties when it builds the
+    # write-side serializer schema (without them it warns and falls back to string).
     @property
-    def protocol(self):
+    def protocol(self) -> str | None:
         return self._legacy_protocol_ports[0]
 
     @property
-    def ports(self):
+    def ports(self) -> list[int] | None:
         return self._legacy_protocol_ports[1]
 
     @property
@@ -153,10 +136,10 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
 
     class Meta:
         indexes = (
-            # Supports protocol/port overlap lookups (port_mappings && ['tcp/80'])
+            # Supports exact protocol/port lookups (port_mappings && ['tcp/80']). Protocol-only and
+            # range lookups can't use an array index at all (GIN array_ops supports only =, &&, @>, <@)
+            # and are served by a correlated scan instead — see ipam.utils.PortMappingMatch.
             GinIndex(fields=('port_mappings',)),
-            # Supports protocol-only overlap lookups (_protocols && ['tcp'])
-            GinIndex(fields=('_protocols',)),
         )
         ordering = ('name',)
         verbose_name = _('application service template')
@@ -198,10 +181,10 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
-            # Supports protocol/port overlap lookups (port_mappings && ['tcp/80'])
+            # Supports exact protocol/port lookups (port_mappings && ['tcp/80']). Protocol-only and
+            # range lookups can't use an array index at all (GIN array_ops supports only =, &&, @>, <@)
+            # and are served by a correlated scan instead — see ipam.utils.PortMappingMatch.
             GinIndex(fields=('port_mappings',)),
-            # Supports protocol-only overlap lookups (_protocols && ['tcp'])
-            GinIndex(fields=('_protocols',)),
         )
         ordering = ('name', 'id')
         verbose_name = _('application service')

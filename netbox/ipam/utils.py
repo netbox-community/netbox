@@ -3,13 +3,15 @@ from dataclasses import dataclass
 import netaddr
 from django.apps import apps
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import BooleanField, F, Func, Q
 from django.utils.translation import gettext_lazy as _
 
 from .constants import *
 
 __all__ = (
+    'PORT_MAPPING_LOOKUPS',
     'AvailableIPSpace',
+    'PortMappingMatch',
     'add_available_vlans',
     'add_requested_prefixes',
     'annotate_ip_space',
@@ -331,32 +333,127 @@ def legacy_protocol_and_ports(mappings):
     return (None, []) if not grouped else (None, None)
 
 
-def port_mapping_q(protocols, ports):
+# Whitelisted SQL comparison operators for the port half of a mapping, keyed by the django-filter
+# lookup name. Only these five names are ever interpolated into SQL by PortMappingMatch, so the
+# operator can never originate from user input.
+PORT_MAPPING_LOOKUPS = {
+    'exact': '=',
+    'gt': '>',
+    'gte': '>=',
+    'lt': '<',
+    'lte': '<=',
+}
+
+# The port half of an unnested mapping, as an integer. Guarded by a numeric test so a malformed mapping
+# written outside the ORM (raw SQL, a plugin) evaluates to NULL — which no comparison matches — instead
+# of aborting the whole query with an invalid-input-syntax error. Mirrors the tolerance that
+# sorted_int_ports() and ServiceBase.port_mappings_list already apply on reads.
+_PORT_MAPPING_PORT_SQL = (
+    "CASE WHEN split_part(port_mapping, '/', 2) ~ '^[0-9]+$' "
+    "THEN split_part(port_mapping, '/', 2)::integer END"
+)
+
+
+class PortMappingMatch(Func):
     """
-    Build a ``Q`` filtering services by protocol and/or port. Every case reduces to a single
-    GIN-indexable array-overlap (``&&``) lookup: an explicit protocol+port pair (or a port-only query,
-    by pairing each port with every valid protocol) overlaps ``port_mappings`` directly
-    (``port_mappings && ['tcp/80', ...]`` — each element is one mapping, so overlap means "shares any
-    mapping"), while a protocol-only query — whose ports are unbounded and can't be enumerated — overlaps
-    the denormalized ``_protocols`` array (``_protocols && ['tcp']``), maintained by a trigger. Shared by
-    the FilterSet and the GraphQL filters.
+    A boolean expression which is true for services having at least one port mapping that satisfies the
+    given protocol and port tests:
+
+        EXISTS (
+            SELECT 1 FROM unnest(port_mappings) AS port_mapping
+            WHERE split_part(port_mapping, '/', 1) = ANY(<protocols>)
+              AND <port> >= <value> AND <port> <= <value> ...
+        )
+
+    Testing every condition against the *same* unnested mapping is what keeps protocol and port
+    correlated: a service exposing tcp/80 and udp/9999 must not match ``protocol=tcp&port__gt=1000``,
+    and one exposing tcp/500 and tcp/5000 must not match ``port__gte=1000&port__lte=2000``.
+
+    This is deliberately a sequential scan. GIN's ``array_ops`` opclass supports only ``=``, ``&&``,
+    ``@>`` and ``<@``, so no array index can serve a range comparison, and the alternatives (a
+    trigger-maintained denormalized column, or a related table) either cannot express the correlation or
+    cost far more than the scan — measured at ~200 ms over 400k services and ~1 s over 2M.
+    ``port_mapping_q()`` therefore reserves this for the cases an array overlap cannot express and uses
+    the GIN-indexable overlap for exact protocol+port lookups.
+    """
+    output_field = BooleanField()
+
+    def __init__(self, protocols=(), port_tests=()):
+        """
+        Args:
+            protocols: protocol values to match, OR'd together.
+            port_tests: ``(lookup, values)`` pairs, where ``lookup`` is a key of
+                ``PORT_MAPPING_LOOKUPS``. Pairs are AND'd (and so must hold for one single mapping);
+                the values within a pair are OR'd, matching how django-filter's multi-value filters
+                combine ``?port=80&port=443``.
+        """
+        self.protocols = list(protocols or ())
+        self.port_tests = [
+            (lookup, list(values)) for lookup, values in (port_tests or ()) if values
+        ]
+        for lookup, _values in self.port_tests:
+            if lookup not in PORT_MAPPING_LOOKUPS:
+                raise ValueError(f"Unsupported port mapping lookup: {lookup}")
+        super().__init__(F('port_mappings'))
+
+    def as_sql(self, compiler, connection, **extra_context):
+        mappings_sql, mappings_params = compiler.compile(self.source_expressions[0])
+        conditions = []
+        params = list(mappings_params)
+
+        if self.protocols:
+            conditions.append("split_part(port_mapping, '/', 1) = ANY(%s)")
+            params.append(self.protocols)
+        for lookup, values in self.port_tests:
+            operator = PORT_MAPPING_LOOKUPS[lookup]
+            conditions.append('({})'.format(
+                ' OR '.join(f'{_PORT_MAPPING_PORT_SQL} {operator} %s' for _value in values)
+            ))
+            params.extend(values)
+
+        if not conditions:
+            # port_mapping_q() never builds an unconstrained match, but be explicit rather than emit an
+            # EXISTS with an empty WHERE clause.
+            return 'TRUE', []
+
+        sql = (
+            f"EXISTS (SELECT 1 FROM unnest({mappings_sql}) AS port_mapping "
+            f"WHERE {' AND '.join(conditions)})"
+        )
+        return sql, params
+
+
+def port_mapping_q(protocols=(), port_tests=()):
+    """
+    Build a ``Q`` filtering services by protocol and/or port, correlated so that a combined query must
+    be satisfied by a *single* mapping. See ``PortMappingMatch`` for the argument shapes.
+
+    A lone exact port test reduces to a GIN-indexable array overlap on ``port_mappings``
+    (``port_mappings && ['tcp/80', ...]`` — each element is one whole mapping, so an overlap means
+    "shares any mapping"); for a port-only query each port is paired with every valid protocol to keep
+    it a single overlap. Everything else — a protocol-only query, whose ports are unbounded and cannot
+    be enumerated, and any range lookup, which no array index can serve — falls back to
+    ``PortMappingMatch``. Shared by the FilterSet and the GraphQL filters.
     """
     # Imported lazily to avoid a circular import during settings load (ipam.choices reads
     # settings.FIELD_CHOICES), matching ipam.validators.
     from ipam.choices import ServiceProtocolChoices
 
-    if not protocols and not ports:
+    protocols = list(protocols or ())
+    port_tests = [(lookup, list(values)) for lookup, values in (port_tests or ()) if values]
+
+    if not protocols and not port_tests:
         return Q()
-    if ports:
-        # protocol+port: overlap the explicit pairs. port-only: enumerate the (small, fixed) protocol
-        # set so the lookup stays a single overlap on port_mappings (ports are unbounded and can't be
-        # denormalized). Every stored mapping's protocol is validated against ServiceProtocolChoices, so
-        # the enumeration covers all valid data.
+
+    if len(port_tests) == 1 and port_tests[0][0] == 'exact':
+        # Every stored mapping's protocol is validated against ServiceProtocolChoices, so enumerating
+        # the (small, fixed) protocol set covers all valid data for a port-only query.
+        ports = port_tests[0][1]
         mapping_protocols = protocols or ServiceProtocolChoices.values()
         combos = [f'{protocol}/{port}' for protocol in mapping_protocols for port in ports]
         return Q(port_mappings__overlap=combos)
-    # Protocol-only: match the denormalized per-service protocol set.
-    return Q(_protocols__overlap=list(protocols))
+
+    return Q(PortMappingMatch(protocols=protocols, port_tests=port_tests))
 
 
 def expand_port_mapping(protocol, ports_str):

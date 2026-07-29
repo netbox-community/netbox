@@ -2417,6 +2417,39 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_port_negated(self):
+        # port__n excludes objects exposing the given port (1 of 6 templates uses 1001).
+        params = {'port__n': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_port_range_lookups(self):
+        # Ports in play: tcp/1001, tcp/1002, udp/1003, tcp/2001, tcp/2002, udp/2003
+        params = {'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'port__gte': [2001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'port__lt': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_port_range_bounds_combined(self):
+        # gte + lte describe one range, so both bounds must hold for the same mapping.
+        ServiceTemplate.objects.create(name='Straddling', port_mappings=['tcp/500', 'tcp/5000'])
+
+        params = {'port__gte': [1000], 'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_protocol_and_port_range(self):
+        # A range lookup is correlated with protocol, so this template's udp mapping (53) must not be
+        # matched by way of its tcp mapping (8080).
+        ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port__gt': [1000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2524,6 +2557,41 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         # Single-mapping composition still works
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_port_negated(self):
+        # port__n excludes objects exposing the given port (1 of 7 services uses 1001).
+        params = {'port__n': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_port_range_lookups(self):
+        # Ports in play: tcp/1001, tcp/1002, udp/1003, tcp/2001, tcp/2002, udp/2003, udp/2004
+        params = {'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'port__gte': [2001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'port__lt': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_port_range_bounds_combined(self):
+        # gte + lte describe one range, so both bounds must hold for the same mapping.
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='Straddling', port_mappings=['tcp/500', 'tcp/5000'])
+
+        params = {'port__gte': [1000], 'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_protocol_and_port_range(self):
+        # A range lookup is correlated with protocol, so this service's udp mapping (53) must not be
+        # matched by way of its tcp mapping (8080).
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port__gt': [1000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_device(self):
         devices = Device.objects.all()[:2]

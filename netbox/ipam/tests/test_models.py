@@ -9,7 +9,7 @@ from dcim.models import Location, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import *
-from ipam.utils import rebuild_prefixes
+from ipam.utils import port_mapping_q, rebuild_prefixes
 from utilities.data import string_to_ranges
 from virtualization.models import VirtualMachine
 
@@ -1967,32 +1967,56 @@ class ServiceTemplateTestCase(TestCase):
         with self.assertRaises(ValidationError):
             template.full_clean()
 
-    def test_protocols_denormalized_on_save(self):
-        # The _protocols column is maintained by a DB trigger: it holds the distinct protocols present
-        # in port_mappings, deduplicated (tcp/80 + tcp/443 => a single 'tcp').
-        template = ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/80', 'tcp/443', 'udp/53'])
-        template.refresh_from_db()
-        self.assertEqual(set(template._protocols), {'tcp', 'udp'})
+    def _matching_names(self, protocols=(), port_tests=()):
+        return set(
+            ServiceTemplate.objects.filter(port_mapping_q(protocols, port_tests))
+            .values_list('name', flat=True)
+        )
 
-    def test_protocols_denormalized_on_bulk_create(self):
-        # The trigger fires for bulk_create too (which bypasses Model.save()), so protocol filtering
-        # remains correct for rows created that way.
+    def test_protocol_query_reads_port_mappings_directly(self):
+        # Protocol filtering is derived from port_mappings on every query rather than from a
+        # denormalized column, so it is correct for any write path -- including ones that bypass
+        # Model.save() such as bulk_create() and queryset.update().
+        ServiceTemplate.objects.create(name='Saved', port_mappings=['tcp/80', 'tcp/443'])
         ServiceTemplate.objects.bulk_create([
-            ServiceTemplate(name='Bulk 1', port_mappings=['tcp/80']),
-            ServiceTemplate(name='Bulk 2', port_mappings=['udp/53', 'tcp/53']),
+            ServiceTemplate(name='Bulk', port_mappings=['udp/53', 'tcp/53']),
         ])
-        bulk1 = ServiceTemplate.objects.get(name='Bulk 1')
-        bulk2 = ServiceTemplate.objects.get(name='Bulk 2')
-        self.assertEqual(set(bulk1._protocols), {'tcp'})
-        self.assertEqual(set(bulk2._protocols), {'tcp', 'udp'})
+        updated = ServiceTemplate.objects.create(name='Updated', port_mappings=['tcp/53', 'udp/53'])
+        ServiceTemplate.objects.filter(pk=updated.pk).update(port_mappings=['udp/53'])
 
-    def test_protocols_denormalized_on_update(self):
-        # Reducing the mappings must drop the now-absent protocol from _protocols.
-        template = ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/53', 'udp/53'])
-        template.port_mappings = ['udp/53']
-        template.save()
-        template.refresh_from_db()
-        self.assertEqual(set(template._protocols), {'udp'})
+        self.assertEqual(self._matching_names(protocols=['tcp']), {'Saved', 'Bulk'})
+        self.assertEqual(self._matching_names(protocols=['udp']), {'Bulk', 'Updated'})
+
+    def test_port_range_query_is_correlated_with_protocol(self):
+        # A range lookup must be satisfied by the same mapping as the protocol, so a template whose only
+        # tcp mapping is tcp/80 must not match protocol=tcp with port > 1000.
+        ServiceTemplate.objects.create(name='Low TCP', port_mappings=['tcp/80', 'udp/9999'])
+        ServiceTemplate.objects.create(name='High TCP', port_mappings=['tcp/8080'])
+
+        self.assertEqual(self._matching_names(port_tests=[('gt', [1000])]), {'Low TCP', 'High TCP'})
+        self.assertEqual(
+            self._matching_names(protocols=['tcp'], port_tests=[('gt', [1000])]), {'High TCP'}
+        )
+
+    def test_port_range_bounds_must_hold_for_one_mapping(self):
+        # gte + lte together describe a single port range, so a template exposing only ports outside it
+        # must not match by satisfying each bound with a different mapping.
+        ServiceTemplate.objects.create(name='Straddling', port_mappings=['tcp/500', 'tcp/5000'])
+        ServiceTemplate.objects.create(name='Inside', port_mappings=['tcp/1500'])
+
+        self.assertEqual(
+            self._matching_names(port_tests=[('gte', [1000]), ('lte', [2000])]), {'Inside'}
+        )
+
+    def test_port_query_tolerates_malformed_mapping(self):
+        # A mapping written outside the ORM (raw SQL, a plugin) whose port isn't numeric must not abort
+        # the query; it simply never matches a port comparison.
+        template = ServiceTemplate.objects.create(name='Malformed', port_mappings=['tcp/80'])
+        ServiceTemplate.objects.filter(pk=template.pk).update(port_mappings=['tcp/nope', 'udp/53'])
+
+        self.assertEqual(self._matching_names(port_tests=[('gt', [1])]), {'Malformed'})
+        self.assertEqual(self._matching_names(protocols=['tcp'], port_tests=[('gt', [1])]), set())
+        self.assertEqual(self._matching_names(protocols=['tcp']), {'Malformed'})
 
 
 class ServiceTestCase(TestCase):

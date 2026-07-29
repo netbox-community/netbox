@@ -368,13 +368,13 @@ def _sibling_ports(filters):
 
 
 def _port_mapping_prefix_q(model, protocols, ports, prefix, queryset):
-    qs_filter = port_mapping_q(protocols, ports)
+    qs_filter = port_mapping_q(protocols, [('exact', ports)])
     if prefix:
         # Nested relation (e.g. prefix='services__'): the incoming queryset is a *different* model, so
         # resolve the matching PKs on the target model and match them through the prefix.
         return Q(**{f'{prefix}pk__in': model.objects.filter(qs_filter).values('pk')})
-    # Root query: the incoming queryset already targets this model, so return the GIN-indexable
-    # overlap lookup directly rather than an extra pk__in self-subquery.
+    # Root query: the incoming queryset already targets this model, so return the lookup directly rather
+    # than wrapping it in an extra pk__in self-subquery.
     return qs_filter
 
 

@@ -45,13 +45,27 @@ In the REST and GraphQL APIs, port mappings are represented as a flat list of `p
 
     At the ORM level (custom scripts and plugins), `protocol` and `ports` are now **read-only** properties derived from `port_mappings`. Assign `port_mappings` directly — e.g. `Service(parent=device, name='http', port_mappings=['tcp/80'])` — since passing `protocol=`/`ports=` to the model raises `TypeError` and setting `service.ports = [...]` raises `AttributeError`.
 
+### Filtering by Protocol and Port
+
+`protocol` and `port` are filtered against the `port_mappings` array. Both accept multiple values, and `port` supports the usual numeric lookups:
+
+| Parameter | Matches services having a mapping whose… |
+|---|---|
+| `?protocol=tcp` | protocol is TCP |
+| `?protocol__n=tcp` | *(negated)* protocol is TCP |
+| `?port=80` | port is 80 |
+| `?port__n=80` | *(negated)* port is 80 |
+| `?port__gt=` / `?port__gte=` / `?port__lt=` / `?port__lte=` | port is above/below the given value |
+
+When several of these are combined, they must all be satisfied by a **single** mapping. So `?protocol=tcp&port__gt=1000` does not match a service whose only TCP mapping is `tcp/80` (even if it also exposes `udp/9999`), and `?port__gte=1000&port__lte=2000` does not match a service exposing only ports 500 and 5000.
+
 !!! warning "GraphQL filter change in NetBox v4.7"
 
-    The GraphQL filters for `Service` and `ServiceTemplate` have changed shape. The former `protocol` lookup and `ports` integer lookup (which supported `exact`/`gt`/`lt`/`range`/etc.) are replaced by `protocol` and `port`, each accepting a list of values — for example `filters: {protocol: [TCP], port: [80]}`. When both are supplied, a service matches only if a single mapping satisfies both. Existing GraphQL queries using the old `ports` filter or its range/comparison lookups must be updated.
+    The GraphQL filters for `Service` and `ServiceTemplate` have changed shape. The former `protocol` lookup and `ports` integer lookup (which supported `exact`/`gt`/`lt`/`range`/etc.) are replaced by `protocol` and `port`, each accepting a list of values — for example `filters: {protocol: [ROLE_TCP], port: [80]}`. When both are supplied, a service matches only if a single mapping satisfies both. Existing GraphQL queries using the old `ports` filter or its range/comparison lookups must be updated; the range lookups are currently available on the REST API only.
 
 !!! warning "REST filter change in NetBox v4.7"
 
-    Because `protocol` and `port` are now filtered against the `port_mappings` array rather than dedicated model fields, the character-based lookup variants previously auto-generated for the `protocol` field — `protocol__n`, `protocol__ic`, `protocol__nic`, `protocol__empty`, etc. — are no longer available. Filter on `protocol` and `port` directly (both accept multiple values, e.g. `?protocol=tcp&port=80`). As with any unrecognized query parameter, the REST API silently ignores a removed lookup rather than raising an error, so update any saved filters or scripts that relied on them.
+    Because `protocol` is now filtered against the `port_mappings` array rather than a dedicated model field, the character-based lookup variants previously auto-generated for it — `protocol__ic`, `protocol__nic`, `protocol__isw`, `protocol__empty`, etc. — are no longer available; `protocol` and `protocol__n` remain. The `port__empty` lookup is likewise gone, as a service always has at least one port mapping. As with any unrecognized query parameter, the REST API silently ignores a removed lookup rather than raising an error, so update any saved filters or scripts that relied on them.
 
 ### IP Addresses
 

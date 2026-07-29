@@ -257,7 +257,7 @@ _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-
 
 @register_type(
     models.Service,
-    exclude=('_protocols', 'parent_object_type', 'parent_object_id'),
+    exclude=('parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
@@ -285,7 +285,7 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @register_type(
     models.ServiceTemplate,
-    exclude=('_protocols',),
+    fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
 )

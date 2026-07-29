@@ -1216,16 +1216,15 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
 
 class ServicePortMappingFilterMixin(django_filters.FilterSet):
     """
-    Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate. Both operate on the
-    ``port_mappings`` array (protocol-only queries use the denormalized ``_protocols`` array); when both
-    are supplied they must match a single mapping (see ``port_mapping_q``).
+    Shared ``protocol`` and ``port`` filtering for Service and ServiceTemplate, operating on the
+    ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are correlated: they must all
+    be satisfied by one single mapping, so ``?protocol=tcp&port__gt=1000`` does not match a service whose
+    only tcp mapping is tcp/80, and ``?port__gte=1000&port__lte=2000`` does not match a service exposing
+    only ports 500 and 5000. See ``ipam.utils.port_mapping_q``.
     """
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
         method='filter_protocol',
-    )
-    port = MultiValueNumberFilter(
-        method='filter_port',
     )
     # Negation lookup retained from when `protocol` was a model field: method-based filters don't get
     # the char-based lookups (protocol__n, __ic, ...) auto-generated, and silently dropping protocol__n
@@ -1235,31 +1234,81 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         choices=ServiceProtocolChoices,
         method='filter_protocol_negated',
     )
+    # `port` and its range lookups. These are declared explicitly because a method-based filter gets no
+    # auto-generated lookups (BaseFilterSet.get_additional_lookups() skips filters with a method), and
+    # they must be correlated with `protocol` rather than applied independently. `port__empty` is
+    # intentionally absent: port_mappings is never empty on a validated object, so it was never
+    # meaningful. See ipam.utils.PORT_MAPPING_LOOKUPS for the lookup -> SQL operator mapping.
+    port = MultiValueNumberFilter(
+        method='filter_port',
+    )
+    port__n = MultiValueNumberFilter(
+        method='filter_port_negated',
+    )
+    port__gt = MultiValueNumberFilter(
+        method='filter_port',
+    )
+    port__gte = MultiValueNumberFilter(
+        method='filter_port',
+    )
+    port__lt = MultiValueNumberFilter(
+        method='filter_port',
+    )
+    port__lte = MultiValueNumberFilter(
+        method='filter_port',
+    )
 
-    def _filter_port_mappings(self, queryset):
-        # Correlate the protocol and port filters so a combined query matches a single mapping rather
-        # than protocol and port independently across the whole array.
-        protocols = self.form.cleaned_data.get('protocol') or []
-        ports = self.form.cleaned_data.get('port') or []
-        if not protocols and not ports:
+    # Filter name -> the port lookup it applies, in the order the conditions are built.
+    PORT_FILTERS = {
+        'port': 'exact',
+        'port__gt': 'gt',
+        'port__gte': 'gte',
+        'port__lt': 'lt',
+        'port__lte': 'lte',
+    }
+
+    def _apply_port_mappings(self, queryset):
+        """
+        Apply `protocol` and every active `port*` lookup as a single correlated predicate.
+
+        All of those filters route here, and each call builds the predicate for the whole set, so it is
+        applied only on the first one to run and skipped thereafter — otherwise a query combining N of
+        them would emit N redundant copies of the same scan. The FilterSet is constructed per request and
+        `filter_queryset()` runs once over it, so a per-instance flag is safe here.
+        """
+        if getattr(self, '_port_mappings_filter_applied', False):
             return queryset
-        return queryset.filter(port_mapping_q(protocols, ports))
-
-    def filter_protocol(self, queryset, name, value):
-        return self._filter_port_mappings(queryset)
-
-    def filter_port(self, queryset, name, value):
-        # When protocol is also supplied, filter_protocol applies the combined protocol+port filter;
-        # skip here so the queryset isn't filtered (and annotated) a second time.
-        if self.form.cleaned_data.get('protocol'):
+        cleaned_data = self.form.cleaned_data
+        protocols = cleaned_data.get('protocol') or []
+        port_tests = [
+            (lookup, cleaned_data.get(name) or [])
+            for name, lookup in self.PORT_FILTERS.items()
+        ]
+        port_tests = [(lookup, values) for lookup, values in port_tests if values]
+        if not protocols and not port_tests:
             return queryset
-        return self._filter_port_mappings(queryset)
+        self._port_mappings_filter_applied = True
+        return queryset.filter(port_mapping_q(protocols, port_tests))
 
-    def filter_protocol_negated(self, queryset, name, value):
+    def filter_protocol(self, queryset, name, value: list[str]):
+        return self._apply_port_mappings(queryset)
+
+    def filter_port(self, queryset, name, value: list[int]):
+        return self._apply_port_mappings(queryset)
+
+    def filter_protocol_negated(self, queryset, name, value: list[str]):
         # Exclude services exposing any of the given protocols (negation of the protocol-only lookup).
         if not value:
             return queryset
-        return queryset.exclude(port_mapping_q(value, []))
+        return queryset.exclude(port_mapping_q(value))
+
+    def filter_port_negated(self, queryset, name, value: list[int]):
+        # Exclude services exposing any of the given ports. Correlated with `protocol` when supplied, so
+        # ?protocol=tcp&port__n=80 excludes only services exposing tcp/80 (not those exposing udp/80).
+        if not value:
+            return queryset
+        protocols = self.form.cleaned_data.get('protocol') or []
+        return queryset.exclude(port_mapping_q(protocols, [('exact', value)]))
 
 
 @register_filterset
