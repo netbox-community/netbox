@@ -4,22 +4,10 @@ from django import forms
 from django.forms.utils import flatatt
 
 from ipam.choices import ServiceProtocolChoices
-from ipam.utils import group_port_mappings
 
 __all__ = (
     'PortMappingWidget',
 )
-
-
-def group_mappings(mappings):
-    """
-    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into widget rows
-    ``[{'protocol': 'tcp', 'ports': '80,443'}, {'protocol': 'udp', 'ports': '53'}]``.
-    """
-    return [
-        {'protocol': protocol, 'ports': ','.join(ports)}
-        for protocol, ports in group_port_mappings(mappings).items()
-    ]
 
 
 class PortMappingWidget(forms.Widget):

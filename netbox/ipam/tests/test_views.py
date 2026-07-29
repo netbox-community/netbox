@@ -1885,6 +1885,43 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_bulk_edit_port_mappings(self):
+        # Bulk add/remove port mappings across selected templates (tags-style). ServiceTemplate is where
+        # the add/remove fields are declared (ServiceBulkEditForm inherits them), so cover it directly.
+        self.add_permissions('ipam.view_servicetemplate', 'ipam.change_servicetemplate')
+        templates = list(
+            ServiceTemplate.objects.filter(name__in=['Service Template 1', 'Service Template 2']).order_by('name')
+        )
+        data = {
+            'pk': [t.pk for t in templates],
+            'add_port_mappings': '[{"protocol": "udp", "ports": "53"}]',
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        # Service Template 1 (was tcp/101): tcp/101 removed, udp/53 added
+        self.assertEqual(ServiceTemplate.objects.get(pk=templates[0].pk).port_mappings, ['udp/53'])
+        # Service Template 2 (was tcp/102): remove is a no-op, udp/53 added
+        self.assertEqual(
+            ServiceTemplate.objects.get(pk=templates[1].pk).port_mappings, ['tcp/102', 'udp/53']
+        )
+
+    def test_bulk_edit_removing_all_mappings_is_rejected(self):
+        # Emptying an object's mappings must fail validation rather than persist an invalid object.
+        self.add_permissions('ipam.view_servicetemplate', 'ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.get(name='Service Template 1')
+        data = {
+            'pk': [template.pk],
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)  # Re-rendered with the error, not a redirect
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/101'])
+
 
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service

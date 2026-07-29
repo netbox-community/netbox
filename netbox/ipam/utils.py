@@ -17,6 +17,7 @@ __all__ = (
     'annotate_ip_space',
     'expand_port_mapping',
     'get_next_available_prefix',
+    'group_port_mapping_rows',
     'group_port_mappings',
     'legacy_protocol_and_ports',
     'normalize_port_mapping',
@@ -322,6 +323,18 @@ def group_port_mappings(mappings):
         protocol, port = split_port_mapping(mapping)
         grouped.setdefault(protocol, []).append(port)
     return grouped
+
+
+def group_port_mapping_rows(mappings):
+    """
+    Group a flat ``['tcp/80', 'tcp/443', 'udp/53']`` list into per-protocol rows
+    ``[{'protocol': 'tcp', 'ports': '80,443'}, {'protocol': 'udp', 'ports': '53'}]`` — the shape the
+    port-mapping form widget renders, one row per protocol.
+    """
+    return [
+        {'protocol': protocol, 'ports': ','.join(ports)}
+        for protocol, ports in group_port_mappings(mappings).items()
+    ]
 
 
 def sorted_int_ports(ports):

@@ -1214,6 +1214,17 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+# Service/ServiceTemplate port filter name -> the port lookup it applies, in the order the conditions
+# are built. See ServicePortMappingFilterMixin and ipam.utils.PORT_MAPPING_LOOKUPS.
+SERVICE_PORT_FILTERS = {
+    'port': 'exact',
+    'port__gt': 'gt',
+    'port__gte': 'gte',
+    'port__lt': 'lt',
+    'port__lte': 'lte',
+}
+
+
 class ServicePortMappingFilterMixin(django_filters.FilterSet):
     """
     Shared ``port_mappings``, ``protocol`` and ``port`` filtering for Service and ServiceTemplate, all
@@ -1269,15 +1280,6 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         method='filter_port',
     )
 
-    # Filter name -> the port lookup it applies, in the order the conditions are built.
-    PORT_FILTERS = {
-        'port': 'exact',
-        'port__gt': 'gt',
-        'port__gte': 'gte',
-        'port__lt': 'lt',
-        'port__lte': 'lte',
-    }
-
     # Set for the duration of a filter_queryset() run; see _apply_port_mappings().
     _port_mappings_filter_applied = False
 
@@ -1304,7 +1306,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         protocols = cleaned_data.get('protocol') or []
         port_tests = [
             (lookup, cleaned_data.get(name) or [])
-            for name, lookup in self.PORT_FILTERS.items()
+            for name, lookup in SERVICE_PORT_FILTERS.items()
         ]
         port_tests = [(lookup, values) for lookup, values in port_tests if values]
         if not protocols and not port_tests:

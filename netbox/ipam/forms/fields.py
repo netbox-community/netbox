@@ -4,8 +4,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from ipam.forms.widgets import PortMappingWidget, group_mappings
-from ipam.utils import expand_port_mapping
+from ipam.forms.widgets import PortMappingWidget
+from ipam.utils import expand_port_mapping, group_port_mapping_rows
 from ipam.validators import validate_port_mappings
 
 __all__ = (
@@ -33,9 +33,9 @@ class PortMappingField(forms.Field):
             try:
                 json.loads(value)
             except (TypeError, ValueError):
-                return json.dumps(group_mappings([value]))
+                return json.dumps(group_port_mapping_rows([value]))
             return value
-        return json.dumps(group_mappings(value))
+        return json.dumps(group_port_mapping_rows(value))
 
     def to_python(self, value):
         if value in (None, ''):
@@ -52,7 +52,7 @@ class PortMappingField(forms.Field):
                 raise ValidationError(_("Invalid port mapping data."))
 
             mappings = []
-            for row in rows:
+            for position, row in enumerate(rows, start=1):
                 protocol = (row or {}).get('protocol')
                 raw_ports = (row or {}).get('ports')
                 if isinstance(raw_ports, str):
@@ -65,8 +65,19 @@ class PortMappingField(forms.Field):
                     mappings.extend(f'{protocol}/{port}' for port in raw_ports)
                 else:
                     # A comma/range string (the widget's format); expand it via the shared helper, which
-                    # also preserves a protocol-without-ports row as a bare 'protocol/' token.
-                    mappings.extend(expand_port_mapping(protocol, raw_ports))
+                    # also preserves a protocol-without-ports row as a bare 'protocol/' token. Errors are
+                    # re-raised with the row's position (among the submitted rows — the widget omits
+                    # entirely-blank ones), since it renders one row per protocol and an unqualified
+                    # "Select a protocol" gives no clue which row to fix. Errors from
+                    # validate_port_mappings() below are deliberately left unqualified: each quotes the
+                    # offending mapping already, and a duplicate spans two rows.
+                    try:
+                        mappings.extend(expand_port_mapping(protocol, raw_ports))
+                    except ValidationError as e:
+                        raise ValidationError([
+                            _("Row {position}: {error}").format(position=position, error=message)
+                            for message in e.messages
+                        ])
 
         # Shared validation returns the canonical (normalized) list of protocol/port strings
         return validate_port_mappings(mappings)

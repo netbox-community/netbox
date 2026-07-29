@@ -244,6 +244,38 @@ class PortMappingFieldTestCase(TestCase):
         # Specifically not the confusing blank "Invalid protocol:" message.
         self.assertFalse(any(msg.strip().endswith('Invalid protocol:') for msg in ctx.exception.messages))
 
+    def test_row_errors_identify_the_row(self):
+        """
+        A per-row error names the offending row, since the widget renders one row per protocol and an
+        unqualified message gives no clue which of several rows to fix.
+        """
+        field = PortMappingField()
+        # A row with ports but no protocol
+        rows = '[{"protocol": "tcp", "ports": "80"}, {"protocol": "", "ports": "53"}]'
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean(rows)
+        self.assertTrue(
+            any(msg.startswith('Row 2:') for msg in ctx.exception.messages), ctx.exception.messages
+        )
+        # A row whose port range is invalid
+        rows = '[{"protocol": "tcp", "ports": "80"}, {"protocol": "udp", "ports": "9000-53"}]'
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean(rows)
+        self.assertTrue(
+            any(msg.startswith('Row 2:') for msg in ctx.exception.messages), ctx.exception.messages
+        )
+
+    def test_whole_field_errors_are_not_row_attributed(self):
+        """
+        Errors raised by validate_port_mappings() are left unqualified: each already quotes the offending
+        mapping, and a duplicate spans two rows so attributing it to one would be misleading.
+        """
+        field = PortMappingField()
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean('[{"protocol": "tcp", "ports": "80"}, {"protocol": "udp", "ports": ""}]')
+        self.assertFalse(any(msg.startswith('Row ') for msg in ctx.exception.messages))
+        self.assertTrue(any('udp/' in msg for msg in ctx.exception.messages), ctx.exception.messages)
+
     def test_reversed_range_rejected(self):
         """A reversed range must raise rather than silently expanding to an empty (dropped) list."""
         field = PortMappingField()
