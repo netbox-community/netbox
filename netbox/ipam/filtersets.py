@@ -1227,6 +1227,14 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
     port = MultiValueNumberFilter(
         method='filter_port',
     )
+    # Negation lookup retained from when `protocol` was a model field: method-based filters don't get
+    # the char-based lookups (protocol__n, __ic, ...) auto-generated, and silently dropping protocol__n
+    # would widen existing saved filters/scripts rather than error. The __ic/__nic/__empty variants were
+    # never meaningful on a small fixed choice set and are intentionally left gone.
+    protocol__n = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+        method='filter_protocol_negated',
+    )
 
     def _filter_port_mappings(self, queryset):
         # Correlate the protocol and port filters so a combined query matches a single mapping rather
@@ -1246,6 +1254,12 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         if self.form.cleaned_data.get('protocol'):
             return queryset
         return self._filter_port_mappings(queryset)
+
+    def filter_protocol_negated(self, queryset, name, value):
+        # Exclude services exposing any of the given protocols (negation of the protocol-only lookup).
+        if not value:
+            return queryset
+        return queryset.exclude(port_mapping_q(value, []))
 
 
 @register_filterset

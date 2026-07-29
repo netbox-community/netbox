@@ -235,6 +235,15 @@ class PortMappingFieldTestCase(TestCase):
             field.clean('[{"protocol": "tcp", "ports": ""}]')
         self.assertTrue(any('tcp/' in msg for msg in ctx.exception.messages))
 
+    def test_ports_without_protocol_reports_clear_error(self):
+        """Ports entered with no protocol (e.g. the blank initial row) report a clear protocol error."""
+        field = PortMappingField()
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean('[{"protocol": "", "ports": "80"}]')
+        self.assertTrue(any('protocol' in msg.lower() for msg in ctx.exception.messages))
+        # Specifically not the confusing blank "Invalid protocol:" message.
+        self.assertFalse(any(msg.strip().endswith('Invalid protocol:') for msg in ctx.exception.messages))
+
     def test_reversed_range_rejected(self):
         """A reversed range must raise rather than silently expanding to an empty (dropped) list."""
         field = PortMappingField()

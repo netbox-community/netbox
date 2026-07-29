@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import netaddr
 from django.apps import apps
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
@@ -355,14 +356,20 @@ def expand_port_mapping(protocol, ports_str):
     Expand a single protocol plus a comma/range port string (e.g. ``('tcp', '80,443,8000-8010')``) into
     the model's flat ``['tcp/80', 'tcp/443', ...]`` tokens. An empty ``ports_str`` yields a single bare
     ``'protocol/'`` token so ``validate_port_mappings`` reports a clear "expected protocol/port" error
-    (rather than ``parse_numeric_range`` raising a confusing 'Range "" is invalid'). Shared by the model
-    form field and the CSV import form so the protocol/port string is parsed in exactly one place.
+    (rather than ``parse_numeric_range`` raising a confusing 'Range "" is invalid'). An empty ``protocol``
+    raises a clear error rather than producing a ``'/80'`` token that surfaces as "Invalid protocol:"
+    with a blank value. Shared by the model form field so the protocol/port string is parsed in one place.
     """
     # Imported lazily to avoid pulling the forms layer in at module load.
     from utilities.forms.utils import parse_numeric_range
 
     protocol = (protocol or '').strip().lower()
     ports_str = (ports_str or '').strip()
+    if not protocol:
+        # A row with ports but no protocol (e.g. the initial blank row where the user typed a port but
+        # never picked a protocol) would otherwise expand to '/80' and surface as a confusing
+        # "Invalid protocol:" with a blank value. Report the real problem instead.
+        raise ValidationError(_("Select a protocol for each port mapping."))
     if not ports_str:
         return [f'{protocol}/']
     # parse_numeric_range validates each range against the port bounds (rejecting reversed and

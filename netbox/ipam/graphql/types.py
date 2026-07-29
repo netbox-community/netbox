@@ -250,8 +250,8 @@ class RouteTargetType(PrimaryObjectType):
 
 # Shared deprecation reason for the legacy port-mapping GraphQL fields. The fields themselves are
 # declared on each type (rather than via a mixin) so they reliably override the auto-generated model
-# field of the same name; each delegates to the model's protocol/ports properties (single source of
-# truth for the legacy view, computed once per object via the model's cached_property).
+# field of the same name; each delegates to the model's protocol/ports properties (the single source of
+# truth for the legacy view, derived from port_mappings on each access).
 _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-protocol services."
 
 

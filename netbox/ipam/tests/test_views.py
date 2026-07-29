@@ -1845,7 +1845,8 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
-    # port_mappings is a reverse relation managed by the form, not a directly-comparable model field
+    # port_mappings is an ArrayField, but the form submits it as a JSON string rather than a list, so
+    # the value isn't directly comparable to the stored field during the view test's edit assertions
     validation_excluded_fields = ('port_mappings',)
 
     @classmethod
@@ -1888,7 +1889,8 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
     # TODO, related to #9816, cannot validate GFK
-    # port_mappings is a reverse relation managed by the form, not a directly-comparable model field
+    # port_mappings is an ArrayField, but the form submits it as a JSON string rather than a list, so
+    # the value isn't directly comparable to the stored field during the view test's edit assertions
     validation_excluded_fields = ('device', 'port_mappings')
 
     @classmethod

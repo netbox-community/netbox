@@ -43,6 +43,8 @@ In the REST and GraphQL APIs, port mappings are represented as a flat list of `p
 
     On write, `port_mappings` and the legacy `protocol`/`ports` fields may be submitted together only when they agree — as in a full-object round-trip that echoes back a read. A request whose legacy fields contradict `port_mappings` (for example, an edited `port_mappings` sent alongside the stale `protocol`/`ports` from the original read) is rejected as ambiguous; send `port_mappings` alone, or keep the legacy fields consistent with it.
 
+    At the ORM level (custom scripts and plugins), `protocol` and `ports` are now **read-only** properties derived from `port_mappings`. Assign `port_mappings` directly — e.g. `Service(parent=device, name='http', port_mappings=['tcp/80'])` — since passing `protocol=`/`ports=` to the model raises `TypeError` and setting `service.ports = [...]` raises `AttributeError`.
+
 !!! warning "GraphQL filter change in NetBox v4.7"
 
     The GraphQL filters for `Service` and `ServiceTemplate` have changed shape. The former `protocol` lookup and `ports` integer lookup (which supported `exact`/`gt`/`lt`/`range`/etc.) are replaced by `protocol` and `port`, each accepting a list of values — for example `filters: {protocol: [TCP], port: [80]}`. When both are supplied, a service matches only if a single mapping satisfies both. Existing GraphQL queries using the old `ports` filter or its range/comparison lookups must be updated.

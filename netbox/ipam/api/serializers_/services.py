@@ -97,6 +97,13 @@ class PortMappingsSerializerMixin(serializers.Serializer):
                         "Specify either 'port_mappings' or the deprecated 'protocol'/'ports' fields, not both."
                     ))
                 return super().validate(data)
+            # The old API accepted an empty ports list (the ArrayField had no minimum length); the new
+            # model requires at least one mapping. Report that directly — both fields may have been
+            # supplied, so the "both are required" message below would be misleading.
+            if legacy_ports == []:
+                raise serializers.ValidationError(
+                    {'ports': _("At least one port mapping is required.")}
+                )
             # The legacy API let either field be updated on its own (e.g. a PATCH that adjusts only the
             # port list). Preserve that by backfilling the omitted field from the instance's current
             # single-protocol representation.

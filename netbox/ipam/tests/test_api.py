@@ -1587,6 +1587,17 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.get(name='Legacy Create')
         self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/443'])
 
+    def test_legacy_empty_ports_reports_at_least_one(self):
+        """
+        A legacy write with an explicitly-empty ports list (allowed by the old API) is rejected with the
+        at-least-one-mapping message keyed to ports, not the misleading "both are required" error.
+        """
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Legacy Empty', 'protocol': 'tcp', 'ports': []}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('ports', response.data)
+
     def test_both_formats_rejected(self):
         """Supplying both port_mappings and the legacy protocol/ports is ambiguous and must 400."""
         self.add_permissions('ipam.add_servicetemplate')

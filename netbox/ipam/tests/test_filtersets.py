@@ -2394,6 +2394,11 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_protocol_negated(self):
+        # protocol__n excludes objects exposing the given protocol (2 of 6 templates are udp-only).
+        params = {'protocol__n': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_port(self):
         params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -2491,6 +2496,11 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_protocol(self):
         params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_protocol_negated(self):
+        # protocol__n excludes objects exposing the given protocol (3 of 7 services are udp-only).
+        params = {'protocol__n': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
