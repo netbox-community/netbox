@@ -264,7 +264,9 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     # set by the change logging machinery on request-driven saves only; when it's absent
     # (scripts, plain ORM saves) — or a key is missing, meaning the prior value is unknown —
     # fall through and rebuild unconditionally. Note the coupling: should change logging
-    # ever refresh snapshots post-save, this skip logic must be revisited.
+    # ever refresh snapshots post-save, this skip logic must be revisited. The comparison
+    # also assumes the snapshot was taken once, immediately before this save; a snapshot
+    # reused across multiple saves can skip a needed rebuild.
     snapshot = getattr(instance, '_prechange_snapshot', None)
     if snapshot:
         if isinstance(instance, Site):

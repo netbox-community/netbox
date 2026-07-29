@@ -673,9 +673,10 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         # One UPDATE per distinct (scope_type, scope) pair — not one per row (nor a single
         # per-row CASE WHEN statement). Multiple rows per scope are seeded above so that a
         # default-ordering leak into DISTINCT (which degrades grouping to one pair per row)
-        # changes these counts. The denormalized-field registry (netbox.denormalized) issues
-        # one additional unconditional UPDATE against Prefix on every Site save; Cluster has
-        # no denormalized registration.
+        # changes these counts. Only this signal's UPDATEs set _location_id; the
+        # denormalized-field registry (netbox.denormalized) also updates Prefix on every
+        # Site save but touches only _region_id/_site_group_id, so the filter below
+        # excludes it.
         distinct_prefix_scopes = len(set(
             Prefix.objects.filter(_site=site).values_list('scope_type_id', 'scope_id')
         ))
@@ -685,9 +686,10 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
             site.save()  # No snapshot: the resync always runs
 
         prefix_updates = [
-            q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "ipam_prefix"')
+            q for q in ctx.captured_queries
+            if q['sql'].startswith('UPDATE "ipam_prefix"') and '"_location_id"' in q['sql']
         ]
-        self.assertEqual(len(prefix_updates), distinct_prefix_scopes + 1)
+        self.assertEqual(len(prefix_updates), distinct_prefix_scopes)
         cluster_updates = [
             q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')
         ]
