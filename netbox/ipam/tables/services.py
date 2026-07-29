@@ -16,6 +16,9 @@ class ServiceTemplateTable(PrimaryModelTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    # Column key kept as 'ports' (not renamed to 'port_mappings') so existing saved table configs keep
+    # working; the removed single 'protocol' column, however, will silently drop out of any saved config
+    # or export template that referenced it.
     ports = tables.Column(
         verbose_name=_('Port Mappings'),
         accessor=tables.A('port_mappings_list'),
@@ -43,6 +46,9 @@ class ServiceTable(ContactsColumnMixin, PrimaryModelTable):
         linkify=True,
         order_by=('device', 'virtual_machine')
     )
+    # Column key kept as 'ports' (not renamed to 'port_mappings') so existing saved table configs keep
+    # working; the removed single 'protocol' column, however, will silently drop out of any saved config
+    # or export template that referenced it.
     ports = tables.Column(
         verbose_name=_('Port Mappings'),
         accessor=tables.A('port_mappings_list'),

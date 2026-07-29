@@ -605,10 +605,10 @@ class ServicePortMappingsImportMixin(forms.Form):
         mappings = self.cleaned_data.get('port_mappings')
         if not mappings:
             return []
-        # Lowercase so protocols may be specified in any case (e.g. "TCP/80"). Validate protocol/range/
-        # duplicates consistently with the model and UI form, storing the normalized (canonical) list it
-        # returns.
-        mappings = [mapping.strip().lower() for mapping in mappings]
+        # Strip surrounding whitespace from each CSV token; validate_port_mappings matches the protocol
+        # case-insensitively and returns the normalized (canonical) list, so protocols may be given in
+        # any case (e.g. "TCP/80") without folding here.
+        mappings = [mapping.strip() for mapping in mappings]
         try:
             mappings = validate_port_mappings(mappings)
         except DjangoValidationError as exc:

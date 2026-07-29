@@ -64,10 +64,15 @@ class ServiceBase(models.Model):
             raise ValidationError({'port_mappings': e.messages})
         if not self.port_mappings:
             raise ValidationError({'port_mappings': _("At least one port mapping is required.")})
-        # Mirror the trigger-maintained protocol set in Python so change-log snapshots (and any read
-        # before refresh_from_db) see the correct value. The DB trigger remains the source of truth for
-        # write paths that bypass clean() (bulk_create, raw SQL).
+
+    def save(self, *args, **kwargs):
+        # Maintain the denormalized protocol set on every Python write path — including ones that skip
+        # full_clean() (objects.create(), scripts, plugins) — mirroring how _ports_lowest was maintained
+        # previously. The DB trigger remains the source of truth for bulk_create/raw SQL, but computing
+        # it here keeps the in-memory instance (and its change-log snapshot) correct without a
+        # refresh_from_db().
         self._protocols = sorted({split_port_mapping(mapping)[0] for mapping in self.port_mappings})
+        super().save(*args, **kwargs)
 
     @staticmethod
     def _normalize_mapping(mapping):

@@ -315,11 +315,19 @@ def legacy_protocol_and_ports(mappings):
       * no mappings         -> ``(None, [])``   (representable as an empty legacy ports list)
       * multiple protocols  -> ``(None, None)`` (not representable; ``ports=None`` signals "read
         port_mappings instead")
+      * single protocol, but a port fails integer coercion (malformed raw/plugin data) -> ``(None, None)``
+        (a subset would be plausible-but-wrong, so signal "not representable" rather than silently
+        dropping the bad mapping)
     """
     grouped = group_port_mappings(mappings)
     if len(grouped) == 1:
         protocol, ports = next(iter(grouped.items()))
-        return protocol, sorted_int_ports(ports)
+        int_ports = sorted_int_ports(ports)
+        # If any port was dropped by coercion, the legacy single-protocol view can't faithfully
+        # represent this service; signal "not representable" instead of returning a partial list.
+        if len(int_ports) != len(ports):
+            return None, None
+        return protocol, int_ports
     return (None, []) if not grouped else (None, None)
 
 
@@ -363,7 +371,9 @@ def expand_port_mapping(protocol, ports_str):
     # Imported lazily to avoid pulling the forms layer in at module load.
     from utilities.forms.utils import parse_numeric_range
 
-    protocol = (protocol or '').strip().lower()
+    # No case-folding here: validate_port_mappings (which every token below flows through) matches the
+    # protocol case-insensitively and stores the canonical value.
+    protocol = (protocol or '').strip()
     ports_str = (ports_str or '').strip()
     if not protocol:
         # A row with ports but no protocol (e.g. the initial blank row where the user typed a port but

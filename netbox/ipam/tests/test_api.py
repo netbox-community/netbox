@@ -1598,6 +1598,15 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('ports', response.data)
 
+    def test_create_port_mappings_case_insensitive(self):
+        """port_mappings accepts protocols in any case (e.g. 'TCP/80') and stores the canonical value."""
+        self.add_permissions('ipam.add_servicetemplate')
+        data = {'name': 'Case Insensitive', 'port_mappings': ['TCP/80', 'UDP/53']}
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        template = ServiceTemplate.objects.get(name='Case Insensitive')
+        self.assertEqual(template.port_mappings, ['tcp/80', 'udp/53'])
+
     def test_both_formats_rejected(self):
         """Supplying both port_mappings and the legacy protocol/ports is ambiguous and must 400."""
         self.add_permissions('ipam.add_servicetemplate')
@@ -1667,10 +1676,12 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         template = ServiceTemplate.objects.create(name='Malformed', port_mappings=['tcp/80', 'tcp/abc'])
         response = self.client.get(self._get_detail_url(template), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        # port_mappings echoes the stored values verbatim (no reformatting); the legacy ports field,
-        # which does coerce to integers, drops the bad entry rather than crashing the serializer.
+        # port_mappings echoes the stored values verbatim (no reformatting). The legacy view can't
+        # faithfully represent a mapping that fails integer coercion, so rather than silently returning
+        # a subset it reports ports=null — the same "not representable" signal used for multi-protocol.
         self.assertEqual(response.data['port_mappings'], ['tcp/80', 'tcp/abc'])
-        self.assertEqual(response.data['ports'], [80])
+        self.assertIsNone(response.data['ports'])
+        self.assertIsNone(response.data['protocol'])
 
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
