@@ -557,20 +557,21 @@ class ChildAvailabilityMixin:
     misrepresented as available space.
     """
 
-    @staticmethod
-    def _is_filter_param(param, base_filters):
+    def _get_detection_filterset(self, request):
         """
-        Return whether a query parameter could activate a filter. Saved filter references are read as
-        raw data rather than declared filters, and custom field filters are registered on the filterset
-        instance, so neither appears in base_filters.
+        Return the bound FilterSet used to evaluate the request, or None if the view declares no
+        filterset. ObjectChildrenView.get() has already built one and validated its form while
+        resolving the child queryset, so reuse it rather than paying for a second FilterSet:
+        get_filters() regenerates every dynamic lookup variant and NetBoxModelFilterSet.__init__
+        queries the custom fields for the model. Build one only for direct calls where get() has
+        not run.
         """
-        if param in base_filters or param.startswith('cf_') or param in ('filter', 'filter_id'):
-            return True
+        if self.filterset_instance is not None:
+            return self.filterset_instance
+        if self.filterset is None:
+            return None
 
-        # Lookup variants are named <filter>__<lookup> and some are generated after the class is
-        # built, so fall back to the base filter name.
-        base_name, separator, _ = param.rpartition('__')
-        return bool(separator) and base_name in base_filters
+        return self.filterset(request.GET, request=request)
 
     def _has_active_child_filters(self, request):
         """
@@ -585,21 +586,18 @@ class ChildAvailabilityMixin:
             return self._active_child_filters
 
         self._active_child_filters = False
-        if self.filterset is None or not request.GET:
+
+        # An empty request cannot activate a filter, so skip validating a form for nothing.
+        if not request.GET:
             return False
 
-        # A request holding only table controls, or only filters submitted without a value, cannot
-        # activate a filter, so it never builds a filterset.
-        base_filters = self.filterset.base_filters
-        if not any(
-            self._is_filter_param(param, base_filters) and any(request.GET.getlist(param))
-            for param in request.GET
-        ):
+        filterset = self._get_detection_filterset(request)
+        if filterset is None:
             return False
 
         # A non-empty cleaned value means the request activated a declared filter. Emptiness
         # follows each filter's own semantics, so absent multi-value fields stay inactive.
-        filterset = self.filterset(request.GET, request=request)
+        # This is a no-op for a reused FilterSet: .qs validated the form to build the queryset.
         filterset.form.is_valid()
         for name, value in filterset.form.cleaned_data.items():
             if isinstance(filterset.filters[name], django_filters.MultipleChoiceFilter):
