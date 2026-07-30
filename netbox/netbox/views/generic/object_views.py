@@ -98,12 +98,14 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
+        filterset_instance: The bound FilterSet built for the current request (set during get())
         actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     child_model = None
     table = None
     filterset = None
     filterset_form = None
+    filterset_instance = None
     actions = (CloneObject, EditObject, DeleteObject, BulkEdit, BulkDelete)
     template_name = 'generic/object_children.html'
 
@@ -142,7 +144,10 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         child_objects = self.get_children(request, instance)
 
         if self.filterset:
-            child_objects = self.filterset(request.GET, child_objects, request=request).qs
+            # Retain the bound FilterSet so that prep_table_data() and get_extra_context() can
+            # inspect the request's validated filter data without rebuilding it.
+            self.filterset_instance = self.filterset(request.GET, child_objects, request=request)
+            child_objects = self.filterset_instance.qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)

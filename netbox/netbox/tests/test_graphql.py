@@ -7,10 +7,12 @@ from django.db import connection
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
 
+from core.models import ObjectType
 from dcim.choices import LocationStatusChoices
 from dcim.models import (
     Device,
@@ -24,10 +26,12 @@ from dcim.models import (
     Site,
     VirtualChassis,
 )
-from extras.models import TableConfig, Tag
-from ipam.models import IPAddress
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField, TableConfig, Tag
+from ipam.models import RIR, Aggregate, IPAddress, Prefix
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
+from users.models import Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases, TestCase, disable_warnings
 
@@ -697,6 +701,209 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class GraphQLDeferredColumnTestCase(APITestCase):
+    """
+    A GraphQL field backed by a custom resolver is opaque to the query optimizer, which narrows column
+    selection with .only() based on the fields named in the GraphQL document. Any column such a resolver
+    reads must therefore be declared via an `only` hint; otherwise the column is deferred and reading it
+    reloads the row from the database once per object returned (see #22813).
+
+    Each test below asserts both that no single-row reload occurs and that the total query count does not
+    grow with the number of objects returned.
+    """
+    OBJECT_COUNT = 10
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        # Devices, for CustomFieldsMixin.custom_fields
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        custom_field = CustomField.objects.create(name='cf1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        custom_field.object_types.set([ObjectType.objects.get_for_model(Device)])
+        Device.objects.bulk_create([
+            Device(
+                name=f'Device {i}',
+                device_type=device_type,
+                role=device_role,
+                site=site,
+                custom_field_data={'cf1': f'value {i}'},
+            )
+            for i in range(cls.OBJECT_COUNT)
+        ])
+
+        # Rack reservations, for RackReservationType.unit_count. Reservations within a rack may not claim
+        # overlapping units, so each is allocated a distinct run of them. The length of each run varies so
+        # that unit_count is asserted per object rather than against a single expected value.
+        rack = Rack.objects.create(name='Rack 1', site=site)
+        user = User.objects.create(username='Reservation user')
+        reservations, next_unit = [], 1
+        for i in range(cls.OBJECT_COUNT):
+            unit_count = i % 3 + 1
+            reservations.append(RackReservation(
+                rack=rack,
+                units=list(range(next_unit, next_unit + unit_count)),
+                user=user,
+                description=f'Reservation {i}',
+            ))
+            next_unit += unit_count
+        cls.expected_unit_counts = {
+            reservation.pk: len(reservation.units)
+            for reservation in RackReservation.objects.bulk_create(reservations)
+        }
+        # IPAM objects, for the `family` field of each type which exposes one
+        IPAddress.objects.bulk_create([
+            IPAddress(address=f'10.0.0.{i + 1}/24') for i in range(cls.OBJECT_COUNT)
+        ])
+        Prefix.objects.bulk_create([
+            Prefix(prefix=f'10.{i}.0.0/16') for i in range(cls.OBJECT_COUNT)
+        ])
+        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        Aggregate.objects.bulk_create([
+            Aggregate(prefix=f'{i + 20}.0.0.0/8', rir=rir) for i in range(cls.OBJECT_COUNT)
+        ])
+
+    def _execute(self, query):
+        url = reverse('graphql')
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        return data['data'], context.captured_queries
+
+    def assertNoDeferredColumnReloads(self, query_template, list_field, table, validate):
+        """
+        Execute `query_template` (which must accept a `limit` interpolation) for a single object and for
+        OBJECT_COUNT objects, asserting that no row of `table` is re-fetched by primary key and that the
+        total query count is identical for both. `validate` is called with the returned objects.
+        """
+        # Token authentication updates Token.last_used at most once per minute, so the first API request
+        # made by a test issues an additional UPDATE (see netbox/api/authentication.py). Stamp the token
+        # up front to keep that one-off write out of the counts compared below.
+        Token.objects.filter(pk=self.token.pk).update(last_used=timezone.now())
+
+        query_counts = []
+        for limit in (1, self.OBJECT_COUNT):
+            data, queries = self._execute(query_template % {'limit': limit})
+            objects = data[list_field]
+            self.assertEqual(len(objects), limit)
+            validate(objects)
+
+            reloads = [q['sql'] for q in queries if f'FROM "{table}" WHERE "{table}"."id" = ' in q['sql']]
+            self.assertEqual(
+                reloads, [], msg=f'{len(reloads)} deferred-column reload(s) for {limit} object(s): {reloads[:1]}'
+            )
+            query_counts.append(len(queries))
+
+        self.assertEqual(
+            query_counts[0],
+            query_counts[1],
+            msg=(
+                f'Query count grew from {query_counts[0]} to {query_counts[1]} when the number of objects '
+                f'returned grew from 1 to {self.OBJECT_COUNT}'
+            )
+        )
+
+    def test_custom_fields(self):
+        """
+        Regression test for #22813: CustomFieldsMixin.custom_fields must not defer `custom_field_data`.
+        """
+        self.add_permissions('dcim.view_device')
+        query = """
+        {
+            device_list(pagination: {limit: %(limit)s}) {
+                id
+                custom_fields
+            }
+        }
+        """
+
+        expected_values = {f'value {i}' for i in range(self.OBJECT_COUNT)}
+
+        def validate(devices):
+            for device in devices:
+                self.assertEqual(list(device['custom_fields']), ['cf1'])
+                self.assertIn(device['custom_fields']['cf1'], expected_values)
+
+        self.assertNoDeferredColumnReloads(query, 'device_list', 'dcim_device', validate)
+
+    def test_rack_reservation_unit_count(self):
+        """
+        Regression test for #22822: RackReservationType.unit_count must not defer `units`.
+        """
+        self.add_permissions('dcim.view_rackreservation')
+        query = """
+        {
+            rack_reservation_list(pagination: {limit: %(limit)s}) {
+                id
+                unit_count
+            }
+        }
+        """
+
+        def validate(reservations):
+            for reservation in reservations:
+                self.assertEqual(
+                    reservation['unit_count'], self.expected_unit_counts[int(reservation['id'])]
+                )
+
+        self.assertNoDeferredColumnReloads(query, 'rack_reservation_list', 'dcim_rackreservation', validate)
+
+    def test_ip_address_family(self):
+        """
+        Regression test for #22823: IPAddressType.family must not defer `address`.
+        """
+        self.add_permissions('ipam.view_ipaddress')
+        query = """
+        {
+            ip_address_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(
+            query, 'ip_address_list', 'ipam_ipaddress', self._validate_ipv4_family
+        )
+
+    def test_prefix_family(self):
+        """
+        Regression test for #22823: PrefixType.family must not defer `prefix`.
+        """
+        self.add_permissions('ipam.view_prefix')
+        query = """
+        {
+            prefix_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(query, 'prefix_list', 'ipam_prefix', self._validate_ipv4_family)
+
+    def test_aggregate_family(self):
+        """
+        Regression test for #22823: AggregateType.family must not defer `prefix`.
+        """
+        self.add_permissions('ipam.view_aggregate')
+        query = """
+        {
+            aggregate_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(query, 'aggregate_list', 'ipam_aggregate', self._validate_ipv4_family)
+
+    def _validate_ipv4_family(self, objects):
+        for obj in objects:
+            self.assertEqual(obj['family'], {'value': 4, 'label': 'IPv4'})
 
 
 class GraphQLSchemaCoverageTestCase(APIViewTestCases.GraphQLSchemaCoverageTestCase):

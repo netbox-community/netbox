@@ -838,11 +838,15 @@ class RackReservationType(PrimaryObjectType):
     @classmethod
     def get_queryset(cls, queryset, info, **kwargs):
         queryset = super().get_queryset(queryset, info, **kwargs)
+        # Annotate unit_count here so RackReservationFilter.unit_count can reference it. The field below
+        # is resolved from `units` rather than from this annotation, which is not applied on every path
+        # by which a RackReservation may be resolved.
         return queryset.annotate(
             unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
         )
 
-    @strawberry.field
+    # Ensure `units` is fetched when `unit_count` is requested
+    @strawberry_django.field(only=['units'])
     def unit_count(self) -> int:
         return len(self.units)
 
