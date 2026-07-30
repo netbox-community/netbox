@@ -2,9 +2,11 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
+from dcim.models import Location, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType, PrimaryObjectType
 from tenancy.graphql.types import TenantType
@@ -74,7 +76,19 @@ class ProviderNetworkType(PrimaryObjectType):
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
     circuit: Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='termination')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'termination',
+            [
+                Location.objects.all(),
+                Region.objects.all(),
+                SiteGroup.objects.all(),
+                Site.objects.all(),
+                models.ProviderNetwork.objects.all(),
+            ],
+        ),
+        only=['termination_type', 'termination_id'],
+    )
     def termination(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
@@ -133,7 +147,16 @@ class CircuitGroupType(OrganizationalObjectType):
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated['CircuitGroupType', strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='member')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'member',
+            [
+                models.Circuit.objects.all(),
+                models.VirtualCircuit.objects.all(),
+            ],
+        ),
+        only=['member_type', 'member_id'],
+    )
     def member(self) -> Annotated[
         Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]
         | Annotated['VirtualCircuitType', strawberry.lazy('circuits.graphql.types')],

@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 
+from dcim.models import Location, Region, Site, SiteGroup
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
@@ -59,7 +61,18 @@ class ClusterType(ContactsMixin, VLANGroupsMixin, PrimaryObjectType):
     virtual_machines: list[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'scope',
+            [
+                Region.objects.all(),
+                SiteGroup.objects.all(),
+                Site.objects.all(),
+                Location.objects.all(),
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]

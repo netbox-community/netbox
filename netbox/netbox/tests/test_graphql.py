@@ -10,7 +10,6 @@ from django.urls import reverse
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
-from strawberry.types.nodes import FragmentSpread, InlineFragment, SelectedField
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import (
@@ -467,22 +466,22 @@ class GraphQLAPITestCase(APITestCase):
             msg=f'Expected batched tag prefetch, got {tag_queries} tag queries for 10 devices',
         )
 
-    def test_graphql_ip_address_list_assigned_object_inline_fragment(self):
+    def test_graphql_ip_address_list_assigned_object(self):
         """
-        Requesting assigned_object via an inline fragment should batch prefetch.
+        Requesting assigned_object should batch prefetch related objects.
         """
         self.add_permissions('ipam.view_ipaddress', 'dcim.view_interface', 'dcim.view_device')
 
         site = Site.objects.first()
-        manufacturer = Manufacturer.objects.create(name='Inline Fragment Manufacturer', slug='inline-fragment-mfg')
+        manufacturer = Manufacturer.objects.create(name='Assigned Object Manufacturer', slug='assigned-object-mfg')
         device_type = DeviceType.objects.create(
             manufacturer=manufacturer,
-            model='Inline Fragment Model',
-            slug='inline-fragment-model',
+            model='Assigned Object Model',
+            slug='assigned-object-model',
         )
-        device_role = DeviceRole.objects.create(name='Inline Fragment Role', slug='inline-fragment-role')
+        device_role = DeviceRole.objects.create(name='Assigned Object Role', slug='assigned-object-role')
         device = Device.objects.create(
-            name='Inline Fragment Device',
+            name='Assigned Object Device',
             site=site,
             device_type=device_type,
             role=device_role,
@@ -497,78 +496,15 @@ class GraphQLAPITestCase(APITestCase):
         query = f"""
         {{
             ip_address_list(filters: {{id: {{in_list: {ip_ids}}}}}) {{
-                ... on IPAddressType {{
-                    address
-                    assigned_object {{
-                        ... on InterfaceType {{
+                address
+                assigned_object {{
+                    ... on InterfaceType {{
+                        name
+                        device {{
                             name
-                            device {{
-                                name
-                            }}
                         }}
                     }}
                 }}
-            }}
-        }}
-        """
-        url = reverse('graphql')
-
-        with CaptureQueriesContext(connection) as context:
-            response = self.client.post(url, data={'query': query}, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        data = json.loads(response.content)
-        self.assertNotIn('errors', data)
-        self.assertEqual(len(data['data']['ip_address_list']), len(ip_addresses))
-
-        device_queries = sum(1 for query_record in context.captured_queries if 'dcim_device' in query_record['sql'])
-        self.assertLessEqual(
-            device_queries,
-            2,
-            msg=f'Expected batched assigned_object prefetch, got {device_queries} device queries for 5 IP addresses',
-        )
-
-    def test_graphql_ip_address_list_assigned_object_fragment_spread(self):
-        """
-        Requesting assigned_object via a fragment spread should batch prefetch.
-        """
-        self.add_permissions('ipam.view_ipaddress', 'dcim.view_interface', 'dcim.view_device')
-
-        site = Site.objects.first()
-        manufacturer = Manufacturer.objects.create(name='Fragment Spread Manufacturer', slug='fragment-spread-mfg')
-        device_type = DeviceType.objects.create(
-            manufacturer=manufacturer,
-            model='Fragment Spread Model',
-            slug='fragment-spread-model',
-        )
-        device_role = DeviceRole.objects.create(name='Fragment Spread Role', slug='fragment-spread-role')
-        device = Device.objects.create(
-            name='Fragment Spread Device',
-            site=site,
-            device_type=device_type,
-            role=device_role,
-        )
-        interface = Interface.objects.create(name='eth0', device=device, type='1000baset')
-        ip_addresses = IPAddress.objects.bulk_create([
-            IPAddress(address=f'198.51.100.{index}/24', assigned_object=interface)
-            for index in range(1, 6)
-        ])
-        ip_ids = json.dumps([str(ip.pk) for ip in ip_addresses])
-
-        query = f"""
-        fragment ipFields on IPAddressType {{
-            address
-            assigned_object {{
-                ... on InterfaceType {{
-                    device {{
-                        name
-                    }}
-                }}
-            }}
-        }}
-        {{
-            ip_address_list(filters: {{id: {{in_list: {ip_ids}}}}}) {{
-                ...ipFields
             }}
         }}
         """
@@ -765,55 +701,6 @@ class GraphQLAPITestCase(APITestCase):
 
 class GraphQLSchemaCoverageTestCase(APIViewTestCases.GraphQLSchemaCoverageTestCase):
     pass
-
-
-class GraphQLSelectionTestCase(TestCase):
-    """Unit tests for GraphQL selection field name collection."""
-
-    def setUp(self):
-        from types import SimpleNamespace
-
-        from netbox.graphql.selections import get_selected_field_names
-
-        self.get_selected_field_names = get_selected_field_names
-        self.SimpleNamespace = SimpleNamespace
-
-    def _info(self, selections):
-        return self.SimpleNamespace(selected_fields=[self.SimpleNamespace(selections=selections)])
-
-    def test_direct_fields(self):
-        selections = [
-            SelectedField(name='address', directives={}, arguments={}, selections=[]),
-            SelectedField(name='assigned_object', directives={}, arguments={}, selections=[]),
-        ]
-        self.assertEqual(self.get_selected_field_names(self._info(selections)), {'address', 'assigned_object'})
-
-    def test_inline_fragment(self):
-        selections = [
-            InlineFragment(
-                type_condition='IPAddressType',
-                directives={},
-                selections=[
-                    SelectedField(name='address', directives={}, arguments={}, selections=[]),
-                    SelectedField(name='assigned_object', directives={}, arguments={}, selections=[]),
-                ],
-            ),
-        ]
-        self.assertEqual(self.get_selected_field_names(self._info(selections)), {'address', 'assigned_object'})
-
-    def test_fragment_spread(self):
-        selections = [
-            FragmentSpread(
-                name='ipFields',
-                type_condition='IPAddressType',
-                directives={},
-                selections=[
-                    SelectedField(name='address', directives={}, arguments={}, selections=[]),
-                    SelectedField(name='assigned_object', directives={}, arguments={}, selections=[]),
-                ],
-            ),
-        ]
-        self.assertEqual(self.get_selected_field_names(self._info(selections)), {'address', 'assigned_object'})
 
 
 class JSONPathValidationTestCase(TestCase):

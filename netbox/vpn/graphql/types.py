@@ -2,9 +2,13 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 
+from dcim.models import Interface
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
+from ipam.models import VLAN
 from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType, PrimaryObjectType
+from virtualization.models import VMInterface
 from vpn import models
 
 from .filters import *
@@ -145,7 +149,17 @@ class L2VPNType(ContactsMixin, PrimaryObjectType):
 class L2VPNTerminationType(NetBoxObjectType):
     l2vpn: Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='assigned_object')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'assigned_object',
+            [
+                Interface.objects.select_related('cable', 'device'),
+                VMInterface.objects.select_related('virtual_machine'),
+                VLAN.objects.all(),
+            ],
+        ),
+        only=['assigned_object_type', 'assigned_object_id'],
+    )
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VLANType', strawberry.lazy('ipam.graphql.types')]

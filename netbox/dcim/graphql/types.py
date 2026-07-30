@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db.models import Func, IntegerField
 
 from circuits.models import CircuitTermination
@@ -19,7 +20,7 @@ from netbox.graphql.types import (
 )
 from users.graphql.mixins import OwnerMixin
 from utilities.querysets import RestrictedPrefetch
-from virtualization.models import Cluster
+from virtualization.models import Cluster, VMInterface
 
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
@@ -330,7 +331,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
     role: Annotated['InventoryItemRoleType', strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated['ManufacturerType', strawberry.lazy('dcim.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(prefetch_related='parent', only=['parent_id'])
     def parent(self) -> Annotated['InventoryItemTemplateType', strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
@@ -433,7 +434,16 @@ class FrontPortTemplateType(ModularComponentTemplateType):
 class MACAddressType(PrimaryObjectType):
     mac_address: str
 
-    @strawberry_django.field(prefetch_related='assigned_object')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'assigned_object',
+            [
+                models.Interface.objects.select_related('cable', 'device'),
+                VMInterface.objects.select_related('virtual_machine'),
+            ],
+        ),
+        only=['assigned_object_type', 'assigned_object_id'],
+    )
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
@@ -497,7 +507,7 @@ class InventoryItemType(ComponentType):
 
     child_items: list[Annotated['InventoryItemType', strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(prefetch_related='parent', only=['parent_id'])
     def parent(self) -> Annotated['InventoryItemType', strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
@@ -611,7 +621,7 @@ class ModuleBayType(ModularComponentType):
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(prefetch_related='parent', only=['parent_id'])
     def parent(self) -> Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
@@ -884,7 +894,7 @@ class RegionType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(prefetch_related='parent', only=['parent_id'])
     def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
@@ -961,7 +971,7 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(prefetch_related='parent', only=['parent_id'])
     def parent(self) -> Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 

@@ -3,17 +3,15 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.prefetch import GenericPrefetch
-from strawberry.types import Info
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
-from dcim.models import Interface
+from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.selections import get_selected_field_names
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
-from virtualization.models import VMInterface
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 from .filters import *
 from .mixins import IPAddressesMixin
@@ -133,7 +131,16 @@ class FHRPGroupType(IPAddressesMixin, PrimaryObjectType):
 class FHRPGroupAssignmentType(BaseObjectType):
     group: Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='interface')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'interface',
+            [
+                Interface.objects.select_related('cable', 'device'),
+                VMInterface.objects.select_related('virtual_machine'),
+            ],
+        ),
+        only=['interface_type', 'interface_id'],
+    )
     def interface(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
@@ -158,29 +165,17 @@ class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
 
-    @classmethod
-    def get_queryset(cls, queryset, info: Info, **kwargs):
-        queryset = super().get_queryset(queryset, info, **kwargs)
-
-        # Prevent an N+1 query per row when resolving assigned_object (a GenericForeignKey),
-        # matching the approach already used by IPAddressViewSet in the REST API.
-        selected = get_selected_field_names(info)
-        if 'assigned_object' in selected:
-            return queryset.prefetch_related(
-                GenericPrefetch(
-                    'assigned_object',
-                    [
-                        models.FHRPGroup.objects.all(),
-                        Interface.objects.select_related('cable', 'device'),
-                        VMInterface.objects.select_related('virtual_machine'),
-                    ],
-                ),
-            )
-
-        return queryset
-
-    # Ensure assigned_object_type/assigned_object_id are fetched when assigned_object is requested
-    @strawberry_django.field(only=['assigned_object_type', 'assigned_object_id'])
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'assigned_object',
+            [
+                models.FHRPGroup.objects.all(),
+                Interface.objects.select_related('cable', 'device'),
+                VMInterface.objects.select_related('virtual_machine'),
+            ],
+        ),
+        only=['assigned_object_type', 'assigned_object_id'],
+    )
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
@@ -217,7 +212,18 @@ class PrefixType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     vlan: Annotated['VLANType', strawberry.lazy('ipam.graphql.types')] | None
     role: Annotated['RoleType', strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'scope',
+            [
+                Region.objects.all(),
+                SiteGroup.objects.all(),
+                Site.objects.all(),
+                Location.objects.all(),
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
@@ -279,7 +285,17 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     ports: list[int]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'parent',
+            [
+                Device.objects.all(),
+                VirtualMachine.objects.all(),
+                models.FHRPGroup.objects.all(),
+            ],
+        ),
+        only=['parent_object_type', 'parent_object_id'],
+    )
     def parent(self) -> Annotated[
         Annotated['DeviceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VirtualMachineType', strawberry.lazy('virtualization.graphql.types')]
@@ -318,7 +334,7 @@ class VLANType(PrimaryObjectType):
     interfaces_as_tagged: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     vminterfaces_as_tagged: list[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='qinq_svlan')
+    @strawberry_django.field(prefetch_related='qinq_svlan', only=['qinq_svlan_id'])
     def qinq_svlan(self) -> Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None:
         return self.qinq_svlan
 
@@ -336,7 +352,21 @@ class VLANGroupType(OrganizationalObjectType):
     total_vlan_ids: BigInt
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=GenericPrefetch(
+            'scope',
+            [
+                Cluster.objects.all(),
+                ClusterGroup.objects.all(),
+                Location.objects.all(),
+                Rack.objects.all(),
+                Region.objects.all(),
+                Site.objects.all(),
+                SiteGroup.objects.all(),
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['ClusterType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['ClusterGroupType', strawberry.lazy('virtualization.graphql.types')]
