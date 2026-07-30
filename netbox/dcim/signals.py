@@ -81,7 +81,9 @@ def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
     instance._presave_scope_fields = (
         instance.__class__.objects.using(using)
         .filter(pk=instance.pk)
-        .select_for_update()
+        # no_key: serializes overlapping saves of this object without blocking foreign
+        # key inserts that reference it
+        .select_for_update(no_key=True)
         .values(*fields)
         .first()
     )
