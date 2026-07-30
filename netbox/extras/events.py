@@ -231,8 +231,7 @@ def process_event_rules(event_rules, object_type, event):
             continue
 
         if _is_plugin_provided(action):
-            # A plugin-provided action's enqueue() is arbitrary third-party code; a bug in one
-            # rule's action must not abort processing of the remaining rules in this batch.
+            # Isolate third-party bugs; a core action's own bugs should propagate instead.
             try:
                 action.enqueue(
                     event_rule=event_rule,
@@ -247,8 +246,6 @@ def process_event_rules(event_rules, object_type, event):
                     )
                 )
         else:
-            # A core action's enqueue() failing is a genuine NetBox bug, not a third-party
-            # integration fault; let it propagate rather than silently swallowing it.
             action.enqueue(
                 event_rule=event_rule,
                 event_context=event,

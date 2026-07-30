@@ -76,11 +76,8 @@ class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableActionTypeRenderingTestCase(TestCase):
     """
-    Regression tests for #22770: EventRuleTable.render_action_type() renders the label (and an
-    "unavailable" badge) explicitly rather than relying on django-tables2's built-in
-    choices-driven get_FOO_display() auto-rendering, so that EventRule.get_action_type_display()'s
-    own formatting (including the "(unavailable)" suffix) is used. value_action_type() must return
-    the same label without the badge's HTML markup, for non-HTML output (e.g. CSV export).
+    render_action_type() adds an "unavailable" badge for unregistered actions; value_action_type()
+    must carry the same label for non-HTML output (e.g. CSV export), without the badge's markup.
     """
 
     def test_render_action_type_for_registered_action(self):

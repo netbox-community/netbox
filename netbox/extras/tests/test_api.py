@@ -187,12 +187,7 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertIn('action_type', response.data)
 
     def test_update_unrelated_field_on_unavailable_action_rule_fails(self):
-        """
-        Regression for #22770: PATCHing a rule whose action_type has since become unavailable
-        (its providing plugin uninstalled) is rejected, even for an unrelated field, until
-        action_type is changed to a registered value -- the row remains loadable/readable and is
-        skipped gracefully during event processing, but is not savable in this state.
-        """
+        """PATCHing a rule with an unavailable action_type is rejected, even for an unrelated field."""
         rule = EventRule.objects.create(
             name='API Unavailable Rule',
             event_types=[OBJECT_CREATED],
@@ -210,11 +205,7 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertTrue(rule.enabled)
 
     def test_action_is_available_exposed_via_api(self):
-        """
-        Regression for #22770: action_is_available must be exposed as a read-only API field, so
-        affected event rules can be identified without a database query on every management
-        command (the alternative to the extras.W001 system check, which was removed).
-        """
+        """action_is_available must be a read-only API field (replaces the removed extras.W001 check)."""
         available_rule = EventRule.objects.create(
             name='API Available Rule', event_types=[OBJECT_CREATED], action_type='webhook',
         )
@@ -239,12 +230,7 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertFalse(response.data['action_is_available'])
 
     def test_action_object_type_field_accepts_any_content_type(self):
-        """
-        Regression: action_object_type's queryset was ObjectType.objects.with_feature('event_rules')
-        -- the feature flag that applies to the *triggering* object_types field, not the action's
-        target object type. A registered action's object_model need not itself support being an
-        event rule trigger (e.g. auth.user does not), so the queryset must not exclude it.
-        """
+        """action_object_type's queryset must not be restricted to the with_feature('event_rules') set."""
         field = EventRuleSerializer().fields['action_object_type']
         user_ct = ObjectType.objects.get_for_model(User)
         self.assertFalse(

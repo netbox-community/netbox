@@ -173,10 +173,8 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
         if self.action_data is not None and not isinstance(self.action_data, dict):
             raise ValidationError({'action_data': _('Action data must be a JSON object or null.')})
 
-        # action_type's own validity is enforced by the field's dynamic `choices=`
-        # (get_event_rule_action_choices()), applied by Field.validate() earlier in full_clean(),
-        # before clean() ever runs. By this point action_type is guaranteed registered, unless
-        # clean() was called directly without going through full_clean() -- guard against that.
+        # action_type's own validity is already enforced by the field's dynamic choices= (Field.
+        # validate(), earlier in full_clean()); guard here only in case clean() ran standalone.
         if self.action_is_available:
             self.action_provider._validate(action_object=self.action_object, action_data=self.action_data)
 

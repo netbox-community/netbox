@@ -72,10 +72,8 @@ class EventRuleAction:
 
     def _validate(self, *, action_object, action_data):
         """
-        Internal entry point called from EventRule.clean() (so this runs for both the UI form path
-        and the REST API path). Enforces the base object_required/object_model checks -- which
-        always apply, regardless of what a subclass's validate() below does -- then delegates to
-        validate() for any action-specific validation.
+        Entry point called from EventRule.clean(). Enforces the base object_required/object_model
+        checks, then delegates to validate() for any action-specific validation.
         """
         if self.object_required and action_object is None:
             raise ValidationError({
@@ -94,11 +92,8 @@ class EventRuleAction:
 
     def validate(self, *, action_object, action_data):
         """
-        Optional hook: add custom validation for this action's action_object/action_data. Raise
-        django.core.exceptions.ValidationError on failure, keyed by field name where possible (e.g.
-        'action_object_id', 'action_data'). No-op by default; unlike overriding _validate() above,
-        implementations don't need to call super() -- the base object_required/object_model checks
-        always run regardless.
+        Optional hook: add custom validation, raising ValidationError on failure. No-op by
+        default; no need to call super() -- _validate() above runs the base checks regardless.
         """
         pass
 

@@ -13,11 +13,7 @@ from utilities.testing import APITestCase
 
 
 class EventRuleActionEnumTestCase(APITestCase):
-    """
-    Regression coverage for #22770: EventRuleActionEnum must be restored (built from the live
-    event_rule_actions registry rather than the static EventRuleActionChoices, since action_type
-    is plugin-extensible), and EventRuleFilter.action_type must filter using it.
-    """
+    """EventRuleActionEnum must reflect the live action registry, and the filter must use it."""
 
     def test_enum_contains_core_actions(self):
         values = {member.value for member in EventRuleActionEnum}

@@ -321,10 +321,8 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
 
     def _update_errors(self, errors):
-        # EventRule.clean() can raise errors keyed by real model fields (e.g. action_object_id)
-        # this form doesn't expose; Django's default add_error() would raise a bare ValueError for
-        # those instead of a normal validation failure. Remap to NON_FIELD_ERRORS so the message
-        # still reaches the user.
+        # Remap errors keyed by fields this form doesn't expose (e.g. action_object_id) to
+        # NON_FIELD_ERRORS; otherwise Django's add_error() raises ValueError instead of failing validation normally.
         if hasattr(errors, 'error_dict'):
             remapped = {}
             for field, messages in errors.error_dict.items():

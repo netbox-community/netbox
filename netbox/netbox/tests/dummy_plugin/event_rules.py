@@ -7,10 +7,9 @@ __all__ = (
 
 class DummyRaisingAction(EventRuleAction):
     """
-    Not wired into DummyPluginConfig.event_rule_actions (so it is not auto-registered on every
-    test run); tests register/unregister it explicitly. Defined here rather than inline in a
-    test module so that it is genuinely owned by a PluginConfig app, exercising the same
-    plugin-vs-core distinction process_event_rules() makes for exception handling.
+    Defined here (a real PluginConfig app), not inline in a test module, so it genuinely exercises
+    process_event_rules()'s plugin-vs-core exception handling. Not auto-registered; tests
+    register/unregister it explicitly.
     """
     slug = 'dummy_plugin.raising_action'
     label = 'Dummy Raising Action'

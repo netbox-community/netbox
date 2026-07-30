@@ -27,14 +27,10 @@ CustomFieldTypeEnum = strawberry.enum(CustomFieldTypeChoices.as_enum(prefix='typ
 CustomFieldUIEditableEnum = strawberry.enum(CustomFieldUIEditableChoices.as_enum())
 CustomFieldUIVisibleEnum = strawberry.enum(CustomFieldUIVisibleChoices.as_enum())
 CustomLinkButtonClassEnum = strawberry.enum(CustomLinkButtonClassChoices.as_enum())
-# Built from the live event_rule_actions registry (netbox.event_rules), not EventRuleActionChoices
-# -- action_type is plugin-extensible, so its true set of valid values isn't known until all apps'
-# (including plugins') AppConfig.ready() have run. This module is only imported once, during
-# GraphQL schema assembly, which happens after that point, so this reflects core + every
-# currently-installed plugin's actions -- but, like any Strawberry enum, is fixed for the life of
-# the process: a plugin installed without a restart, or an action registered only within a test,
-# will not appear here. See EventRuleFilter.action_type in filters.py, which uses a plain string
-# lookup instead of this enum for exactly that reason.
+# Built from the live event_rule_actions registry, not EventRuleActionChoices -- action_type is
+# plugin-extensible, and this module isn't imported until schema assembly, after plugins load.
+# Still fixed for the process's lifetime like any Strawberry enum, so a plugin installed without a
+# restart won't appear here.
 EventRuleActionEnum = strawberry.enum(enum.Enum('EventRuleActionEnum', {
     enum_key(choice.value): choice.value for choice in get_event_rule_action_choices()
 }))

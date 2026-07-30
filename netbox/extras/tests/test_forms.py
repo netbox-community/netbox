@@ -455,12 +455,8 @@ class EventRuleFormTestCase(TestCase):
 class EventRuleImportFormTestCase(TestCase):
     """
     Regression tests for #22770: EventRuleImportForm's action_object resolution must be driven by
-    each registered action's resolve_import_object() hook. Also covers the notification group case,
-    which the pre-#22770 hardcoded per-type branches never handled (a gap fixed as part of this
-    generalization). action_type is a plain auto-generated ModelForm field (backed by the model
-    field's own dynamic choices=), not a materialized-at-import-time CSVChoiceField, and
-    action_object is optional at the field level so a no-object action can omit it; both are
-    required to support bulk-importing a runtime-registered (e.g. plugin) no-object action.
+    each registered action's resolve_import_object() hook, including a no-object action (action_type
+    is now a plain dynamic-choices field, not a frozen CSVChoiceField, and action_object is optional).
     """
 
     def tearDown(self):
@@ -515,11 +511,7 @@ class EventRuleImportFormTestCase(TestCase):
         self.assertIn('action_type', form.errors)
 
     def test_submit_no_object_action_with_blank_action_object_succeeds(self):
-        """
-        Regression: action_type used to be a CSVChoiceField materializing choices once at
-        import time, and action_object was unconditionally required -- both would have rejected
-        a CSV row for a (typically plugin-provided) no-object action before clean() ever ran.
-        """
+        """A blank action_object must be accepted for bulk-importing a no-object action."""
         class NoObjectAction(EventRuleAction):
             slug = 'test.import_no_object_action'
             label = 'Import No-Object Action'
@@ -552,15 +544,7 @@ class EventRuleImportFormTestCase(TestCase):
         self.assertIn('action_object', form.errors)
 
     def test_action_validate_error_on_unexposed_field_becomes_non_field_error(self):
-        """
-        Regression: a registered action's validate() (called from EventRule.clean() via
-        instance.full_clean() in _post_clean()) can raise a ValidationError keyed by a real model
-        field this form doesn't expose as one of its own fields (e.g. action_data, or
-        action_object_id/action_object_type). Django's default _update_errors()/add_error() would
-        raise a bare ValueError for such an unrecognized key, surfacing as a 500 instead of a
-        normal validation failure; it must be remapped to NON_FIELD_ERRORS instead, preserving the
-        actual message.
-        """
+        """A validate() error keyed by a field this form doesn't expose (e.g. action_data) must not raise."""
         class ActionDataValidatingAction(EventRuleAction):
             slug = 'test.import_action_data_validating'
             label = 'Import Action Data Validating'

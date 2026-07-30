@@ -893,16 +893,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def test_unregistered_action_type_does_not_block_other_rules(self):
         """
-        Regression for #22770: an unregistered action_type must not prevent other EventRules
-        matching the same event from being processed.
-
-        Kept on this class (not a separate RQQueueTestMixin TestCase) so it shares this class's
-        Redis queue-clearing setUp/tearDown: two independent RQQueueTestMixin classes landing in
-        different `--parallel` subsuites cross-flush each other's queues (clear_rq_queues() calls
-        connection.flushall(), which wipes the whole Redis instance, not a per-worker namespace).
-        For the same reason, assert on the good rule's job by identity rather than absolute
-        self.queue.count: this class's own setUpTestData rules also watch OBJECT_CREATED on Site
-        and fire alongside it.
+        Regression for #22770: an unregistered action_type must not block other EventRules for
+        the same event. Kept on this class, not a separate RQQueueTestMixin one, since two such
+        classes in different `--parallel` subsuites cross-flush each other's Redis queue.
         """
         site_type = ObjectType.objects.get_for_model(Site)
         webhook = Webhook.objects.create(name='Dispatch Test Webhook', payload_url='http://localhost:9000/')
@@ -939,12 +932,8 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def test_raising_enqueue_does_not_block_other_rules(self):
         """
-        Regression for #22770: an exception raised from a registered *plugin* action's enqueue()
-        must not prevent other EventRules matching the same event from being processed (a core
-        action's enqueue() raising is treated as a genuine bug and propagates instead -- see
-        DummyRaisingAction, which must be plugin-owned for this test to actually exercise that
-        distinction). See the docstring on test_unregistered_action_type_does_not_block_other_rules
-        for why this lives here.
+        A raising *plugin* action must not block other rules (a core action's own bug propagates
+        instead -- see DummyRaisingAction, which must be plugin-owned to exercise that).
         """
         register_event_rule_action(DummyRaisingAction)
         self.addCleanup(registry['event_rule_actions'].pop, DummyRaisingAction.slug, None)
@@ -1082,12 +1071,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
         action.validate(action_object=None, action_data={})
 
     def test_validate_override_does_not_need_super(self):
-        """
-        The whole point of the _validate()/validate() split: a subclass overriding validate() to
-        add custom checks doesn't need to remember to call super().validate() -- the base
-        object_required check (in _validate()) still runs regardless, since _validate() is the
-        entry point (called from EventRule.clean()) that wraps validate(), not the reverse.
-        """
+        """A subclass overriding validate() gets the base object_required check for free, no super() needed."""
         class CustomValidatingAction(EventRuleAction):
             slug = 'test.custom_validating_action'
             label = 'Custom Validating Action'
@@ -1119,11 +1103,8 @@ class EventRuleActionRegistrationTestCase(TestCase):
 
 class EventRuleActionAvailabilityTestCase(TestCase):
     """
-    Tests for EventRule.action_provider/action_is_available, and validation of action_type.
-    Regression coverage for #22770: an EventRule whose action_type is not currently registered
-    (e.g. its providing plugin is uninstalled) must remain loadable, continue to be skipped
-    (not crashed) during event processing, and display as "unavailable" -- but is not a validly
-    savable row via full_clean() (form/API) until its action_type is changed to a registered one.
+    An EventRule with an unregistered action_type must remain loadable, skip gracefully during
+    processing, and display as "unavailable" -- but reject full_clean() until action_type changes.
     """
 
     @classmethod
@@ -1175,14 +1156,7 @@ class EventRuleActionAvailabilityTestCase(TestCase):
         self.assertEqual(self.unavailable_rule.get_action_type_color(), 'red')
 
     def test_clean_rejects_unchanged_unavailable_action_type(self):
-        """
-        A persisted-but-unavailable action_type is rejected by full_clean() even when left
-        unchanged: the field's dynamic `choices=` (get_event_rule_action_choices()) is enforced
-        by Field.validate() regardless of whether the value is new or pre-existing. The row must
-        be deleted or have its action_type changed to a registered one before it can be re-saved
-        via a full_clean() path (form/API); it still loads, displays, and is skipped gracefully
-        during event processing in the meantime.
-        """
+        """A persisted-but-unavailable action_type is rejected by full_clean() even when left unchanged."""
         rule = EventRule.objects.get(pk=self.unavailable_rule.pk)
         rule.enabled = False
         with self.assertRaises(ValidationError):
