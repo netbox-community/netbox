@@ -698,7 +698,7 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
     def test_stale_save_after_concurrent_update_resyncs(self):
         """
         A stale full save can write an old scope value back over a concurrent update
-        (NetBox's API has no If-Match support). The resync must run so the caches follow
+        (when the client sends no If-Match header). The resync must run so the caches follow
         whatever was actually written. A Cluster is used because it has no
         denormalized-field registration to mask a skipped resync (unlike Prefix). The
         lock-wait variant of this race (the concurrent update not yet committed) cannot
