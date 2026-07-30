@@ -31,7 +31,7 @@ A dotted namespace prefix (e.g. `my_plugin.open_ticket`) is strongly recommended
 
 ## Target Objects
 
-If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. Set `object_required = False` if the action can be configured without selecting a target object. Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).
+If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. `object_required` defaults to `False` (matching `object_model`'s default of `None`); set it to `True` alongside `object_model` if the target object must always be selected. Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).
 
 ## Bulk Import
 
@@ -42,8 +42,7 @@ To support resolving a target object from a CSV value during bulk import of even
 An event rule's `action_type` is stored as a plain string, and is not validated against the set of currently-registered actions at the database level. This means an event rule can reference an action type provided by a plugin that is later uninstalled or disabled, without the row being deleted or corrupted. While its action type is unavailable:
 
 * The event rule is skipped during event processing (it does not raise an error, and does not prevent other event rules from being processed).
-* It is displayed with an "unavailable" indicator in the UI.
-* `manage.py check` reports a warning (`extras.W001`) identifying the affected event rule(s).
+* It is displayed with an "unavailable" indicator in the UI, and `action_is_available` is exposed as a read-only field via the REST API, so affected event rules can be identified without a database query on every management command.
 
 Reinstalling the plugin (and thereby re-registering the action type) automatically restores the event rule to working order, with no need to re-save it.
 

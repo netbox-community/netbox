@@ -76,10 +76,11 @@ class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableActionTypeRenderingTestCase(TestCase):
     """
-    Regression tests for #22770: EventRule.action_type deliberately has no model-field `choices=`
-    (see EventRule.clean()), so django-tables2's built-in choices-driven get_FOO_display()
-    auto-rendering doesn't apply; EventRuleTable.render_action_type() must render the label (and
-    an "unavailable" badge) explicitly instead.
+    Regression tests for #22770: EventRuleTable.render_action_type() renders the label (and an
+    "unavailable" badge) explicitly rather than relying on django-tables2's built-in
+    choices-driven get_FOO_display() auto-rendering, so that EventRule.get_action_type_display()'s
+    own formatting (including the "(unavailable)" suffix) is used. value_action_type() must return
+    the same label without the badge's HTML markup, for non-HTML output (e.g. CSV export).
     """
 
     def test_render_action_type_for_registered_action(self):
@@ -88,6 +89,7 @@ class EventRuleTableActionTypeRenderingTestCase(TestCase):
 
         table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
         self.assertEqual(table.render_action_type(rule), 'Webhook')
+        self.assertEqual(table.value_action_type(rule), 'Webhook')
 
     def test_render_action_type_for_unregistered_action(self):
         rule = EventRule.objects.create(
@@ -101,6 +103,11 @@ class EventRuleTableActionTypeRenderingTestCase(TestCase):
         rendered = table.render_action_type(rule)
         self.assertIn('someplugin.not_installed_render_test (unavailable)', rendered)
         self.assertIn('badge text-bg-red', rendered)
+
+        # value_action_type() must carry the same "(unavailable)" label with no HTML markup.
+        value = table.value_action_type(rule)
+        self.assertEqual(value, 'someplugin.not_installed_render_test (unavailable)')
+        self.assertNotIn('<span', value)
 
 
 class TagTableTestCase(TableTestCases.StandardTableTestCase):

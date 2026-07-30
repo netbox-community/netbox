@@ -33,14 +33,15 @@ class EventRuleAction:
         object_model: The model class (if any) which EventRule.action_object must be an instance of.
             May be left as None if this action never operates against a target object.
         object_required: Whether an action_object must be supplied for this action to be usable
-            (default: True). Independent of object_model: an action may declare an object_model but
-            still treat the object as optional.
+            (default: False, matching object_model's default of None -- an action that declares
+            an object_model should also set this to True). Independent of object_model: an action
+            may declare an object_model but still treat the object as optional.
     """
     slug = None
     label = None
     description = None
     object_model = None
-    object_required = True
+    object_required = False
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -52,19 +53,14 @@ class EventRuleAction:
     def __repr__(self):
         return f"<{self.__class__.__name__}: {self.slug}>"
 
-    def get_object_queryset(self, request=None):
+    def get_object_queryset(self):
         """
         Return the queryset of objects eligible for selection as this action's action_object, or
-        None if object_model is not set. `request` may be omitted (e.g. when called outside of a
-        request context, such as from a system check); implementations needing permission scoping
-        should guard for that themselves if they override this method.
+        None if object_model is not set.
         """
         if self.object_model is None:
             return None
-        qs = self.object_model.objects.all()
-        if request is not None and hasattr(qs, 'restrict'):
-            qs = qs.restrict(request.user, 'view')
-        return qs
+        return self.object_model.objects.all()
 
     def resolve_import_object(self, value):
         """
@@ -74,12 +70,12 @@ class EventRuleAction:
         """
         return
 
-    def validate(self, *, action_object, action_data):
+    def _validate(self, *, action_object, action_data):
         """
-        Validate the action_object and action_data supplied for an EventRule using this action.
-        Raise django.core.exceptions.ValidationError on failure, keyed by field name where
-        possible (e.g. 'action_object_id', 'action_data'). Called from EventRule.clean(), so this
-        runs for both the UI form path and the REST API path.
+        Internal entry point called from EventRule.clean() (so this runs for both the UI form path
+        and the REST API path). Enforces the base object_required/object_model checks -- which
+        always apply, regardless of what a subclass's validate() below does -- then delegates to
+        validate() for any action-specific validation.
         """
         if self.object_required and action_object is None:
             raise ValidationError({
@@ -94,6 +90,17 @@ class EventRuleAction:
                     model=self.object_model._meta.verbose_name
                 ),
             })
+        self.validate(action_object=action_object, action_data=action_data)
+
+    def validate(self, *, action_object, action_data):
+        """
+        Optional hook: add custom validation for this action's action_object/action_data. Raise
+        django.core.exceptions.ValidationError on failure, keyed by field name where possible (e.g.
+        'action_object_id', 'action_data'). No-op by default; unlike overriding _validate() above,
+        implementations don't need to call super() -- the base object_required/object_model checks
+        always run regardless.
+        """
+        pass
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
         """
@@ -120,7 +127,7 @@ def register_event_rule_action(cls):
     """
     instance = cls()
     if instance.slug in registry['event_rule_actions']:
-        raise Exception(f"An event rule action named {instance.slug} has already been registered!")
+        raise ValidationError(f"An event rule action named {instance.slug} has already been registered!")
     registry['event_rule_actions'][instance.slug] = instance
     return cls
 

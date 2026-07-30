@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import EventRule, Webhook
@@ -24,18 +26,19 @@ class EventRuleSerializer(OwnerMixin, NetBoxModelSerializer):
     )
     action_type = ChoiceField(choices=get_event_rule_action_choices())
     action_object_type = ContentTypeField(
-        queryset=ObjectType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.all(),
         required=False,
         allow_null=True,
     )
     action_object = GFKSerializerField(read_only=True)
+    action_is_available = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = EventRule
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'name', 'enabled', 'event_types', 'conditions',
-            'action_type', 'action_object_type', 'action_object_id', 'action_object', 'description', 'custom_fields',
-            'owner', 'tags', 'created', 'last_updated',
+            'action_type', 'action_object_type', 'action_object_id', 'action_object', 'action_is_available',
+            'description', 'custom_fields', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

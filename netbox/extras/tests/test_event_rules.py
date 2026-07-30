@@ -34,6 +34,7 @@ from netbox.event_rules import (
     register_event_rule_action,
 )
 from netbox.registry import registry
+from netbox.tests.dummy_plugin.event_rules import DummyRaisingAction
 from utilities.testing import APITestCase, create_test_device
 from utilities.testing.mixins import RQQueueTestMixin
 
@@ -890,6 +891,97 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['event_rule'], event_rule)
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
 
+    def test_unregistered_action_type_does_not_block_other_rules(self):
+        """
+        Regression for #22770: an unregistered action_type must not prevent other EventRules
+        matching the same event from being processed.
+
+        Kept on this class (not a separate RQQueueTestMixin TestCase) so it shares this class's
+        Redis queue-clearing setUp/tearDown: two independent RQQueueTestMixin classes landing in
+        different `--parallel` subsuites cross-flush each other's queues (clear_rq_queues() calls
+        connection.flushall(), which wipes the whole Redis instance, not a per-worker namespace).
+        For the same reason, assert on the good rule's job by identity rather than absolute
+        self.queue.count: this class's own setUpTestData rules also watch OBJECT_CREATED on Site
+        and fire alongside it.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        webhook = Webhook.objects.create(name='Dispatch Test Webhook', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+
+        good_rule = EventRule.objects.create(
+            name='Good Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+        good_rule.object_types.set([site_type])
+
+        bad_rule = EventRule.objects.create(
+            name='Bad Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed',
+        )
+        bad_rule.object_types.set([site_type])
+
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+        with self.assertLogs('netbox.events_processor', level='WARNING') as cm:
+            response = self.client.post(
+                url, {'name': 'Dispatch Site', 'slug': 'dispatch-site'}, format='json', **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertTrue(any('someplugin.not_installed' in message for message in cm.output))
+
+        # The good rule's webhook must still have been enqueued despite the bad rule.
+        rule_jobs = [j for j in self.queue.jobs if j.kwargs['event_rule'] == good_rule]
+        self.assertEqual(len(rule_jobs), 1)
+
+    def test_raising_enqueue_does_not_block_other_rules(self):
+        """
+        Regression for #22770: an exception raised from a registered *plugin* action's enqueue()
+        must not prevent other EventRules matching the same event from being processed (a core
+        action's enqueue() raising is treated as a genuine bug and propagates instead -- see
+        DummyRaisingAction, which must be plugin-owned for this test to actually exercise that
+        distinction). See the docstring on test_unregistered_action_type_does_not_block_other_rules
+        for why this lives here.
+        """
+        register_event_rule_action(DummyRaisingAction)
+        self.addCleanup(registry['event_rule_actions'].pop, DummyRaisingAction.slug, None)
+
+        site_type = ObjectType.objects.get_for_model(Site)
+        webhook = Webhook.objects.create(name='Dispatch Test Webhook 2', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+
+        good_rule = EventRule.objects.create(
+            name='Good Rule 2',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+        good_rule.object_types.set([site_type])
+
+        raising_rule = EventRule.objects.create(
+            name='Raising Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=DummyRaisingAction.slug,
+        )
+        raising_rule.object_types.set([site_type])
+
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.add_site')
+        with self.assertLogs('netbox.events_processor', level='ERROR') as cm:
+            response = self.client.post(
+                url, {'name': 'Dispatch Site 2', 'slug': 'dispatch-site-2'}, format='json', **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertTrue(any('Raising Rule' in message for message in cm.output))
+
+        # The good rule's webhook must still have been enqueued despite the raising rule.
+        rule_jobs = [j for j in self.queue.jobs if j.kwargs['event_rule'] == good_rule]
+        self.assertEqual(len(rule_jobs), 1)
+
 
 class EventRuleActionRegistrationTestCase(TestCase):
     """
@@ -936,7 +1028,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
             label = 'Second'
 
         register_event_rule_action(FirstAction)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             register_event_rule_action(SecondAction)
 
     def test_missing_slug_raises_at_class_definition(self):
@@ -964,25 +1056,60 @@ class EventRuleActionRegistrationTestCase(TestCase):
         action = EventRuleAction()
         self.assertIsNone(action.get_object_queryset())
 
-    def test_validate_requires_object_when_object_required(self):
+    def test_internal_validate_requires_object_when_object_required(self):
         action = EventRuleAction()
         action.object_required = True
         with self.assertRaises(ValidationError):
-            action.validate(action_object=None, action_data={})
+            action._validate(action_object=None, action_data={})
 
-    def test_validate_passes_when_object_not_required(self):
+    def test_internal_validate_passes_when_object_not_required(self):
         action = EventRuleAction()
         action.object_required = False
         # Must not raise
-        action.validate(action_object=None, action_data={})
+        action._validate(action_object=None, action_data={})
 
-    def test_validate_rejects_wrong_object_type(self):
+    def test_internal_validate_rejects_wrong_object_type(self):
         action = EventRuleAction()
         action.object_model = Webhook
         action.object_required = True
         site = Site(name='Not A Webhook')
         with self.assertRaises(ValidationError):
-            action.validate(action_object=site, action_data={})
+            action._validate(action_object=site, action_data={})
+
+    def test_validate_is_noop_by_default(self):
+        action = EventRuleAction()
+        # Must not raise
+        action.validate(action_object=None, action_data={})
+
+    def test_validate_override_does_not_need_super(self):
+        """
+        The whole point of the _validate()/validate() split: a subclass overriding validate() to
+        add custom checks doesn't need to remember to call super().validate() -- the base
+        object_required check (in _validate()) still runs regardless, since _validate() is the
+        entry point (called from EventRule.clean()) that wraps validate(), not the reverse.
+        """
+        class CustomValidatingAction(EventRuleAction):
+            slug = 'test.custom_validating_action'
+            label = 'Custom Validating Action'
+            object_required = True
+
+            def validate(self, *, action_object, action_data):
+                if action_data.get('bad'):
+                    raise ValidationError({'action_data': 'bad action_data for test'})
+
+        action = CustomValidatingAction()
+
+        # The subclass's own custom check fires.
+        with self.assertRaises(ValidationError):
+            action._validate(action_object=Webhook(), action_data={'bad': True})
+
+        # The base object_required check still fires too, despite the subclass's validate()
+        # never calling super().
+        with self.assertRaises(ValidationError):
+            action._validate(action_object=None, action_data={})
+
+        # And a fully valid call still passes.
+        action._validate(action_object=Webhook(), action_data={})
 
     def test_enqueue_not_implemented_by_default(self):
         action = EventRuleAction()
@@ -992,11 +1119,11 @@ class EventRuleActionRegistrationTestCase(TestCase):
 
 class EventRuleActionAvailabilityTestCase(TestCase):
     """
-    Tests for EventRule.action_provider/is_action_available, and the CREATE-vs-UPDATE tolerant
-    validation of action_type implemented in EventRule.clean(). Regression coverage for #22770:
-    an EventRule whose action_type is not currently registered (e.g. its providing plugin is
-    uninstalled) must remain loadable and must tolerate unrelated edits, while genuinely
-    assigning a new/changed unregistered action_type must still be rejected.
+    Tests for EventRule.action_provider/action_is_available, and validation of action_type.
+    Regression coverage for #22770: an EventRule whose action_type is not currently registered
+    (e.g. its providing plugin is uninstalled) must remain loadable, continue to be skipped
+    (not crashed) during event processing, and display as "unavailable" -- but is not a validly
+    savable row via full_clean() (form/API) until its action_type is changed to a registered one.
     """
 
     @classmethod
@@ -1024,12 +1151,12 @@ class EventRuleActionAvailabilityTestCase(TestCase):
         )
         cls.unavailable_rule.object_types.set([site_type])
 
-    def test_is_action_available_true_for_registered_action(self):
-        self.assertTrue(self.healthy_rule.is_action_available)
+    def test_action_is_available_true_for_registered_action(self):
+        self.assertTrue(self.healthy_rule.action_is_available)
         self.assertIsNotNone(self.healthy_rule.action_provider)
 
-    def test_is_action_available_false_for_unregistered_action(self):
-        self.assertFalse(self.unavailable_rule.is_action_available)
+    def test_action_is_available_false_for_unregistered_action(self):
+        self.assertFalse(self.unavailable_rule.action_is_available)
         self.assertIsNone(self.unavailable_rule.action_provider)
 
     def test_get_action_type_display_for_registered_action(self):
@@ -1047,18 +1174,19 @@ class EventRuleActionAvailabilityTestCase(TestCase):
     def test_get_action_type_color_for_unregistered_action(self):
         self.assertEqual(self.unavailable_rule.get_action_type_color(), 'red')
 
-    def test_clean_tolerates_unchanged_unavailable_action_type(self):
+    def test_clean_rejects_unchanged_unavailable_action_type(self):
         """
-        Toggling an unrelated field on a row with an already-persisted, unavailable action_type
-        must not raise -- the crux of #22770's "existing rules survive a plugin uninstall"
-        requirement.
+        A persisted-but-unavailable action_type is rejected by full_clean() even when left
+        unchanged: the field's dynamic `choices=` (get_event_rule_action_choices()) is enforced
+        by Field.validate() regardless of whether the value is new or pre-existing. The row must
+        be deleted or have its action_type changed to a registered one before it can be re-saved
+        via a full_clean() path (form/API); it still loads, displays, and is skipped gracefully
+        during event processing in the meantime.
         """
         rule = EventRule.objects.get(pk=self.unavailable_rule.pk)
         rule.enabled = False
-        rule.full_clean()  # must not raise
-        rule.save()
-        rule.refresh_from_db()
-        self.assertFalse(rule.enabled)
+        with self.assertRaises(ValidationError):
+            rule.full_clean()
 
     def test_clean_rejects_new_row_with_unregistered_action_type(self):
         rule = EventRule(
@@ -1114,100 +1242,6 @@ class EventRuleNoObjectActionTestCase(TestCase):
         self.assertIsNone(rule.action_object_type)
         self.assertIsNone(rule.action_object_id)
         self.assertIsNone(rule.action_object)
-
-
-class EventRuleDispatchFailureModeTestCase(RQQueueTestMixin, APITestCase):
-    """
-    Regression tests for #22770: an unregistered action_type, or an exception raised from a
-    registered action's enqueue(), must not prevent other EventRules matching the same event
-    from being processed.
-    """
-
-    def setUp(self):
-        super().setUp()
-        self.queue = django_rq.get_queue('default')
-        self.queue.empty()
-
-    def tearDown(self):
-        super().tearDown()
-        self.queue.empty()
-        registry['event_rule_actions'].pop('test.raising_action', None)
-
-    def test_unregistered_action_type_does_not_block_other_rules(self):
-        site_type = ObjectType.objects.get_for_model(Site)
-        webhook = Webhook.objects.create(name='Dispatch Test Webhook', payload_url='http://localhost:9000/')
-        webhook_type = ObjectType.objects.get_for_model(Webhook)
-
-        good_rule = EventRule.objects.create(
-            name='Good Rule',
-            event_types=[OBJECT_CREATED],
-            action_type=EventRuleActionChoices.WEBHOOK,
-            action_object_type=webhook_type,
-            action_object_id=webhook.pk,
-        )
-        good_rule.object_types.set([site_type])
-
-        bad_rule = EventRule.objects.create(
-            name='Bad Rule',
-            event_types=[OBJECT_CREATED],
-            action_type='someplugin.not_installed',
-        )
-        bad_rule.object_types.set([site_type])
-
-        url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
-        with self.assertLogs('netbox.events_processor', level='WARNING') as cm:
-            response = self.client.post(
-                url, {'name': 'Dispatch Site', 'slug': 'dispatch-site'}, format='json', **self.header
-            )
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertTrue(any('someplugin.not_installed' in message for message in cm.output))
-
-        # The good rule's webhook must still have been enqueued despite the bad rule.
-        self.assertEqual(self.queue.count, 1)
-
-    def test_raising_enqueue_does_not_block_other_rules(self):
-        class RaisingAction(EventRuleAction):
-            slug = 'test.raising_action'
-            label = 'Raising Action'
-            object_required = False
-
-            def enqueue(self, **kwargs):
-                raise RuntimeError("intentional failure for test")
-
-        register_event_rule_action(RaisingAction)
-
-        site_type = ObjectType.objects.get_for_model(Site)
-        webhook = Webhook.objects.create(name='Dispatch Test Webhook 2', payload_url='http://localhost:9000/')
-        webhook_type = ObjectType.objects.get_for_model(Webhook)
-
-        good_rule = EventRule.objects.create(
-            name='Good Rule 2',
-            event_types=[OBJECT_CREATED],
-            action_type=EventRuleActionChoices.WEBHOOK,
-            action_object_type=webhook_type,
-            action_object_id=webhook.pk,
-        )
-        good_rule.object_types.set([site_type])
-
-        raising_rule = EventRule.objects.create(
-            name='Raising Rule',
-            event_types=[OBJECT_CREATED],
-            action_type='test.raising_action',
-        )
-        raising_rule.object_types.set([site_type])
-
-        url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
-        with self.assertLogs('netbox.events_processor', level='ERROR') as cm:
-            response = self.client.post(
-                url, {'name': 'Dispatch Site 2', 'slug': 'dispatch-site-2'}, format='json', **self.header
-            )
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertTrue(any('Raising Rule' in message for message in cm.output))
-
-        # The good rule's webhook must still have been enqueued despite the raising rule.
-        self.assertEqual(self.queue.count, 1)
 
 
 class WebhookRenderHeadersTest(TestCase):

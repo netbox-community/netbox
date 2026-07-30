@@ -16,6 +16,7 @@ from core.choices import ManagedFileRootPathChoices
 from core.events import *
 from core.models import DataFile, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
+from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
@@ -185,10 +186,12 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('action_type', response.data)
 
-    def test_update_unrelated_field_on_unavailable_action_rule_succeeds(self):
+    def test_update_unrelated_field_on_unavailable_action_rule_fails(self):
         """
-        Regression for #22770: PATCHing an unrelated field on a rule whose action_type has since
-        become unavailable (its providing plugin uninstalled) must not be blocked.
+        Regression for #22770: PATCHing a rule whose action_type has since become unavailable
+        (its providing plugin uninstalled) is rejected, even for an unrelated field, until
+        action_type is changed to a registered value -- the row remains loadable/readable and is
+        skipped gracefully during event processing, but is not savable in this state.
         """
         rule = EventRule.objects.create(
             name='API Unavailable Rule',
@@ -200,10 +203,56 @@ class EventRuleActionAPITestCase(APITestCase):
         self.add_permissions('extras.change_eventrule')
         url = reverse('extras-api:eventrule-detail', kwargs={'pk': rule.pk})
         response = self.client.patch(url, {'enabled': False}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_type', response.data)
 
         rule.refresh_from_db()
-        self.assertFalse(rule.enabled)
+        self.assertTrue(rule.enabled)
+
+    def test_action_is_available_exposed_via_api(self):
+        """
+        Regression for #22770: action_is_available must be exposed as a read-only API field, so
+        affected event rules can be identified without a database query on every management
+        command (the alternative to the extras.W001 system check, which was removed).
+        """
+        available_rule = EventRule.objects.create(
+            name='API Available Rule', event_types=[OBJECT_CREATED], action_type='webhook',
+        )
+        available_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        unavailable_rule = EventRule.objects.create(
+            name='API Unavailable Flag Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='some.plugin.not_installed_flag_test',
+        )
+        unavailable_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        self.add_permissions('extras.view_eventrule')
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': available_rule.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(response.data['action_is_available'])
+
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': unavailable_rule.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertFalse(response.data['action_is_available'])
+
+    def test_action_object_type_field_accepts_any_content_type(self):
+        """
+        Regression: action_object_type's queryset was ObjectType.objects.with_feature('event_rules')
+        -- the feature flag that applies to the *triggering* object_types field, not the action's
+        target object type. A registered action's object_model need not itself support being an
+        event rule trigger (e.g. auth.user does not), so the queryset must not exclude it.
+        """
+        field = EventRuleSerializer().fields['action_object_type']
+        user_ct = ObjectType.objects.get_for_model(User)
+        self.assertFalse(
+            ObjectType.objects.with_feature('event_rules').filter(pk=user_ct.pk).exists(),
+            "This test requires a content type that genuinely doesn't support the event_rules "
+            "feature; auth.user no longer qualifies, so the test needs a different one.",
+        )
+        self.assertIn(user_ct, field.queryset)
 
 
 class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):

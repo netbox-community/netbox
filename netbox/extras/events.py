@@ -1,6 +1,7 @@
 import logging
 from collections import UserDict, defaultdict
 
+from django.apps import apps
 from django.conf import settings
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
@@ -8,12 +9,22 @@ from django.utils.translation import gettext as _
 from core.events import *
 from core.models import ObjectType
 from netbox.models.features import has_feature
+from netbox.plugins import PluginConfig
 from utilities.api import get_serializer_for_model
 from utilities.serialization import serialize_object
 
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
+
+
+def _is_plugin_provided(action):
+    """
+    Return whether the given EventRuleAction instance is provided by a plugin (as opposed to
+    NetBox core), by checking which Django app owns the module its class is defined in.
+    """
+    app_config = apps.get_containing_app_config(type(action).__module__)
+    return isinstance(app_config, PluginConfig)
 
 
 class EventContext(UserDict):
@@ -219,20 +230,30 @@ def process_event_rules(event_rules, object_type, event):
             )
             continue
 
-        try:
+        if _is_plugin_provided(action):
+            # A plugin-provided action's enqueue() is arbitrary third-party code; a bug in one
+            # rule's action must not abort processing of the remaining rules in this batch.
+            try:
+                action.enqueue(
+                    event_rule=event_rule,
+                    event_context=event,
+                    action_object=event_rule.action_object,
+                    action_data=event_data,
+                )
+            except Exception:
+                logger.exception(
+                    _('Error processing event rule "{rule}" (action: {action_type})').format(
+                        rule=event_rule, action_type=event_rule.action_type,
+                    )
+                )
+        else:
+            # A core action's enqueue() failing is a genuine NetBox bug, not a third-party
+            # integration fault; let it propagate rather than silently swallowing it.
             action.enqueue(
                 event_rule=event_rule,
                 event_context=event,
                 action_object=event_rule.action_object,
                 action_data=event_data,
-            )
-        except Exception:
-            # A plugin-provided action's enqueue() is arbitrary third-party code; a bug in one
-            # rule's action must not abort processing of the remaining rules in this batch.
-            logger.exception(
-                _('Error processing event rule "{rule}" (action: {action_type})').format(
-                    rule=event_rule, action_type=event_rule.action_type,
-                )
             )
 
 

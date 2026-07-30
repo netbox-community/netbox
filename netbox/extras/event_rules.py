@@ -23,6 +23,7 @@ class WebhookAction(EventRuleAction):
     label = _('Webhook')
     description = _('Send an outgoing HTTP request to a remote endpoint')
     object_model = Webhook
+    object_required = True
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
         # Select the appropriate RQ queue
@@ -56,6 +57,7 @@ class ScriptAction(EventRuleAction):
     label = _('Script')
     description = _('Execute a custom script')
     object_model = Script
+    object_required = True
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
         # Resolve the script from action parameters
@@ -89,6 +91,7 @@ class NotificationAction(EventRuleAction):
     label = _('Notification')
     description = _('Generate a notification for one or more users or groups')
     object_model = NotificationGroup
+    object_required = True
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
         # Bulk-create notifications for all members of the notification group

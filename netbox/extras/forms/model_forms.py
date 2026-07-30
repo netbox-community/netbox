@@ -602,15 +602,9 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
 class EventRuleForm(OwnerMixin, NetBoxModelForm):
     action_type = ChoiceField(
         label=_('Action type'),
-        # Bare callable (not called here), unlike EventRuleSerializer's DRF ChoiceField, which
-        # can't support this: re-evaluated fresh on each ChoiceField.choices access via Django's
-        # CallableChoiceIterator, so a plugin registered after this module was first imported is
-        # still picked up correctly by this form.
-        choices=get_event_rule_action_choices,
+        choices=get_event_rule_action_choices,  # bare callable: re-evaluated fresh on each access
         initial=EventRuleActionChoices.WEBHOOK,
-        # Set here rather than in Meta.widgets: Meta.widgets only applies to fields the ModelForm
-        # auto-generates from the model, and is silently ignored for explicitly-declared fields.
-        widget=HTMXSelect(hx_target_id='event-rule-action'),
+        widget=HTMXSelect(hx_target_id='event-rule-action'),  # Meta.widgets ignores explicit fields
     )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),

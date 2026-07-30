@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
@@ -457,8 +457,15 @@ class EventRuleImportFormTestCase(TestCase):
     Regression tests for #22770: EventRuleImportForm's action_object resolution must be driven by
     each registered action's resolve_import_object() hook. Also covers the notification group case,
     which the pre-#22770 hardcoded per-type branches never handled (a gap fixed as part of this
-    generalization).
+    generalization). action_type is a plain auto-generated ModelForm field (backed by the model
+    field's own dynamic choices=), not a materialized-at-import-time CSVChoiceField, and
+    action_object is optional at the field level so a no-object action can omit it; both are
+    required to support bulk-importing a runtime-registered (e.g. plugin) no-object action.
     """
+
+    def tearDown(self):
+        super().tearDown()
+        registry['event_rule_actions'].pop('test.import_no_object_action', None)
 
     def test_resolves_webhook_by_name(self):
         webhook = Webhook.objects.create(name='Import Test Webhook', payload_url='http://localhost:9000/')
@@ -506,3 +513,72 @@ class EventRuleImportFormTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('action_type', form.errors)
+
+    def test_submit_no_object_action_with_blank_action_object_succeeds(self):
+        """
+        Regression: action_type used to be a CSVChoiceField materializing choices once at
+        import time, and action_object was unconditionally required -- both would have rejected
+        a CSV row for a (typically plugin-provided) no-object action before clean() ever ran.
+        """
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.import_no_object_action'
+            label = 'Import No-Object Action'
+            object_required = False
+
+        register_event_rule_action(NoObjectAction)
+
+        form = EventRuleImportForm(data={
+            'name': 'Import No-Object Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': 'test.import_no_object_action',
+            'action_object': '',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        rule = form.save()
+        self.assertIsNone(rule.action_object_type)
+        self.assertIsNone(rule.action_object_id)
+
+    def test_blank_action_object_rejected_for_object_required_action(self):
+        """A blank action_object must still be rejected cleanly (not raise) for an action that requires one."""
+        form = EventRuleImportForm(data={
+            'name': 'Import Webhook No Object',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': EventRuleActionChoices.WEBHOOK,
+            'action_object': '',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('action_object', form.errors)
+
+    def test_action_validate_error_on_unexposed_field_becomes_non_field_error(self):
+        """
+        Regression: a registered action's validate() (called from EventRule.clean() via
+        instance.full_clean() in _post_clean()) can raise a ValidationError keyed by a real model
+        field this form doesn't expose as one of its own fields (e.g. action_data, or
+        action_object_id/action_object_type). Django's default _update_errors()/add_error() would
+        raise a bare ValueError for such an unrecognized key, surfacing as a 500 instead of a
+        normal validation failure; it must be remapped to NON_FIELD_ERRORS instead, preserving the
+        actual message.
+        """
+        class ActionDataValidatingAction(EventRuleAction):
+            slug = 'test.import_action_data_validating'
+            label = 'Import Action Data Validating'
+            object_required = False
+
+            def validate(self, *, action_object, action_data):
+                raise ValidationError({'action_data': 'Bad action_data for test'})
+
+        register_event_rule_action(ActionDataValidatingAction)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.import_action_data_validating', None)
+
+        form = EventRuleImportForm(data={
+            'name': 'Import Bad Action Data Rule',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': 'test.import_action_data_validating',
+            'action_object': '',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn(NON_FIELD_ERRORS, form.errors)
+        self.assertIn('Bad action_data for test', form.errors[NON_FIELD_ERRORS])

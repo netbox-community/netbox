@@ -8,7 +8,7 @@ class ExtrasConfig(AppConfig):
         from netbox.event_rules import register_event_rule_action
         from netbox.models.features import register_models
 
-        from . import checks, dashboard, lookups, search, signals  # noqa: F401
+        from . import dashboard, lookups, search, signals  # noqa: F401
         from .event_rules import NotificationAction, ScriptAction, WebhookAction
 
         # Register models
