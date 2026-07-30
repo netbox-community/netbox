@@ -32,6 +32,7 @@ from extras.models import (
     TableConfig,
     Tag,
     TaggedItem,
+    Webhook,
 )
 from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
@@ -1578,6 +1579,49 @@ class ExportTemplateRenderTestCase(TestCase):
         self.assertEqual(response['Content-Type'], DEFAULT_MIME_TYPE)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
         self.assertEqual(response.content.decode(), 'Site A\nSite B\nSite C\n')
+
+
+class WebhookTestCase(TestCase):
+    """Tests for Webhook.clean()'s validation of payload_url (#22828)."""
+
+    def test_payload_url_accepts_literal_url(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_rejects_non_url(self):
+        webhook = Webhook(name='Webhook 1', payload_url='not-a-url-at-all')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_disallowed_scheme(self):
+        webhook = Webhook(name='Webhook 1', payload_url='file:///etc/passwd')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_accepts_jinja2_template(self):
+        """A templated payload_url must not be rejected merely for not being a literal URL."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://{{ data.name }}.example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_accepts_template_using_a_registered_filter(self):
+        webhook = Webhook(name='Webhook 1', payload_url="http://example.com/{{ 'HOME' | env }}")
+        webhook.clean()
+
+    def test_payload_url_rejects_malformed_template_syntax(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://{{ data.name }.example.com/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_template_with_unregistered_filter(self):
+        webhook = Webhook(
+            name='Webhook 1', payload_url='http://example.com/{{ data.name | totally_unregistered_filter }}'
+        )
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
 
 
 class EventRuleTestCase(TestCase):

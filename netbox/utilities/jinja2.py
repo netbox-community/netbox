@@ -15,6 +15,7 @@ __all__ = (
     'env_filter',
     'render_jinja2',
     'sanitize_http_header',
+    'validate_jinja2_syntax',
 )
 
 # Control characters (C0 range plus DEL) which are invalid in an HTTP header value. Notably, this includes the
@@ -126,3 +127,16 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
     else:
         template = environment.from_string(source=template_code)
     return template.render(**context)
+
+
+def validate_jinja2_syntax(template_code):
+    """
+    Validate that template_code is syntactically well-formed Jinja2, including that any filters it
+    references are registered -- without rendering it, so no context data is required. Useful for
+    validating a template-capable field (e.g. Webhook.payload_url) at save time, when the values
+    it will eventually be rendered against aren't yet known. Raises
+    jinja2.exceptions.TemplateSyntaxError on failure.
+    """
+    environment = SandboxedEnvironment(loader=BaseLoader())
+    environment.filters.update({**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS})
+    environment.compile(template_code)

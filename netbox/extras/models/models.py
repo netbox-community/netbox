@@ -1,17 +1,19 @@
 import json
+import re
 import urllib.parse
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import ValidationError
+from django.core.validators import URLValidator, ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from jinja2.exceptions import TemplateError
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
@@ -34,7 +36,7 @@ from netbox.models.features import (
 )
 from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
-from utilities.jinja2 import render_jinja2, sanitize_http_header
+from utilities.jinja2 import render_jinja2, sanitize_http_header, validate_jinja2_syntax
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
 from utilities.tables import get_table_for_model
@@ -167,6 +169,12 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
             return False
 
 
+# Matches the start of a Jinja2 expression, statement, or comment ({{, {%, {#), to distinguish a
+# templated Webhook.payload_url (validated only for template syntax, since its rendered value
+# depends on data not yet known) from a literal one (validated as a URL outright).
+JINJA2_TEMPLATE_RE = re.compile(r'\{[{%#]')
+
+
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -278,6 +286,17 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
             raise ValidationError({
                 'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
             })
+
+        if JINJA2_TEMPLATE_RE.search(self.payload_url):
+            try:
+                validate_jinja2_syntax(self.payload_url)
+            except TemplateError as e:
+                raise ValidationError({'payload_url': _("Invalid template: {error}").format(error=e)})
+        else:
+            try:
+                URLValidator(schemes=('http', 'https'))(self.payload_url)
+            except ValidationError as e:
+                raise ValidationError({'payload_url': e})
 
     def render_headers(self, context):
         """
