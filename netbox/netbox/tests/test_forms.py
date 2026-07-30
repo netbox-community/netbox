@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -308,9 +311,6 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         a field absent from the import form, is_valid() should return False with a
         non-field error rather than raising ValueError. Regression test for #22683.
         """
-        from django.core.exceptions import ValidationError as DjangoValidationError
-        from unittest.mock import patch
-
         form = InterfaceImportForm(
             data={
                 'device': self.device,
@@ -334,8 +334,6 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         non-field error, both should appear in non_field_errors() after remapping.
         Regression test for #22683.
         """
-        from django.core.exceptions import ValidationError as DjangoValidationError
-
         form = InterfaceImportForm(
             data={
                 'device': self.device,
