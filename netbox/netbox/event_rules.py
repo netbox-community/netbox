@@ -1,6 +1,6 @@
 import re
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
@@ -15,9 +15,14 @@ __all__ = (
 )
 
 # slug must produce a valid GraphQL enum member name once sanitized by enum_key() (which uppercases
-# and replaces non-alphanumeric characters with "_"): a leading digit would otherwise be legal here
-# but invalid there.
-SLUG_RE = re.compile(r'^[a-z_][a-z0-9_]*(\.[a-z0-9_]+)*$')
+# and replaces any character outside [A-Z0-9_] with "_"): a leading digit would otherwise be legal
+# here but invalid there, so digits are excluded from the first character. A leading underscore is
+# excluded too, since a slug of just "_something" or more sanitizes to a "__"-prefixed name, which
+# GraphQL reserves for introspection. Hyphens are excluded outright (not just from the first
+# character) rather than merely sanitized away, since a hyphenated slug -- plausible, as plugin
+# distribution names are conventionally hyphenated -- would otherwise pass silently while differing
+# from what a human reads in, say, an error message quoting the raw slug.
+SLUG_RE = re.compile(r'^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$')
 
 
 # This module must not import any concrete Django models: it's imported by netbox.plugins (itself
@@ -32,8 +37,10 @@ class EventRuleAction:
 
     Attributes:
         slug: A unique identifier for this action (e.g. "webhook", or "myplugin.run_check" for a
-            plugin-provided action). A dotted namespace prefix is strongly recommended for
-            plugin-provided actions to avoid collisions with other plugins or future core actions.
+            plugin-provided action). Must be lowercase, start with a letter, and contain only
+            letters, digits, underscores, and dot-separated segments -- no hyphens or leading
+            underscores. A dotted namespace prefix is strongly recommended for plugin-provided
+            actions to avoid collisions with other plugins or future core actions.
         label: The human-friendly name shown in the UI/API.
         description: An optional, longer description shown alongside the label (e.g. as a tooltip
             in the action_type dropdown).
@@ -43,16 +50,18 @@ class EventRuleAction:
             (default: False, matching object_model's default of None -- an action that declares
             an object_model should also set this to True). Independent of object_model: an action
             may declare an object_model but still treat the object as optional.
-        is_plugin_provided: Set automatically by register_event_rule_action(); do not set this
-            directly. Determines whether an exception raised by this action during dispatch is
-            isolated (logged, other event rules still process) or propagates. Defaults to True.
     """
     slug = None
     label = None
     description = None
     object_model = None
     object_required = False
-    is_plugin_provided = True
+
+    # Set automatically by register_event_rule_action(); do not set this on a subclass. Determines
+    # whether an exception raised by this action during dispatch is isolated (logged, other event
+    # rules still process) or propagates -- see process_event_rules() in extras.events. There is
+    # deliberately no class-level default: it should only ever be read on a registered (and thus
+    # already-assigned) instance.
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -128,9 +137,11 @@ def register_event_rule_action(cls, *, is_plugin_provided=True):
             slug = 'myplugin.my_action'
             ...
 
-    Raises if the slug is malformed, already registered, or collides via enum_key() with another
-    registered slug once both feed the GraphQL EventRuleActionEnum (see extras.graphql.enums) --
-    all are caught immediately here rather than surfacing as a schema-assembly crash at startup.
+    Raises ImproperlyConfigured -- a registration/packaging mistake, not user input, matching the
+    convention ChoiceSetMeta uses for the analogous case -- if the slug is malformed, already
+    registered, or collides via enum_key() with another registered slug once both feed the GraphQL
+    EventRuleActionEnum (see extras.graphql.enums). All are caught immediately here rather than
+    surfacing as a schema-assembly crash at startup.
 
     is_plugin_provided determines whether a dispatch-time exception from this action is isolated
     or propagates (see process_event_rules() in extras.events); defaults to True (the safer
@@ -140,17 +151,16 @@ def register_event_rule_action(cls, *, is_plugin_provided=True):
     """
     instance = cls()
     if not SLUG_RE.fullmatch(instance.slug):
-        raise ValidationError(
+        raise ImproperlyConfigured(
             f"Invalid event rule action slug {instance.slug!r}: must be lowercase, start with a "
-            f"letter or underscore, and use only letters, digits, underscores, and dot-separated "
-            f"segments."
+            f"letter, and use only letters, digits, underscores, and dot-separated segments."
         )
     if instance.slug in registry['event_rule_actions']:
-        raise ValidationError(f"An event rule action named {instance.slug} has already been registered!")
+        raise ImproperlyConfigured(f"An event rule action named {instance.slug} has already been registered!")
     new_key = enum_key(instance.slug)
     for existing in registry['event_rule_actions'].values():
         if enum_key(existing.slug) == new_key:
-            raise ValidationError(
+            raise ImproperlyConfigured(
                 f"Event rule action slug {instance.slug!r} collides with the already-registered "
                 f"{existing.slug!r} once both are sanitized into a GraphQL enum member name."
             )

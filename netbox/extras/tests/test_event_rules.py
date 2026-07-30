@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import django_rq
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, tag
 from django.urls import reverse
@@ -1042,7 +1042,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
             label = 'Second'
 
         register_event_rule_action(FirstAction)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(ImproperlyConfigured):
             register_event_rule_action(SecondAction)
 
     def test_slug_starting_with_digit_rejected(self):
@@ -1051,9 +1051,29 @@ class EventRuleActionRegistrationTestCase(TestCase):
             slug = '2fa.notify'
             label = 'Digit Slug Action'
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(ImproperlyConfigured):
             register_event_rule_action(DigitSlugAction)
         self.assertIsNone(get_event_rule_action('2fa.notify'))
+
+    def test_slug_with_hyphen_rejected(self):
+        """A hyphenated slug (a plausible mistake given hyphenated plugin distribution names) is rejected."""
+        class HyphenSlugAction(EventRuleAction):
+            slug = 'my-plugin.open_ticket'
+            label = 'Hyphen Slug Action'
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(HyphenSlugAction)
+        self.assertIsNone(get_event_rule_action('my-plugin.open_ticket'))
+
+    def test_slug_with_leading_underscore_rejected(self):
+        """A leading underscore sanitizes into a "__"-prefixed name, which GraphQL reserves for introspection."""
+        class LeadingUnderscoreAction(EventRuleAction):
+            slug = '_internal.foo'
+            label = 'Leading Underscore Action'
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(LeadingUnderscoreAction)
+        self.assertIsNone(get_event_rule_action('_internal.foo'))
 
     def test_slug_enum_key_collision_rejected(self):
         """Two distinct slugs that sanitize to the same GraphQL enum member name must not both register."""
@@ -1067,7 +1087,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
 
         register_event_rule_action(DotAction)
         self.addCleanup(registry['event_rule_actions'].pop, 'test.collision_action', None)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(ImproperlyConfigured):
             register_event_rule_action(UnderscoreAction)
         self.assertIsNone(get_event_rule_action('test_collision_action'))
 

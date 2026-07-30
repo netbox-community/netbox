@@ -48,7 +48,9 @@ The type of action to take when the rule triggers. This must be one of the follo
 * Notification
 
 !!! tip "Custom Action Types"
-    The above list includes only built-in action types. NetBox plugins can also [register their own custom action types](../../plugins/development/event-rule-actions.md). If the plugin providing an event rule's action type is uninstalled or disabled, the event rule is not deleted, but it is marked as unavailable, will not run, and cannot be saved (even to edit an unrelated field) until either the plugin is reinstalled or the action type is changed to a currently-available one.
+    The above list includes only built-in action types. NetBox plugins can also [register their own custom action types](../../plugins/development/event-rule-actions.md).
+
+    If the plugin providing an event rule's action type is uninstalled or disabled, the event rule is not deleted, but it is marked as unavailable and will not run. It also cannot be saved -- even to edit an unrelated field -- until either the plugin is reinstalled or the action type is changed to a currently-available one.
 
 ### Action Data
 

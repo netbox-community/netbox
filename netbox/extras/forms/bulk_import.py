@@ -320,9 +320,8 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
                 'action_object': _("This action type does not support bulk import.")
             })
 
-        self.instance.action_object = obj
-        if action.object_model:
-            self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
+        self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
+        self.instance.action_object_id = obj.pk
 
     def _update_errors(self, errors):
         # Remap errors keyed by fields this form doesn't expose (e.g. action_object_id) to

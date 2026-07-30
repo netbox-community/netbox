@@ -30,6 +30,8 @@ event_rule_actions = [OpenTicketAction]
 
 A dotted namespace prefix (e.g. `my_plugin.open_ticket`) is strongly recommended for `slug` to avoid collisions with other plugins or with action types added to NetBox core in the future.
 
+`slug` must be lowercase, start with a letter, and contain only letters, digits, underscores, and dot-separated segments -- **hyphens and leading underscores are not allowed**, even though they're common in plugin/package names. `register_event_rule_action()` raises `ImproperlyConfigured` immediately for a slug outside this pattern, rather than allowing it to fail later during GraphQL schema assembly.
+
 ## Target Objects
 
 If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. `object_required` defaults to `False` (matching `object_model`'s default of `None`); set it to `True` alongside `object_model` if the target object must always be selected. Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).

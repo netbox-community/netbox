@@ -276,12 +276,12 @@ class DashboardWidgetColorChoices(ChoiceSet):
 # Event Rules
 #
 
-class EventRuleActionChoices(ChoiceSet):
+class EventRuleActionChoices:
     """
-    Slug constants only -- action_type is plugin-extensible, so the authoritative label/
-    description/choices live on the registered EventRuleAction instances (netbox.event_rules),
-    not here. Duplicating them in CHOICES would risk drifting from WebhookAction/ScriptAction/
-    NotificationAction's own label/description, and nothing reads CHOICES for this class anyway.
+    The slugs of NetBox's built-in event rule actions. Not a ChoiceSet: the full, current set of
+    valid action_type values is plugin-extensible and lives in the netbox.event_rules registry,
+    not here -- see get_event_rule_action_choices(). Use these constants for the three built-in
+    actions; do not pass this class itself as a Django/DRF field's `choices=`.
     """
 
     WEBHOOK = 'webhook'
