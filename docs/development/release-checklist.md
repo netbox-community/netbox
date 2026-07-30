@@ -196,6 +196,16 @@ Once CI has completed and a colleague has reviewed the PR, merge it. This effect
 !!! warning
     To ensure a streamlined review process, the pull request for a release **must** be limited to the changes outlined in this document. A release PR must never include functional changes to the application: Any unrelated "cleanup" needs to be captured in a separate PR prior to the release being shipped.
 
+### Confirm Package Publishing Prerequisites
+
+Complete these checks before creating the release tag.
+
+Confirm that the existing PyPI trusted publisher still matches this repository, `.github/workflows/release.yml`, and the `pypi` environment name. If a Test PyPI rehearsal is planned, confirm the corresponding Test PyPI trusted publisher and `testpypi` environment as well. The trusted publisher's environment name must match the publish job's `environment.name`, otherwise the index rejects the upload before any file is transferred.
+
+Confirm that the `pypi` GitHub Actions environment has required reviewers configured so the production upload waits for approval after the package checks complete. Enable **Prevent self-review**, restrict deployments to `v*` tags, and leave administrator bypass disabled unless the maintainers deliberately require it. Referencing an environment from the workflow does not configure these protection rules; if the environment does not exist, GitHub creates it without an approval gate. The `testpypi` environment does not need an approval gate because a rehearsal run is dispatched deliberately.
+
+The published package version is derived from `netbox/release.yaml` (the `version` field plus any `designation`, e.g. `beta1` becomes `4.7.0b1`), not from the git tag. Confirm that the intended tag and `netbox/release.yaml` agree before creating the release. The publishing workflow verifies the match again against the built wheel.
+
 ### Create a New Release
 
 Create a [new release](https://github.com/netbox-community/netbox/releases/new) on GitHub with the following parameters.
@@ -207,23 +217,54 @@ Create a [new release](https://github.com/netbox-community/netbox/releases/new) 
 
 Once created, the release will become available for users to install from GitHub.
 
-### Publish to Test PyPI
+### Publish to PyPI
 
-Pushing a release tag triggers the Python package publishing workflow, which publishes the tagged release automatically to **Test PyPI** for maintainer validation. Installing NetBox via pip is not a supported installation path during the v4.6.x preview period; production PyPI publishing is planned for the v4.7.0 feature branch. A manual `workflow_dispatch` run publishes to Test PyPI only when the selected ref is a `v*` release tag; dispatching from a branch runs the build and verification jobs as a dry run without publishing.
+Creating the GitHub release pushes the new tag and starts the Python package publishing workflow. With the prerequisites above in place, the workflow builds and verifies the wheel and source distribution, then holds the production upload until the `pypi` deployment is approved. Approving the deployment publishes the verified artifacts to **PyPI**. Installing NetBox from the Python package is experimental in NetBox v4.7 and is not recommended for production use.
+
+A manual `workflow_dispatch` run from a `v*` release tag publishes to **Test PyPI** instead. This remains available as an optional rehearsal after packaging or publishing changes, but it is not required for every production release. Dispatching from a branch runs the build and verification jobs as a dry run without publishing anywhere.
+
+Dispatch a rehearsal from the release tag with GitHub CLI:
+
+```no-highlight
+gh workflow run release.yml --ref vX.Y.Z
+```
+
+When a Test PyPI rehearsal is useful for a release, keep the production deployment awaiting approval while you dispatch the workflow from the same tag and validate the rehearsal. The rehearsal is a separate workflow run and rebuilds the distributions, so it validates the packaging and publishing path rather than the exact files waiting for production. Approve the production deployment after the rehearsal completes.
+
+Test PyPI enforces the same filename immutability. Once it has accepted either distribution generated for a release tag, dispatching that tag again is expected to fail because the workflow rebuilds the same wheel and source distribution filenames. A further rehearsal requires a new package version and matching tag.
+
+Official pre-release tags, including beta and release-candidate versions, are published to PyPI as well. This is intentional. Pip does not select pre-release versions by default unless the user explicitly requests one or no compatible stable release is available.
 
 After a publish run completes:
 
 * Verify that the build, CLI smoke-test (`cli-smoke-test`), smoke-test, dependency-verification (`verify-dependencies`), and sdist-verification (`verify-sdist`) jobs succeeded. The dependency-verification job fails the release if `requirements.txt` has drifted from `base_requirements.txt` or if the built wheel's `Requires-Dist` does not match `requirements.txt`; the sdist-verification job fails it if the sdist ships unexpected configuration files or cannot rebuild a valid wheel.
-* Verify that the publish job used the expected trusted-publishing environment (`testpypi`).
-* Confirm that the new version is visible on Test PyPI.
-* Install the published wheel into a fresh virtual environment and run `netbox check` against a minimal configuration module. The preview artifact is published to Test PyPI while NetBox's pinned runtime dependencies are expected to resolve from PyPI; to avoid mixed-index dependency resolution during validation, install the pinned dependencies from PyPI first, then install the Test PyPI artifact without resolving dependencies again:
+* Verify that the publish job used the expected trusted-publishing environment: `pypi` for a production release or `testpypi` for a rehearsal.
+* Confirm that the new version is visible on the corresponding package index.
+* Test the published wheel using the [wheel smoke-test procedure](./building-the-package.md#test-installing-the-wheel). For a production release, replace the local wheel installation command in that procedure with:
 
     ```no-highlight
-    pip install -r requirements.txt
-    pip install --no-deps --index-url https://test.pypi.org/simple/ netbox==<version>
+    /tmp/netbox-build-test/bin/python -m pip install "netbox==<version>"
     ```
 
-!!! note "Trusted publishing prerequisites"
-    Publishing requires a one-time setup by the project owners: a `netbox` project and a configured GitHub trusted publisher on Test PyPI, plus the corresponding `testpypi` GitHub Actions environment.
+    For a Test PyPI rehearsal, install NetBox's pinned runtime dependencies from PyPI first and then install the candidate without resolving dependencies from the test index:
 
-The published package version is derived from `netbox/release.yaml` (the `version` field plus any `designation`, e.g. `beta1` becomes `4.7.0b1`), not from the git tag. Ensure the tag and `release.yaml` agree before tagging a pre-release.
+    ```no-highlight
+    /tmp/netbox-build-test/bin/python -m pip install -r requirements.txt
+    /tmp/netbox-build-test/bin/python -m pip install \
+        --no-deps \
+        --index-url https://test.pypi.org/simple/ \
+        "netbox==<version>"
+    ```
+
+    Run `netbox check` with the configuration and environment variables shown in the linked procedure.
+
+!!! warning "Production PyPI uploads are final"
+    Distribution files uploaded to PyPI cannot be replaced. A release may be yanked, and a release or an individual file may be deleted, but an uploaded filename can never be reused. Correcting an accepted distribution file requires publishing a new NetBox version.
+
+    If the publish job fails, check PyPI and the job log to determine whether any distribution file was accepted before deciding how to recover.
+
+    If no file was accepted and the cause can be corrected without changing the built distributions, correct it and re-run only the failed `publish-pypi` job. That reuses the package artifacts already built and verified in the original workflow run. Do not use **Re-run all jobs**, because it rebuilds the distributions.
+
+    If correcting the failure requires changing package contents or metadata, prepare a new NetBox version and release tag instead.
+
+    If PyPI accepted either distribution file, do not retry the publish job. Production publishing fails on duplicate filenames by design, so the retry fails when it reaches the already accepted file. Yank the incomplete release, record the accepted filenames and hashes, and publish a new NetBox version rather than combining files from separate builds.
