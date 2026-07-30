@@ -2,8 +2,8 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import connection
-from django.test import SimpleTestCase, TestCase
+from django.db import connection, transaction
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
 from dcim import signals
@@ -747,6 +747,34 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
             q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')
         ]
         self.assertEqual(len(cluster_updates), 1)
+
+
+class SyncCachedScopeFieldsAutocommitTestCase(TransactionTestCase):
+    """
+    Exercise the autocommit save path, which TestCase cannot reach (it wraps every test
+    in a transaction). Outside an atomic block the pre-save read and the save's UPDATE
+    run in separate transactions, so the skip guard is disabled there: the stash is
+    cleared and the rebuild runs unconditionally.
+    """
+
+    def test_autocommit_noop_save_always_resyncs(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site', group=group)
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+
+        # A transactional save first, so the instance carries a stash. The subsequent
+        # autocommit save must clear it rather than compare against a previous save's
+        # values.
+        with transaction.atomic():
+            site.save()
+
+        Prefix.objects.filter(pk=prefix.pk).update(_location=location)
+
+        site.save()  # Autocommit: no stash, unconditional rebuild
+
+        prefix.refresh_from_db()
+        self.assertIsNone(prefix._location)
 
 
 class CableSignalDirectHandlerTestCase(SimpleTestCase):

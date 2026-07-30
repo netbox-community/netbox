@@ -62,17 +62,28 @@ def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
     """
     Stash the scope-relevant field values currently in the database so that the post_save
     handlers below can determine whether this save actually changed any of them. The read
-    locks the row when running inside a transaction, so overlapping saves of the same
-    object serialize here and the comparison always runs against the final committed
-    state.
+    locks the row, so overlapping saves of the same object serialize here and the
+    comparison always runs against the final committed state.
+
+    Outside of a transaction no stash is taken (and any stash left by a previous
+    transactional save of the same instance is cleared): in autocommit, this read and the
+    subsequent UPDATE would run in separate transactions, so the comparison could race a
+    concurrent save. The post_save handlers treat a missing stash as "the values may have
+    changed" and rebuild or repair unconditionally.
     """
     if raw or instance.pk is None:
         return
+    if not transaction.get_connection(using).in_atomic_block:
+        instance._presave_scope_fields = None
+        return
     fields = ('region_id', 'group_id') if isinstance(instance, Site) else ('site_id',)
-    qs = instance.__class__.objects.using(using).filter(pk=instance.pk)
-    if transaction.get_connection(using).in_atomic_block:
-        qs = qs.select_for_update()
-    instance._presave_scope_fields = qs.values(*fields).first()
+    instance._presave_scope_fields = (
+        instance.__class__.objects.using(using)
+        .filter(pk=instance.pk)
+        .select_for_update()
+        .values(*fields)
+        .first()
+    )
 
 
 @receiver(post_save, sender=Location)
