@@ -51,21 +51,14 @@ __all__ = (
 
 @strawberry.type
 class IPAddressFamilyType:
+    """
+    The address family (4 or 6) of a model's IP address or prefix column. Each type exposing this
+    declares its own `family` resolver, hinted with the column backing it so that the query optimizer
+    does not defer that column. `value` is non-null because those columns are: the models' `family`
+    properties return None only for an unsaved instance with no address assigned.
+    """
     value: int
     label: str
-
-
-@strawberry.type
-class BaseIPAddressFamilyType:
-    """
-    Base type for models that need to expose their IPAddress family type.
-    """
-
-    @strawberry.field
-    def family(self) -> IPAddressFamilyType:
-        # Note that self, is an instance of models.IPAddress
-        # thus resolves to the address family value.
-        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
 @strawberry_django.type(
@@ -103,10 +96,15 @@ class ASNRangeType(OrganizationalObjectType):
     filters=AggregateFilter,
     pagination=True
 )
-class AggregateType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class AggregateType(ContactsMixin, PrimaryObjectType):
     prefix: str
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
+
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['prefix'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
 @strawberry_django.type(
@@ -143,15 +141,19 @@ class FHRPGroupAssignmentType(BaseObjectType):
     filters=IPAddressFilter,
     pagination=True
 )
-class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class IPAddressType(ContactsMixin, PrimaryObjectType):
     address: str
     vrf: Annotated['VRFType', strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
     nat_inside: Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')] | None
-
     nat_outside: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
+
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['address'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
     @strawberry_django.field(prefetch_related='assigned_object')
     def assigned_object(self) -> Annotated[
@@ -183,12 +185,17 @@ class IPRangeType(ContactsMixin, PrimaryObjectType):
     filters=PrefixFilter,
     pagination=True
 )
-class PrefixType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class PrefixType(ContactsMixin, PrimaryObjectType):
     prefix: str
     vrf: Annotated['VRFType', strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
     vlan: Annotated['VLANType', strawberry.lazy('ipam.graphql.types')] | None
     role: Annotated['RoleType', strawberry.lazy('ipam.graphql.types')] | None
+
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['prefix'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
     @strawberry_django.field(prefetch_related='scope')
     def scope(self) -> Annotated[

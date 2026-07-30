@@ -27,6 +27,7 @@ from dcim.models import (
 )
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, TableConfig, Tag
+from ipam.models import RIR, Aggregate, IPAddress, Prefix
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
 from users.models import Token, User
@@ -694,6 +695,17 @@ class GraphQLDeferredColumnTestCase(APITestCase):
             reservation.pk: len(reservation.units)
             for reservation in RackReservation.objects.bulk_create(reservations)
         }
+        # IPAM objects, for the `family` field of each type which exposes one
+        IPAddress.objects.bulk_create([
+            IPAddress(address=f'10.0.0.{i + 1}/24') for i in range(cls.OBJECT_COUNT)
+        ])
+        Prefix.objects.bulk_create([
+            Prefix(prefix=f'10.{i}.0.0/16') for i in range(cls.OBJECT_COUNT)
+        ])
+        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        Aggregate.objects.bulk_create([
+            Aggregate(prefix=f'{i + 20}.0.0.0/8', rir=rir) for i in range(cls.OBJECT_COUNT)
+        ])
 
     def _execute(self, query):
         url = reverse('graphql')
@@ -781,6 +793,57 @@ class GraphQLDeferredColumnTestCase(APITestCase):
                 )
 
         self.assertNoDeferredColumnReloads(query, 'rack_reservation_list', 'dcim_rackreservation', validate)
+
+    def test_ip_address_family(self):
+        """
+        Regression test for #22823: IPAddressType.family must not defer `address`.
+        """
+        self.add_permissions('ipam.view_ipaddress')
+        query = """
+        {
+            ip_address_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(
+            query, 'ip_address_list', 'ipam_ipaddress', self._validate_ipv4_family
+        )
+
+    def test_prefix_family(self):
+        """
+        Regression test for #22823: PrefixType.family must not defer `prefix`.
+        """
+        self.add_permissions('ipam.view_prefix')
+        query = """
+        {
+            prefix_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(query, 'prefix_list', 'ipam_prefix', self._validate_ipv4_family)
+
+    def test_aggregate_family(self):
+        """
+        Regression test for #22823: AggregateType.family must not defer `prefix`.
+        """
+        self.add_permissions('ipam.view_aggregate')
+        query = """
+        {
+            aggregate_list(pagination: {limit: %(limit)s}) {
+                id
+                family { value label }
+            }
+        }
+        """
+        self.assertNoDeferredColumnReloads(query, 'aggregate_list', 'ipam_aggregate', self._validate_ipv4_family)
+
+    def _validate_ipv4_family(self, objects):
+        for obj in objects:
+            self.assertEqual(obj['family'], {'value': 4, 'label': 'IPv4'})
 
 
 class GraphQLSchemaCoverageTestCase(APIViewTestCases.GraphQLSchemaCoverageTestCase):
