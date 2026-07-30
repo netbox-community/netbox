@@ -1,6 +1,6 @@
 # NetBox v4.6
 
-## v4.6.7 (FUTURE)
+## v4.6.7 (2026-07-30)
 
 ### Performance Improvements
 
