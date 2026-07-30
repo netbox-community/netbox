@@ -18,7 +18,7 @@ django-timezone-field==7.2.2
 djangorestframework==3.17.1
 drf-spectacular==0.30.0
 drf-spectacular-sidecar==2026.7.1
-feedparser==6.0.13
+feedparser==6.0.14
 gunicorn==26.0.0
 Jinja2==3.1.6
 jsonschema==4.26.0
@@ -43,4 +43,4 @@ strawberry-graphql-django==0.86.5
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2026.3
-zensical==0.0.51
+zensical==0.0.52
