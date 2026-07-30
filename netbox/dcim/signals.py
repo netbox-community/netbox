@@ -113,7 +113,15 @@ def handle_location_site_change(instance, created, **kwargs):
         # relation may be stale.
         prev = getattr(instance, '_presave_scope_fields', None)
         if prev is None or prev['site_id'] != instance.site_id:
-            site = Site.objects.filter(pk=instance.site_id).values('region_id', 'group_id').first()
+            # Lock the destination Site (without blocking FK inserts that reference it) so
+            # a concurrent scope change on that Site serializes against this move; an
+            # unlocked read could stamp region/group values from before that change.
+            site = (
+                Site.objects.filter(pk=instance.site_id)
+                .select_for_update(no_key=True)
+                .values('region_id', 'group_id')
+                .first()
+            )
             if site is not None:
                 for model in (Prefix, Cluster, WirelessLAN):
                     model.objects.filter(_location__in=locations).update(
