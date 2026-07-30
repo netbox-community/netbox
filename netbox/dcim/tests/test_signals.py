@@ -488,7 +488,7 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         # Should not raise — newly-created sites have nothing to sync.
         Site.objects.create(name='New Site', slug='new-site')
 
-    def test_snapshot_with_unchanged_scope_fields_skips_resync(self):
+    def test_save_with_unchanged_scope_fields_skips_resync(self):
         group = SiteGroup.objects.create(name='Group', slug='group')
         site = Site.objects.create(name='Site', slug='site', group=group)
         location = Location.objects.create(name='Loc', slug='loc', site=site)
@@ -501,14 +501,13 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         # which would mask whether this signal ran.
         Prefix.objects.filter(pk=prefix.pk).update(_location=location)
 
-        site.snapshot()
         site.description = 'updated'
         site.save()
 
         prefix.refresh_from_db()
         self.assertEqual(prefix._location, location)
 
-    def test_location_snapshot_with_unchanged_site_skips_resync(self):
+    def test_location_save_with_unchanged_site_skips_resync(self):
         region = Region.objects.create(name='Region', slug='region')
         site = Site.objects.create(name='Site', slug='site')
         location = Location.objects.create(name='Loc', slug='loc', site=site)
@@ -520,21 +519,19 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         # _site on every Location save, which would mask whether this signal ran.
         Prefix.objects.filter(pk=prefix.pk).update(_region=region)
 
-        location.snapshot()
         location.description = 'updated'
         location.save()
 
         prefix.refresh_from_db()
         self.assertEqual(prefix._region, region)
 
-    def test_snapshot_with_changed_site_group_resyncs(self):
+    def test_save_with_changed_site_group_resyncs(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
         group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
         site = Site.objects.create(name='Site', slug='site', group=group_a)
         prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
         self.assertEqual(prefix._site_group, group_a)
 
-        site.snapshot()
         site.group = group_b
         site.save()
 
@@ -544,14 +541,13 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertIsNone(prefix._region)
         self.assertIsNone(prefix._location)
 
-    def test_snapshot_with_changed_region_resyncs(self):
+    def test_save_with_changed_region_resyncs(self):
         region_a = Region.objects.create(name='Region A', slug='region-a')
         region_b = Region.objects.create(name='Region B', slug='region-b')
         site = Site.objects.create(name='Site', slug='site', region=region_a)
         prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
         self.assertEqual(prefix._region, region_a)
 
-        site.snapshot()
         site.region = region_b
         site.save()
 
@@ -559,8 +555,7 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertEqual(prefix._region, region_b)
         self.assertEqual(prefix._site, site)
 
-        # A region-to-None transition with a snapshot present must also resync.
-        site.snapshot()
+        # A region-to-None transition must also resync.
         site.region = None
         site.save()
 
@@ -568,14 +563,13 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertIsNone(prefix._region)
         self.assertEqual(prefix._site, site)
 
-    def test_location_snapshot_with_changed_site_resyncs(self):
+    def test_location_save_with_changed_site_resyncs(self):
         site_a = Site.objects.create(name='Site A', slug='site-a')
         site_b = Site.objects.create(name='Site B', slug='site-b')
         location = Location.objects.create(name='Loc', slug='loc', site=site_a)
         prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=location)
         self.assertEqual(prefix._site, site_a)
 
-        location.snapshot()
         location.site = site_b
         location.save()
 
@@ -583,52 +577,80 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertEqual(prefix._site, site_b)
         self.assertEqual(prefix._location, location)
 
-    def test_save_without_snapshot_always_resyncs(self):
+    def test_noop_save_skips_resync(self):
         site = Site.objects.create(name='Site', slug='site')
         location = Location.objects.create(name='Loc', slug='loc', site=site)
         prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
 
-        # Poison a cached column, then save the Site with no snapshot and no field changes.
-        # The resync must run (and repair the poison): the skip is gated on the presence of
-        # a pre-change snapshot, not on whether anything appears to have changed. _location
-        # is poisoned because only this signal (not the denormalized-field registry) can
-        # repair it on a Site save.
+        # Poison a cached column, then save the Site with no field changes. The resync is
+        # skipped: the pre-save values read from the database match what is being written.
+        # Stale cached values are prevented at their source (handle_location_site_change
+        # repairs descendant-scoped objects), so a no-op save no longer doubles as a
+        # repair mechanism. _location is poisoned because only this signal (not the
+        # denormalized-field registry) could repair it on a Site save.
         Prefix.objects.filter(pk=prefix.pk).update(_location=location)
 
         site.save()
 
         prefix.refresh_from_db()
-        self.assertIsNone(prefix._location)
+        self.assertEqual(prefix._location, location)
 
     def test_resync_recomputes_from_scope_not_from_saved_instance(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
         group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        group_c = SiteGroup.objects.create(name='Group C', slug='group-c')
         site_a = Site.objects.create(name='Site A', slug='site-a', group=group_a)
         site_b = Site.objects.create(name='Site B', slug='site-b', group=group_b)
-        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
-        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
-        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=child)
-        self.assertEqual(prefix._site, site_a)
+        location = Location.objects.create(name='Loc', slug='loc', site=site_b)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=location)
+        self.assertEqual(prefix._site, site_b)
 
-        # Moving the parent Location drags the child along via a signal-less queryset
-        # update (handle_location_site_change), leaving the prefix's cached fields stale.
-        parent.site = site_b
-        parent.save()
+        # Fabricate a stale row pointing at the wrong site, then trigger site_a's resync
+        # with a real scope change. The row matches site_a's rebuild filter (_site=site_a)
+        # but its actual scope lives under site_b: recomputed values must derive from the
+        # row's scope, never be stamped from the saved instance.
+        Prefix.objects.filter(pk=prefix.pk).update(_site=site_a, _site_group=group_a)
 
-        child.refresh_from_db()
-        self.assertEqual(child.site, site_b)
-        prefix.refresh_from_db()
-        self.assertEqual(prefix._site, site_a)  # Stale: no signal fired for the child
-
-        # A subsequent save of the stale-cached Site must repair the prefix from its
-        # actual scope (the child Location, now under site_b) — not stamp the saved
-        # instance's own values onto it.
+        site_a.group = group_c
         site_a.save()
 
         prefix.refresh_from_db()
         self.assertEqual(prefix._site, site_b)
-        self.assertEqual(prefix._location, child)
         self.assertEqual(prefix._site_group, group_b)
+        self.assertEqual(prefix._location, location)
+
+    def test_stale_save_after_concurrent_update_resyncs(self):
+        """
+        A stale full save can write an old scope value back over a concurrent update
+        (NetBox's API has no If-Match support). The resync must run so the caches follow
+        whatever was actually written. A Cluster is used because it has no
+        denormalized-field registration to mask a skipped resync (unlike Prefix). The
+        lock-wait variant of this race (the concurrent update not yet committed) cannot
+        be exercised in a single-connection TestCase.
+        """
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
+
+        # Client 1 loads the site (and, like every request-driven save, snapshots it).
+        s1 = Site.objects.get(pk=site.pk)
+        s1.snapshot()
+
+        # Client 2 changes the region and saves; caches follow.
+        s2 = Site.objects.get(pk=site.pk)
+        s2.region = region_b
+        s2.save()
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region_b)
+
+        # Client 1's stale save writes region_a back. From client 1's point of view
+        # nothing changed, but the database value did: the resync must run.
+        s1.save()
+
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region_a)
 
     def test_resync_groups_updates_by_distinct_scope(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
@@ -641,7 +663,6 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         cluster_type = ClusterType.objects.create(name='CT', slug='ct')
         cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
 
-        site.snapshot()
         site.group = group_b
         site.save()
 
@@ -660,6 +681,7 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertEqual(cluster._site_group, group_b)
 
     def test_resync_issues_one_update_per_distinct_scope(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
         site = Site.objects.create(name='Site', slug='site')
         location = Location.objects.create(name='Loc', slug='loc', site=site)
         for i in range(1, 4):
@@ -682,8 +704,10 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         ))
         self.assertEqual(distinct_prefix_scopes, 2)
 
+        site.group = group  # A real scope change: the resync must run
+
         with CaptureQueriesContext(connection) as ctx:
-            site.save()  # No snapshot: the resync always runs
+            site.save()
 
         prefix_updates = [
             q for q in ctx.captured_queries

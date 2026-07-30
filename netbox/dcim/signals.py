@@ -2,7 +2,7 @@ import logging
 
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -55,6 +55,25 @@ COMPONENT_MODELS = (
 #
 # Location/rack/device assignment
 #
+
+@receiver(pre_save, sender=Location)
+@receiver(pre_save, sender=Site)
+def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
+    """
+    Stash the scope-relevant field values currently in the database so that the post_save
+    handlers below can determine whether this save actually changed any of them. The read
+    locks the row when running inside a transaction, so overlapping saves of the same
+    object serialize here and the comparison always runs against the final committed
+    state.
+    """
+    if raw or instance.pk is None:
+        return
+    fields = ('region_id', 'group_id') if isinstance(instance, Site) else ('site_id',)
+    qs = instance.__class__.objects.using(using).filter(pk=instance.pk)
+    if transaction.get_connection(using).in_atomic_block:
+        qs = qs.select_for_update()
+    instance._presave_scope_fields = qs.values(*fields).first()
+
 
 @receiver(post_save, sender=Location)
 def handle_location_site_change(instance, created, **kwargs):
@@ -245,11 +264,11 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     Rebuild cached scope fields for all CachedScopeMixin-based models
     affected by a change to a Site or Location.
 
-    When a pre-change snapshot shows that no scope-relevant field has
-    changed, the rebuild is skipped. Otherwise, cached fields are
-    recomputed from each object's authoritative scope relationships —
-    never copied from the saved instance — so rows holding stale cached
-    values are also repaired.
+    When the values read from the database immediately before this save
+    show that no scope-relevant field has changed, the rebuild is
+    skipped. Otherwise, cached fields are recomputed from each object's
+    authoritative scope relationships — never copied from the saved
+    instance — so rows holding stale cached values are also repaired.
     """
     if created:
         return
@@ -261,24 +280,18 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     else:
         return
 
-    # Skip the rebuild when no scope-relevant field has changed. The pre-change snapshot is
-    # set by the change logging machinery on request-driven saves only; when it's absent
-    # (scripts, plain ORM saves) — or a key is missing, meaning the prior value is unknown —
-    # fall through and rebuild unconditionally. Note the coupling: should change logging
-    # ever refresh snapshots post-save, this skip logic must be revisited. The comparison
-    # also assumes the snapshot was taken once, immediately before this save; a snapshot
-    # reused across multiple saves can skip a needed rebuild.
-    snapshot = getattr(instance, '_prechange_snapshot', None)
-    if snapshot:
+    # Skip the rebuild when this save changed no scope-relevant field. The pre-save values
+    # are read from the database by cache_presave_scope_fields() immediately before the
+    # write (with the row locked when inside a transaction), so the comparison holds even
+    # when overlapping saves race on the same object. When the stash is absent, rebuild
+    # unconditionally.
+    prev = getattr(instance, '_presave_scope_fields', None)
+    if prev is not None:
         if isinstance(instance, Site):
-            if (
-                'region' in snapshot and 'group' in snapshot
-                and snapshot['region'] == instance.region_id
-                and snapshot['group'] == instance.group_id
-            ):
+            if prev['region_id'] == instance.region_id and prev['group_id'] == instance.group_id:
                 return
         # The dispatch above ensures the instance can only be a Location here
-        elif 'site' in snapshot and snapshot['site'] == instance.site_id:
+        elif prev['site_id'] == instance.site_id:
             return
 
     # These models are explicitly listed because they all subclass CachedScopeMixin
