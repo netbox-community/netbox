@@ -1623,6 +1623,40 @@ class WebhookTestCase(TestCase):
             webhook.clean()
         self.assertIn('payload_url', cm.exception.message_dict)
 
+    def test_payload_url_accepts_single_label_host(self):
+        """A Docker/Kubernetes-style internal service name is a legitimate webhook target (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://webhook-receiver:8080/hook')
+        webhook.clean()
+
+    def test_payload_url_accepts_underscore_in_hostname(self):
+        """requests accepts an underscore in a hostname even though Django's URLValidator does not (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://my_host.example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_rejects_missing_host(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http:///hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_templated_disallowed_scheme(self):
+        """A literal, disallowed scheme must be rejected even when the rest of the URL is templated (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='file:///{{ data.name }}')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_blank_payload_url_produces_a_single_error(self):
+        """clean() must not add its own error on top of clean_fields()'s for a blank value (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.full_clean()
+        self.assertEqual(cm.exception.message_dict['payload_url'], ['This field cannot be blank.'])
+
+    def test_none_payload_url_does_not_raise_typeerror(self):
+        webhook = Webhook(name='Webhook 1', payload_url=None)
+        webhook.clean()
+
 
 class EventRuleTestCase(TestCase):
 

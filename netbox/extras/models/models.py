@@ -1,19 +1,17 @@
 import json
-import re
 import urllib.parse
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import URLValidator, ValidationError
+from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from jinja2.exceptions import TemplateError
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
@@ -36,7 +34,7 @@ from netbox.models.features import (
 )
 from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
-from utilities.jinja2 import render_jinja2, sanitize_http_header, validate_jinja2_syntax
+from utilities.jinja2 import JINJA2_TEMPLATE_RE, render_jinja2, sanitize_http_header, validate_jinja2_syntax
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
 from utilities.tables import get_table_for_model
@@ -169,12 +167,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
             return False
 
 
-# Matches the start of a Jinja2 expression, statement, or comment ({{, {%, {#), to distinguish a
-# templated Webhook.payload_url (validated only for template syntax, since its rendered value
-# depends on data not yet known) from a literal one (validated as a URL outright).
-JINJA2_TEMPLATE_RE = re.compile(r'\{[{%#]')
-
-
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -281,22 +273,31 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
     def clean(self):
         super().clean()
 
+        errors = {}
+
         # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:
-            raise ValidationError({
-                'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
-            })
+            errors['ca_file_path'] = _('Do not specify a CA certificate file if SSL verification is disabled.')
 
-        if JINJA2_TEMPLATE_RE.search(self.payload_url):
-            try:
-                validate_jinja2_syntax(self.payload_url)
-            except TemplateError as e:
-                raise ValidationError({'payload_url': _("Invalid template: {error}").format(error=e)})
-        else:
-            try:
-                URLValidator(schemes=('http', 'https'))(self.payload_url)
-            except ValidationError as e:
-                raise ValidationError({'payload_url': e})
+        # payload_url may be a literal URL or a Jinja2 template (see its help_text). Its scheme and
+        # host are checked as written regardless of templating elsewhere in the string (e.g. in the
+        # path), since Django's URLValidator is stricter than what `requests` actually requires --
+        # rejecting single-label hosts and hosts with underscores, both common for webhook targets
+        # on an internal network -- so scheme/host are checked directly instead. A templated value
+        # is additionally checked for template syntax errors only, since its rendered result can't
+        # be predicted here; skipped entirely for a blank value, which clean_fields() already flags.
+        if self.payload_url:
+            scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
+            if scheme.lower() not in ('http', 'https') or not netloc:
+                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+            elif JINJA2_TEMPLATE_RE.search(self.payload_url):
+                try:
+                    validate_jinja2_syntax(self.payload_url)
+                except ValidationError as e:
+                    errors['payload_url'] = e
+
+        if errors:
+            raise ValidationError(errors)
 
     def render_headers(self, context):
         """
