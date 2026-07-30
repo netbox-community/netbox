@@ -1075,6 +1075,16 @@ class EventRuleActionRegistrationTestCase(TestCase):
             register_event_rule_action(LeadingUnderscoreAction)
         self.assertIsNone(get_event_rule_action('_internal.foo'))
 
+    def test_slug_with_uppercase_rejected(self):
+        """An uppercase slug (the other half of the "conventional plugin name" mistake) is rejected."""
+        class UppercaseSlugAction(EventRuleAction):
+            slug = 'MyPlugin.action'
+            label = 'Uppercase Slug Action'
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(UppercaseSlugAction)
+        self.assertIsNone(get_event_rule_action('MyPlugin.action'))
+
     def test_slug_enum_key_collision_rejected(self):
         """Two distinct slugs that sanitize to the same GraphQL enum member name must not both register."""
         class DotAction(EventRuleAction):
@@ -1091,15 +1101,43 @@ class EventRuleActionRegistrationTestCase(TestCase):
             register_event_rule_action(UnderscoreAction)
         self.assertIsNone(get_event_rule_action('test_collision_action'))
 
-    def test_missing_slug_raises_at_class_definition(self):
-        with self.assertRaises(TypeError):
-            class NoSlugAction(EventRuleAction):
-                label = 'No Slug'
+    def test_missing_slug_raises_at_registration(self):
+        # Class definition itself must succeed (this is what allows an intermediate base class to
+        # omit slug/label -- see test_intermediate_base_class_without_slug_or_label_is_definable);
+        # the check fires at registration time instead.
+        class NoSlugAction(EventRuleAction):
+            label = 'No Slug'
 
-    def test_missing_label_raises_at_class_definition(self):
-        with self.assertRaises(TypeError):
-            class NoLabelAction(EventRuleAction):
-                slug = 'test.no_label'
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(NoSlugAction)
+
+    def test_missing_label_raises_at_registration(self):
+        class NoLabelAction(EventRuleAction):
+            slug = 'test.no_label'
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(NoLabelAction)
+
+    def test_intermediate_base_class_without_slug_or_label_is_definable(self):
+        """
+        Regression: slug/label checks used to fire in __init_subclass__, at class-definition time,
+        which made it impossible for a plugin to define a shared intermediate base class (with no
+        slug/label of its own) for several concrete actions to inherit from.
+        """
+        class PluginActionBase(EventRuleAction):
+            object_required = False
+
+            def enqueue(self, **kwargs):
+                pass
+
+        class ConcreteAction(PluginActionBase):
+            slug = 'test.intermediate_base_concrete_action'
+            label = 'Concrete Action'
+
+        register_event_rule_action(ConcreteAction)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.intermediate_base_concrete_action', None)
+
+        self.assertIsInstance(get_event_rule_action('test.intermediate_base_concrete_action'), ConcreteAction)
 
     def test_unregistered_slug_returns_none(self):
         self.assertIsNone(get_event_rule_action('this.does.not.exist'))
@@ -1170,6 +1208,16 @@ class EventRuleActionRegistrationTestCase(TestCase):
         action = EventRuleAction()
         with self.assertRaises(NotImplementedError):
             action.enqueue(event_rule=None, event_context={}, action_object=None, action_data={})
+
+    def test_is_plugin_provided_defaults_true_before_registration(self):
+        """
+        The only read of is_plugin_provided is inside process_event_rules()'s exception handler
+        (extras.events); a missing attribute there would raise AttributeError while already
+        handling a real exception, masking it. Defaulting to True keeps that a graceful
+        degradation for an instance that reaches dispatch without going through
+        register_event_rule_action() (e.g. inserted into the registry dict directly).
+        """
+        self.assertTrue(EventRuleAction().is_plugin_provided)
 
 
 class EventRuleActionAvailabilityTestCase(TestCase):
