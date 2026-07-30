@@ -25,6 +25,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   // must not be allowed to overwrite state set by the newer one.
   private loadSequence = 0;
 
+  // Tracks a previous selection that still needs to be restored once a settled request wins.
+  // Stored on the instance rather than only as a `load()` parameter -- if the request carrying
+  // it is itself superseded by a later cascading load() call before it resolves, the value
+  // isn't lost; whichever request's response ultimately wins can still attempt to restore it.
+  private pendingRestoreValue?: string | string[];
+
   /**
    * Overrides
    */
@@ -89,6 +95,15 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     self.loadSequence += 1;
     const sequence = self.loadSequence;
 
+    // Remember any value that still needs to be restored, without erasing a value captured
+    // by an earlier, still-in-flight call. If this particular call has nothing new to
+    // preserve (e.g. its dependency was already cleared by a cascaded change), an earlier
+    // call's pending value should still get a chance to be restored by whichever request
+    // ends up winning.
+    if (preserveValue !== undefined) {
+      self.pendingRestoreValue = preserveValue;
+    }
+
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
     self.clearOptions();
@@ -128,17 +143,21 @@ export class DynamicTomSelect extends NetBoxTomSelect {
           self.loading = Math.max(self.loading - 1, 0);
           if (!self.loading) {
             removeClasses(self.wrapper, self.settings.loadingClass);
+            self.refreshOptions(false);
           }
           return;
         }
         self.loadCallback(options, []);
         // Restore the previous selection if it is still valid under the new filter.
-        if (preserveValue !== undefined) {
-          const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
+        if (self.pendingRestoreValue !== undefined) {
+          const values = Array.isArray(self.pendingRestoreValue)
+            ? self.pendingRestoreValue
+            : [self.pendingRestoreValue];
           const validValues = values.filter(v => v !== '' && v in self.options);
           if (validValues.length > 0) {
             self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
           }
+          self.pendingRestoreValue = undefined;
         }
       })
       .catch(() => {
@@ -146,6 +165,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
           self.loading = Math.max(self.loading - 1, 0);
           if (!self.loading) {
             removeClasses(self.wrapper, self.settings.loadingClass);
+            self.refreshOptions(false);
           }
           return;
         }
