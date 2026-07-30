@@ -1,9 +1,12 @@
 import re
+from urllib.parse import urlparse
 
 import nh3
 from django.utils.html import escape
 
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
+
+IMAGE_URL_SCHEMES = {"http", "https"}
 
 __all__ = (
     'clean_html',
@@ -17,11 +20,21 @@ def clean_html(html, schemes):
     Sanitizes HTML based on a whitelist of allowed tags and attributes.
     Also takes a list of allowed URI schemes.
     """
+
+    def attribute_filter(tag, attr, value):
+        """Returns str to keep/modify attribute, None to remove it."""
+        if tag == "img" and attr == "src":
+            scheme = urlparse(value).scheme.lower() if value else ""
+            if scheme and scheme not in IMAGE_URL_SCHEMES:
+                return None
+        return value
+
     return nh3.clean(
         html,
         tags=HTML_ALLOWED_TAGS,
         attributes=HTML_ALLOWED_ATTRIBUTES,
-        url_schemes=set(schemes)
+        url_schemes=set(schemes),
+        attribute_filter=attribute_filter,
     )
 
 
