@@ -24,6 +24,8 @@ class EventRuleSerializer(OwnerMixin, NetBoxModelSerializer):
         queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
     )
+    # Choices are materialized once, at import time: a plugin registering (or unregistering) an
+    # action after this module loads won't be reflected here without a process restart.
     action_type = ChoiceField(choices=get_event_rule_action_choices())
     action_object_type = ContentTypeField(
         queryset=ObjectType.objects.all(),
