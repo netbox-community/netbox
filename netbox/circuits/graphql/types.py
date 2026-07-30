@@ -2,12 +2,12 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
-from django.contrib.contenttypes.prefetch import GenericPrefetch
 
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from dcim.models import Location, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType, PrimaryObjectType
 from tenancy.graphql.types import TenantType
 
@@ -77,14 +77,14 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
     circuit: Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'termination',
             [
-                Location.objects.all(),
-                Region.objects.all(),
-                SiteGroup.objects.all(),
-                Site.objects.all(),
-                models.ProviderNetwork.objects.all(),
+                Location,
+                Region,
+                SiteGroup,
+                Site,
+                models.ProviderNetwork,
             ],
         ),
         only=['termination_type', 'termination_id'],
@@ -148,11 +148,11 @@ class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated['CircuitGroupType', strawberry.lazy('circuits.graphql.types')]
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'member',
             [
-                models.Circuit.objects.all(),
-                models.VirtualCircuit.objects.all(),
+                models.Circuit,
+                models.VirtualCircuit,
             ],
         ),
         only=['member_type', 'member_id'],

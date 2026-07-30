@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
-from django.contrib.contenttypes.prefetch import GenericPrefetch
 
 from dcim.models import Location, Region, Site, SiteGroup
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.types import NestedGroupObjectType, PrimaryObjectType
 from wireless import models
 
@@ -49,13 +49,13 @@ class WirelessLANType(PrimaryObjectType):
     interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'scope',
             [
-                Region.objects.all(),
-                SiteGroup.objects.all(),
-                Site.objects.all(),
-                Location.objects.all(),
+                Region,
+                SiteGroup,
+                Site,
+                Location,
             ],
         ),
         only=['scope_type', 'scope_id'],

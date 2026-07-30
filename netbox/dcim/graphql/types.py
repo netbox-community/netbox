@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
-from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db.models import Func, IntegerField
 
 from circuits.models import CircuitTermination
@@ -10,6 +9,7 @@ from core.graphql.mixins import ChangelogMixin
 from dcim import models
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin, ImageAttachmentsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
@@ -435,11 +435,11 @@ class MACAddressType(PrimaryObjectType):
     mac_address: str
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'assigned_object',
             [
-                models.Interface.objects.select_related('cable', 'device'),
-                VMInterface.objects.select_related('virtual_machine'),
+                models.Interface,
+                VMInterface,
             ],
         ),
         only=['assigned_object_type', 'assigned_object_id'],

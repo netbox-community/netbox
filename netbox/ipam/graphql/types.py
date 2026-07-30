@@ -2,13 +2,13 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
-from django.contrib.contenttypes.prefetch import GenericPrefetch
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
@@ -130,11 +130,11 @@ class FHRPGroupAssignmentType(BaseObjectType):
     group: Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'interface',
             [
-                Interface.objects.select_related('cable', 'device'),
-                VMInterface.objects.select_related('virtual_machine'),
+                Interface,
+                VMInterface,
             ],
         ),
         only=['interface_type', 'interface_id'],
@@ -168,12 +168,12 @@ class IPAddressType(ContactsMixin, PrimaryObjectType):
         return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'assigned_object',
             [
-                models.FHRPGroup.objects.all(),
-                Interface.objects.select_related('cable', 'device'),
-                VMInterface.objects.select_related('virtual_machine'),
+                models.FHRPGroup,
+                Interface,
+                VMInterface,
             ],
         ),
         only=['assigned_object_type', 'assigned_object_id'],
@@ -220,13 +220,13 @@ class PrefixType(ContactsMixin, PrimaryObjectType):
         return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'scope',
             [
-                Region.objects.all(),
-                SiteGroup.objects.all(),
-                Site.objects.all(),
-                Location.objects.all(),
+                Region,
+                SiteGroup,
+                Site,
+                Location,
             ],
         ),
         only=['scope_type', 'scope_id'],
@@ -293,12 +293,12 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'parent',
             [
-                Device.objects.all(),
-                VirtualMachine.objects.all(),
-                models.FHRPGroup.objects.all(),
+                Device,
+                VirtualMachine,
+                models.FHRPGroup,
             ],
         ),
         only=['parent_object_type', 'parent_object_id'],
@@ -360,16 +360,16 @@ class VLANGroupType(OrganizationalObjectType):
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field(
-        prefetch_related=GenericPrefetch(
+        prefetch_related=build_gfk_prefetch(
             'scope',
             [
-                Cluster.objects.all(),
-                ClusterGroup.objects.all(),
-                Location.objects.all(),
-                Rack.objects.all(),
-                Region.objects.all(),
-                Site.objects.all(),
-                SiteGroup.objects.all(),
+                Cluster,
+                ClusterGroup,
+                Location,
+                Rack,
+                Region,
+                Site,
+                SiteGroup,
             ],
         ),
         only=['scope_type', 'scope_id'],
