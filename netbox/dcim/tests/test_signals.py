@@ -670,6 +670,9 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
 
         prefix.refresh_from_db()
         self.assertEqual(prefix._site, site_c)
+        # The poisoned _location is intentional residue: this row is not scoped to the
+        # moved subtree, so only a save touching its own scope chain repairs it.
+        self.assertEqual(prefix._location, child)
 
     def test_resync_recomputes_from_scope_not_from_saved_instance(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')

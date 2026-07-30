@@ -90,14 +90,16 @@ def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
 @receiver(post_save, sender=Location)
 def handle_location_site_change(instance, created, **kwargs):
     """
-    Update child objects if Site assignment has changed. We intentionally recurse through each child
-    object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
+    Update child objects when a Location is saved. All updates are queryset update() calls,
+    which fire no signals and generate no change records for the affected objects.
     """
     if created:
         return
     with transaction.atomic():
         instance.get_descendants().update(site=instance.site)
-        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        # Materialized once so every statement below sees the same membership, even if a
+        # concurrent commit renumbers the tree mid-handler.
+        locations = list(instance.get_descendants(include_self=True).values_list('pk', flat=True))
         Rack.objects.filter(location__in=locations).update(site=instance.site)
         Device.objects.filter(location__in=locations).update(site=instance.site)
         PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
@@ -326,9 +328,9 @@ def sync_cached_scope_fields(instance, created, **kwargs):
 
     # Skip the rebuild when this save changed no scope-relevant field. The pre-save values
     # are read from the database by cache_presave_scope_fields() immediately before the
-    # write (with the row locked when inside a transaction), so the comparison holds even
-    # when overlapping saves race on the same object. When the stash is absent, rebuild
-    # unconditionally.
+    # write, with the row locked, so the comparison holds even when overlapping saves race
+    # on the same object. The stash exists only for saves made inside a transaction; when
+    # it's absent (autocommit saves), rebuild unconditionally.
     prev = getattr(instance, '_presave_scope_fields', None)
     if prev is not None:
         if isinstance(instance, Site):
