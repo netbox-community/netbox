@@ -595,6 +595,35 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         prefix.refresh_from_db()
         self.assertEqual(prefix._location, location)
 
+    def test_location_site_change_updates_descendant_scoped_caches(self):
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site_a = Site.objects.create(name='Site A', slug='site-a', group=group_a)
+        site_b = Site.objects.create(name='Site B', slug='site-b', group=group_b)
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=child)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=child)
+        self.assertEqual(prefix._site, site_a)
+        self.assertEqual(cluster._site, site_a)
+
+        # Moving the parent Location drags the child along via a signal-less queryset
+        # update, so no post_save fires for the child. The cached scope fields of objects
+        # scoped to descendant locations must be updated in the same handler.
+        parent.site = site_b
+        parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.site, site_b)
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._site_group, group_b)
+        self.assertEqual(prefix._location, child)
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site, site_b)
+        self.assertEqual(cluster._site_group, group_b)
+
     def test_resync_recomputes_from_scope_not_from_saved_instance(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
         group_b = SiteGroup.objects.create(name='Group B', slug='group-b')

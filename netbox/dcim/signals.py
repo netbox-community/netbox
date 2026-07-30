@@ -81,7 +81,9 @@ def handle_location_site_change(instance, created, **kwargs):
     Update child objects if Site assignment has changed. We intentionally recurse through each child
     object instead of calling update() on the QuerySet to ensure the proper change records get created for each.
     """
-    if not created:
+    if created:
+        return
+    with transaction.atomic():
         instance.get_descendants().update(site=instance.site)
         locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
         Rack.objects.filter(location__in=locations).update(site=instance.site)
@@ -91,6 +93,23 @@ def handle_location_site_change(instance, created, **kwargs):
         # Update component models for devices in these locations
         for model in COMPONENT_MODELS:
             model.objects.filter(device__location__in=locations).update(_site=instance.site)
+
+        # Objects scoped to descendant Locations receive no post_save of their own from the
+        # queryset updates above, so their cached scope fields are updated here whenever the
+        # Site assignment has actually changed. (Objects scoped to this Location itself are
+        # recomputed by sync_cached_scope_fields on this same save.) Values are read fresh
+        # from the database rather than taken from the saved instance, whose cached site
+        # relation may be stale.
+        prev = getattr(instance, '_presave_scope_fields', None)
+        if prev is None or prev['site_id'] != instance.site_id:
+            site = Site.objects.filter(pk=instance.site_id).values('region_id', 'group_id').first()
+            if site is not None:
+                for model in (Prefix, Cluster, WirelessLAN):
+                    model.objects.filter(_location__in=locations).update(
+                        _site_id=instance.site_id,
+                        _region_id=site['region_id'],
+                        _site_group_id=site['group_id'],
+                    )
 
 
 @receiver(post_save, sender=Rack)
