@@ -1,7 +1,8 @@
 import logging
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import F, Q
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
@@ -123,8 +124,13 @@ def handle_location_site_change(instance, created, **kwargs):
                 .first()
             )
             if site is not None:
+                # Select rows through the authoritative scope rather than the cached
+                # _location, which may itself be stale; scope_id doubles as the correct
+                # _location value for Location-scoped rows.
+                location_ct = ContentType.objects.get_for_model(Location)
                 for model in (Prefix, Cluster, WirelessLAN):
-                    model.objects.filter(_location__in=locations).update(
+                    model.objects.filter(scope_type=location_ct, scope_id__in=locations).update(
+                        _location_id=F('scope_id'),
                         _site_id=instance.site_id,
                         _region_id=site['region_id'],
                         _site_group_id=site['group_id'],

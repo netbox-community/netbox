@@ -624,6 +624,53 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertEqual(cluster._site, site_b)
         self.assertEqual(cluster._site_group, group_b)
 
+    def test_location_site_change_repairs_descendant_row_with_poisoned_location_cache(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        other = Location.objects.create(name='Other', slug='other', site=site_a)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=child)
+
+        # Poison the cached _location to point outside the subtree. The repair must select
+        # rows through the authoritative scope (scope_type/scope_id), not the cached
+        # column, or this descendant-scoped row is missed — and it must repair _location
+        # itself, or the row stays invisible to future saves of its real location.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=other)
+
+        # Re-fetch: creating further Locations renumbers the MPTT tree, and the in-memory
+        # instance's stale bounds would otherwise select the wrong subtree (a pre-existing
+        # handler hazard, tracked separately).
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site = site_b
+        parent.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._location, child)
+
+    def test_location_site_change_ignores_foreign_row_with_poisoned_location_cache(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        site_c = Site.objects.create(name='Site C', slug='site-c')
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        elsewhere = Location.objects.create(name='Elsewhere', slug='elsewhere', site=site_c)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=elsewhere)
+
+        # Poison the cached _location to point INTO the subtree being moved. A repair that
+        # selects rows through the cached column would wrongly stamp this unrelated object
+        # with the destination site.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=child)
+
+        # Re-fetch to avoid stale in-memory MPTT bounds (see the sibling test).
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site = site_b
+        parent.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_c)
+
     def test_resync_recomputes_from_scope_not_from_saved_instance(self):
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
         group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
