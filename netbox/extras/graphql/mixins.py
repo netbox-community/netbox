@@ -45,7 +45,7 @@ class ConfigContextMixin:
 @strawberry.type
 class CustomFieldsMixin:
 
-    @strawberry_django.field
+    @strawberry_django.field(only=['custom_field_data'])
     def custom_fields(self) -> strawberry.scalars.JSON:
         return self.custom_field_data
 
