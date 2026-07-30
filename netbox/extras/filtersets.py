@@ -7,6 +7,7 @@ from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.event_rules import get_event_rule_action_choices
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
+from netbox.registry import registry
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
@@ -116,6 +117,10 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         choices=get_event_rule_action_choices,
         distinct=False,
     )
+    action_is_available = django_filters.BooleanFilter(
+        method='filter_action_is_available',
+        label=_('Action available'),
+    )
     action_object_type = MultiValueContentTypeFilter()
     action_object_id = MultiValueNumberFilter()
 
@@ -136,6 +141,12 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
 
     def filter_event_type(self, queryset, name, value):
         return queryset.filter(event_types__overlap=value)
+
+    def filter_action_is_available(self, queryset, name, value):
+        registered_slugs = list(registry['event_rule_actions'].keys())
+        if value:
+            return queryset.filter(action_type__in=registered_slugs)
+        return queryset.exclude(action_type__in=registered_slugs)
 
 
 @register_filterset

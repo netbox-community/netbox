@@ -277,17 +277,15 @@ class DashboardWidgetColorChoices(ChoiceSet):
 #
 
 class EventRuleActionChoices(ChoiceSet):
+    """
+    Slug constants only -- action_type is plugin-extensible, so the authoritative label/
+    description/choices live on the registered EventRuleAction instances (netbox.event_rules),
+    not here. Duplicating them in CHOICES would risk drifting from WebhookAction/ScriptAction/
+    NotificationAction's own label/description, and nothing reads CHOICES for this class anyway.
+    """
 
     WEBHOOK = 'webhook'
     SCRIPT = 'script'
     NOTIFICATION = 'notification'
 
-    CHOICES = (
-        Choice(WEBHOOK, _('Webhook'), description=_('Send an outgoing HTTP request to a remote endpoint')),
-        Choice(SCRIPT, _('Script'), description=_('Execute a custom script')),
-        Choice(
-            NOTIFICATION,
-            _('Notification'),
-            description=_('Generate a notification for one or more users or groups')
-        ),
-    )
+    CHOICES = ()

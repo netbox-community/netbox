@@ -21,7 +21,7 @@ from core.models import Job, ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
-from extras.events import enqueue_event, flush_events, serialize_for_event
+from extras.events import enqueue_event, flush_events, process_event_rules, serialize_for_event
 from extras.models import EventRule, Script, ScriptModule, Tag, Webhook
 from extras.scripts import Script as ScriptBase
 from extras.signals import process_job_end_event_rules
@@ -931,10 +931,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(len(rule_jobs), 1)
 
     def test_raising_enqueue_does_not_block_other_rules(self):
-        """
-        A raising *plugin* action must not block other rules (a core action's own bug propagates
-        instead -- see DummyRaisingAction, which must be plugin-owned to exercise that).
-        """
+        """A raising action registered as plugin-provided (the default) must not block other rules."""
         register_event_rule_action(DummyRaisingAction)
         self.addCleanup(registry['event_rule_actions'].pop, DummyRaisingAction.slug, None)
 
@@ -970,6 +967,34 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         # The good rule's webhook must still have been enqueued despite the raising rule.
         rule_jobs = [j for j in self.queue.jobs if j.kwargs['event_rule'] == good_rule]
         self.assertEqual(len(rule_jobs), 1)
+
+    def test_raising_action_registered_as_non_plugin_propagates(self):
+        """
+        A raising action explicitly registered with is_plugin_provided=False (matching how
+        NetBox's own core actions register) must propagate rather than being isolated --
+        provenance is driven by the registration-time flag, not module introspection.
+        """
+        class RaisingCoreLikeAction(EventRuleAction):
+            slug = 'test.raising_core_like_action'
+            label = 'Raising Core-Like Action'
+            object_required = False
+
+            def enqueue(self, **kwargs):
+                raise RuntimeError("intentional failure for test")
+
+        register_event_rule_action(RaisingCoreLikeAction, is_plugin_provided=False)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.raising_core_like_action', None)
+
+        site_type = ObjectType.objects.get_for_model(Site)
+        rule = EventRule.objects.create(
+            name='Raising Core-Like Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='test.raising_core_like_action',
+        )
+        rule.object_types.set([site_type])
+
+        with self.assertRaises(RuntimeError):
+            process_event_rules([rule], object_type=site_type, event={'data': {}, 'event_type': OBJECT_CREATED})
 
 
 class EventRuleActionRegistrationTestCase(TestCase):
@@ -1019,6 +1044,32 @@ class EventRuleActionRegistrationTestCase(TestCase):
         register_event_rule_action(FirstAction)
         with self.assertRaises(ValidationError):
             register_event_rule_action(SecondAction)
+
+    def test_slug_starting_with_digit_rejected(self):
+        """A slug starting with a digit would sanitize into a GraphQL-invalid enum member name."""
+        class DigitSlugAction(EventRuleAction):
+            slug = '2fa.notify'
+            label = 'Digit Slug Action'
+
+        with self.assertRaises(ValidationError):
+            register_event_rule_action(DigitSlugAction)
+        self.assertIsNone(get_event_rule_action('2fa.notify'))
+
+    def test_slug_enum_key_collision_rejected(self):
+        """Two distinct slugs that sanitize to the same GraphQL enum member name must not both register."""
+        class DotAction(EventRuleAction):
+            slug = 'test.collision_action'
+            label = 'Dot Action'
+
+        class UnderscoreAction(EventRuleAction):
+            slug = 'test_collision_action'
+            label = 'Underscore Action'
+
+        register_event_rule_action(DotAction)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.collision_action', None)
+        with self.assertRaises(ValidationError):
+            register_event_rule_action(UnderscoreAction)
+        self.assertIsNone(get_event_rule_action('test_collision_action'))
 
     def test_missing_slug_raises_at_class_definition(self):
         with self.assertRaises(TypeError):

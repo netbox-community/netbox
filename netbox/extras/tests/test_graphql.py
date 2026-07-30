@@ -16,11 +16,13 @@ class EventRuleActionEnumTestCase(APITestCase):
     """EventRuleActionEnum must reflect the live action registry, and the filter must use it."""
 
     def test_enum_contains_core_actions(self):
+        # assertLessEqual (subset), not assertEqual: a plugin installed in this environment (e.g.
+        # the dummy test plugin) may register its own actions too.
         values = {member.value for member in EventRuleActionEnum}
-        self.assertEqual(
-            values,
-            {EventRuleActionChoices.WEBHOOK, EventRuleActionChoices.SCRIPT, EventRuleActionChoices.NOTIFICATION},
-        )
+        core_slugs = {
+            EventRuleActionChoices.WEBHOOK, EventRuleActionChoices.SCRIPT, EventRuleActionChoices.NOTIFICATION,
+        }
+        self.assertLessEqual(core_slugs, values)
 
     def test_filter_event_rules_by_action_type(self):
         webhook = Webhook.objects.create(name='GraphQL Enum Test Webhook', payload_url='http://localhost:9000/')

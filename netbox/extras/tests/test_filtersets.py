@@ -396,6 +396,28 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'action_type': [EventRuleActionChoices.SCRIPT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_action_is_available(self):
+        """
+        Regression: with extras.W001 removed, action_is_available is the only remaining way to
+        bulk-query for event rules whose action_type is not currently registered.
+        """
+        unavailable_rule = EventRule.objects.create(
+            name='Unavailable Filterset Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed_filterset_test',
+        )
+        unavailable_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        params = {'action_is_available': True}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 5)
+        self.assertNotIn(unavailable_rule, qs)
+
+        params = {'action_is_available': False}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), unavailable_rule)
+
     def test_action_type_registered_plugin_style_slug(self):
         """
         Regression for #22770: EventRuleFilterSet.action_type's choices are registry-driven (a

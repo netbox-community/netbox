@@ -15,7 +15,7 @@ from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigFo
 from extras.forms.bulk_import import EventRuleImportForm
 from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm
 from extras.forms.scripts import ScriptFileForm
-from extras.models import CustomField, CustomFieldChoiceSet, NotificationGroup, Script, ScriptModule, Webhook
+from extras.models import CustomField, CustomFieldChoiceSet, EventRule, NotificationGroup, Script, ScriptModule, Webhook
 from netbox.event_rules import EventRuleAction, register_event_rule_action
 from netbox.registry import registry
 from utilities.forms.widgets import HTMXSelect
@@ -451,6 +451,45 @@ class EventRuleFormTestCase(TestCase):
         rule = form.save()
         self.assertEqual(rule.action_object, webhook)
 
+    def test_switching_to_optional_object_action_clears_stale_action_object(self):
+        """
+        Regression: switching an existing rule from a Webhook action to a different action that
+        declares object_model but leaves object_required=False, with no action_choice selected,
+        must clear the old action_object rather than silently keeping the stale Webhook reference.
+        """
+        class OptionalObjectAction(EventRuleAction):
+            slug = 'test.optional_object_action'
+            label = 'Optional Object Action'
+            object_model = Webhook
+            object_required = False
+
+        register_event_rule_action(OptionalObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.optional_object_action', None)
+
+        webhook = Webhook.objects.create(name='Stale Webhook', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+        object_type = ObjectType.objects.get_for_model(Site)
+        rule = EventRule.objects.create(
+            name='Stale Object Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+        rule.object_types.set([object_type])
+
+        form = EventRuleForm(data={
+            'name': rule.name,
+            'object_types': [object_type.pk],
+            'event_types': [OBJECT_CREATED],
+            'action_type': 'test.optional_object_action',
+            # action_choice intentionally omitted -- the user left the picker blank.
+        }, instance=rule)
+        self.assertTrue(form.is_valid(), form.errors)
+        saved = form.save()
+        self.assertIsNone(saved.action_object_type)
+        self.assertIsNone(saved.action_object_id)
+
 
 class EventRuleImportFormTestCase(TestCase):
     """
@@ -542,6 +581,43 @@ class EventRuleImportFormTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('action_object', form.errors)
+
+    def test_csv_update_to_optional_object_action_clears_stale_action_object(self):
+        """
+        Regression: a CSV row updating an existing rule (matched by id) to an action_type that
+        declares object_model but not object_required, with action_object left blank, must clear
+        the rule's previous action_object rather than keeping the stale reference.
+        """
+        class OptionalObjectAction(EventRuleAction):
+            slug = 'test.import_optional_object_action'
+            label = 'Import Optional Object Action'
+            object_model = Webhook
+            object_required = False
+
+        register_event_rule_action(OptionalObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, 'test.import_optional_object_action', None)
+
+        webhook = Webhook.objects.create(name='CSV Stale Webhook', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+        rule = EventRule.objects.create(
+            name='CSV Stale Object Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+
+        form = EventRuleImportForm(data={
+            'name': rule.name,
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': 'test.import_optional_object_action',
+            'action_object': '',
+        }, instance=rule)
+        self.assertTrue(form.is_valid(), form.errors)
+        saved = form.save()
+        self.assertIsNone(saved.action_object_type)
+        self.assertIsNone(saved.action_object_id)
 
     def test_action_validate_error_on_unexposed_field_becomes_non_field_error(self):
         """A validate() error keyed by a field this form doesn't expose (e.g. action_data) must not raise."""

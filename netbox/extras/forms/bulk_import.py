@@ -303,6 +303,10 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
                 raise forms.ValidationError({
                     'action_object': _("This action type requires a target object."),
                 })
+            # Clear any action_object this instance previously had (relevant for a CSV row that
+            # updates an existing rule, matched by id, to a now-object-less action_type).
+            self.instance.action_object_type = None
+            self.instance.action_object_id = None
             return
 
         try:

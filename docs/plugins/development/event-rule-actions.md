@@ -13,6 +13,7 @@ class OpenTicketAction(EventRuleAction):
     label = _('Open ticket')
     description = _('Open a ticket in the external ticketing system')
     object_model = Ticket
+    object_required = True
 
     def enqueue(self, *, event_rule, event_context, action_object, action_data):
         ...
@@ -42,7 +43,8 @@ To support resolving a target object from a CSV value during bulk import of even
 An event rule's `action_type` is stored as a plain string, and is not validated against the set of currently-registered actions at the database level. This means an event rule can reference an action type provided by a plugin that is later uninstalled or disabled, without the row being deleted or corrupted. While its action type is unavailable:
 
 * The event rule is skipped during event processing (it does not raise an error, and does not prevent other event rules from being processed).
-* It is displayed with an "unavailable" indicator in the UI, and `action_is_available` is exposed as a read-only field via the REST API, so affected event rules can be identified without a database query on every management command.
+* It is displayed with an "unavailable" indicator in the UI. `action_is_available` is exposed as a read-only field via the REST API, and as a filter (`?action_is_available=false`), so affected event rules can be found in bulk.
+* It cannot be saved via the UI or REST API -- even to edit an unrelated field -- until its `action_type` is changed to a currently-registered value.
 
 Reinstalling the plugin (and thereby re-registering the action type) automatically restores the event rule to working order, with no need to re-save it.
 

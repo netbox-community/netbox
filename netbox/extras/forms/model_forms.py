@@ -684,10 +684,12 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
 
         if action and action.object_model and action_choice:
             self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(
-                action.object_model, for_concrete_model=False
+                action_choice, for_concrete_model=False
             )
             self.cleaned_data['action_object_id'] = action_choice.pk
-        elif action and not action.object_model:
+        elif action:
+            # Covers both a no-object action, and an object-model action left with no object
+            # selected (object_required=False) -- either way, no action_object should be stored.
             self.cleaned_data['action_object_type'] = None
             self.cleaned_data['action_object_id'] = None
         # If action is None (an unregistered/unavailable action_type persisted on an existing

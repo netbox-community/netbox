@@ -1,8 +1,11 @@
+import re
+
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from utilities.choices import Choice
+from utilities.string import enum_key
 
 __all__ = (
     'EventRuleAction',
@@ -11,17 +14,21 @@ __all__ = (
     'register_event_rule_action',
 )
 
+# slug must produce a valid GraphQL enum member name once sanitized by enum_key() (which uppercases
+# and replaces non-alphanumeric characters with "_"): a leading digit would otherwise be legal here
+# but invalid there.
+SLUG_RE = re.compile(r'^[a-z_][a-z0-9_]*(\.[a-z0-9_]+)*$')
 
+
+# This module must not import any concrete Django models: it's imported by netbox.plugins (itself
+# imported by netbox.settings, before the app registry is populated), so only registry-level
+# bookkeeping belongs here. Subclasses that reference real models (e.g. NetBox's own
+# WebhookAction/ScriptAction/NotificationAction) live in netbox.extras.event_rules instead, and are
+# registered from ExtrasConfig.ready() once the app registry is available.
 class EventRuleAction:
     """
     Base class for a registered Event Rule action. Subclass this to add a new action type that an
     EventRule can dispatch to, whether defined in NetBox core or in a plugin.
-
-    This module must not import any concrete Django models: it's imported by netbox.plugins (itself
-    imported by netbox.settings, before the app registry is populated), so only registry-level
-    bookkeeping belongs here. Subclasses that reference real models (e.g. NetBox's own
-    WebhookAction/ScriptAction/NotificationAction) live in netbox.extras.event_rules instead, and are
-    registered from ExtrasConfig.ready() once the app registry is available.
 
     Attributes:
         slug: A unique identifier for this action (e.g. "webhook", or "myplugin.run_check" for a
@@ -36,12 +43,16 @@ class EventRuleAction:
             (default: False, matching object_model's default of None -- an action that declares
             an object_model should also set this to True). Independent of object_model: an action
             may declare an object_model but still treat the object as optional.
+        is_plugin_provided: Set automatically by register_event_rule_action(); do not set this
+            directly. Determines whether an exception raised by this action during dispatch is
+            isolated (logged, other event rules still process) or propagates. Defaults to True.
     """
     slug = None
     label = None
     description = None
     object_model = None
     object_required = False
+    is_plugin_provided = True
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -107,7 +118,7 @@ class EventRuleAction:
         raise NotImplementedError(f"{self.__class__.__name__} must implement enqueue()")
 
 
-def register_event_rule_action(cls):
+def register_event_rule_action(cls, *, is_plugin_provided=True):
     """
     Register an EventRuleAction subclass. Can be used as a decorator, or called directly (e.g. when
     iterating a plugin's declared event_rule_actions):
@@ -117,12 +128,33 @@ def register_event_rule_action(cls):
             slug = 'myplugin.my_action'
             ...
 
-    Raises if the slug is already registered, so collisions are caught immediately rather than
-    silently overwriting one another.
+    Raises if the slug is malformed, already registered, or collides via enum_key() with another
+    registered slug once both feed the GraphQL EventRuleActionEnum (see extras.graphql.enums) --
+    all are caught immediately here rather than surfacing as a schema-assembly crash at startup.
+
+    is_plugin_provided determines whether a dispatch-time exception from this action is isolated
+    or propagates (see process_event_rules() in extras.events); defaults to True (the safer
+    assumption for unknown provenance). NetBox's own core registrations (extras.apps.ExtrasConfig)
+    explicitly pass False; the plugin-loading path (netbox.plugins.PluginConfig) relies on the
+    default rather than passing it explicitly.
     """
     instance = cls()
+    if not SLUG_RE.fullmatch(instance.slug):
+        raise ValidationError(
+            f"Invalid event rule action slug {instance.slug!r}: must be lowercase, start with a "
+            f"letter or underscore, and use only letters, digits, underscores, and dot-separated "
+            f"segments."
+        )
     if instance.slug in registry['event_rule_actions']:
         raise ValidationError(f"An event rule action named {instance.slug} has already been registered!")
+    new_key = enum_key(instance.slug)
+    for existing in registry['event_rule_actions'].values():
+        if enum_key(existing.slug) == new_key:
+            raise ValidationError(
+                f"Event rule action slug {instance.slug!r} collides with the already-registered "
+                f"{existing.slug!r} once both are sanitized into a GraphQL enum member name."
+            )
+    instance.is_plugin_provided = is_plugin_provided
     registry['event_rule_actions'][instance.slug] = instance
     return cls
 
