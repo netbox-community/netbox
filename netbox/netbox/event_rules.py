@@ -33,14 +33,12 @@ SLUG_RE = re.compile(r'^[a-z][a-z0-9_]*(\.[a-z0-9_]+)*$')
 class EventRuleAction:
     """
     Base class for a registered Event Rule action. Subclass this to add a new action type that an
-    EventRule can dispatch to, whether defined in NetBox core or in a plugin. slug/label are only
-    required at registration time (see register_event_rule_action()), not at class definition, so
-    an intermediate base class shared by several concrete actions may leave them unset.
+    EventRule can dispatch to, whether defined in NetBox core or in a plugin.
 
     Attributes:
         slug: A unique identifier for this action (e.g. "webhook", or "myplugin.run_check" for a
-            plugin-provided action). Must be lowercase, must not begin with an underscore, and may
-            contain only letters, digits, underscores, and dot-separated segments -- no hyphens (use
+            plugin-provided action). Must begin with a lowercase letter, and may contain only
+            letters, digits, underscores, and dot-separated segments thereafter -- no hyphens (use
             an underscore instead, e.g. "my_plugin.open_ticket"). A dotted namespace prefix is
             strongly recommended for plugin-provided actions to avoid collisions with other plugins
             or future core actions.
@@ -49,10 +47,9 @@ class EventRuleAction:
             in the action_type dropdown).
         object_model: The model class (if any) which EventRule.action_object must be an instance of.
             May be left as None if this action never operates against a target object.
-        object_required: Whether an action_object must be supplied for this action to be usable
-            (default: False, matching object_model's default of None -- an action that declares
-            an object_model should also set this to True). Independent of object_model: an action
-            may declare an object_model but still treat the object as optional.
+        object_required: Whether an action_object must be supplied for this action to be usable.
+            Defaults to False; set True when a target object is mandatory. Independent of
+            object_model: an action may declare object_model but still treat the object as optional.
     """
     slug = None
     label = None
@@ -60,14 +57,11 @@ class EventRuleAction:
     object_model = None
     object_required = False
 
-    # Set per-instance by register_event_rule_action(); do not set this on a subclass. Determines
-    # whether an exception raised by this action during dispatch is isolated (logged, other event
-    # rules still process) or propagates -- see process_event_rules() in extras.events. Defaults to
-    # True here (not just on registered instances): the only read of this attribute is inside that
-    # function's exception handler, so a missing attribute would raise AttributeError while already
-    # handling a real exception, masking it -- this default keeps that path a graceful degradation
-    # instead, for the unlikely case of an instance reaching dispatch without going through
-    # register_event_rule_action() (e.g. inserted into the registry dict directly).
+    # Set per-instance by register_event_rule_action(); a subclass override is ignored. Determines
+    # whether a dispatch-time exception from this action is isolated or propagates (see
+    # process_event_rules() in extras.events). Defaults to True here so that an instance which
+    # reaches dispatch without going through registration degrades gracefully instead of raising
+    # AttributeError inside that function's exception handler.
     is_plugin_provided = True
 
     def __repr__(self):
@@ -137,19 +131,15 @@ def register_event_rule_action(cls, *, is_plugin_provided=True):
             slug = 'myplugin.my_action'
             ...
 
-    Raises ImproperlyConfigured -- a registration/packaging mistake, not user input, matching the
-    convention ChoiceSetMeta uses for the analogous case -- if slug/label are missing, the slug is
-    malformed, already registered, or collides via enum_key() with another registered slug once
-    both feed the GraphQL EventRuleActionEnum (see extras.graphql.enums). All are caught
-    immediately here rather than surfacing as a schema-assembly crash at startup. Checking
-    slug/label here rather than in __init_subclass__ (at class-definition time) means an
-    intermediate base class shared by several concrete actions in a plugin can omit them.
+    Raises ImproperlyConfigured if slug/label are missing, the slug is malformed, already
+    registered, or collides via enum_key() with another registered slug once both feed the
+    GraphQL EventRuleActionEnum (see extras.graphql.enums). Checking slug/label here rather than
+    at class definition means an intermediate base class shared by several concrete actions in a
+    plugin can leave them unset.
 
     is_plugin_provided determines whether a dispatch-time exception from this action is isolated
-    or propagates (see process_event_rules() in extras.events); defaults to True (the safer
-    assumption for unknown provenance). NetBox's own core registrations (extras.apps.ExtrasConfig)
-    explicitly pass False; the plugin-loading path (netbox.plugins.PluginConfig) relies on the
-    default rather than passing it explicitly.
+    or propagates (see process_event_rules() in extras.events); defaults to True. NetBox's own
+    core registrations (extras.apps.ExtrasConfig) pass False explicitly.
     """
     instance = cls()
     if not instance.slug:

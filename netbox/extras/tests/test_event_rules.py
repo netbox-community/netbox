@@ -1102,9 +1102,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
         self.assertIsNone(get_event_rule_action('test_collision_action'))
 
     def test_missing_slug_raises_at_registration(self):
-        # Class definition itself must succeed (this is what allows an intermediate base class to
-        # omit slug/label -- see test_intermediate_base_class_without_slug_or_label_is_definable);
-        # the check fires at registration time instead.
+        # Class definition itself must succeed; only registration checks slug/label.
         class NoSlugAction(EventRuleAction):
             label = 'No Slug'
 
@@ -1210,13 +1208,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
             action.enqueue(event_rule=None, event_context={}, action_object=None, action_data={})
 
     def test_is_plugin_provided_defaults_true_before_registration(self):
-        """
-        The only read of is_plugin_provided is inside process_event_rules()'s exception handler
-        (extras.events); a missing attribute there would raise AttributeError while already
-        handling a real exception, masking it. Defaulting to True keeps that a graceful
-        degradation for an instance that reaches dispatch without going through
-        register_event_rule_action() (e.g. inserted into the registry dict directly).
-        """
+        """is_plugin_provided is True on an instance that never goes through registration."""
         self.assertTrue(EventRuleAction().is_plugin_provided)
 
 

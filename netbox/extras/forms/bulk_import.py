@@ -321,7 +321,8 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             })
 
         # Assign the GFK itself (not just action_object_type/id) so EventRule.clean()'s later
-        # access to self.action_object hits the descriptor cache instead of a fresh SELECT.
+        # access to self.action_object hits the descriptor cache instead of a fresh SELECT --
+        # for a non-proxy object_model, where the concrete and non-concrete content types match.
         self.instance.action_object = obj
         self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
 

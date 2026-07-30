@@ -30,7 +30,7 @@ event_rule_actions = [OpenTicketAction]
 
 A dotted namespace prefix (e.g. `my_plugin.open_ticket`) is strongly recommended for `slug` to avoid collisions with other plugins or with action types added to NetBox core in the future.
 
-`slug` must be lowercase, must not begin with an underscore, and may contain only letters, digits, underscores, and dot-separated segments. **Hyphens are not allowed**, even though they're common in plugin/package names -- use an underscore instead, e.g. `my_plugin.open_ticket` as in the example above. `register_event_rule_action()` raises `ImproperlyConfigured` immediately for a slug outside this pattern, rather than allowing it to fail later during GraphQL schema assembly.
+`slug` must begin with a lowercase letter, and may contain only letters, digits, underscores, and dot-separated segments thereafter. **Hyphens are not allowed**, even though they're common in plugin/package names -- use an underscore instead, e.g. `my_plugin.open_ticket` as in the example above. `register_event_rule_action()` raises `ImproperlyConfigured` immediately for a slug outside this pattern, rather than allowing it to fail later during GraphQL schema assembly.
 
 `slug`/`label` are only required at registration time, not at class definition, so an intermediate base class shared by several concrete actions may leave them unset.
 
