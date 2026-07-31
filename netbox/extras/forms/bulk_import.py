@@ -273,7 +273,10 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     action_object = forms.CharField(
         label=_('Action object'),
         required=False,
-        help_text=_('Target object type expressed as dotted path module.Class (optional)')
+        help_text=_(
+            'The target object for the action, if it requires one. The expected format depends on the action type '
+            '(e.g. a webhook or notification group name, or a script as dotted path module.Class).'
+        )
     )
 
     class Meta:
@@ -307,6 +310,11 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             self.instance.action_object_type = None
             self.instance.action_object_id = None
             return
+
+        if action.object_model is None:
+            raise forms.ValidationError({
+                'action_object': _("This action type does not operate against a target object."),
+            })
 
         try:
             obj = action.resolve_import_object(action_object)

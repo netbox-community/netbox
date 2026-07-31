@@ -13,6 +13,7 @@ from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices, EventRuleActionChoices
 from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
 from extras.forms.bulk_import import EventRuleImportForm
+from extras.forms.filtersets import EventRuleFilterForm
 from extras.forms.model_forms import CustomFieldChoiceSetForm, EventRuleForm
 from extras.forms.scripts import ScriptFileForm
 from extras.models import CustomField, CustomFieldChoiceSet, EventRule, NotificationGroup, Script, ScriptModule, Webhook
@@ -502,6 +503,25 @@ class EventRuleFormTestCase(TestCase):
         self.assertIsNone(saved.action_object_id)
 
 
+class EventRuleFilterFormTestCase(TestCase):
+
+    def test_action_type_choices_reflect_the_live_registry(self):
+        """
+        The filter form's action_type choices must be read from the registry on access, not frozen
+        when this module was first imported.
+        """
+        class FilterFormAction(EventRuleAction):
+            slug = 'test.filter_form_action'
+            label = 'Filter Form Action'
+
+        register_event_rule_action(FilterFormAction)
+        self.addCleanup(registry['event_rule_actions'].pop, FilterFormAction.slug, None)
+
+        choices = dict(EventRuleFilterForm().fields['action_type'].choices)
+        self.assertEqual(choices.get(FilterFormAction.slug), 'Filter Form Action')
+        self.assertIn(None, choices)  # The blank choice is retained
+
+
 class EventRuleImportFormTestCase(TestCase):
     """
     EventRuleImportForm resolves action_object via each registered action's resolve_import_object()
@@ -591,6 +611,28 @@ class EventRuleImportFormTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('action_object', form.errors)
+
+    def test_action_object_rejected_for_action_without_object_model(self):
+        """
+        An action declaring no object_model rejects a supplied action_object as inapplicable,
+        rather than reporting it as an unsupported bulk import.
+        """
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.import_no_object_action'
+            label = 'Import No-Object Action'
+            object_required = False
+
+        register_event_rule_action(NoObjectAction)
+
+        form = EventRuleImportForm(data={
+            'name': 'Import No-Object Rule With Object',
+            'object_types': 'dcim.site',
+            'event_types': 'object_created',
+            'action_type': 'test.import_no_object_action',
+            'action_object': 'Some Object',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('does not operate against a target object', str(form.errors['action_object']))
 
     def test_csv_update_to_optional_object_action_clears_stale_action_object(self):
         """

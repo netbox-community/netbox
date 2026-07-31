@@ -32,6 +32,11 @@ class EventRuleAction:
     Base class for a registered Event Rule action. Subclass this to add a new action type that an
     EventRule can dispatch to, whether defined in NetBox core or in a plugin.
 
+    Registration instantiates the class once; that single instance serves every event rule, request,
+    and background worker thread for the lifetime of the process. Implementations must therefore be
+    stateless: enqueue() and validate() must not stash per-event data on self, as concurrent
+    dispatches would race over it. Everything an action needs is passed in as arguments.
+
     Attributes:
         slug: A unique identifier for this action (e.g. "webhook", or "myplugin.run_check" for a
             plugin-provided action). Must begin with a lowercase letter, and may contain only

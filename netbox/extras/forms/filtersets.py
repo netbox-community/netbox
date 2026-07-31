@@ -355,7 +355,9 @@ class EventRuleFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         label=_('Event type')
     )
     action_type = forms.ChoiceField(
-        choices=add_blank_choice(get_event_rule_action_choices()),
+        # Wrapped in a callable so the registry is read on each access, rather than frozen at the
+        # time this module is first imported (see EventRule.action_type).
+        choices=lambda: add_blank_choice(get_event_rule_action_choices()),
         required=False,
         label=_('Action type')
     )
