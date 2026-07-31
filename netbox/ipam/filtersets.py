@@ -1246,7 +1246,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
     )
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
-        method='filter_protocol',
+        method='filter_noop',
     )
     # Negation lookup retained from when `protocol` was a model field: method-based filters don't get
     # the char-based lookups (protocol__n, __ic, ...) auto-generated, and silently dropping protocol__n
@@ -1261,58 +1261,58 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
     # they must be correlated with `protocol` rather than applied independently. `port__empty` is
     # intentionally absent: port_mappings is never empty on a validated object, so it was never
     # meaningful. See ipam.utils.PORT_MAPPING_LOOKUPS for the lookup -> SQL operator mapping.
+    #
+    # `protocol` above and every `port*` lookup below (except the negations, which stand alone) are
+    # deliberately no-ops: because they must be correlated with one another they cannot be applied as each
+    # filter runs. filter_queryset() applies them together, once, after super() has applied the rest.
     port = MultiValueNumberFilter(
-        method='filter_port',
+        method='filter_noop',
     )
     port__n = MultiValueNumberFilter(
         method='filter_port_negated',
     )
     port__gt = MultiValueNumberFilter(
-        method='filter_port',
+        method='filter_noop',
     )
     port__gte = MultiValueNumberFilter(
-        method='filter_port',
+        method='filter_noop',
     )
     port__lt = MultiValueNumberFilter(
-        method='filter_port',
+        method='filter_noop',
     )
     port__lte = MultiValueNumberFilter(
-        method='filter_port',
+        method='filter_noop',
     )
 
-    # Set for the duration of a filter_queryset() run; see _apply_port_mappings().
-    _port_mappings_filter_applied = False
-
     def filter_queryset(self, queryset):
-        # Reset the once-per-run guard used by _apply_port_mappings() so each pass over this FilterSet
-        # applies the port-mapping predicate afresh. Without this the flag would persist on the instance,
-        # silently dropping the predicate from any subsequent call (django-filter treats filter_queryset()
-        # as idempotent, and subclasses may invoke it more than once).
-        self._port_mappings_filter_applied = False
-        return super().filter_queryset(queryset)
-
-    def _apply_port_mappings(self, queryset):
         """
         Apply `protocol` and every active `port*` lookup as a single correlated predicate.
 
-        All of those filters route here, and each call builds the predicate for the whole set, so it is
-        applied only on the first one to run and skipped thereafter — otherwise a query combining N of
-        them would emit N redundant copies of the same scan. The flag tracking this is cleared at the
-        start of each filter_queryset() run (see above), so the dedup is per-run rather than per-instance.
+        These can't be applied per-filter the way django-filter normally works: they must all be satisfied
+        by one single mapping, and a query combining N of them would otherwise emit N independent (and
+        redundant) copies of the same scan. So the individual filters are no-ops and the combined
+        predicate is built here, from the cleaned data, exactly once per call.
         """
-        if self._port_mappings_filter_applied:
-            return queryset
+        queryset = super().filter_queryset(queryset)
+
         cleaned_data = self.form.cleaned_data
         protocols = cleaned_data.get('protocol') or []
         port_tests = [
-            (lookup, cleaned_data.get(name) or [])
-            for name, lookup in SERVICE_PORT_FILTERS.items()
+            (lookup, values)
+            for lookup, values in (
+                (lookup, cleaned_data.get(name) or [])
+                for name, lookup in SERVICE_PORT_FILTERS.items()
+            )
+            if values
         ]
-        port_tests = [(lookup, values) for lookup, values in port_tests if values]
         if not protocols and not port_tests:
             return queryset
-        self._port_mappings_filter_applied = True
+
         return queryset.filter(port_mapping_q(protocols, port_tests))
+
+    def filter_noop(self, queryset, name, value):
+        # See filter_queryset(), which applies `protocol` and the port lookups as one correlated predicate.
+        return queryset
 
     def filter_port_mappings(self, queryset, name, value: list[str]):
         # Array overlap (&&) is served by the GIN index on port_mappings and gives the multi-value OR
@@ -1325,12 +1325,6 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
         if not value:
             return queryset
         return queryset.exclude(port_mappings__overlap=[normalize_port_mapping(v) for v in value])
-
-    def filter_protocol(self, queryset, name, value: list[str]):
-        return self._apply_port_mappings(queryset)
-
-    def filter_port(self, queryset, name, value: list[int]):
-        return self._apply_port_mappings(queryset)
 
     def filter_protocol_negated(self, queryset, name, value: list[str]):
         # Exclude services exposing any of the given protocols (negation of the protocol-only lookup).
