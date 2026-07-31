@@ -2,40 +2,54 @@ import django.contrib.postgres.fields
 import django.contrib.postgres.indexes
 from django.db import migrations, models
 
+POPULATE_PORT_MAPPINGS_SQL = """
+    UPDATE {table} SET port_mappings = ARRAY(
+        SELECT protocol || '/' || port
+        FROM (
+            -- Dedupe while preserving first-seen order: the legacy ports array wasn't guaranteed unique
+            -- (the REST API accepted any list), and a duplicated port would otherwise produce a duplicate
+            -- mapping that fails validation on the object's next save. NULL elements — only reachable via
+            -- raw DB writes — are dropped rather than concatenated into a 'tcp/' mapping.
+            SELECT port, MIN(ordinality) AS ordinality
+            FROM unnest(ports) WITH ORDINALITY AS unnested(port, ordinality)
+            WHERE port IS NOT NULL
+            GROUP BY port
+        ) AS deduped
+        ORDER BY deduped.ordinality
+    )
+    WHERE cardinality(ports) > 0 AND protocol <> ''
+"""
+
 
 def populate_port_mappings(apps, schema_editor):
     """
     Build the new ``port_mappings`` array (e.g. ['tcp/80', 'tcp/443']) from the legacy protocol/ports
-    fields on each Service/ServiceTemplate. Processed in batches to bound memory on large installs.
+    fields on each Service/ServiceTemplate. Done as a single set-based UPDATE per table rather than a
+    row-by-row rewrite, so the maintenance window stays bounded on large installs (this runs over every
+    service and service template in the database).
 
-    Services/templates that had an empty ``ports`` array (technically invalid under the old schema, but
-    possible via direct DB writes) are left with ``port_mappings=[]``, which the new model rejects on the
-    next save. Operators can find any such records post-migration with, e.g.:
+    The ports column is an integer array, so every mapping this produces is already in the canonical form
+    validate_port_mappings() enforces — no leading zeros to strip, and the protocol was constrained to
+    ServiceProtocolChoices.
+
+    Rows which cannot be converted — an empty ``ports`` array, or ports that are all NULL, both
+    technically invalid under the old schema but possible via direct DB writes — are left with
+    ``port_mappings=[]``, which the new model rejects on the next save. Nothing is discarded that the old
+    schema considered valid. Operators can find any such records post-migration with, e.g.:
         SELECT id, name FROM ipam_service WHERE port_mappings = '{}';
         SELECT id, name FROM ipam_servicetemplate WHERE port_mappings = '{}';
     """
     for model_name in ('Service', 'ServiceTemplate'):
-        model = apps.get_model('ipam', model_name)
-        batch = []
-        for obj in model.objects.filter(ports__len__gt=0).iterator(chunk_size=1000):
-            # dict.fromkeys dedupes while preserving order (legacy ports weren't guaranteed unique),
-            # so a duplicated port doesn't produce a duplicate mapping that later fails validation.
-            obj.port_mappings = list(dict.fromkeys(f'{obj.protocol}/{port}' for port in obj.ports))
-            batch.append(obj)
-            if len(batch) >= 1000:
-                model.objects.bulk_update(batch, ['port_mappings'])
-                batch = []
-        if batch:
-            model.objects.bulk_update(batch, ['port_mappings'])
+        # Table names come from the historical model state, not from user input
+        table = apps.get_model('ipam', model_name)._meta.db_table
+        with schema_editor.connection.cursor() as cursor:
+            cursor.execute(POPULATE_PORT_MAPPINGS_SQL.format(table=table))
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("contenttypes", "0002_remove_content_type_name"),
-        ("extras", "0141_custom_field_nulls_first"),
         ("ipam", "0094_denormalization_triggers"),
-        ("users", "0016_default_ordering_indexes"),
     ]
 
     operations = [
