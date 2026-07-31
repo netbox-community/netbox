@@ -1840,7 +1840,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual({s['name'] for s in data['data']['service_list']}, {'Service 1', 'udp-on-1'})
 
     def test_graphql_protocol_only_filter(self):
-        """A protocol-only GraphQL filter matches via the denormalized protocol set."""
+        """A protocol-only GraphQL filter matches services exposing that protocol on any port."""
         self.add_permissions('ipam.view_service')
         device = Device.objects.first()
         Service.objects.create(parent=device, name='udp-svc', port_mappings=['udp/9'])

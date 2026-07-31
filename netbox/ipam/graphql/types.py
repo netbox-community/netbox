@@ -257,7 +257,7 @@ _LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-
 
 @register_type(
     models.Service,
-    exclude=('parent_object_type', 'parent_object_id'),
+    exclude=['parent_object_type', 'parent_object_id'],
     filters=ServiceFilter,
     pagination=True
 )

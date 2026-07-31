@@ -10,12 +10,12 @@ def validate_port_mappings(mappings):
     and is not duplicated. Raises a ``ValidationError`` describing the first problem found.
 
     Returns the list in a canonical, normalized form (integer ports, so ``'tcp/080'`` becomes
-    ``'tcp/80'``, and the protocol folded to its canonical choice value, so ``'TCP/80'`` becomes
-    ``'tcp/80'``); callers should persist the returned value so every entry path stores identical
-    strings and remains matchable by the port filters. Protocol matching is case-insensitive, so all
-    paths (REST, CSV import, model form) accept any case without each having to fold it first. Shared by
-    the model (``ServiceBase.clean()``), the model form field (``PortMappingField``), the CSV import
-    form, and the REST API serializers so all paths enforce identical rules.
+    ``'tcp/80'``, and the protocol lowercased, so ``'TCP/80'`` becomes ``'tcp/80'``); callers should
+    persist the returned value so every entry path stores identical strings and remains matchable by the
+    port filters. Protocol matching is case-insensitive, so all paths (REST, CSV import, model form)
+    accept any case without each having to fold it first. Shared by the model (``ServiceBase.clean()``),
+    the model form field (``PortMappingField``), the CSV import form, and the REST API serializers so all
+    paths enforce identical rules.
     """
     # Imported lazily to avoid a circular import during settings load (this module is imported by
     # ipam.models, and ipam.constants pulls in ipam.choices, which reads settings.FIELD_CHOICES).
@@ -23,9 +23,8 @@ def validate_port_mappings(mappings):
     from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
     from ipam.utils import split_port_mapping
 
-    # Map a case-folded protocol to its canonical choice value, so input may be given in any case and is
-    # stored canonically — without assuming the choice values themselves are lowercase.
-    valid_protocols = {value.lower(): value for value in ServiceProtocolChoices.values()}
+    # A set, since this is consulted once per mapping and a service may define thousands
+    valid_protocols = set(ServiceProtocolChoices.values())
     seen = set()
     normalized_mappings = []
     for mapping in mappings:
@@ -36,8 +35,8 @@ def validate_port_mappings(mappings):
                     mapping=mapping
                 )
             )
-        canonical_protocol = valid_protocols.get(protocol.lower())
-        if canonical_protocol is None:
+        # The error reports the protocol as supplied rather than the folded form.
+        if (canonical_protocol := protocol.lower()) not in valid_protocols:
             raise ValidationError(_("Invalid protocol: {protocol}").format(protocol=protocol))
         try:
             port_number = int(port)

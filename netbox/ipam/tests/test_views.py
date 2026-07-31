@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.backends.postgresql.psycopg_any import NumericRange
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
@@ -17,7 +17,7 @@ from ipam.views import AggregatePrefixesView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
 from users.models import ObjectPermission
-from utilities.testing import ViewTestCases, create_tags
+from utilities.testing import ViewTestCases, create_tags, post_data
 
 
 class ASNRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -1885,6 +1885,28 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_port_mappings_stored_from_form(self):
+        # port_mappings is in validation_excluded_fields (the form submits JSON rows, not a list), so the
+        # standard create/edit view tests can't compare it. Assert the form round-trip explicitly.
+        self.add_permissions('ipam.add_servicetemplate', 'ipam.change_servicetemplate')
+
+        # Create: a row's comma-separated ports expand into individual mappings
+        data = {
+            'name': 'Mappings Via Form',
+            'port_mappings': '[{"protocol": "udp", "ports": "104,105"}]',
+        }
+        self.assertHttpStatus(self.client.post(self._get_url('add'), data=post_data(data)), 302)
+        template = ServiceTemplate.objects.get(name='Mappings Via Form')
+        self.assertEqual(template.port_mappings, ['udp/104', 'udp/105'])
+
+        # Edit: multiple rows, a range, and a non-canonical port are expanded and normalized
+        data['port_mappings'] = '[{"protocol": "tcp", "ports": "080,8000-8002"}, {"protocol": "udp", "ports": "53"}]'
+        self.assertHttpStatus(
+            self.client.post(self._get_url('edit', template), data=post_data(data)), 302
+        )
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/8000', 'tcp/8001', 'tcp/8002', 'udp/53'])
+
     def test_bulk_edit_port_mappings(self):
         # Bulk add/remove port mappings across selected templates (tags-style). ServiceTemplate is where
         # the add/remove fields are declared (ServiceBulkEditForm inherits them), so cover it directly.
@@ -2079,6 +2101,28 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(instance.description, service_template.description)
         # Port mappings should be copied from the template
         self.assertEqual(instance.port_mappings, ['tcp/80'])
+
+    # EXEMPT_VIEW_PERMISSIONS matches the standard create/edit view tests: without it the form's related
+    # object fields (parent, tags) reject choices the test user has no view permission for.
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_port_mappings_stored_from_form(self):
+        # port_mappings is in validation_excluded_fields (the form submits JSON rows, not a list), so the
+        # standard create/edit view tests can't compare it. Assert the form round-trip explicitly, using a
+        # multi-protocol payload — the whole point of the field — including the same port on two protocols.
+        self.add_permissions('ipam.add_service', 'ipam.change_service')
+
+        data = {**self.form_data, 'name': 'Mappings Via Form'}
+        self.assertHttpStatus(self.client.post(self._get_url('add'), data=post_data(data)), 302)
+        service = Service.objects.get(name='Mappings Via Form')
+        self.assertEqual(service.port_mappings, ['tcp/104', 'tcp/105', 'udp/104'])
+
+        # Edit: a range and a non-canonical port are expanded and normalized
+        data['port_mappings'] = '[{"protocol": "tcp", "ports": "080,8000-8002"}]'
+        self.assertHttpStatus(
+            self.client.post(self._get_url('edit', service), data=post_data(data)), 302
+        )
+        service.refresh_from_db()
+        self.assertEqual(service.port_mappings, ['tcp/80', 'tcp/8000', 'tcp/8001', 'tcp/8002'])
 
     def test_bulk_edit_port_mappings(self):
         # Bulk add/remove port mappings across selected services (tags-style)

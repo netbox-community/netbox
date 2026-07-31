@@ -289,9 +289,9 @@ def split_port_mapping(mapping):
 def normalize_port_mapping(mapping):
     """
     Canonicalize a single ``protocol/port`` string as far as possible *without raising*: the protocol is
-    folded to its matching ``ServiceProtocolChoices`` value and a numeric port loses any leading zeros, so
-    ``'TCP/080'`` becomes ``'tcp/80'``. Anything unrecognized is returned unchanged, in which case it
-    simply won't match a stored (always-canonical) mapping.
+    lowercased and a numeric port loses any leading zeros, so ``'TCP/080'`` becomes ``'tcp/80'``. Anything
+    unrecognized is returned unchanged, in which case it simply won't match a stored (always-canonical)
+    mapping.
 
     This is the lookup-side counterpart to ``validate_port_mappings()``, which enforces the same
     canonical form on write but rejects bad input. Filtering must not 400 on an unknown protocol or a
@@ -304,12 +304,10 @@ def normalize_port_mapping(mapping):
     protocol, port = split_port_mapping(mapping)
     if not port or not port.isdigit():
         return mapping
-    canonical_protocol = {value.lower(): value for value in ServiceProtocolChoices.values()}.get(
-        protocol.lower()
-    )
-    if canonical_protocol is None:
+    protocol = protocol.lower()
+    if protocol not in ServiceProtocolChoices.values():
         return mapping
-    return f'{canonical_protocol}/{int(port)}'
+    return f'{protocol}/{int(port)}'
 
 
 def group_port_mappings(mappings):
@@ -496,14 +494,17 @@ def port_mapping_q(protocols=(), port_tests=()):
     return Q(PortMappingMatch(protocols=protocols, port_tests=port_tests))
 
 
-def expand_port_mapping(protocol, ports_str):
+def expand_port_mapping(protocol, ports):
     """
-    Expand a single protocol plus a comma/range port string (e.g. ``('tcp', '80,443,8000-8010')``) into
-    the model's flat ``['tcp/80', 'tcp/443', ...]`` tokens. An empty ``ports_str`` yields a single bare
-    ``'protocol/'`` token so ``validate_port_mappings`` reports a clear "expected protocol/port" error
-    (rather than ``parse_numeric_range`` raising a confusing 'Range "" is invalid'). An empty ``protocol``
-    raises a clear error rather than producing a ``'/80'`` token that surfaces as "Invalid protocol:"
-    with a blank value. Shared by the model form field so the protocol/port string is parsed in one place.
+    Expand a single protocol plus its ports into the model's flat ``['tcp/80', 'tcp/443', ...]`` tokens.
+    ``ports`` may be a comma/range string (the form widget's format, e.g. ``('tcp', '80,443,8000-8010')``)
+    or an already-expanded list of ports (e.g. set programmatically).
+
+    An empty ``ports`` yields a single bare ``'protocol/'`` token so ``validate_port_mappings`` reports a
+    clear "expected protocol/port" error (rather than ``parse_numeric_range`` raising a confusing
+    'Range "" is invalid'). An empty ``protocol`` raises a clear error rather than producing a ``'/80'``
+    token that surfaces as "Invalid protocol:" with a blank value. Shared by the model form field so the
+    protocol/port pairing is built in one place, and so every entry path gets the blank-protocol check.
     """
     # Imported lazily to avoid pulling the forms layer in at module load.
     from utilities.forms.utils import parse_numeric_range
@@ -511,15 +512,24 @@ def expand_port_mapping(protocol, ports_str):
     # No case-folding here: validate_port_mappings (which every token below flows through) matches the
     # protocol case-insensitively and stores the canonical value.
     protocol = (protocol or '').strip()
-    ports_str = (ports_str or '').strip()
     if not protocol:
         # A row with ports but no protocol (e.g. the initial blank row where the user typed a port but
         # never picked a protocol) would otherwise expand to '/80' and surface as a confusing
         # "Invalid protocol:" with a blank value. Report the real problem instead.
         raise ValidationError(_("Select a protocol for each port mapping."))
+
+    if isinstance(ports, (list, tuple)):
+        # Already-expanded ports are paired as-is; validate_port_mappings() checks each value's range.
+        if not ports:
+            return [f'{protocol}/']
+        return [f'{protocol}/{port}' for port in ports]
+
+    ports_str = (ports or '').strip()
     if not ports_str:
         return [f'{protocol}/']
     # parse_numeric_range validates each range against the port bounds (rejecting reversed and
     # out-of-range values before expansion), so a non-empty string always yields >=1 port.
-    ports = parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
-    return [f'{protocol}/{port}' for port in ports]
+    return [
+        f'{protocol}/{port}'
+        for port in parse_numeric_range(ports_str, min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX)
+    ]
