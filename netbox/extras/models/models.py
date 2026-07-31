@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.parse
 from pathlib import Path
 
@@ -167,6 +168,12 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
             return False
 
 
+# Matches a literal URL scheme (RFC 3986), independent of urlsplit()'s netloc parsing -- which can
+# raise ValueError on a malformed host -- so a payload_url's scheme can always be read even when
+# its host is templated or malformed.
+LITERAL_SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
+
+
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -187,8 +194,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         max_length=500,
         verbose_name=_('URL'),
         help_text=_(
-            "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template "
-            "processing is supported with the same context as the request body."
+            "This URL will be called using the HTTP method defined when the webhook is called. Must be "
+            "http:// or https://. Jinja2 template processing is supported (with the same context as the "
+            "request body) for part or all of the URL."
         )
     )
     http_method = models.CharField(
@@ -281,34 +289,37 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
 
         # payload_url may be a literal URL or a Jinja2 template, possibly with a templated scheme
         # (e.g. "{{ data.custom_fields.callback_url }}"). Skipped when blank; clean_fields() already
-        # flags that.
+        # flags that. The scheme is read via LITERAL_SCHEME_RE rather than urlsplit(), so a
+        # templated or malformed host (e.g. "http://[{{ v6_endpoint }}]/hook") never needs to reach
+        # urlsplit()'s netloc parsing at all.
         if self.payload_url:
-            # A malformed netloc (e.g. an unbalanced IPv6 bracket) raises ValueError; treat that the
-            # same as no scheme/host found, rather than letting it escape clean() as a 500.
-            try:
-                scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
-            except ValueError:
-                scheme, netloc = '', ''
+            match = LITERAL_SCHEME_RE.match(self.payload_url)
+            literal_scheme = match.group(1).lower() if match else None
+            could_be_templated_scheme = literal_scheme is None and bool(JINJA2_TEMPLATE_RE.match(self.payload_url))
 
-            if scheme:
-                # Checked directly rather than via URLValidator, which rejects single-label and
-                # underscore hosts that `requests` accepts fine. Applies even when the rest of the
-                # URL is templated, since a bad scheme can never resolve to a usable destination.
-                if scheme not in ('http', 'https') or not netloc:
-                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
-                elif JINJA2_TEMPLATE_RE.search(self.payload_url):
-                    try:
-                        validate_jinja2_syntax(self.payload_url)
-                    except ValidationError as e:
-                        errors['payload_url'] = e
-            elif JINJA2_TEMPLATE_RE.match(self.payload_url):
-                # No literal scheme -- it's templated too, so nothing more can be checked here.
+            if literal_scheme is not None and literal_scheme not in ('http', 'https'):
+                # A disallowed literal scheme can never resolve, regardless of templating elsewhere.
+                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+            elif literal_scheme is None and not could_be_templated_scheme:
+                # No scheme at all, literal or templated -- this can never become a usable URL.
+                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+            elif JINJA2_TEMPLATE_RE.search(self.payload_url):
+                # Scheme is allowed (literal or templated); the value is templated too, so only its
+                # syntax can be checked here.
                 try:
                     validate_jinja2_syntax(self.payload_url)
                 except ValidationError as e:
                     errors['payload_url'] = e
             else:
-                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+                # Fully literal and scheme-allowed -- validate the host too, directly rather than
+                # via URLValidator, which rejects single-label and underscore hosts that `requests`
+                # accepts fine. urlsplit() can still raise ValueError for a malformed netloc.
+                try:
+                    netloc = urllib.parse.urlsplit(self.payload_url).netloc
+                except ValueError:
+                    netloc = ''
+                if not netloc:
+                    errors['payload_url'] = _("Enter a valid URL.")
 
         if errors:
             raise ValidationError(errors)

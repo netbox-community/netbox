@@ -1673,6 +1673,30 @@ class WebhookTestCase(TestCase):
             webhook.clean()
         self.assertIn('payload_url', cm.exception.message_dict)
 
+    def test_payload_url_accepts_templated_bracketed_host(self):
+        """A templated bracketed host must not be rejected merely because it looks malformed pre-render (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://[{{ data.custom_fields.v6_endpoint }}]/hook')
+        webhook.clean()
+
+    def test_payload_url_accepts_block_tag_leading_scheme(self):
+        webhook = Webhook(
+            name='Webhook 1', payload_url='{% if secure %}https{% else %}http{% endif %}://example.com/hook'
+        )
+        webhook.clean()
+
+    def test_payload_url_rejects_value_with_no_scheme_anywhere(self):
+        """A value containing template syntax after literal text with no scheme at all must still be rejected."""
+        webhook = Webhook(name='Webhook 1', payload_url='www{{ n }}.example.com/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_malformed_syntax_with_no_literal_scheme(self):
+        webhook = Webhook(name='Webhook 1', payload_url='{{ base_url }/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
 
 class EventRuleTestCase(TestCase):
 
