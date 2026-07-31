@@ -118,6 +118,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `events_pipeline`     | A list of handlers to add to [`EVENTS_PIPELINE`](../../configuration/miscellaneous.md#events_pipeline), identified by dotted paths |
 | `search_indexes`      | The dotted path to the list of search index classes (default: `search.indexes`)                                                    |
 | `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                                     |
+| `event_rule_actions`  | The dotted path to the list of event rule action classes (default: `event_rules.event_rule_actions`)                               |
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)                        |
 | `jinja_filters`       | The dotted path to a dict of custom Jinja filter functions for use in config templates (default: `jinja_env.filters`)              |
 | `menu`                | The dotted path to a top-level navigation menu provided by the plugin (default: `navigation.menu`)                                 |

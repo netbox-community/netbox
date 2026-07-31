@@ -552,6 +552,19 @@ class EventRuleTable(NetBoxTable):
             'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'event_types',
         )
 
+    def render_action_type(self, record):
+        # Render explicitly (rather than relying on django-tables2's built-in choices-driven
+        # get_FOO_display() auto-rendering) so an unavailable action type gets a red badge.
+        label = record.get_action_type_display()
+        if not record.action_is_available:
+            return format_html('<span class="badge text-bg-red">{}</span>', label)
+        return label
+
+    def value_action_type(self, record):
+        # Raw value for non-HTML output (e.g. CSV/table-config export), so the badge's HTML
+        # markup from render_action_type() above isn't leaked into it.
+        return record.get_action_type_display()
+
 
 class TagTable(NetBoxTable):
     name = tables.Column(

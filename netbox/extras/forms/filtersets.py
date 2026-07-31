@@ -5,6 +5,7 @@ from core.models import DataFile, DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
+from netbox.event_rules import get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import OwnerFilterMixin, SavedFiltersMixin
@@ -338,7 +339,9 @@ class EventRuleFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     model = EventRule
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('object_type_id', 'event_type', 'action_type', 'enabled', name=_('Attributes')),
+        FieldSet(
+            'object_type_id', 'event_type', 'action_type', 'action_is_available', 'enabled', name=_('Attributes')
+        ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     object_type_id = ContentTypeMultipleChoiceField(
@@ -352,9 +355,18 @@ class EventRuleFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         label=_('Event type')
     )
     action_type = forms.ChoiceField(
-        choices=add_blank_choice(EventRuleActionChoices),
+        # Wrapped in a callable so the registry is read on each access, rather than frozen at the
+        # time this module is first imported (see EventRule.action_type).
+        choices=lambda: add_blank_choice(get_event_rule_action_choices()),
         required=False,
         label=_('Action type')
+    )
+    action_is_available = forms.NullBooleanField(
+        label=_('Action available'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),

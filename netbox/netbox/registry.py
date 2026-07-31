@@ -25,6 +25,7 @@ class Registry(dict):
 registry = Registry({
     'counter_fields': collections.defaultdict(dict),
     'data_backends': dict(),
+    'event_rule_actions': dict(),
     'event_types': dict(),
     'filtersets': dict(),
     'model_actions': collections.defaultdict(set),

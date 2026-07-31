@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 
 from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from netbox.event_rules import get_event_rule_action_choices, get_event_rule_action_slugs
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
@@ -112,8 +113,12 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         method='filter_event_type'
     )
     action_type = django_filters.MultipleChoiceFilter(
-        choices=EventRuleActionChoices,
+        choices=get_event_rule_action_choices,
         distinct=False,
+    )
+    action_is_available = django_filters.BooleanFilter(
+        method='filter_action_is_available',
+        label=_('Action available'),
     )
     action_object_type = MultiValueContentTypeFilter()
     action_object_id = MultiValueNumberFilter()
@@ -135,6 +140,12 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
 
     def filter_event_type(self, queryset, name, value):
         return queryset.filter(event_types__overlap=value)
+
+    def filter_action_is_available(self, queryset, name, value):
+        registered_slugs = get_event_rule_action_slugs()
+        if value:
+            return queryset.filter(action_type__in=registered_slugs)
+        return queryset.exclude(action_type__in=registered_slugs)
 
 
 @register_filterset

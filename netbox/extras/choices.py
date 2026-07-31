@@ -276,18 +276,14 @@ class DashboardWidgetColorChoices(ChoiceSet):
 # Event Rules
 #
 
-class EventRuleActionChoices(ChoiceSet):
+class EventRuleActionChoices:
+    """
+    The slugs of NetBox's built-in event rule actions. Not a ChoiceSet: the full, current set of
+    valid action_type values is plugin-extensible and lives in the netbox.event_rules registry,
+    not here -- see get_event_rule_action_choices(). Use these constants for the three built-in
+    actions; do not pass this class itself as a Django/DRF field's `choices=`.
+    """
 
     WEBHOOK = 'webhook'
     SCRIPT = 'script'
     NOTIFICATION = 'notification'
-
-    CHOICES = (
-        Choice(WEBHOOK, _('Webhook'), description=_('Send an outgoing HTTP request to a remote endpoint')),
-        Choice(SCRIPT, _('Script'), description=_('Execute a custom script')),
-        Choice(
-            NOTIFICATION,
-            _('Notification'),
-            description=_('Generate a notification for one or more users or groups')
-        ),
-    )

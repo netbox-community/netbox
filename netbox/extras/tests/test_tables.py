@@ -1,4 +1,9 @@
-from extras.models import Bookmark, Notification, Subscription
+from django.test import TestCase
+
+from core.events import OBJECT_CREATED
+from core.models import ObjectType
+from dcim.models import Site
+from extras.models import Bookmark, EventRule, Notification, Subscription
 from extras.tables import *
 from utilities.testing import TableTestCases
 
@@ -67,6 +72,39 @@ class WebhookTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
     table = EventRuleTable
+
+
+class EventRuleTableActionTypeRenderingTestCase(TestCase):
+    """
+    render_action_type() badges an unregistered action as unavailable; value_action_type() carries
+    the same label for non-HTML output (e.g. CSV export), without the markup.
+    """
+
+    def test_render_action_type_for_registered_action(self):
+        rule = EventRule.objects.create(name='Render Test Rule', event_types=[OBJECT_CREATED], action_type='webhook')
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
+        self.assertEqual(table.render_action_type(rule), 'Webhook')
+        self.assertEqual(table.value_action_type(rule), 'Webhook')
+
+    def test_render_action_type_for_unregistered_action(self):
+        rule = EventRule.objects.create(
+            name='Render Test Unavailable Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed_render_test',
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        table = EventRuleTable(EventRule.objects.filter(pk=rule.pk))
+        rendered = table.render_action_type(rule)
+        self.assertIn('someplugin.not_installed_render_test (unavailable)', rendered)
+        self.assertIn('badge text-bg-red', rendered)
+
+        # The same label, without markup
+        value = table.value_action_type(rule)
+        self.assertEqual(value, 'someplugin.not_installed_render_test (unavailable)')
+        self.assertNotIn('<span', value)
 
 
 class TagTableTestCase(TableTestCases.StandardTableTestCase):
