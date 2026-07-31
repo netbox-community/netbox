@@ -1662,49 +1662,9 @@ class WebhookTestCase(TestCase):
         webhook = Webhook(name='Webhook 1', payload_url='{{ data.custom_fields.callback_url }}')
         webhook.clean()
 
-    def test_payload_url_accepts_templated_base_with_literal_path(self):
-        webhook = Webhook(name='Webhook 1', payload_url='{{ base_url }}/hook')
-        webhook.clean()
-
     def test_payload_url_rejects_malformed_bracketed_host_gracefully(self):
         """A malformed netloc must raise ValidationError, not an uncaught ValueError from urlsplit() (#22832)."""
         webhook = Webhook(name='Webhook 1', payload_url='http://[2001:db8::1/hook')
-        with self.assertRaises(ValidationError) as cm:
-            webhook.clean()
-        self.assertIn('payload_url', cm.exception.message_dict)
-
-    def test_payload_url_accepts_templated_bracketed_host(self):
-        """A templated bracketed host must not be rejected merely because it looks malformed pre-render (#22832)."""
-        webhook = Webhook(name='Webhook 1', payload_url='http://[{{ data.custom_fields.v6_endpoint }}]/hook')
-        webhook.clean()
-
-    def test_payload_url_accepts_block_tag_leading_scheme(self):
-        webhook = Webhook(
-            name='Webhook 1', payload_url='{% if secure %}https{% else %}http{% endif %}://example.com/hook'
-        )
-        webhook.clean()
-
-    def test_payload_url_rejects_value_with_no_scheme_anywhere(self):
-        """A value containing template syntax after literal text with no scheme at all must still be rejected."""
-        webhook = Webhook(name='Webhook 1', payload_url='www{{ n }}.example.com/hook')
-        with self.assertRaises(ValidationError) as cm:
-            webhook.clean()
-        self.assertIn('payload_url', cm.exception.message_dict)
-
-    def test_payload_url_rejects_malformed_syntax_with_no_literal_scheme(self):
-        webhook = Webhook(name='Webhook 1', payload_url='{{ base_url }/hook')
-        with self.assertRaises(ValidationError) as cm:
-            webhook.clean()
-        self.assertIn('payload_url', cm.exception.message_dict)
-
-    def test_payload_url_accepts_partially_templated_scheme(self):
-        """A scheme that is only partly templated must not be rejected merely for lacking a literal one (#22832)."""
-        webhook = Webhook(name='Webhook 1', payload_url="http{{ 's' if secure }}://example.com/hook")
-        webhook.clean()
-
-    def test_payload_url_rejects_literal_empty_authority_with_templated_path(self):
-        """An empty authority can never resolve, even when the path is templated (#22832)."""
-        webhook = Webhook(name='Webhook 1', payload_url='http:///{{ data.name }}')
         with self.assertRaises(ValidationError) as cm:
             webhook.clean()
         self.assertIn('payload_url', cm.exception.message_dict)

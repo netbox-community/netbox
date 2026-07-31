@@ -286,53 +286,31 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.ssl_verification and self.ca_file_path:
             errors['ca_file_path'] = _('Do not specify a CA certificate file if SSL verification is disabled.')
 
-        # payload_url may be a literal URL or a Jinja2 template, and the scheme/host may themselves
-        # be (partly) templated (e.g. "{{ data.custom_fields.callback_url }}", "http{{ 's' if
-        # secure }}://..."). Skipped when blank; clean_fields() already flags that. The scheme (and,
-        # when literal, the authority) are read directly rather than via urlsplit(), which can raise
-        # ValueError for a templated or malformed host (e.g. "http://[{{ v6_endpoint }}]/hook").
+        # payload_url may be a literal URL or a Jinja2 template (see its help_text). Skipped when
+        # blank; clean_fields() already flags that.
         if self.payload_url:
-            match = LITERAL_SCHEME_RE.match(self.payload_url)
-            literal_scheme = match.group(1).lower() if match else None
-
-            # A non-literal scheme may still be templated -- fully ("{{ proto }}://...") or partly
-            # ("http{{ 's' if secure }}://...") -- as long as a template appears before the first
-            # colon. A value with no colon at all (e.g. "www{{ n }}.example.com/hook") can never
-            # gain a scheme and is rejected below.
-            colon = self.payload_url.find(':')
-            could_be_templated_scheme = literal_scheme is None and bool(
-                JINJA2_TEMPLATE_RE.match(self.payload_url)
-                or (colon != -1 and JINJA2_TEMPLATE_RE.search(self.payload_url[:colon]))
-            )
-
-            # A literal scheme with a literal, empty authority (e.g. "http:///hook") can never
-            # resolve regardless of what's templated elsewhere (e.g. the path).
-            empty_authority = False
-            if literal_scheme in ('http', 'https'):
-                rest = self.payload_url[match.end():]
-                empty_authority = rest.startswith('//') and (len(rest) == 2 or rest[2] in '/?#')
-
-            if literal_scheme not in ('http', 'https') and not could_be_templated_scheme:
-                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
-            elif empty_authority:
-                errors['payload_url'] = _("Enter a valid URL.")
-            elif JINJA2_TEMPLATE_RE.search(self.payload_url):
-                # Scheme is allowed (literal or templated); the value is templated too, so only its
-                # syntax can be checked here.
-                try:
-                    validate_jinja2_syntax(self.payload_url)
-                except ValidationError as e:
-                    errors['payload_url'] = e
+            if JINJA2_TEMPLATE_RE.search(self.payload_url):
+                # A literal, disallowed scheme (e.g. "file://") can never resolve no matter what
+                # else in the value is templated; anything else is checked for template syntax
+                # only, since its rendered result isn't known here.
+                match = LITERAL_SCHEME_RE.match(self.payload_url)
+                if match and match.group(1).lower() not in ('http', 'https'):
+                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+                else:
+                    try:
+                        validate_jinja2_syntax(self.payload_url)
+                    except ValidationError as e:
+                        errors['payload_url'] = e
             else:
-                # Fully literal and scheme-allowed -- validate the host too, directly rather than
-                # via URLValidator, which rejects single-label and underscore hosts that `requests`
-                # accepts fine. urlsplit() can still raise ValueError for a malformed netloc.
+                # Fully literal -- validate directly rather than via URLValidator, which rejects
+                # single-label and underscore hosts that `requests` accepts fine. urlsplit() can
+                # raise ValueError for a malformed netloc (e.g. an unbalanced IPv6 bracket).
                 try:
-                    netloc = urllib.parse.urlsplit(self.payload_url).netloc
+                    scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
                 except ValueError:
-                    netloc = ''
-                if not netloc:
-                    errors['payload_url'] = _("Enter a valid URL.")
+                    scheme, netloc = '', ''
+                if scheme not in ('http', 'https') or not netloc:
+                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
 
         if errors:
             raise ValidationError(errors)
