@@ -602,9 +602,9 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
 class EventRuleForm(OwnerMixin, NetBoxModelForm):
     action_type = ChoiceField(
         label=_('Action type'),
-        choices=get_event_rule_action_choices,  # bare callable: re-evaluated fresh on each access
+        choices=get_event_rule_action_choices,
         initial=EventRuleActionChoices.WEBHOOK,
-        widget=HTMXSelect(hx_target_id='event-rule-action'),  # Meta.widgets ignores explicit fields
+        widget=HTMXSelect(hx_target_id='event-rule-action'),
     )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -663,7 +663,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
                 initial = action.get_object_queryset().filter(pk=object_id).first()
 
         self.fields['action_choice'] = DynamicModelChoiceField(
-            label=action.label,
+            label=action.get_object_label(),
             queryset=action.get_object_queryset(),
             required=action.object_required,
             initial=initial,
@@ -688,14 +688,10 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
             )
             self.cleaned_data['action_object_id'] = action_choice.pk
         elif action:
-            # Covers both a no-object action, and an object-model action left with no object
-            # selected (object_required=False) -- either way, no action_object should be stored.
+            # A no-object action, or an optional object left unselected: store no action_object
             self.cleaned_data['action_object_type'] = None
             self.cleaned_data['action_object_id'] = None
-        # If action is None (an unregistered/unavailable action_type persisted on an existing
-        # row), leave action_object_type/action_object_id untouched -- this branch is unreachable
-        # for new values since action_type's ChoiceField only ever offers registered slugs, and
-        # for an existing unchanged row we don't want to clobber its stored action_object.
+        # An unregistered action_type leaves the stored action_object untouched
 
         return self.cleaned_data
 

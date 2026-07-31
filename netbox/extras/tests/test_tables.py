@@ -76,8 +76,8 @@ class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
 
 class EventRuleTableActionTypeRenderingTestCase(TestCase):
     """
-    render_action_type() adds an "unavailable" badge for unregistered actions; value_action_type()
-    must carry the same label for non-HTML output (e.g. CSV export), without the badge's markup.
+    render_action_type() badges an unregistered action as unavailable; value_action_type() carries
+    the same label for non-HTML output (e.g. CSV export), without the markup.
     """
 
     def test_render_action_type_for_registered_action(self):
@@ -101,7 +101,7 @@ class EventRuleTableActionTypeRenderingTestCase(TestCase):
         self.assertIn('someplugin.not_installed_render_test (unavailable)', rendered)
         self.assertIn('badge text-bg-red', rendered)
 
-        # value_action_type() must carry the same "(unavailable)" label with no HTML markup.
+        # The same label, without markup
         value = table.value_action_type(rule)
         self.assertEqual(value, 'someplugin.not_installed_render_test (unavailable)')
         self.assertNotIn('<span', value)

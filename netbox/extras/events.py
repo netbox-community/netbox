@@ -167,11 +167,8 @@ def process_event_rules(event_rules, object_type, event):
       that a request is always present.
     """
 
-    # Normalize object_type onto the event context so an EventRuleAction's enqueue() can rely on
-    # event_context['object_type'] regardless of source: object-change events already carry it
-    # (it's where this function's own `object_type` argument came from -- see process_event_queue()
-    # below), but job-lifecycle events (job_start/job_end in signals.py) construct their EventContext
-    # without it, passing it only as this parameter.
+    # Normalize object_type onto the event context so that an action's enqueue() can always read
+    # event_context['object_type']: job-lifecycle events pass it only as this parameter.
     event['object_type'] = object_type
 
     for event_rule in event_rules:

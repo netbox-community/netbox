@@ -16,8 +16,7 @@ class EventRuleActionEnumTestCase(APITestCase):
     """EventRuleActionEnum must reflect the live action registry, and the filter must use it."""
 
     def test_enum_contains_core_actions(self):
-        # assertLessEqual (subset), not assertEqual: a plugin installed in this environment (e.g.
-        # the dummy test plugin) may register its own actions too.
+        # A subset check, since an installed plugin may register actions of its own
         values = {member.value for member in EventRuleActionEnum}
         core_slugs = {
             EventRuleActionChoices.WEBHOOK, EventRuleActionChoices.SCRIPT, EventRuleActionChoices.NOTIFICATION,

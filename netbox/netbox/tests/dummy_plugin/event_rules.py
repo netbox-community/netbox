@@ -6,7 +6,7 @@ __all__ = (
 
 
 class DummyRaisingAction(EventRuleAction):
-    """A stand-in plugin action for testing process_event_rules()'s exception handling. Not auto-registered."""
+    """A plugin action for testing process_event_rules() exception handling. Registered per-test, not on load."""
     slug = 'dummy_plugin.raising_action'
     label = 'Dummy Raising Action'
     object_required = False

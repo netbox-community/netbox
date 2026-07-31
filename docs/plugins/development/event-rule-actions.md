@@ -36,7 +36,11 @@ A dotted namespace prefix (e.g. `my_plugin.open_ticket`) is strongly recommended
 
 ## Target Objects
 
-If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. `object_required` defaults to `False` (matching `object_model`'s default of `None`); set it to `True` alongside `object_model` if the target object must always be selected. Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).
+If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. `object_required` defaults to `False` (matching `object_model`'s default of `None`); set it to `True` alongside `object_model` if the target object must always be selected. (Setting `object_required` *without* an `object_model` raises `ImproperlyConfigured` at registration, as it could never be satisfied.) Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).
+
+The object-selection field is labeled with `object_model`'s verbose name; set `object_label` to override it.
+
+If an action leaves `object_model` as `None`, event rules using it must not specify a target object: supplying one is rejected as a validation error rather than being silently stored.
 
 ## Bulk Import
 

@@ -287,5 +287,3 @@ class EventRuleActionChoices:
     WEBHOOK = 'webhook'
     SCRIPT = 'script'
     NOTIFICATION = 'notification'
-
-    CHOICES = ()

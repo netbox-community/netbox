@@ -273,8 +273,7 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     action_object = forms.CharField(
         label=_('Action object'),
         required=False,
-        help_text=_('Webhook name or script as dotted path module.Class (leave blank for an action '
-                    'type that does not require a target object)')
+        help_text=_('Target object type expressed as dotted path module.Class (optional)')
     )
 
     class Meta:

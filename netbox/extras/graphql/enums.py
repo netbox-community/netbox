@@ -27,10 +27,8 @@ CustomFieldTypeEnum = strawberry.enum(CustomFieldTypeChoices.as_enum(prefix='typ
 CustomFieldUIEditableEnum = strawberry.enum(CustomFieldUIEditableChoices.as_enum())
 CustomFieldUIVisibleEnum = strawberry.enum(CustomFieldUIVisibleChoices.as_enum())
 CustomLinkButtonClassEnum = strawberry.enum(CustomLinkButtonClassChoices.as_enum())
-# Built from the live event_rule_actions registry, not EventRuleActionChoices -- action_type is
-# plugin-extensible, and this module isn't imported until schema assembly, after plugins load.
-# Still fixed for the process's lifetime like any Strawberry enum, so a plugin installed without a
-# restart won't appear here.
+# Built from the event_rule_actions registry, which is fully populated by the time the schema is
+# assembled. Fixed for the process's lifetime, as any Strawberry enum is.
 EventRuleActionEnum = strawberry.enum(enum.Enum('EventRuleActionEnum', {
     enum_key(choice.value): choice.value for choice in get_event_rule_action_choices()
 }))

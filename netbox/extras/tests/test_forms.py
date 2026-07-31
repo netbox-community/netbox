@@ -346,11 +346,8 @@ class TableConfigFormTestCase(TestCase):
 
 class EventRuleFormTestCase(TestCase):
     """
-    Regression tests for #22770: EventRuleForm's action_choice field must be built dynamically
-    from the EventRuleAction registry, for both core actions and (unlike the REST API serializer,
-    see EventRuleActionAPITestCase in test_api.py) a runtime-registered plugin-style action, since
-    this form's action_type field uses a bare (lazily re-evaluated) choices callable rather than a
-    materialized-at-import-time list.
+    EventRuleForm's action_choice field is built dynamically from the EventRuleAction registry,
+    for both core actions and those registered by a plugin.
     """
 
     def tearDown(self):
@@ -359,12 +356,9 @@ class EventRuleFormTestCase(TestCase):
 
     def test_action_type_widget_is_htmx_select(self):
         """
-        Regression test: action_type is declared as an explicit class-level field on EventRuleForm,
-        which means Django's ModelForm machinery silently ignores any Meta.widgets override for it
-        (Meta.widgets only applies to fields the ModelForm auto-generates from the model). The
-        HTMXSelect widget -- needed so action_choice's label/queryset/required-ness refreshes live
-        when action_type changes -- must therefore be set directly on the field itself, not via
-        Meta.widgets (where it silently did nothing, both before and after #22770's rewrite).
+        action_choice refreshes via HTMX when action_type changes. The widget must be set on the
+        field itself: Meta.widgets applies only to fields the ModelForm generates from the model,
+        and action_type is declared explicitly.
         """
         form = EventRuleForm()
         widget = form.fields['action_type'].widget
@@ -387,6 +381,29 @@ class EventRuleFormTestCase(TestCase):
         self.assertIn('action_choice', form.fields)
         self.assertEqual(form.fields['action_choice'].queryset.model, NotificationGroup)
 
+    def test_action_choice_field_labels(self):
+        """The object picker is labeled for the object being selected, not for the action itself."""
+        for action_type, label in (
+            (EventRuleActionChoices.WEBHOOK, 'Webhook'),
+            (EventRuleActionChoices.SCRIPT, 'Script'),
+            (EventRuleActionChoices.NOTIFICATION, 'Notification group'),
+        ):
+            form = EventRuleForm(data={'action_type': action_type})
+            self.assertEqual(form.fields['action_choice'].label, label)
+
+    def test_action_choice_field_honors_object_label(self):
+        class LabeledObjectAction(EventRuleAction):
+            slug = 'test.form_labeled_object_action'
+            label = 'Form Labeled Object Action'
+            object_model = Webhook
+            object_label = 'Destination'
+
+        register_event_rule_action(LabeledObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, LabeledObjectAction.slug, None)
+
+        form = EventRuleForm(data={'action_type': LabeledObjectAction.slug})
+        self.assertEqual(form.fields['action_choice'].label, 'Destination')
+
     def test_action_choice_field_omitted_for_registered_no_object_action(self):
         class NoObjectAction(EventRuleAction):
             slug = 'test.form_no_object_action'
@@ -400,20 +417,15 @@ class EventRuleFormTestCase(TestCase):
 
     def test_action_choice_field_falls_back_to_initial_for_unregistered_action(self):
         """
-        get_field_value() falls back to the field's own `initial` (webhook) when the submitted
-        action_type isn't a valid/registered choice, so init_action_choice() still builds a
-        sensible picker rather than being left in an inconsistent state.
+        get_field_value() falls back to the field's own initial (webhook) for an unregistered
+        action_type, so init_action_choice() still builds a usable picker.
         """
         form = EventRuleForm(data={'action_type': 'not.a.registered.action'})
         self.assertIn('action_choice', form.fields)
         self.assertEqual(form.fields['action_choice'].queryset.model, Webhook)
 
     def test_submit_and_save_with_registered_no_object_action(self):
-        """
-        A runtime-registered action (proving the form's bare-callable action_type choices are
-        genuinely re-evaluated live, unlike the REST API's eagerly-materialized ChoiceField)
-        can be submitted and saved end-to-end through the form.
-        """
+        """A runtime-registered action can be submitted and saved end-to-end through the form."""
         class NoObjectAction(EventRuleAction):
             slug = 'test.form_no_object_action'
             label = 'Form No-Object Action'
@@ -437,7 +449,7 @@ class EventRuleFormTestCase(TestCase):
         self.assertIsNone(rule.action_object_id)
 
     def test_submit_and_save_webhook_action(self):
-        """Parity check: the generalized form still saves a core Webhook action correctly."""
+        """The generalized form still saves a core Webhook action correctly."""
         webhook = Webhook.objects.create(name='Form Submit Webhook', payload_url='http://localhost:9000/')
         object_type = ObjectType.objects.get_for_model(Site)
         form = EventRuleForm(data={
@@ -453,9 +465,8 @@ class EventRuleFormTestCase(TestCase):
 
     def test_switching_to_optional_object_action_clears_stale_action_object(self):
         """
-        Regression: switching an existing rule from a Webhook action to a different action that
-        declares object_model but leaves object_required=False, with no action_choice selected,
-        must clear the old action_object rather than silently keeping the stale Webhook reference.
+        Switching an existing rule to an action which declares object_model but not
+        object_required, leaving the picker blank, must clear the old action_object.
         """
         class OptionalObjectAction(EventRuleAction):
             slug = 'test.optional_object_action'
@@ -483,7 +494,7 @@ class EventRuleFormTestCase(TestCase):
             'object_types': [object_type.pk],
             'event_types': [OBJECT_CREATED],
             'action_type': 'test.optional_object_action',
-            # action_choice intentionally omitted -- the user left the picker blank.
+            # action_choice omitted: the user left the picker blank
         }, instance=rule)
         self.assertTrue(form.is_valid(), form.errors)
         saved = form.save()
@@ -493,9 +504,8 @@ class EventRuleFormTestCase(TestCase):
 
 class EventRuleImportFormTestCase(TestCase):
     """
-    Regression tests for #22770: EventRuleImportForm's action_object resolution must be driven by
-    each registered action's resolve_import_object() hook, including a no-object action (action_type
-    is now a plain dynamic-choices field, not a frozen CSVChoiceField, and action_object is optional).
+    EventRuleImportForm resolves action_object via each registered action's resolve_import_object()
+    hook, and treats it as optional (an action need not operate against a target object).
     """
 
     def tearDown(self):
@@ -515,7 +525,7 @@ class EventRuleImportFormTestCase(TestCase):
         self.assertEqual(form.instance.action_object, webhook)
 
     def test_resolves_notification_group_by_name(self):
-        """Regression: the pre-#22770 import form never handled NOTIFICATION at all."""
+        """The import form resolves a notification group, not just webhooks and scripts."""
         group = NotificationGroup.objects.create(name='Import Test Group')
         form = EventRuleImportForm(data={
             'name': 'Import Notification Rule',
@@ -571,7 +581,7 @@ class EventRuleImportFormTestCase(TestCase):
         self.assertIsNone(rule.action_object_id)
 
     def test_blank_action_object_rejected_for_object_required_action(self):
-        """A blank action_object must still be rejected cleanly (not raise) for an action that requires one."""
+        """A blank action_object must be rejected cleanly (not raise) for an action which requires one."""
         form = EventRuleImportForm(data={
             'name': 'Import Webhook No Object',
             'object_types': 'dcim.site',
@@ -584,9 +594,8 @@ class EventRuleImportFormTestCase(TestCase):
 
     def test_csv_update_to_optional_object_action_clears_stale_action_object(self):
         """
-        Regression: a CSV row updating an existing rule (matched by id) to an action_type that
-        declares object_model but not object_required, with action_object left blank, must clear
-        the rule's previous action_object rather than keeping the stale reference.
+        A CSV row updating an existing rule to an action_type which declares object_model but not
+        object_required, with action_object left blank, must clear the previous action_object.
         """
         class OptionalObjectAction(EventRuleAction):
             slug = 'test.import_optional_object_action'

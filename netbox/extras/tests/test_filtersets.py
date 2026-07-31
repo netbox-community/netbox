@@ -397,10 +397,6 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_action_is_available(self):
-        """
-        Regression: with extras.W001 removed, action_is_available is the only remaining way to
-        bulk-query for event rules whose action_type is not currently registered.
-        """
         unavailable_rule = EventRule.objects.create(
             name='Unavailable Filterset Rule',
             event_types=[OBJECT_CREATED],
@@ -419,11 +415,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(qs.first(), unavailable_rule)
 
     def test_action_type_registered_plugin_style_slug(self):
-        """
-        Regression for #22770: EventRuleFilterSet.action_type's choices are registry-driven (a
-        bare, lazily-evaluated callable), so a plugin-registered action slug is a valid filter
-        value, not just the three core actions.
-        """
+        """A plugin-registered action slug is a valid action_type filter value, not just the core actions."""
         from netbox.event_rules import EventRuleAction, register_event_rule_action
         from netbox.registry import registry
 

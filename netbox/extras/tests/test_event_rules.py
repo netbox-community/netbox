@@ -893,9 +893,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def test_unregistered_action_type_does_not_block_other_rules(self):
         """
-        Regression for #22770: an unregistered action_type must not block other EventRules for
-        the same event. Kept on this class, not a separate RQQueueTestMixin one, since two such
-        classes in different `--parallel` subsuites cross-flush each other's Redis queue.
+        An unregistered action_type must not block other EventRules for the same event. Kept on
+        this class, not a separate RQQueueTestMixin one, since two such classes in different
+        `--parallel` subsuites cross-flush each other's Redis queue.
         """
         site_type = ObjectType.objects.get_for_model(Site)
         webhook = Webhook.objects.create(name='Dispatch Test Webhook', payload_url='http://localhost:9000/')
@@ -969,11 +969,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(len(rule_jobs), 1)
 
     def test_raising_action_registered_as_non_plugin_propagates(self):
-        """
-        A raising action explicitly registered with is_plugin_provided=False (matching how
-        NetBox's own core actions register) must propagate rather than being isolated --
-        provenance is driven by the registration-time flag, not module introspection.
-        """
+        """A raising action registered with is_plugin_provided=False (as core actions are) must propagate."""
         class RaisingCoreLikeAction(EventRuleAction):
             slug = 'test.raising_core_like_action'
             label = 'Raising Core-Like Action'
@@ -999,14 +995,12 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
 class EventRuleActionRegistrationTestCase(TestCase):
     """
-    Unit tests for the EventRuleAction registry (netbox.event_rules). Regression coverage for
-    #22770.
+    Unit tests for the EventRuleAction registry (netbox.event_rules).
     """
 
     def tearDown(self):
         super().tearDown()
-        # The registry is a shared, global dict; any test-registered action must not leak into
-        # other tests.
+        # The registry is a global dict; test-registered actions must not leak into other tests.
         for slug in ('test.dummy_action', 'test.duplicate_action'):
             registry['event_rule_actions'].pop(slug, None)
 
@@ -1056,7 +1050,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
         self.assertIsNone(get_event_rule_action('2fa.notify'))
 
     def test_slug_with_hyphen_rejected(self):
-        """A hyphenated slug (a plausible mistake given hyphenated plugin distribution names) is rejected."""
+        """Hyphens are not permitted, though plugin distribution names conventionally use them."""
         class HyphenSlugAction(EventRuleAction):
             slug = 'my-plugin.open_ticket'
             label = 'Hyphen Slug Action'
@@ -1076,7 +1070,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
         self.assertIsNone(get_event_rule_action('_internal.foo'))
 
     def test_slug_with_uppercase_rejected(self):
-        """An uppercase slug (the other half of the "conventional plugin name" mistake) is rejected."""
+        """Slugs must be lowercase, though plugin/class names conventionally are not."""
         class UppercaseSlugAction(EventRuleAction):
             slug = 'MyPlugin.action'
             label = 'Uppercase Slug Action'
@@ -1118,9 +1112,8 @@ class EventRuleActionRegistrationTestCase(TestCase):
 
     def test_intermediate_base_class_without_slug_or_label_is_definable(self):
         """
-        Regression: slug/label checks used to fire in __init_subclass__, at class-definition time,
-        which made it impossible for a plugin to define a shared intermediate base class (with no
-        slug/label of its own) for several concrete actions to inherit from.
+        slug/label are checked at registration, not class definition, so several concrete actions
+        can share an intermediate base class which sets neither.
         """
         class PluginActionBase(EventRuleAction):
             object_required = False
@@ -1172,6 +1165,39 @@ class EventRuleActionRegistrationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             action._validate(action_object=site, action_data={})
 
+    def test_internal_validate_rejects_object_for_action_without_object_model(self):
+        """An action which declares no object_model must reject a target object outright."""
+        action = EventRuleAction()
+        with self.assertRaises(ValidationError):
+            action._validate(action_object=Webhook(), action_data={})
+
+    def test_object_required_without_object_model_rejected_at_registration(self):
+        """object_required with no object_model could never be satisfied, so it's caught early."""
+        class ImpossibleAction(EventRuleAction):
+            slug = 'test.impossible_action'
+            label = 'Impossible Action'
+            object_required = True
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_event_rule_action(ImpossibleAction)
+        self.assertIsNone(get_event_rule_action('test.impossible_action'))
+
+    def test_get_object_label_defaults_to_object_model_verbose_name(self):
+        """The object picker's label defaults to the model's verbose name, capitalized."""
+        self.assertEqual(get_event_rule_action(EventRuleActionChoices.NOTIFICATION).get_object_label(),
+                         'Notification group')
+        self.assertEqual(get_event_rule_action(EventRuleActionChoices.WEBHOOK).get_object_label(), 'Webhook')
+
+    def test_get_object_label_honors_explicit_override(self):
+        class LabeledAction(EventRuleAction):
+            object_model = Webhook
+            object_label = 'Destination'
+
+        self.assertEqual(LabeledAction().get_object_label(), 'Destination')
+
+    def test_get_object_label_is_none_without_object_model(self):
+        self.assertIsNone(EventRuleAction().get_object_label())
+
     def test_validate_is_noop_by_default(self):
         action = EventRuleAction()
         # Must not raise
@@ -1182,6 +1208,7 @@ class EventRuleActionRegistrationTestCase(TestCase):
         class CustomValidatingAction(EventRuleAction):
             slug = 'test.custom_validating_action'
             label = 'Custom Validating Action'
+            object_model = Webhook
             object_required = True
 
             def validate(self, *, action_object, action_data):
@@ -1190,17 +1217,15 @@ class EventRuleActionRegistrationTestCase(TestCase):
 
         action = CustomValidatingAction()
 
-        # The subclass's own custom check fires.
+        # The subclass's own check fires
         with self.assertRaises(ValidationError):
             action._validate(action_object=Webhook(), action_data={'bad': True})
 
-        # The base object_required check still fires too, despite the subclass's validate()
-        # never calling super().
+        # ...as does the base object_required check
         with self.assertRaises(ValidationError):
             action._validate(action_object=None, action_data={})
 
-        # And a fully valid call still passes.
-        action._validate(action_object=Webhook(), action_data={})
+        action._validate(action_object=Webhook(), action_data={})  # must not raise
 
     def test_enqueue_not_implemented_by_default(self):
         action = EventRuleAction()
@@ -1233,9 +1258,8 @@ class EventRuleActionAvailabilityTestCase(TestCase):
         )
         cls.healthy_rule.object_types.set([site_type])
 
-        # .objects.create() calls save(), not full_clean(), so this deliberately-unregistered
-        # action_type can be persisted directly -- exactly matching the state a row would be
-        # left in if its providing plugin were uninstalled after being saved successfully.
+        # .objects.create() calls save(), not full_clean(), so an unregistered action_type can be
+        # persisted directly, matching the state of a row whose providing plugin was uninstalled.
         cls.unavailable_rule = EventRule.objects.create(
             name='Unavailable Rule',
             event_types=[OBJECT_CREATED],
@@ -1289,16 +1313,13 @@ class EventRuleActionAvailabilityTestCase(TestCase):
             rule.full_clean()
 
     def test_clean_accepts_registered_action_with_valid_object(self):
-        """A healthy, unchanged row must still validate cleanly (no regression)."""
         rule = EventRule.objects.get(pk=self.healthy_rule.pk)
         rule.full_clean()  # must not raise
 
 
 class EventRuleNoObjectActionTestCase(TestCase):
     """
-    Model-layer test for an EventRuleAction that declares object_model=None (no target object).
-    See EventRuleActionAPITestCase in test_api.py for why this scenario is tested here (and at
-    the form layer) rather than through a live end-to-end REST API request.
+    Model-layer tests for an EventRuleAction which declares object_model=None (no target object).
     """
 
     def tearDown(self):

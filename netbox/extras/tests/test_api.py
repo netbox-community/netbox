@@ -21,6 +21,8 @@ from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
+from netbox.event_rules import EventRuleAction, register_event_rule_action
+from netbox.registry import registry
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
@@ -160,17 +162,7 @@ class EventRuleTestCase(APIViewTestCases.APIViewTestCase):
 
 class EventRuleActionAPITestCase(APITestCase):
     """
-    REST API tests for #22770.
-
-    Note: EventRuleSerializer.action_type's ChoiceField materializes get_event_rule_action_choices()
-    once, at class-body-evaluation time (when extras.api.serializers_.events is first imported --
-    which happens well before any individual test runs, as part of URLconf loading). A registration
-    made from within a test's setUp() therefore can never appear in this serializer's choices; that's
-    an accepted, documented trade-off (see EventRuleSerializer), identical to the pre-#22770 static
-    EventRuleActionChoices. Because none of the three core actions have object_model=None, the
-    "no target object" write path can't be exercised through a live end-to-end API test in this
-    process; it's covered instead at the model layer (test_event_rules.py) and the form layer
-    (test_forms.py), both of which resolve their choices lazily per-request/per-instantiation.
+    REST API tests for EventRule's registry-driven action_type.
     """
 
     def test_create_event_rule_with_unregistered_action_type_fails(self):
@@ -205,7 +197,7 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertTrue(rule.enabled)
 
     def test_action_is_available_exposed_via_api(self):
-        """action_is_available must be a read-only API field (replaces the removed extras.W001 check)."""
+        """action_is_available is exposed as a read-only field, so unavailable rules can be found in bulk."""
         available_rule = EventRule.objects.create(
             name='API Available Rule', event_types=[OBJECT_CREATED], action_type='webhook',
         )
@@ -229,14 +221,64 @@ class EventRuleActionAPITestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertFalse(response.data['action_is_available'])
 
+    def test_create_event_rule_with_runtime_registered_action(self):
+        """An action registered after this serializer's module was imported must still be a valid action_type."""
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.api_no_object_action'
+            label = 'API No-Object Action'
+
+        register_event_rule_action(NoObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, NoObjectAction.slug, None)
+
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API No-Object Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': NoObjectAction.slug,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        rule = EventRule.objects.get(pk=response.data['id'])
+        self.assertEqual(rule.action_type, NoObjectAction.slug)
+        self.assertIsNone(rule.action_object_type)
+        self.assertIsNone(rule.action_object_id)
+
+    def test_create_event_rule_with_object_for_no_object_action_fails(self):
+        """An action with no object_model must reject a target object rather than storing it."""
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.api_no_object_action'
+            label = 'API No-Object Action'
+
+        register_event_rule_action(NoObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, NoObjectAction.slug, None)
+
+        site = Site.objects.create(name='Action Object Site', slug='action-object-site')
+
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API Bogus Object Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': NoObjectAction.slug,
+            'action_object_type': 'dcim.site',
+            'action_object_id': site.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_object_id', response.data)
+        self.assertFalse(EventRule.objects.filter(name='API Bogus Object Rule').exists())
+
     def test_action_object_type_field_accepts_any_content_type(self):
         """action_object_type's queryset must not be restricted to the with_feature('event_rules') set."""
         field = EventRuleSerializer().fields['action_object_type']
         user_ct = ObjectType.objects.get_for_model(User)
         self.assertFalse(
             ObjectType.objects.with_feature('event_rules').filter(pk=user_ct.pk).exists(),
-            "This test requires a content type that genuinely doesn't support the event_rules "
-            "feature; auth.user no longer qualifies, so the test needs a different one.",
+            "auth.user must not support event_rules for this test to be meaningful; pick another type.",
         )
         self.assertIn(user_ct, field.queryset)
 
