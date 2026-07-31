@@ -5,7 +5,7 @@ import strawberry_django
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
-from dcim.models import Device, Interface, Location, Rack, Region, Site, SiteGroup
+from dcim.models import Device, Interface, Location, Rack, RackGroup, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.optimization import build_gfk_prefetch
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         DeviceType,
         InterfaceType,
         LocationType,
+        RackGroupType,
         RackType,
         RegionType,
         SiteGroupType,
@@ -367,6 +368,7 @@ class VLANGroupType(OrganizationalObjectType):
                 ClusterGroup,
                 Location,
                 Rack,
+                RackGroup,
                 Region,
                 Site,
                 SiteGroup,
@@ -378,6 +380,7 @@ class VLANGroupType(OrganizationalObjectType):
         Annotated['ClusterType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['ClusterGroupType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['RackGroupType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RackType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['SiteType', strawberry.lazy('dcim.graphql.types')]
