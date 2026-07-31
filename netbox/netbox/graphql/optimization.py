@@ -30,18 +30,13 @@ def build_gfk_prefetch(
     Return a selection-aware GenericPrefetch for a GenericForeignKey field.
 
     Each model gets its own queryset, optimized according to the client's GraphQL selection set.
-    Querysets are permission-restricted when the manager supports `.restrict()`.
     """
 
     def prefetch(info: Info) -> GenericPrefetch:
-        user = info.context.request.user
-        querysets = []
-
-        for model in models:
-            qs = model.objects.all()
-            if hasattr(qs, 'restrict'):
-                qs = qs.restrict(user, 'view')
-            querysets.append(optimize_prefetch_queryset(qs, info))
+        querysets = [
+            optimize_prefetch_queryset(model.objects.all(), info)
+            for model in models
+        ]
 
         return GenericPrefetch(lookup, querysets)
 
