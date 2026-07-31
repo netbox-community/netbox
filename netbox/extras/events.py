@@ -2,22 +2,15 @@ import logging
 from collections import UserDict, defaultdict
 
 from django.conf import settings
-from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
-from django_rq import get_queue
 
 from core.events import *
 from core.models import ObjectType
-from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
 from utilities.api import get_serializer_for_model
-from utilities.request import copy_safe_request
-from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 
-from .choices import EventRuleActionChoices
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -174,6 +167,10 @@ def process_event_rules(event_rules, object_type, event):
       that a request is always present.
     """
 
+    # Normalize object_type onto the event context so that an action's enqueue() can always read
+    # event_context['object_type']: job-lifecycle events pass it only as this parameter.
+    event['object_type'] = object_type
+
     for event_rule in event_rules:
 
         # Evaluate event rule conditions (if any).
@@ -206,67 +203,35 @@ def process_event_rules(event_rules, object_type, event):
         # Copy to avoid mutating the rule's stored action_data dict.
         event_data = {**action_data, **event['data']}
 
-        # Webhooks
-        if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
-
-            # Select the appropriate RQ queue
-            queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
-            rq_queue = get_queue(queue_name)
-
-            # Compile the task parameters
-            params = {
-                'event_rule': event_rule,
-                'object_type': object_type,
-                'event_type': event['event_type'],
-                'data': event_data,
-                'snapshots': event.get('snapshots'),
-                'timestamp': timezone.now().isoformat(),
-                'retry': get_rq_retry(),
-            }
-            if 'request' in event:
-                # Exclude FILES - webhooks don't need uploaded files,
-                # which can cause pickle errors with Pillow.
-                params['request'] = copy_safe_request(event['request'], include_files=False)
-
-            # Enqueue the task
-            rq_queue.enqueue('extras.webhooks.send_webhook', **params)
-
-        # Scripts
-        elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
-            # Resolve the script from action parameters
-            script = event_rule.action_object.python_class()
-
-            # Enqueue a Job to record the script's execution
-            from extras.jobs import ScriptJob
-
-            params = {
-                'instance': event_rule.action_object,
-                'name': script.name,
-                'user': event['user'],
-                'data': event_data,
-            }
-            if 'snapshots' in event:
-                params['snapshots'] = event['snapshots']
-            if 'request' in event:
-                params['request'] = copy_safe_request(event['request'], include_files=False)
-
-            # Enqueue the job
-            ScriptJob.enqueue(**params)
-
-        # Notification groups
-        elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
-            # Bulk-create notifications for all members of the notification group
-            event_rule.action_object.notify(
-                object_type=object_type,
-                object_id=event_data['id'],
-                object_repr=event_data.get('display'),
-                event_type=event['event_type'],
+        action = event_rule.action_provider
+        if action is None:
+            # The plugin providing this action type may not be installed. Log and move on to the
+            # next rule rather than raising: one rule's unavailable action must not prevent any
+            # other rule in this batch from being processed.
+            logger.warning(
+                _('Skipping event rule "{rule}": action type "{action_type}" is not registered '
+                  '(the providing plugin may not be installed).').format(
+                    rule=event_rule, action_type=event_rule.action_type,
+                )
             )
+            continue
 
-        else:
-            raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
-                action_type=event_rule.action_type
-            ))
+        try:
+            action.enqueue(
+                event_rule=event_rule,
+                event_context=event,
+                action_object=event_rule.action_object,
+                action_data=event_data,
+            )
+        except Exception:
+            # Isolate third-party bugs; a core action's own bugs should propagate instead.
+            if not action.is_plugin_provided:
+                raise
+            logger.exception(
+                _('Error processing event rule "{rule}" (action: {action_type})').format(
+                    rule=event_rule, action_type=event_rule.action_type,
+                )
+            )
 
 
 def process_event_queue(events):

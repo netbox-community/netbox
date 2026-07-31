@@ -396,6 +396,49 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'action_type': [EventRuleActionChoices.SCRIPT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_action_is_available(self):
+        unavailable_rule = EventRule.objects.create(
+            name='Unavailable Filterset Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed_filterset_test',
+        )
+        unavailable_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        params = {'action_is_available': True}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 5)
+        self.assertNotIn(unavailable_rule, qs)
+
+        params = {'action_is_available': False}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), unavailable_rule)
+
+    def test_action_type_registered_plugin_style_slug(self):
+        """A plugin-registered action slug is a valid action_type filter value, not just the core actions."""
+        from netbox.event_rules import EventRuleAction, register_event_rule_action
+        from netbox.registry import registry
+
+        class FilterTestAction(EventRuleAction):
+            slug = 'test.filterset_registered_action'
+            label = 'Filterset Test Action'
+            object_required = False
+
+        register_event_rule_action(FilterTestAction)
+        self.addCleanup(registry['event_rule_actions'].pop, FilterTestAction.slug, None)
+
+        rule = EventRule.objects.create(
+            name='Filterset Registered Action Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=FilterTestAction.slug,
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        params = {'action_type': [FilterTestAction.slug]}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), rule)
+
     def test_enabled(self):
         params = {'enabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

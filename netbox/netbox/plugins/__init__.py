@@ -7,6 +7,7 @@ from django.utils.module_loading import import_string
 from packaging import version
 
 from core.exceptions import IncompatiblePluginError
+from netbox.event_rules import register_event_rule_action
 from netbox.registry import registry
 from netbox.search import register_search
 from netbox.utils import register_data_backend
@@ -35,6 +36,7 @@ registry['plugins'].update({
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
+    'event_rule_actions': 'event_rules.event_rule_actions',
     'graphql_schema': 'graphql.schema',
     'jinja_filters': 'jinja_env.filters',
     'graphql_type_extensions': 'graphql.type_extensions',
@@ -86,6 +88,7 @@ class PluginConfig(AppConfig):
     # Optional plugin resources
     search_indexes = None
     data_backends = None
+    event_rule_actions = None
     graphql_schema = None
     jinja_filters = None
     graphql_type_extensions = None
@@ -141,6 +144,11 @@ class PluginConfig(AppConfig):
         data_backends = self._load_resource('data_backends') or []
         for backend in data_backends:
             register_data_backend()(backend)
+
+        # Register event rule actions (if defined)
+        event_rule_actions = self._load_resource('event_rule_actions') or []
+        for action in event_rule_actions:
+            register_event_rule_action(action)
 
         # Register Jinja filters (if defined)
         if jinja_filters := self._load_resource('jinja_filters'):

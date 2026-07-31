@@ -21,6 +21,7 @@ from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import SharedObjectQuerySet
 from extras.utils import image_upload
 from netbox.config import get_config
+from netbox.event_rules import get_event_rule_action, get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
@@ -91,15 +92,19 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
 
     # Action to take
     action_type = models.CharField(
-        max_length=30,
-        choices=EventRuleActionChoices,
+        max_length=100,
+        # Bare callable, re-evaluated fresh on each access via Django's CallableChoiceIterator,
+        # so a plugin action registered after this module was first imported is still reflected.
+        choices=get_event_rule_action_choices,
         default=EventRuleActionChoices.WEBHOOK,
         verbose_name=_('action type')
     )
     action_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         related_name='eventrule_actions',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     action_object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -134,6 +139,26 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
     def get_absolute_url(self):
         return reverse('extras:eventrule', args=[self.pk])
 
+    @property
+    def action_provider(self):
+        """
+        Return the registered EventRuleAction instance for this rule's action_type, or None if it
+        is not currently registered (e.g. the providing plugin is not installed).
+        """
+        return get_event_rule_action(self.action_type)
+
+    @property
+    def action_is_available(self):
+        return self.action_provider is not None
+
+    def get_action_type_display(self):
+        if action := self.action_provider:
+            return action.label
+        return _('{slug} (unavailable)').format(slug=self.action_type)
+
+    def get_action_type_color(self):
+        return None if self.action_is_available else 'red'
+
     def clean(self):
         super().clean()
 
@@ -147,6 +172,11 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
         # action_data must be a JSON object (or null)
         if self.action_data is not None and not isinstance(self.action_data, dict):
             raise ValidationError({'action_data': _('Action data must be a JSON object or null.')})
+
+        # action_type's own validity is already enforced by the field's dynamic choices= (Field.
+        # validate(), earlier in full_clean()); guard here only in case clean() ran standalone.
+        if self.action_is_available:
+            self.action_provider._validate(action_object=self.action_object, action_data=self.action_data)
 
     def eval_conditions(self, data):
         """
