@@ -8,6 +8,7 @@ from ipam.constants import SERVICE_PORT_MAX
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
 from ipam.forms.fields import PortMappingField
+from ipam.forms.widgets import PortMappingWidget
 
 
 class PrefixFormTestCase(TestCase):
@@ -227,6 +228,49 @@ class PortMappingFieldTestCase(TestCase):
             field.clean('[{"protocol": "tcp", "ports": "1-9999999999"}]')
         with self.assertRaises(ValidationError):
             field.clean(f'[{{"protocol": "tcp", "ports": "1-{SERVICE_PORT_MAX + 1}"}}]')
+
+    def test_malformed_payload_rejected(self):
+        """
+        The hidden input is ordinary POST data, so a hand-crafted payload need not be the list of
+        {protocol, ports} objects the widget's JS produces. Anything else must raise a ValidationError
+        (a 400) rather than an unhandled AttributeError/TypeError (a 500).
+        """
+        field = PortMappingField()
+        for value in (
+            '5',                                        # a JSON scalar
+            '"tcp/80"',                                 # a JSON string
+            '{"protocol": "tcp", "ports": "80"}',       # an object rather than a list of them
+            '[5]',                                      # a list of non-objects
+            '[[1, 2]]',                                 # a list of lists
+            '[null]',                                   # a null row
+            '[{"protocol": "tcp", "ports": {"a": 1}}]',  # ports of the wrong type
+            '[{"protocol": ["tcp"], "ports": "80"}]',   # protocol of the wrong type
+        ):
+            with self.subTest(value=value), self.assertRaises(ValidationError):
+                field.clean(value)
+
+    def test_widget_tolerates_malformed_value(self):
+        """
+        Re-rendering an invalid bound form hands the widget back the raw POST value, which may be valid
+        JSON of the wrong shape. It must fall back to a blank row rather than raise while rendering.
+        """
+        widget = PortMappingWidget()
+        for value in ('5', '"tcp/80"', '{"a": 1}', '[5]', '[[1, 2]]', 'not json at all'):
+            with self.subTest(value=value):
+                context = widget.get_context('port_mappings', value, {})
+                self.assertEqual(context['widget']['rows'], [{'protocol': '', 'ports': ''}])
+
+    def test_ports_as_list_requires_protocol(self):
+        """
+        A programmatically-set list of ports still gets the blank-protocol check, rather than emitting a
+        '/80' token that surfaces as a blank "Invalid protocol:" message.
+        """
+        field = PortMappingField()
+        self.assertEqual(field.clean('[{"protocol": "tcp", "ports": [80, 443]}]'), ['tcp/80', 'tcp/443'])
+        with self.assertRaises(ValidationError) as ctx:
+            field.clean('[{"protocol": "", "ports": [80]}]')
+        self.assertTrue(any('protocol' in msg.lower() for msg in ctx.exception.messages))
+        self.assertFalse(any(msg.strip().endswith('Invalid protocol:') for msg in ctx.exception.messages))
 
     def test_protocol_without_ports_reports_clear_error(self):
         """A protocol chosen with no ports reports the 'protocol/port' error, not 'Range \"\" is invalid'."""

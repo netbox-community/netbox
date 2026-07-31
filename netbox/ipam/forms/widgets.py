@@ -36,6 +36,12 @@ class PortMappingWidget(forms.Widget):
                 rows = json.loads(value)
             except (TypeError, ValueError):
                 rows = []
+        # Re-rendering an invalid bound form hands us back the raw POST value, which need not be the list
+        # of {protocol, ports} objects the JS produces: a crafted payload of e.g. `5` or `{"a": 1}` parses
+        # as valid JSON but would break the template's row loop. Discard anything of the wrong shape and
+        # fall through to the blank row below.
+        if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+            rows = []
         # Always render at least one (blank) row so the entry fields are visible on an empty form
         if not rows:
             rows = [{'protocol': '', 'ports': ''}]

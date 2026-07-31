@@ -53,38 +53,43 @@ class PortMappingField(forms.Field):
 
             mappings = []
             for position, row in enumerate(rows, start=1):
-                protocol = (row or {}).get('protocol')
-                raw_ports = (row or {}).get('ports')
+                # The widget's JS always submits a list of {protocol, ports} objects, but the hidden
+                # input is just POST data: a hand-crafted payload can put anything here, so validate the
+                # shape rather than letting a non-dict row raise AttributeError (a 500) on .get() below.
+                if not isinstance(row, dict):
+                    raise ValidationError(_("Invalid port mapping data."))
+                protocol = row.get('protocol')
+                raw_ports = row.get('ports')
+                # Likewise `protocol` is only ever a string, and `ports` either a string (the widget's
+                # comma/range format) or a list of ports (set programmatically); anything else would reach
+                # expand_port_mapping() and fail there on .strip().
+                if (
+                    (protocol is not None and not isinstance(protocol, str))
+                    or (raw_ports is not None and not isinstance(raw_ports, (str, list)))
+                ):
+                    raise ValidationError(_("Invalid port mapping data."))
                 if isinstance(raw_ports, str):
                     raw_ports = raw_ports.strip()
                 # Ignore entirely-empty rows (e.g. the default blank row on an untouched form)
                 if not protocol and not raw_ports:
                     continue
-                if isinstance(raw_ports, list):
-                    # Ports already expanded (e.g. set programmatically as a flat list)
-                    mappings.extend(f'{protocol}/{port}' for port in raw_ports)
-                else:
-                    # A comma/range string (the widget's format); expand it via the shared helper, which
-                    # also preserves a protocol-without-ports row as a bare 'protocol/' token. Errors are
-                    # re-raised with the row's position (among the submitted rows — the widget omits
-                    # entirely-blank ones), since it renders one row per protocol and an unqualified
-                    # "Select a protocol" gives no clue which row to fix. Errors from
-                    # validate_port_mappings() below are deliberately left unqualified: each quotes the
-                    # offending mapping already, and a duplicate spans two rows.
-                    try:
-                        mappings.extend(expand_port_mapping(protocol, raw_ports))
-                    except ValidationError as e:
-                        raise ValidationError([
-                            _("Row {position}: {error}").format(position=position, error=message)
-                            for message in e.messages
-                        ])
+                # Expand via the shared helper, which accepts either the widget's comma/range string or an
+                # already-expanded list, rejects a blank protocol, and preserves a protocol-without-ports
+                # row as a bare 'protocol/' token. Errors are re-raised with the row's position (among the
+                # submitted rows — the widget omits entirely-blank ones), since it renders one row per
+                # protocol and an unqualified "Select a protocol" gives no clue which row to fix. Errors
+                # from validate_port_mappings() below are deliberately left unqualified: each quotes the
+                # offending mapping already, and a duplicate spans two rows.
+                try:
+                    mappings.extend(expand_port_mapping(protocol, raw_ports))
+                except ValidationError as e:
+                    raise ValidationError([
+                        _("Row {position}: {error}").format(position=position, error=message)
+                        for message in e.messages
+                    ])
 
         # Shared validation returns the canonical (normalized) list of protocol/port strings
         return validate_port_mappings(mappings)
-
-    def validate(self, value):
-        if self.required and not value:
-            raise ValidationError(self.error_messages['required'], code='required')
 
     def has_changed(self, initial, data):
         # Compare the parsed mappings rather than raw strings, so cosmetic differences (row/port
