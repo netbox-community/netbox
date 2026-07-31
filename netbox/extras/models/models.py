@@ -279,22 +279,36 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.ssl_verification and self.ca_file_path:
             errors['ca_file_path'] = _('Do not specify a CA certificate file if SSL verification is disabled.')
 
-        # payload_url may be a literal URL or a Jinja2 template (see its help_text). Its scheme and
-        # host are checked as written regardless of templating elsewhere in the string (e.g. in the
-        # path), since Django's URLValidator is stricter than what `requests` actually requires --
-        # rejecting single-label hosts and hosts with underscores, both common for webhook targets
-        # on an internal network -- so scheme/host are checked directly instead. A templated value
-        # is additionally checked for template syntax errors only, since its rendered result can't
-        # be predicted here; skipped entirely for a blank value, which clean_fields() already flags.
+        # payload_url may be a literal URL or a Jinja2 template, possibly with a templated scheme
+        # (e.g. "{{ data.custom_fields.callback_url }}"). Skipped when blank; clean_fields() already
+        # flags that.
         if self.payload_url:
-            scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
-            if scheme.lower() not in ('http', 'https') or not netloc:
-                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
-            elif JINJA2_TEMPLATE_RE.search(self.payload_url):
+            # A malformed netloc (e.g. an unbalanced IPv6 bracket) raises ValueError; treat that the
+            # same as no scheme/host found, rather than letting it escape clean() as a 500.
+            try:
+                scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
+            except ValueError:
+                scheme, netloc = '', ''
+
+            if scheme:
+                # Checked directly rather than via URLValidator, which rejects single-label and
+                # underscore hosts that `requests` accepts fine. Applies even when the rest of the
+                # URL is templated, since a bad scheme can never resolve to a usable destination.
+                if scheme not in ('http', 'https') or not netloc:
+                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+                elif JINJA2_TEMPLATE_RE.search(self.payload_url):
+                    try:
+                        validate_jinja2_syntax(self.payload_url)
+                    except ValidationError as e:
+                        errors['payload_url'] = e
+            elif JINJA2_TEMPLATE_RE.match(self.payload_url):
+                # No literal scheme -- it's templated too, so nothing more can be checked here.
                 try:
                     validate_jinja2_syntax(self.payload_url)
                 except ValidationError as e:
                     errors['payload_url'] = e
+            else:
+                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
 
         if errors:
             raise ValidationError(errors)

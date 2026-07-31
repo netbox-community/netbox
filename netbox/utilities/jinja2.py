@@ -4,6 +4,7 @@ import re
 
 from django.apps import apps
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from jinja2 import BaseLoader, TemplateNotFound
 from jinja2.exceptions import TemplateSyntaxError
 from jinja2.meta import find_referenced_templates
@@ -13,6 +14,7 @@ from netbox.config import get_config
 
 __all__ = (
     'DEFAULT_JINJA2_FILTERS',
+    'HTTP_HEADER_INVALID_CHARS_RE',
     'JINJA2_TEMPLATE_RE',
     'DataFileLoader',
     'env_filter',
@@ -98,8 +100,7 @@ def _jinja2_filters(filters=None):
     """
     Build the Jinja2 filter table: defaults, then instance-configured JINJA2_FILTERS, then any
     filters passed for this call, in increasing precedence. Shared by render_jinja2() and
-    validate_jinja2_syntax() so a template validated with a given `filters` argument is checked
-    against the same filter table it will actually be rendered with.
+    validate_jinja2_syntax() so both see an identical filter table.
     """
     return {**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS, **(filters or {})}
 
@@ -143,11 +144,9 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
 
 def validate_jinja2_syntax(template_code, filters=None):
     """
-    Validate that template_code is syntactically well-formed Jinja2, including that any filters it
-    references are registered -- without rendering it, so no context data is required. Useful for
-    validating a template-capable field (e.g. Webhook.payload_url) at save time, when the values
-    it will eventually be rendered against aren't yet known. Pass the same `filters` the field is
-    rendered with (see render_jinja2()) so this sees an identical filter table. Raises
+    Validate that template_code is syntactically well-formed Jinja2 -- including that any filters
+    it references are registered -- without rendering it, so no context data is required. Pass the
+    same `filters` used at render time (see render_jinja2()) for an identical filter table. Raises
     django.core.exceptions.ValidationError on failure.
     """
     environment = SandboxedEnvironment(loader=BaseLoader())
@@ -155,4 +154,4 @@ def validate_jinja2_syntax(template_code, filters=None):
     try:
         environment.compile(template_code)
     except TemplateSyntaxError as e:
-        raise ValidationError(str(e))
+        raise ValidationError(_("Invalid template: {error}").format(error=e))

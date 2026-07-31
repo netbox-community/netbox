@@ -1657,6 +1657,22 @@ class WebhookTestCase(TestCase):
         webhook = Webhook(name='Webhook 1', payload_url=None)
         webhook.clean()
 
+    def test_payload_url_accepts_fully_templated_value(self):
+        """A value with no literal scheme at all (the scheme itself is templated) must still be usable (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='{{ data.custom_fields.callback_url }}')
+        webhook.clean()
+
+    def test_payload_url_accepts_templated_base_with_literal_path(self):
+        webhook = Webhook(name='Webhook 1', payload_url='{{ base_url }}/hook')
+        webhook.clean()
+
+    def test_payload_url_rejects_malformed_bracketed_host_gracefully(self):
+        """A malformed netloc must raise ValidationError, not an uncaught ValueError from urlsplit() (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://[2001:db8::1/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
 
 class EventRuleTestCase(TestCase):
 
