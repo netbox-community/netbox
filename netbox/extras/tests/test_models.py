@@ -1697,6 +1697,18 @@ class WebhookTestCase(TestCase):
             webhook.clean()
         self.assertIn('payload_url', cm.exception.message_dict)
 
+    def test_payload_url_accepts_partially_templated_scheme(self):
+        """A scheme that is only partly templated must not be rejected merely for lacking a literal one (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url="http{{ 's' if secure }}://example.com/hook")
+        webhook.clean()
+
+    def test_payload_url_rejects_literal_empty_authority_with_templated_path(self):
+        """An empty authority can never resolve, even when the path is templated (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http:///{{ data.name }}')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
 
 class EventRuleTestCase(TestCase):
 

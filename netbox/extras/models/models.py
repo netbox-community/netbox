@@ -52,6 +52,11 @@ __all__ = (
     'Webhook',
 )
 
+# Matches a literal URL scheme (RFC 3986), independent of urlsplit()'s netloc parsing -- which can
+# raise ValueError on a malformed host -- so a payload_url's scheme can always be read even when
+# its host is templated or malformed.
+LITERAL_SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
+
 
 class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, ChangeLoggedModel):
     """
@@ -168,12 +173,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
             return False
 
 
-# Matches a literal URL scheme (RFC 3986), independent of urlsplit()'s netloc parsing -- which can
-# raise ValueError on a malformed host -- so a payload_url's scheme can always be read even when
-# its host is templated or malformed.
-LITERAL_SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
-
-
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
@@ -287,22 +286,36 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.ssl_verification and self.ca_file_path:
             errors['ca_file_path'] = _('Do not specify a CA certificate file if SSL verification is disabled.')
 
-        # payload_url may be a literal URL or a Jinja2 template, possibly with a templated scheme
-        # (e.g. "{{ data.custom_fields.callback_url }}"). Skipped when blank; clean_fields() already
-        # flags that. The scheme is read via LITERAL_SCHEME_RE rather than urlsplit(), so a
-        # templated or malformed host (e.g. "http://[{{ v6_endpoint }}]/hook") never needs to reach
-        # urlsplit()'s netloc parsing at all.
+        # payload_url may be a literal URL or a Jinja2 template, and the scheme/host may themselves
+        # be (partly) templated (e.g. "{{ data.custom_fields.callback_url }}", "http{{ 's' if
+        # secure }}://..."). Skipped when blank; clean_fields() already flags that. The scheme (and,
+        # when literal, the authority) are read directly rather than via urlsplit(), which can raise
+        # ValueError for a templated or malformed host (e.g. "http://[{{ v6_endpoint }}]/hook").
         if self.payload_url:
             match = LITERAL_SCHEME_RE.match(self.payload_url)
             literal_scheme = match.group(1).lower() if match else None
-            could_be_templated_scheme = literal_scheme is None and bool(JINJA2_TEMPLATE_RE.match(self.payload_url))
 
-            if literal_scheme is not None and literal_scheme not in ('http', 'https'):
-                # A disallowed literal scheme can never resolve, regardless of templating elsewhere.
+            # A non-literal scheme may still be templated -- fully ("{{ proto }}://...") or partly
+            # ("http{{ 's' if secure }}://...") -- as long as a template appears before the first
+            # colon. A value with no colon at all (e.g. "www{{ n }}.example.com/hook") can never
+            # gain a scheme and is rejected below.
+            colon = self.payload_url.find(':')
+            could_be_templated_scheme = literal_scheme is None and bool(
+                JINJA2_TEMPLATE_RE.match(self.payload_url)
+                or (colon != -1 and JINJA2_TEMPLATE_RE.search(self.payload_url[:colon]))
+            )
+
+            # A literal scheme with a literal, empty authority (e.g. "http:///hook") can never
+            # resolve regardless of what's templated elsewhere (e.g. the path).
+            empty_authority = False
+            if literal_scheme in ('http', 'https'):
+                rest = self.payload_url[match.end():]
+                empty_authority = rest.startswith('//') and (len(rest) == 2 or rest[2] in '/?#')
+
+            if literal_scheme not in ('http', 'https') and not could_be_templated_scheme:
                 errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
-            elif literal_scheme is None and not could_be_templated_scheme:
-                # No scheme at all, literal or templated -- this can never become a usable URL.
-                errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+            elif empty_authority:
+                errors['payload_url'] = _("Enter a valid URL.")
             elif JINJA2_TEMPLATE_RE.search(self.payload_url):
                 # Scheme is allowed (literal or templated); the value is templated too, so only its
                 # syntax can be checked here.
