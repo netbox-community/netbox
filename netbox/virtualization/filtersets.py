@@ -10,10 +10,19 @@ from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, 
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
+from netbox.filtersets import (
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
+)
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from users.filterset_mixins import OwnerFilterMixin
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueWWNAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import (
+    MultiValueCharFilter,
+    MultiValueMACAddressFilter,
+    MultiValueWWNAddressFilter,
+    TreeNodeMultipleChoiceFilter,
+)
 from utilities.filtersets import register_filterset
 
 from .choices import *

@@ -7741,6 +7741,7 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'primary': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
+
 class WWNAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = WWNAddress.objects.all()
     filterset = WWNAddressFilterSet

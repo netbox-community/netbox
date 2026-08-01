@@ -122,6 +122,7 @@ class MACAddressIndex(SearchIndex):
     )
     display_attrs = ('assigned_object', 'description')
 
+
 @register_search
 class WWNAddressIndex(SearchIndex):
     model = models.WWNAddress

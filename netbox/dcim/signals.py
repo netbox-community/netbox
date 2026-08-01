@@ -304,6 +304,7 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
 
+
 @receiver(post_save, sender=Interface)
 @receiver(post_save, sender=VMInterface)
 def update_wwn_address_interface(instance, created, raw, **kwargs):
@@ -314,6 +315,7 @@ def update_wwn_address_interface(instance, created, raw, **kwargs):
     if created and not raw and instance.primary_wwn_address:
         instance.primary_wwn_address.assigned_object = instance
         instance.primary_wwn_address.save()
+
 
 @receiver(post_save, sender=Location)
 @receiver(post_save, sender=Site)

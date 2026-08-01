@@ -517,6 +517,7 @@ class MACAddressFilter(PrimaryModelFilter):
             return Q(query)
         return ~Q(query)
 
+
 @strawberry_django.filter_type(models.Interface, lookups=True)
 class InterfaceFilter(
     ModularComponentFilterMixin,

@@ -33,7 +33,13 @@ from wireless.models import WirelessLAN
 
 from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
-from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer, WWNAddressSerializer
+from .devices import (
+    DeviceSerializer,
+    MACAddressSerializer,
+    ModuleSerializer,
+    VirtualDeviceContextSerializer,
+    WWNAddressSerializer,
+)
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer

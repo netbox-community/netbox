@@ -14,7 +14,14 @@ from virtualization import models
 from virtualization.graphql.filter_mixins import VMComponentFilterMixin
 
 if TYPE_CHECKING:
-    from dcim.graphql.filters import DeviceFilter, DeviceRoleFilter, MACAddressFilter, PlatformFilter, SiteFilter, WWNAddressFilter
+    from dcim.graphql.filters import (
+        DeviceFilter,
+        DeviceRoleFilter,
+        MACAddressFilter,
+        PlatformFilter,
+        SiteFilter,
+        WWNAddressFilter,
+    )
     from ipam.graphql.filters import (
         FHRPGroupAssignmentFilter,
         IPAddressFilter,

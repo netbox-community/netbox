@@ -141,7 +141,6 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
     primary_wwn_address = WWNAddressSerializer(nested=True, required=False, allow_null=True)
     wwn_addresses = WWNAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
-
     class Meta:
         model = VMInterface
         fields = [

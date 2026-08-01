@@ -5043,6 +5043,7 @@ class MACAddressBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.MACAddressFilterSet
     table = tables.MACAddressTable
 
+
 #
 # WWN addresses
 #
