@@ -1526,6 +1526,27 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(data['data']['service_template_list'], [])
 
+    def test_graphql_port_range_lookups(self):
+        """The port range lookups are available on ServiceTemplate too, and stay correlated."""
+        self.add_permissions('ipam.view_servicetemplate')
+        url = reverse('graphql')
+
+        # Templates 1-3 expose tcp/1-2, tcp/3-4 and tcp/5-6 respectively
+        query = '{ service_template_list(filters: {port__gte: [3], port__lte: [4]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 2'])
+
+        # A protocol which no template exposes narrows the same range to nothing
+        query = '{ service_template_list(filters: {protocol: [ROLE_UDP], port__gte: [3], port__lte: [4]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['service_template_list'], [])
+
     def test_create_duplicate_mapping_rejected(self):
         """A duplicate protocol/port entry is rejected with a clean 400 (not a 500)."""
         self.add_permissions('ipam.add_servicetemplate')
@@ -1853,6 +1874,59 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         # Only the udp service matches; the seeded Service 1-3 are all tcp.
         self.assertEqual([s['name'] for s in data['data']['service_list']], ['udp-svc'])
 
+    def test_graphql_port_range_lookups(self):
+        """The port__gt/gte/lt/lte GraphQL lookups mirror their identically-named REST counterparts."""
+        self.add_permissions('ipam.view_service')
+        url = reverse('graphql')
+
+        # Seeded services expose tcp/1, tcp/2 and tcp/3 respectively
+        for filters, expected in (
+            ('{port__gt: [2]}', {'Service 3'}),
+            ('{port__gte: [2]}', {'Service 2', 'Service 3'}),
+            ('{port__lt: [2]}', {'Service 1'}),
+            ('{port__lte: [2]}', {'Service 1', 'Service 2'}),
+        ):
+            query = f'{{ service_list(filters: {filters}) {{ name }} }}'
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertEqual({s['name'] for s in data['data']['service_list']}, expected, msg=filters)
+
+    def test_graphql_port_range_bounds_correlated(self):
+        """
+        Combined range bounds must be satisfied by a *single* mapping, so a service straddling the range
+        without any port inside it does not match (GraphQL parity with the FilterSet).
+        """
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='straddles', port_mappings=['tcp/500', 'tcp/5000'])
+        Service.objects.create(parent=device, name='inside', port_mappings=['tcp/1500'])
+        url = reverse('graphql')
+
+        query = '{ service_list(filters: {port__gte: [1000], port__lte: [2000]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([s['name'] for s in data['data']['service_list']], ['inside'])
+
+    def test_graphql_protocol_and_port_range_correlated(self):
+        """A protocol combined with a range lookup must also be satisfied by a single mapping."""
+        self.add_permissions('ipam.view_service')
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='mixed', port_mappings=['tcp/80', 'udp/9999'])
+        Service.objects.create(parent=device, name='tcp-high', port_mappings=['tcp/9999'])
+        url = reverse('graphql')
+
+        # 'mixed' has a tcp mapping and a mapping above 1000, but no tcp mapping above 1000
+        query = '{ service_list(filters: {protocol: [ROLE_TCP], port__gt: [1000]}) { name } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual([s['name'] for s in data['data']['service_list']], ['tcp-high'])
+
     def test_port_mapping_prefix_branch(self):
         """
         The nested-relation (prefix) branch of the shared port filter resolves matches through a
@@ -1866,9 +1940,9 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         ip = IPAddress.objects.create(address='192.0.2.1/32')
         service.ipaddresses.add(ip)
 
-        match = _port_mapping_prefix_q(Service, ['tcp'], [1], 'services__', IPAddress.objects.all())
+        match = _port_mapping_prefix_q(Service, ['tcp'], [('exact', [1])], 'services__')
         self.assertIn(ip, IPAddress.objects.filter(match))
-        miss = _port_mapping_prefix_q(Service, ['tcp'], [999], 'services__', IPAddress.objects.all())
+        miss = _port_mapping_prefix_q(Service, ['tcp'], [('exact', [999])], 'services__')
         self.assertNotIn(ip, IPAddress.objects.filter(miss))
 
     def test_update_full_body_roundtrip(self):
