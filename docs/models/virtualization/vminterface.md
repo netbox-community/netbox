@@ -39,7 +39,7 @@ The [MAC address](../dcim/macaddress.md) assigned to this interface which is des
 The [WWN address](../dcim/wwnaddress.md) assigned to this interface which is designated as its primary.
 
 !!! note "Changed in NetBox v4.7"
-    The WWN address of an interface (formerly a concrete database field) is available as a property, `wwn_address`, which reflects the value of the primary linked [WWN address](./dcim/wwnaddress.md) object.
+    The WWN address of an interface (formerly a concrete database field) is available as a property, `wwn_address`, which reflects the value of the primary linked [WWN address](../dcim/wwnaddress.md) object.
 
 ### MTU
 
