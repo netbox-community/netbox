@@ -288,16 +288,3 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
         self.assertIsNone(form.cleaned_data['poe_mode'])
         self.assertIsNone(form.cleaned_data['poe_type'])
-
-    def test_wwn_field_nullable(self):
-        """WWN field (special field type) should convert empty string to None"""
-        form = InterfaceImportForm(
-            data={
-                'device': self.device,
-                'name': 'Interface 16',
-                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
-                'wwn': '',  # nullable WWNField
-            }
-        )
-        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
-        self.assertIsNone(form.cleaned_data['wwn'])

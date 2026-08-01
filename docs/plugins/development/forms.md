@@ -206,6 +206,10 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
     options:
       members: false
 
+::: utilities.forms.fields.WWNAddressField
+    options:
+      members: false
+
 ::: utilities.forms.fields.SlugField
     options:
       members: false

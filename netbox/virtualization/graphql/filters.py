@@ -14,7 +14,7 @@ from virtualization import models
 from virtualization.graphql.filter_mixins import VMComponentFilterMixin
 
 if TYPE_CHECKING:
-    from dcim.graphql.filters import DeviceFilter, DeviceRoleFilter, MACAddressFilter, PlatformFilter, SiteFilter
+    from dcim.graphql.filters import DeviceFilter, DeviceRoleFilter, MACAddressFilter, PlatformFilter, SiteFilter, WWNAddressFilter
     from ipam.graphql.filters import (
         FHRPGroupAssignmentFilter,
         IPAddressFilter,
@@ -178,6 +178,9 @@ class VMInterfaceFilter(InterfaceBaseFilterMixin, VMComponentFilterMixin, NetBox
         strawberry_django.filter_field()
     )
     mac_addresses: Annotated['MACAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    wwn_addresses: Annotated['WWNAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 

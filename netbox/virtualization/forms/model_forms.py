@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
-from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup, WWNAddress
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
@@ -394,6 +394,13 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         quick_add=True,
         quick_add_params={'vminterface': '$pk'}
     )
+    primary_wwn_address = DynamicModelChoiceField(
+        queryset=WWNAddress.objects.all(),
+        label=_('Primary WWN address'),
+        required=False,
+        quick_add=True,
+        quick_add_params={'vminterface': '$pk'}
+    )
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
@@ -456,7 +463,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
-        FieldSet('vrf', 'primary_mac_address', name=_('Addressing')),
+        FieldSet('vrf', 'primary_mac_address', 'primary_wwn_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
         FieldSet(
@@ -470,7 +477,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'owner', 'tags',
+            'primary_wwn_address', 'owner', 'tags',
         ]
         labels = {
             'mode': _('802.1Q Mode'),

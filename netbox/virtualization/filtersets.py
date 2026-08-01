@@ -6,14 +6,14 @@ from netaddr.core import AddrFormatError
 
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.filtersets import CommonInterfaceFilterSet
-from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup, WWNAddress
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from users.filterset_mixins import OwnerFilterMixin
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueWWNAddressFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
 
 from .choices import *
@@ -281,6 +281,10 @@ class VirtualMachineFilterSet(
         field_name='interfaces__mac_addresses__mac_address',
         label=_('MAC address'),
     )
+    wwn_address = MultiValueWWNAddressFilter(
+        field_name='interfaces__wwn_addresses__wwn_address',
+        label=_('WWN address'),
+    )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label=_('Has a primary IP'),
@@ -381,6 +385,23 @@ class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxMod
         distinct=False,
         to_field_name='mac_address',
         label=_('Primary MAC address'),
+    )
+    wwn_address = MultiValueWWNAddressFilter(
+        field_name='wwn_addresses__wwn_address',
+        label=_('WWN address'),
+    )
+    primary_wwn_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_wwn_address',
+        queryset=WWNAddress.objects.all(),
+        distinct=False,
+        label=_('Primary WWN address (ID)'),
+    )
+    primary_wwn_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_wwn_address__wwn_address',
+        queryset=WWNAddress.objects.all(),
+        distinct=False,
+        to_field_name='wwn_address',
+        label=_('Primary WWN address'),
     )
 
     class Meta:

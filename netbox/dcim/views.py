@@ -3409,6 +3409,12 @@ class InterfaceView(generic.ObjectView):
                 exclude_columns=['assigned_object', 'assigned_object_parent'],
             ),
             ObjectsTablePanel(
+                model='dcim.WWNAddress',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('WWN Addresses'),
+                exclude_columns=['assigned_object', 'assigned_object_parent'],
+            ),
+            ObjectsTablePanel(
                 model='ipam.VLAN',
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('VLANs'),
@@ -5036,3 +5042,64 @@ class MACAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = MACAddress.objects.all()
     filterset = filtersets.MACAddressFilterSet
     table = tables.MACAddressTable
+
+#
+# WWN addresses
+#
+
+@register_model_view(WWNAddress, 'list', path='', detail=False)
+class WWNAddressListView(generic.ObjectListView):
+    queryset = WWNAddress.objects.all()
+    filterset = filtersets.WWNAddressFilterSet
+    filterset_form = forms.WWNAddressFilterForm
+    table = tables.WWNAddressTable
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkDelete)
+
+
+@register_model_view(WWNAddress)
+class WWNAddressView(generic.ObjectView):
+    queryset = WWNAddress.objects.all()
+    template_name = 'generic/object.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.WWNAddressPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            CommentsPanel(),
+        ],
+    )
+
+
+@register_model_view(WWNAddress, 'add', detail=False)
+@register_model_view(WWNAddress, 'edit')
+class WWNAddressEditView(generic.ObjectEditView):
+    queryset = WWNAddress.objects.all()
+    form = forms.WWNAddressForm
+
+
+@register_model_view(WWNAddress, 'delete')
+class WWNAddressDeleteView(generic.ObjectDeleteView):
+    queryset = WWNAddress.objects.all()
+
+
+@register_model_view(WWNAddress, 'bulk_import', path='import', detail=False)
+class WWNAddressBulkImportView(generic.BulkImportView):
+    queryset = WWNAddress.objects.all()
+    model_form = forms.WWNAddressImportForm
+
+
+@register_model_view(WWNAddress, 'bulk_edit', path='edit', detail=False)
+class WWNAddressBulkEditView(generic.BulkEditView):
+    queryset = WWNAddress.objects.all()
+    filterset = filtersets.WWNAddressFilterSet
+    table = tables.WWNAddressTable
+    form = forms.WWNAddressBulkEditForm
+
+
+@register_model_view(WWNAddress, 'bulk_delete', path='delete', detail=False)
+class WWNAddressBulkDeleteView(generic.BulkDeleteView):
+    queryset = WWNAddress.objects.all()
+    filterset = filtersets.WWNAddressFilterSet
+    table = tables.WWNAddressTable

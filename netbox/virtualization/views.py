@@ -673,6 +673,16 @@ class VMInterfaceView(generic.ObjectView):
                 ],
             ),
             ObjectsTablePanel(
+                model='dcim.WWNAddress',
+                filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['assigned_object', 'assigned_object_parent'],
+                actions=[
+                    actions.AddObject(
+                        'dcim.WWNAddress', url_params={'vminterface': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
+            ),
+            ObjectsTablePanel(
                 model='ipam.VLAN',
                 title=_('Assigned VLANs'),
                 filters={'vminterface_id': lambda ctx: ctx['object'].pk},

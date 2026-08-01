@@ -118,6 +118,7 @@ DEVICES_MENU = Menu(
             label=_('Addressing'),
             items=(
                 get_model_item('dcim', 'macaddress', _('MAC Addresses')),
+                get_model_item('dcim', 'wwnaddress', _('WWN Addresses')),
             ),
         ),
     ),

@@ -24,7 +24,7 @@ from utilities.constants import (
     FILTER_TAG_LOOKUP_MAP,
     FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
-from utilities.forms.fields import MACAddressField
+from utilities.forms.fields import MACAddressField, WWNAddressField
 
 __all__ = (
     'AttributeFiltersMixin',
@@ -98,6 +98,9 @@ class BaseFilterSet(django_filters.FilterSet):
         },
         MACAddressField: {
             'filter_class': filters.MultiValueMACAddressFilter
+        },
+        WWNAddressField: {
+            'filter_class': filters.MultiValueWWNAddressFilter
         },
     })
 
@@ -175,7 +178,8 @@ class BaseFilterSet(django_filters.FilterSet):
             django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
             filters.MultiValueCharFilter,
-            filters.MultiValueMACAddressFilter
+            filters.MultiValueMACAddressFilter,
+            filters.MultiValueWWNAddressFilter,
         )):
             return FILTER_CHAR_BASED_LOOKUP_MAP
 

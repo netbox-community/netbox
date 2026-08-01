@@ -52,9 +52,12 @@ The [MAC address](./macaddress.md) assigned to this interface which is designate
 !!! note "Changed in NetBox v4.2"
     The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
-### WWN
+### Primary WWN Address
 
-The 64-bit world-wide name (for Fibre Channel interfaces).
+The [WWN address](./wwnaddress.md) assigned to this interface which is designated as its primary.
+
+!!! note "Changed in NetBox v4.7"
+    The WWN address of an interface (formerly a concrete database field) is available as a property, `wwn_address`, which reflects the value of the primary linked [WWN address](./wwnaddress.md) object.
 
 ### MTU
 

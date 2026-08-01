@@ -213,3 +213,11 @@ class VirtualDeviceContextTableTestCase(TableTestCases.StandardTableTestCase):
 
 class MACAddressTableTestCase(TableTestCases.StandardTableTestCase):
     table = MACAddressTable
+
+
+#
+# WWN addresses
+#
+
+class WWNAddressTableTestCase(TableTestCases.StandardTableTestCase):
+    table = WWNAddressTable

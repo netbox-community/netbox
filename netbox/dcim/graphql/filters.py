@@ -111,6 +111,7 @@ __all__ = (
     'SiteGroupFilter',
     'VirtualChassisFilter',
     'VirtualDeviceContextFilter',
+    'WWNAddressFilter',
 )
 
 
@@ -516,7 +517,6 @@ class MACAddressFilter(PrimaryModelFilter):
             return Q(query)
         return ~Q(query)
 
-
 @strawberry_django.filter_type(models.Interface, lookups=True)
 class InterfaceFilter(
     ModularComponentFilterMixin,
@@ -578,6 +578,9 @@ class InterfaceFilter(
         strawberry_django.filter_field()
     )
     mac_addresses: Annotated['MACAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    wwn_addresses: Annotated['WWNAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
     fhrp_group_assignments: Annotated['FHRPGroupAssignmentFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
@@ -1138,3 +1141,29 @@ class VirtualDeviceContextFilter(TenancyFilterMixin, PrimaryModelFilter):
     interfaces: (
         Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None
     ) = strawberry_django.filter_field()
+
+
+@strawberry_django.filter_type(models.WWNAddress, lookups=True)
+class WWNAddressFilter(PrimaryModelFilter):
+    wwn_address: StrFilterLookup | None = strawberry_django.filter_field()
+    assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    assigned_object_id: ID | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field()
+    def assigned(self, value: bool, prefix) -> Q:
+        return Q(**{f'{prefix}assigned_object_id__isnull': (not value)})
+
+    @strawberry_django.filter_field()
+    def primary(self, value: bool, prefix) -> Q:
+        interface_wwn_ids = models.Interface.objects.filter(primary_wwn_address_id__isnull=False).values_list(
+            'primary_wwn_address_id', flat=True
+        )
+        vminterface_wwn_ids = VMInterface.objects.filter(primary_wwn_address_id__isnull=False).values_list(
+            'primary_wwn_address_id', flat=True
+        )
+        query = Q(**{f'{prefix}pk__in': interface_wwn_ids}) | Q(**{f'{prefix}pk__in': vminterface_wwn_ids})
+        if value:
+            return Q(query)
+        return ~Q(query)

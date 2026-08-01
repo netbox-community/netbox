@@ -38,7 +38,8 @@ __all__ = (
     'PowerPortTable',
     'RearPortTable',
     'VirtualChassisTable',
-    'VirtualDeviceContextTable'
+    'VirtualDeviceContextTable',
+    'WWNAddressTable'
 )
 
 MODULEBAY_STATUS = """
@@ -53,6 +54,16 @@ MACADDRESS_LINK = """
 
 MACADDRESS_COPY_BUTTON = """
 {% copy_content record.pk prefix="macaddress_" %}
+"""
+
+WWNADDRESS_LINK = """
+{% if record.pk %}
+    <a href="{{ record.get_absolute_url }}" id="wwnaddress_{{ record.pk }}">{{ record.wwn_address }}</a>
+{% endif %}
+"""
+
+WWNADDRESS_COPY_BUTTON = """
+{% copy_content record.pk prefix="wwnaddress_" %}
 """
 
 
@@ -605,6 +616,15 @@ class BaseInterfaceTable(NetBoxTable):
         linkify_item=True,
         verbose_name=_('MAC Addresses')
     )
+    primary_wwn_address = tables.Column(
+        verbose_name=_('Primary WWN'),
+        linkify=True
+    )
+    wwn_addresses = columns.ManyToManyColumn(
+        orderable=False,
+        linkify_item=True,
+        verbose_name=_('WWN Addresses')
+    )
     fhrp_groups = tables.TemplateColumn(
         accessor=Accessor('fhrp_group_assignments'),
         template_code=INTERFACE_FHRPGROUPS,
@@ -707,11 +727,11 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn',
-            'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer',
-            'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn_addresses',
+            'primary_wwn_address', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
             'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
@@ -773,11 +793,11 @@ class DeviceInterfaceTable(InterfaceTable):
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
-            'mgmt_only', 'mtu', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn', 'rf_role', 'rf_channel',
-            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
-            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf',
-            'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
-            'actions',
+            'mgmt_only', 'mtu', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn_addresses', 'primary_wwn_address',
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
+            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
+            'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
+            'qinq_svlan', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
@@ -1253,4 +1273,42 @@ class MACAddressTable(PrimaryModelTable):
         )
         default_columns = (
             'pk', 'mac_address', 'is_primary', 'assigned_object_parent', 'assigned_object', 'description',
+        )
+
+
+class WWNAddressTable(PrimaryModelTable):
+    wwn_address = tables.TemplateColumn(
+        template_code=WWNADDRESS_LINK,
+        verbose_name=_('WWN Address')
+    )
+    assigned_object = tables.Column(
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Interface')
+    )
+    assigned_object_parent = tables.Column(
+        accessor='assigned_object__parent_object',
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Parent')
+    )
+    is_primary = columns.BooleanColumn(
+        verbose_name=_('Primary'),
+        orderable=False,
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:wwnaddress_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=WWNADDRESS_COPY_BUTTON
+    )
+
+    class Meta(PrimaryModelTable.Meta):
+        model = models.WWNAddress
+        fields = (
+            'pk', 'id', 'wwn_address', 'assigned_object_parent', 'assigned_object', 'description', 'is_primary',
+            'comments', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'wwn_address', 'is_primary', 'assigned_object_parent', 'assigned_object', 'description',
         )

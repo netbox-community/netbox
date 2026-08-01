@@ -510,6 +510,12 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
         object_id_field='assigned_object_id',
         related_query_name='vminterface'
     )
+    wwn_addresses = GenericRelation(
+        to='dcim.WWNAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='vminterface'
+    )
 
     class Meta(ComponentModel.Meta):
         verbose_name = _('interface')

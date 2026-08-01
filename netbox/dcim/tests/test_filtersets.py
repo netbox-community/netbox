@@ -2860,6 +2860,13 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         MACAddress.objects.bulk_create(mac_addresses)
         interfaces[0].mac_addresses.set([mac_addresses[0]])
         interfaces[1].mac_addresses.set([mac_addresses[1]])
+        wwn_addresses = (
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-01', assigned_object=interfaces[0]),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-02', assigned_object=interfaces[1]),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+        interfaces[0].wwn_addresses.set([wwn_addresses[0]])
+        interfaces[1].wwn_addresses.set([wwn_addresses[1]])
         rear_ports = (
             RearPort(device=devices[0], name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
             RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
@@ -3038,6 +3045,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_wwn_address(self):
+        params = {'wwn_address': ['00-00-00-00-00-00-00-01', '00-00-00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_serial(self):
@@ -4692,6 +4703,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
+        wwn_addresses = (
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-01'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-02'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-03'),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
         vlans = (
             VLAN(name='SVLAN 1', vid=1001, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
             VLAN(name='SVLAN 2', vid=1002, qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
@@ -5199,6 +5217,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_wwn_address(self):
+        params = {'wwn_address': ['00-00-00-00-00-00-00-01', '00-00-00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -7677,6 +7699,105 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-01-01-01', '00-00-00-02-01-01']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_device(self):
+        devices = Device.objects.all()[:2]
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_machine(self):
+        virtual_machines = VirtualMachine.objects.all()[:2]
+        params = {'virtual_machine_id': [virtual_machines[0].pk, virtual_machines[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine': [virtual_machines[0].name, virtual_machines[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_interface(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'interface': [interfaces[0].name, interfaces[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vminterface(self):
+        vm_interfaces = VMInterface.objects.all()[:2]
+        params = {'vminterface_id': [vm_interfaces[0].pk, vm_interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_assigned(self):
+        params = {'assigned': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'assigned': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_primary(self):
+        params = {'primary': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'primary': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+class WWNAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = WWNAddress.objects.all()
+    filterset = WWNAddressFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        devices = (
+            create_test_device('Device 1'),
+            create_test_device('Device 2'),
+            create_test_device('Device 3'),
+        )
+        interfaces = (
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GFC_SFP),
+            Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GFC_SFP),
+            Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GFC_SFP),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        virtual_machines = (
+            create_test_virtualmachine('Virtual Machine 1'),
+            create_test_virtualmachine('Virtual Machine 2'),
+            create_test_virtualmachine('Virtual Machine 3'),
+        )
+        vm_interfaces = (
+            VMInterface(virtual_machine=virtual_machines[0], name='Interface 1'),
+            VMInterface(virtual_machine=virtual_machines[1], name='Interface 2'),
+            VMInterface(virtual_machine=virtual_machines[2], name='Interface 3'),
+        )
+        VMInterface.objects.bulk_create(vm_interfaces)
+
+        wwn_addresses = (
+            # Device WWNs
+            WWNAddress(wwn_address='00-00-00-00-00-01-01-01', assigned_object=interfaces[0]),
+            WWNAddress(wwn_address='00-00-00-00-00-02-01-01', assigned_object=interfaces[1]),
+            WWNAddress(wwn_address='00-00-00-00-00-03-01-01', assigned_object=interfaces[2]),
+            WWNAddress(wwn_address='00-00-00-00-00-03-01-02', assigned_object=interfaces[2]),
+            # VM WWNs
+            WWNAddress(wwn_address='00-00-00-00-00-04-01-01', assigned_object=vm_interfaces[0]),
+            WWNAddress(wwn_address='00-00-00-00-00-05-01-01', assigned_object=vm_interfaces[1]),
+            WWNAddress(wwn_address='00-00-00-00-00-06-01-01', assigned_object=vm_interfaces[2]),
+            WWNAddress(wwn_address='00-00-00-00-00-06-01-02', assigned_object=vm_interfaces[2]),
+            # unassigned
+            WWNAddress(wwn_address='00-00-00-00-00-07-01-01'),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
+        # Set WWN addresses as primary
+        for idx, interface in enumerate(interfaces):
+            interface.primary_wwn_address = wwn_addresses[idx]
+            interface.save()
+        for idx, vm_interface in enumerate(vm_interfaces):
+            # Offset by 4 for device WWNs
+            vm_interface.primary_wwn_address = wwn_addresses[idx + 4]
+            vm_interface.save()
+
+    def test_wwn_address(self):
+        params = {'wwn_address': ['00-00-00-00-00-01-01-01', '00-00-00-00-00-02-01-01']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device(self):

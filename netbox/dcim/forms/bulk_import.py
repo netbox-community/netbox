@@ -69,7 +69,8 @@ __all__ = (
     'SiteGroupImportForm',
     'SiteImportForm',
     'VirtualChassisImportForm',
-    'VirtualDeviceContextImportForm'
+    'VirtualDeviceContextImportForm',
+    'WWNAddressImportForm'
 )
 
 
@@ -1065,7 +1066,7 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         model = Interface
         fields = (
             'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
-            'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
+            'mark_connected', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
             'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'owner', 'tags'
         )
@@ -1509,6 +1510,88 @@ class MACAddressImportForm(PrimaryModelImportForm):
         return instance
 
 
+class WWNAddressImportForm(PrimaryModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent device of assigned interface (if any)')
+    )
+    virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Parent VM of assigned interface (if any)')
+    )
+    interface = CSVModelChoiceField(
+        label=_('Interface'),
+        queryset=Interface.objects.none(),  # Can also refer to VMInterface
+        required=False,
+        to_field_name='name',
+        help_text=_('Assigned interface')
+    )
+    is_primary = forms.BooleanField(
+        label=_('Is primary'),
+        help_text=_('Make this the primary WWN for the assigned interface'),
+        required=False
+    )
+
+    class Meta:
+        model = WWNAddress
+        fields = [
+            'wwn_address', 'device', 'virtual_machine', 'interface', 'is_primary', 'description', 'owner', 'comments',
+            'tags',
+        ]
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit interface queryset by assigned device
+            if data.get('device'):
+                self.fields['interface'].queryset = Interface.objects.filter(
+                    **{f"device__{self.fields['device'].to_field_name}": data['device']}
+                )
+
+            # Limit interface queryset by assigned device
+            elif data.get('virtual_machine'):
+                self.fields['interface'].queryset = VMInterface.objects.filter(
+                    **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
+                )
+
+    def clean(self):
+        super().clean()
+
+        device = self.cleaned_data.get('device')
+        virtual_machine = self.cleaned_data.get('virtual_machine')
+        interface = self.cleaned_data.get('interface')
+
+        # Validate interface assignment
+        if interface and not device and not virtual_machine:
+            raise forms.ValidationError({
+                "interface": _("Must specify the parent device or VM when assigning an interface")
+            })
+
+    def save(self, *args, **kwargs):
+
+        # Set interface assignment
+        if interface := self.cleaned_data.get('interface'):
+            self.instance.assigned_object = interface
+
+        instance = super().save(*args, **kwargs)
+
+        # Assign the WWN as primary for its interface, if designated as such
+        if interface and self.cleaned_data['is_primary'] and self.instance.pk:
+            interface.snapshot()
+            interface.primary_wwn_address = self.instance
+            interface.save()
+
+        return instance
+
+
 #
 # Cables
 #
@@ -1761,6 +1844,8 @@ class CableImportForm(PrimaryModelImportForm):
     def clean_color(self):
         color = self.cleaned_data.get('color', None)
         return self._clean_color(color) if color is not None else ''
+
+
 #
 # Virtual chassis
 #

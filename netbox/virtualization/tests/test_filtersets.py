@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup, WWNAddress
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANTranslationPolicy
 from tenancy.models import Tenant, TenantGroup
@@ -514,6 +514,13 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
+        wwn_addresses = (
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-01'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-02'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-03'),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
         interfaces = (
             VMInterface(virtual_machine=vms[0], name='Interface 1'),
             VMInterface(virtual_machine=vms[1], name='Interface 2'),
@@ -524,6 +531,10 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         interfaces[0].mac_addresses.set([mac_addresses[0]])
         interfaces[1].mac_addresses.set([mac_addresses[1]])
         interfaces[2].mac_addresses.set([mac_addresses[2]])
+
+        interfaces[0].wwn_addresses.set([wwn_addresses[0]])
+        interfaces[1].wwn_addresses.set([wwn_addresses[1]])
+        interfaces[2].wwn_addresses.set([wwn_addresses[2]])
 
         # Assign primary IPs for filtering
         ipaddresses = (
@@ -647,6 +658,10 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_wwn_address(self):
+        params = {'wwn_address': ['00-00-00-00-00-00-00-01', '00-00-00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_has_primary_ip(self):
         params = {'has_primary_ip': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -757,6 +772,13 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
+        wwn_addresses = (
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-01'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-02'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-03'),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
         interfaces = (
             VMInterface(
                 virtual_machine=vms[0],
@@ -794,6 +816,10 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         interfaces[0].mac_addresses.set([mac_addresses[0]])
         interfaces[1].mac_addresses.set([mac_addresses[1]])
         interfaces[2].mac_addresses.set([mac_addresses[2]])
+
+        interfaces[0].wwn_addresses.set([wwn_addresses[0]])
+        interfaces[1].wwn_addresses.set([wwn_addresses[1]])
+        interfaces[2].wwn_addresses.set([wwn_addresses[2]])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -848,6 +874,10 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_wwn_address(self):
+        params = {'wwn_address': ['00-00-00-00-00-00-00-01', '00-00-00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vrf(self):

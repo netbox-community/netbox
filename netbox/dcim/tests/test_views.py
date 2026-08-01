@@ -3300,7 +3300,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
-            'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 65000,
             'speed': 16_000_000_000,
             'duplex': 'full',
@@ -3324,7 +3323,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
-            'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
             'speed': 16_000_000_000,
             'duplex': 'half',
@@ -3344,7 +3342,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
             'enabled': True,
             'lag': interfaces[3].pk,
-            'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
             'speed': 1000000,
             'duplex': 'full',
@@ -4651,6 +4648,83 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.post(url, data=quickadd_data)
 
         # Should successfully create the MAC address and return the quick_add_created template
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'quick-add-object', response.content)
+        self.assertEqual(initial_count + 1, self._get_queryset().count())
+
+
+class WWNAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = WWNAddress
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device(name='Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 2', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 3', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 4', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 5', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 6', type='32gfc-sfp28'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        wwn_addresses = (
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:01', assigned_object=interfaces[0]),
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:02', assigned_object=interfaces[1]),
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:03', assigned_object=interfaces[2]),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'wwn_address': EUI('00:00:00:00:00:00:00:04', version=64),
+            'description': 'New WWN address',
+            'interface_id': interfaces[3].pk,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "wwn_address,device,interface",
+            "00:00:00:00:00:00:00:04,Device 1,Interface 4",
+            "00:00:00:00:00:00:00:05,Device 1,Interface 5",
+            "00:00:00:00:00:00:00:06,Device 1,Interface 6",
+        )
+
+        cls.csv_update_data = (
+            "id,wwn_address",
+            f"{wwn_addresses[0].pk},00:00:00:00:00:00:00:0a",
+            f"{wwn_addresses[1].pk},00:00:00:00:00:00:00:0b",
+            f"{wwn_addresses[2].pk},00:00:00:00:00:00:00:0c",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+    @tag('regression')  # Issue #20542
+    def test_create_wwnaddress_via_quickadd(self):
+        """
+        Test creating a WWN address via quick-add modal (e.g., from Interface form).
+        Regression test for issue #20542 where form prefix was missing in POST handler.
+        """
+        self.add_permissions('dcim.view_wwnaddress', 'dcim.view_interface', 'extras.view_tag')
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Simulate quick-add form submission with 'quickadd-' prefix
+        formatted_data = post_data(self.form_data)
+        quickadd_data = {f'quickadd-{k}': v for k, v in formatted_data.items()}
+        quickadd_data['_quickadd'] = 'True'
+
+        initial_count = self._get_queryset().count()
+        url = f"{self._get_url('add')}?_quickadd=True&target=id_primary_wwn_address"
+        response = self.client.post(url, data=quickadd_data)
+
+        # Should successfully create the WWN address and return the quick_add_created template
         self.assertHttpStatus(response, 200)
         self.assertIn(b'quick-add-object', response.content)
         self.assertEqual(initial_count + 1, self._get_queryset().count())

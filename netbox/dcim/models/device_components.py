@@ -10,7 +10,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
@@ -766,6 +765,14 @@ class BaseInterface(models.Model):
         null=True,
         verbose_name=_('primary MAC address')
     )
+    primary_wwn_address = models.OneToOneField(
+        to='dcim.WWNAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name=_('primary WWN address')
+    )
 
     class Meta:
         abstract = True
@@ -791,6 +798,21 @@ class BaseInterface(models.Model):
                 ).format(
                     mac_address=self.primary_mac_address,
                     interface=self.primary_mac_address.assigned_object,
+                )
+            })
+
+        # Check that the primary WWN address (if any) is assigned to this interface
+        if (
+                self.primary_wwn_address and
+                self.primary_wwn_address.assigned_object is not None and
+                self.primary_wwn_address.assigned_object != self
+        ):
+            raise ValidationError({
+                'primary_wwn_address': _(
+                    "WWN address {wwn_address} is assigned to a different interface ({interface})."
+                ).format(
+                    wwn_address=self.primary_wwn_address,
+                    interface=self.primary_wwn_address.assigned_object,
                 )
             })
 
@@ -877,12 +899,6 @@ class Interface(
         null=True,
         choices=InterfaceDuplexChoices
     )
-    wwn = WWNField(
-        null=True,
-        blank=True,
-        verbose_name=_('WWN'),
-        help_text=_('64-bit World Wide Name')
-    )
     rf_role = models.CharField(
         max_length=30,
         choices=WirelessRoleChoices,
@@ -965,6 +981,12 @@ class Interface(
     )
     mac_addresses = GenericRelation(
         to='dcim.MACAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface'
+    )
+    wwn_addresses = GenericRelation(
+        to='dcim.WWNAddress',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface'

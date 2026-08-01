@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.fields import MACAddressField
+from dcim.fields import MACAddressField, WWNAddressField
 from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
@@ -44,6 +44,7 @@ __all__ = (
     'Platform',
     'VirtualChassis',
     'VirtualDeviceContext',
+    'WWNAddress',
 )
 
 
@@ -1421,4 +1422,71 @@ class MACAddress(PrimaryModel):
                 if original_assigned_object != assigned_object:
                     raise ValidationError(
                         _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
+                    )
+
+
+class WWNAddress(PrimaryModel):
+    wwn_address = WWNAddressField(
+        verbose_name=_('WWN address')
+    )
+    assigned_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        on_delete=models.PROTECT,
+        related_name='+',
+        blank=True,
+        null=True
+    )
+    assigned_object_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
+    )
+
+    class Meta:
+        ordering = ('wwn_address', 'pk')
+        indexes = (
+            models.Index(fields=('wwn_address', 'id')),  # Default ordering
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
+        verbose_name = _('WWN address')
+        verbose_name_plural = _('WWN addresses')
+
+    def __str__(self):
+        return str(self.wwn_address)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Denote the original assigned object (if any) for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
+    @cached_property
+    def is_primary(self):
+        if self.assigned_object and hasattr(self.assigned_object, 'primary_wwn_address'):
+            if self.assigned_object.primary_wwn_address and self.assigned_object.primary_wwn_address.pk == self.pk:
+                return True
+        return False
+
+    def clean(self, *args, **kwargs):
+        super().clean()
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
+            assigned_object = self.assigned_object
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+
+            if (
+                original_assigned_object.primary_wwn_address
+                and original_assigned_object.primary_wwn_address.pk == self.pk
+            ):
+                if not assigned_object:
+                    raise ValidationError(
+                        _("Cannot unassign WWN Address while it is designated as the primary WWN for an object")
+                    )
+                if original_assigned_object != assigned_object:
+                    raise ValidationError(
+                        _("Cannot reassign WWN Address while it is designated as the primary WWN for an object")
                     )

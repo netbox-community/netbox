@@ -82,5 +82,7 @@
   "virtualchassis:api_list_objects": 16,
   "virtualchassis:list_objects_with_permission": 21,
   "virtualdevicecontext:api_list_objects": 14,
-  "virtualdevicecontext:list_objects_with_permission": 20
+  "virtualdevicecontext:list_objects_with_permission": 20,
+  "wwnaddress:api_list_objects": 17,
+  "wwnaddress:list_objects_with_permission": 24
 }

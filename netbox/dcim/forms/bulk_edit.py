@@ -78,7 +78,8 @@ __all__ = (
     'SiteBulkEditForm',
     'SiteGroupBulkEditForm',
     'VirtualChassisBulkEditForm',
-    'VirtualDeviceContextBulkEditForm'
+    'VirtualDeviceContextBulkEditForm',
+    'WWNAddressBulkEditForm',
 )
 
 
@@ -1433,7 +1434,7 @@ class PowerOutletBulkEditForm(
 class InterfaceBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(Interface, [
-        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'mtu', 'mgmt_only', 'mark_connected',
+        'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected',
         'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
         'wireless_lans', 'vlan_translation_policy'
     ])
@@ -1584,7 +1585,7 @@ class InterfaceBulkEditForm(
     model = Interface
     fieldsets = (
         FieldSet('module', 'type', 'label', 'speed', 'duplex', 'description'),
-        FieldSet('vrf', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
@@ -1603,7 +1604,7 @@ class InterfaceBulkEditForm(
         ),
     )
     nullable_fields = (
-        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'wwn', 'vdcs', 'mtu', 'description',
+        'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'vdcs', 'mtu', 'description',
         'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
         'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'wireless_lans', 'vlan_translation_policy',
     )
@@ -1818,6 +1819,14 @@ class VirtualDeviceContextBulkEditForm(PrimaryModelBulkEditForm):
 
 class MACAddressBulkEditForm(PrimaryModelBulkEditForm):
     model = MACAddress
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description', 'comments')
+
+
+class WWNAddressBulkEditForm(PrimaryModelBulkEditForm):
+    model = WWNAddress
     fieldsets = (
         FieldSet('description'),
     )

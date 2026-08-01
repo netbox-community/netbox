@@ -34,6 +34,13 @@ The [MAC address](../dcim/macaddress.md) assigned to this interface which is des
 !!! note "Changed in NetBox v4.2"
     The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](../dcim/macaddress.md) object.
 
+### Primary WWN Address
+
+The [WWN address](../dcim/wwnaddress.md) assigned to this interface which is designated as its primary.
+
+!!! note "Changed in NetBox v4.7"
+    The WWN address of an interface (formerly a concrete database field) is available as a property, `wwn_address`, which reflects the value of the primary linked [WWN address](./dcim/wwnaddress.md) object.
+
 ### MTU
 
 The interface's configured maximum transmissible unit (MTU).

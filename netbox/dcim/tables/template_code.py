@@ -356,6 +356,9 @@ INTERFACE_BUTTONS = """
       {% if perms.dcim.add_macaddress %}
         <li><a class="dropdown-item" href="{% url 'dcim:macaddress_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">MAC Address</a></li>
       {% endif %}
+      {% if perms.dcim.add_wwnaddress %}
+        <li><a class="dropdown-item" href="{% url 'dcim:wwnaddress_add' %}?interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">WWN Address</a></li>
+      {% endif %}
       {% if perms.dcim.add_inventoryitem %}
         <li><a class="dropdown-item" href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Inventory Item</a></li>
       {% endif %}

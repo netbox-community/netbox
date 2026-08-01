@@ -569,6 +569,12 @@ class MACAddressViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.MACAddressFilterSet
 
 
+class WWNAddressViewSet(NetBoxModelViewSet):
+    queryset = WWNAddress.objects.all()
+    serializer_class = serializers.WWNAddressSerializer
+    filterset_class = filtersets.WWNAddressFilterSet
+
+
 #
 # Cables
 #

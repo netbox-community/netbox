@@ -232,6 +232,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('enabled', models.BooleanField(default=True)),
                 ('mac_address', dcim.fields.MACAddressField(blank=True, null=True)),
+                ('wwn', dcim.fields.WWNAddressField(blank=True, null=True)),
                 (
                     'mtu',
                     models.PositiveIntegerField(

@@ -386,6 +386,13 @@ class MACAddressPanel(panels.ObjectAttributesPanel):
     is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
 
 
+class WWNAddressPanel(panels.ObjectAttributesPanel):
+    wwn_address = attrs.TextAttr('wwn_address', label=_('WWN address'), style='font-monospace', copy_button=True)
+    description = attrs.TextAttr('description')
+    assignment = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object')
+    is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
+
+
 class ConnectionPanel(panels.ObjectPanel):
     """
     A panel which displays connection information for a cabled object.
@@ -517,7 +524,11 @@ class InterfaceAddressingPanel(panels.ObjectAttributesPanel):
         template_name='dcim/interface/attrs/mac_address.html',
         label=_('MAC address'),
     )
-    wwn = attrs.TextAttr('wwn', style='font-monospace', label=_('WWN'))
+    wwn_address = attrs.TemplatedAttr(
+        'primary_wwn_address',
+        template_name='dcim/interface/attrs/wwn_address.html',
+        label=_('WWN address'),
+    )
     vrf = attrs.RelatedObjectAttr('vrf', linkify=True, label=_('VRF'))
     vlan_translation = attrs.RelatedObjectAttr('vlan_translation_policy', linkify=True, label=_('VLAN translation'))
 

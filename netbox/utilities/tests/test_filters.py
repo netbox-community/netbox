@@ -9,7 +9,7 @@ from taggit.managers import TaggableManager
 
 from core.models import ObjectType
 from dcim.choices import *
-from dcim.fields import MACAddressField
+from dcim.fields import MACAddressField, WWNAddressField
 from dcim.filtersets import DeviceFilterSet, InterfaceFilterSet, SiteFilterSet
 from dcim.models import (
     Device,
@@ -22,6 +22,7 @@ from dcim.models import (
     Rack,
     Region,
     Site,
+    WWNAddress,
 )
 from extras.filters import TagFilter
 from extras.models import SavedFilter, Tag, TaggedItem
@@ -35,6 +36,7 @@ from utilities.filters import (
     MultiValueMACAddressFilter,
     MultiValueNumberFilter,
     MultiValueTimeFilter,
+    MultiValueWWNAddressFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from wireless.choices import WirelessRoleChoices
@@ -185,6 +187,7 @@ class DummyModel(models.Model):
         to='self',
         on_delete=models.CASCADE
     )
+    wwnaddressfield = WWNAddressField()
 
     tags = TaggableManager(through=TaggedItem)
 
@@ -215,6 +218,7 @@ class BaseFilterSetTestCase(TestCase):
         treeforeignkeyfield = TreeNodeMultipleChoiceFilter(
             queryset=DummyModel.objects.all()
         )
+        wwnaddressfield = MultiValueWWNAddressFilter()
 
         class Meta:
             model = DummyModel
@@ -232,6 +236,7 @@ class BaseFilterSetTestCase(TestCase):
                 'tagfield',
                 'timefield',
                 'treeforeignkeyfield',
+                'wwnaddressfield',
             )
 
     @classmethod
@@ -459,6 +464,33 @@ class BaseFilterSetTestCase(TestCase):
         self.assertEqual(self.filters['treeforeignkeyfield__n'].lookup_expr, 'in')
         self.assertEqual(self.filters['treeforeignkeyfield__n'].exclude, True)
 
+    def test_wwn_address_filter(self):
+        self.assertIsInstance(self.filters['wwnaddressfield'], MultiValueWWNAddressFilter)
+        self.assertEqual(self.filters['wwnaddressfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['wwnaddressfield'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['wwnaddressfield__n'].exclude, True)
+        self.assertEqual(self.filters['wwnaddressfield__ie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['wwnaddressfield__ie'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__nie'].lookup_expr, 'iexact')
+        self.assertEqual(self.filters['wwnaddressfield__nie'].exclude, True)
+        self.assertEqual(self.filters['wwnaddressfield__ic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['wwnaddressfield__ic'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__nic'].lookup_expr, 'icontains')
+        self.assertEqual(self.filters['wwnaddressfield__nic'].exclude, True)
+        self.assertEqual(self.filters['wwnaddressfield__isw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['wwnaddressfield__isw'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__nisw'].lookup_expr, 'istartswith')
+        self.assertEqual(self.filters['wwnaddressfield__nisw'].exclude, True)
+        self.assertEqual(self.filters['wwnaddressfield__iew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['wwnaddressfield__iew'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__niew'].lookup_expr, 'iendswith')
+        self.assertEqual(self.filters['wwnaddressfield__niew'].exclude, True)
+        self.assertEqual(self.filters['wwnaddressfield__regex'].lookup_expr, 'regex')
+        self.assertEqual(self.filters['wwnaddressfield__regex'].exclude, False)
+        self.assertEqual(self.filters['wwnaddressfield__iregex'].lookup_expr, 'iregex')
+        self.assertEqual(self.filters['wwnaddressfield__iregex'].exclude, False)
+
 
 class DynamicFilterLookupExpressionTestCase(TestCase):
     """
@@ -585,6 +617,16 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         )
         MACAddress.objects.bulk_create(mac_addresses)
 
+        wwn_addresses = (
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-01'),
+            WWNAddress(wwn_address='aa-00-00-00-00-00-00-01'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-02'),
+            WWNAddress(wwn_address='bb-00-00-00-00-00-00-02'),
+            WWNAddress(wwn_address='00-00-00-00-00-00-00-03'),
+            WWNAddress(wwn_address='cc-00-00-00-00-00-00-03'),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
         interfaces = (
             Interface(device=devices[0], name='Interface 1'),
             Interface(device=devices[0], name='Interface 2'),
@@ -601,6 +643,13 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         interfaces[3].mac_addresses.set([mac_addresses[3]])
         interfaces[4].mac_addresses.set([mac_addresses[4]])
         interfaces[5].mac_addresses.set([mac_addresses[5]])
+
+        interfaces[0].wwn_addresses.set([wwn_addresses[0]])
+        interfaces[1].wwn_addresses.set([wwn_addresses[1]])
+        interfaces[2].wwn_addresses.set([wwn_addresses[2]])
+        interfaces[3].wwn_addresses.set([wwn_addresses[3]])
+        interfaces[4].wwn_addresses.set([wwn_addresses[4]])
+        interfaces[5].wwn_addresses.set([wwn_addresses[5]])
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}

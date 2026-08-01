@@ -145,6 +145,10 @@ class InterfaceBaseFilterMixin:
         strawberry_django.filter_field()
     )
     primary_mac_address_id: ID | None = strawberry_django.filter_field()
+    primary_wwn_address: Annotated['WWNAddressFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    primary_wwn_address_id: ID | None = strawberry_django.filter_field()
 
 
 @dataclass

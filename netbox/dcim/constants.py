@@ -157,3 +157,12 @@ MACADDRESS_ASSIGNMENT_MODELS = Q(
     Q(app_label='dcim', model='interface') |
     Q(app_label='virtualization', model='vminterface')
 )
+
+#
+# WWN addresses
+#
+
+WWNADDRESS_ASSIGNMENT_MODELS = Q(
+    Q(app_label='dcim', model='interface') |
+    Q(app_label='virtualization', model='vminterface')
+)

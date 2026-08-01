@@ -32,7 +32,7 @@ from utilities.filters import (
     MultiValueContentTypeFilter,
     MultiValueMACAddressFilter,
     MultiValueNumberFilter,
-    MultiValueWWNFilter,
+    MultiValueWWNAddressFilter,
     NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
@@ -99,6 +99,7 @@ __all__ = (
     'SiteGroupFilterSet',
     'VirtualChassisFilterSet',
     'VirtualDeviceContextFilterSet',
+    'WWNAddressFilterSet',
 )
 
 
@@ -1393,6 +1394,10 @@ class DeviceFilterSet(
         field_name='interfaces__mac_addresses__mac_address',
         label=_('MAC address'),
     )
+    wwn_address = MultiValueWWNAddressFilter(
+        field_name='interfaces__wwn_addresses__wwn_address',
+        label=_('WWN address'),
+    )
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
@@ -2137,6 +2142,118 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         return queryset.exclude(query)
 
 
+@register_filterset
+class WWNAddressFilterSet(PrimaryModelFilterSet):
+    wwn_address = MultiValueWWNAddressFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
+        label=_('Device (name)'),
+    )
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
+        label=_('Device (ID)'),
+    )
+    virtual_machine = MultiValueCharFilter(
+        method='filter_virtual_machine',
+        field_name='name',
+        label=_('Virtual machine (name)'),
+    )
+    virtual_machine_id = MultiValueNumberFilter(
+        method='filter_virtual_machine',
+        field_name='pk',
+        label=_('Virtual machine (ID)'),
+    )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label=_('Interface (name)'),
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
+        queryset=Interface.objects.all(),
+        label=_('Interface (ID)'),
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.all(),
+        to_field_name='name',
+        label=_('VM interface (name)'),
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.all(),
+        label=_('VM interface (ID)'),
+    )
+    assigned = django_filters.BooleanFilter(
+        method='filter_assigned',
+        label=_('Is assigned'),
+    )
+    primary = django_filters.BooleanFilter(
+        method='filter_primary',
+        label=_('Is primary'),
+    )
+
+    class Meta:
+        model = WWNAddress
+        fields = ('id', 'description', 'assigned_object_type', 'assigned_object_id')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(wwn_address__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+    def filter_device(self, queryset, name, value):
+        devices = Device.objects.filter(**{f'{name}__in': value})
+        if not devices.exists():
+            return queryset.none()
+        interface_ids = []
+        for device in devices:
+            interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
+        return queryset.filter(
+            interface__in=interface_ids
+        )
+
+    def filter_virtual_machine(self, queryset, name, value):
+        virtual_machines = VirtualMachine.objects.filter(**{f'{name}__in': value})
+        if not virtual_machines.exists():
+            return queryset.none()
+        interface_ids = []
+        for vm in virtual_machines:
+            interface_ids.extend(vm.interfaces.values_list('id', flat=True))
+        return queryset.filter(
+            vminterface__in=interface_ids
+        )
+
+    def filter_assigned(self, queryset, name, value):
+        params = {
+            'assigned_object_type__isnull': True,
+            'assigned_object_id__isnull': True,
+        }
+        if value:
+            return queryset.exclude(**params)
+        return queryset.filter(**params)
+
+    def filter_primary(self, queryset, name, value):
+        interface_wwn_ids = Interface.objects.filter(primary_wwn_address_id__isnull=False).values_list(
+            'primary_wwn_address_id', flat=True
+        )
+        vminterface_wwn_ids = VMInterface.objects.filter(primary_wwn_address_id__isnull=False).values_list(
+            'primary_wwn_address_id', flat=True
+        )
+        query = Q(pk__in=interface_wwn_ids) | Q(pk__in=vminterface_wwn_ids)
+        if value:
+            return queryset.filter(query)
+        return queryset.exclude(query)
+
+
 class CommonInterfaceFilterSet(django_filters.FilterSet):
     mode = django_filters.MultipleChoiceFilter(
         choices=InterfaceModeChoices,
@@ -2281,7 +2398,23 @@ class InterfaceFilterSet(
         to_field_name='mac_address',
         label=_('Primary MAC address'),
     )
-    wwn = MultiValueWWNFilter()
+    mac_address = MultiValueMACAddressFilter(
+        field_name='mac_addresses__mac_address',
+        label=_('MAC Address')
+    )
+    primary_wwn_address_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_wwn_address',
+        queryset=WWNAddress.objects.all(),
+        distinct=False,
+        label=_('Primary WWN address (ID)'),
+    )
+    primary_wwn_address = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_wwn_address__wwn_address',
+        queryset=WWNAddress.objects.all(),
+        distinct=False,
+        to_field_name='wwn_address',
+        label=_('Primary WWN address'),
+    )
     poe_mode = django_filters.MultipleChoiceFilter(
         choices=InterfacePoEModeChoices,
         distinct=False,

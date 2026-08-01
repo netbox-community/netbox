@@ -162,7 +162,7 @@ class VirtualMachineFilterForm(
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet(
             'virtual_machine_type_id', 'status', 'start_on_boot', 'role_id', 'platform_id', 'mac_address',
-            'has_primary_ip', 'config_template_id', 'local_context_data', 'serial',
+            'wwn_address', 'has_primary_ip', 'config_template_id', 'local_context_data', 'serial',
             name=_('Attributes')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -246,6 +246,10 @@ class VirtualMachineFilterForm(
         required=False,
         label=_('MAC address')
     )
+    wwn_address = forms.CharField(
+        required=False,
+        label=_('WWN address')
+    )
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label=_('Has a primary IP'),
@@ -271,7 +275,7 @@ class VMInterfaceFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
         FieldSet('enabled', name=_('Attributes')),
-        FieldSet('vrf_id', 'l2vpn_id', 'mac_address', name=_('Addressing')),
+        FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn_address', name=_('Addressing')),
         FieldSet('mode', 'vlan_translation_policy_id', name=_('802.1Q Switching')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -299,6 +303,10 @@ class VMInterfaceFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     mac_address = forms.CharField(
         required=False,
         label=_('MAC address')
+    )
+    wwn_address = forms.CharField(
+        required=False,
+        label=_('WWN address')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),

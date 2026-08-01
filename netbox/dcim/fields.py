@@ -9,7 +9,7 @@ from .lookups import PathContains
 __all__ = (
     'MACAddressField',
     'PathField',
-    'WWNField',
+    'WWNAddressField',
 )
 
 
@@ -56,7 +56,7 @@ class MACAddressField(models.Field):
         return str(self.to_python(value))
 
 
-class WWNField(models.Field):
+class WWNAddressField(models.Field):
     description = 'World Wide Name field'
 
     def python_type(self):

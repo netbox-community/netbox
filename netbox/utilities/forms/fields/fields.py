@@ -24,6 +24,7 @@ __all__ = (
     'QueryField',
     'SlugField',
     'TagFilterField',
+    'WWNAddressField',
 )
 
 
@@ -174,6 +175,27 @@ class MACAddressField(forms.Field):
         # Validate MAC address format
         try:
             value = EUI(value.strip())
+        except AddrFormatError:
+            raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
+
+        return value
+
+
+class WWNAddressField(forms.Field):
+    """
+    Validates a 64-bit WWN address.
+    """
+    widget = forms.CharField
+    default_error_messages = {
+        'invalid': _('WWN address must be in EUI-64 format'),
+    }
+
+    def to_python(self, value):
+        value = super().to_python(value)
+
+        # Validate WWN address format
+        try:
+            value = EUI(value.strip(), version=64)
         except AddrFormatError:
             raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
 

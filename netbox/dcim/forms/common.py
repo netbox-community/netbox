@@ -39,6 +39,7 @@ class InterfaceCommonForm(forms.Form):
         if self.instance and self.instance.pk:
             filter_name = f'{self._meta.model._meta.model_name}_id'
             self.fields['primary_mac_address'].widget.add_query_param(filter_name, self.instance.pk)
+            self.fields['primary_wwn_address'].widget.add_query_param(filter_name, self.instance.pk)
 
     def clean(self):
         super().clean()

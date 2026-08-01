@@ -1410,6 +1410,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'wirelesslan',
         'wirelesslangroup',
         'wirelesslink',
+        'wwnaddress',
     )
 
     @classmethod

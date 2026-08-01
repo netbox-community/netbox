@@ -6,8 +6,8 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN
-from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN, WWNADDRESS_ASSIGNMENT_MODELS
+from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext, WWNAddress
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
@@ -31,6 +31,7 @@ __all__ = (
     'MACAddressSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
+    'WWNAddressSerializer',
 )
 
 
@@ -328,3 +329,20 @@ class MACAddressSerializer(PrimaryModelSerializer):
             'assigned_object', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
+
+
+class WWNAddressSerializer(PrimaryModelSerializer):
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(WWNADDRESS_ASSIGNMENT_MODELS),
+        required=False,
+        allow_null=True
+    )
+    assigned_object = GFKSerializerField(read_only=True)
+
+    class Meta:
+        model = WWNAddress
+        fields = [
+            'id', 'url', 'display_url', 'display', 'wwn_address', 'assigned_object_type', 'assigned_object_id',
+            'assigned_object', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'wwn_address', 'description')

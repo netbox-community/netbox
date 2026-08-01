@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer
+from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer, WWNAddressSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
@@ -136,14 +136,20 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
     mac_address = serializers.CharField(allow_null=True, read_only=True)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
+    # Maintains backward compatibility with NetBox <v4.7
+    wwn_address = serializers.CharField(allow_null=True, read_only=True)
+    primary_wwn_address = WWNAddressSerializer(nested=True, required=False, allow_null=True)
+    wwn_addresses = WWNAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
+
 
     class Meta:
         model = VMInterface
         fields = [
             'id', 'url', 'display_url', 'display', 'virtual_machine', 'name', 'enabled', 'parent', 'bridge', 'mtu',
-            'mac_address', 'primary_mac_address', 'mac_addresses', 'description', 'mode', 'untagged_vlan',
-            'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'l2vpn_termination', 'owner', 'tags',
-            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
+            'mac_address', 'primary_mac_address', 'mac_addresses', 'wwn_address', 'primary_wwn_address',
+            'wwn_addresses', 'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
+            'vlan_translation_policy', 'vrf', 'l2vpn_termination', 'owner', 'tags', 'custom_fields', 'created',
+            'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 

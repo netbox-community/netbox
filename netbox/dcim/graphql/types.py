@@ -90,6 +90,7 @@ __all__ = (
     'SiteType',
     'VirtualChassisType',
     'VirtualDeviceContextType',
+    'WWNAddressType',
 )
 
 
@@ -1015,3 +1016,21 @@ class VirtualDeviceContextType(PrimaryObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
+    models.WWNAddress,
+    exclude=['assigned_object_type', 'assigned_object_id'],
+    filters=WWNAddressFilter,
+    pagination=True
+)
+class WWNAddressType(PrimaryObjectType):
+    wwn_address: str
+
+    @strawberry_django.field(prefetch_related='assigned_object')
+    def assigned_object(self) -> Annotated[
+        Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
+        strawberry.union('WWNAddressAssignmentType'),
+    ] | None:
+        return self.assigned_object

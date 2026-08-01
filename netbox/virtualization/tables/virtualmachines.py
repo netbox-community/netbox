@@ -166,8 +166,8 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mtu', 'mode', 'description', 'tags', 'vrf',
-            'primary_mac_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'created', 'last_updated', 'vlan_translation_policy',
+            'primary_mac_address', 'primary_wwn_address', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'created', 'last_updated', 'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -189,11 +189,14 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     class Meta(NetBoxTable.Meta):
         model = VMInterface
         fields = (
-            'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'primary_mac_address', 'mtu', 'mode', 'description',
-            'tags', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'actions',
+            'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'primary_mac_address', 'primary_wwn_address', 'mtu',
+            'mode', 'description', 'tags', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan',
+            'tagged_vlans', 'qinq_svlan', 'actions',
         )
-        default_columns = ('pk', 'name', 'enabled', 'primary_mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
+        default_columns = (
+            'pk', 'name', 'enabled', 'primary_mac_address', 'primary_wwn_address', 'mtu', 'mode',
+            'description', 'ip_addresses'
+        )
         row_attrs = {
             'data-name': lambda record: record.name,
             'data-virtual': lambda record: "true",

@@ -21,7 +21,7 @@ __all__ = (
     'MultiValueMACAddressFilter',
     'MultiValueNumberFilter',
     'MultiValueTimeFilter',
-    'MultiValueWWNFilter',
+    'MultiValueWWNAddressFilter',
     'NullableCharFieldFilter',
     'NumericArrayFilter',
     'TreeNodeMultipleChoiceFilter',
@@ -122,8 +122,14 @@ class MultiValueMACAddressFilter(django_filters.MultipleChoiceFilter):
 
 
 @extend_schema_field(OpenApiTypes.STR)
-class MultiValueWWNFilter(django_filters.MultipleChoiceFilter):
+class MultiValueWWNAddressFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.CharField)
+
+    def filter(self, qs, value):
+        try:
+            return super().filter(qs, value)
+        except ValidationError:
+            return qs.none()
 
 
 @extend_schema_field(OpenApiTypes.STR)

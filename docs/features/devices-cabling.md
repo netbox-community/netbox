@@ -19,6 +19,7 @@ click DeviceRole "../../models/dcim/devicerole/"
 click DeviceType "../../models/dcim/devicetype/"
 click Interface "../../models/dcim/interface/"
 click MACAddress "../../models/dcim/macaddress/"
+click WWNAddress "../../models/dcim/wwnaddress/"
 click Manufacturer "../../models/dcim/manufacturer/"
 click Module "../../models/dcim/module/"
 click ModuleType "../../models/dcim/moduletype/"
@@ -90,6 +91,10 @@ One especially nice feature of modules is that templated components can be autom
 ## MAC Addresses
 
 [MAC addresses](../models/dcim/macaddress.md) are modeled as first-class objects in NetBox so that an interface may have multiple MAC addresses assigned to it, with one optionally designated as the interface's primary MAC. This accommodates virtual interfaces and modular hardware where the link-layer address is not necessarily fixed at the factory. MAC addresses can be assigned to both [device interfaces](../models/dcim/interface.md) and [virtual machine interfaces](../models/virtualization/vminterface.md).
+
+## WWN Addresses
+
+[WWN addresses](../models/dcim/wwnaddress.md) are modeled as first-class objects in NetBox so that an interface may have multiple WWN addresses assigned to it, with one optionally designated as the interface's primary WWN. This accommodates virtual interfaces and modular hardware where the link-layer address is not necessarily fixed at the factory. WWN addresses can be assigned to both [device interfaces](../models/dcim/interface.md) and [virtual machine interfaces](../models/virtualization/vminterface.md).
 
 ## Cables
 

@@ -60,6 +60,7 @@ router.register('inventory-item-roles', views.InventoryItemRoleViewSet)
 
 # Addressing
 router.register('mac-addresses', views.MACAddressViewSet)
+router.register('wwn-addresses', views.WWNAddressViewSet)
 
 # Cables
 router.register('cables', views.CableViewSet)

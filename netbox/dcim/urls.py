@@ -178,4 +178,7 @@ urlpatterns = [
     path('mac-addresses/', include(get_model_urls('dcim', 'macaddress', detail=False))),
     path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),
 
+    path('wwn-addresses/', include(get_model_urls('dcim', 'wwnaddress', detail=False))),
+    path('wwn-addresses/<int:pk>/', include(get_model_urls('dcim', 'wwnaddress'))),
+
 ]

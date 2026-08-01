@@ -22,6 +22,7 @@ if TYPE_CHECKING:
         RegionType,
         SiteGroupType,
         SiteType,
+        WWNAddressType,
     )
     from extras.graphql.types import ConfigTemplateType
     from ipam.graphql.types import IPAddressType, ServiceType, VLANTranslationPolicyType, VLANType, VRFType
@@ -140,11 +141,13 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, PrimaryObjectType):
 class VMInterfaceType(IPAddressesMixin, ComponentType):
     _name: str
     mac_address: str | None
+    wwn_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     primary_mac_address: Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')] | None
+    primary_wwn_address: Annotated["WWNAddressType", strawberry.lazy('dcim.graphql.types')] | None
     qinq_svlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vlan_translation_policy: Annotated["VLANTranslationPolicyType", strawberry.lazy('ipam.graphql.types')] | None
 
@@ -152,6 +155,7 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     bridge_interfaces: list[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
     child_interfaces: list[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
     mac_addresses: list[Annotated["MACAddressType", strawberry.lazy('dcim.graphql.types')]]
+    wwn_addresses: list[Annotated["WWNAddressType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

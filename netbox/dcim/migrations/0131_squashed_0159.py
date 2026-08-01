@@ -90,11 +90,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='interface',
-            name='wwn',
-            field=dcim.fields.WWNField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='interface',
             name='bridge',
             field=models.ForeignKey(
                 blank=True,

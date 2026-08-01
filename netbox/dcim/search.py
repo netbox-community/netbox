@@ -122,6 +122,16 @@ class MACAddressIndex(SearchIndex):
     )
     display_attrs = ('assigned_object', 'description')
 
+@register_search
+class WWNAddressIndex(SearchIndex):
+    model = models.WWNAddress
+    fields = (
+        ('wwn_address', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('assigned_object', 'description')
+
 
 @register_search
 class InterfaceIndex(SearchIndex):
@@ -129,12 +139,11 @@ class InterfaceIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('label', 200),
-        ('wwn', 300),
         ('description', 500),
         ('mtu', 2000),
         ('speed', 2000),
     )
-    display_attrs = ('device', 'label', 'type', 'wwn', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search

@@ -27,6 +27,7 @@ from dcim.models import (
     Site,
     SiteGroup,
     VirtualChassis,
+    WWNAddress,
 )
 from ipam.models import Prefix
 from virtualization.models import Cluster, ClusterType
@@ -416,6 +417,51 @@ class MACAddressInterfaceSignalTestCase(TestCase):
         mac.refresh_from_db()
         # Updating an existing interface should not re-assign the MAC.
         self.assertIsNone(mac.assigned_object)
+
+
+class WWNAddressInterfaceSignalTestCase(TestCase):
+    """
+    Verify dcim.signals.update_wwn_address_interface assigns a designated primary WWN to
+    the newly-created Interface or VMInterface.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site', slug='site')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        cls.device = Device.objects.create(
+            name='Device',
+            site=cls.site,
+            device_type=device_type,
+            role=role,
+        )
+
+    def test_primary_wwn_is_assigned_to_new_interface(self):
+        wwn = WWNAddress.objects.create(wwn_address='00:11:22:33:44:55:66:77')
+        interface = Interface(device=self.device, name='Interface 1', primary_wwn_address=wwn)
+        interface.save()
+
+        wwn.refresh_from_db()
+        self.assertEqual(wwn.assigned_object, interface)
+
+    def test_primary_wwn_is_not_reassigned_on_interface_update(self):
+        wwn = WWNAddress.objects.create(wwn_address='00:11:22:33:44:55:66:77')
+        interface = Interface.objects.create(device=self.device, name='Interface 1')
+        wwn.assigned_object = interface
+        wwn.save()
+        # Detach (simulate the WWN having been moved off the interface).
+        wwn.assigned_object = None
+        wwn.save()
+
+        interface.primary_wwn_address = wwn
+        interface.description = 'updated'
+        interface.save()
+
+        wwn.refresh_from_db()
+        # Updating an existing interface should not re-assign the WWN.
+        self.assertIsNone(wwn.assigned_object)
 
 
 class SyncCachedScopeFieldsSignalTestCase(TestCase):

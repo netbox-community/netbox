@@ -11,6 +11,9 @@ VMINTERFACE_BUTTONS = """
       {% if perms.dcim.add_macaddress %}
         <li><a class="dropdown-item" href="{% url 'dcim:macaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">MAC Address</a></li>
       {% endif %}
+      {% if perms.dcim.add_wwnaddress %}
+        <li><a class="dropdown-item" href="{% url 'dcim:wwnaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">WWN Address</a></li>
+      {% endif %}
       {% if perms.vpn.add_l2vpntermination %}
         <li><a class="dropdown-item" href="{% url 'vpn:l2vpntermination_add' %}?virtual_machine={{ object.pk }}&vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
       {% endif %}

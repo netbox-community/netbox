@@ -107,6 +107,9 @@ class VMInterfaceAddressingPanel(panels.ObjectAttributesPanel):
     primary_mac_address = attrs.TextAttr(
         'primary_mac_address', label=_('MAC Address'), style='font-monospace', copy_button=True
     )
+    primary_wwn_address = attrs.TextAttr(
+        'primary_wwn_address', label=_('WWN Address'), style='font-monospace', copy_button=True
+    )
     vrf = attrs.RelatedObjectAttr('vrf', linkify=True, label=_('VRF'))
     vlan_translation_policy = attrs.RelatedObjectAttr(
         'vlan_translation_policy', linkify=True, label=_('VLAN Translation')

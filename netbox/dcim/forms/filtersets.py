@@ -76,6 +76,7 @@ __all__ = (
     'SiteGroupFilterForm',
     'VirtualChassisFilterForm',
     'VirtualDeviceContextFilterForm',
+    'WWNAddressFilterForm',
 )
 
 
@@ -1639,7 +1640,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only', name=_('Attributes')),
-        FieldSet('vrf_id', 'l2vpn_id', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf_id', 'l2vpn_id', 'mac_address', name=_('Addressing')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('mode', 'vlan_translation_policy_id', name=_('802.1Q Switching')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
@@ -1701,9 +1702,9 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         required=False,
         label=_('MAC address')
     )
-    wwn = forms.CharField(
+    wwn_address = forms.CharField(
         required=False,
-        label=_('WWN')
+        label=_('WWN address')
     )
     poe_mode = forms.MultipleChoiceField(
         choices=InterfacePoEModeChoices,
@@ -2086,6 +2087,46 @@ class MACAddressFilterForm(PrimaryModelFilterSetForm):
     primary = forms.NullBooleanField(
         required=False,
         label=_('Primary MAC of an interface'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+    )
+    tag = TagFilterField(model)
+
+
+class WWNAddressFilterForm(PrimaryModelFilterSetForm):
+    model = WWNAddress
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('wwn_address', name=_('Attributes')),
+        FieldSet('device_id', 'virtual_machine_id', 'assigned', 'primary', name=_('Assignments')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
+    wwn_address = forms.CharField(
+        required=False,
+        label=_('WWN address'),
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Assigned Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Assigned VM'),
+    )
+    assigned = forms.NullBooleanField(
+        required=False,
+        label=_('Assigned to an interface'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+    )
+    primary = forms.NullBooleanField(
+        required=False,
+        label=_('Primary WWN of an interface'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),

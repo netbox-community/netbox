@@ -140,3 +140,6 @@ class DCIMQuery:
 
     virtual_device_context: VirtualDeviceContextType = strawberry_django.field()
     virtual_device_context_list: list[VirtualDeviceContextType] = strawberry_django.field()
+
+    wwn_address: WWNAddressType = strawberry_django.field()
+    wwn_address_list: list[WWNAddressType] = strawberry_django.field()

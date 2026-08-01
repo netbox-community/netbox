@@ -348,6 +348,7 @@ class Migration(migrations.Migration):
                 ('mark_connected', models.BooleanField(default=False)),
                 ('enabled', models.BooleanField(default=True)),
                 ('mac_address', dcim.fields.MACAddressField(blank=True, null=True)),
+                ('wwn', dcim.fields.WWNAddressField(blank=True, null=True)),
                 (
                     'mtu',
                     models.PositiveIntegerField(

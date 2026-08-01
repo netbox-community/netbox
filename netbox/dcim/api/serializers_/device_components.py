@@ -33,7 +33,7 @@ from wireless.models import WirelessLAN
 
 from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
-from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
+from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer, WWNAddressSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
@@ -253,19 +253,22 @@ class InterfaceSerializer(
     mac_address = serializers.CharField(allow_null=True, read_only=True)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
-    wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
+    wwn_address = serializers.CharField(allow_null=True, read_only=True)
+    primary_wwn_address = WWNAddressSerializer(nested=True, required=False, allow_null=True)
+    wwn_addresses = WWNAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
     class Meta:
         model = Interface
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'vdcs', 'module', 'name', 'label', 'type', 'enabled',
             'parent', 'bridge', 'bridge_interfaces', 'lag', 'mtu', 'mac_address', 'primary_mac_address',
-            'mac_addresses', 'speed', 'duplex', 'wwn', 'mgmt_only', 'description', 'mode', 'rf_role', 'rf_channel',
-            'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',
-            'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'mark_connected', 'cable', 'cable_end',
-            'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'l2vpn_termination',
-            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags',
-            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'mac_addresses', 'speed', 'duplex', 'wwn_address', 'primary_wwn_address', 'wwn_addresses', 'mgmt_only',
+            'description', 'mode', 'rf_role', 'rf_channel', 'poe_mode', 'poe_type', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            'mark_connected', 'cable', 'cable_end', 'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans',
+            'vrf', 'l2vpn_termination', 'connected_endpoints', 'connected_endpoints_type',
+            'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+            'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 

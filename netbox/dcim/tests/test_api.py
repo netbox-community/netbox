@@ -4011,3 +4011,46 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
                 'mac_address': '00:00:00:00:00:06',
             },
         ]
+
+
+class WWNAddressTestCase(APIViewTestCases.APIViewTestCase):
+    model = WWNAddress
+    brief_fields = ['description', 'display', 'id', 'wwn_address', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device(name='Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 2', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 3', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 4', type='32gfc-sfp28'),
+            Interface(device=device, name='Interface 5', type='32gfc-sfp28'),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        wwn_addresses = (
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:01', assigned_object=interfaces[0]),
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:02', assigned_object=interfaces[1]),
+            WWNAddress(wwn_address='00:00:00:00:00:00:00:03', assigned_object=interfaces[2]),
+        )
+        WWNAddress.objects.bulk_create(wwn_addresses)
+
+        cls.create_data = [
+            {
+                'wwn_address': '00:00:00:00:00:00:00:04',
+                'assigned_object_type': 'dcim.interface',
+                'assigned_object_id': interfaces[3].pk,
+            },
+            {
+                'wwn_address': '00:00:00:00:00:00:00:05',
+                'assigned_object_type': 'dcim.interface',
+                'assigned_object_id': interfaces[4].pk,
+            },
+            {
+                'wwn_address': '00:00:00:00:00:00:00:06',
+            },
+        ]
