@@ -10,13 +10,13 @@ from ipam.choices import *
 from ipam.filtersets import *
 from ipam.models import *
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
+from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from vpn.choices import L2VPNTypeChoices
 from vpn.models import L2VPN
 
 
-class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ASNRange.objects.all()
     filterset = ASNRangeFilterSet
 
@@ -101,7 +101,7 @@ class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ASNTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ASN.objects.all()
     filterset = ASNFilterSet
 
@@ -224,7 +224,7 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VRFTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
@@ -234,7 +234,7 @@ class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
             return 'import_target'
         if field.name == 'export_targets':
             return 'export_target'
-        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
+        return ChangeLoggedFilterSetTestMixin.get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):
@@ -328,7 +328,7 @@ class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RouteTarget.objects.all()
     filterset = RouteTargetFilterSet
 
@@ -342,7 +342,7 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
             return 'importing_l2vpn'
         if field.name == 'exporting_l2vpns':
             return 'exporting_l2vpn'
-        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
+        return ChangeLoggedFilterSetTestMixin.get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):
@@ -455,7 +455,7 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RIRTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RIRTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RIR.objects.all()
     filterset = RIRFilterSet
 
@@ -495,7 +495,7 @@ class RIRTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class AggregateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Aggregate.objects.all()
     filterset = AggregateFilterSet
 
@@ -581,7 +581,7 @@ class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RoleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Role.objects.all()
     filterset = RoleFilterSet
 
@@ -612,7 +612,7 @@ class RoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
+class PrefixTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Prefix.objects.all()
     filterset = PrefixFilterSet
 
@@ -916,7 +916,7 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IPRange.objects.all()
     filterset = IPRangeFilterSet
 
@@ -1130,7 +1130,7 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertIn(iprange, self.filterset(params, self.queryset).qs)
 
 
-class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
     ignore_fields = ('fhrpgroup',)
@@ -1486,7 +1486,7 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = FHRPGroup.objects.all()
     filterset = FHRPGroupFilterSet
 
@@ -1568,7 +1568,7 @@ class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = FHRPGroupAssignment.objects.all()
     filterset = FHRPGroupAssignmentFilterSet
 
@@ -1641,7 +1641,7 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VLANGroup.objects.all()
     filterset = VLANGroupFilterSet
     ignore_fields = ('vid_ranges',)
@@ -1821,7 +1821,7 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VLAN.objects.all()
     filterset = VLANFilterSet
     ignore_fields = ('interfaces_as_tagged', 'vminterfaces_as_tagged')
@@ -2287,7 +2287,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VLANTranslationPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VLANTranslationPolicyTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VLANTranslationPolicy.objects.all()
     filterset = VLANTranslationPolicyFilterSet
 
@@ -2319,7 +2319,7 @@ class VLANTranslationPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VLANTranslationRule.objects.all()
     filterset = VLANTranslationRuleFilterSet
 
@@ -2380,7 +2380,7 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
     ignore_fields = ('ports',)
@@ -2445,7 +2445,7 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ServiceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
     ignore_fields = ('ports',)

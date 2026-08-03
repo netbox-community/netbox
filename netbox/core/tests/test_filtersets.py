@@ -7,14 +7,14 @@ from django.test import TestCase
 from dcim.models import Site
 from ipam.models import IPAddress
 from users.models import User
-from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
+from utilities.testing import BaseFilterSetTestMixin, ChangeLoggedFilterSetTestMixin
 
 from ..choices import *
 from ..filtersets import *
 from ..models import *
 
 
-class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
+class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = DataSource.objects.all()
     filterset = DataSourceFilterSet
     ignore_fields = ('ignore_rules', 'parameters')
@@ -82,7 +82,7 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DataFileTestCase(TestCase, ChangeLoggedFilterSetTests):
+class DataFileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = DataFile.objects.all()
     filterset = DataFileFilterSet
     ignore_fields = ('data',)
@@ -148,7 +148,7 @@ class DataFileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
+class ObjectChangeTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = ObjectChange.objects.all()
     filterset = ObjectChangeFilterSet
     ignore_fields = ('message', 'prechange_data', 'postchange_data')
@@ -244,7 +244,7 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class JobTestCase(TestCase, BaseFilterSetTests):
+class JobTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Job.objects.all()
     filterset = JobFilterSet
     ignore_fields = ('data', 'error', 'log_entries')
@@ -306,7 +306,7 @@ class JobTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ObjectTypeTestCase(TestCase, BaseFilterSetTests):
+class ObjectTypeTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = ObjectType.objects.all()
     filterset = ObjectTypeFilterSet
     ignore_fields = (

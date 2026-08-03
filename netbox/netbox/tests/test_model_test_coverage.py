@@ -9,7 +9,7 @@ from django.urls import NoReverseMatch
 from core.filtersets import ObjectTypeFilterSet
 from core.models import ObjectType
 from netbox.registry import registry
-from utilities.testing import APITestCase, BaseFilterSetTests, ModelViewTestCase
+from utilities.testing import APITestCase, BaseFilterSetTestMixin, ModelViewTestCase
 from utilities.views import get_action_url
 
 
@@ -209,7 +209,7 @@ class ModelTestCoverageTestCase(TestCase):
         covered = self.collect_covered_models(
             app_labels,
             'test_filtersets',
-            BaseFilterSetTests,
+            BaseFilterSetTestMixin,
             get_queryset_model,
         )
 

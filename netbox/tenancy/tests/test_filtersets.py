@@ -4,10 +4,10 @@ from core.models import ObjectType
 from dcim.models import Manufacturer, Site
 from tenancy.filtersets import *
 from tenancy.models import *
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTestMixin
 
 
-class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = TenantGroup.objects.all()
     filterset = TenantGroupFilterSet
 
@@ -95,7 +95,7 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TenantTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Tenant.objects.all()
     filterset = TenantFilterSet
 
@@ -141,7 +141,7 @@ class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ContactGroup.objects.all()
     filterset = ContactGroupFilterSet
 
@@ -229,7 +229,7 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ContactRole.objects.all()
     filterset = ContactRoleFilterSet
 
@@ -260,7 +260,7 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ContactTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Contact.objects.all()
     filterset = ContactFilterSet
     ignore_fields = ('groups',)
@@ -306,7 +306,7 @@ class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ContactAssignment.objects.all()
     filterset = ContactAssignmentFilterSet
 

@@ -3,14 +3,14 @@ from django.test import TestCase
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, Interface, Site
 from ipam.models import VLAN, IPAddress, RouteTarget
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
+from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.filtersets import *
 from vpn.models import *
 
 
-class TunnelGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TunnelGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = TunnelGroup.objects.all()
     filterset = TunnelGroupFilterSet
 
@@ -40,7 +40,7 @@ class TunnelGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TunnelTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Tunnel.objects.all()
     filterset = TunnelFilterSet
 
@@ -162,7 +162,7 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = TunnelTermination.objects.all()
     filterset = TunnelTerminationFilterSet
 
@@ -293,7 +293,7 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IKEProposal.objects.all()
     filterset = IKEProposalFilterSet
 
@@ -386,7 +386,7 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IKEPolicy.objects.all()
     filterset = IKEPolicyFilterSet
 
@@ -470,7 +470,7 @@ class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IPSecProposal.objects.all()
     filterset = IPSecProposalFilterSet
 
@@ -554,7 +554,7 @@ class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IPSecPolicy.objects.all()
     filterset = IPSecPolicyFilterSet
 
@@ -625,7 +625,7 @@ class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = IPSecProfile.objects.all()
     filterset = IPSecProfileFilterSet
 
@@ -739,7 +739,7 @@ class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
+class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = L2VPN.objects.all()
     filterset = L2VPNFilterSet
 
@@ -749,7 +749,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
             return 'import_target'
         if field.name == 'export_targets':
             return 'export_target'
-        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
+        return ChangeLoggedFilterSetTestMixin.get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):
@@ -845,7 +845,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = L2VPNTermination.objects.all()
     filterset = L2VPNTerminationFilterSet
 

@@ -19,10 +19,10 @@ from dcim.models import (
 from ipam.models import ASN, RIR
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTestMixin
 
 
-class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ProviderTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Provider.objects.all()
     filterset = ProviderFilterSet
 
@@ -134,7 +134,7 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CircuitType.objects.all()
     filterset = CircuitTypeFilterSet
 
@@ -164,7 +164,7 @@ class CircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Circuit.objects.all()
     filterset = CircuitFilterSet
 
@@ -439,7 +439,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CircuitTermination.objects.all()
     filterset = CircuitTerminationFilterSet
     ignore_fields = ('cable', 'cable_positions')
@@ -608,7 +608,7 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
-class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CircuitGroup.objects.all()
     filterset = CircuitGroupFilterSet
 
@@ -666,7 +666,7 @@ class CircuitGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CircuitGroupAssignment.objects.all()
     filterset = CircuitGroupAssignmentFilterSet
 
@@ -787,7 +787,7 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ProviderNetwork.objects.all()
     filterset = ProviderNetworkFilterSet
 
@@ -828,7 +828,7 @@ class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ProviderAccount.objects.all()
     filterset = ProviderAccountFilterSet
 
@@ -873,7 +873,7 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualCircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualCircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualCircuitType.objects.all()
     filterset = VirtualCircuitTypeFilterSet
 
@@ -903,7 +903,7 @@ class VirtualCircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualCircuit.objects.all()
     filterset = VirtualCircuitFilterSet
 
@@ -1039,7 +1039,7 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualCircuitTermination.objects.all()
     filterset = VirtualCircuitTerminationFilterSet
 
