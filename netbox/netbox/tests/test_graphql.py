@@ -627,6 +627,82 @@ class GraphQLAPITestCase(APITestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site_list']), 2)
 
+    def test_to_one_relation_prefetch(self):
+        """
+        A prefetched to-one relation should be fetched with a plain `WHERE id IN (...)` query, rather than
+        with a window function partitioned by the parent ID (which returns every row sharing the related
+        object, regardless of the requested page size).
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_site')
+        url = reverse('graphql')
+
+        site = Site.objects.first()
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        Device.objects.bulk_create([
+            Device(name=f'Device {i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 21)
+        ])
+
+        # Request two of the twenty devices at the site
+        query = """
+        {
+            device_list(pagination: {limit: 2}) {
+                name
+                site { name }
+            }
+        }
+        """
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['device_list']), 2)
+        self.assertEqual(data['data']['device_list'][0]['site']['name'], site.name)
+
+        # The site should have been fetched by exactly one query. (Asserting that it exists keeps the
+        # assertions below from silently passing if the site is ever fetched some other way.)
+        site_queries = [q['sql'] for q in ctx.captured_queries if 'FROM "dcim_site"' in q['sql']]
+        self.assertEqual(len(site_queries), 1, msg=f'Expected one query against dcim_site, got {site_queries}')
+
+        # That query should not apply window pagination, nor join back to the devices table (which would
+        # return one row per device at the site)
+        self.assertNotIn('ROW_NUMBER', site_queries[0])
+        self.assertNotIn('dcim_device', site_queries[0])
+
+    @override_settings(MAX_PAGE_SIZE=3)
+    def test_max_page_size_nested_list(self):
+        """
+        MAX_PAGE_SIZE should still be enforced on a nested list relation.
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_site')
+        url = reverse('graphql')
+
+        site = Site.objects.first()
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        Device.objects.bulk_create([
+            Device(name=f'Device {i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 6)
+        ])
+
+        query = """
+        {
+            site_list(pagination: {limit: 1}) {
+                name
+                devices { name }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list'][0]['devices']), 3)
+
     def test_pagination_conflict(self):
         url = reverse('graphql')
         query = """
