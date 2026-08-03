@@ -22,6 +22,7 @@ from utilities.forms.utils import (
     expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
+    parse_numeric_range,
 )
 from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
 
@@ -313,6 +314,65 @@ class ExpandAlphanumericTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[a,,b]a'))
+
+
+class ParseNumericRangeTestCase(TestCase):
+    """
+    Validate the operation of parse_numeric_range(), in particular its optional min_value/max_value
+    bounds checking.
+    """
+    def test_unbounded(self):
+        self.assertEqual(parse_numeric_range('0-3,5'), [0, 1, 2, 3, 5])
+        self.assertEqual(parse_numeric_range('2,8-b,d,f', base=16), [2, 8, 9, 10, 11, 13, 15])
+
+    def test_unbounded_reversed_range_yields_nothing(self):
+        # Without bounds a reversed range expands to an empty list, as it always has. Callers which can't
+        # tolerate that (e.g. port mappings) pass bounds to get an error instead.
+        self.assertEqual(parse_numeric_range('9-5'), [])
+        self.assertEqual(parse_numeric_range('1,9-5'), [1])
+
+    def test_bounded_within_range(self):
+        self.assertEqual(parse_numeric_range('80,443,8000-8002', min_value=1, max_value=65535),
+                         [80, 443, 8000, 8001, 8002])
+        # The bounds are inclusive at both ends
+        self.assertEqual(parse_numeric_range('1,65535', min_value=1, max_value=65535), [1, 65535])
+        self.assertEqual(parse_numeric_range('1-3', min_value=1, max_value=3), [1, 2, 3])
+
+    def test_bounded_below_min(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('0', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('0-80', min_value=1, max_value=65535)
+
+    def test_bounded_above_max(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('70000', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80-70000', min_value=1, max_value=65535)
+
+    def test_bounded_rejects_before_expanding(self):
+        # A pathological range must be rejected on its endpoints rather than materialized first
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('1-9999999999', min_value=1, max_value=65535)
+
+    def test_bounded_reversed_range_raises(self):
+        # With bounds, a reversed range is an error rather than a silent empty expansion — otherwise it
+        # would be swallowed when combined with a valid range (e.g. '80,9000-53')
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('9000-53', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80,9000-53', min_value=1, max_value=65535)
+
+    def test_bounded_invalid_value(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80,abc', min_value=1, max_value=65535)
+
+    def test_bounds_are_all_or_nothing(self):
+        # Supplying only one bound would opt into a lower bound while leaving the expansion size uncapped
+        with self.assertRaises(ValueError):
+            parse_numeric_range('80', min_value=1)
+        with self.assertRaises(ValueError):
+            parse_numeric_range('80', max_value=65535)
 
 
 class ImportFormTestCase(TestCase):

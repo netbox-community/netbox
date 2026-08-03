@@ -18,13 +18,13 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
+from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLink
 
 
-class DeviceComponentFilterSetTests:
+class DeviceComponentFilterSetTestMixin:
 
     def test_q(self):
         params = {'q': 'First'}
@@ -60,7 +60,7 @@ class DeviceComponentFilterSetTests:
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceComponentTemplateFilterSetTests:
+class DeviceComponentTemplateFilterSetTestMixin:
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -76,7 +76,7 @@ class DeviceComponentTemplateFilterSetTests:
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RegionTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Region.objects.all()
     filterset = RegionFilterSet
 
@@ -157,7 +157,7 @@ class RegionTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
-class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = SiteGroup.objects.all()
     filterset = SiteGroupFilterSet
 
@@ -236,7 +236,7 @@ class SiteGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
-class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
+class SiteTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
     ignore_fields = ('physical_address', 'shipping_address')
@@ -395,7 +395,7 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class LocationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Location.objects.all()
     filterset = LocationFilterSet
 
@@ -543,7 +543,7 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class RackGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RackGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RackGroup.objects.all()
     filterset = RackGroupFilterSet
 
@@ -574,7 +574,7 @@ class RackGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RackRole.objects.all()
     filterset = RackRoleFilterSet
 
@@ -609,7 +609,7 @@ class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RackType.objects.all()
     filterset = RackTypeFilterSet
 
@@ -762,7 +762,7 @@ class RackTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RackTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Rack.objects.all()
     filterset = RackFilterSet
     ignore_fields = ('units',)
@@ -1136,7 +1136,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = RackReservation.objects.all()
     filterset = RackReservationFilterSet
     ignore_fields = ('units',)
@@ -1316,7 +1316,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ManufacturerTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ManufacturerTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Manufacturer.objects.all()
     filterset = ManufacturerFilterSet
 
@@ -1347,7 +1347,7 @@ class ManufacturerTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = DeviceType.objects.all()
     filterset = DeviceTypeFilterSet
     ignore_fields = ('front_image', 'rear_image')
@@ -1599,7 +1599,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleType.objects.all()
     filterset = ModuleTypeFilterSet
     ignore_fields = ['attribute_data']
@@ -1840,7 +1840,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ModuleTypeProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ModuleTypeProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleTypeProfile.objects.all()
     filterset = ModuleTypeProfileFilterSet
     ignore_fields = ['schema']
@@ -1899,7 +1899,7 @@ class ModuleTypeProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleBayTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ModuleBayTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleBayType.objects.all()
     filterset = ModuleBayTypeFilterSet
 
@@ -1942,7 +1942,7 @@ class ModuleBayTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ConsolePortTemplate.objects.all()
     filterset = ConsolePortTemplateFilterSet
 
@@ -1969,7 +1969,9 @@ class ConsolePortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConsoleServerPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class ConsoleServerPortTemplateTestCase(
+    TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin
+):
     queryset = ConsoleServerPortTemplate.objects.all()
     filterset = ConsoleServerPortTemplateFilterSet
 
@@ -1996,7 +1998,7 @@ class ConsoleServerPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterS
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class PowerPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = PowerPortTemplate.objects.all()
     filterset = PowerPortTemplateFilterSet
 
@@ -2049,7 +2051,7 @@ class PowerPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = PowerOutletTemplate.objects.all()
     filterset = PowerOutletTemplateFilterSet
 
@@ -2102,7 +2104,11 @@ class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingIntakeTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class CoolingIntakeTemplateTestCase(
+    TestCase,
+    DeviceComponentTemplateFilterSetTestMixin,
+    ChangeLoggedFilterSetTestMixin
+):
     queryset = CoolingIntakeTemplate.objects.all()
     filterset = CoolingIntakeTemplateFilterSet
 
@@ -2174,7 +2180,11 @@ class CoolingIntakeTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class CoolingOutflowTemplateTestCase(
+    TestCase,
+    DeviceComponentTemplateFilterSetTestMixin,
+    ChangeLoggedFilterSetTestMixin
+):
     queryset = CoolingOutflowTemplate.objects.all()
     filterset = CoolingOutflowTemplateFilterSet
 
@@ -2230,7 +2240,7 @@ class CoolingOutflowTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetT
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class InterfaceTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class InterfaceTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = InterfaceTemplate.objects.all()
     filterset = InterfaceTemplateFilterSet
 
@@ -2313,7 +2323,7 @@ class InterfaceTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = FrontPortTemplate.objects.all()
     filterset = FrontPortTemplateFilterSet
 
@@ -2386,7 +2396,7 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = RearPortTemplate.objects.all()
     filterset = RearPortTemplateFilterSet
 
@@ -2446,7 +2456,7 @@ class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, 
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleBayTemplate.objects.all()
     filterset = ModuleBayTemplateFilterSet
 
@@ -2506,7 +2516,7 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class DeviceBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = DeviceBayTemplate.objects.all()
     filterset = DeviceBayTemplateFilterSet
 
@@ -2547,7 +2557,9 @@ class DeviceBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
+class InventoryItemTemplateTestCase(
+    TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin
+):
     queryset = InventoryItemTemplate.objects.all()
     filterset = InventoryItemTemplateFilterSet
 
@@ -2657,7 +2669,7 @@ class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = DeviceRole.objects.all()
     filterset = DeviceRoleFilterSet
 
@@ -2765,7 +2777,7 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
+class PlatformTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Platform.objects.all()
     filterset = PlatformFilterSet
 
@@ -2866,7 +2878,7 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
+class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Device.objects.all()
     filterset = DeviceFilterSet
     ignore_fields = ('local_context_data', 'oob_ip', 'primary_ip4', 'primary_ip6', 'vc_master_for')
@@ -3363,7 +3375,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ModuleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Module.objects.all()
     filterset = ModuleFilterSet
     ignore_fields = ('local_context_data',)
@@ -3661,7 +3673,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
 
-class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ConsolePort.objects.all()
     filterset = ConsolePortFilterSet
     ignore_fields = ('cable_positions',)
@@ -3912,7 +3924,7 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ConsoleServerPort.objects.all()
     filterset = ConsoleServerPortFilterSet
     ignore_fields = ('cable_positions',)
@@ -4163,7 +4175,7 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class PowerPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = PowerPort.objects.all()
     filterset = PowerPortFilterSet
     ignore_fields = ('cable_positions',)
@@ -4428,7 +4440,7 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = PowerOutlet.objects.all()
     filterset = PowerOutletFilterSet
     ignore_fields = ('cable_positions',)
@@ -4713,7 +4725,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = CoolingIntake.objects.all()
     filterset = CoolingIntakeFilterSet
 
@@ -4975,7 +4987,7 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = CoolingOutflow.objects.all()
     filterset = CoolingOutflowFilterSet
 
@@ -5226,7 +5238,7 @@ class CoolingOutflowTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogg
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
     ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan', 'vdcs', 'cable_positions')
@@ -5979,7 +5991,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class FrontPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = FrontPort.objects.all()
     filterset = FrontPortFilterSet
     ignore_fields = ('cable_positions',)
@@ -6284,7 +6296,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class RearPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = RearPort.objects.all()
     filterset = RearPortFilterSet
     ignore_fields = ('cable_positions',)
@@ -6574,7 +6586,7 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = ModuleBay.objects.all()
     filterset = ModuleBayFilterSet
 
@@ -6763,7 +6775,7 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
+class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = DeviceBay.objects.all()
     filterset = DeviceBayFilterSet
 
@@ -6960,7 +6972,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
+class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = InventoryItem.objects.all()
     filterset = InventoryItemFilterSet
 
@@ -7235,7 +7247,7 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class InventoryItemRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class InventoryItemRoleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = InventoryItemRole.objects.all()
     filterset = InventoryItemRoleFilterSet
 
@@ -7285,7 +7297,7 @@ class InventoryItemRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualChassis.objects.all()
     filterset = VirtualChassisFilterSet
 
@@ -7385,7 +7397,7 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CableBundleTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CableBundleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CableBundle.objects.all()
     filterset = CableBundleFilterSet
 
@@ -7411,7 +7423,7 @@ class CableBundleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CableTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Cable.objects.all()
     filterset = CableFilterSet
 
@@ -7790,7 +7802,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CableTermination.objects.all()
     filterset = CableTerminationFilterSet
     ignore_fields = ('connector', 'positions')
@@ -7880,7 +7892,7 @@ class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 self.assertEqual(results.first().termination_id, obj.pk)
 
 
-class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
+class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = PowerPanel.objects.all()
     filterset = PowerPanelFilterSet
 
@@ -7964,7 +7976,7 @@ class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
+class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = PowerFeed.objects.all()
     filterset = PowerFeedFilterSet
     ignore_fields = ('cable_positions',)
@@ -8168,7 +8180,7 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CoolingSource.objects.all()
     filterset = CoolingSourceFilterSet
 
@@ -8298,7 +8310,7 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CoolingFeed.objects.all()
     filterset = CoolingFeedFilterSet
 
@@ -8470,7 +8482,7 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualDeviceContext.objects.all()
     filterset = VirtualDeviceContextFilterSet
     ignore_fields = ('primary_ip4', 'primary_ip6')
@@ -8627,7 +8639,7 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 
-class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
+class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = MACAddress.objects.all()
     filterset = MACAddressFilterSet
 

@@ -478,9 +478,9 @@ class MyModelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 **File:** `netbox/<app>/tests/test_filtersets.py`
 
 ```python
-from utilities.testing import ChangeLoggedFilterSetTests
+from utilities.testing import ChangeLoggedFilterSetTestMixin
 
-class MyModelFilterSetTestCase(TestCase, ChangeLoggedFilterSetTests):
+class MyModelFilterSetTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = MyModel.objects.all()
     filterset = MyModelFilterSet
 
@@ -496,7 +496,7 @@ class MyModelFilterSetTestCase(TestCase, ChangeLoggedFilterSetTests):
         # Test FK and FK_id filters
 ```
 
-`ChangeLoggedFilterSetTests` provides standard tests for `id`, `created`, `last_updated`, `q` search, etc. Always mix it in.
+`ChangeLoggedFilterSetTestMixin` provides standard tests for `id`, `created`, `last_updated`, `q` search, etc. Always mix it in.
 
 ## Common Gotchas
 

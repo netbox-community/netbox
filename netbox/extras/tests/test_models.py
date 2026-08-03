@@ -32,6 +32,7 @@ from extras.models import (
     TableConfig,
     Tag,
     TaggedItem,
+    Webhook,
 )
 from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
@@ -1586,8 +1587,16 @@ class EventRuleTestCase(TestCase):
         """
         clean() should accept a JSON object (or null) as action_data.
         """
+        webhook = Webhook.objects.create(name='Action Data Test Webhook', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
         for value in ({'key': 'value'}, None):
-            rule = EventRule(name='test', event_types=[OBJECT_CREATED], action_data=value)
+            rule = EventRule(
+                name='test',
+                event_types=[OBJECT_CREATED],
+                action_data=value,
+                action_object_type=webhook_type,
+                action_object_id=webhook.pk,
+            )
             rule.clean()
 
     def test_action_data_clean_rejects_non_dict(self):

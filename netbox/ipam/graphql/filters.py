@@ -11,7 +11,7 @@ from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilt
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.graphql.filter_mixins import ServiceFilterMixin
+from ipam.utils import normalize_port_mapping, port_mapping_q
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter,
     NetBoxModelFilter,
@@ -345,8 +345,136 @@ class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilter):
     )
 
 
+# Custom (method-based) GraphQL filters can't be inherited from a mixin — strawberry_django only picks
+# up filter_field methods declared on the filter_type class itself — so the filters below keep thin
+# wrappers here. Each method reads *all* of its siblings' values off ``self`` so a combined
+# protocol/port query matches a single mapping rather than each condition independently.
+
+# GraphQL port filter name -> the port lookup it applies, in the order the conditions are built. The
+# names deliberately carry the same `port__gt` double-underscore form as their REST counterparts in
+# ipam.filtersets.SERVICE_PORT_FILTERS, so both APIs offer an identically-spelled set of lookups.
+# (GraphQL reserves only *leading* double underscores, for introspection.) The schema is built with
+# auto_camel_case=False, so these names reach the schema verbatim.
+# See ipam.utils.PORT_MAPPING_LOOKUPS for the lookup -> SQL operator mapping.
+GRAPHQL_PORT_FILTERS = {
+    'port': 'exact',
+    'port__gt': 'gt',
+    'port__gte': 'gte',
+    'port__lt': 'lt',
+    'port__lte': 'lte',
+}
+
+# `protocol` plus every port lookup, in the order their conditions are built. All of these must be
+# satisfied by one single mapping, so they can't be applied as each resolver runs; the first one
+# actually supplied owns the combined predicate (see _owns_predicate).
+CORRELATED_PORT_FILTERS = ('protocol', *GRAPHQL_PORT_FILTERS)
+
+
+def _supplied(filters, name):
+    """
+    Return the list of values supplied for a sibling filter field, or None if it was not supplied. Only
+    a list is a real value: an omitted field is None/UNSET, and an unset method-based filter can resolve
+    to the bound method itself, so anything non-list is reported as absent rather than surfacing as a
+    TypeError downstream.
+    """
+    value = getattr(filters, name, None)
+    return list(value) if isinstance(value, (list, tuple)) else None
+
+
+def _port_mapping_args(filters):
+    """
+    Collect the correlated protocol/port arguments from every sibling field on the filter instance, in
+    the ``(protocols, port_tests)`` shapes ``port_mapping_q()`` expects.
+    """
+    protocols = [v.value for v in _supplied(filters, 'protocol') or ()]
+    port_tests = [
+        (lookup, values)
+        for name, lookup in GRAPHQL_PORT_FILTERS.items()
+        if (values := _supplied(filters, name))
+    ]
+    return protocols, port_tests
+
+
+def _owns_predicate(filters, name):
+    """
+    True for exactly one of the correlated filter fields: the first one supplied, in
+    ``CORRELATED_PORT_FILTERS`` order. The others contribute nothing, so a query combining N of them
+    builds the (deliberately sequential) scan once rather than ANDing N identical copies of it.
+    """
+    for candidate in CORRELATED_PORT_FILTERS:
+        if _supplied(filters, candidate) is not None:
+            return candidate == name
+    return False
+
+
+def _port_mapping_prefix_q(model, protocols, port_tests, prefix):
+    qs_filter = port_mapping_q(protocols, port_tests)
+    if prefix:
+        # Nested relation (e.g. prefix='services__'): the incoming queryset is a *different* model, so
+        # resolve the matching PKs on the target model and match them through the prefix.
+        return Q(**{f'{prefix}pk__in': model.objects.filter(qs_filter).values('pk')})
+    # Root query: the incoming queryset already targets this model, so return the lookup directly rather
+    # than wrapping it in an extra pk__in self-subquery.
+    return qs_filter
+
+
+def _make_port_mapping_filters(model):
+    # strawberry_django only collects filter_field methods declared on the filter_type class itself (not
+    # from a mixin), so the Service/ServiceTemplate filters are produced by this factory and assigned
+    # into each class body. This keeps the protocol/port correlation logic in a single place.
+
+    def correlated(filters, name, prefix):
+        # Deliberately ignores the resolver's own `value` in favour of reading every sibling off
+        # `filters`: only the owning field applies the predicate, and it needs them all.
+        if not _owns_predicate(filters, name):
+            return Q()
+        protocols, port_tests = _port_mapping_args(filters)
+        return _port_mapping_prefix_q(model, protocols, port_tests, prefix)
+
+    @strawberry_django.filter_field
+    def protocol(
+        self,
+        queryset,
+        value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
+        prefix,
+    ):
+        return correlated(self, 'protocol', prefix)
+
+    # `port` and its range lookups. Values within one lookup are OR'd (as ?port=80&port=443 is on the
+    # REST API); the lookups themselves are AND'd, and so must hold for one single mapping.
+    @strawberry_django.filter_field
+    def port(self, queryset, value: list[int], prefix):
+        return correlated(self, 'port', prefix)
+
+    @strawberry_django.filter_field
+    def port__gt(self, queryset, value: list[int], prefix):
+        return correlated(self, 'port__gt', prefix)
+
+    @strawberry_django.filter_field
+    def port__gte(self, queryset, value: list[int], prefix):
+        return correlated(self, 'port__gte', prefix)
+
+    @strawberry_django.filter_field
+    def port__lt(self, queryset, value: list[int], prefix):
+        return correlated(self, 'port__lt', prefix)
+
+    @strawberry_django.filter_field
+    def port__lte(self, queryset, value: list[int], prefix):
+        return correlated(self, 'port__lte', prefix)
+
+    @strawberry_django.filter_field
+    def port_mappings(self, queryset, value: list[str], prefix):
+        # Whole-mapping lookup (e.g. ["tcp/80", "udp/53"], matching any). Each value names one complete
+        # protocol/port pair, so unlike protocol/port this needs no correlation and reduces to a
+        # GIN-indexable array overlap. Values are normalized so 'TCP/080' finds the stored 'tcp/80'.
+        mappings = [normalize_port_mapping(mapping) for mapping in value]
+        return Q(**{f'{prefix}port_mappings__overlap': mappings})
+
+    return protocol, port, port__gt, port__gte, port__lt, port__lte, port_mappings
+
+
 @register_filter(models.Service, lookups=True)
-class ServiceFilter(ContactFilterMixin, ServiceFilterMixin, PrimaryModelFilter):
+class ServiceFilter(ContactFilterMixin, PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -355,11 +483,17 @@ class ServiceFilter(ContactFilterMixin, ServiceFilterMixin, PrimaryModelFilter):
         strawberry_django.filter_field()
     )
     parent_object_id: ID | None = strawberry_django.filter_field()
+    protocol, port, port__gt, port__gte, port__lt, port__lte, port_mappings = (
+        _make_port_mapping_filters(models.Service)
+    )
 
 
 @register_filter(models.ServiceTemplate, lookups=True)
-class ServiceTemplateFilter(ServiceFilterMixin, PrimaryModelFilter):
+class ServiceTemplateFilter(PrimaryModelFilter):
     name: StrFilterLookup | None = strawberry_django.filter_field()
+    protocol, port, port__gt, port__gte, port__lt, port__lte, port_mappings = (
+        _make_port_mapping_filters(models.ServiceTemplate)
+    )
 
 
 @register_filter(models.VLAN, lookups=True)
