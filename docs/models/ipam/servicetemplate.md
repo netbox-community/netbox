@@ -12,10 +12,10 @@ Application service templates can be used to instantiate [application services](
 
 A service or protocol name.
 
-### Protocol
+### Port Mappings
 
-The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
+The protocols and ports on which the service runs. See [Port Mappings](./service.md#port-mappings) on the application service model for details.
 
-### Ports
+## Bulk Import (CSV)
 
-One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.
+Application service templates are imported via CSV using the same `port_mappings` column format as application services. See [Bulk Import (CSV)](./service.md#bulk-import-csv) on the application service model for details.

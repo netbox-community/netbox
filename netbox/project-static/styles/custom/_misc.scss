@@ -180,3 +180,23 @@ html[data-bs-theme='dark'] {
   width: fit-content;
 }
 // ── /Sticky action bars ─────────────────────────────────────
+
+// ── Port mapping widget ─────────────────────────────────────
+.port-mapping-widget {
+  // TomSelect keeps its single control's full-size vertical padding even when it inherits the
+  // `.form-select-sm` sizing, leaving the protocol dropdown taller than the sibling ports input.
+  // Trim it to the small padding so the two fields align.
+  .ts-wrapper.single .ts-control {
+    padding-top: $input-padding-y-sm;
+    padding-bottom: $input-padding-y-sm;
+  }
+
+  // Only divide multiple mappings; a lone row shouldn't have a line drawn beneath it.
+  table > tbody > tr > td {
+    border-bottom: 0;
+  }
+  table > tbody > tr + tr > td {
+    border-top: var(--#{$prefix}border-width) solid var(--#{$prefix}border-color);
+  }
+}
+// ── /Port mapping widget ────────────────────────────────────

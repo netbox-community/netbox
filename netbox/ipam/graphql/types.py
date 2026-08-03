@@ -248,15 +248,30 @@ class RouteTargetType(PrimaryObjectType):
     exporting_vrfs: list[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
+# Shared deprecation reason for the legacy port-mapping GraphQL fields. The fields themselves are
+# declared on each type (rather than via a mixin) so they reliably override the auto-generated model
+# field of the same name; each delegates to the model's protocol/ports properties (the single source of
+# truth for the legacy view, derived from port_mappings on each access).
+_LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-protocol services."
+
+
 @register_type(
     models.Service,
-    exclude=('_ports_lowest', 'parent_object_type', 'parent_object_id'),
+    exclude=['parent_object_type', 'parent_object_id'],
     filters=ServiceFilter,
     pagination=True
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
-    ports: list[int]
+    port_mappings: list[str]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def protocol(self) -> str | None:
+        return self.protocol
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def ports(self) -> list[int] | None:
+        return self.ports
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
@@ -270,12 +285,20 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @register_type(
     models.ServiceTemplate,
-    exclude=('_ports_lowest',),
+    fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
-    ports: list[int]
+    port_mappings: list[str]
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def protocol(self) -> str | None:
+        return self.protocol
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def ports(self) -> list[int] | None:
+        return self.ports
 
 
 @register_type(

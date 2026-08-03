@@ -1312,24 +1312,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         services = (
-            Service(
-                parent=devices[0],
-                name='Service 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
-            Service(
-                parent=devices[1],
-                name='Service 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
-            Service(
-                parent=devices[2],
-                name='Service 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1],
-            ),
+            Service(parent=devices[0], name='Service 1', port_mappings=['tcp/80']),
+            Service(parent=devices[1], name='Service 2', port_mappings=['tcp/80']),
+            Service(parent=devices[2], name='Service 3', port_mappings=['tcp/80']),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ipaddresses[0])
@@ -2383,46 +2368,17 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
-    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
-        service_templates = (
-            ServiceTemplate(
-                name='Service Template 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1001],
-                description='foobar1'
-            ),
-            ServiceTemplate(
-                name='Service Template 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1002],
-                description='foobar2'
-            ),
-            ServiceTemplate(
-                name='Service Template 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[1003],
-                description='foobar3'
-            ),
-            ServiceTemplate(
-                name='Service Template 4',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2001]
-            ),
-            ServiceTemplate(
-                name='Service Template 5',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2002]
-            ),
-            ServiceTemplate(
-                name='Service Template 6',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2003]
-            ),
-        )
-        ServiceTemplate.objects.bulk_create(service_templates)
+        ServiceTemplate.objects.bulk_create((
+            ServiceTemplate(name='Service Template 1', description='foobar1', port_mappings=['tcp/1001']),
+            ServiceTemplate(name='Service Template 2', description='foobar2', port_mappings=['tcp/1002']),
+            ServiceTemplate(name='Service Template 3', description='foobar3', port_mappings=['udp/1003']),
+            ServiceTemplate(name='Service Template 4', port_mappings=['tcp/2001']),
+            ServiceTemplate(name='Service Template 5', port_mappings=['tcp/2002']),
+            ServiceTemplate(name='Service Template 6', port_mappings=['udp/2003']),
+        ))
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -2432,13 +2388,120 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'name': ['Service Template 1', 'Service Template 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_port_mappings(self):
+        # A whole-mapping lookup matches only that exact protocol/port pair.
+        params = {'port_mappings': ['tcp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/1001 does not exist, though tcp/1001 does
+        params = {'port_mappings': ['udp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Multiple values are OR'd
+        params = {'port_mappings': ['tcp/1001', 'udp/1003']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_port_mappings_normalized(self):
+        # Input is canonicalized for lookup, so case and leading zeros still match stored values.
+        ServiceTemplate.objects.create(name='Padded', port_mappings=['tcp/80'])
+        for value in ('TCP/80', 'tcp/080', 'TCP/080'):
+            params = {'port_mappings': [value]}
+            self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1, msg=value)
+
+    def test_port_mappings_unmatchable(self):
+        # An unknown protocol or malformed pair yields no results rather than a validation error.
+        for value in ('bogus/80', 'tcp/notaport', 'tcp'):
+            params = {'port_mappings': [value]}
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=value)
+            self.assertEqual(filterset.qs.count(), 0, msg=value)
+
+        # An empty value is a no-op, as it is for every other filter
+        filterset = self.filterset({'port_mappings': ['']}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(filterset.qs.count(), self.queryset.count())
+
+    def test_port_mappings_negated(self):
+        # port_mappings__n excludes objects exposing the given mapping (1 of 6 templates has tcp/1001).
+        params = {'port_mappings__n': ['tcp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_port_mappings_multiprotocol(self):
+        # A mapping lookup is satisfied by any one of an object's mappings.
+        ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/53', 'udp/53'])
+        params = {'port_mappings': ['udp/53']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # Combined with the correlated protocol/port filters, both must hold (independently)
+        params = {'port_mappings': ['udp/53'], 'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'port_mappings': ['udp/53'], 'port': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_protocol(self):
-        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_protocol_negated(self):
+        # protocol__n excludes objects exposing the given protocol (2 of 6 templates are udp-only).
+        params = {'protocol__n': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_protocol_and_port(self):
+        # A combined protocol+port filter must match a single mapping, not protocol and port matched
+        # independently across different mappings on the same object.
+        ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/8080 does not exist, even though this template has udp (on 53) and 8080 (on tcp)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Single-mapping composition still works
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_port_negated(self):
+        # port__n excludes objects exposing the given port (1 of 6 templates uses 1001).
+        params = {'port__n': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_port_range_lookups(self):
+        # Ports in play: tcp/1001, tcp/1002, udp/1003, tcp/2001, tcp/2002, udp/2003
+        params = {'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'port__gte': [2001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'port__lt': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_port_range_bounds_combined(self):
+        # gte + lte describe one range, so both bounds must hold for the same mapping.
+        ServiceTemplate.objects.create(name='Straddling', port_mappings=['tcp/500', 'tcp/5000'])
+
+        params = {'port__gte': [1000], 'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_protocol_and_port_range(self):
+        # A range lookup is correlated with protocol, so this template's udp mapping (53) must not be
+        # matched by way of its tcp mapping (8080).
+        ServiceTemplate.objects.create(name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port__gt': [1000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_port_mappings_filter_is_idempotent(self):
+        # The correlated protocol/port predicate is applied by filter_queryset() rather than by the
+        # individual filters. Filtering twice with the same FilterSet instance must yield the same result,
+        # i.e. that must stay free of per-instance state which would drop or double the predicate.
+        filterset = self.filterset({'protocol': [ServiceProtocolChoices.PROTOCOL_UDP]}, self.queryset)
+        self.assertEqual(filterset.qs.count(), 2)
+        self.assertEqual(filterset.filter_queryset(self.queryset).count(), 2)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
@@ -2448,7 +2511,6 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
-    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
@@ -2494,50 +2556,13 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         services = (
-            Service(
-                parent=devices[0],
-                name='Service 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1001],
-                description='foobar1',
-            ),
-            Service(
-                parent=devices[1],
-                name='Service 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1002],
-                description='foobar2',
-            ),
-            Service(
-                parent=devices[2],
-                name='Service 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[1003]
-            ),
-            Service(
-                parent=virtual_machines[0],
-                name='Service 4',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2001],
-            ),
-            Service(
-                parent=virtual_machines[1],
-                name='Service 5',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2002],
-            ),
-            Service(
-                parent=virtual_machines[2],
-                name='Service 6',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2003],
-            ),
-            Service(
-                parent=fhrp_group,
-                name='Service 7',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2004],
-            ),
+            Service(parent=devices[0], name='Service 1', description='foobar1', port_mappings=['tcp/1001']),
+            Service(parent=devices[1], name='Service 2', description='foobar2', port_mappings=['tcp/1002']),
+            Service(parent=devices[2], name='Service 3', port_mappings=['udp/1003']),
+            Service(parent=virtual_machines[0], name='Service 4', port_mappings=['tcp/2001']),
+            Service(parent=virtual_machines[1], name='Service 5', port_mappings=['tcp/2002']),
+            Service(parent=virtual_machines[2], name='Service 6', port_mappings=['udp/2003']),
+            Service(parent=fhrp_group, name='Service 7', port_mappings=['udp/2004']),
         )
         Service.objects.bulk_create(services)
         services[0].ipaddresses.add(ip_addresses[0])
@@ -2552,17 +2577,119 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'name': ['Service 1', 'Service 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_port_mappings(self):
+        # A whole-mapping lookup matches only that exact protocol/port pair.
+        params = {'port_mappings': ['tcp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/1001 does not exist, though tcp/1001 does
+        params = {'port_mappings': ['udp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Multiple values are OR'd
+        params = {'port_mappings': ['tcp/1001', 'udp/1003']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_port_mappings_normalized(self):
+        # Input is canonicalized for lookup, so case and leading zeros still match stored values.
+        Service.objects.create(parent=Device.objects.first(), name='Padded', port_mappings=['tcp/80'])
+        for value in ('TCP/80', 'tcp/080', 'TCP/080'):
+            params = {'port_mappings': [value]}
+            self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1, msg=value)
+
+    def test_port_mappings_unmatchable(self):
+        # An unknown protocol or malformed pair yields no results rather than a validation error.
+        for value in ('bogus/80', 'tcp/notaport', 'tcp'):
+            params = {'port_mappings': [value]}
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=value)
+            self.assertEqual(filterset.qs.count(), 0, msg=value)
+
+        # An empty value is a no-op, as it is for every other filter
+        filterset = self.filterset({'port_mappings': ['']}, self.queryset)
+        self.assertTrue(filterset.is_valid())
+        self.assertEqual(filterset.qs.count(), self.queryset.count())
+
+    def test_port_mappings_negated(self):
+        # port_mappings__n excludes objects exposing the given mapping (1 of 7 services has tcp/1001).
+        params = {'port_mappings__n': ['tcp/1001']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_port_mappings_multiprotocol(self):
+        # A mapping lookup is satisfied by any one of an object's mappings.
+        Service.objects.create(parent=Device.objects.first(), name='DNS', port_mappings=['tcp/53', 'udp/53'])
+        params = {'port_mappings': ['udp/53']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # Combined with the correlated protocol/port filters, both must hold (independently)
+        params = {'port_mappings': ['udp/53'], 'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'port_mappings': ['udp/53'], 'port': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_protocol(self):
-        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_protocol_negated(self):
+        # protocol__n excludes objects exposing the given protocol (3 of 7 services are udp-only).
+        params = {'protocol__n': [ServiceProtocolChoices.PROTOCOL_TCP]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_protocol_and_port(self):
+        # A combined protocol+port filter must match a single mapping, not protocol and port matched
+        # independently across different mappings on the same object.
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        # udp/8080 does not exist, even though this service has udp (on 53) and 8080 (on tcp)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port': [8080]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        # Single-mapping composition still works
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_port_negated(self):
+        # port__n excludes objects exposing the given port (1 of 7 services uses 1001).
+        params = {'port__n': [1001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+
+    def test_port_range_lookups(self):
+        # Ports in play: tcp/1001, tcp/1002, udp/1003, tcp/2001, tcp/2002, udp/2003, udp/2004
+        params = {'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'port__gte': [2001]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'port__lt': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_port_range_bounds_combined(self):
+        # gte + lte describe one range, so both bounds must hold for the same mapping.
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='Straddling', port_mappings=['tcp/500', 'tcp/5000'])
+
+        params = {'port__gte': [1000], 'port__lte': [1003]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_protocol_and_port_range(self):
+        # A range lookup is correlated with protocol, so this service's udp mapping (53) must not be
+        # matched by way of its tcp mapping (8080).
+        device = Device.objects.first()
+        Service.objects.create(parent=device, name='DNS', port_mappings=['tcp/8080', 'udp/53'])
+
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP], 'port__gt': [2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_UDP], 'port__gt': [1000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
