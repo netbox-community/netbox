@@ -1365,6 +1365,7 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
+        min_value=0,
         required=False
     )
     diameter_unit = forms.ChoiceField(
@@ -1425,6 +1426,7 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
+        min_value=0,
         required=False
     )
     diameter_unit = forms.ChoiceField(
@@ -1778,11 +1780,6 @@ class CoolingIntakeBulkEditForm(
         'description'
     ])
 ):
-    max_flow_unit = forms.ChoiceField(
-        label=_('Max flow unit'),
-        choices=add_blank_choice(FlowRateUnitChoices),
-        required=False
-    )
     cooling_outflow = DynamicModelChoiceField(
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),

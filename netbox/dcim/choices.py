@@ -2121,8 +2121,6 @@ class PowerOutletStatusChoices(ChoiceSet):
 #
 
 class CoolingMethodChoices(ChoiceSet):
-    key = 'Device.cooling_method'
-
     METHOD_AIR = 'air'
     METHOD_LIQUID = 'liquid'
     METHOD_HYBRID = 'hybrid'
@@ -2187,8 +2185,6 @@ class CoolingFeedStatusChoices(ChoiceSet):
 
 
 class FluidTypeChoices(ChoiceSet):
-    key = 'CoolingSource.fluid_type'
-
     FLUID_WATER = 'water'
     FLUID_WATER_GLYCOL = 'water-glycol'
     FLUID_DIELECTRIC = 'dielectric'
@@ -2203,8 +2199,6 @@ class FluidTypeChoices(ChoiceSet):
 
 
 class RackCoolingCapabilityChoices(ChoiceSet):
-    key = 'Rack.cooling_capability'
-
     AIR_ONLY = 'air-only'
     HYBRID = 'hybrid'
     LIQUID_ONLY = 'liquid-only'
@@ -2217,8 +2211,6 @@ class RackCoolingCapabilityChoices(ChoiceSet):
 
 
 class CoolingConnectorTypeChoices(ChoiceSet):
-    key = 'CoolingIntake.type'
-
     TYPE_UQD = 'uqd'
     TYPE_UQDB = 'uqdb'
     TYPE_QDC = 'qdc'

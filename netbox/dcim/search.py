@@ -78,7 +78,6 @@ class CoolingIntakeIndex(SearchIndex):
         ('name', 100),
         ('label', 200),
         ('description', 500),
-        ('max_flow', 2000),
     )
     display_attrs = ('device', 'label', 'type', 'description')
 
@@ -91,7 +90,7 @@ class CoolingSourceIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('site', 'location', 'description')
+    display_attrs = ('site', 'location', 'type', 'status', 'description')
 
 
 @register_search

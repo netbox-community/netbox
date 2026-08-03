@@ -31,7 +31,7 @@ def _normalized_measurement(value, unit, converters, quantity, precision=4) -> D
             _("Invalid value '{value}' for {quantity} (must be a number)").format(value=value, quantity=quantity)
         )
     if value < 0:
-        raise ValueError(_("{quantity} must be a positive number").format(quantity=quantity).capitalize())
+        raise ValueError(_("Invalid value for {quantity}: must be a positive number").format(quantity=quantity))
     if unit not in converters:
         raise ValueError(
             _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(

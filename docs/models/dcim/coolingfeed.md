@@ -34,4 +34,4 @@ The heat-removal capacity of the feed, in kilowatts (kW).
 
 ### Maximum Flow
 
-The maximum rate of coolant flow supported by the feed, expressed as a numeric value with a selectable unit (litres per minute, cubic meters per hour, or gallons per minute).
+The maximum rate of coolant flow supported by the feed, expressed as a numeric value with a selectable unit (liters per minute, cubic meters per hour, or gallons per minute).

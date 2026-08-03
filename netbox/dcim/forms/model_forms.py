@@ -1972,8 +1972,7 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False,
-        # The supplying outflow is typically an outlet on an upstream device (e.g. a CDU or manifold),
-        # so it is not restricted to the intake's own device.
+        selector=True
     )
 
     fieldsets = (
@@ -2014,8 +2013,8 @@ class CoolingOutflowForm(ModularDeviceComponentForm):
     class Meta:
         model = CoolingOutflow
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit',
-            'cooling_intake', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
+            'owner', 'tags',
         ]
 
 

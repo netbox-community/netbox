@@ -33,7 +33,7 @@ The connector diameter, expressed as a numeric value with a selectable unit (mil
 
 ### Maximum Flow
 
-The maximum coolant flow rate this port supports, expressed as a numeric value with a selectable unit (litres per minute, cubic meters per hour, or gallons per minute).
+The maximum coolant flow rate this port supports, expressed as a numeric value with a selectable unit (liters per minute, cubic meters per hour, or gallons per minute).
 
 ### Cooling Outflow
 
