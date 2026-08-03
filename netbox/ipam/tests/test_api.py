@@ -1487,7 +1487,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         """Combined protocol+port filtering works for ServiceTemplate over GraphQL."""
         self.add_permissions('ipam.view_servicetemplate')
         url = reverse('graphql')
-        query = '{ service_template_list(filters: {protocol: [ROLE_TCP], port: [1]}) { name } }'
+        query = '{ service_template_list(filters: {protocol: [TCP], port: [1]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1540,7 +1540,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual([t['name'] for t in data['data']['service_template_list']], ['Service Template 2'])
 
         # A protocol which no template exposes narrows the same range to nothing
-        query = '{ service_template_list(filters: {protocol: [ROLE_UDP], port__gte: [3], port__lte: [4]}) { name } }'
+        query = '{ service_template_list(filters: {protocol: [UDP], port__gte: [3], port__lte: [4]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1776,7 +1776,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         """Combined protocol + port filtering works over GraphQL (port mappings live in an array)."""
         self.add_permissions('ipam.view_service')
         url = reverse('graphql')
-        query = '{ service_list(filters: {protocol: [ROLE_TCP], port: [1]}) { id name } }'
+        query = '{ service_list(filters: {protocol: [TCP], port: [1]}) { id name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1795,7 +1795,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         url = reverse('graphql')
 
         # tcp/8080 exists on the service -> matches
-        query = '{ service_list(filters: {protocol: [ROLE_TCP], port: [8080]}) { name } }'
+        query = '{ service_list(filters: {protocol: [TCP], port: [8080]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1803,7 +1803,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual([s['name'] for s in data['data']['service_list']], ['dns-multi'])
 
         # udp/8080 does not exist, even though the service has udp (on 53) and 8080 (on tcp)
-        query = '{ service_list(filters: {protocol: [ROLE_UDP], port: [8080]}) { name } }'
+        query = '{ service_list(filters: {protocol: [UDP], port: [8080]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1866,7 +1866,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         device = Device.objects.first()
         Service.objects.create(parent=device, name='udp-svc', port_mappings=['udp/9'])
         url = reverse('graphql')
-        query = '{ service_list(filters: {protocol: [ROLE_UDP]}) { name } }'
+        query = '{ service_list(filters: {protocol: [UDP]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
@@ -1920,7 +1920,7 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         url = reverse('graphql')
 
         # 'mixed' has a tcp mapping and a mapping above 1000, but no tcp mapping above 1000
-        query = '{ service_list(filters: {protocol: [ROLE_TCP], port__gt: [1000]}) { name } }'
+        query = '{ service_list(filters: {protocol: [TCP], port__gt: [1000]}) { name } }'
         response = self.client.post(url, data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
