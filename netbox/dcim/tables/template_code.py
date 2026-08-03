@@ -56,6 +56,10 @@ DIAMETER = """
 {% if record.diameter %}{{ record.diameter }} {{ record.get_diameter_unit_display }}{% endif %}
 """
 
+MAX_FLOW = """
+{% if record.max_flow %}{{ record.max_flow }} {{ record.get_max_flow_unit_display }}{% endif %}
+"""
+
 DEVICE_LINK = """
 {{ record.label|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
 """
