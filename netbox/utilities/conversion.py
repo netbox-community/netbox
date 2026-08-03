@@ -17,42 +17,16 @@ __all__ = (
 )
 
 
-def to_grams(weight, unit) -> int:
+def _normalized_measurement(value, unit, converters, quantity, precision=4) -> Decimal:
     """
-    Convert the given weight to integer grams.
-    """
-    try:
-        if weight < 0:
-            raise ValueError(_("Weight must be a positive number"))
-    except TypeError:
-        raise TypeError(_("Invalid value '{weight}' for weight (must be a number)").format(weight=weight))
-
-    if unit == WeightUnitChoices.UNIT_KILOGRAM:
-        return int(weight * 1000)
-    if unit == WeightUnitChoices.UNIT_GRAM:
-        return int(weight)
-    if unit == WeightUnitChoices.UNIT_POUND:
-        return int(weight * Decimal(453.592))
-    if unit == WeightUnitChoices.UNIT_OUNCE:
-        return int(weight * Decimal(28.3495))
-    raise ValueError(
-        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
-            unit=unit,
-            valid_units=', '.join(WeightUnitChoices.values())
-        )
-    )
-
-
-def _normalized_measurement(value, unit, converters, quantity) -> Decimal:
-    """
-    Shared implementation for the Decimal-based unit-normalization helpers below. Coerce `value` to a
-    non-negative Decimal, apply the matching per-unit converter, and round the result to 4 decimal
-    places. `converters` maps each valid unit to a callable receiving the Decimal value; `quantity`
-    labels the value in error messages.
+    Shared implementation for the unit-normalization helpers below. Coerce `value` to a non-negative
+    Decimal, apply the matching per-unit converter, and round the result to `precision` decimal places.
+    `converters` maps each valid unit to a callable receiving the Decimal value; `quantity` labels the
+    value in error messages. Pass `precision=None` to return the unrounded result.
     """
     try:
         value = Decimal(value)
-    except InvalidOperation:
+    except (InvalidOperation, TypeError, ValueError):
         raise TypeError(
             _("Invalid value '{value}' for {quantity} (must be a number)").format(value=value, quantity=quantity)
         )
@@ -65,7 +39,22 @@ def _normalized_measurement(value, unit, converters, quantity) -> Decimal:
                 valid_units=', '.join(converters)
             )
         )
-    return round(converters[unit](value), 4)
+    result = converters[unit](value)
+    return result if precision is None else round(result, precision)
+
+
+def to_grams(weight, unit) -> int:
+    """
+    Convert the given weight to integer grams.
+    """
+    # Rounding is suppressed so that the result is truncated exactly as the caller's int() expects; rounding
+    # first could nudge a value across an integer boundary.
+    return int(_normalized_measurement(weight, unit, {
+        WeightUnitChoices.UNIT_KILOGRAM: lambda v: v * 1000,
+        WeightUnitChoices.UNIT_GRAM: lambda v: v,
+        WeightUnitChoices.UNIT_POUND: lambda v: v * Decimal(453.592),
+        WeightUnitChoices.UNIT_OUNCE: lambda v: v * Decimal(28.3495),
+    }, _('weight'), precision=None))
 
 
 def to_meters(length, unit) -> Decimal:
