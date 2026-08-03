@@ -13,8 +13,8 @@ from netbox.models.ltree import LtreeModel
 from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 
 __all__ = (
-    'BaseFilterSetTests',
-    'ChangeLoggedFilterSetTests',
+    'BaseFilterSetTestMixin',
+    'ChangeLoggedFilterSetTestMixin',
 )
 
 EXEMPT_MODEL_FIELDS = (
@@ -25,7 +25,7 @@ EXEMPT_MODEL_FIELDS = (
 )
 
 
-class BaseFilterSetTests:
+class BaseFilterSetTestMixin:
     queryset = None
     filterset = None
     ignore_fields = tuple()
@@ -150,7 +150,7 @@ class BaseFilterSetTests:
                     )
 
 
-class ChangeLoggedFilterSetTests(BaseFilterSetTests):
+class ChangeLoggedFilterSetTestMixin(BaseFilterSetTestMixin):
 
     def test_created(self):
         pk_list = self.queryset.values_list('pk', flat=True)[:2]

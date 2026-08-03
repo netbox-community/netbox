@@ -15,11 +15,11 @@ from extras.filtersets import *
 from extras.models import *
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
+from utilities.testing import BaseFilterSetTestMixin, ChangeLoggedFilterSetTestMixin, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
-class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
     ignore_fields = ('default', 'related_object_filter', 'validation_schema')
@@ -160,7 +160,7 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = CustomFieldChoiceSetFilterSet
     ignore_fields = ('extra_choices',)
@@ -214,7 +214,7 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class WebhookTestCase(TestCase, BaseFilterSetTests):
+class WebhookTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Webhook.objects.all()
     filterset = WebhookFilterSet
     ignore_fields = ('additional_headers', 'body_template')
@@ -286,7 +286,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class EventRuleTestCase(TestCase, BaseFilterSetTests):
+class EventRuleTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = EventRule.objects.all()
     filterset = EventRuleFilterSet
     ignore_fields = ('action_data', 'conditions', 'event_types')
@@ -450,7 +450,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomLink.objects.all()
     filterset = CustomLinkFilterSet
 
@@ -519,7 +519,7 @@ class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
+class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = SavedFilter.objects.all()
     filterset = SavedFilterFilterSet
     ignore_fields = ('parameters',)
@@ -624,7 +624,7 @@ class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class BookmarkTestCase(TestCase, BaseFilterSetTests):
+class BookmarkTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Bookmark.objects.all()
     filterset = BookmarkFilterSet
 
@@ -693,7 +693,7 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
     ignore_fields = ('template_code', 'environment_params', 'data_path')
@@ -769,7 +769,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ImageAttachment.objects.all()
     filterset = ImageAttachmentFilterSet
     ignore_fields = ('image',)
@@ -863,7 +863,7 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = TableConfig.objects.all()
     filterset = TableConfigFilterSet
     ignore_fields = ('columns', 'ordering')
@@ -919,7 +919,7 @@ class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
 
-class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
+class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = JournalEntry.objects.all()
     filterset = JournalEntryFilterSet
 
@@ -1022,7 +1022,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigContextProfile.objects.all()
     filterset = ConfigContextProfileFilterSet
     ignore_fields = ('schema', 'data_path')
@@ -1055,7 +1055,7 @@ class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
     ignore_fields = ('data', 'data_path')
@@ -1298,7 +1298,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigTemplate.objects.all()
     filterset = ConfigTemplateFilterSet
     ignore_fields = ('template_code', 'environment_params', 'data_path')
@@ -1364,7 +1364,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TagTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
     ignore_fields = (
@@ -1687,7 +1687,7 @@ class ChangeLoggedFilterSetTestCase(TestCase):
         self.assertEqual(self.queryset.count(), 4)
 
 
-class NotificationGroupTestCase(TestCase, BaseFilterSetTests):
+class NotificationGroupTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = NotificationGroup.objects.all()
     filterset = NotificationGroupFilterSet
 
