@@ -15,12 +15,11 @@ from utilities.conversion import (
 
 __all__ = (
     'CachedScopeMixin',
+    'CoolingLoopValidationMixin',
     'DiameterMixin',
     'InterfaceValidationMixin',
     'MaxFlowMixin',
     'RenderConfigMixin',
-    'normalize_measurement_field',
-    'validate_measurement_unit',
 )
 
 
@@ -241,26 +240,50 @@ class InterfaceValidationMixin:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
 
 
-def normalize_measurement_field(instance, value_field, unit_field, abs_field, converter):
+class CoolingLoopValidationMixin(models.Model):
     """
-    Populate `abs_field` on `instance` with the normalized (canonical-unit) value of `value_field`, or
-    None when either the value or its unit is unset, and clear `unit_field` when the value is None.
-    Shared by the quantity mixins' save() and by component instantiation (which bypasses save() via
-    bulk_create), so the normalization logic has a single source of truth.
-    """
-    value = getattr(instance, value_field)
-    unit = getattr(instance, unit_field)
-    setattr(instance, abs_field, converter(value, unit) if value is not None and unit else None)
-    if value is None:
-        setattr(instance, unit_field, None)
+    Adds loop detection to the coolant chain formed by cooling intakes and outflows. A CoolingIntake is supplied
+    by an upstream CoolingOutflow (via `cooling_outflow`), which may in turn be supplied by an upstream
+    CoolingIntake on the same device (via `cooling_intake`), and so on; this chain must remain acyclic.
 
+    Each concrete model declares `upstream_field`, the name of its foreign key to the next component upstream.
+    The chain alternates between the two models, so the walk simply follows each visited component's own
+    upstream field in turn. (The field is resolved by name rather than referencing the models directly, as this
+    module is imported by the ones defining them.)
+    """
+    upstream_field = None
 
-def validate_measurement_unit(instance, value_field, unit_field, error_message):
-    """
-    Raise ValidationError(error_message) if `value_field` is set on `instance` without `unit_field`.
-    """
-    if getattr(instance, value_field) is not None and not getattr(instance, unit_field):
-        raise ValidationError(error_message)
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def _get_upstream_field(cls):
+        return cls._meta.get_field(cls.upstream_field)
+
+    def validate_cooling_loop(self):
+        """
+        Raise a ValidationError if this component's upstream assignment forms a loop.
+
+        Each hop resolves only the next foreign key ID (a single indexed column lookup) rather than loading
+        full related objects, and the `seen` set of (model, pk) pairs guarantees termination.
+        """
+        seen = set()
+        if self.pk:
+            seen.add((type(self), self.pk))
+
+        # Seed the walk from this (possibly unsaved) component's in-memory foreign key
+        field = self._get_upstream_field()
+        model, pk = field.related_model, getattr(self, field.attname)
+
+        while pk is not None:
+            if (model, pk) in seen:
+                raise ValidationError(_("Cooling intake and outflow assignments cannot form a loop."))
+            seen.add((model, pk))
+
+            # Advance to the component upstream of the one just visited
+            field = model._get_upstream_field()
+            pk = model.objects.filter(pk=pk).values_list(field.attname, flat=True).first()
+            model = field.related_model
 
 
 class DiameterMixin(models.Model):
@@ -295,16 +318,30 @@ class DiameterMixin(models.Model):
         # Public alias for _abs_diameter; Django templates cannot access underscore-prefixed attributes.
         return self._abs_diameter
 
+    def normalize_diameter(self):
+        """
+        Store the given diameter (if any) in millimeters for use in database ordering. Called by save(), and
+        directly by component instantiation, which bypasses save() via bulk_create().
+        """
+        if self.diameter is not None and self.diameter_unit:
+            self._abs_diameter = to_millimeters(self.diameter, self.diameter_unit)
+        else:
+            self._abs_diameter = None
+        if self.diameter is None:
+            self.diameter_unit = None
+    normalize_diameter.alters_data = True
+
     def save(self, *args, **kwargs):
-        # Store the normalized diameter (in millimeters) for use in database ordering
-        normalize_measurement_field(self, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
+        self.normalize_diameter()
+
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
-        validate_measurement_unit(
-            self, 'diameter', 'diameter_unit', _("Must specify a unit when setting a diameter")
-        )
+
+        # Validate diameter and diameter_unit
+        if self.diameter is not None and not self.diameter_unit:
+            raise ValidationError(_("Must specify a unit when setting a diameter"))
 
 
 class MaxFlowMixin(models.Model):
@@ -343,15 +380,27 @@ class MaxFlowMixin(models.Model):
         # Public alias for _abs_max_flow; Django templates cannot access underscore-prefixed attributes.
         return self._abs_max_flow
 
+    def normalize_max_flow(self):
+        """
+        Store the given max flow (if any) in liters per minute for use in database ordering. Called by save(),
+        and directly by component instantiation, which bypasses save() via bulk_create().
+        """
+        if self.max_flow is not None and self.max_flow_unit:
+            self._abs_max_flow = to_liters_per_minute(self.max_flow, self.max_flow_unit)
+        else:
+            self._abs_max_flow = None
+        if self.max_flow is None:
+            self.max_flow_unit = None
+    normalize_max_flow.alters_data = True
+
     def save(self, *args, **kwargs):
-        # Store the normalized max flow (in liters per minute) for use in database ordering
-        normalize_measurement_field(
-            self, 'max_flow', 'max_flow_unit', '_abs_max_flow', to_liters_per_minute
-        )
+        self.normalize_max_flow()
+
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
-        validate_measurement_unit(
-            self, 'max_flow', 'max_flow_unit', _("Must specify a unit when setting a maximum flow")
-        )
+
+        # Validate max_flow and max_flow_unit
+        if self.max_flow is not None and not self.max_flow_unit:
+            raise ValidationError(_("Must specify a unit when setting a maximum flow"))

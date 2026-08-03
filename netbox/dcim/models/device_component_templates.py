@@ -8,17 +8,11 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import (
-    DiameterMixin,
-    InterfaceValidationMixin,
-    MaxFlowMixin,
-    normalize_measurement_field,
-)
+from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
-from utilities.conversion import to_liters_per_minute, to_millimeters
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -480,10 +474,8 @@ class CoolingIntakeTemplate(DiameterMixin, MaxFlowMixin, ModularComponentTemplat
             **kwargs
         )
         # bulk_create bypasses save(), so populate the normalized _abs_* fields here
-        normalize_measurement_field(component, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
-        normalize_measurement_field(
-            component, 'max_flow', 'max_flow_unit', '_abs_max_flow', to_liters_per_minute
-        )
+        component.normalize_diameter()
+        component.normalize_max_flow()
         return component
     instantiate.do_not_call_in_templates = True
 
@@ -560,7 +552,7 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
             **kwargs
         )
         # bulk_create bypasses save(), so populate the normalized _abs_diameter here
-        normalize_measurement_field(component, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
+        component.normalize_diameter()
         return component
     instantiate.do_not_call_in_templates = True
 

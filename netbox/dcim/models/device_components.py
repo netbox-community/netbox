@@ -12,7 +12,12 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
+from dcim.models.mixins import (
+    CoolingLoopValidationMixin,
+    DiameterMixin,
+    InterfaceValidationMixin,
+    MaxFlowMixin,
+)
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
@@ -690,40 +695,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
-def validate_cooling_loop(component):
-    """
-    Walk the upstream cooling chain and raise a ValidationError if it forms a loop. A CoolingIntake is
-    supplied by an upstream CoolingOutflow (via `cooling_outflow`), which may in turn be supplied by an
-    upstream CoolingIntake (via `cooling_intake`), and so on; this chain must remain acyclic.
-
-    Each hop resolves only the next FK id (a single indexed column lookup) rather than loading full
-    related objects, and the `seen` set of (model, pk) pairs guarantees termination.
-    """
-    seen = set()
-    if component.pk:
-        seen.add((type(component), component.pk))
-
-    # Seed the walk from the (possibly unsaved) component's in-memory FK, alternating intake <-> outflow.
-    if isinstance(component, CoolingIntake):
-        next_model, next_pk = CoolingOutflow, component.cooling_outflow_id
-    else:
-        next_model, next_pk = CoolingIntake, component.cooling_intake_id
-
-    while next_pk is not None:
-        key = (next_model, next_pk)
-        if key in seen:
-            raise ValidationError(_("Cooling intake and outflow assignments cannot form a loop."))
-        seen.add(key)
-
-        if next_model is CoolingIntake:
-            next_pk = CoolingIntake.objects.filter(pk=next_pk).values_list('cooling_outflow_id', flat=True).first()
-            next_model = CoolingOutflow
-        else:
-            next_pk = CoolingOutflow.objects.filter(pk=next_pk).values_list('cooling_intake_id', flat=True).first()
-            next_model = CoolingIntake
-
-
-class CoolingIntake(DiameterMixin, MaxFlowMixin, ModularComponentModel, TrackingModelMixin):
+class CoolingIntake(
+    CoolingLoopValidationMixin, DiameterMixin, MaxFlowMixin, ModularComponentModel, TrackingModelMixin
+):
     """
     A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
     CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
@@ -751,6 +725,7 @@ class CoolingIntake(DiameterMixin, MaxFlowMixin, ModularComponentModel, Tracking
         'device', 'module', 'type', 'diameter', 'diameter_unit', 'max_flow',
         'max_flow_unit',
     )
+    upstream_field = 'cooling_outflow'
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling intake')
@@ -760,10 +735,10 @@ class CoolingIntake(DiameterMixin, MaxFlowMixin, ModularComponentModel, Tracking
         super().clean()
 
         # Prevent the intake/outflow chain from forming a loop
-        validate_cooling_loop(self)
+        self.validate_cooling_loop()
 
 
-class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
+class CoolingOutflow(CoolingLoopValidationMixin, DiameterMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
     CoolingIntakes (referenced via CoolingIntake.cooling_outflow).
@@ -786,6 +761,7 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
     )
 
     clone_fields = ('device', 'module', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
+    upstream_field = 'cooling_intake'
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling outflow')
@@ -802,7 +778,7 @@ class CoolingOutflow(DiameterMixin, ModularComponentModel, TrackingModelMixin):
             )
 
         # Prevent the intake/outflow chain from forming a loop
-        validate_cooling_loop(self)
+        self.validate_cooling_loop()
 
 
 #
