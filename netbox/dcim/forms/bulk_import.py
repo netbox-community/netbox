@@ -1012,8 +1012,8 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Diameter unit')
     )
-    maximum_flow_unit = CSVChoiceField(
-        label=_('Maximum flow unit'),
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
         choices=FlowRateUnitChoices,
         required=False,
         help_text=_('Unit for maximum flow')
@@ -1036,8 +1036,8 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = CoolingIntake
         fields = (
-            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'cooling_outflow_device', 'cooling_outflow', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow',
+            'max_flow_unit', 'cooling_outflow_device', 'cooling_outflow', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):
@@ -2277,18 +2277,18 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         choices=CoolingFeedStatusChoices,
         help_text=_('Operational status')
     )
-    rated_flow_rate_unit = CSVChoiceField(
-        label=_('Rated flow rate unit'),
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
         choices=FlowRateUnitChoices,
         required=False,
-        help_text=_('Unit for rated flow rate')
+        help_text=_('Unit for maximum flow')
     )
 
     class Meta:
         model = CoolingFeed
         fields = (
             'site', 'cooling_source', 'location', 'rack', 'name', 'status',
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'description', 'owner',
+            'cooling_capacity', 'max_flow', 'max_flow_unit', 'tenant', 'description', 'owner',
             'comments', 'tags',
         )
 

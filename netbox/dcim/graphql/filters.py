@@ -1009,10 +1009,10 @@ class CoolingFeedFilter(TenancyFilterMixin, PrimaryModelFilter):
     cooling_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    rated_flow_rate: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    max_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    rated_flow_rate_unit: (
+    max_flow_unit: (
         BaseFilterLookup[Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
 
@@ -1062,10 +1062,10 @@ class CoolingIntakeFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    max_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    maximum_flow_unit: BaseFilterLookup[
+    max_flow_unit: BaseFilterLookup[
         Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
 
@@ -1081,10 +1081,10 @@ class CoolingIntakeTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLog
     diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    max_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    maximum_flow_unit: BaseFilterLookup[
+    max_flow_unit: BaseFilterLookup[
         Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
 

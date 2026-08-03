@@ -200,7 +200,7 @@ class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
-    maximum_flow_unit = ChoiceField(
+    max_flow_unit = ChoiceField(
         choices=FlowRateUnitChoices,
         allow_blank=True,
         required=False,
@@ -211,7 +211,7 @@ class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
         model = CoolingIntakeTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'description',
+            'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit', 'description',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

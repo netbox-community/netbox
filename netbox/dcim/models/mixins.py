@@ -17,7 +17,7 @@ __all__ = (
     'CachedScopeMixin',
     'DiameterMixin',
     'InterfaceValidationMixin',
-    'MaximumFlowMixin',
+    'MaxFlowMixin',
     'RenderConfigMixin',
     'normalize_measurement_field',
     'validate_measurement_unit',
@@ -307,24 +307,28 @@ class DiameterMixin(models.Model):
         )
 
 
-class MaximumFlowMixin(models.Model):
-    maximum_flow = models.DecimalField(
-        verbose_name=_('maximum flow'),
+class MaxFlowMixin(models.Model):
+    """
+    Adds the maximum rate of coolant flow supported by an object, held as a value plus its unit alongside a
+    normalized column (in liters per minute) so that ordering and filtering work across mixed units.
+    """
+    max_flow = models.DecimalField(
+        verbose_name=_('max flow'),
         max_digits=8,
         decimal_places=2,
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
     )
-    maximum_flow_unit = models.CharField(
-        verbose_name=_('maximum flow unit'),
+    max_flow_unit = models.CharField(
+        verbose_name=_('max flow unit'),
         max_length=50,
         choices=FlowRateUnitChoices,
         blank=True,
         null=True,
     )
-    # Stores the normalized maximum flow (in liters per minute) for database ordering
-    _abs_maximum_flow = models.DecimalField(
+    # Stores the normalized max flow (in liters per minute) for database ordering
+    _abs_max_flow = models.DecimalField(
         max_digits=13,
         decimal_places=4,
         blank=True,
@@ -335,19 +339,19 @@ class MaximumFlowMixin(models.Model):
         abstract = True
 
     @property
-    def abs_maximum_flow(self):
-        # Public alias for _abs_maximum_flow; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_maximum_flow
+    def abs_max_flow(self):
+        # Public alias for _abs_max_flow; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_max_flow
 
     def save(self, *args, **kwargs):
-        # Store the normalized maximum flow (in liters per minute) for use in database ordering
+        # Store the normalized max flow (in liters per minute) for use in database ordering
         normalize_measurement_field(
-            self, 'maximum_flow', 'maximum_flow_unit', '_abs_maximum_flow', to_liters_per_minute
+            self, 'max_flow', 'max_flow_unit', '_abs_max_flow', to_liters_per_minute
         )
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
         validate_measurement_unit(
-            self, 'maximum_flow', 'maximum_flow_unit', _("Must specify a unit when setting a maximum flow")
+            self, 'max_flow', 'max_flow_unit', _("Must specify a unit when setting a maximum flow")
         )

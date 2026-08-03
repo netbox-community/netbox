@@ -4705,8 +4705,8 @@ class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
         }
 
         cls.bulk_create_data = {
@@ -4715,16 +4715,16 @@ class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
         }
 
         cls.bulk_edit_data = {
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
         }
 
 
@@ -4796,8 +4796,8 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             'description': 'A cooling port',
             'tags': [t.pk for t in tags],
         }
@@ -4808,8 +4808,8 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             'description': 'A cooling port',
             'tags': [t.pk for t in tags],
         }
@@ -4818,8 +4818,8 @@ class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
-            'maximum_flow': 100,
-            'maximum_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             'description': 'New description',
         }
 
@@ -5005,8 +5005,8 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
             'cooling_capacity': 100,
-            'rated_flow_rate': 50,
-            'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 50,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             'comments': 'New comments',
             'tags': [t.pk for t in tags],
         }
@@ -5030,8 +5030,8 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
             'cooling_capacity': 100,
-            'rated_flow_rate': 50,
-            'rated_flow_rate_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'max_flow': 50,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             'comments': 'New comments',
         }
 

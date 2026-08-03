@@ -1084,7 +1084,7 @@ class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTy
         distinct=False,
         null_value=None
     )
-    maximum_flow_unit = django_filters.MultipleChoiceFilter(
+    max_flow_unit = django_filters.MultipleChoiceFilter(
         choices=FlowRateUnitChoices,
         distinct=False,
         null_value=None
@@ -1093,7 +1093,7 @@ class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTy
     class Meta:
         model = CoolingIntakeTemplate
         fields = (
-            'id', 'name', 'label', 'diameter', 'maximum_flow', 'description',
+            'id', 'name', 'label', 'diameter', 'max_flow', 'description',
         )
 
 
@@ -2186,7 +2186,7 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
         distinct=False,
         null_value=None
     )
-    maximum_flow_unit = django_filters.MultipleChoiceFilter(
+    max_flow_unit = django_filters.MultipleChoiceFilter(
         choices=FlowRateUnitChoices,
         distinct=False,
         null_value=None
@@ -2201,7 +2201,7 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
     class Meta:
         model = CoolingIntake
         fields = (
-            'id', 'name', 'label', 'diameter', 'maximum_flow', 'description',
+            'id', 'name', 'label', 'diameter', 'max_flow', 'description',
         )
 
 
@@ -3393,7 +3393,7 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         distinct=False,
         null_value=None
     )
-    rated_flow_rate_unit = django_filters.MultipleChoiceFilter(
+    max_flow_unit = django_filters.MultipleChoiceFilter(
         choices=FlowRateUnitChoices,
         distinct=False,
         null_value=None
@@ -3402,7 +3402,7 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     class Meta:
         model = CoolingFeed
         fields = (
-            'id', 'name', 'cooling_capacity', 'rated_flow_rate', 'description',
+            'id', 'name', 'cooling_capacity', 'max_flow', 'description',
         )
 
     def search(self, queryset, name, value):

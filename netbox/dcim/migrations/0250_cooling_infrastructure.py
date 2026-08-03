@@ -169,7 +169,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "maximum_flow",
+                    "max_flow",
                     models.DecimalField(
                         blank=True,
                         decimal_places=2,
@@ -179,11 +179,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "maximum_flow_unit",
+                    "max_flow_unit",
                     models.CharField(blank=True, max_length=50, null=True),
                 ),
                 (
-                    "_abs_maximum_flow",
+                    "_abs_max_flow",
                     models.DecimalField(
                         blank=True, decimal_places=4, max_digits=13, null=True
                     ),
@@ -431,7 +431,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "maximum_flow",
+                    "max_flow",
                     models.DecimalField(
                         blank=True,
                         decimal_places=2,
@@ -441,11 +441,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "maximum_flow_unit",
+                    "max_flow_unit",
                     models.CharField(blank=True, max_length=50, null=True),
                 ),
                 (
-                    "_abs_maximum_flow",
+                    "_abs_max_flow",
                     models.DecimalField(
                         blank=True, decimal_places=4, max_digits=13, null=True
                     ),
@@ -659,7 +659,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "rated_flow_rate",
+                    "max_flow",
                     models.DecimalField(
                         blank=True,
                         decimal_places=2,
@@ -669,11 +669,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "rated_flow_rate_unit",
+                    "max_flow_unit",
                     models.CharField(blank=True, max_length=50, null=True),
                 ),
                 (
-                    "_abs_rated_flow_rate",
+                    "_abs_max_flow",
                     models.DecimalField(
                         blank=True, decimal_places=4, max_digits=13, null=True
                     ),

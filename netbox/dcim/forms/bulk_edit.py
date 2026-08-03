@@ -1178,13 +1178,13 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         min_value=0,
         required=False
     )
-    rated_flow_rate = forms.DecimalField(
-        label=_('Rated flow rate'),
+    max_flow = forms.DecimalField(
+        label=_('Max flow'),
         min_value=0,
         required=False
     )
-    rated_flow_rate_unit = forms.ChoiceField(
-        label=_('Rated flow rate unit'),
+    max_flow_unit = forms.ChoiceField(
+        label=_('Max flow unit'),
         choices=add_blank_choice(FlowRateUnitChoices),
         required=False,
         initial=''
@@ -1198,12 +1198,12 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     fieldsets = (
         FieldSet('cooling_source', 'rack', 'status', 'description', 'tenant'),
         FieldSet(
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
+            'cooling_capacity', 'max_flow', 'max_flow_unit',
             name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'rack', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit',
+        'rack', 'cooling_capacity', 'max_flow', 'max_flow_unit',
         'tenant', 'description', 'comments',
     )
 
@@ -1372,13 +1372,13 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         choices=add_blank_choice(DiameterUnitChoices),
         required=False
     )
-    maximum_flow = forms.DecimalField(
-        label=_('Maximum flow'),
+    max_flow = forms.DecimalField(
+        label=_('Max flow'),
         min_value=0,
         required=False
     )
-    maximum_flow_unit = forms.ChoiceField(
-        label=_('Maximum flow unit'),
+    max_flow_unit = forms.ChoiceField(
+        label=_('Max flow unit'),
         choices=add_blank_choice(FlowRateUnitChoices),
         required=False
     )
@@ -1391,12 +1391,12 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         FieldSet(
             'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
             'description',
         ),
     )
     nullable_fields = (
-        'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'label', 'type', 'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit',
         'description',
     )
 
@@ -1774,12 +1774,12 @@ class PowerOutletBulkEditForm(
 class CoolingIntakeBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(CoolingIntake, [
-        'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'label', 'type', 'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit',
         'description'
     ])
 ):
-    maximum_flow_unit = forms.ChoiceField(
-        label=_('Maximum flow unit'),
+    max_flow_unit = forms.ChoiceField(
+        label=_('Max flow unit'),
         choices=add_blank_choice(FlowRateUnitChoices),
         required=False
     )
@@ -1797,12 +1797,12 @@ class CoolingIntakeBulkEditForm(
             'label', 'cooling_outflow', 'description',
         ),
         FieldSet(
-            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
             name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'module', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'module', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit',
         'cooling_outflow', 'description',
     )
 

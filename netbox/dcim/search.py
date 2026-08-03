@@ -78,7 +78,7 @@ class CoolingIntakeIndex(SearchIndex):
         ('name', 100),
         ('label', 200),
         ('description', 500),
-        ('maximum_flow', 2000),
+        ('max_flow', 2000),
     )
     display_attrs = ('device', 'label', 'type', 'description')
 

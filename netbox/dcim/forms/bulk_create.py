@@ -87,14 +87,14 @@ class CoolingIntakeBulkCreateForm(
     form_from_model(
         CoolingIntake,
         [
-            'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit'
+            'type', 'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit'
         ]
     ),
     DeviceBulkAddComponentForm
 ):
     model = CoolingIntake
     field_order = (
-        'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit',
         'description', 'tags',
     )
 

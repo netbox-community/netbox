@@ -3242,8 +3242,8 @@ class CoolingComponentTestCase(TestCase):
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-            maximum_flow=100,
-            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+            max_flow=100,
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
         )
         CoolingOutflowTemplate.objects.create(
             device_type=device_type,
@@ -3266,10 +3266,10 @@ class CoolingComponentTestCase(TestCase):
             type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-            maximum_flow=100,
-            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+            max_flow=100,
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
         )
-        self.assertEqual(cooling_intake_template.maximum_flow, cooling_intake.maximum_flow)
+        self.assertEqual(cooling_intake_template.max_flow, cooling_intake.max_flow)
 
         CoolingOutflow.objects.get(
             device=device,

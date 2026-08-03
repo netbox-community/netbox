@@ -1218,7 +1218,7 @@ class CoolingFeedForm(TenancyForm, PrimaryModelForm):
         ),
         FieldSet(
             'cooling_capacity',
-            InlineFields('rated_flow_rate', 'rated_flow_rate_unit', label=_('Rated flow rate')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
             name=_('Characteristics')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
@@ -1228,7 +1228,7 @@ class CoolingFeedForm(TenancyForm, PrimaryModelForm):
         model = CoolingFeed
         fields = [
             'cooling_source', 'rack', 'name', 'status', 'cooling_capacity',
-            'rated_flow_rate', 'rated_flow_rate_unit', 'tenant_group', 'tenant', 'description', 'owner', 'comments',
+            'max_flow', 'max_flow_unit', 'tenant_group', 'tenant', 'description', 'owner', 'comments',
             'tags',
         ]
 
@@ -1483,7 +1483,7 @@ class CoolingIntakeTemplateForm(ModularComponentTemplateForm):
             ),
             'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
             'description',
         ),
     )
@@ -1492,7 +1492,7 @@ class CoolingIntakeTemplateForm(ModularComponentTemplateForm):
         model = CoolingIntakeTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
-            'maximum_flow', 'maximum_flow_unit', 'description',
+            'max_flow', 'max_flow_unit', 'description',
         ]
 
 
@@ -1980,7 +1980,7 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
         FieldSet(
             'device', 'module', 'name', 'label', 'type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
             'cooling_outflow', 'description', 'tags',
         ),
     )
@@ -1988,8 +1988,8 @@ class CoolingIntakeForm(ModularDeviceComponentForm):
     class Meta:
         model = CoolingIntake
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow',
+            'max_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
         ]
 
 

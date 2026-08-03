@@ -11,7 +11,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import (
     DiameterMixin,
     InterfaceValidationMixin,
-    MaximumFlowMixin,
+    MaxFlowMixin,
     normalize_measurement_field,
 )
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
@@ -448,7 +448,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         }
 
 
-class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTemplateModel):
+class CoolingIntakeTemplate(DiameterMixin, MaxFlowMixin, ModularComponentTemplateModel):
     """
     A template for a CoolingIntake to be created for a new Device.
     """
@@ -460,7 +460,7 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
         null=True
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
+    # max_flow, max_flow_unit, _abs_max_flow provided by MaxFlowMixin
 
     component_model = CoolingIntake
 
@@ -475,14 +475,14 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
             type=self.type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
-            maximum_flow=self.maximum_flow,
-            maximum_flow_unit=self.maximum_flow_unit,
+            max_flow=self.max_flow,
+            max_flow_unit=self.max_flow_unit,
             **kwargs
         )
         # bulk_create bypasses save(), so populate the normalized _abs_* fields here
         normalize_measurement_field(component, 'diameter', 'diameter_unit', '_abs_diameter', to_millimeters)
         normalize_measurement_field(
-            component, 'maximum_flow', 'maximum_flow_unit', '_abs_maximum_flow', to_liters_per_minute
+            component, 'max_flow', 'max_flow_unit', '_abs_max_flow', to_liters_per_minute
         )
         return component
     instantiate.do_not_call_in_templates = True
@@ -493,8 +493,8 @@ class CoolingIntakeTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTem
             'type': self.type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
-            'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
-            'maximum_flow_unit': self.maximum_flow_unit,
+            'max_flow': float(self.max_flow) if self.max_flow is not None else None,
+            'max_flow_unit': self.max_flow_unit,
             'label': self.label,
             'description': self.description,
         }

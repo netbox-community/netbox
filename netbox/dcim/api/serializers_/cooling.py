@@ -61,7 +61,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         choices=CoolingFeedStatusChoices,
         default=lambda: CoolingFeedStatusChoices.STATUS_ACTIVE,
     )
-    rated_flow_rate_unit = ChoiceField(
+    max_flow_unit = ChoiceField(
         choices=FlowRateUnitChoices,
         allow_blank=True,
         required=False,
@@ -77,7 +77,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer):
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status',
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'description', 'tenant',
+            'cooling_capacity', 'max_flow', 'max_flow_unit', 'description', 'tenant',
             'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

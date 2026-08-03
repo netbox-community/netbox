@@ -288,7 +288,7 @@ class CoolingIntakePanel(panels.ObjectAttributesPanel):
     type = attrs.ChoiceAttr('type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
-    maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
+    max_flow = attrs.NumericAttr('max_flow', unit_accessor='get_max_flow_unit_display')
     cooling_outflow = attrs.RelatedObjectAttr('cooling_outflow', linkify=True)
 
 
@@ -451,7 +451,7 @@ class CoolingFeedCharacteristicsPanel(panels.ObjectAttributesPanel):
     title = _('Cooling Characteristics')
 
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
-    rated_flow_rate = attrs.NumericAttr('rated_flow_rate', unit_accessor='get_rated_flow_rate_unit_display')
+    max_flow = attrs.NumericAttr('max_flow', unit_accessor='get_max_flow_unit_display')
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):

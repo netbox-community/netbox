@@ -2131,8 +2131,8 @@ class CoolingIntakeTemplateTestCase(
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=100,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                max_flow=100,
+                max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 description='foobar1'
             ),
             CoolingIntakeTemplate(
@@ -2141,8 +2141,8 @@ class CoolingIntakeTemplateTestCase(
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=200,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+                max_flow=200,
+                max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
                 description='foobar2'
             ),
             CoolingIntakeTemplate(
@@ -2151,8 +2151,8 @@ class CoolingIntakeTemplateTestCase(
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=300,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+                max_flow=300,
+                max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
                 description='foobar3'
             ),
         ))
@@ -2169,12 +2169,12 @@ class CoolingIntakeTemplateTestCase(
         params = {'diameter': [Decimal('25')]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_maximum_flow(self):
-        params = {'maximum_flow': [100, 200]}
+    def test_max_flow(self):
+        params = {'max_flow': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_maximum_flow_unit(self):
-        params = {'maximum_flow_unit': [
+    def test_max_flow_unit(self):
+        params = {'max_flow_unit': [
             FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR
         ]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -4863,8 +4863,8 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeL
                 type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=100,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                max_flow=100,
+                max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 description='First',
                 cooling_outflow=cooling_outflow,
                 _site=devices[0].site,
@@ -4879,8 +4879,8 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeL
                 type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=200,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+                max_flow=200,
+                max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
                 description='Second',
                 _site=devices[1].site,
                 _location=devices[1].location,
@@ -4894,8 +4894,8 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeL
                 type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-                maximum_flow=300,
-                maximum_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+                max_flow=300,
+                max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
                 description='Third',
                 _site=devices[2].site,
                 _location=devices[2].location,
@@ -4929,12 +4929,12 @@ class CoolingIntakeTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeL
         params = {'diameter': [Decimal('25'), Decimal('32')]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_maximum_flow(self):
-        params = {'maximum_flow': [100, 200]}
+    def test_max_flow(self):
+        params = {'max_flow': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_maximum_flow_unit(self):
-        params = {'maximum_flow_unit': [
+    def test_max_flow_unit(self):
+        params = {'max_flow_unit': [
             FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR
         ]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -8389,8 +8389,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 tenant=tenants[0],
                 status=CoolingFeedStatusChoices.STATUS_ACTIVE,
                 cooling_capacity=100,
-                rated_flow_rate=10,
-                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                max_flow=10,
+                max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 description='foobar1'
             ),
             CoolingFeed(
@@ -8400,8 +8400,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 tenant=tenants[1],
                 status=CoolingFeedStatusChoices.STATUS_FAILED,
                 cooling_capacity=200,
-                rated_flow_rate=20,
-                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                max_flow=20,
+                max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 description='foobar2'
             ),
             CoolingFeed(
@@ -8411,8 +8411,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 tenant=tenants[2],
                 status=CoolingFeedStatusChoices.STATUS_OFFLINE,
                 cooling_capacity=300,
-                rated_flow_rate=30,
-                rated_flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+                max_flow=30,
+                max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
                 description='foobar3'
             ),
         )
@@ -8436,12 +8436,12 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'cooling_capacity': [100, 200]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rated_flow_rate(self):
-        params = {'rated_flow_rate': [10, 20]}
+    def test_max_flow(self):
+        params = {'max_flow': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_rated_flow_rate_unit(self):
-        params = {'rated_flow_rate_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
+    def test_max_flow_unit(self):
+        params = {'max_flow_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

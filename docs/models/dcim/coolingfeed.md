@@ -32,6 +32,6 @@ The feed's operational status.
 
 The heat-removal capacity of the feed, in kilowatts (kW).
 
-### Rated Flow Rate
+### Maximum Flow
 
-The rate of coolant flow supported by the feed, expressed as a numeric value with a selectable unit (L/min, m³/h, or GPM).
+The maximum rate of coolant flow supported by the feed, expressed as a numeric value with a selectable unit (litres per minute, cubic meters per hour, or gallons per minute).

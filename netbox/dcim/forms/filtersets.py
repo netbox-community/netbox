@@ -1585,7 +1585,7 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
         FieldSet('status', name=_('Attributes')),
         FieldSet(
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', name=_('Characteristics')
+            'cooling_capacity', 'max_flow', 'max_flow_unit', name=_('Characteristics')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
@@ -1635,12 +1635,12 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         label=_('Cooling capacity'),
         required=False
     )
-    rated_flow_rate = forms.DecimalField(
-        label=_('Rated flow rate'),
+    max_flow = forms.DecimalField(
+        label=_('Max flow'),
         required=False
     )
-    rated_flow_rate_unit = forms.MultipleChoiceField(
-        label=_('Rated flow rate unit'),
+    max_flow_unit = forms.MultipleChoiceField(
+        label=_('Max flow unit'),
         choices=FlowRateUnitChoices,
         required=False
     )
@@ -1859,7 +1859,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
+            'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow_unit',
             'cooling_outflow_id', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
@@ -1883,8 +1883,8 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         choices=DiameterUnitChoices,
         required=False
     )
-    maximum_flow_unit = forms.MultipleChoiceField(
-        label=_('Maximum flow unit'),
+    max_flow_unit = forms.MultipleChoiceField(
+        label=_('Max flow unit'),
         choices=FlowRateUnitChoices,
         required=False
     )
@@ -1901,7 +1901,7 @@ class CoolingIntakeTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
+            'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow_unit',
             name=_('Attributes')
         ),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
@@ -1920,8 +1920,8 @@ class CoolingIntakeTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         choices=DiameterUnitChoices,
         required=False
     )
-    maximum_flow_unit = forms.MultipleChoiceField(
-        label=_('Maximum flow unit'),
+    max_flow_unit = forms.MultipleChoiceField(
+        label=_('Max flow unit'),
         choices=FlowRateUnitChoices,
         required=False
     )

@@ -12,7 +12,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaximumFlowMixin
+from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
@@ -723,7 +723,7 @@ def validate_cooling_loop(component):
             next_model = CoolingIntake
 
 
-class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
+class CoolingIntake(DiameterMixin, MaxFlowMixin, ModularComponentModel, TrackingModelMixin):
     """
     A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
     CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
@@ -737,7 +737,7 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
         help_text=_('Physical connector type')
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
+    # max_flow, max_flow_unit, _abs_max_flow provided by MaxFlowMixin
     cooling_outflow = models.ForeignKey(
         to='dcim.CoolingOutflow',
         on_delete=models.SET_NULL,
@@ -748,8 +748,8 @@ class CoolingIntake(DiameterMixin, MaximumFlowMixin, ModularComponentModel, Trac
     )
 
     clone_fields = (
-        'device', 'module', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-        'maximum_flow_unit',
+        'device', 'module', 'type', 'diameter', 'diameter_unit', 'max_flow',
+        'max_flow_unit',
     )
 
     class Meta(ModularComponentModel.Meta):

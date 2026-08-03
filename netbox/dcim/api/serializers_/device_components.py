@@ -224,7 +224,7 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    maximum_flow_unit = ChoiceField(
+    max_flow_unit = ChoiceField(
         choices=FlowRateUnitChoices,
         allow_blank=True,
         required=False,
@@ -239,7 +239,7 @@ class CoolingIntakeSerializer(OwnerMixin, NetBoxModelSerializer):
         model = CoolingIntake
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
+            'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit', 'cooling_outflow',
             'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')

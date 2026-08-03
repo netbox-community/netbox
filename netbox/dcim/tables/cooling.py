@@ -98,12 +98,12 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     cooling_capacity = tables.Column(
         verbose_name=_('Cooling Capacity (kW)')
     )
-    rated_flow_rate = tables.Column(
-        verbose_name=_('Rated Flow Rate'),
-        order_by=('_abs_rated_flow_rate',)
+    max_flow = tables.Column(
+        verbose_name=_('Max Flow'),
+        order_by=('_abs_max_flow',)
     )
-    rated_flow_rate_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Rated Flow Rate Unit'),
+    max_flow_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Max Flow Unit'),
     )
     tenant = tables.Column(
         linkify=True,
@@ -122,12 +122,12 @@ class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
         model = CoolingFeed
         fields = (
             'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status',
-            'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'tenant', 'tenant_group', 'description',
+            'cooling_capacity', 'max_flow', 'max_flow_unit', 'tenant', 'tenant_group', 'description',
             'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'cooling_source', 'rack', 'status', 'cooling_capacity',
-            'rated_flow_rate',
+            'max_flow',
         )
 
 
@@ -151,12 +151,12 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         template_code=DIAMETER,
         order_by=('_abs_diameter', 'diameter_unit')
     )
-    maximum_flow = tables.Column(
-        verbose_name=_('Maximum flow'),
-        order_by=('_abs_maximum_flow',)
+    max_flow = tables.Column(
+        verbose_name=_('Max flow'),
+        order_by=('_abs_max_flow',)
     )
-    maximum_flow_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Maximum Flow Unit')
+    max_flow_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Max Flow Unit')
     )
     cooling_outflow = tables.Column(
         verbose_name=_('Cooling Outflow'),
@@ -170,11 +170,11 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         model = models.CoolingIntake
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'diameter',
-            'description', 'maximum_flow', 'maximum_flow_unit', 'cooling_outflow',
+            'description', 'max_flow', 'max_flow_unit', 'cooling_outflow',
             'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'type', 'diameter', 'maximum_flow',
+            'pk', 'name', 'device', 'label', 'type', 'diameter', 'max_flow',
             'description',
         )
 
@@ -229,12 +229,12 @@ class CoolingIntakeTemplateTable(ComponentTemplateTable):
         template_code=DIAMETER,
         order_by=('_abs_diameter', 'diameter_unit')
     )
-    maximum_flow = tables.Column(
-        verbose_name=_('Maximum flow'),
-        order_by=('_abs_maximum_flow',)
+    max_flow = tables.Column(
+        verbose_name=_('Max flow'),
+        order_by=('_abs_max_flow',)
     )
-    maximum_flow_unit = columns.ChoiceFieldColumn(
-        verbose_name=_('Maximum Flow Unit')
+    max_flow_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Max Flow Unit')
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -244,7 +244,7 @@ class CoolingIntakeTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingIntakeTemplate
         fields = (
-            'pk', 'name', 'label', 'type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
+            'pk', 'name', 'label', 'type', 'diameter', 'max_flow', 'max_flow_unit',
             'description', 'actions',
         )
         empty_text = "None"
@@ -288,11 +288,11 @@ class DeviceCoolingIntakeTable(CoolingIntakeTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingIntake
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'description', 'cooling_outflow', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'diameter', 'max_flow',
+            'max_flow_unit', 'description', 'cooling_outflow', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'diameter', 'maximum_flow',
+            'pk', 'name', 'label', 'type', 'diameter', 'max_flow',
             'description',
         )
 
