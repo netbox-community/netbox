@@ -1023,8 +1023,13 @@ class IPAddress(ContactsMixin, PrimaryModel):
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
         indexes = (
-            models.Index(fields=('address', 'id')),  # Default ordering
-            models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
+            models.Index(fields=('address', 'id')),
+            # Default ordering (see IPAddressManager). The primary key must be included so that the index can
+            # satisfy the ordering outright; without it PostgreSQL falls back to an incremental sort, which
+            # measurably slows deep pagination.
+            models.Index(
+                Cast(Host('address'), output_field=IPAddressField()), F('id'), name='ipam_ipaddress_host'
+            ),
             models.Index(fields=('assigned_object_type', 'assigned_object_id')),
         )
         verbose_name = _('IP address')
