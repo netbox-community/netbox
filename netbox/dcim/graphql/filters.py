@@ -1032,9 +1032,6 @@ class CoolingOutflowFilter(ModularComponentFilterMixin, NetBoxModelFilter):
         strawberry_django.filter_field()
     )
     cooling_intake_id: ID | None = strawberry_django.filter_field()
-    color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
 
 
 @register_filter(models.CoolingOutflowTemplate, lookups=True)

@@ -65,13 +65,10 @@ CABLE_TERMINATION_TYPES = {
     'dcim.consoleserverport': ConsoleServerPort,
     'dcim.powerport': PowerPort,
     'dcim.poweroutlet': PowerOutlet,
-    'dcim.coolingintake': CoolingIntake,
-    'dcim.coolingoutflow': CoolingOutflow,
     'dcim.interface': Interface,
     'dcim.frontport': FrontPort,
     'dcim.rearport': RearPort,
     'dcim.powerfeed': PowerFeed,
-    'dcim.coolingfeed': CoolingFeed,
     'circuits.circuittermination': CircuitTermination,
 }
 
@@ -1467,7 +1464,7 @@ class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         return {
             'related_models': self.get_related_models(request, instance, omit=[
-                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutflowTemplate, CoolingIntakeTemplate,
+                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingIntakeTemplate, CoolingOutflowTemplate,
                 DeviceBayTemplate, FrontPortTemplate, InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate,
                 PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
             ]),
@@ -1926,7 +1923,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         return {
             'related_models': self.get_related_models(request, instance, omit=[
-                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingOutflowTemplate, CoolingIntakeTemplate,
+                ConsolePortTemplate, ConsoleServerPortTemplate, CoolingIntakeTemplate, CoolingOutflowTemplate,
                 DeviceBayTemplate, FrontPortTemplate, InventoryItemTemplate, InterfaceTemplate, ModuleBayTemplate,
                 PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
             ]),

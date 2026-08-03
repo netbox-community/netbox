@@ -12,7 +12,7 @@ from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices, FlowRateUnitChoices
+from netbox.choices import ColorChoices, DiameterUnitChoices, FlowRateUnitChoices
 from netbox.filtersets import (
     AttributeFiltersMixin,
     BaseFilterSet,
@@ -1074,6 +1074,16 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 
 @register_filterset
 class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
     maximum_flow_unit = django_filters.MultipleChoiceFilter(
         choices=FlowRateUnitChoices,
         distinct=False,
@@ -1083,14 +1093,24 @@ class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTy
     class Meta:
         model = CoolingIntakeTemplate
         fields = (
-            'id', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'description',
+            'id', 'name', 'label', 'diameter', 'maximum_flow', 'description',
         )
 
 
 @register_filterset
 class CoolingOutflowTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
     cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_intake',
         queryset=CoolingIntakeTemplate.objects.all(),
         distinct=False,
         label=_('Cooling intake (ID)'),
@@ -1098,7 +1118,7 @@ class CoolingOutflowTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceT
 
     class Meta:
         model = CoolingOutflowTemplate
-        fields = ('id', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'description')
+        fields = ('id', 'name', 'label', 'diameter', 'description')
 
 
 @register_filterset
@@ -2161,6 +2181,11 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
         distinct=False,
         null_value=None
     )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
     maximum_flow_unit = django_filters.MultipleChoiceFilter(
         choices=FlowRateUnitChoices,
         distinct=False,
@@ -2176,8 +2201,7 @@ class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
     class Meta:
         model = CoolingIntake
         fields = (
-            'id', 'name', 'label', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-            'description',
+            'id', 'name', 'label', 'diameter', 'maximum_flow', 'description',
         )
 
 
@@ -2188,7 +2212,13 @@ class CoolingOutflowFilterSet(ModularDeviceComponentFilterSet):
         distinct=False,
         null_value=None
     )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
     cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_intake',
         queryset=CoolingIntake.objects.all(),
         distinct=False,
         label=_('Cooling intake (ID)'),
@@ -2197,7 +2227,7 @@ class CoolingOutflowFilterSet(ModularDeviceComponentFilterSet):
     class Meta:
         model = CoolingOutflow
         fields = (
-            'id', 'name', 'label', 'diameter', 'diameter_unit', 'description',
+            'id', 'name', 'label', 'diameter', 'description',
         )
 
 
@@ -3292,7 +3322,7 @@ class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     class Meta:
         model = CoolingSource
         fields = (
-            'id', 'name', 'fluid_type', 'cooling_capacity', 'description',
+            'id', 'name', 'cooling_capacity', 'description',
         )
 
     def search(self, queryset, name, value):
@@ -3372,7 +3402,7 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     class Meta:
         model = CoolingFeed
         fields = (
-            'id', 'name', 'cooling_capacity', 'rated_flow_rate', 'rated_flow_rate_unit', 'description',
+            'id', 'name', 'cooling_capacity', 'rated_flow_rate', 'description',
         )
 
     def search(self, queryset, name, value):

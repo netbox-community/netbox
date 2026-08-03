@@ -1013,29 +1013,38 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         help_text=_('Diameter unit')
     )
     maximum_flow_unit = CSVChoiceField(
+        label=_('Maximum flow unit'),
         choices=FlowRateUnitChoices,
         required=False,
         help_text=_('Unit for maximum flow')
+    )
+    cooling_outflow_device = CSVModelChoiceField(
+        label=_('Cooling outflow device'),
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Device bearing the upstream cooling outflow (defaults to this intake\'s device)')
     )
     cooling_outflow = CSVModelChoiceField(
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Local cooling outflow which feeds this intake')
+        help_text=_('Upstream cooling outflow which feeds this intake')
     )
 
     class Meta:
         model = CoolingIntake
         fields = (
             'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
+            'maximum_flow_unit', 'cooling_outflow_device', 'cooling_outflow', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Limit CoolingOutflow choices to those belonging to this device (or VC master)
+        # The supplying outflow typically belongs to an upstream device (e.g. a CDU or manifold), so scope the
+        # CoolingOutflow choices to cooling_outflow_device where given, falling back to this intake's own device.
         if self.is_bound and 'device' in self.data:
             try:
                 device = self.fields['device'].to_python(self.data['device'])
@@ -1047,7 +1056,18 @@ class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             except Device.DoesNotExist:
                 device = None
 
-        if device:
+        outflow_device = None
+        if self.is_bound and self.data.get('cooling_outflow_device'):
+            try:
+                outflow_device = self.fields['cooling_outflow_device'].to_python(
+                    self.data['cooling_outflow_device']
+                )
+            except forms.ValidationError:
+                outflow_device = None
+
+        if outflow_device:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(device=outflow_device)
+        elif device:
             self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(
                 device__in=[device, device.get_vc_master()]
             )

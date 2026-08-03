@@ -21,7 +21,6 @@ from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ColorField,
-    DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     PositiveBigIntegerField,
     TagFilterField,
@@ -355,6 +354,11 @@ class RackBaseFilterForm(PrimaryModelFilterSetForm):
         choices=RackCoolingCapabilityChoices,
         required=False
     )
+    cooling_capacity = forms.DecimalField(
+        label=_('Cooling capacity'),
+        required=False,
+        min_value=0
+    )
 
 
 class RackTypeFilterForm(RackBaseFilterForm):
@@ -364,7 +368,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
         FieldSet('manufacturer_id', 'form_factor', 'width', 'u_height', 'rack_count', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
-        FieldSet('cooling_capability', name=_('Cooling')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
@@ -388,7 +392,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', name=_('Location')),
         FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
         FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
-        FieldSet('cooling_capability', name=_('Cooling')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -1856,7 +1860,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'name', 'label', 'type', 'diameter', 'diameter_unit', 'maximum_flow_unit',
-            'cooling_outflow', name=_('Attributes')
+            'cooling_outflow_id', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
@@ -1874,9 +1878,9 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         label=_('Diameter'),
         required=False
     )
-    diameter_unit = forms.ChoiceField(
+    diameter_unit = forms.MultipleChoiceField(
         label=_('Diameter unit'),
-        choices=add_blank_choice(DiameterUnitChoices),
+        choices=DiameterUnitChoices,
         required=False
     )
     maximum_flow_unit = forms.MultipleChoiceField(
@@ -1884,7 +1888,7 @@ class CoolingIntakeFilterForm(DeviceComponentFilterForm):
         choices=FlowRateUnitChoices,
         required=False
     )
-    cooling_outflow = DynamicModelChoiceField(
+    cooling_outflow_id = DynamicModelMultipleChoiceField(
         label=_('Cooling outflow'),
         queryset=CoolingOutflow.objects.all(),
         required=False
@@ -1911,9 +1915,9 @@ class CoolingIntakeTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
         label=_('Diameter'),
         required=False
     )
-    diameter_unit = forms.ChoiceField(
+    diameter_unit = forms.MultipleChoiceField(
         label=_('Diameter unit'),
-        choices=add_blank_choice(DiameterUnitChoices),
+        choices=DiameterUnitChoices,
         required=False
     )
     maximum_flow_unit = forms.MultipleChoiceField(
@@ -1946,9 +1950,9 @@ class CoolingOutflowFilterForm(DeviceComponentFilterForm):
         label=_('Diameter'),
         required=False
     )
-    diameter_unit = forms.ChoiceField(
+    diameter_unit = forms.MultipleChoiceField(
         label=_('Diameter unit'),
-        choices=add_blank_choice(DiameterUnitChoices),
+        choices=DiameterUnitChoices,
         required=False
     )
     tag = TagFilterField(model)
@@ -1970,9 +1974,9 @@ class CoolingOutflowTemplateFilterForm(ModularDeviceComponentTemplateFilterForm)
         label=_('Diameter'),
         required=False
     )
-    diameter_unit = forms.ChoiceField(
+    diameter_unit = forms.MultipleChoiceField(
         label=_('Diameter unit'),
-        choices=add_blank_choice(DiameterUnitChoices),
+        choices=DiameterUnitChoices,
         required=False
     )
 

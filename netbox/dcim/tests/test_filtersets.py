@@ -2162,7 +2162,7 @@ class CoolingIntakeTemplateTestCase(
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        params = {'type': CoolingConnectorTypeChoices.TYPE_UQD}
+        params = {'type': [CoolingConnectorTypeChoices.TYPE_UQD]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):
@@ -2232,7 +2232,7 @@ class CoolingOutflowTemplateTestCase(
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
-        params = {'type': CoolingConnectorTypeChoices.TYPE_UQD}
+        params = {'type': [CoolingConnectorTypeChoices.TYPE_UQD]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):
@@ -8164,6 +8164,18 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cabled(self):
+        params = {'cabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_connected(self):
+        params = {'connected': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'connected': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
