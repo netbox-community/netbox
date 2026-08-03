@@ -1,13 +1,16 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.template import Context, Template
 from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
 from ipam.constants import SERVICE_PORT_MAX
+from ipam.filtersets import ServiceFilterSet, ServiceTemplateFilterSet
 from ipam.forms import PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
 from ipam.forms.fields import PortMappingField
+from ipam.forms.filtersets import ServiceFilterForm, ServiceTemplateFilterForm
 from ipam.forms.widgets import PortMappingWidget
 
 
@@ -398,3 +401,36 @@ class ServiceTemplateImportFormTestCase(TestCase):
         form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
+
+
+class ServiceFilterFormTestCase(TestCase):
+    """
+    `port_mappings` matches a complete protocol/port pair, which the correlated `protocol`/`port` pair
+    cannot express on its own, so it must be reachable from the UI and not only from the API.
+    """
+    forms_and_filtersets = (
+        (ServiceTemplateFilterForm, ServiceTemplateFilterSet),
+        (ServiceFilterForm, ServiceFilterSet),
+    )
+
+    def test_port_mappings_field_present(self):
+        # ServiceFilterForm inherits the field from ServiceTemplateFilterForm but redeclares fieldsets,
+        # so both must be checked.
+        for form_class, filterset_class in self.forms_and_filtersets:
+            with self.subTest(form=form_class.__name__):
+                fieldset_items = [item for fieldset in form_class.fieldsets for item in fieldset.items]
+                self.assertIn('port_mappings', fieldset_items)
+                self.assertIn('port_mappings', form_class().fields)
+                # The form field's name must match the filter's, or the rendered query does nothing
+                self.assertIn('port_mappings', filterset_class.get_filters())
+                # Render the form to confirm the fieldset entry resolves to a real field
+                template = Template('{% load form_helpers %}{% render_form form %}')
+                html = template.render(Context({'form': form_class()}))
+                self.assertIn('id_port_mappings', html)
+
+    def test_port_mappings_value_cleans(self):
+        for form_class, _ in self.forms_and_filtersets:
+            with self.subTest(form=form_class.__name__):
+                form = form_class(data={'port_mappings': 'tcp/80'})
+                self.assertTrue(form.is_valid(), form.errors)
+                self.assertEqual(form.cleaned_data['port_mappings'], 'tcp/80')

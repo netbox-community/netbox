@@ -63,11 +63,13 @@ In the REST and GraphQL APIs, port mappings are represented as a flat list of `p
 
 When `protocol` and one or more `port` lookups are combined, they must all be satisfied by a **single** mapping. So `?protocol=tcp&port__gt=1000` does not match a service whose only TCP mapping is `tcp/80` (even if it also exposes `udp/9999`), and `?port__gte=1000&port__lte=2000` does not match a service exposing only ports 500 and 5000. Each `port_mappings` value already names one complete pair, so it needs no such correlation and is simply combined with the other parameters.
 
-All of these parameters are available as GraphQL filters too, under the same names — `port_mappings`, `protocol`, `port`, `port__gt`, `port__gte`, `port__lt`, `port__lte` — each accepting a list of values. For example, `filters: {port_mappings: ["tcp/80"]}` or `filters: {protocol: [ROLE_TCP], port__gt: [1000]}`. The single-mapping correlation rule described above applies identically.
+All of these parameters are available as GraphQL filters too, under the same names — `port_mappings`, `protocol`, `port`, `port__gt`, `port__gte`, `port__lt`, `port__lte` — each accepting a list of values. For example, `filters: {port_mappings: ["tcp/80"]}` or `filters: {protocol: [TCP], port__gt: [1000]}`. The single-mapping correlation rule described above applies identically.
 
 !!! warning "GraphQL filter change in NetBox v4.7"
 
     The GraphQL filters for `Service` and `ServiceTemplate` have changed shape. The former `protocol` lookup and `ports` integer lookup (which nested their comparisons, e.g. `ports: {gt: 1000}`) are replaced by the flat `protocol`, `port`, `port__gt`, `port__gte`, `port__lt`, `port__lte`, and `port_mappings` parameters, each accepting a list of values and spelled the same way as the corresponding REST query parameter. Rewrite `ports: {gt: 1000}` as `port__gt: [1000]`, and `ports: {exact: 80}` as `port: [80]`. The `range` and `i_exact` lookups previously offered by the integer lookup have no direct equivalent; express a range as `port__gte`/`port__lte`, which — unlike the old lookup — requires a single mapping to satisfy both bounds.
+
+    The members of the `ServiceProtocolEnum` used by the `protocol` filter have also been renamed to drop a spurious `ROLE_` prefix: `ROLE_TCP`, `ROLE_UDP`, and `ROLE_SCTP` are now `TCP`, `UDP`, and `SCTP`.
 
 !!! warning "REST filter change in NetBox v4.7"
 
