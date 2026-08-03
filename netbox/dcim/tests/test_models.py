@@ -3299,6 +3299,121 @@ class CoolingComponentTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cooling_intake.full_clean()
 
+    def test_measurements_normalized_on_save(self):
+        """
+        Saving a component should populate the normalized _abs_* columns, converting from the selected
+        unit to the canonical unit (millimeters for diameter, liters per minute for flow).
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 9', slug='device-type-9'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device G'
+        )
+        cooling_intake = CoolingIntake.objects.create(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('1'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('10'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+        )
+        cooling_intake.refresh_from_db()
+        self.assertEqual(cooling_intake._abs_diameter, Decimal('25.4'))
+        self.assertEqual(cooling_intake._abs_max_flow, Decimal('37.8541'))
+        # The public aliases used by templates should mirror the underscore-prefixed columns
+        self.assertEqual(cooling_intake.abs_diameter, cooling_intake._abs_diameter)
+        self.assertEqual(cooling_intake.abs_max_flow, cooling_intake._abs_max_flow)
+
+        # Clearing a value should null both its unit and its normalized column
+        cooling_intake.diameter = None
+        cooling_intake.max_flow = None
+        cooling_intake.save()
+        cooling_intake.refresh_from_db()
+        self.assertIsNone(cooling_intake.diameter_unit)
+        self.assertIsNone(cooling_intake._abs_diameter)
+        self.assertIsNone(cooling_intake.max_flow_unit)
+        self.assertIsNone(cooling_intake._abs_max_flow)
+
+    def test_measurements_normalized_on_component_instantiation(self):
+        """
+        Components instantiated from templates are written via bulk_create, which bypasses save(); the
+        normalized _abs_* columns must still be populated.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 10', slug='device-type-10'
+        )
+        CoolingIntakeTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            diameter=Decimal('1'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('6'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            diameter=Decimal('2.5'),
+            diameter_unit=DiameterUnitChoices.UNIT_CENTIMETER,
+        )
+
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device H'
+        )
+
+        cooling_intake = CoolingIntake.objects.get(device=device, name='Cooling Port 1')
+        self.assertEqual(cooling_intake._abs_diameter, Decimal('25.4'))
+        self.assertEqual(cooling_intake._abs_max_flow, Decimal('100'))
+
+        cooling_outflow = CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1')
+        self.assertEqual(cooling_outflow._abs_diameter, Decimal('25'))
+
+    def test_measurement_unit_required(self):
+        """
+        Setting a measurement without its accompanying unit should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 11', slug='device-type-11'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device I'
+        )
+
+        with self.assertRaises(ValidationError):
+            CoolingIntake(device=device, name='Cooling Port 1', diameter=Decimal('25')).full_clean()
+
+        with self.assertRaises(ValidationError):
+            CoolingIntake(device=device, name='Cooling Port 2', max_flow=Decimal('100')).full_clean()
+
+        with self.assertRaises(ValidationError):
+            CoolingOutflow(device=device, name='Cooling Outlet 1', diameter=Decimal('25')).full_clean()
+
+    def test_cooling_feed_flow_normalized(self):
+        """
+        CoolingFeed shares the flow-rate normalization applied to device components, and likewise requires
+        a unit whenever a flow rate is set.
+        """
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 1',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+        )
+        cooling_feed = CoolingFeed.objects.create(
+            cooling_source=cooling_source,
+            name='Cooling Feed 1',
+            max_flow=Decimal('6'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+        )
+        cooling_feed.refresh_from_db()
+        self.assertEqual(cooling_feed._abs_max_flow, Decimal('100'))
+        self.assertEqual(cooling_feed.abs_max_flow, cooling_feed._abs_max_flow)
+
+        with self.assertRaises(ValidationError):
+            CoolingFeed(
+                cooling_source=cooling_source, name='Cooling Feed 2', max_flow=Decimal('100')
+            ).full_clean()
+
     def test_cooling_outflow_clean_different_device(self):
         """
         CoolingOutflow.clean() should raise a ValidationError when its cooling_intake belongs to a

@@ -34,6 +34,34 @@ class ConversionsTestCase(TestCase):
             to_grams(1, WeightUnitChoices.UNIT_OUNCE),
             28
         )
+        # The result is truncated, not rounded
+        self.assertEqual(
+            to_grams(Decimal('1.9999'), WeightUnitChoices.UNIT_GRAM),
+            1
+        )
+        with self.assertRaises(ValueError):
+            to_grams(1, 'invalid')
+        with self.assertRaises(ValueError):
+            to_grams(-1, WeightUnitChoices.UNIT_GRAM)
+        with self.assertRaises(TypeError):
+            to_grams('abc', WeightUnitChoices.UNIT_GRAM)
+        with self.assertRaises(TypeError):
+            to_grams(None, WeightUnitChoices.UNIT_GRAM)
+
+    def test_invalid_values(self):
+        # A non-numeric value is reported as a TypeError rather than surfacing a raw Decimal error
+        for converter, unit in (
+            (to_meters, CableLengthUnitChoices.UNIT_METER),
+            (to_millimeters, DiameterUnitChoices.UNIT_MILLIMETER),
+            (to_liters_per_minute, FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE),
+        ):
+            with self.subTest(converter=converter.__name__):
+                with self.assertRaises(TypeError):
+                    converter(None, unit)
+                with self.assertRaises(TypeError):
+                    converter('abc', unit)
+                with self.assertRaises(ValueError):
+                    converter(-1, unit)
 
     def test_to_meters(self):
         self.assertEqual(
