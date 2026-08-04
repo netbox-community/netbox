@@ -1192,17 +1192,29 @@ class CustomFieldAPITestCase(APITestCase):
         with CaptureQueriesContext(connection) as ctx:
             response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 7)
         baseline_query_count = len(ctx.captured_queries)
 
         Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(8, 13)])
         with CaptureQueriesContext(connection) as ctx:
             response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 12)
 
         self.assertEqual(
             len(ctx.captured_queries), baseline_query_count,
             "custom_fields label resolution should not scale with the number of objects returned"
         )
+
+    def test_get_for_model_select_related_choice_set(self):
+        custom_fields = list(CustomField.objects.get_for_model(Site))
+        with self.assertNumQueries(0):
+            for cf in custom_fields:
+                cf.resolve_selection_value(cf.default)
 
     @tag('regression')
     def test_update_selection_field_rejects_read_format(self):
