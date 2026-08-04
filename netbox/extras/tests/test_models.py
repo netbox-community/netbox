@@ -1806,3 +1806,30 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template({})
         self.assertEqual(template.get_environment_params(), {'autoescape': False})
+
+
+class WebhookTest(TestCase):
+
+    def test_timeout_must_be_less_than_job_timeout(self):
+        """
+        A timeout at or above RQ_DEFAULT_TIMEOUT can never take effect, as the worker terminates the job
+        before the request itself times out.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
+
+        for timeout in (settings.RQ_DEFAULT_TIMEOUT, settings.RQ_DEFAULT_TIMEOUT + 1):
+            webhook.timeout = timeout
+            with self.assertRaises(ValidationError):
+                webhook.full_clean()
+
+    def test_timeout_below_job_timeout_is_valid(self):
+        webhook = Webhook(
+            name='Webhook 1',
+            payload_url='http://localhost:9000/',
+            timeout=settings.RQ_DEFAULT_TIMEOUT - 1
+        )
+        webhook.full_clean()
+
+    def test_null_timeout_is_valid(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
+        webhook.full_clean()

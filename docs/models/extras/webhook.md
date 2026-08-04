@@ -86,6 +86,10 @@ The file path to a particular certificate authority (CA) file to use when valida
 
 The maximum time (in seconds) to wait for a response from the receiver before the request is considered failed. If left blank, the global [`WEBHOOK_DEFAULT_TIMEOUT`](../../configuration/miscellaneous.md#webhook_default_timeout) configuration value is used.
 
+The timeout must be less than [`RQ_DEFAULT_TIMEOUT`](../../configuration/miscellaneous.md#rq_default_timeout) (300 seconds by default), and NetBox will refuse to save a webhook which violates this. A timeout greater than or equal to the background job timeout could never take effect: the worker would terminate the job before the request itself timed out.
+
+When a request does time out, the failure is recorded by the `netbox.webhooks` logger and the background job is marked as failed.
+
 ## Context Data
 
 The following context variables are available to the text and link templates.

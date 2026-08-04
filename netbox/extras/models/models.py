@@ -5,7 +5,8 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator, ValidationError
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -288,9 +289,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
             MaxValueValidator(3600),
         ),
         help_text=_(
-            "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
-            "the system default (WEBHOOK_DEFAULT_TIMEOUT)."
-        )
+            "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use the "
+            "system default ({default_timeout} seconds)."
+        ).format(default_timeout=settings.WEBHOOK_DEFAULT_TIMEOUT)
     )
     events = GenericRelation(
         EventRule,
@@ -320,6 +321,17 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
                 'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
+            })
+
+        # A timeout which meets or exceeds the background job timeout can never take effect: the worker will
+        # terminate the job before the request itself times out. (RQ also accepts a string timeout such as "1h",
+        # which we cannot compare against; such a value is left unvalidated here.)
+        job_timeout = settings.RQ_DEFAULT_TIMEOUT
+        if self.timeout is not None and isinstance(job_timeout, int) and self.timeout >= job_timeout:
+            raise ValidationError({
+                'timeout': _(
+                    "Timeout must be less than the background job timeout ({timeout} seconds)."
+                ).format(timeout=job_timeout)
             })
 
     def render_headers(self, context):
