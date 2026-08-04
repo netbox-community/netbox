@@ -122,7 +122,11 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, request=N
         if webhook.ca_file_path:
             session.verify = webhook.ca_file_path
         proxies = resolve_proxies(url=url, context={'client': webhook})
-        response = session.send(prepared_request, proxies=proxies, timeout=timeout)
+        try:
+            response = session.send(prepared_request, proxies=proxies, timeout=timeout)
+        except requests.exceptions.Timeout as e:
+            logger.error(f"Request to {url} timed out after {timeout} seconds")
+            raise e
 
     if 200 <= response.status_code <= 299:
         logger.info(f"Request succeeded; response status {response.status_code}")
