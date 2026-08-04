@@ -52,6 +52,16 @@ WEIGHT = """
 {% display_weight record.weight record.weight_unit record.abs_weight %}
 """
 
+DIAMETER = """
+{% load helpers %}
+{% display_diameter record.diameter record.diameter_unit record.abs_diameter %}
+"""
+
+MAX_FLOW = """
+{% load helpers %}
+{% display_flow_rate record.max_flow record.max_flow_unit record.abs_max_flow %}
+"""
+
 DEVICE_LINK = """
 {{ record.label|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
 """

@@ -135,8 +135,29 @@ class RackBase(WeightMixin, PrimaryModel):
         null=True
     )
 
+    # Cooling
+    cooling_capability = models.CharField(
+        verbose_name=_('cooling capability'),
+        max_length=50,
+        choices=RackCoolingCapabilityChoices,
+        blank=True,
+        null=True
+    )
+    cooling_capacity = models.DecimalField(
+        verbose_name=_('cooling capacity'),
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Cooling capacity (kW)')
+    )
+
     class Meta:
         abstract = True
+
+    def get_cooling_capability_color(self):
+        return RackCoolingCapabilityChoices.colors.get(self.cooling_capability)
 
 
 #
@@ -174,7 +195,8 @@ class RackType(ImageAttachmentsMixin, RackBase):
 
     clone_fields = (
         'manufacturer', 'form_factor', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
-        'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
+        'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'cooling_capability',
+        'cooling_capacity',
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -269,7 +291,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
     # Fields which cannot be set locally if a RackType is assigned
     RACKTYPE_FIELDS = (
         'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height',
-        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight',
+        'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'weight_unit', 'max_weight', 'cooling_capability',
+        'cooling_capacity',
     )
 
     form_factor = models.CharField(
@@ -369,9 +392,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
     )
 
     clone_fields = (
-        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'u_height', 'desc_units',
-        'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-        'weight_unit',
+        'site', 'location', 'tenant', 'status', 'role', 'form_factor', 'width', 'airflow', 'cooling_capability',
+        'cooling_capacity', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
+        'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Site',

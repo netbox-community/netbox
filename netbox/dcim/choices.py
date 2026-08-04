@@ -2117,6 +2117,120 @@ class PowerOutletStatusChoices(ChoiceSet):
 
 
 #
+# Cooling
+#
+
+class CoolingMethodChoices(ChoiceSet):
+    METHOD_AIR = 'air'
+    METHOD_LIQUID = 'liquid'
+    METHOD_HYBRID = 'hybrid'
+    METHOD_IMMERSION = 'immersion'
+
+    CHOICES = [
+        (METHOD_AIR, _('Air'), 'cyan'),
+        (METHOD_LIQUID, _('Liquid'), 'blue'),
+        (METHOD_HYBRID, _('Hybrid'), 'purple'),
+        (METHOD_IMMERSION, _('Immersion'), 'indigo'),
+    ]
+
+
+class CoolingSourceTypeChoices(ChoiceSet):
+    key = 'CoolingSource.type'
+
+    TYPE_CHILLER = 'chiller'
+    TYPE_COOLING_TOWER = 'cooling-tower'
+    TYPE_DRY_COOLER = 'dry-cooler'
+    TYPE_CRAC = 'crac'
+    TYPE_CRAH = 'crah'
+
+    CHOICES = [
+        (TYPE_CHILLER, _('Chiller')),
+        (TYPE_COOLING_TOWER, _('Cooling tower')),
+        (TYPE_DRY_COOLER, _('Dry cooler')),
+        (TYPE_CRAC, _('CRAC')),
+        (TYPE_CRAH, _('CRAH')),
+    ]
+
+
+class CoolingSourceStatusChoices(ChoiceSet):
+    key = 'CoolingSource.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+    ]
+
+
+class CoolingFeedStatusChoices(ChoiceSet):
+    key = 'CoolingFeed.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+    ]
+
+
+class FluidTypeChoices(ChoiceSet):
+    FLUID_WATER = 'water'
+    FLUID_WATER_GLYCOL = 'water-glycol'
+    FLUID_DIELECTRIC = 'dielectric'
+    FLUID_REFRIGERANT = 'refrigerant'
+
+    CHOICES = [
+        (FLUID_WATER, _('Water')),
+        (FLUID_WATER_GLYCOL, _('Water/glycol')),
+        (FLUID_DIELECTRIC, _('Dielectric')),
+        (FLUID_REFRIGERANT, _('Refrigerant')),
+    ]
+
+
+class RackCoolingCapabilityChoices(ChoiceSet):
+    CAPABILITY_AIR_ONLY = 'air-only'
+    CAPABILITY_HYBRID = 'hybrid'
+    CAPABILITY_LIQUID_ONLY = 'liquid-only'
+
+    CHOICES = [
+        (CAPABILITY_AIR_ONLY, _('Air only'), 'cyan'),
+        (CAPABILITY_HYBRID, _('Hybrid'), 'blue'),
+        (CAPABILITY_LIQUID_ONLY, _('Liquid only'), 'purple'),
+    ]
+
+
+class CoolingConnectorTypeChoices(ChoiceSet):
+    TYPE_UQD = 'uqd'
+    TYPE_UQDB = 'uqdb'
+    TYPE_QDC = 'qdc'
+    TYPE_CAMLOCK = 'camlock'
+    TYPE_NPT = 'npt'
+    TYPE_BSP = 'bsp'
+    TYPE_PROPRIETARY = 'proprietary'
+
+    CHOICES = [
+        (TYPE_UQD, _('UQD (Universal Quick Disconnect)')),
+        (TYPE_UQDB, _('UQDB (Universal Quick Disconnect, Blind-mate)')),
+        (TYPE_QDC, _('QDC (Quick Disconnect Coupling)')),
+        (TYPE_CAMLOCK, _('Camlock (cam-and-groove)')),
+        (TYPE_NPT, _('NPT (threaded)')),
+        (TYPE_BSP, _('BSP (threaded)')),
+        (TYPE_PROPRIETARY, _('Proprietary')),
+    ]
+
+
+#
 # VDC
 #
 class VirtualDeviceContextStatusChoices(ChoiceSet):

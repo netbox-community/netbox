@@ -128,6 +128,12 @@ class DeviceTypeTable(PrimaryModelTable):
     power_outlet_template_count = tables.Column(
         verbose_name=_('Power Outlets')
     )
+    cooling_intake_template_count = tables.Column(
+        verbose_name=_('Cooling Intakes')
+    )
+    cooling_outflow_template_count = tables.Column(
+        verbose_name=_('Cooling Outflows')
+    )
     interface_template_count = tables.Column(
         verbose_name=_('Interfaces')
     )
@@ -146,12 +152,16 @@ class DeviceTypeTable(PrimaryModelTable):
     inventory_item_template_count = tables.Column(
         verbose_name=_('Inventory Items')
     )
+    cooling_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Method'),
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = models.DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
-            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'end_of_life',
+            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'weight',
+            'end_of_life',
             'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (

@@ -12,7 +12,12 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import InterfaceValidationMixin
+from dcim.models.mixins import (
+    CoolingLoopValidationMixin,
+    DiameterMixin,
+    InterfaceValidationMixin,
+    MaxFlowMixin,
+)
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
@@ -30,6 +35,8 @@ __all__ = (
     'CabledObjectModel',
     'ConsolePort',
     'ConsoleServerPort',
+    'CoolingIntake',
+    'CoolingOutflow',
     'DeviceBay',
     'FrontPort',
     'Interface',
@@ -682,6 +689,96 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     def get_status_color(self):
         return PowerOutletStatusChoices.colors.get(self.status)
+
+
+#
+# Cooling components
+#
+
+class CoolingIntake(
+    CoolingLoopValidationMixin, DiameterMixin, MaxFlowMixin, ModularComponentModel, TrackingModelMixin
+):
+    """
+    A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
+    CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    # max_flow, max_flow_unit, _abs_max_flow provided by MaxFlowMixin
+    cooling_outflow = models.ForeignKey(
+        to='dcim.CoolingOutflow',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingintakes',
+        help_text=_('The upstream cooling outflow supplying this intake')
+    )
+
+    clone_fields = (
+        'device', 'module', 'type', 'diameter', 'diameter_unit', 'max_flow',
+        'max_flow_unit',
+    )
+    upstream_field = 'cooling_outflow'
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling intake')
+        verbose_name_plural = _('cooling intakes')
+
+    def clean(self):
+        super().clean()
+
+        # Prevent the intake/outflow chain from forming a loop
+        self.validate_cooling_loop()
+
+
+class CoolingOutflow(CoolingLoopValidationMixin, DiameterMixin, ModularComponentModel, TrackingModelMixin):
+    """
+    A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
+    CoolingIntakes (referenced via CoolingIntake.cooling_outflow).
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    cooling_intake = models.ForeignKey(
+        to='dcim.CoolingIntake',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingoutflows'
+    )
+
+    clone_fields = ('device', 'module', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
+    upstream_field = 'cooling_intake'
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling outflow')
+        verbose_name_plural = _('cooling outflows')
+
+    def clean(self):
+        super().clean()
+
+        # Validate cooling intake assignment
+        if self.cooling_intake and self.cooling_intake.device != self.device:
+            raise ValidationError(
+                _("Parent cooling intake ({cooling_intake}) must belong to the same device").format(
+                    cooling_intake=self.cooling_intake)
+            )
+
+        # Prevent the intake/outflow chain from forming a loop
+        self.validate_cooling_loop()
 
 
 #

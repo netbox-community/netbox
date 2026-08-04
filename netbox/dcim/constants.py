@@ -97,6 +97,8 @@ MODULAR_COMPONENT_TEMPLATE_MODELS = Q(
     model__in=(
         'consoleporttemplate',
         'consoleserverporttemplate',
+        'coolingintaketemplate',
+        'coolingoutflowtemplate',
         'frontporttemplate',
         'interfacetemplate',
         'poweroutlettemplate',
@@ -109,6 +111,8 @@ MODULAR_COMPONENT_MODELS = Q(
     model__in=(
         'consoleport',
         'consoleserverport',
+        'coolingintake',
+        'coolingoutflow',
         'frontport',
         'interface',
         'poweroutlet',

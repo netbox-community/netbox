@@ -40,6 +40,10 @@ __all__ = (
     'CableImportForm',
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
+    'CoolingFeedImportForm',
+    'CoolingIntakeImportForm',
+    'CoolingOutflowImportForm',
+    'CoolingSourceImportForm',
     'DeviceBayImportForm',
     'DeviceImportForm',
     'DeviceRoleImportForm',
@@ -241,13 +245,19 @@ class RackTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Unit for rack weights')
     )
+    cooling_capability = CSVChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False,
+        help_text=_('Cooling capability')
+    )
 
     class Meta:
         model = RackType
         fields = (
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -327,6 +337,12 @@ class RackImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_capability = CSVChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False,
+        help_text=_('Cooling capability')
+    )
     weight_unit = CSVChoiceField(
         label=_('Weight unit'),
         choices=WeightUnitChoices,
@@ -339,8 +355,8 @@ class RackImportForm(PrimaryModelImportForm):
         fields = (
             'site', 'location', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor',
             'serial', 'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'owner',
-            'comments', 'tags',
+            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'cooling_capacity', 'weight',
+            'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -460,8 +476,8 @@ class DeviceTypeImportForm(PrimaryModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'end_of_life',
-            'owner', 'comments', 'tags',
+            'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'description', 'weight', 'weight_unit',
+            'end_of_life', 'owner', 'comments', 'tags',
         ]
 
 
@@ -507,6 +523,12 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_method = CSVChoiceField(
+        label=_('Cooling method'),
+        choices=CoolingMethodChoices,
+        required=False,
+        help_text=_('Cooling method')
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -527,8 +549,8 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'end_of_life',
-            'profile', 'attribute_data', 'owner', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
+            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
@@ -716,6 +738,12 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_method = CSVChoiceField(
+        label=_('Cooling method'),
+        choices=CoolingMethodChoices,
+        required=False,
+        help_text=_('Cooling method')
+    )
     config_template = CSVModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
@@ -728,8 +756,8 @@ class DeviceImportForm(BaseDeviceImportForm):
         fields = [
             'name', 'role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent', 'device_bay', 'airflow',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'owner',
-            'comments', 'tags',
+            'cooling_method', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description',
+            'config_template', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -964,6 +992,143 @@ class PowerOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             )
         else:
             self.fields['power_port'].queryset = PowerPort.objects.none()
+
+
+class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False,
+        help_text=_('Physical connector type')
+    )
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
+        required=False,
+        help_text=_('Diameter unit')
+    )
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for maximum flow')
+    )
+    cooling_outflow_device = CSVModelChoiceField(
+        label=_('Cooling outflow device'),
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Device bearing the upstream cooling outflow (defaults to this intake\'s device)')
+    )
+    cooling_outflow = CSVModelChoiceField(
+        label=_('Cooling outflow'),
+        queryset=CoolingOutflow.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Upstream cooling outflow which feeds this intake')
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = (
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow',
+            'max_flow_unit', 'cooling_outflow_device', 'cooling_outflow', 'description', 'owner', 'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # The supplying outflow typically belongs to an upstream device (e.g. a CDU or manifold), so scope the
+        # CoolingOutflow choices to cooling_outflow_device where given, falling back to this intake's own device.
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        outflow_device = None
+        if self.is_bound and self.data.get('cooling_outflow_device'):
+            try:
+                outflow_device = self.fields['cooling_outflow_device'].to_python(
+                    self.data['cooling_outflow_device']
+                )
+            except forms.ValidationError:
+                outflow_device = None
+
+        if outflow_device:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(device=outflow_device)
+        elif device:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.none()
+
+
+class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False,
+        help_text=_('Physical connector type')
+    )
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
+        required=False,
+        help_text=_('Diameter unit')
+    )
+    cooling_intake = CSVModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntake.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Local cooling intake which feeds this outflow')
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = (
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description', 'owner', 'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit CoolingIntake choices to those belonging to this device (or VC master)
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.none()
 
 
 class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -2014,6 +2179,127 @@ class PowerFeedImportForm(PrimaryModelImportForm):
             # Limit power_panel queryset by site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
             self.fields['power_panel'].queryset = self.fields['power_panel'].queryset.filter(**params)
+
+            # Limit location queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+
+            # Limit rack queryset by site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"location__{self.fields['location'].to_field_name}": data.get('location'),
+            }
+            self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+
+class CoolingSourceImportForm(PrimaryModelImportForm):
+    site = CSVModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text=_('Name of parent site')
+    )
+    location = CSVModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        required=False,
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingSourceTypeChoices,
+        help_text=_('Cooling source type')
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=CoolingSourceStatusChoices,
+        help_text=_('Operational status')
+    )
+    fluid_type = CSVChoiceField(
+        label=_('Fluid type'),
+        choices=FluidTypeChoices,
+        required=False,
+        help_text=_('Coolant fluid type')
+    )
+
+    class Meta:
+        model = CoolingSource
+        fields = (
+            'site', 'location', 'name', 'type', 'status', 'fluid_type', 'cooling_capacity', 'description', 'owner',
+            'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit location queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+
+
+class CoolingFeedImportForm(PrimaryModelImportForm):
+    site = CSVModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned site')
+    )
+    cooling_source = CSVModelChoiceField(
+        label=_('Cooling source'),
+        queryset=CoolingSource.objects.all(),
+        to_field_name='name',
+        help_text=_('Upstream cooling source')
+    )
+    location = CSVModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_("Rack's location (if any)")
+    )
+    rack = CSVModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Rack')
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Assigned tenant')
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=CoolingFeedStatusChoices,
+        help_text=_('Operational status')
+    )
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for maximum flow')
+    )
+
+    class Meta:
+        model = CoolingFeed
+        fields = (
+            'site', 'cooling_source', 'location', 'rack', 'name', 'status',
+            'cooling_capacity', 'max_flow', 'max_flow_unit', 'tenant', 'description', 'owner',
+            'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit cooling_source queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['cooling_source'].queryset = self.fields['cooling_source'].queryset.filter(**params)
 
             # Limit location queryset by site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}

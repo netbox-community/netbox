@@ -57,6 +57,7 @@ class DeviceSerializer(PrimaryModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
+    cooling_method = ChoiceField(choices=CoolingMethodChoices, allow_blank=True, required=False, allow_null=True)
     primary_ip = IPAddressSerializer(
         nested=True,
         read_only=True,
@@ -105,11 +106,13 @@ class DeviceSerializer(PrimaryModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template', 'config_context',
+            'status', 'airflow', 'cooling_method', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template',
+            'config_context',
             'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
-            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
-            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'cooling_intake_count',
+            'cooling_outflow_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
+            'module_bay_count', 'inventory_item_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

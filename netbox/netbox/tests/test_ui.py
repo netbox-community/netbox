@@ -813,6 +813,172 @@ class DisplayDistanceTagTestCase(SimpleTestCase):
         self.assertEqual(self._render(10, 'mi', 16093.44, system='imperial'), '10 mi')
 
 
+class DiameterAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'diameter', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, diameter, unit, abs_mm):
+        return SimpleNamespace(diameter=diameter, diameter_unit=unit, _abs_diameter=abs_mm)
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.DiameterAttr('diameter')
+        obj = SimpleNamespace(diameter=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_shows_stored_value(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(25, 'mm', 25), self._ctx(system=''))
+        self.assertIn('25', result)
+        self.assertIn('mm', result)
+
+    def test_metric_converts_in_to_mm(self):
+        # 1 in = 25.4 mm
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(1, 'in', 25.4), self._ctx(system='metric'))
+        self.assertIn('25.4', result)
+        self.assertIn('mm', result)
+
+    def test_imperial_converts_mm_to_in(self):
+        # 25 mm → 25 / 25.4 = 0.98 in
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(25, 'mm', 25), self._ctx(system='imperial'))
+        self.assertIn('0.98', result)
+        self.assertIn('in', result)
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(2.5, 'cm', 25), self._ctx(system='metric'))
+        self.assertIn('2.5', result)
+        self.assertIn('cm', result)
+
+    def test_metric_no_conversion_when_abs_diameter_is_none(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(1, 'in', None), self._ctx(system='metric'))
+        self.assertIn('1', result)
+        self.assertIn('in', result)
+
+
+class FlowRateAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'max_flow', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, max_flow, unit, abs_lpm):
+        return SimpleNamespace(max_flow=max_flow, max_flow_unit=unit, _abs_max_flow=abs_lpm)
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        obj = SimpleNamespace(max_flow=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_abbreviates_stored_unit(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(100, 'lpm', 100), self._ctx(system=''))
+        self.assertIn('100', result)
+        self.assertIn('L/min', result)
+
+    def test_inherit_abbreviates_cubic_meters_per_hour(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(6, 'm3ph', 100), self._ctx(system=''))
+        self.assertIn('6', result)
+        self.assertIn('m³/h', result)
+
+    def test_metric_converts_gpm_to_lpm(self):
+        # 10 GPM = 37.8541 L/min
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', 37.8541), self._ctx(system='metric'))
+        self.assertIn('37.85', result)
+        self.assertIn('L/min', result)
+
+    def test_imperial_converts_lpm_to_gpm(self):
+        # 100 L/min → 100 / 3.785411784 = 26.42 GPM
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(100, 'lpm', 100), self._ctx(system='imperial'))
+        self.assertIn('26.42', result)
+        self.assertIn('GPM', result)
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', 37.8541), self._ctx(system='imperial'))
+        self.assertIn('10', result)
+        self.assertIn('GPM', result)
+
+    def test_metric_no_conversion_when_abs_flow_is_none(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', None), self._ctx(system='metric'))
+        self.assertIn('10', result)
+        self.assertIn('GPM', result)
+
+
+class DisplayDiameterTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_diameter diameter diameter_unit abs_diameter %}')
+
+    def _render(self, diameter, diameter_unit, abs_diameter, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'diameter': diameter,
+            'diameter_unit': diameter_unit,
+            'abs_diameter': abs_diameter,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_diameter_returns_empty(self):
+        self.assertEqual(self._render(None, 'mm', None), '')
+
+    def test_zero_diameter_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'mm', 0), '0 mm')
+
+    def test_inherit_stores_mm(self):
+        # An unconverted Decimal keeps its stored scale, as with display_weight
+        self.assertEqual(self._render(Decimal('25.00'), 'mm', Decimal('25.0000')), '25.00 mm')
+
+    def test_metric_converts_in_to_mm(self):
+        self.assertEqual(self._render(1, 'in', Decimal('25.4000'), system='metric'), '25.4 mm')
+
+    def test_imperial_converts_cm_to_in(self):
+        # 2.5 cm = 25 mm → 25 / 25.4 = 0.98 in
+        self.assertEqual(self._render(Decimal('2.50'), 'cm', Decimal('25.0000'), system='imperial'), '0.98 in')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(1, 'in', Decimal('25.4000'), system='imperial'), '1 in')
+
+
+class DisplayFlowRateTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_flow_rate max_flow max_flow_unit abs_max_flow %}')
+
+    def _render(self, max_flow, max_flow_unit, abs_max_flow, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'max_flow': max_flow,
+            'max_flow_unit': max_flow_unit,
+            'abs_max_flow': abs_max_flow,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_flow_rate_returns_empty(self):
+        self.assertEqual(self._render(None, 'lpm', None), '')
+
+    def test_zero_flow_rate_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'lpm', 0), '0 L/min')
+
+    def test_inherit_abbreviates_stored_unit(self):
+        # An unconverted Decimal keeps its stored scale, as with display_weight
+        self.assertEqual(self._render(Decimal('100.00'), 'lpm', Decimal('100.0000')), '100.00 L/min')
+        self.assertEqual(self._render(Decimal('6.00'), 'm3ph', Decimal('100.0000')), '6.00 m³/h')
+        self.assertEqual(self._render(Decimal('10.00'), 'gpm', Decimal('37.8541')), '10.00 GPM')
+
+    def test_metric_converts_gpm_to_lpm(self):
+        self.assertEqual(self._render(10, 'gpm', Decimal('37.8541'), system='metric'), '37.85 L/min')
+
+    def test_imperial_converts_lpm_to_gpm(self):
+        # 100 L/min → 100 / 3.785411784 = 26.42 GPM
+        self.assertEqual(self._render(100, 'lpm', Decimal('100.0000'), system='imperial'), '26.42 GPM')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(10, 'gpm', Decimal('37.8541'), system='imperial'), '10 GPM')
+
+
 class ObjectsTablePanelTestCase(TestCase):
     """
     Verify that ObjectsTablePanel.should_render() hides the panel when

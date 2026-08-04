@@ -254,6 +254,12 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     power_outlet_count = tables.Column(
         verbose_name=_('Power outlets')
     )
+    cooling_intake_count = tables.Column(
+        verbose_name=_('Cooling intakes')
+    )
+    cooling_outflow_count = tables.Column(
+        verbose_name=_('Cooling outflows')
+    )
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )
@@ -272,13 +278,17 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     inventory_item_count = tables.Column(
         verbose_name=_('Inventory items')
     )
+    cooling_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Method'),
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = models.Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'role', 'manufacturer', 'device_type',
             'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
-            'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'primary_ip', 'primary_ip4',
+            'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'cooling_method',
+            'primary_ip', 'primary_ip4',
             'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )

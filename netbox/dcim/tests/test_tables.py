@@ -196,6 +196,26 @@ class PowerFeedTableTestCase(TableTestCases.StandardTableTestCase):
 
 
 #
+# Cooling
+#
+
+class CoolingSourceTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingSourceTable
+
+
+class CoolingFeedTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingFeedTable
+
+
+class CoolingIntakeTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingIntakeTable
+
+
+class CoolingOutflowTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CoolingOutflowTable
+
+
+#
 # Virtual chassis
 #
 

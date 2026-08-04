@@ -1,4 +1,5 @@
 from .serializers_.cables import *
+from .serializers_.cooling import *
 from .serializers_.device_components import *
 from .serializers_.devices import *
 from .serializers_.devicetype_components import *

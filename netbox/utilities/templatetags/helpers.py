@@ -10,7 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
 from netbox.ui.attrs import (
+    compute_diameter_display,
     compute_distance_display,
+    compute_flow_rate_display,
     compute_weight_display,
 )
 from utilities.forms import TableConfigForm, get_selected_values
@@ -21,7 +23,9 @@ __all__ = (
     'action_url',
     'applied_filters',
     'as_range',
+    'display_diameter',
     'display_distance',
+    'display_flow_rate',
     'display_weight',
     'divide',
     'get_item',
@@ -357,6 +361,30 @@ def display_distance(context, distance, distance_unit, abs_distance):
         return ''
     system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
     value, unit = compute_distance_display(distance, distance_unit, abs_distance, system)
+    return f'{value:g} {unit}'
+
+
+@register.simple_tag(takes_context=True)
+def display_diameter(context, diameter, diameter_unit, abs_diameter):
+    """
+    Render a diameter value respecting the user's ui.measurement_system preference.
+    """
+    if diameter is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_diameter_display(diameter, diameter_unit, abs_diameter, system)
+    return f'{value:g} {unit}'
+
+
+@register.simple_tag(takes_context=True)
+def display_flow_rate(context, flow_rate, flow_rate_unit, abs_flow_rate):
+    """
+    Render a flow rate value respecting the user's ui.measurement_system preference.
+    """
+    if flow_rate is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_flow_rate_display(flow_rate, flow_rate_unit, abs_flow_rate, system)
     return f'{value:g} {unit}'
 
 
