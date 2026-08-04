@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -288,10 +289,13 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
             MinValueValidator(1),
             MaxValueValidator(3600),
         ),
-        help_text=_(
-            "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use the "
-            "system default ({default_timeout} seconds)."
-        ).format(default_timeout=settings.WEBHOOK_DEFAULT_TIMEOUT)
+        help_text=format_lazy(
+            _(
+                "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
+                "the system default ({default_timeout} seconds)."
+            ),
+            default_timeout=settings.WEBHOOK_DEFAULT_TIMEOUT
+        )
     )
     events = GenericRelation(
         EventRule,
