@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 from strawberry.types import Info
 
-from extras.models import ImageAttachment, JournalEntry
+from extras.models import CustomField, ImageAttachment, JournalEntry
 from utilities.querysets import RestrictedPrefetch
 
 __all__ = (
@@ -52,7 +52,13 @@ class CustomFieldsMixin:
 
     @strawberry_django.field
     def custom_fields(self) -> strawberry.scalars.JSON:
-        return self.custom_field_data
+        # Selection/multi-select values are wrapped with their resolved label, matching the REST API
+        # (CustomFieldsDataField) — see #20897. Every other field type is returned as stored.
+        data = dict(self.custom_field_data)
+        for cf in CustomField.objects.get_for_model(self):
+            if cf.name in data:
+                data[cf.name] = cf.resolve_selection_value(data[cf.name])
+        return data
 
 
 @strawberry.type

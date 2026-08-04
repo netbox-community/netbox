@@ -1135,6 +1135,39 @@ class CustomFieldAPITestCase(APITestCase):
             'label': 'stale',
         })
 
+    def test_graphql_selection_field_representation_matches_rest(self):
+        """
+        GraphQL's custom_fields must resolve selection labels the same way the REST API does (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['select_field'], self._select('bar'))
+        self.assertEqual(custom_fields['multiselect_field'], self._multiselect(['bar', 'baz']))
+
+    def test_graphql_selection_field_unresolved_label(self):
+        """GraphQL falls back to the raw value as its label, matching the REST API (see #20897)."""
+        site2 = Site.objects.get(name='Site 2')
+        site2.custom_field_data['select_field'] = 'stale'
+        site2.save()
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertEqual(data['data']['site']['custom_fields']['select_field'], {
+            'value': 'stale',
+            'label': 'stale',
+        })
+
     @tag('regression')
     def test_update_selection_field_rejects_read_format(self):
         """

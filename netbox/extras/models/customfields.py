@@ -328,6 +328,22 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return self.choice_set.get_choice_color(value)
         return None
 
+    def resolve_selection_value(self, value):
+        """
+        For a Selection or Multiple selection field, wrap the raw stored value(s) with their resolved
+        label(s) as {'value': ..., 'label': ...} (a list thereof for multi-select), matching the shape
+        used for NetBox's built-in choice fields. Any other field type is returned unchanged. Shared by
+        the REST API (CustomFieldsDataField) and GraphQL (CustomFieldsMixin) so the two stay consistent
+        with each other (#20897).
+        """
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            return {'value': value, 'label': self.get_choice_label(value)}
+        if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            return [{'value': v, 'label': self.get_choice_label(v)} for v in value]
+        return value
+
     def populate_initial_data(self, content_types):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
