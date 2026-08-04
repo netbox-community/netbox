@@ -243,7 +243,7 @@ class RackTypeTestCase(TestCase):
             weight_unit=WeightUnitChoices.UNIT_POUND,
             max_weight=7777,
             mounting_depth=8,
-            cooling_capability=RackCoolingCapabilityChoices.LIQUID_ONLY,
+            cooling_capability=RackCoolingCapabilityChoices.CAPABILITY_LIQUID_ONLY,
             cooling_capacity=80,
         )
 
@@ -3279,10 +3279,34 @@ class CoolingComponentTestCase(TestCase):
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
         )
 
-    def test_cooling_intake_negative_diameter_rejected(self):
+    def test_cooling_choice_colors_resolve(self):
         """
-        A negative diameter should raise a ValidationError (via MinValueValidator) rather than a raw
-        ValueError from the unit conversion in save().
+        ChoiceFieldColumn and ChoiceAttr both render a badge color by calling get_FOO_color() on the
+        instance, so every model exposing a colored cooling choice must implement the accessor.
+        """
+        for model in (Device, DeviceType, ModuleType):
+            with self.subTest(model=model.__name__):
+                instance = model(cooling_method=CoolingMethodChoices.METHOD_LIQUID)
+                self.assertEqual(
+                    instance.get_cooling_method_color(),
+                    CoolingMethodChoices.colors[CoolingMethodChoices.METHOD_LIQUID]
+                )
+                # An unset value has no color, which the consumers fall back on
+                self.assertIsNone(model().get_cooling_method_color())
+
+        for model in (Rack, RackType):
+            with self.subTest(model=model.__name__):
+                instance = model(cooling_capability=RackCoolingCapabilityChoices.CAPABILITY_HYBRID)
+                self.assertEqual(
+                    instance.get_cooling_capability_color(),
+                    RackCoolingCapabilityChoices.colors[RackCoolingCapabilityChoices.CAPABILITY_HYBRID]
+                )
+                self.assertIsNone(model().get_cooling_capability_color())
+
+    def test_measurements_below_minimum_rejected(self):
+        """
+        A diameter or flow rate below the permitted minimum of 1 should raise a ValidationError (via
+        MinValueValidator) rather than a raw ValueError from the unit conversion in save().
         """
         device_type = DeviceType.objects.create(
             manufacturer=self.manufacturer, model='Device Type 8', slug='device-type-8'
@@ -3290,14 +3314,106 @@ class CoolingComponentTestCase(TestCase):
         device = Device.objects.create(
             site=self.site, device_type=device_type, role=self.role, name='Device F'
         )
-        cooling_intake = CoolingIntake(
+        cooling_source = CoolingSource.objects.create(
+            site=self.site, name='Cooling Source F', type=CoolingSourceTypeChoices.TYPE_CHILLER
+        )
+
+        for value in (Decimal('-5'), Decimal('0'), Decimal('0.5')):
+            with self.subTest(diameter=value):
+                cooling_intake = CoolingIntake(
+                    device=device,
+                    name='Cooling Port 1',
+                    diameter=value,
+                    diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_intake.full_clean()
+
+            with self.subTest(max_flow=value):
+                cooling_intake = CoolingIntake(
+                    device=device,
+                    name='Cooling Port 1',
+                    max_flow=value,
+                    max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_intake.full_clean()
+
+            with self.subTest(feed_max_flow=value):
+                cooling_feed = CoolingFeed(
+                    cooling_source=cooling_source,
+                    name='Cooling Feed F',
+                    max_flow=value,
+                    max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_feed.full_clean()
+
+        # The minimum itself is permitted
+        CoolingIntake(
             device=device,
             name='Cooling Port 1',
-            diameter=Decimal('-5'),
+            diameter=Decimal('1'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            max_flow=Decimal('1'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        ).full_clean()
+
+    def test_parent_intake_resolved_on_device_instantiation(self):
+        """
+        A CoolingOutflowTemplate with a parent CoolingIntakeTemplate should resolve to the newly created
+        CoolingIntake on the same device. This depends on intakes being instantiated before outflows.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 12', slug='device-type-12'
         )
-        with self.assertRaises(ValidationError):
-            cooling_intake.full_clean()
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            device_type=device_type, name='Cooling Port 1'
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type, name='Cooling Outlet 1', cooling_intake=cooling_intake_template
+        )
+        # A second outflow with no parent must remain unassigned
+        CoolingOutflowTemplate.objects.create(device_type=device_type, name='Cooling Outlet 2')
+
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device J'
+        )
+
+        cooling_intake = CoolingIntake.objects.get(device=device, name='Cooling Port 1')
+        self.assertEqual(
+            CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1').cooling_intake,
+            cooling_intake
+        )
+        self.assertIsNone(CoolingOutflow.objects.get(device=device, name='Cooling Outlet 2').cooling_intake)
+
+    def test_parent_intake_resolved_on_module_instantiation(self):
+        """
+        The parent intake of a CoolingOutflowTemplate should likewise resolve when the components are
+        instantiated for a Module rather than a Device.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 13', slug='device-type-13'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device K'
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+
+        module_type = ModuleType.objects.create(manufacturer=self.manufacturer, model='Module Type 1')
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            module_type=module_type, name='Cooling Port 1'
+        )
+        CoolingOutflowTemplate.objects.create(
+            module_type=module_type, name='Cooling Outlet 1', cooling_intake=cooling_intake_template
+        )
+
+        module = Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        cooling_intake = CoolingIntake.objects.get(module=module, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow.objects.get(module=module, name='Cooling Outlet 1')
+        self.assertEqual(cooling_outflow.cooling_intake, cooling_intake)
+        self.assertEqual(cooling_outflow.device, device)
 
     def test_measurements_normalized_on_save(self):
         """

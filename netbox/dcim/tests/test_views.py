@@ -936,6 +936,36 @@ power-outlets:
     type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: A
+cooling-intakes:
+  - name: Cooling Intake 1
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+    max_flow: 100
+    max_flow_unit: lpm
+  - name: Cooling Intake 2
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+  - name: Cooling Intake 3
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+cooling-outflows:
+  - name: Cooling Outflow 1
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 2
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 3
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -1048,6 +1078,26 @@ inventory-items:
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
+
+        self.assertEqual(device_type.coolingintaketemplates.count(), 3)
+        ci1 = CoolingIntakeTemplate.objects.first()
+        self.assertEqual(ci1.name, 'Cooling Intake 1')
+        self.assertEqual(ci1.type, CoolingConnectorTypeChoices.TYPE_UQD)
+        self.assertEqual(ci1.diameter, 1)
+        self.assertEqual(ci1.diameter_unit, DiameterUnitChoices.UNIT_INCH)
+        self.assertEqual(ci1.max_flow, 100)
+        self.assertEqual(ci1.max_flow_unit, FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE)
+        # The normalized columns are populated on import
+        self.assertEqual(ci1._abs_diameter, Decimal('25.4'))
+        self.assertEqual(ci1._abs_max_flow, Decimal('100'))
+
+        self.assertEqual(device_type.coolingoutflowtemplates.count(), 3)
+        co1 = CoolingOutflowTemplate.objects.first()
+        self.assertEqual(co1.name, 'Cooling Outflow 1')
+        self.assertEqual(co1.type, CoolingConnectorTypeChoices.TYPE_UQDB)
+        self.assertEqual(co1.diameter, 25)
+        self.assertEqual(co1.diameter_unit, DiameterUnitChoices.UNIT_MILLIMETER)
+        self.assertEqual(co1.cooling_intake, ci1)
 
         self.assertEqual(device_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
@@ -1546,6 +1596,26 @@ power-outlets:
     type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: A
+cooling-intakes:
+  - name: Cooling Intake 1
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+    max_flow: 6
+    max_flow_unit: m3ph
+  - name: Cooling Intake 2
+    type: uqd
+  - name: Cooling Intake 3
+    type: uqd
+cooling-outflows:
+  - name: Cooling Outflow 1
+    type: uqdb
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 2
+    type: uqdb
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 3
+    type: uqdb
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -1639,6 +1709,24 @@ module-bays:
         self.assertEqual(po1.type, PowerOutletTypeChoices.TYPE_IEC_C13)
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
+
+        self.assertEqual(module_type.coolingintaketemplates.count(), 3)
+        ci1 = CoolingIntakeTemplate.objects.first()
+        self.assertEqual(ci1.name, 'Cooling Intake 1')
+        self.assertEqual(ci1.type, CoolingConnectorTypeChoices.TYPE_UQD)
+        self.assertEqual(ci1.diameter, 1)
+        self.assertEqual(ci1.diameter_unit, DiameterUnitChoices.UNIT_INCH)
+        self.assertEqual(ci1.max_flow, 6)
+        self.assertEqual(ci1.max_flow_unit, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR)
+        # The normalized columns are populated on import
+        self.assertEqual(ci1._abs_diameter, Decimal('25.4'))
+        self.assertEqual(ci1._abs_max_flow, Decimal('100'))
+
+        self.assertEqual(module_type.coolingoutflowtemplates.count(), 3)
+        co1 = CoolingOutflowTemplate.objects.first()
+        self.assertEqual(co1.name, 'Cooling Outflow 1')
+        self.assertEqual(co1.type, CoolingConnectorTypeChoices.TYPE_UQDB)
+        self.assertEqual(co1.cooling_intake, ci1)
 
         self.assertEqual(module_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
