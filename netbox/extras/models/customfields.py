@@ -332,12 +332,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
     def resolve_selection_value(self, value):
         """
-        For a Selection or Multiple selection field, wrap the raw stored value(s) with their resolved
-        label(s) as {'value': ..., 'label': ...} (a list thereof for multi-select), matching the shape
-        used for NetBox's built-in choice fields. Any other field type is returned unchanged. Shared by
-        the REST API (CustomFieldsDataField) and GraphQL (CustomFieldsMixin) so selection labels are
-        resolved the same way on both (#20897); other representational differences between the two APIs
-        (e.g. handling of unset fields, object/multi-object and date fields) are unaffected by this method.
+        For a Selection or Multiple selection field, wrap the value(s) with their resolved label as
+        {'value': ..., 'label': ...} (a list thereof for multi-select). Other field types pass through
+        unchanged. Shared by the REST API and GraphQL so selection labels resolve consistently (#20897).
         """
         if value is None:
             return value

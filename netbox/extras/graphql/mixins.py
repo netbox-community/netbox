@@ -52,8 +52,6 @@ class CustomFieldsMixin:
 
     @strawberry_django.field(only=['custom_field_data'])
     def custom_fields(self) -> strawberry.scalars.JSON:
-        # Selection/multi-select values are wrapped with their resolved label, the same way the REST
-        # API (CustomFieldsDataField) does — see #20897. Every other field type is returned as stored.
         data = dict(self.custom_field_data)
         for cf in CustomField.objects.get_for_model(type(self)):
             if cf.name in data:

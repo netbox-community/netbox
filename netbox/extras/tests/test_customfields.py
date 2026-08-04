@@ -1138,9 +1138,6 @@ class CustomFieldAPITestCase(APITestCase):
         })
 
     def test_graphql_selection_field_representation_matches_rest(self):
-        """
-        GraphQL's custom_fields must resolve selection labels the same way the REST API does (see #20897).
-        """
         site2 = Site.objects.get(name='Site 2')
         self.add_permissions('dcim.view_site')
 
@@ -1155,7 +1152,6 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(custom_fields['multiselect_field'], self._multiselect(['bar', 'baz']))
 
     def test_graphql_selection_field_unresolved_label(self):
-        """GraphQL falls back to the raw value as its label, matching the REST API (see #20897)."""
         site2 = Site.objects.get(name='Site 2')
         site2.custom_field_data['select_field'] = 'stale'
         site2.save()
@@ -1172,7 +1168,6 @@ class CustomFieldAPITestCase(APITestCase):
         })
 
     def test_graphql_non_selection_fields_pass_through_unchanged(self):
-        """Non-selection field types are returned by GraphQL as stored, untouched by label resolution."""
         site2 = Site.objects.get(name='Site 2')
         self.add_permissions('dcim.view_site')
 
@@ -1188,16 +1183,11 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(custom_fields['boolean_field'], True)
 
     def test_graphql_selection_field_list_query_is_not_n_plus_one(self):
-        """
-        Resolving selection labels for a list of objects must not issue additional queries per
-        object as the list grows (see #20897).
-        """
         self.add_permissions('dcim.view_site')
         query = '{ site_list { custom_fields } }'
 
         Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 8)])
-        # Prime any process-level caches (e.g. Django's ContentType cache) outside the measured
-        # request, so the comparison below isn't skewed by one-time cache-warming queries.
+        # Prime process-level caches (e.g. ContentType) outside the measured request.
         self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
         with CaptureQueriesContext(connection) as ctx:
             response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
