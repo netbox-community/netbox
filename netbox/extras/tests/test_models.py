@@ -13,7 +13,7 @@ from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.forms import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
@@ -1808,28 +1808,34 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         self.assertEqual(template.get_environment_params(), {'autoescape': False})
 
 
+@override_settings(RQ_DEFAULT_TIMEOUT=300)
 class WebhookTest(TestCase):
 
     def test_timeout_must_be_less_than_job_timeout(self):
         """
-        A timeout at or above RQ_DEFAULT_TIMEOUT can never take effect, as the worker terminates the job
-        before the request itself times out.
+        A timeout at or above RQ_DEFAULT_TIMEOUT leaves no room for the request's own timeout to apply, and
+        is rejected.
         """
         webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
 
-        for timeout in (settings.RQ_DEFAULT_TIMEOUT, settings.RQ_DEFAULT_TIMEOUT + 1):
+        for timeout in (300, 301):
             webhook.timeout = timeout
             with self.assertRaises(ValidationError):
                 webhook.full_clean()
 
     def test_timeout_below_job_timeout_is_valid(self):
-        webhook = Webhook(
-            name='Webhook 1',
-            payload_url='http://localhost:9000/',
-            timeout=settings.RQ_DEFAULT_TIMEOUT - 1
-        )
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=299)
         webhook.full_clean()
 
     def test_null_timeout_is_valid(self):
         webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT='1h')
+    def test_non_integer_job_timeout_skips_validation(self):
+        """
+        RQ also accepts a string timeout such as "1h", which cannot be compared numerically. Such a value
+        should disable the check rather than raise a TypeError.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
         webhook.full_clean()

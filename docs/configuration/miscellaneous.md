@@ -311,11 +311,14 @@ The base unit for RAM sizes. Set this to `1024` to use binary prefixes (MiB, GiB
 
 ## WEBHOOK_DEFAULT_TIMEOUT
 
-Default: `180`
+Default: `60`
 
-The default maximum time (in seconds) to wait for a response when sending a webhook. This value is used for any webhook which does not define its own timeout. Keeping this below [`RQ_DEFAULT_TIMEOUT`](#rq_default_timeout) prevents an unresponsive receiver from holding a background worker open for the full duration of the job.
+The default maximum time (in seconds) to wait for a response when sending a webhook. This value is used for any webhook which does not define its own timeout. Keeping this below [`RQ_DEFAULT_TIMEOUT`](#rq_default_timeout) gives an unresponsive receiver a chance to be cut off by the request timeout rather than by termination of the background job.
 
-This value must be an integer between 1 and 3600, and must be less than `RQ_DEFAULT_TIMEOUT`; NetBox will refuse to start otherwise. The same constraint is enforced on the per-webhook [timeout](../models/extras/webhook.md#timeout) field.
+This value must be an integer between 1 and 3600, and must be less than `RQ_DEFAULT_TIMEOUT`; NetBox will refuse to start otherwise. The same upper bound is enforced on the per-webhook [timeout](../models/extras/webhook.md#timeout) field.
+
+!!! warning "Upgrading"
+    If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less and have not set `WEBHOOK_DEFAULT_TIMEOUT`, NetBox will not start until you set `WEBHOOK_DEFAULT_TIMEOUT` to a value below your job timeout.
 
 !!! note
     The timeout is applied separately to establishing the connection and to waiting for data, rather than to the request as a whole. A receiver which responds slowly but continuously can therefore keep a request open for longer than the configured value. `RQ_DEFAULT_TIMEOUT` remains the ultimate upper bound on how long a webhook job can occupy a worker.

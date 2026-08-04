@@ -285,6 +285,13 @@ class WebhookTestCase(TestCase, BaseFilterSetTestMixin):
         params = {'timeout': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_timeout_range(self):
+        # Backs the minimum/maximum timeout fields exposed by WebhookFilterForm
+        params = {'timeout__gte': [20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'timeout__lte': [20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class EventRuleTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = EventRule.objects.all()

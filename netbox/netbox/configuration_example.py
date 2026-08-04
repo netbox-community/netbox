@@ -224,9 +224,10 @@ RQ_DEFAULT_TIMEOUT = 300
 # SCRIPTS_ROOT = '/path/to/netbox/scripts'
 
 # The default maximum time (in seconds) to wait for a response when sending a webhook, unless overridden on the
-# individual webhook. This prevents an unresponsive receiver from holding a background worker open for the full
-# RQ_DEFAULT_TIMEOUT duration.
-WEBHOOK_DEFAULT_TIMEOUT = 180
+# individual webhook. Keeping this below RQ_DEFAULT_TIMEOUT gives an unresponsive receiver a chance to be cut off
+# by the request timeout rather than by termination of the background job. This must be less than
+# RQ_DEFAULT_TIMEOUT.
+WEBHOOK_DEFAULT_TIMEOUT = 60
 
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
