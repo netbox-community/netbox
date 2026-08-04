@@ -254,6 +254,12 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     power_outlet_count = tables.Column(
         verbose_name=_('Power outlets')
     )
+    cooling_intake_count = tables.Column(
+        verbose_name=_('Cooling intakes')
+    )
+    cooling_outflow_count = tables.Column(
+        verbose_name=_('Cooling outflows')
+    )
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )

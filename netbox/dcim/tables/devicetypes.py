@@ -128,6 +128,12 @@ class DeviceTypeTable(PrimaryModelTable):
     power_outlet_template_count = tables.Column(
         verbose_name=_('Power Outlets')
     )
+    cooling_intake_template_count = tables.Column(
+        verbose_name=_('Cooling Intakes')
+    )
+    cooling_outflow_template_count = tables.Column(
+        verbose_name=_('Cooling Outflows')
+    )
     interface_template_count = tables.Column(
         verbose_name=_('Interfaces')
     )
