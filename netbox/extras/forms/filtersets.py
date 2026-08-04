@@ -316,7 +316,9 @@ class WebhookFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
+        FieldSet(
+            'payload_url', 'http_method', 'http_content_type', 'timeout__gte', 'timeout__lte', name=_('Attributes')
+        ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     http_content_type = forms.CharField(
@@ -331,6 +333,16 @@ class WebhookFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         choices=WebhookHttpMethodChoices,
         required=False,
         label=_('HTTP method')
+    )
+    timeout__gte = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label=_('Minimum timeout (seconds)')
+    )
+    timeout__lte = forms.IntegerField(
+        required=False,
+        min_value=1,
+        label=_('Maximum timeout (seconds)')
     )
     tag = TagFilterField(model)
 
