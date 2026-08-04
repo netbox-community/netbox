@@ -6,7 +6,10 @@ from unittest.mock import MagicMock, patch
 from django.db import DEFAULT_DB_ALIAS
 from django.test import TestCase
 
+from dcim.models import Site
 from extras.jobs import ScriptJob
+from extras.models import Script as ScriptModel
+from extras.scripts import ObjectVar, Script
 from utilities.exceptions import AbortScript
 
 
@@ -338,3 +341,74 @@ class ScriptJobRunTestCase(TestCase):
             runner.run(data={}, commit=False)
 
         self.assertEqual(entered, ['proc_a'])
+
+
+class ScriptJobFormCleaningTestCase(TestCase):
+    def test_run_converts_objectvar_id_to_model_instance(self):
+        # Create a simple target object
+        site = Site.objects.create(name="Test Site", slug="test-site")
+
+        # Real Script subclass that declares an ObjectVar and records received data
+        class TestScript(Script):
+            site = ObjectVar(label='Site', model=Site)
+
+            def __init__(self):
+                super().__init__()
+                self.received = None
+
+            def run(self, data, commit=True):
+                # record what we received and return a sentinel
+                self.received = data
+                return "ok"
+
+        script_instance = TestScript()
+
+        # Make ScriptModel.objects.get() return a stub whose python_class() yields our instance
+        script_model_stub = MagicMock()
+        script_model_stub.python_class.return_value = script_instance
+
+        runner = _make_runner(object_id=1)
+        with patch.object(ScriptModel.objects, 'get', return_value=script_model_stub):
+            # Pass nested payload shape like the REST API: {"data": {"site": <pk>}}
+            runner.run(data={'data': {'site': site.pk}}, request=None, commit=True)
+
+        # Assert the script received a model instance for 'site'
+        self.assertIsNotNone(script_instance.received)
+        self.assertIn('site', script_instance.received)
+        self.assertIsInstance(script_instance.received['site'], Site)
+        self.assertNotIn('_commit', script_instance.received)
+
+    def test_run_merges_request_files_into_data_for_real_script(self):
+        # Create object
+        site = Site.objects.create(name="Test Site 2", slug="test-site-2")
+
+        class TestScript(Script):
+            site = ObjectVar(label='Site', model=Site)
+
+            def __init__(self):
+                super().__init__()
+                self.received = None
+
+            def run(self, data, commit=True):
+                self.received = data
+                actual_type = type(data['site'])
+                return f"got type: {actual_type}"
+
+        script_instance = TestScript()
+        script_model_stub = MagicMock()
+        script_model_stub.python_class.return_value = script_instance
+
+        # Simulate a request with uploaded files
+        fake_request = MagicMock()
+        fake_request.FILES = {'upload': 'fileobj'}
+        fake_request.id = None
+
+        runner = _make_runner(object_id=1)
+        with patch.object(ScriptModel.objects, 'get', return_value=script_model_stub):
+            runner.run(data={'data': {'site': site.pk}}, request=fake_request, commit=True)
+
+        # Assert both file merged and ObjectVar conversion happened
+        self.assertIsNotNone(script_instance.received)
+        self.assertIn('upload', script_instance.received)
+        self.assertEqual(script_instance.received['upload'], 'fileobj')
+        self.assertIsInstance(script_instance.received['site'], Site)
