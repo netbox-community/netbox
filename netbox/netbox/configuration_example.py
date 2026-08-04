@@ -226,7 +226,7 @@ RQ_DEFAULT_TIMEOUT = 300
 # The default maximum time (in seconds) to wait for a response when sending a webhook, unless overridden on the
 # individual webhook. This prevents an unresponsive receiver from holding a background worker open for the full
 # RQ_DEFAULT_TIMEOUT duration.
-WEBHOOK_DEFAULT_TIMEOUT = 30
+WEBHOOK_DEFAULT_TIMEOUT = 180
 
 # The name to use for the session cookie.
 SESSION_COOKIE_NAME = 'sessionid'
