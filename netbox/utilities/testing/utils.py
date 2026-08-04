@@ -17,6 +17,29 @@ from users.models import User
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 
 
+def run_pending_cf_purges():
+    """
+    Execute any enqueued custom field data purges synchronously.
+
+    Removing a custom field, or unassigning it from an object type, defers the removal of its
+    stored data to a background job. Job.enqueue() dispatches to RQ via transaction.on_commit(),
+    which never fires inside a TestCase, so the Job records exist but nothing runs them. Invoke
+    the runner directly rather than standing up a worker: the purge is plain ORM work with no
+    queue semantics worth exercising.
+    """
+    from core.choices import JobStatusChoices
+    from core.models import Job
+    from extras.constants import CUSTOMFIELD_DATA_JOB_KEY
+    from extras.jobs import CustomFieldDataJob
+
+    jobs = Job.objects.filter(**{
+        f'data__{CUSTOMFIELD_DATA_JOB_KEY}__isnull': False,
+    }).exclude(status=JobStatusChoices.STATUS_COMPLETED)
+
+    for job in jobs:
+        CustomFieldDataJob.handle(job, **job.data[CUSTOMFIELD_DATA_JOB_KEY])
+
+
 def post_data(data):
     """
     Take a dictionary of test data (suitable for comparison to an instance) and return a dict suitable for POSTing.

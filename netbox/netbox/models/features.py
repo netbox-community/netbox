@@ -321,10 +321,16 @@ class CustomFieldsMixin(models.Model):
                         name=field_name
                     ))
 
-        # Check for missing required values
-        for cf in custom_fields.values():
-            if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
+        # Check for missing required values. This is enforced only when creating an object: custom
+        # field data is no longer provisioned onto existing objects when a field is created (see
+        # CustomField.populate_initial_data()), so an absent key on an existing object means only
+        # that the field postdates it. Enforcing here would make every pre-existing object
+        # unsaveable as soon as a required custom field was added. Required-ness of user-supplied
+        # input remains enforced by the form and serializer layers.
+        if self._state.adding:
+            for cf in custom_fields.values():
+                if cf.required and cf.name not in self.custom_field_data:
+                    raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
     def save(self, *args, **kwargs):
         from extras.models import CustomField

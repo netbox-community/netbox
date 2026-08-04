@@ -17,6 +17,7 @@ from extras.validators import CustomValidator
 from netbox.context_managers import event_tracking
 from users.models import User
 from utilities.exceptions import AbortRequest
+from utilities.testing import run_pending_cf_purges
 
 
 def _build_request(user=None):
@@ -75,14 +76,20 @@ class CustomFieldDeletedSignalTestCase(TestCase):
 
         cf.delete()
 
+        # Removal is deferred to a background job, so the data outlives the field itself
+        site.refresh_from_db()
+        self.assertIn('asset_tag', site.custom_field_data)
+
+        run_pending_cf_purges()
+
         site.refresh_from_db()
         self.assertNotIn('asset_tag', site.custom_field_data)
 
 
 class CustomFieldObjectTypeSignalTestCase(TestCase):
     """
-    Verify extras.signals.handle_cf_added_obj_types and handle_cf_removed_obj_types
-    populate or strip default values when a CustomField's object_types m2m changes.
+    Verify extras.signals.handle_cf_object_types_changed populates or strips default values when a
+    CustomField's object_types m2m changes.
     """
 
     def test_adding_object_type_populates_default_value(self):
@@ -109,6 +116,12 @@ class CustomFieldObjectTypeSignalTestCase(TestCase):
         site = Site.objects.create(name='Site 1', slug='site-1', custom_field_data={'asset_tag': 'A123'})
 
         cf.object_types.remove(site_type)
+
+        # Removal is deferred to a background job
+        site.refresh_from_db()
+        self.assertIn('asset_tag', site.custom_field_data)
+
+        run_pending_cf_purges()
 
         site.refresh_from_db()
         self.assertNotIn('asset_tag', site.custom_field_data)

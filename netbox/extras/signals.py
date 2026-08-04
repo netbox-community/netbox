@@ -1,10 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 from core.events import *
 from core.signals import job_end, job_start
 from extras.events import EventContext, process_event_rules
+from extras.jobs import CustomFieldDataJob
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.models.features import has_feature
@@ -20,20 +22,70 @@ from .utils import run_validators
 #
 
 
-def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
+def guard_against_pending_cf_purge(name, object_types):
     """
-    Handle the population of default/null values when a CustomField is added to one or more ContentTypes.
+    Guard against a CustomField adopting data left behind by a previous field of the same name.
+
+    Removal of custom field data is deferred to a background job, so between deleting a field (or
+    unassigning it from an object type) and that job completing, objects still carry the old key.
+    Claiming that name for those object types in the interim -- whether by assigning a new field to
+    them or by renaming an existing one -- would silently resurrect the old values as the new
+    field's data, and the outstanding purge would later delete them.
+
+    A purge which has stopped without completing is resubmitted, so that a failed cleanup job does
+    not block the name permanently.
     """
-    if action == 'post_add':
-        instance.populate_initial_data(ContentType.objects.filter(pk__in=pk_set))
+    if not (pending := CustomFieldDataJob.get_pending_purges(name, object_types)):
+        return
+
+    if CustomFieldDataJob.requeue_stalled_purges(pending):
+        raise AbortRequest(
+            _(
+                "Data for a custom field named '{name}' has not yet been removed from these object "
+                "types. Its cleanup job stopped before completing and has been resubmitted; wait "
+                "for it to finish before reusing this name."
+            ).format(name=name)
+        )
+
+    raise AbortRequest(
+        _(
+            "Data for a custom field named '{name}' is still being removed from these object "
+            "types. Wait for the cleanup job to complete before reusing this name."
+        ).format(name=name)
+    )
 
 
-def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
+def handle_cf_object_types_changed(instance, action, pk_set, reverse, **kwargs):
     """
-    Handle the cleanup of old custom field data when a CustomField is removed from one or more ContentTypes.
+    Handle the stored data of a CustomField as it is assigned to or unassigned from object types.
+
+    Only the forward direction is handled: every action below operates on the CustomField, whereas
+    the reverse of this relation (ContentType.custom_fields) reports the ContentType as the sender's
+    instance. Nothing in NetBox assigns object types that way.
     """
-    if action == 'post_remove':
-        instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
+    if reverse or action not in ('pre_add', 'post_add', 'pre_clear', 'post_remove'):
+        return
+
+    if action == 'pre_clear':
+        # clear() unassigns every object type at once. It must be handled before the fact: no
+        # pk_set is reported for a clear, so the assignments have to be read while they still
+        # exist. (Note that set() diffs via remove()/add() by default, so it does not land here.)
+        CustomFieldDataJob.enqueue_purge(instance.name, instance.object_types.all())
+        return
+
+    object_types = ContentType.objects.filter(pk__in=pk_set)
+
+    if action == 'pre_add':
+        # Refuse the assignment if data from an earlier field of this name has yet to be purged
+        guard_against_pending_cf_purge(instance.name, object_types)
+
+    elif action == 'post_add':
+        # Populate the field's default value (if any) on all existing objects
+        instance.populate_initial_data(object_types)
+
+    else:
+        # Purge the field's stored data from objects to which it no longer applies
+        CustomFieldDataJob.enqueue_purge(instance.name, object_types)
 
 
 def handle_cf_renamed(instance, created, **kwargs):
@@ -41,6 +93,11 @@ def handle_cf_renamed(instance, created, **kwargs):
     Handle the renaming of custom field data on objects when a CustomField is renamed.
     """
     if not created and instance.name != instance._name:
+        # A rename claims the new name for every object type the field is assigned to, so it is
+        # subject to the same guard as an assignment. Aborting here rolls back the rename along
+        # with the rest of the request's transaction.
+        guard_against_pending_cf_purge(instance.name, instance.object_types.all())
+
         instance.rename_object_data(old_name=instance._name, new_name=instance.name)
 
 
@@ -48,13 +105,12 @@ def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
     """
-    instance.remove_stale_data(instance.object_types.all())
+    CustomFieldDataJob.enqueue_purge(instance.name, instance.object_types.all())
 
 
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
-m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.object_types.through)
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types.through)
+m2m_changed.connect(handle_cf_object_types_changed, sender=CustomField.object_types.through)
 
 
 #

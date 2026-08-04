@@ -6,7 +6,7 @@ import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import DateField, DateTimeField
+from django.db.models import DateField, DateTimeField, Q
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
@@ -524,6 +524,36 @@ class CustomFieldColumn(tables.Column):
             kwargs['orderable'] = False
 
         super().__init__(*args, **kwargs)
+
+    def order(self, queryset, is_descending):
+        """
+        Sort objects holding no value for this field together, at the end of the results.
+
+        An object can lack a value either by storing a JSON null or by carrying no key for the
+        field at all -- the latter being the normal state for objects which predate it, as data is
+        no longer provisioned onto existing objects (see CustomField.populate_initial_data()).
+        Postgres sorts those two apart: a JSON null is the lowest jsonb value, whereas a missing
+        key yields SQL NULL and sorts last, so the "empty" rows would otherwise land at both ends
+        of the same column. Group them with a leading sort key (the `empty` lookup covers both
+        states), then fall back to the raw value so that numeric and date fields still sort by type
+        rather than lexically.
+
+        The annotation is named for the custom field so that ordering by two custom field columns
+        cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
+        and underscores, so the alias is always a legal identifier. Note that this does not make
+        the two orderings compose: as with any django-tables2 column defining order(), the second
+        column's order_by() replaces the first's rather than extending it.
+        """
+        name = self.customfield.name
+        alias = f'_cf_{name}_unset'
+        queryset = queryset.annotate(**{
+            alias: Q(**{f'custom_field_data__{name}__empty': True})
+        }).order_by(
+            alias,
+            f'{"-" if is_descending else ""}custom_field_data__{name}'
+        )
+
+        return queryset, True
 
     @staticmethod
     def _linkify_item(item):

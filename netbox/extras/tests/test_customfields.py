@@ -1,25 +1,51 @@
 import datetime
 import json
+import uuid
 from collections import defaultdict
+from contextlib import contextmanager
 from decimal import Decimal
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.test import tag
+from django.db import connection, transaction
+from django.db.models import QuerySet
+from django.test import RequestFactory, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
-from core.models import ObjectChange, ObjectType
+from core.choices import JobStatusChoices
+from core.models import Job, ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
+from dcim.tables import SiteTable
 from extras.choices import *
+from extras.constants import CUSTOMFIELD_DATA_JOB_KEY
+from extras.jobs import CustomFieldDataJob
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
-from netbox.context import query_cache
-from utilities.testing import APITestCase, TestCase
+from netbox.context import current_request, query_cache
+from users.models import User
+from utilities.exceptions import AbortRequest
+from utilities.testing import APITestCase, TestCase, post_data, run_pending_cf_purges
 from virtualization.models import VirtualMachine
+
+
+@contextmanager
+def assert_aborts(testcase):
+    """
+    Assert that the enclosed operation raises AbortRequest.
+
+    The exception is raised from a signal handler inside Django's own atomic block, which leaves
+    the surrounding transaction unusable. Views roll back at that point; tests carry on, so wrap
+    the operation in a savepoint of its own to keep the connection usable afterwards.
+    """
+    with testcase.assertRaises(AbortRequest):
+        with transaction.atomic():
+            yield
 
 
 class CustomFieldTestCase(TestCase):
@@ -49,7 +75,7 @@ class CustomFieldTestCase(TestCase):
     def test_text_field(self):
         value = 'Foobar!'
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='text_field',
             type=CustomFieldTypeChoices.TYPE_TEXT,
@@ -57,7 +83,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -74,7 +100,7 @@ class CustomFieldTestCase(TestCase):
     def test_longtext_field(self):
         value = 'A' * 256
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='longtext_field',
             type=CustomFieldTypeChoices.TYPE_LONGTEXT,
@@ -82,7 +108,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -98,7 +124,7 @@ class CustomFieldTestCase(TestCase):
 
     def test_integer_field(self):
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='integer_field',
             type=CustomFieldTypeChoices.TYPE_INTEGER,
@@ -106,7 +132,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         for value in (123456, 0, -123456):
 
@@ -124,7 +150,7 @@ class CustomFieldTestCase(TestCase):
 
     def test_decimal_field(self):
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='decimal_field',
             type=CustomFieldTypeChoices.TYPE_DECIMAL,
@@ -132,7 +158,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         for value in (123456.54, 0, -123456.78):
 
@@ -150,7 +176,7 @@ class CustomFieldTestCase(TestCase):
 
     def test_boolean_field(self):
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='boolean_field',
             type=CustomFieldTypeChoices.TYPE_INTEGER,
@@ -158,7 +184,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         for value in (True, False):
 
@@ -177,7 +203,7 @@ class CustomFieldTestCase(TestCase):
     def test_date_field(self):
         value = datetime.date(2016, 6, 23)
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='date_field',
             type=CustomFieldTypeChoices.TYPE_DATE,
@@ -185,7 +211,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = cf.serialize(value)
@@ -202,7 +228,7 @@ class CustomFieldTestCase(TestCase):
     def test_datetime_field(self):
         value = datetime.datetime(2016, 6, 23, 9, 45, 0)
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='date_field',
             type=CustomFieldTypeChoices.TYPE_DATETIME,
@@ -210,7 +236,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = cf.serialize(value)
@@ -227,7 +253,7 @@ class CustomFieldTestCase(TestCase):
     def test_url_field(self):
         value = 'http://example.com/'
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='url_field',
             type=CustomFieldTypeChoices.TYPE_URL,
@@ -235,7 +261,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -252,7 +278,7 @@ class CustomFieldTestCase(TestCase):
     def test_json_field(self):
         value = '{"foo": 1, "bar": 2}'
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='json_field',
             type=CustomFieldTypeChoices.TYPE_JSON,
@@ -260,7 +286,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -342,7 +368,7 @@ class CustomFieldTestCase(TestCase):
             extra_choices=CHOICES
         )
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='select_field',
             type=CustomFieldTypeChoices.TYPE_SELECT,
@@ -351,7 +377,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -379,7 +405,7 @@ class CustomFieldTestCase(TestCase):
             extra_choices=CHOICES
         )
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='multiselect_field',
             type=CustomFieldTypeChoices.TYPE_MULTISELECT,
@@ -388,7 +414,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -549,7 +575,7 @@ class CustomFieldTestCase(TestCase):
     def test_object_field(self):
         value = VLAN.objects.create(name='VLAN 1', vid=1).pk
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
@@ -558,7 +584,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -581,7 +607,7 @@ class CustomFieldTestCase(TestCase):
         VLAN.objects.bulk_create(vlans)
         value = [vlan.pk for vlan in vlans]
 
-        # Create a custom field & check that initial value is null
+        # Create a custom field & check that no initial data is written
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
@@ -590,7 +616,7 @@ class CustomFieldTestCase(TestCase):
         )
         cf.object_types.set([self.object_type])
         instance = Site.objects.first()
-        self.assertIsNone(instance.custom_field_data[cf.name])
+        self.assertNotIn(cf.name, instance.custom_field_data)
 
         # Assign a value and check that it is saved
         instance.custom_field_data[cf.name] = value
@@ -665,12 +691,462 @@ class CustomFieldTestCase(TestCase):
             0
         )
 
-        # Removal: the key is stripped from every existing object when the field is deleted
+        # Removal: deleting the field enqueues a purge; the key survives until that job runs
         cf.delete()
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
+            site_count
+        )
+        run_pending_cf_purges()
         self.assertEqual(
             Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
             0
         )
+
+    def test_provisioning_writes_nothing_without_a_default(self):
+        """
+        A field with no default has no value to record, so creating one must not touch any object.
+        """
+        cf = CustomField.objects.create(
+            name='unset_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+
+        with CaptureQueriesContext(connection) as queries:
+            cf.object_types.set([self.object_type])
+
+        # No object data is written at all -- the cost of adding a field no longer scales with the
+        # number of objects it applies to
+        self.assertFalse([
+            q['sql'] for q in queries.captured_queries
+            if q['sql'].lstrip().upper().startswith('UPDATE "DCIM_SITE"'.upper())
+        ])
+
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='unset_field').count(), 0)
+        for site in Site.objects.all():
+            self.assertEqual(site.custom_field_data, {})
+            self.assertIsNone(site.cf['unset_field'])
+
+    def test_provisioning_applies_a_default_immediately(self):
+        """
+        A default value, by contrast, must be recorded on every existing object as soon as the
+        field is created -- it has to be filterable straight away, so it cannot be deferred.
+        """
+        cf = CustomField.objects.create(
+            name='defaulted_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='bar'
+        )
+        cf.object_types.set([self.object_type])
+
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__defaulted_field='bar').count(),
+            Site.objects.count()
+        )
+
+    def test_rename_touches_only_objects_holding_a_value(self):
+        """
+        Renaming rewrites the key only where a value is actually stored. This is what keeps a
+        rename cheap now that objects are no longer provisioned with a placeholder each.
+        """
+        cf = CustomField.objects.create(
+            name='sparse_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        cf.object_types.set([self.object_type])
+
+        site = Site.objects.first()
+        site.custom_field_data['sparse_field'] = 'value'
+        site.save()
+
+        cf.name = 'sparse_renamed'
+        cf.save()
+
+        self.assertEqual(
+            list(
+                Site.objects.filter(custom_field_data__has_key='sparse_renamed')
+                .values_list('pk', flat=True)
+            ),
+            [site.pk]
+        )
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='sparse_field').count(), 0)
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data['sparse_renamed'], 'value')
+
+    def test_removal_from_object_type_is_deferred(self):
+        """
+        Unassigning a field from an object type purges its data in the background.
+        """
+        cf = CustomField.objects.create(
+            name='unassigned_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='baz'
+        )
+        cf.object_types.set([self.object_type])
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='unassigned_field').count(),
+            Site.objects.count()
+        )
+
+        cf.object_types.remove(self.object_type)
+        run_pending_cf_purges()
+
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='unassigned_field').count(),
+            0
+        )
+
+    def test_name_reuse_blocked_while_purge_outstanding(self):
+        """
+        Recreating a deleted field before its data has been purged would silently adopt the old
+        field's values, so it must be refused until the cleanup job has run.
+        """
+        cf = CustomField.objects.create(
+            name='recycled_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        # The purge has not run, so the old values are still on disk
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__recycled_field='old value').count(),
+            Site.objects.count()
+        )
+
+        replacement = CustomField.objects.create(
+            name='recycled_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        with assert_aborts(self):
+            replacement.object_types.set([self.object_type])
+
+        # Once the purge completes the name is free again, and the new field starts out empty
+        run_pending_cf_purges()
+        replacement.object_types.set([self.object_type])
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='recycled_field').count(),
+            0
+        )
+
+    def test_name_reuse_allowed_for_unaffected_object_types(self):
+        """
+        The guard is scoped to the object types actually awaiting cleanup; an unrelated one is
+        unaffected.
+        """
+        cf = CustomField.objects.create(
+            name='scoped_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        # Racks were never assigned the original field, so nothing can be inherited there
+        rack_type = ObjectType.objects.get_for_model(Rack)
+        replacement = CustomField.objects.create(
+            name='scoped_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        replacement.object_types.set([rack_type])
+
+        self.assertEqual(list(replacement.object_types.values_list('pk', flat=True)), [rack_type.pk])
+
+        # The purge is still outstanding, and still guards the object type it actually covers
+        self.assertEqual(
+            len(CustomFieldDataJob.get_pending_purges('scoped_field', [self.object_type])),
+            1
+        )
+        self.assertEqual(CustomFieldDataJob.get_pending_purges('scoped_field', [rack_type]), [])
+
+    def test_name_reuse_blocked_after_failed_purge(self):
+        """
+        A purge which errored (or which no worker ever picked up) has left data behind just as
+        surely as one still queued, so it must keep blocking reuse of the name. The stalled job is
+        resubmitted, so that a failed cleanup does not block the name permanently.
+        """
+        cf = CustomField.objects.create(
+            name='stuck_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'stuck_field'})
+        job.status = JobStatusChoices.STATUS_ERRORED
+        job.started = timezone.now()
+        job.completed = timezone.now()
+        job.error = 'Something went wrong'
+        job.save()
+
+        replacement = CustomField.objects.create(
+            name='stuck_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        with patch('extras.jobs.django_rq.get_queue') as get_queue:
+            with assert_aborts(self):
+                replacement.object_types.set([self.object_type])
+
+        # The stalled job was resubmitted for execution. Note that this happens in Redis rather
+        # than the database, as the abort rolls back the transaction.
+        get_queue.return_value.enqueue.assert_called_once()
+        kwargs = get_queue.return_value.enqueue.call_args.kwargs
+        self.assertEqual(kwargs['job_id'], str(job.job_id))
+
+        # The previous attempt's execution state was cleared on the instance handed to RQ, so that
+        # the worker records the new attempt rather than skipping Job.start() and reporting the old
+        # error against it
+        requeued = kwargs['job']
+        self.assertEqual(requeued.status, JobStatusChoices.STATUS_PENDING)
+        self.assertIsNone(requeued.started)
+        self.assertIsNone(requeued.completed)
+        self.assertEqual(requeued.error, '')
+        self.assertEqual(requeued.data[CUSTOMFIELD_DATA_JOB_KEY]['custom_field_name'], 'stuck_field')
+
+    def test_rename_into_pending_name_blocked(self):
+        """
+        A rename claims the new name just as an assignment does: it must be refused while data for
+        a previous field of that name is still being purged, as the renamed field would otherwise
+        adopt those values and then have them deleted when the purge runs.
+        """
+        cf = CustomField.objects.create(
+            name='retired_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        replacement = CustomField.objects.create(
+            name='live_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        replacement.object_types.set([self.object_type])
+
+        replacement.name = 'retired_field'
+        with assert_aborts(self):
+            replacement.save()
+
+        # The rename was rolled back
+        replacement = CustomField.objects.get(pk=replacement.pk)
+        self.assertEqual(replacement.name, 'live_field')
+
+        # Once the purge completes the name is free, and the renamed field starts out empty
+        run_pending_cf_purges()
+        replacement.name = 'retired_field'
+        replacement.save()
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='retired_field').count(),
+            0
+        )
+
+    def test_rename_allowed_for_unaffected_object_types(self):
+        """
+        As with assignment, the guard on renaming is scoped to the object types awaiting cleanup.
+        """
+        cf = CustomField.objects.create(
+            name='retired_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        # Racks were never assigned the original field, so nothing can be inherited there
+        replacement = CustomField.objects.create(
+            name='live_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        replacement.object_types.set([ObjectType.objects.get_for_model(Rack)])
+        replacement.name = 'retired_field'
+        replacement.save()
+
+        replacement.refresh_from_db()
+        self.assertEqual(replacement.name, 'retired_field')
+
+        # The original field's data is still awaiting its purge, untouched by the rename
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__retired_field='old value').count(),
+            Site.objects.count()
+        )
+
+    def test_clearing_object_types_is_deferred(self):
+        """
+        clear() unassigns every object type at once and reports no pk_set, so it must be handled
+        before the fact. Its data is purged just as remove()'s is.
+        """
+        cf = CustomField.objects.create(
+            name='cleared_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='baz'
+        )
+        cf.object_types.set([self.object_type])
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='cleared_field').count(),
+            Site.objects.count()
+        )
+
+        cf.object_types.clear()
+
+        # As with remove(), the data outlives the assignment until the job runs
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='cleared_field').count(),
+            Site.objects.count()
+        )
+        run_pending_cf_purges()
+        self.assertEqual(
+            Site.objects.filter(custom_field_data__has_key='cleared_field').count(),
+            0
+        )
+
+    def test_batch_update_excludes_rows_which_no_longer_match(self):
+        """
+        A caller's filters must constrain the UPDATE as well as the selection of each batch.
+        rename_object_data() builds a jsonb_set() expression which evaluates to NULL for a row not
+        holding the key being renamed, so a row which loses it between the two statements would
+        otherwise have its entire custom_field_data column nulled out.
+        """
+        cf = CustomField.objects.create(
+            name='drifting_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        cf.object_types.set([self.object_type])
+
+        sites = list(Site.objects.order_by('pk'))
+        holder, bystander = sites[0], sites[-1]
+        Site.objects.filter(pk=holder.pk).update(custom_field_data={'drifting_field': 'value'})
+        Site.objects.filter(pk=bystander.pk).update(custom_field_data={'other': 'untouched'})
+
+        # Simulate a concurrent write: the batch selection yields a pk which no longer satisfies
+        # the has_key filter by the time the UPDATE is issued.
+        select_pks = QuerySet.values_list
+        injected = []
+
+        def inject_stale_pk(self, *args, **kwargs):
+            result = select_pks(self, *args, **kwargs)
+            if self.model is Site and args == ('pk',) and kwargs.get('flat') and not injected:
+                injected.append(bystander.pk)
+                return [*result, bystander.pk]
+            return result
+
+        with patch.object(QuerySet, 'values_list', inject_stale_pk):
+            cf.name = 'drifted_field'
+            cf.save()
+
+        self.assertEqual(injected, [bystander.pk], "the stale pk was never injected")
+
+        # The renamed value landed, and the bystander was left entirely alone
+        holder.refresh_from_db()
+        self.assertEqual(holder.custom_field_data, {'drifted_field': 'value'})
+        bystander.refresh_from_db()
+        self.assertEqual(bystander.custom_field_data, {'other': 'untouched'})
+
+    def test_enqueue_purge_does_not_clobber_a_finished_job(self):
+        """
+        Job.enqueue() dispatches to RQ via transaction.on_commit(), which fires immediately when no
+        transaction is open, so a worker can run the job to completion before enqueue_purge()
+        records its target. Writing the whole row back at that point would roll the job's status
+        back to pending and block reuse of the field's name indefinitely.
+        """
+        enqueue = CustomFieldDataJob.enqueue
+
+        def enqueue_and_complete(*args, **kwargs):
+            job = enqueue(*args, **kwargs)
+            # Stand in for a worker which picks the job up and finishes it straight away
+            Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_COMPLETED)
+            return job
+
+        with patch.object(CustomFieldDataJob, 'enqueue', enqueue_and_complete):
+            job = CustomFieldDataJob.enqueue_purge('ghost_field', [self.object_type])
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(job.data[CUSTOMFIELD_DATA_JOB_KEY]['custom_field_name'], 'ghost_field')
+
+        # A completed purge does not block reuse of the name
+        self.assertEqual(
+            CustomFieldDataJob.get_pending_purges('ghost_field', [self.object_type]),
+            []
+        )
+
+    def test_purge_job_is_attributed_to_the_current_user(self):
+        """
+        The user making the change is the party being asked to wait for the purge, so the job is
+        attributed to them where a request context is available.
+        """
+        user = User.objects.create_user(username='cf_purger')
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = user
+
+        cf = CustomField.objects.create(
+            name='attributed_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        cf.object_types.set([self.object_type])
+
+        token = current_request.set(request)
+        try:
+            cf.delete()
+        finally:
+            current_request.reset(token)
+
+        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'attributed_field'})
+        self.assertEqual(job.user, user)
+
+    def test_purge_job_has_no_user_outside_a_request(self):
+        """
+        Outside a request (e.g. under nbshell) there is nobody to attribute the job to.
+        """
+        cf = CustomField.objects.create(
+            name='unattributed_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'unattributed_field'})
+        self.assertIsNone(job.user)
+
+    def test_table_ordering_groups_objects_with_no_value(self):
+        """
+        Objects holding no value sort together regardless of whether they store a JSON null or
+        carry no key at all, and numeric fields still sort numerically rather than lexically.
+        """
+        cf = CustomField.objects.create(
+            name='sort_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER
+        )
+        cf.object_types.set([self.object_type])
+
+        sites = list(Site.objects.order_by('name'))
+        # Site A holds a value, Site B an explicit null, Site C no key whatsoever
+        Site.objects.filter(pk=sites[0].pk).update(custom_field_data={'sort_field': 20})
+        Site.objects.filter(pk=sites[1].pk).update(custom_field_data={'sort_field': None})
+        Site.objects.filter(pk=sites[2].pk).update(custom_field_data={})
+        extra = Site.objects.create(
+            name='Site D', slug='site-d', custom_field_data={'sort_field': 100}
+        )
+
+        column = SiteTable(Site.objects.none()).columns['cf_sort_field'].column
+
+        ordered, _applied = column.order(Site.objects.all(), is_descending=False)
+        self.assertEqual(
+            [s.pk for s in ordered][:2],
+            [sites[0].pk, extra.pk],
+            "20 must sort before 100 (numerically, not lexically) ahead of the empty rows"
+        )
+        self.assertEqual(
+            {s.pk for s in ordered[2:]},
+            {sites[1].pk, sites[2].pk},
+            "the JSON-null and missing-key rows must group together at the end"
+        )
+
+        ordered, _applied = column.order(Site.objects.all(), is_descending=True)
+        self.assertEqual([s.pk for s in ordered][:2], [extra.pk, sites[0].pk])
+        self.assertEqual({s.pk for s in ordered[2:]}, {sites[1].pk, sites[2].pk})
 
     def test_default_value_validation(self):
         choiceset = CustomFieldChoiceSet.objects.create(
@@ -813,6 +1289,75 @@ class CustomFieldTestCase(TestCase):
                 name='test', type=CustomFieldTypeChoices.TYPE_JSON,
                 validation_schema=schema, default={'age': 25}
             ).full_clean()
+
+
+class PendingPurgeGuardMixin:
+    """
+    Set up a deleted CustomField whose data has yet to be purged, leaving its name unavailable.
+    """
+    def setUp(self):
+        super().setUp()
+
+        self.object_type = ObjectType.objects.get_for_model(Site)
+        Site.objects.create(name='Site A', slug='site-a')
+
+        cf = CustomField.objects.create(
+            name='reclaimed_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='old value'
+        )
+        cf.object_types.set([self.object_type])
+        cf.delete()
+
+
+class CustomFieldPendingPurgeViewTestCase(PendingPurgeGuardMixin, TestCase):
+    """
+    The guard against claiming a name whose data is still being purged is raised from a signal
+    handler, so verify that the UI surfaces it as a form error rather than a server error.
+    """
+    def test_creation_reports_a_form_error(self):
+        self.add_permissions('extras.add_customfield')
+
+        form_data = {
+            'name': 'reclaimed_field',
+            'label': 'Reclaimed',
+            'type': CustomFieldTypeChoices.TYPE_TEXT,
+            'object_types': [self.object_type.pk],
+            'search_weight': 1000,
+            'filter_logic': CustomFieldFilterLogicChoices.FILTER_LOOSE,
+            'weight': 100,
+            'ui_visible': CustomFieldUIVisibleChoices.ALWAYS,
+            'ui_editable': CustomFieldUIEditableChoices.YES,
+        }
+        response = self.client.post(reverse('extras:customfield_add'), data=post_data(form_data))
+
+        # The form is redisplayed carrying the error, rather than the request failing outright
+        self.assertHttpStatus(response, 200)
+        self.assertIn('still being removed', response.content.decode())
+
+        # The abort rolled the whole request back, so no field was created
+        self.assertFalse(CustomField.objects.filter(name='reclaimed_field').exists())
+
+
+class CustomFieldPendingPurgeAPITestCase(PendingPurgeGuardMixin, APITestCase):
+    """
+    As above, but for the REST API: the guard must produce a 400, not a 500.
+    """
+    model = CustomField
+
+    def test_creation_reports_a_validation_error(self):
+        self.add_permissions('extras.add_customfield')
+
+        data = {
+            'name': 'reclaimed_field',
+            'type': CustomFieldTypeChoices.TYPE_TEXT,
+            'object_types': ['dcim.site'],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('still being removed', str(response.data))
+        self.assertFalse(CustomField.objects.filter(name='reclaimed_field').exists())
 
 
 class CustomFieldManagerTestCase(TestCase):
@@ -1979,12 +2524,14 @@ class CustomFieldModelFilterTestCase(TestCase):
                 'cf11': manufacturers[2].pk,
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
+            # Carries no custom field data at all. Negated lookups ("is not x") match it, as they
+            # do an object holding an explicit null; see MissingKeyAwareFilterMixin.
             Site(name='Site 4', slug='site-4'),
         ])
 
     def test_filter_integer(self):
         self.assertEqual(self.filterset({'cf_cf1': [100, 200]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf1__n': [200]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf1__n': [200]}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf1__gt': [200]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf1__gte': [200]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
@@ -1993,7 +2540,7 @@ class CustomFieldModelFilterTestCase(TestCase):
 
     def test_filter_decimal(self):
         self.assertEqual(self.filterset({'cf_cf2': [100.1, 200.2]}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf2__n': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__n': [200.2]}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf2__gt': [200.2]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf2__gte': [200.2]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf2__lt': [200.2]}, self.queryset).qs.count(), 1)
@@ -2006,15 +2553,15 @@ class CustomFieldModelFilterTestCase(TestCase):
 
     def test_filter_text_strict(self):
         self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf4__n': ['foo']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__n': ['foo']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf4__ic': ['foo']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf4__nic': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__nic': ['foo']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf4__isw': ['foo']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf4__nisw': ['foo']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__nisw': ['foo']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf4__iew': ['bar']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf4__niew': ['bar']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf4__niew': ['bar']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf4__ie': ['FOO']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf4__nie': ['FOO']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__nie': ['FOO']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf4__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_text_loose(self):
@@ -2022,7 +2569,7 @@ class CustomFieldModelFilterTestCase(TestCase):
 
     def test_filter_date(self):
         self.assertEqual(self.filterset({'cf_cf6': ['2016-06-26', '2016-06-27']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf6__n': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__n': ['2016-06-27']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf6__gt': ['2016-06-27']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf6__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf6__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
@@ -2034,19 +2581,52 @@ class CustomFieldModelFilterTestCase(TestCase):
             self.filterset({'cf_cf7': ['http://a.example.com', 'http://b.example.com']}, self.queryset).qs.count(),
             2
         )
-        self.assertEqual(self.filterset({'cf_cf7__n': ['http://b.example.com']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__n': ['http://b.example.com']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf7__ic': ['b']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf7__nic': ['b']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__nic': ['b']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf7__isw': ['http://']}, self.queryset).qs.count(), 3)
-        self.assertEqual(self.filterset({'cf_cf7__nisw': ['http://']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf7__nisw': ['http://']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__iew': ['.com']}, self.queryset).qs.count(), 3)
-        self.assertEqual(self.filterset({'cf_cf7__niew': ['.com']}, self.queryset).qs.count(), 0)
+        self.assertEqual(self.filterset({'cf_cf7__niew': ['.com']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
-        self.assertEqual(self.filterset({'cf_cf7__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 3)
         self.assertEqual(self.filterset({'cf_cf7__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_url_loose(self):
         self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
+
+    def test_filter_negation_matches_unset_values(self):
+        """
+        A negated lookup must match an object which holds no value for the field, whether that is
+        recorded as an explicit null or by the absence of the key; see MissingKeyAwareFilterMixin.
+        """
+        no_key = Site.objects.get(slug='site-4')
+        explicit_null = Site.objects.create(name='Site 5', slug='site-5', custom_field_data={
+            'cf1': None,
+            'cf4': None,
+            'cf6': None,
+            'cf7': None,
+        })
+
+        for filter_name, value in (
+            ('cf_cf1__n', 100),
+            ('cf_cf4__n', 'foo'),
+            ('cf_cf4__nic', 'foo'),
+            ('cf_cf4__nisw', 'foo'),
+            ('cf_cf4__niew', 'bar'),
+            ('cf_cf4__nie', 'FOO'),
+            ('cf_cf6__n', '2016-06-26'),
+            ('cf_cf7__n', 'http://a.example.com'),
+            ('cf_cf7__nic', 'a'),
+            ('cf_cf7__nisw', 'http://'),
+            ('cf_cf7__niew', '.com'),
+        ):
+            with self.subTest(filter_name):
+                pks = set(
+                    self.filterset({filter_name: [value]}, self.queryset).qs.values_list('pk', flat=True)
+                )
+                self.assertIn(no_key.pk, pks, "an object carrying no key must match")
+                self.assertIn(explicit_null.pk, pks, "an object holding a null must match")
 
     def test_filter_select(self):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)

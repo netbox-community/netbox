@@ -30,6 +30,25 @@ Marking a field as required will force the user to provide a value for the field
 
 A custom field must be assigned to one or more object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
 
+### Creating Custom Fields
+
+Unless the field has been assigned a default value, creating a custom field does not write a value to the objects which already exist. An object which has never been assigned a value simply stores nothing for the field, and reports the field as having no value (or its default, where one is defined later) in the web UI, REST API, and exports, exactly as if it stored an explicit null.
+
+This matters only if you query the underlying `custom_field_data` JSON directly, for example in a custom script. The field's key is absent from an object's data until a value is assigned to it, so read it with `obj.cf['field_name']` or `obj.custom_field_data.get('field_name')` rather than by direct subscript.
+
+Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time.
+
+Adding a required custom field does not retroactively invalidate the objects which already exist. Because no value is written to them, the requirement is enforced when an object is created, and by the web UI whenever an object is edited through a form; an object which predates the field can still be saved without a value from a custom script or via the REST API. Assign the field a default value if every object must carry one.
+
+### Deleting Custom Fields
+
+Removing a custom field, or unassigning it from an object type, leaves behind the values previously stored on each object. These are purged by a background job rather than as part of the request, as the number of objects involved can be very large. The values are inert in the meantime: the field no longer appears in the web UI, REST API, or exports.
+
+Because that cleanup is deferred, a custom field's name cannot be reused for the affected object types until it finishes — otherwise the new field would silently inherit the old field's values. Attempting to claim the name, whether by creating a new field or by renaming an existing one, is rejected with an error until the job completes. The job's progress can be tracked under Operations > Jobs.
+
+!!! note
+    This requires that at least one [background worker](../features/background-jobs.md) be running. If no worker is available the cleanup job remains queued, and the field's name stays unavailable for reuse until it runs. A cleanup job which stops before completing is resubmitted automatically the next time the name is claimed.
+
 ### Filtering
 
 The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.

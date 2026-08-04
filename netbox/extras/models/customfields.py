@@ -8,9 +8,8 @@ import jsonschema
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
-from django.db import models, transaction
+from django.db import models
 from django.db.models import F, Func, Value
-from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -326,41 +325,59 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         return None
 
     @staticmethod
-    def _update_object_data(model, **update_kwargs):
+    def _update_object_data(model, filters=None, **update_kwargs):
         """
         Apply an UPDATE to the custom_field_data of every instance of the given model in batches,
         bounding the number of rows touched by each statement. A single unbounded UPDATE across
         millions of rows can exceed the database statement timeout, because JSONB updates rewrite
         each affected row in full. Batches are selected via keyset pagination on the primary key.
 
-        The batched updates are wrapped in a transaction so that the operation remains atomic, as
-        it was when performed by a single UPDATE. This guards against partially-applied data (e.g.
-        a renamed field landing on only some objects) should the loop be interrupted when not
-        already running inside a request's transaction. Batching avoids the statement timeout
-        regardless, as that limit applies per statement rather than per transaction.
+        The batches are not wrapped in a transaction of their own. A caller running inside a
+        request's transaction (e.g. provisioning initial data as a field is created) still gets one
+        all-or-nothing operation, but the background purge job does not: each batch commits as it
+        completes, so a job killed at its execution timeout leaves the work done so far in place
+        instead of discarding it, and holds no long-running transaction against a very large table
+        while it runs. Both key removal and renaming filter on the presence of the key being
+        replaced, so a subsequent run resumes where the previous one stopped.
+
+        :param filters: Optional dict of ORM filters restricting which rows are updated. Callers
+            which only need to touch rows already holding a given key should pass
+            `{'custom_field_data__has_key': ...}`; because keys are materialized only when a value
+            is actually set (see populate_initial_data()), this typically excludes the bulk of the
+            table.
+
+            The filters are applied to the UPDATE as well as to the selection of each batch, not
+            merely as an optimization: rename_object_data() builds a jsonb_set() expression which
+            evaluates to NULL for a row not holding the key, so a row which loses it between the
+            two statements would otherwise have its entire custom_field_data nulled out.
         """
-        with transaction.atomic():
-            last_pk = 0
-            while True:
-                pks = list(
-                    model.objects.filter(pk__gt=last_pk).order_by('pk')
-                    .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
-                )
-                if not pks:
-                    break
-                model.objects.filter(pk__in=pks).update(**update_kwargs)
-                last_pk = pks[-1]
+        filters = filters or {}
+        queryset = model.objects.filter(**filters)
+        last_pk = 0
+        while True:
+            pks = list(
+                queryset.filter(pk__gt=last_pk).order_by('pk')
+                .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
+            )
+            if not pks:
+                break
+            queryset.filter(pk__in=pks).update(**update_kwargs)
+            last_pk = pks[-1]
 
     def populate_initial_data(self, content_types):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
         b) the assignment of an existing CustomField to new object types.
+
+        Only a non-null default is written. A field with no default has no value to record, and an
+        absent key is equivalent to a null one everywhere the data is read (see CustomFieldsMixin),
+        so materializing a JSON null on every object would be a very expensive no-op: on a large
+        table it can outlast the request. Objects without the key simply report no value until one
+        is assigned.
         """
         if self.default is None:
-            # We have to convert None to a JSON null for jsonb_set()
-            value = RawSQL("'null'::jsonb", [])
-        else:
-            value = Value(self.default, models.JSONField())
+            return
+        value = Value(self.default, models.JSONField())
         for ct in content_types:
             if model := ct.model_class():
                 self._update_object_data(
@@ -373,16 +390,20 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                     )
                 )
 
-    def remove_stale_data(self, content_types):
+    @classmethod
+    def purge_object_data(cls, name, content_types):
         """
-        Delete custom field data which is no longer relevant (either because the CustomField is
-        no longer assigned to a model, or because it has been deleted).
+        Delete stored data for the named custom field from all objects of the given types.
+
+        Keyed on the field's name rather than on a CustomField instance so that this can run after
+        the field itself has been deleted (see extras.jobs.CustomFieldDataJob).
         """
         for ct in content_types:
             if model := ct.model_class():
-                self._update_object_data(
+                cls._update_object_data(
                     model,
-                    custom_field_data=F('custom_field_data') - self.name
+                    filters={'custom_field_data__has_key': name},
+                    custom_field_data=F('custom_field_data') - name
                 )
 
     def rename_object_data(self, old_name, new_name):
@@ -394,13 +415,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             if model := ct.model_class():
                 self._update_object_data(
                     model,
+                    filters={'custom_field_data__has_key': old_name},
                     custom_field_data=Func(
                         F('custom_field_data') - old_name,
                         Value([new_name]),
                         Func(
                             F('custom_field_data'),
-                            function='jsonb_extract_path_text',
-                            template=f"to_jsonb(%(expressions)s -> '{old_name}')"
+                            Value(old_name),
+                            function='jsonb_extract_path',
+                            output_field=models.JSONField()
                         ),
                         function='jsonb_set')
                 )
@@ -705,6 +728,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
         :param lookup_expr: Custom lookup expression (optional)
         """
+        # Imported locally as extras.filters imports extras.models
+        from extras.filters import missing_key_aware_filter_factory
+
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
@@ -769,6 +795,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         # Unsupported custom field type
         else:
             return None
+
+        # A negated lookup must match objects which carry no key for this field at all; see
+        # MissingKeyAwareFilterMixin. BooleanFilter is never negated, so it is left alone.
+        if filter_class is not django_filters.BooleanFilter:
+            filter_class = missing_key_aware_filter_factory(filter_class)
 
         filter_instance = filter_class(**kwargs)
         filter_instance.custom_field = self
