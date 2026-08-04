@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
@@ -333,6 +334,17 @@ class WebhookPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
+class WebhookTimeoutAttr(attrs.TextAttr):
+    """
+    Render a webhook's timeout. Webhooks which do not define their own timeout fall back to the globally
+    configured default, which is displayed (and annotated as such) in place of an empty value.
+    """
+    def get_value(self, obj):
+        if obj.timeout is not None:
+            return _('{timeout} seconds').format(timeout=obj.timeout)
+        return _('{timeout} seconds (default)').format(timeout=settings.WEBHOOK_DEFAULT_TIMEOUT)
+
+
 class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     title = _('HTTP Request')
 
@@ -340,7 +352,7 @@ class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     payload_url = attrs.TextAttr('payload_url', label=_('Payload URL'), style='font-monospace')
     http_content_type = attrs.TextAttr('http_content_type', label=_('HTTP content type'))
     secret = attrs.TextAttr('secret')
-    timeout = attrs.TextAttr('timeout', format_string=_('{} seconds'))
+    timeout = WebhookTimeoutAttr('timeout')
 
 
 class WebhookSSLPanel(panels.ObjectAttributesPanel):
