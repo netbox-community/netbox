@@ -153,7 +153,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -293,7 +293,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -415,7 +415,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -435,7 +435,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -503,7 +503,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (
@@ -663,7 +663,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(0)],
+                        validators=[django.core.validators.MinValueValidator(1)],
                     ),
                 ),
                 (

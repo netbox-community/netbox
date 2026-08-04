@@ -1180,7 +1180,7 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     )
     max_flow = forms.DecimalField(
         label=_('Max flow'),
-        min_value=0,
+        min_value=1,
         required=False
     )
     max_flow_unit = forms.ChoiceField(
@@ -1365,7 +1365,7 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
-        min_value=0,
+        min_value=1,
         required=False
     )
     diameter_unit = forms.ChoiceField(
@@ -1375,7 +1375,7 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     max_flow = forms.DecimalField(
         label=_('Max flow'),
-        min_value=0,
+        min_value=1,
         required=False
     )
     max_flow_unit = forms.ChoiceField(
@@ -1426,7 +1426,7 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
-        min_value=0,
+        min_value=1,
         required=False
     )
     diameter_unit = forms.ChoiceField(

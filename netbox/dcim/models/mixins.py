@@ -240,7 +240,7 @@ class InterfaceValidationMixin:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
 
 
-class CoolingLoopValidationMixin(models.Model):
+class CoolingLoopValidationMixin:
     """
     Adds loop detection to the coolant chain formed by cooling intakes and outflows. A CoolingIntake is supplied
     by an upstream CoolingOutflow (via `cooling_outflow`), which may in turn be supplied by an upstream
@@ -252,9 +252,6 @@ class CoolingLoopValidationMixin(models.Model):
     module is imported by the ones defining them.)
     """
     upstream_field = None
-
-    class Meta:
-        abstract = True
 
     @classmethod
     def _get_upstream_field(cls):
@@ -293,7 +290,7 @@ class DiameterMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(1)],
     )
     diameter_unit = models.CharField(
         verbose_name=_('diameter unit'),
@@ -355,7 +352,7 @@ class MaxFlowMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(1)],
     )
     max_flow_unit = models.CharField(
         verbose_name=_('max flow unit'),

@@ -29,11 +29,11 @@ The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded N
 
 ### Diameter
 
-The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches).
+The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches). Must be at least 1 in the selected unit, or left blank.
 
 ### Maximum Flow
 
-The maximum coolant flow rate this port supports, expressed as a numeric value with a selectable unit (liters per minute, cubic meters per hour, or gallons per minute).
+The maximum coolant flow rate this port supports, expressed as a numeric value with a selectable unit (liters per minute, cubic meters per hour, or gallons per minute). Must be at least 1 in the selected unit, or left blank.
 
 ### Cooling Outflow
 
