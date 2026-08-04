@@ -491,6 +491,9 @@ class WebhookTable(NetBoxTable):
     ssl_verification = columns.BooleanColumn(
         verbose_name=_('SSL Verification'),
     )
+    timeout = tables.Column(
+        verbose_name=_('Timeout (sec)'),
+    )
     owner = tables.Column(
         linkify=True,
         verbose_name=_('Owner')
