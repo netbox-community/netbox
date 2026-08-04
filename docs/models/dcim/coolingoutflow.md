@@ -31,7 +31,7 @@ The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded N
 
 ### Diameter
 
-The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches). Must be at least 1 in the selected unit, or left blank.
+The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches). Must be a positive, non-zero value in the selected unit, or left blank.
 
 ### Cooling Intake
 

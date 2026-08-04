@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import django.core.validators
 import django.db.models.deletion
 import taggit.managers
@@ -153,7 +155,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -173,7 +175,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -293,7 +295,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -415,7 +417,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -435,7 +437,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -503,7 +505,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (
@@ -663,7 +665,7 @@ class Migration(migrations.Migration):
                         decimal_places=2,
                         max_digits=8,
                         null=True,
-                        validators=[django.core.validators.MinValueValidator(1)],
+                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
                     ),
                 ),
                 (

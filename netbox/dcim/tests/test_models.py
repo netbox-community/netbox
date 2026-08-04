@@ -3305,8 +3305,9 @@ class CoolingComponentTestCase(TestCase):
 
     def test_measurements_below_minimum_rejected(self):
         """
-        A diameter or flow rate below the permitted minimum of 1 should raise a ValidationError (via
-        MinValueValidator) rather than a raw ValueError from the unit conversion in save().
+        A populated diameter or flow rate must be positive and non-zero: anything below the smallest storable
+        value (0.01) should raise a ValidationError (via MinValueValidator) rather than a raw ValueError from
+        the unit conversion in save().
         """
         device_type = DeviceType.objects.create(
             manufacturer=self.manufacturer, model='Device Type 8', slug='device-type-8'
@@ -3318,7 +3319,7 @@ class CoolingComponentTestCase(TestCase):
             site=self.site, name='Cooling Source F', type=CoolingSourceTypeChoices.TYPE_CHILLER
         )
 
-        for value in (Decimal('-5'), Decimal('0'), Decimal('0.5')):
+        for value in (Decimal('-5'), Decimal('0')):
             with self.subTest(diameter=value):
                 cooling_intake = CoolingIntake(
                     device=device,
@@ -3353,10 +3354,28 @@ class CoolingComponentTestCase(TestCase):
         CoolingIntake(
             device=device,
             name='Cooling Port 1',
-            diameter=Decimal('1'),
+            diameter=Decimal('0.01'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
-            max_flow=Decimal('1'),
+            max_flow=Decimal('0.01'),
             max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        ).full_clean()
+
+        # Sub-unit values are permitted: fractional-inch fittings (e.g. 1/2" NPT) and cold plates rated below
+        # one gallon per minute are both commonplace.
+        CoolingIntake(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('0.5'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('0.75'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+        ).full_clean()
+
+        CoolingFeed(
+            cooling_source=cooling_source,
+            name='Cooling Feed F',
+            max_flow=Decimal('0.5'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
         ).full_clean()
 
     def test_parent_intake_resolved_on_device_instantiation(self):

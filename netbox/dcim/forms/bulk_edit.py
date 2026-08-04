@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -1180,7 +1182,7 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     )
     max_flow = forms.DecimalField(
         label=_('Max flow'),
-        min_value=1,
+        min_value=Decimal('0.01'),
         required=False
     )
     max_flow_unit = forms.ChoiceField(
@@ -1365,7 +1367,7 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
-        min_value=1,
+        min_value=Decimal('0.01'),
         required=False
     )
     diameter_unit = forms.ChoiceField(
@@ -1375,7 +1377,7 @@ class CoolingIntakeTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     max_flow = forms.DecimalField(
         label=_('Max flow'),
-        min_value=1,
+        min_value=Decimal('0.01'),
         required=False
     )
     max_flow_unit = forms.ChoiceField(
@@ -1426,7 +1428,7 @@ class CoolingOutflowTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     )
     diameter = forms.DecimalField(
         label=_('Diameter'),
-        min_value=1,
+        min_value=Decimal('0.01'),
         required=False
     )
     diameter_unit = forms.ChoiceField(

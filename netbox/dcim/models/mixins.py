@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
@@ -290,7 +292,7 @@ class DiameterMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(Decimal('0.01'))],
     )
     diameter_unit = models.CharField(
         verbose_name=_('diameter unit'),
@@ -352,7 +354,7 @@ class MaxFlowMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(Decimal('0.01'))],
     )
     max_flow_unit = models.CharField(
         verbose_name=_('max flow unit'),
