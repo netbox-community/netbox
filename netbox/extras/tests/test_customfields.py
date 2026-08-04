@@ -3,7 +3,9 @@ import json
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
@@ -1163,10 +1165,54 @@ class CustomFieldAPITestCase(APITestCase):
         response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
+        self.assertNotIn('errors', data)
         self.assertEqual(data['data']['site']['custom_fields']['select_field'], {
             'value': 'stale',
             'label': 'stale',
         })
+
+    def test_graphql_non_selection_fields_pass_through_unchanged(self):
+        """Non-selection field types are returned by GraphQL as stored, untouched by label resolution."""
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['text_field'], 'bar')
+        self.assertEqual(custom_fields['integer_field'], 456)
+        self.assertEqual(custom_fields['boolean_field'], True)
+
+    def test_graphql_selection_field_list_query_is_not_n_plus_one(self):
+        """
+        Resolving selection labels for a list of objects must not issue additional queries per
+        object as the list grows (see #20897).
+        """
+        self.add_permissions('dcim.view_site')
+        query = '{ site_list { custom_fields } }'
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 8)])
+        # Prime any process-level caches (e.g. Django's ContentType cache) outside the measured
+        # request, so the comparison below isn't skewed by one-time cache-warming queries.
+        self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        baseline_query_count = len(ctx.captured_queries)
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(8, 13)])
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(
+            len(ctx.captured_queries), baseline_query_count,
+            "custom_fields label resolution should not scale with the number of objects returned"
+        )
 
     @tag('regression')
     def test_update_selection_field_rejects_read_format(self):

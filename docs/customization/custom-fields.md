@@ -135,3 +135,5 @@ To set or change these values, simply include nested JSON data. For example:
 ```
 
 As with built-in choice fields, selection custom fields are written by passing the raw value (e.g. `"site_type": "datacenter"`), not the `{value, label}` object returned on read.
+
+The GraphQL API's `custom_fields` field resolves selection and multiple selection values to the same `{value, label}` representation.

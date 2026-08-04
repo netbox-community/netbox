@@ -77,7 +77,9 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type).select_related('related_object_type')
+        custom_fields = self.get_queryset().filter(object_types=content_type).select_related(
+            'related_object_type', 'choice_set'
+        )
 
         # Populate the request cache to avoid redundant lookups
         if cache is not None:
@@ -333,8 +335,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         For a Selection or Multiple selection field, wrap the raw stored value(s) with their resolved
         label(s) as {'value': ..., 'label': ...} (a list thereof for multi-select), matching the shape
         used for NetBox's built-in choice fields. Any other field type is returned unchanged. Shared by
-        the REST API (CustomFieldsDataField) and GraphQL (CustomFieldsMixin) so the two stay consistent
-        with each other (#20897).
+        the REST API (CustomFieldsDataField) and GraphQL (CustomFieldsMixin) so selection labels are
+        resolved the same way on both (#20897); other representational differences between the two APIs
+        (e.g. handling of unset fields, object/multi-object and date fields) are unaffected by this method.
         """
         if value is None:
             return value
