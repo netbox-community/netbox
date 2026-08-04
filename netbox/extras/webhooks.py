@@ -116,6 +116,14 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, request=N
     # Determine the request timeout, preferring the webhook-specific value over the global default
     timeout = webhook.timeout if webhook.timeout is not None else settings.WEBHOOK_DEFAULT_TIMEOUT
 
+    # Webhook.clean() enforces this when the webhook is saved, but RQ_DEFAULT_TIMEOUT may have been lowered since.
+    job_timeout = settings.RQ_DEFAULT_TIMEOUT
+    if isinstance(job_timeout, int) and timeout >= job_timeout:
+        logger.warning(
+            f"Webhook timeout ({timeout} seconds) is not less than the background job timeout ({job_timeout} "
+            f"seconds); the job may be terminated before the request can time out."
+        )
+
     # Send the request
     with requests.Session() as session:
         session.verify = webhook.ssl_verification

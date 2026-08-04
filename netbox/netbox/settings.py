@@ -225,7 +225,17 @@ if not isinstance(WEBHOOK_DEFAULT_TIMEOUT, int) or not 1 <= WEBHOOK_DEFAULT_TIME
     raise ImproperlyConfigured(
         f"WEBHOOK_DEFAULT_TIMEOUT must be an integer between 1 and 3600 (found {WEBHOOK_DEFAULT_TIMEOUT!r})"
     )
-# RQ also accepts a string timeout such as "1h", which we cannot compare against.
+# RQ also accepts a string timeout, which may be a plain number of seconds ("300") or a duration such as "1h".
+# Coerce the former so that webhook timeouts can still be validated against it; warn (but do not abort) for the
+# latter, which cannot be compared numerically.
+if not isinstance(RQ_DEFAULT_TIMEOUT, int):
+    try:
+        RQ_DEFAULT_TIMEOUT = int(RQ_DEFAULT_TIMEOUT)
+    except (TypeError, ValueError):
+        warnings.warn(
+            f"RQ_DEFAULT_TIMEOUT ({RQ_DEFAULT_TIMEOUT!r}) is not an integer number of seconds; webhook timeouts "
+            f"cannot be validated against it."
+        )
 if isinstance(RQ_DEFAULT_TIMEOUT, int) and WEBHOOK_DEFAULT_TIMEOUT >= RQ_DEFAULT_TIMEOUT:
     raise ImproperlyConfigured(
         f"WEBHOOK_DEFAULT_TIMEOUT ({WEBHOOK_DEFAULT_TIMEOUT}) must be less than RQ_DEFAULT_TIMEOUT "

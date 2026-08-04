@@ -327,9 +327,11 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
                 'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
             })
 
-        # A timeout which meets or exceeds the background job timeout can never take effect: the worker will
-        # terminate the job before the request itself times out. (RQ also accepts a string timeout such as "1h",
-        # which we cannot compare against; such a value is left unvalidated here.)
+        # A timeout which meets or exceeds the background job timeout leaves no room for the request's own timeout
+        # to apply: the worker will terminate the job first. (Staying below the job timeout does not guarantee that
+        # the request times out on its own, as the timeout applies separately to connecting and to reading data.
+        # RQ also accepts a duration string such as "1h", which we cannot compare against; such a value is left
+        # unvalidated here.)
         job_timeout = settings.RQ_DEFAULT_TIMEOUT
         if self.timeout is not None and isinstance(job_timeout, int) and self.timeout >= job_timeout:
             raise ValidationError({

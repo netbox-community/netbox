@@ -10,7 +10,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase, tag
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.urls import reverse
 from PIL import Image
 from requests import Session
@@ -508,6 +508,41 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         job = self.queue.jobs[0]
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
+
+    @override_settings(RQ_DEFAULT_TIMEOUT=10)
+    def test_send_webhook_timeout_exceeding_job_timeout_is_logged(self):
+        """
+        A timeout which meets or exceeds the background job timeout should be logged as a warning. This can
+        occur when RQ_DEFAULT_TIMEOUT has been lowered after the webhook was saved, which Webhook.clean()
+        cannot catch.
+        """
+        webhook = Webhook.objects.get(name='Webhook 1')
+        webhook.timeout = 30
+        webhook.save()
+
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        webhooks_queue = {}
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        enqueue_event(
+            webhooks_queue,
+            instance=site,
+            request=request,
+            event_type=OBJECT_CREATED,
+        )
+        flush_events(list(webhooks_queue.values()))
+
+        job = self.queue.jobs[0]
+        with patch.object(Session, 'send', lambda _, request, **kwargs: HttpResponse()):
+            with self.assertLogs('netbox.webhooks', level='WARNING') as cm:
+                send_webhook(**job.kwargs)
+
+        self.assertIn(
+            'Webhook timeout (30 seconds) is not less than the background job timeout (10 seconds)',
+            '\n'.join(cm.output)
+        )
 
     def test_send_webhook_timeout_is_logged(self):
         """

@@ -1809,7 +1809,7 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
 
 
 @override_settings(RQ_DEFAULT_TIMEOUT=300)
-class WebhookTest(TestCase):
+class WebhookTestCase(TestCase):
 
     def test_timeout_must_be_less_than_job_timeout(self):
         """
