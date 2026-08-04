@@ -53,11 +53,13 @@ WEIGHT = """
 """
 
 DIAMETER = """
-{% if record.diameter %}{{ record.diameter }} {{ record.get_diameter_unit_display }}{% endif %}
+{% load helpers %}
+{% display_diameter record.diameter record.diameter_unit record.abs_diameter %}
 """
 
 MAX_FLOW = """
-{% if record.max_flow %}{{ record.max_flow }} {{ record.get_max_flow_unit_display }}{% endif %}
+{% load helpers %}
+{% display_flow_rate record.max_flow record.max_flow_unit record.abs_max_flow %}
 """
 
 DEVICE_LINK = """
