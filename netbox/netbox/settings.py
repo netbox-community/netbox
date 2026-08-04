@@ -225,6 +225,11 @@ if not isinstance(WEBHOOK_DEFAULT_TIMEOUT, int) or not 1 <= WEBHOOK_DEFAULT_TIME
     raise ImproperlyConfigured(
         f"WEBHOOK_DEFAULT_TIMEOUT must be an integer between 1 and 3600 (found {WEBHOOK_DEFAULT_TIMEOUT!r})"
     )
+if isinstance(RQ_DEFAULT_TIMEOUT, int) and WEBHOOK_DEFAULT_TIMEOUT >= RQ_DEFAULT_TIMEOUT:
+    raise ImproperlyConfigured(
+        f"WEBHOOK_DEFAULT_TIMEOUT ({WEBHOOK_DEFAULT_TIMEOUT}) must be less than RQ_DEFAULT_TIMEOUT "
+        f"({RQ_DEFAULT_TIMEOUT}); otherwise the background job will be terminated before the request times out."
+    )
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
 if DISK_BASE_UNIT not in [1000, 1024]:
     raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
