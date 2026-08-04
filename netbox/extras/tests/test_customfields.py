@@ -17,6 +17,7 @@ from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.context import query_cache
 from netbox.tables.columns import CustomFieldColumn
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
@@ -1211,10 +1212,12 @@ class CustomFieldAPITestCase(APITestCase):
         )
 
     def test_get_for_model_select_related_choice_set(self):
+        query_cache.set(None)
         custom_fields = list(CustomField.objects.get_for_model(Site))
         with self.assertNumQueries(0):
-            for cf in custom_fields:
-                cf.resolve_selection_value(cf.default)
+            resolved = {cf.name: cf.resolve_selection_value(cf.default) for cf in custom_fields}
+        self.assertEqual(resolved['select_field'], self._select('foo'))
+        self.assertEqual(resolved['multiselect_field'], self._multiselect(['foo']))
 
     @tag('regression')
     def test_update_selection_field_rejects_read_format(self):
