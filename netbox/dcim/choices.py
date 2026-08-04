@@ -2199,14 +2199,14 @@ class FluidTypeChoices(ChoiceSet):
 
 
 class RackCoolingCapabilityChoices(ChoiceSet):
-    AIR_ONLY = 'air-only'
-    HYBRID = 'hybrid'
-    LIQUID_ONLY = 'liquid-only'
+    CAPABILITY_AIR_ONLY = 'air-only'
+    CAPABILITY_HYBRID = 'hybrid'
+    CAPABILITY_LIQUID_ONLY = 'liquid-only'
 
     CHOICES = [
-        (AIR_ONLY, _('Air only'), 'cyan'),
-        (HYBRID, _('Hybrid'), 'blue'),
-        (LIQUID_ONLY, _('Liquid only'), 'purple'),
+        (CAPABILITY_AIR_ONLY, _('Air only'), 'cyan'),
+        (CAPABILITY_HYBRID, _('Hybrid'), 'blue'),
+        (CAPABILITY_LIQUID_ONLY, _('Liquid only'), 'purple'),
     ]
 
 

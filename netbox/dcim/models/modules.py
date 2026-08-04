@@ -296,6 +296,9 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         else:
             self.attribute_data = None
 
+    def get_cooling_method_color(self):
+        return CoolingMethodChoices.colors.get(self.cooling_method)
+
     def to_yaml(self):
         data = {
             'profile': self.profile.name if self.profile else None,

@@ -211,9 +211,9 @@ class DiameterUnitChoices(ChoiceSet):
     UNIT_INCH = 'in'
 
     CHOICES = (
-        (UNIT_MILLIMETER, _('Millimeters')),
-        (UNIT_CENTIMETER, _('Centimeters')),
-        (UNIT_INCH, _('Inches')),
+        Choice(UNIT_MILLIMETER, _('Millimeters')),
+        Choice(UNIT_CENTIMETER, _('Centimeters')),
+        Choice(UNIT_INCH, _('Inches')),
     )
 
 
@@ -227,7 +227,7 @@ class FlowRateUnitChoices(ChoiceSet):
     UNIT_GALLONS_PER_MINUTE = 'gpm'
 
     CHOICES = (
-        (UNIT_LITERS_PER_MINUTE, _('Liters per minute (L/min)')),
-        (UNIT_CUBIC_METERS_PER_HOUR, _('Cubic meters per hour (m³/h)')),
-        (UNIT_GALLONS_PER_MINUTE, _('Gallons per minute (GPM)')),
+        Choice(UNIT_LITERS_PER_MINUTE, _('Liters per minute (L/min)')),
+        Choice(UNIT_CUBIC_METERS_PER_HOUR, _('Cubic meters per hour (m³/h)')),
+        Choice(UNIT_GALLONS_PER_MINUTE, _('Gallons per minute (GPM)')),
     )

@@ -156,6 +156,9 @@ class RackBase(WeightMixin, PrimaryModel):
     class Meta:
         abstract = True
 
+    def get_cooling_capability_color(self):
+        return RackCoolingCapabilityChoices.colors.get(self.cooling_capability)
+
 
 #
 # Rack Types

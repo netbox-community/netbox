@@ -252,6 +252,9 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
 
+    def get_cooling_method_color(self):
+        return CoolingMethodChoices.colors.get(self.cooling_method)
+
     def to_yaml(self):
         data = {
             'manufacturer': self.manufacturer.name,
@@ -1202,6 +1205,9 @@ class Device(
 
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
+
+    def get_cooling_method_color(self):
+        return CoolingMethodChoices.colors.get(self.cooling_method)
 
     @cached_property
     def total_weight(self):
