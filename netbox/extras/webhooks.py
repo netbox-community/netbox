@@ -8,6 +8,7 @@ from django_rq import job
 from jinja2.exceptions import TemplateError
 
 from netbox.registry import registry
+from netbox.settings_utils import parse_job_timeout
 from utilities.proxy import resolve_proxies
 from utilities.request import get_safe_request_context
 
@@ -116,13 +117,25 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, request=N
     # Determine the request timeout, preferring the webhook-specific value over the global default
     timeout = webhook.timeout if webhook.timeout is not None else settings.WEBHOOK_DEFAULT_TIMEOUT
 
+    # Webhook.clean() enforces this when the webhook is saved, but RQ_DEFAULT_TIMEOUT may have been lowered since.
+    job_timeout = parse_job_timeout(settings.RQ_DEFAULT_TIMEOUT)
+    if job_timeout is not None and timeout >= job_timeout:
+        logger.warning(
+            f"Webhook timeout ({timeout} seconds) is not less than the background job timeout ({job_timeout} "
+            f"seconds); the job may be terminated before the request can time out."
+        )
+
     # Send the request
     with requests.Session() as session:
         session.verify = webhook.ssl_verification
         if webhook.ca_file_path:
             session.verify = webhook.ca_file_path
         proxies = resolve_proxies(url=url, context={'client': webhook})
-        response = session.send(prepared_request, proxies=proxies, timeout=timeout)
+        try:
+            response = session.send(prepared_request, proxies=proxies, timeout=timeout)
+        except requests.exceptions.Timeout:
+            logger.error(f"Request to {url} timed out after {timeout} seconds")
+            raise
 
     if 200 <= response.status_code <= 299:
         logger.info(f"Request succeeded; response status {response.status_code}")

@@ -5,12 +5,14 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import MaxValueValidator, MinValueValidator, ValidationError
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -34,6 +36,7 @@ from netbox.models.features import (
     has_feature,
 )
 from netbox.models.mixins import OwnerMixin
+from netbox.settings_utils import parse_job_timeout
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2, sanitize_http_header
 from utilities.querydict import dict_to_querydict
@@ -287,9 +290,12 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
             MinValueValidator(1),
             MaxValueValidator(3600),
         ),
-        help_text=_(
-            "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
-            "the system default (WEBHOOK_DEFAULT_TIMEOUT)."
+        help_text=format_lazy(
+            _(
+                "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
+                "the system default ({default_timeout} seconds)."
+            ),
+            default_timeout=settings.WEBHOOK_DEFAULT_TIMEOUT
         )
     )
     events = GenericRelation(
@@ -320,6 +326,17 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         if not self.ssl_verification and self.ca_file_path:
             raise ValidationError({
                 'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
+            })
+
+        # A timeout which meets or exceeds the background job timeout leaves no room for the request's own timeout
+        # to apply: the worker will terminate the job first. (Staying below the job timeout does not guarantee that
+        # the request times out on its own, as the timeout applies separately to connecting and to reading data.)
+        job_timeout = parse_job_timeout(settings.RQ_DEFAULT_TIMEOUT)
+        if self.timeout is not None and job_timeout is not None and self.timeout >= job_timeout:
+            raise ValidationError({
+                'timeout': _(
+                    "Timeout must be less than the background job timeout ({timeout} seconds)."
+                ).format(timeout=job_timeout)
             })
 
     def render_headers(self, context):
