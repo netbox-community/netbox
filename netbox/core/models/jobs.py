@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
-from django.db.models import ExpressionWrapper, F
+from django.db.models import Case, ExpressionWrapper, F, When
 from django.db.models.functions import Coalesce, Now
 from django.urls import reverse
 from django.utils import timezone
@@ -200,11 +200,19 @@ class Job(models.Model):
     def elapsed_time_expression():
         """
         A queryset expression mirroring the `elapsed_time` property, for use in ordering and
-        filtering. Resolves to null for jobs which have not yet started.
+        filtering. Resolves to null for jobs which have not yet started, and for jobs which have
+        completed without recording an execution time.
         """
         return Coalesce(
             'execution_time',
-            ExpressionWrapper(Now() - F('started'), output_field=models.DurationField()),
+            # Only a job which has yet to complete accrues elapsed time
+            Case(
+                When(
+                    completed__isnull=True,
+                    then=ExpressionWrapper(Now() - F('started'), output_field=models.DurationField()),
+                ),
+                output_field=models.DurationField(),
+            ),
         )
 
     def delete(self, *args, **kwargs):

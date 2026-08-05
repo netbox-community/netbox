@@ -418,6 +418,20 @@ class JobTestCase(TestCase):
         self.assertIsNone(job.started)
         self.assertIsNone(job.elapsed_time)
 
+    def test_elapsed_time_none_when_completed_without_execution_time(self):
+        """
+        A job which completed without recording an execution time (e.g. one predating the field)
+        has no elapsed time to report; it must not accrue time indefinitely.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now() - timedelta(seconds=90)
+        job.completed = timezone.now()
+        job.status = JobStatusChoices.STATUS_COMPLETED
+        job.save()
+
+        self.assertIsNone(job.execution_time)
+        self.assertIsNone(job.elapsed_time)
+
     def test_elapsed_time_expression_matches_property(self):
         """
         The elapsed_time_expression() queryset expression should agree with the elapsed_time
@@ -429,6 +443,14 @@ class JobTestCase(TestCase):
         completed.execution_time = timedelta(seconds=90)
         completed.status = JobStatusChoices.STATUS_COMPLETED
         completed.save()
+
+        # A job which completed without recording an execution time must resolve to null, rather
+        # than to an ever-growing interval since it started
+        unrecorded = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        unrecorded.started = timezone.now() - timedelta(seconds=90)
+        unrecorded.completed = timezone.now()
+        unrecorded.status = JobStatusChoices.STATUS_COMPLETED
+        unrecorded.save()
 
         running = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
         running.started = timezone.now() - timedelta(minutes=5)
@@ -444,6 +466,7 @@ class JobTestCase(TestCase):
         }
 
         self.assertEqual(annotated[completed.pk].elapsed, timedelta(seconds=90))
+        self.assertIsNone(annotated[unrecorded.pk].elapsed)
         self.assertIsNone(annotated[pending.pk].elapsed)
         # The running job's elapsed time is computed at query time, so compare approximately
         self.assertAlmostEqual(
