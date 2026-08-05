@@ -183,17 +183,23 @@ class Job(models.Model):
             )
 
     @property
+    def elapsed_time(self):
+        """
+        The job's recorded execution time, or the time elapsed so far if it is still running.
+        Returns None for a job which has not yet started.
+        """
+        if self.execution_time is not None:
+            return self.execution_time
+        if self.started and not self.completed:
+            return timezone.now() - self.started
+        return None
+
+    @property
     def duration(self):
-        if not self.completed:
+        if self.execution_time is None:
             return None
 
-        start_time = self.started or self.created
-
-        if not start_time:
-            return None
-
-        duration = self.completed - start_time
-        minutes, seconds = divmod(duration.total_seconds(), 60)
+        minutes, seconds = divmod(self.execution_time.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 

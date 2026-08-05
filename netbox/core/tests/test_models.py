@@ -381,3 +381,54 @@ class JobTestCase(TestCase):
         job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
 
         self.assertIsNone(job.execution_time)
+
+    @patch('core.models.jobs.job_end')
+    def test_elapsed_time_returns_execution_time_once_completed(self, mock_job_end):
+        """
+        For a completed job, elapsed_time should return the recorded execution_time.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now() - timedelta(seconds=90)
+        job.save()
+
+        job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
+
+        self.assertEqual(job.elapsed_time, job.execution_time)
+
+    def test_elapsed_time_of_running_job(self):
+        """
+        A running job has no execution_time yet, so elapsed_time should report the time elapsed
+        since it started.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now() - timedelta(seconds=90)
+        job.save()
+
+        self.assertEqual(job.status, JobStatusChoices.STATUS_RUNNING)
+        self.assertIsNone(job.execution_time)
+        self.assertGreaterEqual(job.elapsed_time, timedelta(seconds=90))
+        self.assertLess(job.elapsed_time, timedelta(seconds=120))
+
+    def test_elapsed_time_none_when_never_started(self):
+        """
+        A job which has not started has no elapsed time to report.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+
+        self.assertIsNone(job.started)
+        self.assertIsNone(job.elapsed_time)
+
+    @patch('core.models.jobs.job_end')
+    def test_duration_derives_from_execution_time(self, mock_job_end):
+        """
+        The duration property should be rendered from the recorded execution_time, and should be
+        null for a job which never started.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.execution_time = timedelta(seconds=90)
+        self.assertEqual(job.duration, '1 minutes, 30.00 seconds')
+
+        # A job terminated without ever starting has no execution time, and thus no duration
+        unstarted = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        unstarted.terminate(status=JobStatusChoices.STATUS_ERRORED)
+        self.assertIsNone(unstarted.duration)
