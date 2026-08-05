@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from netbox.config import get_config
 from netbox.ui.utils import build_coords_url, is_coordinate_map_url
 from utilities.data import resolve_attr_path
-from utilities.string import humanize_duration
 
 __all__ = (
     'AddressAttr',
@@ -16,7 +15,6 @@ __all__ = (
     'DateTimeAttr',
     'DiameterAttr',
     'DistanceAttr',
-    'DurationAttr',
     'FlowRateAttr',
     'GPSCoordinatesAttr',
     'GenericForeignKeyAttr',
@@ -564,15 +562,6 @@ class TimezoneAttr(ObjectAttribute):
     A timezone value. Includes the numeric offset from UTC.
     """
     template_name = 'ui/attrs/timezone.html'
-
-
-class DurationAttr(TextAttr):
-    """
-    A duration (timedelta) value, rendered in a human-friendly format (e.g. 1h 5m 23s).
-    """
-    def get_value(self, obj):
-        value = resolve_attr_path(obj, self.accessor)
-        return humanize_duration(value) or None
 
 
 class TemplatedAttr(ObjectAttribute):
