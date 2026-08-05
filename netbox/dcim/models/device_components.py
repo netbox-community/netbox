@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models, router, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -1277,7 +1277,14 @@ class Interface(
         super().save(*args, **kwargs)
 
         if renamed:
-            self.rename_channel_subinterfaces(old_name)
+            # Deferred via on_commit() (rather than run inline here) so it observes the final post-transaction
+            # state of each channel subinterface rather than a mid-batch snapshot. This matters for bulk views
+            # (e.g. BulkRenameView) which fetch every selected object up front and save() each in turn inside one
+            # atomic() block: a channel subinterface selected in the same batch has its own save() run against
+            # that stale in-memory copy, which would otherwise silently overwrite a rename applied here moments
+            # earlier. Deferring until commit ensures this cascade is the last write for any child whose name
+            # still matches the old convention once the whole batch (not just this one save()) has completed.
+            transaction.on_commit(lambda: self.rename_channel_subinterfaces(old_name))
             self._original_name = self.name
 
     @property
@@ -1398,19 +1405,22 @@ class Interface(
         reflect this interface's new name. A subinterface named otherwise (the convention is not enforced) is left
         untouched, as is one whose renamed form would collide with an existing sibling on the same device.
         """
-        updates = []
-        for child in self.child_interfaces.filter(channel_id__isnull=False):
-            if child.name != f'{old_name}:{child.channel_id}':
+        for child_pk, child_name, channel_id in self.child_interfaces.filter(
+            channel_id__isnull=False
+        ).values_list('pk', 'name', 'channel_id'):
+            if child_name != f'{old_name}:{channel_id}':
                 continue
-            new_name = f'{self.name}:{child.channel_id}'
-            if Interface.objects.filter(device=child.device, name=new_name).exclude(pk=child.pk).exists():
+            new_name = f'{self.name}:{channel_id}'
+            # Each child is renamed in its own savepoint, with the database's own unique constraint as the sole
+            # arbiter of a collision: a concurrent rename cannot slip past a pre-check the way a SELECT-then-UPDATE
+            # could, and a collision on one child cannot abort the rename of the others in the same batch. A
+            # queryset update() bypasses the post_save signal, matching the convention used by
+            # propagate_channel_cables().
+            try:
+                with transaction.atomic(using=router.db_for_write(type(self))):
+                    type(self).objects.filter(pk=child_pk).update(name=new_name)
+            except IntegrityError:
                 continue
-            child.name = new_name
-            updates.append(child)
-
-        if updates:
-            # bulk_update() bypasses the post_save signal, matching the convention used by propagate_channel_cables().
-            type(self).objects.bulk_update(updates, ['name'])
 
 
 #

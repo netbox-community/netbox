@@ -531,7 +531,8 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
@@ -543,7 +544,8 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'et0-custom')
@@ -555,10 +557,64 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         Interface.objects.create(device=self.device, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         colliding_child.refresh_from_db()
         self.assertEqual(colliding_child.name, 'et0:1')
+
+    def test_rename_collision_on_one_child_does_not_block_others(self):
+        # Each child is renamed independently: a collision on one must not prevent another, non-colliding
+        # subinterface in the same batch from being renamed. (This holds under the current per-child atomic
+        # implementation; a single-statement bulk_update() would have aborted the whole batch if a collision
+        # were present at execution time rather than being filtered out beforehand — not reachable here without
+        # an actual concurrent write, but this pins the currently intended per-child independence regardless.)
+        colliding_child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+        clear_child = Interface.objects.create(
+            device=self.device, name='et0:2', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=2
+        )
+        Interface.objects.create(device=self.device, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
+
+        self.parent.name = 'et1'
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
+
+        colliding_child.refresh_from_db()
+        clear_child.refresh_from_db()
+        self.assertEqual(colliding_child.name, 'et0:1')
+        self.assertEqual(clear_child.name, 'et1:2')
+
+    def test_rename_cascade_is_deferred_until_transaction_commits(self):
+        # The cascade must not run until the enclosing transaction commits, so that a sibling object saved later
+        # in the same transaction (e.g. by a bulk view processing several selected objects together) cannot
+        # silently undo it by writing back a stale in-memory copy of the child's name.
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            self.parent.name = 'et1'
+            self.parent.save()
+
+            # The rename has not yet propagated: it's deferred until "commit" (i.e. until the captured
+            # callbacks below are actually run).
+            child.refresh_from_db()
+            self.assertEqual(child.name, 'et0:1')
+
+            # Simulate a sibling object's own save() in the same batch, re-asserting the child's stale name -
+            # exactly what BulkRenameView does when the same child is also selected in a bulk rename.
+            stale_copy = Interface.objects.get(pk=child.pk)
+            stale_copy.save()
+
+        # Once the transaction commits (simulated here by running the captured on_commit callbacks), the
+        # deferred cascade is the last write: it still renames the child, rather than having been silently
+        # overwritten by the sibling's stale save() above.
+        for callback in callbacks:
+            callback()
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
 
     def test_rename_of_non_channelized_interface_is_a_no_op(self):
         plain = Interface.objects.create(
@@ -589,7 +645,8 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
@@ -601,7 +658,8 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'et0-custom')
@@ -616,7 +674,8 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
         colliding_child.refresh_from_db()
         self.assertEqual(colliding_child.name, 'et0:1')
@@ -635,8 +694,56 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
         )
 
         self.parent.name = 'et1'
-        self.parent.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
 
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
+
+    def test_rename_collision_on_one_child_does_not_block_others(self):
+        # Each child template is renamed independently: a collision on one must not prevent another,
+        # non-colliding subinterface template in the same batch from being renamed.
+        colliding_child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        clear_child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:2', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=2
+        )
+        InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL
+        )
+
+        self.parent.name = 'et1'
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()
+
+        colliding_child.refresh_from_db()
+        clear_child.refresh_from_db()
+        self.assertEqual(colliding_child.name, 'et0:1')
+        self.assertEqual(clear_child.name, 'et1:2')
+
+    def test_rename_cascade_is_deferred_until_transaction_commits(self):
+        # See the identical test on Interface: the cascade must not run until the enclosing transaction commits,
+        # so a sibling template saved later in the same transaction cannot silently undo it.
+        child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            self.parent.name = 'et1'
+            self.parent.save()
+
+            child.refresh_from_db()
+            self.assertEqual(child.name, 'et0:1')
+
+            stale_copy = InterfaceTemplate.objects.get(pk=child.pk)
+            stale_copy.save()
+
+        for callback in callbacks:
+            callback()
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
 

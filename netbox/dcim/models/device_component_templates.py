@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models, router, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -713,7 +713,11 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         super().save(*args, **kwargs)
 
         if renamed:
-            self.rename_channel_subinterfaces(old_name)
+            # Deferred via on_commit() — see the identical comment on Interface.save() for why: this lets the
+            # cascade observe the final post-transaction state of each child template rather than a mid-batch
+            # snapshot, so it isn't silently undone by a sibling template's own save() later in the same
+            # BulkRenameView batch.
+            transaction.on_commit(lambda: self.rename_channel_subinterfaces(old_name))
             self._original_name = self.name
 
     def rename_channel_subinterfaces(self, old_name):
@@ -723,21 +727,20 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         is not enforced) is left untouched, as is one whose renamed form would collide with an existing sibling
         template on the same device type or module type.
         """
-        updates = []
-        for child in self.child_interfaces.filter(channel_id__isnull=False):
-            if child.name != f'{old_name}:{child.channel_id}':
+        for child_pk, child_name, channel_id in self.child_interfaces.filter(
+            channel_id__isnull=False
+        ).values_list('pk', 'name', 'channel_id'):
+            if child_name != f'{old_name}:{channel_id}':
                 continue
-            new_name = f'{self.name}:{child.channel_id}'
-            siblings = InterfaceTemplate.objects.filter(
-                device_type=child.device_type, module_type=child.module_type, name=new_name
-            ).exclude(pk=child.pk)
-            if siblings.exists():
+            new_name = f'{self.name}:{channel_id}'
+            # Each child is renamed in its own savepoint, with the database's own unique constraint as the sole
+            # arbiter of a collision: a concurrent rename cannot slip past a pre-check the way a SELECT-then-UPDATE
+            # could, and a collision on one child cannot abort the rename of the others in the same batch.
+            try:
+                with transaction.atomic(using=router.db_for_write(type(self))):
+                    type(self).objects.filter(pk=child_pk).update(name=new_name)
+            except IntegrityError:
                 continue
-            child.name = new_name
-            updates.append(child)
-
-        if updates:
-            type(self).objects.bulk_update(updates, ['name'])
 
     def instantiate(self, **kwargs):
         return self.component_model(
