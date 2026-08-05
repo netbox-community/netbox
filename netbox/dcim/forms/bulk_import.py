@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -1716,31 +1716,31 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device A (if any)'),
+        help_text=_('Site of parent device A (if any). Restricts the devices & power panels which may be matched.'),
     )
     side_a_device = CSVModelMultipleChoiceField(
         label=_('Side A device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Device name(s) for device component terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
             '"device1,device2"'
-        )
+        ))
     )
     side_a_power_panel = CSVModelMultipleChoiceField(
         label=_('Side A power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
             '"panel1,panel2"'
-        )
+        ))
     )
     side_a_type = CSVContentTypeField(
         label=_('Side A type'),
@@ -1750,12 +1750,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_a_name = forms.CharField(
         label=_('Side A name'),
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
               'Example:'),
             '"eth0,eth1"'
-        )
+        ))
     )
 
     # Termination B
@@ -1764,31 +1764,31 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device B (if any)'),
+        help_text=_('Site of parent device B (if any). Restricts the devices & power panels which may be matched.'),
     )
     side_b_device = CSVModelMultipleChoiceField(
         label=_('Side B device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Device name(s) for device component terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
             '"device1,device2"'
-        )
+        ))
     )
     side_b_power_panel = CSVModelMultipleChoiceField(
         label=_('Side B power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
             '"panel1,panel2"'
-        )
+        ))
     )
     side_b_type = CSVContentTypeField(
         label=_('Side B type'),
@@ -1798,12 +1798,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_b_name = forms.CharField(
         label=_('Side B name'),
-        help_text=format_html(
+        help_text=mark_safe(format_lazy(
             '{} <code>{}</code>',
             _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
               'Example:'),
             '"eth0,eth1"'
-        )
+        ))
     )
 
     # Cable attributes
