@@ -418,6 +418,55 @@ class JobTestCase(TestCase):
         self.assertIsNone(job.started)
         self.assertIsNone(job.elapsed_time)
 
+    def test_elapsed_time_clamps_negative_execution_time(self):
+        """
+        elapsed_time is the value NetBox displays, so an anomalous negative duration (e.g. resulting
+        from clock skew) is floored at zero. The stored execution_time is left as recorded, so that
+        the anomaly remains visible to the API and to exports.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now()
+        job.completed = timezone.now()
+        job.execution_time = timedelta(seconds=-5)
+        job.status = JobStatusChoices.STATUS_COMPLETED
+        job.save()
+
+        self.assertEqual(job.elapsed_time, timedelta())
+        self.assertEqual(job.execution_time, timedelta(seconds=-5))
+
+    def test_duration_is_deprecated(self):
+        """
+        Job.duration is retained for existing export templates and plugins, but must warn.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now() - timedelta(seconds=90)
+        job.completed = job.started + timedelta(seconds=90)
+        job.status = JobStatusChoices.STATUS_COMPLETED
+        job.save()
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(job.duration, '1 minutes, 30.00 seconds')
+
+    def test_duration_falls_back_to_created(self):
+        """
+        The deprecated property's original behavior must be preserved: a job which completed without
+        ever starting reports its duration relative to creation.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = None
+        job.completed = job.created + timedelta(seconds=30)
+        job.status = JobStatusChoices.STATUS_ERRORED
+        job.save()
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertEqual(job.duration, '0 minutes, 30.00 seconds')
+
+    def test_duration_none_when_not_completed(self):
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertIsNone(job.duration)
+
     def test_elapsed_time_none_when_completed_without_execution_time(self):
         """
         A job which completed without recording an execution time (e.g. one predating the field)

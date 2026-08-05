@@ -1,6 +1,8 @@
 import logging
 import uuid
+import warnings
 from dataclasses import asdict
+from datetime import timedelta
 from functools import partial
 
 import django_rq
@@ -185,16 +187,47 @@ class Job(models.Model):
             )
 
     @property
+    def duration(self):
+        """
+        Deprecated: use `elapsed_time` instead, which reports a timedelta and also covers jobs which
+        are still running. Retained for the benefit of existing export templates and plugins.
+        """
+        warnings.warn(
+            "Job.duration is deprecated and will be removed in NetBox v5.0; use Job.elapsed_time "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        if not self.completed:
+            return None
+
+        start_time = self.started or self.created
+
+        if not start_time:
+            return None
+
+        duration = self.completed - start_time
+        minutes, seconds = divmod(duration.total_seconds(), 60)
+
+        return f'{int(minutes)} minutes, {seconds:.2f} seconds'
+
+    @property
     def elapsed_time(self):
         """
         The job's recorded execution time, or the time elapsed so far if it is still running.
-        Returns None for a job which has not yet started.
+        Returns None for a job which has not yet started. As this is the value NetBox displays, an
+        anomalous negative duration (which can result from clock skew) is clamped to zero; the
+        stored `execution_time` is left as recorded.
         """
         if self.execution_time is not None:
-            return self.execution_time
-        if self.started and not self.completed:
-            return timezone.now() - self.started
-        return None
+            elapsed = self.execution_time
+        elif self.started and not self.completed:
+            elapsed = timezone.now() - self.started
+        else:
+            return None
+
+        return max(elapsed, timedelta())
 
     @staticmethod
     def elapsed_time_expression():

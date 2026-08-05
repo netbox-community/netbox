@@ -32,6 +32,9 @@ The date and time at which the job completed (if complete).
 
 The amount of time the job spent executing, calculated as the difference between its start and completion times. This is populated only once a started job has completed; while a job is still running, NetBox displays the time elapsed since it started instead.
 
+!!! warning "The duration property is deprecated"
+    The job model's `duration` property, which returned a preformatted string such as `5 minutes, 3.00 seconds`, has been **deprecated** and is planned for removal in NetBox v5.0. Export templates and plugins should reference `elapsed_time` instead, which returns a duration rather than a string and which also reports progress for a job that is still running.
+
 ### User
 
 The user who created the job.
