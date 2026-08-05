@@ -18,7 +18,14 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
-from netbox.settings_utils import get_configuration_dir, load_configuration, resolve_install_paths, secret_key_hint
+from netbox.settings_utils import (
+    get_configuration_dir,
+    load_configuration,
+    parse_job_timeout,
+    resolve_install_paths,
+    secret_key_hint,
+    validate_webhook_default_timeout,
+)
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
@@ -221,26 +228,7 @@ STORAGES = getattr(configuration, 'STORAGES', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 WEBHOOK_DEFAULT_TIMEOUT = getattr(configuration, 'WEBHOOK_DEFAULT_TIMEOUT', 60)
-if not isinstance(WEBHOOK_DEFAULT_TIMEOUT, int) or not 1 <= WEBHOOK_DEFAULT_TIMEOUT <= 3600:
-    raise ImproperlyConfigured(
-        f"WEBHOOK_DEFAULT_TIMEOUT must be an integer between 1 and 3600 (found {WEBHOOK_DEFAULT_TIMEOUT!r})"
-    )
-# RQ also accepts a string timeout, which may be a plain number of seconds ("300") or a duration such as "1h".
-# Coerce the former so that webhook timeouts can still be validated against it; warn (but do not abort) for the
-# latter, which cannot be compared numerically.
-if not isinstance(RQ_DEFAULT_TIMEOUT, int):
-    try:
-        RQ_DEFAULT_TIMEOUT = int(RQ_DEFAULT_TIMEOUT)
-    except (TypeError, ValueError):
-        warnings.warn(
-            f"RQ_DEFAULT_TIMEOUT ({RQ_DEFAULT_TIMEOUT!r}) is not an integer number of seconds; webhook timeouts "
-            f"cannot be validated against it."
-        )
-if isinstance(RQ_DEFAULT_TIMEOUT, int) and WEBHOOK_DEFAULT_TIMEOUT >= RQ_DEFAULT_TIMEOUT:
-    raise ImproperlyConfigured(
-        f"WEBHOOK_DEFAULT_TIMEOUT ({WEBHOOK_DEFAULT_TIMEOUT}) must be less than RQ_DEFAULT_TIMEOUT "
-        f"({RQ_DEFAULT_TIMEOUT}), which caps the total runtime of the background job."
-    )
+validate_webhook_default_timeout(WEBHOOK_DEFAULT_TIMEOUT, parse_job_timeout(RQ_DEFAULT_TIMEOUT))
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
 if DISK_BASE_UNIT not in [1000, 1024]:
     raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")

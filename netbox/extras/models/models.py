@@ -36,6 +36,7 @@ from netbox.models.features import (
     has_feature,
 )
 from netbox.models.mixins import OwnerMixin
+from netbox.settings_utils import parse_job_timeout
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2, sanitize_http_header
 from utilities.querydict import dict_to_querydict
@@ -329,11 +330,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
 
         # A timeout which meets or exceeds the background job timeout leaves no room for the request's own timeout
         # to apply: the worker will terminate the job first. (Staying below the job timeout does not guarantee that
-        # the request times out on its own, as the timeout applies separately to connecting and to reading data.
-        # RQ also accepts a duration string such as "1h", which we cannot compare against; such a value is left
-        # unvalidated here.)
-        job_timeout = settings.RQ_DEFAULT_TIMEOUT
-        if self.timeout is not None and isinstance(job_timeout, int) and self.timeout >= job_timeout:
+        # the request times out on its own, as the timeout applies separately to connecting and to reading data.)
+        job_timeout = parse_job_timeout(settings.RQ_DEFAULT_TIMEOUT)
+        if self.timeout is not None and job_timeout is not None and self.timeout >= job_timeout:
             raise ValidationError({
                 'timeout': _(
                     "Timeout must be less than the background job timeout ({timeout} seconds)."

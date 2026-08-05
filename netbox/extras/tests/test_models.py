@@ -1832,10 +1832,31 @@ class WebhookTestCase(TestCase):
         webhook.full_clean()
 
     @override_settings(RQ_DEFAULT_TIMEOUT='1h')
-    def test_non_integer_job_timeout_skips_validation(self):
+    def test_job_timeout_duration_string_is_validated(self):
         """
-        RQ also accepts a string timeout such as "1h", which cannot be compared numerically. Such a value
-        should disable the check rather than raise a TypeError.
+        RQ also accepts a string timeout such as "1h", which must be normalized before comparison rather
+        than bypassing the check.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = 3599
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT='60')
+    def test_job_timeout_numeric_string_is_validated(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=60)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = 59
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT=-1)
+    def test_unbounded_job_timeout_skips_validation(self):
+        """
+        A non-positive RQ timeout disables RQ's death penalty, so there is no job timeout to validate against.
         """
         webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
         webhook.full_clean()
