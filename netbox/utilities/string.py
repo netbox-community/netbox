@@ -11,15 +11,25 @@ __all__ = (
 
 def humanize_duration(value):
     """
-    Express a timedelta in a human-friendly format. Example: 1h 5m 23s. Returns an empty string
-    for None; zero-duration timedeltas render as "0s".
+    Express a timedelta in a human-friendly format. Example: 1h 5m 23s. Sub-second durations are
+    rendered with millisecond precision (e.g. 0.43s). Returns an empty string for None; zero and
+    negative durations render as "0s".
     """
     if value is None:
         return ''
 
+    # Negative durations (which can result from clock skew) are clamped to zero
+    total_seconds = max(value.total_seconds(), 0)
+
+    # Render sub-second durations with millisecond precision, as rounding them to whole seconds
+    # would report every short-lived duration as zero. Trailing zeros are stripped.
+    if 0 < total_seconds < 1:
+        milliseconds = f'{total_seconds:.3f}'.rstrip('0').rstrip('.')
+        if milliseconds != '0':
+            return f'{milliseconds}s'
+
     # Round to whole seconds and decompose
-    total_seconds = int(value.total_seconds())
-    days, remainder = divmod(total_seconds, 86400)
+    days, remainder = divmod(int(total_seconds), 86400)
     hours, remainder = divmod(remainder, 3600)
     minutes, seconds = divmod(remainder, 60)
 

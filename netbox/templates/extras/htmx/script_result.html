@@ -11,9 +11,13 @@
     {% else %}
       {% trans "Created" %}: <strong>{{ job.created|isodatetime }}</strong>
     {% endif %}
-    {% if job.completed %}
-      {% trans "Duration" %}: <strong>{{ job.duration }}</strong>
-    {% endif %}
+    {# For a running job this reflects the time elapsed so far; the container refreshes every 5s #}
+    {% with execution_time=job.elapsed_time|humanize_duration %}
+      {% if execution_time %}
+        {% trans "Execution time" %}:
+        <strong{% if not job.completed %} class="text-primary" title="{% trans "Still running" %}"{% endif %}>{{ execution_time }}</strong>
+      {% endif %}
+    {% endwith %}
     <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
   </p>
   {% if job.completed %}
