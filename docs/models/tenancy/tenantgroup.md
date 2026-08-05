@@ -4,6 +4,8 @@
 
 Tenant groups may be nested recursively to achieve a multi-level hierarchy. For example, you might have a group called "Customers" containing subgroups of individual tenants grouped by product or account team.
 
+A tenant group cannot be deleted if ungrouping its tenants, including those of any nested groups, would result in duplicate tenant names or slugs among ungrouped tenants.
+
 ## Fields
 
 ### Parent
