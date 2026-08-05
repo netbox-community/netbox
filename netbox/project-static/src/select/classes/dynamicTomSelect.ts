@@ -99,8 +99,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     // by an earlier, still-in-flight call. If this particular call has nothing new to
     // preserve (e.g. its dependency was already cleared by a cascaded change), an earlier
     // call's pending value should still get a chance to be restored by whichever request
-    // ends up winning.
-    if (preserveValue !== undefined) {
+    // ends up winning. An empty array (e.g. a multi-select cleared by clear()) doesn't count
+    // as something worth preserving.
+    const hasValue = Array.isArray(preserveValue)
+      ? preserveValue.length > 0
+      : preserveValue !== undefined;
+    if (hasValue) {
       self.pendingRestoreValue = preserveValue;
     }
 
@@ -113,9 +117,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       self.addOption(self.nullOption);
     }
 
-    // Get the API request URL. If none is provided, abort as no request can be made.
+    // Get the API request URL. If none is provided, abort as no request can be made. No
+    // options can be shown for this field under its current (invalid) filter, so any
+    // pending value carried from an earlier call is no longer relevant to restore here.
     const url = self.getRequestUrl(value);
     if (!url) {
+      self.pendingRestoreValue = undefined;
       return;
     }
 
@@ -140,11 +147,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
         // succession). This response is stale; applying it now would risk clobbering
         // state already set by the newer, still-in-flight or already-resolved request.
         if (sequence !== self.loadSequence) {
-          self.loading = Math.max(self.loading - 1, 0);
-          if (!self.loading) {
-            removeClasses(self.wrapper, self.settings.loadingClass);
-            self.refreshOptions(false);
-          }
+          self.discardStaleResponse();
           return;
         }
         self.loadCallback(options, []);
@@ -162,15 +165,24 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       })
       .catch(() => {
         if (sequence !== self.loadSequence) {
-          self.loading = Math.max(self.loading - 1, 0);
-          if (!self.loading) {
-            removeClasses(self.wrapper, self.settings.loadingClass);
-            self.refreshOptions(false);
-          }
+          self.discardStaleResponse();
           return;
         }
+        self.pendingRestoreValue = undefined;
         self.loadCallback([], []);
       });
+  }
+
+  // Finalize the loading state for a response that arrived after a newer load() call has
+  // already superseded it: decrement the loading counter and, once it settles back to zero,
+  // remove the wrapper's loading class and force Tom Select to re-render the dropdown so any
+  // stale loading indicator it rendered internally is cleared too.
+  private discardStaleResponse(): void {
+    this.loading = Math.max(this.loading - 1, 0);
+    if (!this.loading) {
+      removeClasses(this.wrapper, this.settings.loadingClass);
+      this.refreshOptions(false);
+    }
   }
 
   /**
