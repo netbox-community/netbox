@@ -43,7 +43,17 @@ class HumanizeDurationTest(TestCase):
         self.assertEqual(humanize_duration(timedelta(seconds=1, milliseconds=100)), '1s')
         self.assertEqual(humanize_duration(timedelta(seconds=59, milliseconds=600)), '1m')
 
-    def test_negative_duration_clamped_to_zero(self):
-        # A negative duration (e.g. resulting from clock skew) never renders as negative.
-        self.assertEqual(humanize_duration(timedelta(seconds=-1.5)), '0s')
-        self.assertEqual(humanize_duration(timedelta(days=-2)), '0s')
+    def test_negative_duration_retains_sign(self):
+        # A negative duration is anomalous, so it is rendered as such rather than suppressed here.
+        # Callers which need a floor of zero (e.g. Job.elapsed_time) apply one themselves.
+        self.assertEqual(humanize_duration(timedelta(seconds=-5)), '-5s')
+        self.assertEqual(humanize_duration(timedelta(seconds=-1.5)), '-2s')
+        self.assertEqual(humanize_duration(timedelta(days=-2)), '-2d')
+        self.assertEqual(humanize_duration(timedelta(milliseconds=-430)), '-0.43s')
+
+    def test_negative_duration_rounding_to_zero_carries_no_sign(self):
+        self.assertEqual(humanize_duration(timedelta(microseconds=-400)), '0s')
+
+    def test_sub_second_rounding_up_to_one_second(self):
+        # A magnitude which rounds up to a whole second reads as "1s", not "1.0s"
+        self.assertEqual(humanize_duration(timedelta(seconds=0.9996)), '1s')

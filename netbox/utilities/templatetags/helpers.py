@@ -217,13 +217,15 @@ def _format_speed(speed, divisor, unit):
 def humanize_duration_filter(value):
     """
     Express a timedelta in a human-friendly format, always using the largest appropriate units.
-    Sub-second durations are rendered with millisecond precision.
+    Sub-second durations are rendered with millisecond precision. A negative duration is rendered
+    with a leading minus sign rather than being suppressed.
 
     Examples:
 
         timedelta(seconds=90) => "1m 30s"
         timedelta(hours=1, minutes=5, seconds=23) => "1h 5m 23s"
         timedelta(milliseconds=430) => "0.43s"
+        timedelta(seconds=-5) => "-5s"
     """
     return humanize_duration(value)
 
