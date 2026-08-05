@@ -78,11 +78,9 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type_id', 'status', 'queue_name', 'user', name=_('Attributes')),
         FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
-            'started__after', name=_('Scheduling')
+            'started__after', 'completed__before', 'completed__after', name=_('Scheduling')
         ),
-        FieldSet(
-            'completed__before', 'completed__after', 'execution_time__gte', 'execution_time__lte', name=_('Execution'),
-        ),
+        FieldSet('execution_time__gte', 'execution_time__lte', name=_('Execution')),
     )
     object_type_id = ContentTypeChoiceField(
         label=_('Object Type'),
