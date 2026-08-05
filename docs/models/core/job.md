@@ -30,7 +30,7 @@ The date and time at which the job completed (if complete).
 
 ### Execution Time
 
-The amount of time the job spent executing, calculated as the difference between its start and completion times. This is populated only once a started job has completed.
+The amount of time the job spent executing, calculated as the difference between its start and completion times. This is populated only once a started job has completed; while a job is still running, NetBox displays the time elapsed since it started instead.
 
 ### User
 
