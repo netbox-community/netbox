@@ -1702,6 +1702,14 @@ class CableBundleImportForm(PrimaryModelImportForm):
 
 
 class CableImportForm(PrimaryModelImportForm):
+    # Cable.clean() reports termination errors (e.g. cable profile violations) against the model's
+    # a_terminations/b_terminations attributes, which have no corresponding fields on this form.
+    # Map them onto the columns which define each side's terminations.
+    TERMINATION_ERROR_FIELDS = {
+        'a_terminations': 'side_a_name',
+        'b_terminations': 'side_b_name',
+    }
+
     # Termination A
     side_a_site = CSVModelChoiceField(
         label=_('Side A site'),
@@ -1876,6 +1884,20 @@ class CableImportForm(PrimaryModelImportForm):
                 self.fields['side_b_power_panel'].queryset = self.fields['side_b_power_panel'].queryset.filter(
                     **side_b_parent_params
                 )
+
+    def add_error(self, field, error):
+        # Remap any termination errors raised by Cable.clean() onto the relevant import column.
+        # Without this, Django raises ValueError for an error reported against a field which does
+        # not exist on the form.
+        if field is None and hasattr(error, 'error_dict'):
+            error = forms.ValidationError({
+                self.TERMINATION_ERROR_FIELDS.get(name, name): errors
+                for name, errors in error.error_dict.items()
+            })
+        else:
+            field = self.TERMINATION_ERROR_FIELDS.get(field, field)
+
+        super().add_error(field, error)
 
     @staticmethod
     def _split_side_values(value):
