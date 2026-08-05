@@ -1309,7 +1309,9 @@ class Interface(
 
     @property
     def is_channel(self):
-        return self.type == InterfaceTypeChoices.TYPE_CHANNEL
+        # A channel subinterface is identified by channel_id, not by type — it may be generically typed as
+        # "channel" or keep its own specific physical type (see is_wired).
+        return self.channel_id is not None
 
     @property
     def link(self):

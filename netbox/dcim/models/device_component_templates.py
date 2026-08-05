@@ -670,6 +670,10 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         # reduction that would orphan a bound subinterface.
         self._original_channels = self.__dict__.get('channels')
 
+        # Cache the original name so save() can detect a rename and update channel subinterface names to match
+        # (see rename_channel_subinterfaces()).
+        self._original_name = self.__dict__.get('name')
+
     def clean(self):
         super().clean()
 
@@ -701,6 +705,39 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
                         "Bridge interface ({bridge}) must belong to the same module type"
                     ).format(bridge=self.bridge)
                 })
+
+    def save(self, *args, **kwargs):
+        renamed = self.pk and self.channels and self.name != self._original_name
+        old_name = self._original_name
+
+        super().save(*args, **kwargs)
+
+        if renamed:
+            self.rename_channel_subinterfaces(old_name)
+            self._original_name = self.name
+
+    def rename_channel_subinterfaces(self, old_name):
+        """
+        Update the name of each channel subinterface template that follows the "<parent name>:<channel ID>"
+        convention to reflect this template's new name. A subinterface template named otherwise (the convention
+        is not enforced) is left untouched, as is one whose renamed form would collide with an existing sibling
+        template on the same device type or module type.
+        """
+        updates = []
+        for child in self.child_interfaces.filter(channel_id__isnull=False):
+            if child.name != f'{old_name}:{child.channel_id}':
+                continue
+            new_name = f'{self.name}:{child.channel_id}'
+            siblings = InterfaceTemplate.objects.filter(
+                device_type=child.device_type, module_type=child.module_type, name=new_name
+            ).exclude(pk=child.pk)
+            if siblings.exists():
+                continue
+            child.name = new_name
+            updates.append(child)
+
+        if updates:
+            type(self).objects.bulk_update(updates, ['name'])
 
     def instantiate(self, **kwargs):
         return self.component_model(

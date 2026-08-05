@@ -413,6 +413,28 @@ class ChannelizedInterfaceValidationTestCase(TestCase):
         )
         self.assertFalse(interface.is_wired)
 
+    def test_channel_subinterface_with_physical_type_is_channel(self):
+        # is_channel is identified by channel_id, not by type, so it must agree with is_wired for a channel
+        # subinterface that keeps its own specific physical type.
+        interface = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
+            parent=self.parent, channel_id=1
+        )
+        self.assertTrue(interface.is_channel)
+
+    def test_generic_channel_type_is_channel(self):
+        interface = Interface.objects.create(
+            device=self.device, name='et0:2', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=2
+        )
+        self.assertTrue(interface.is_channel)
+
+    def test_non_channel_interface_is_not_channel(self):
+        interface = Interface.objects.create(
+            device=self.device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        self.assertFalse(interface.is_channel)
+
     def test_channel_requires_parent(self):
         interface = Interface(
             device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, channel_id=1
@@ -544,6 +566,79 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         )
         plain.name = 'xe1'
         plain.save()  # Should not raise despite having no channel subinterfaces to check
+
+
+class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
+    """
+    Test that renaming a channelized parent InterfaceTemplate updates the names of any channel subinterface
+    templates which follow the "<parent name>:<channel ID>" convention.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device', slug='test-device')
+        cls.parent = InterfaceTemplate.objects.create(
+            device_type=cls.device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
+        )
+
+    def test_rename_updates_conforming_children(self):
+        child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
+
+    def test_rename_leaves_nonconforming_children_untouched(self):
+        child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0-custom', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et0-custom')
+
+    def test_rename_skips_child_on_collision(self):
+        colliding_child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        colliding_child.refresh_from_db()
+        self.assertEqual(colliding_child.name, 'et0:1')
+
+    def test_rename_does_not_collide_across_device_types(self):
+        # A same-named channel subinterface template under a different device type must not block the rename
+        other_type = DeviceType.objects.create(
+            manufacturer=self.device_type.manufacturer, model='Other Device', slug='other-device'
+        )
+        InterfaceTemplate.objects.create(
+            device_type=other_type, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL
+        )
+        child = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
 
 
 class ChannelizedInterfaceTemplateTestCase(TestCase):
