@@ -28,7 +28,7 @@ An alternative physical label identifying the interface.
 
 ### Type
 
-The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. The generic **channel** type identifies a [channelized subinterface](#channel-id) bound to a parent interface.
+The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. The generic **channel** type identifies a [channelized subinterface](#channel-id) bound to a parent interface when its specific transceiver type is not relevant; a channel subinterface may instead keep its own specific physical type (e.g. directly declaring a channel as 10GBASE-SR) to record the actual transceiver in use.
 
 !!! note
     The interface type refers to the physical termination or port on the device. Interfaces which employ a removable optic or similar transceiver should be defined to represent the type of transceiver in use, irrespective of the physical termination to that transceiver.
@@ -84,14 +84,14 @@ If selected, this component will be treated as if a cable has been connected.
 
 ### Parent Interface
 
-Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. Channel-type subinterfaces are likewise bound to their [channelized](#channels) parent interface.
+Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. A channel subinterface is likewise bound to its [channelized](#channels) parent interface, whether it uses the generic **channel** type or its own specific physical type.
 
 !!! note
-    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned.
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent.
 
 ### Channel ID
 
-For a channel-type subinterface, the numeric channel on its [channelized](#channels) parent interface to which this subinterface is bound. The channel ID must fall within the range of channels provided by the parent (e.g. one through four for a parent with four channels). A channel subinterface derives its cable connection from the parent's; it cannot be cabled directly.
+The numeric channel on a [channelized](#channels) parent interface to which this subinterface is bound, identifying it as a channel subinterface. This may be set on the generic **channel** type, or on any other physical interface type (e.g. to record the specific transceiver used on that channel) — but not on a virtual or wireless interface. The channel ID must fall within the range of channels provided by the parent (e.g. one through four for a parent with four channels). A channel subinterface derives its cable connection from the parent's; it cannot be cabled directly.
 
 !!! note "Channel IDs are one-indexed"
     Channel IDs increment starting at one, even for interfaces with a zero-based identifier. This ensures that each subinterface maps cleanly to the profile of an attached cable.

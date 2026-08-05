@@ -1134,6 +1134,10 @@ class Interface(
         self._original_channel_id = self.__dict__.get('channel_id')
         self._original_parent_id = self.__dict__.get('parent_id')
 
+        # Cache the original name so save() can detect a rename and update channel subinterface names to match
+        # (see rename_channel_subinterfaces()).
+        self._original_name = self.__dict__.get('name')
+
     def clean(self):
         super().clean()
 
@@ -1267,7 +1271,14 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
+        renamed = self.pk and self.channels and self.name != self._original_name
+        old_name = self._original_name
+
         super().save(*args, **kwargs)
+
+        if renamed:
+            self.rename_channel_subinterfaces(old_name)
+            self._original_name = self.name
 
     @property
     def _occupied(self):
@@ -1275,9 +1286,10 @@ class Interface(
 
     @property
     def is_wired(self):
-        # Excludes virtual, wireless, and channel-type interfaces (channel subinterfaces derive their cable from the
-        # channelized parent and cannot be cabled directly).
-        return self.type not in NONCONNECTABLE_IFACE_TYPES
+        # Excludes virtual and wireless interfaces, plus any channel subinterface (whether generically typed as
+        # "channel" or given its own specific physical type) — a channel subinterface derives its cable from the
+        # channelized parent and cannot be cabled directly.
+        return self.type not in NONCONNECTABLE_IFACE_TYPES and self.channel_id is None
 
     @property
     def is_virtual(self):
@@ -1377,6 +1389,26 @@ class Interface(
             cable_connector=None,
             cable_positions=None,
         )
+
+    def rename_channel_subinterfaces(self, old_name):
+        """
+        Update the name of each channel subinterface that follows the "<parent name>:<channel ID>" convention to
+        reflect this interface's new name. A subinterface named otherwise (the convention is not enforced) is left
+        untouched, as is one whose renamed form would collide with an existing sibling on the same device.
+        """
+        updates = []
+        for child in self.child_interfaces.filter(channel_id__isnull=False):
+            if child.name != f'{old_name}:{child.channel_id}':
+                continue
+            new_name = f'{self.name}:{child.channel_id}'
+            if Interface.objects.filter(device=child.device, name=new_name).exclude(pk=child.pk).exists():
+                continue
+            child.name = new_name
+            updates.append(child)
+
+        if updates:
+            # bulk_update() bypasses the post_save signal, matching the convention used by propagate_channel_cables().
+            type(self).objects.bulk_update(updates, ['name'])
 
 
 #

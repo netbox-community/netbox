@@ -146,11 +146,26 @@ class InterfaceValidationMixin:
         if self.pk and self.parent_id == self.pk:
             raise ValidationError({'parent': _("An interface cannot be its own parent.")})
 
-        # Only virtual and channel interfaces may have a parent interface
-        if self.parent_id and self.type not in (InterfaceTypeChoices.TYPE_VIRTUAL, InterfaceTypeChoices.TYPE_CHANNEL):
-            raise ValidationError({
-                'parent': _("Only virtual and channel interfaces may be assigned to a parent interface.")
-            })
+        # A channel subinterface may either be generically typed as "channel", or keep its own specific physical
+        # type (e.g. directly declaring a channel as 10GBASE-SR) — but not a virtual or wireless type, which can
+        # never represent a physical channel on a parent.
+        can_bind_to_channel = (
+            self.type == InterfaceTypeChoices.TYPE_CHANNEL or self.type not in NONCONNECTABLE_IFACE_TYPES
+        )
+        # During bulk-creation pattern validation (a replication base), channel_id is not yet assigned — it is
+        # supplied per-instance during expansion — so the parent/channel_id presence checks below are relaxed.
+        is_replicated_base = getattr(self, '_replicated_base', False)
+
+        # An interface may have a parent if it is virtual, or if it is (or, for a replication base, will become)
+        # bound to a channel on that parent — see the channel_id checks below.
+        if self.parent_id and self.type != InterfaceTypeChoices.TYPE_VIRTUAL:
+            if self.channel_id is None and not (is_replicated_base and can_bind_to_channel):
+                raise ValidationError({
+                    'parent': _(
+                        "Only virtual interfaces, or a channel subinterface with a channel ID assigned, may be "
+                        "assigned to a parent interface."
+                    )
+                })
 
         # Only one layer of channelization is permitted: an interface cannot be both channelized and a channel
         if self.channels and self.channel_id:
@@ -168,21 +183,25 @@ class InterfaceValidationMixin:
 
         # The channel type and channel_id are mutually dependent. The channel_id requirement is relaxed for a
         # replication base (bulk creation), where each channel_id is supplied per-instance during expansion.
-        is_channel = self.type == InterfaceTypeChoices.TYPE_CHANNEL
-        if is_channel and self.channel_id is None and not getattr(self, '_replicated_base', False):
+        if self.type == InterfaceTypeChoices.TYPE_CHANNEL and self.channel_id is None and not is_replicated_base:
             raise ValidationError({
                 'channel_id': _("Channel interfaces must have a channel ID assigned.")
             })
-        if self.channel_id is not None and not is_channel:
+        if self.channel_id is not None and not can_bind_to_channel:
             raise ValidationError({
-                'channel_id': _("A channel ID can be assigned only to a channel-type interface.")
+                'channel_id': _(
+                    "A channel ID can be assigned only to a channel-type interface, or another physical "
+                    "interface type."
+                )
             })
 
-        # A channel subinterface must be bound to a channelized parent interface
-        if is_channel:
+        # A channel subinterface (whether generically typed as "channel", or given its own specific physical type)
+        # must be bound to a channelized parent interface. A replication base is checked too (without a concrete
+        # channel_id yet), so an invalid parent selection is caught before pattern expansion rather than per-instance.
+        if self.channel_id is not None or (is_replicated_base and can_bind_to_channel and self.parent_id):
             if self.parent is None:
                 raise ValidationError({
-                    'parent': _("Channel interfaces must be assigned to a parent interface.")
+                    'parent': _("A channel subinterface must be assigned to a parent interface.")
                 })
             if not self.parent.channels:
                 raise ValidationError({

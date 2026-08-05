@@ -372,13 +372,46 @@ class ChannelizedInterfaceValidationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             interface.full_clean()
 
-    def test_channel_id_requires_channel_type(self):
+    def test_channel_id_allowed_on_specific_physical_type(self):
+        # A channel subinterface may keep its own specific physical type (e.g. to record the actual transceiver
+        # in use) instead of the generic "channel" type.
         interface = Interface(
             device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
             parent=self.parent, channel_id=1
         )
+        interface.full_clean()  # Should not raise
+
+    def test_channel_id_rejected_on_virtual_type(self):
+        interface = Interface(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            parent=self.parent, channel_id=1
+        )
         with self.assertRaises(ValidationError):
             interface.full_clean()
+
+    def test_physical_type_parent_requires_channel_id(self):
+        # A physical interface type may not simply be assigned a parent without also being bound to a channel
+        interface = Interface(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS, parent=self.parent
+        )
+        with self.assertRaises(ValidationError):
+            interface.full_clean()
+
+    def test_channel_id_rejected_on_lag_type(self):
+        interface = Interface(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_LAG, parent=self.parent, channel_id=1
+        )
+        with self.assertRaises(ValidationError):
+            interface.full_clean()
+
+    def test_channel_subinterface_with_physical_type_is_not_wired(self):
+        # A channel subinterface derives its cable from its parent and cannot be cabled directly, regardless of
+        # whether it uses the generic "channel" type or its own specific physical type.
+        interface = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
+            parent=self.parent, channel_id=1
+        )
+        self.assertFalse(interface.is_wired)
 
     def test_channel_requires_parent(self):
         interface = Interface(
@@ -451,6 +484,66 @@ class ChannelizedInterfaceValidationTestCase(TestCase):
         )
         with self.assertRaises(ValidationError):
             duplicate.full_clean()
+
+
+class ChannelizedInterfaceRenameTestCase(TestCase):
+    """
+    Test that renaming a channelized parent interface updates the names of any channel subinterfaces which follow
+    the "<parent name>:<channel ID>" convention.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        site = Site.objects.create(name='Site', slug='site')
+        cls.device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 1')
+        cls.parent = Interface.objects.create(
+            device=cls.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
+        )
+
+    def test_rename_updates_conforming_children(self):
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
+
+    def test_rename_leaves_nonconforming_children_untouched(self):
+        child = Interface.objects.create(
+            device=self.device, name='et0-custom', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent,
+            channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et0-custom')
+
+    def test_rename_skips_child_on_collision(self):
+        colliding_child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+        Interface.objects.create(device=self.device, name='et1:1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
+
+        self.parent.name = 'et1'
+        self.parent.save()
+
+        colliding_child.refresh_from_db()
+        self.assertEqual(colliding_child.name, 'et0:1')
+
+    def test_rename_of_non_channelized_interface_is_a_no_op(self):
+        plain = Interface.objects.create(
+            device=self.device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        plain.name = 'xe1'
+        plain.save()  # Should not raise despite having no channel subinterfaces to check
 
 
 class ChannelizedInterfaceTemplateTestCase(TestCase):
