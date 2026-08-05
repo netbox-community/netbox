@@ -1911,6 +1911,22 @@ class CableImportForm(PrimaryModelImportForm):
             value = str(value).split(',')
         return ['' if item is None else str(item).strip() for item in value]
 
+    def _check_companion_column(self, side, field_name, label):
+        """
+        Verify that a column needed to resolve a side's terminations is present on the form.
+
+        When updating an existing object, BulkImportView removes every field which does not appear
+        in the record. A record which redefines a side's termination names must therefore also
+        include the columns identifying their type and parent, otherwise the names cannot be
+        resolved and the update would appear to succeed while changing nothing.
+        """
+        if field_name not in self.fields:
+            raise forms.ValidationError(
+                _(
+                    "Side {side_upper}: The {label} column must be included when modifying terminations"
+                ).format(side_upper=side.upper(), label=label)
+            )
+
     def _resolve_side_parent_objects(self, field_name):
         """
         Resolve a side's parent objects from the raw submitted values, preserving their order.
@@ -1971,7 +1987,14 @@ class CableImportForm(PrimaryModelImportForm):
         if not isinstance(names, (list, tuple)):
             names = self.cleaned_data.get(f'side_{side}_name')
         names = self._split_side_values(names)
-        if not content_type or not names:
+        if not names:
+            return None
+
+        if not content_type:
+            # BulkImportView removes any field absent from an update record, so a missing termination
+            # type here means the column was omitted rather than left blank. Reject it: silently
+            # ignoring the submitted names would report a successful update which changed nothing.
+            self._check_companion_column(side, f'side_{side}_type', _('termination type'))
             return None
 
         if '' in names:
@@ -1993,6 +2016,8 @@ class CableImportForm(PrimaryModelImportForm):
             raise forms.ValidationError(
                 _("Bulk import does not support {type} terminations").format(type=content_type)
             )
+
+        self._check_companion_column(side, parent_field_name, parent_label)
 
         parents = self._resolve_side_parent_objects(parent_field_name)
         if parents is None:

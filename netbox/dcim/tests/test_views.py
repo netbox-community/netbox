@@ -4459,6 +4459,57 @@ class CableTestCase(
         self.assertIn('only 2 are permitted', response.content.decode())
         self.assertEqual(self._get_queryset().count(), initial_count)
 
+    def _post_cable_update(self, csv_data):
+        self.add_permissions('dcim.add_cable', 'dcim.change_cable')
+        return self.client.post(self._get_url('bulk_import'), {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_parent_column(self):
+        """Redefining termination names without the parent column is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_type,side_b_name",
+            f'{cable.pk},dcim.interface,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('device column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_type_column(self):
+        """The same applies to the termination type column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_name",
+            f'{cable.pk},Device 4,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('termination type column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_with_all_columns(self):
+        """A complete set of side columns updates the terminations."""
+        cable = self._get_queryset().first()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name,profile",
+            f'{cable.pk},Device 4,dcim.interface,"Interface 1,Interface 2",breakout-1c2p-2c1p',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(t) for t in Cable.objects.get(pk=cable.pk).b_terminations],
+            ['Interface 1', 'Interface 2']
+        )
+
 
 #
 # Connections
