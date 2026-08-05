@@ -418,17 +418,36 @@ class JobTestCase(TestCase):
         self.assertIsNone(job.started)
         self.assertIsNone(job.elapsed_time)
 
-    @patch('core.models.jobs.job_end')
-    def test_duration_derives_from_execution_time(self, mock_job_end):
+    def test_elapsed_time_expression_matches_property(self):
         """
-        The duration property should be rendered from the recorded execution_time, and should be
-        null for a job which never started.
+        The elapsed_time_expression() queryset expression should agree with the elapsed_time
+        property for completed, running, and never-started jobs.
         """
-        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
-        job.execution_time = timedelta(seconds=90)
-        self.assertEqual(job.duration, '1 minutes, 30.00 seconds')
+        completed = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        completed.started = timezone.now() - timedelta(seconds=90)
+        completed.completed = timezone.now()
+        completed.execution_time = timedelta(seconds=90)
+        completed.status = JobStatusChoices.STATUS_COMPLETED
+        completed.save()
 
-        # A job terminated without ever starting has no execution time, and thus no duration
-        unstarted = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
-        unstarted.terminate(status=JobStatusChoices.STATUS_ERRORED)
-        self.assertIsNone(unstarted.duration)
+        running = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        running.started = timezone.now() - timedelta(minutes=5)
+        running.save()
+
+        pending = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        pending.status = JobStatusChoices.STATUS_PENDING
+        pending.save()
+
+        annotated = {
+            job.pk: job
+            for job in Job.objects.annotate(elapsed=Job.elapsed_time_expression())
+        }
+
+        self.assertEqual(annotated[completed.pk].elapsed, timedelta(seconds=90))
+        self.assertIsNone(annotated[pending.pk].elapsed)
+        # The running job's elapsed time is computed at query time, so compare approximately
+        self.assertAlmostEqual(
+            annotated[running.pk].elapsed.total_seconds(),
+            running.elapsed_time.total_seconds(),
+            delta=5,
+        )

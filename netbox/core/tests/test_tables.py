@@ -101,24 +101,40 @@ class JobExecutionTimeColumnTestCase(TestCase):
         index = rows[0].index('Execution Time')
         self.assertIsNone(rows[1][index])
 
-    def test_ordering_sorts_nulls_last(self):
+    def test_ordering_matches_displayed_values(self):
         """
-        Jobs with no recorded execution time must sort last in both directions, so that sorting by
-        execution time does not bury the longest-running jobs behind pending ones.
+        Sorting must order by the value the column displays — which for a running job is its elapsed
+        time, not a null — so that a long-running job is not buried. Jobs which never started sort
+        last in both directions.
         """
-        recorded = ['negative', 'completed-subsecond', 'completed-90s', 'completed-long']
-        unrecorded = {'running', 'pending'}
+        # 'running' has been going 5 minutes, so it sorts between the 90s and 2d3h jobs
+        ascending = ['negative', 'completed-subsecond', 'completed-90s', 'running', 'completed-long']
 
         for descending, expected in (
-            (False, recorded),
-            (True, list(reversed(recorded))),
+            (False, ascending),
+            (True, list(reversed(ascending))),
         ):
             with self.subTest(descending=descending):
                 table = JobTable(Job.objects.all())
-                queryset, _modified = table.columns['execution_time'].order(Job.objects.all(), descending)
+                queryset, modified = table.columns['execution_time'].order(Job.objects.all(), descending)
+                self.assertTrue(modified)
                 names = list(queryset.values_list('name', flat=True))
-                self.assertEqual(names[:len(recorded)], expected)
-                self.assertEqual(set(names[len(recorded):]), unrecorded)
+                self.assertEqual(names, expected + ['pending'])
+
+    def test_ordering_breaks_ties_on_pk(self):
+        """
+        Tied rows need a stable secondary sort, or paginating through them can skip or repeat rows.
+        """
+        Job.objects.bulk_create(
+            Job(name=f'tied-{i}', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_PENDING)
+            for i in range(4)
+        )
+        table = JobTable(Job.objects.all())
+        queryset, _modified = table.columns['execution_time'].order(Job.objects.filter(
+            name__startswith='tied-'
+        ), True)
+        pks = list(queryset.values_list('pk', flat=True))
+        self.assertEqual(pks, sorted(pks))
 
 
 class ObjectChangeTableTestCase(TableTestCases.StandardTableTestCase):

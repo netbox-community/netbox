@@ -38,8 +38,10 @@ class HumanizeDurationTest(TestCase):
         # Anything below a millisecond has no decimal representation, so it reads as 0s.
         self.assertEqual(humanize_duration(timedelta(microseconds=400)), '0s')
 
-    def test_fractional_seconds_truncated_above_one_second(self):
-        self.assertEqual(humanize_duration(timedelta(seconds=1, milliseconds=999)), '1s')
+    def test_fractional_seconds_rounded_above_one_second(self):
+        self.assertEqual(humanize_duration(timedelta(seconds=1, milliseconds=999)), '2s')
+        self.assertEqual(humanize_duration(timedelta(seconds=1, milliseconds=100)), '1s')
+        self.assertEqual(humanize_duration(timedelta(seconds=59, milliseconds=600)), '1m')
 
     def test_negative_duration_clamped_to_zero(self):
         # A negative duration (e.g. resulting from clock skew) never renders as negative.

@@ -119,6 +119,9 @@ class DurationColumn(tables.Column):
     """
     def render(self, value):
         if not isinstance(value, timedelta):
+            if not value:
+                # A zero count of minutes renders as empty rather than "0s"
+                return ''
             value = timedelta(minutes=value)
         return humanize_duration(value)
 
