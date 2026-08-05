@@ -28,11 +28,16 @@ class CableTerminationsColumn(tables.Column):
         super().__init__(accessor=Accessor('terminations'), *args, **kwargs)
 
     def _get_terminations(self, manager):
-        terminations = set()
+        # CableTerminations are ordered by connector, which defines the mapping between the two ends
+        # of a cable. Deduplicate in place to preserve that order: collecting into a set would
+        # render (and export) the terminations in an arbitrary order, which for a cable with a
+        # profile assigned no longer reflects how it is wired.
+        terminations = []
         for cabletermination in manager.all():
             if cabletermination.cable_end == self.cable_end:
                 if termination := getattr(cabletermination, self.attr, None):
-                    terminations.add(termination)
+                    if termination not in terminations:
+                        terminations.append(termination)
 
         return terminations
 

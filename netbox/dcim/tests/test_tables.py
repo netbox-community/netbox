@@ -1,4 +1,15 @@
-from dcim.models import ConsolePort, Interface, PowerPort
+from dcim.choices import CableEndChoices, CableProfileChoices, InterfaceTypeChoices
+from dcim.models import (
+    Cable,
+    ConsolePort,
+    Device,
+    DeviceRole,
+    DeviceType,
+    Interface,
+    Manufacturer,
+    PowerPort,
+    Site,
+)
 from dcim.tables import *
 from utilities.testing import TableTestCases
 
@@ -177,6 +188,44 @@ class InterfaceConnectionTableTestCase(TableTestCases.StandardTableTestCase):
 
 class CableTableTestCase(TableTestCases.StandardTableTestCase):
     table = CableTable
+
+    def test_termination_columns_follow_connector_order(self):
+        """Termination & parent columns must render in connector order, not an arbitrary one."""
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        switch = Device.objects.create(name='switch1', site=site, device_type=device_type, role=role)
+        uplink = Interface.objects.create(
+            device=switch, name='et-0/0/0', type=InterfaceTypeChoices.TYPE_100GE_QSFP28
+        )
+        # Create the servers in ascending order, then cable them in descending order, so that
+        # connector order and primary key order disagree.
+        servers = [
+            Device.objects.create(name=f'server{i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 5)
+        ]
+        interfaces = [
+            Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_25GE_SFP28)
+            for device in servers
+        ]
+        cable = Cable(
+            a_terminations=[uplink],
+            b_terminations=list(reversed(interfaces)),
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
+        )
+        cable.save()
+
+        table = CableTable(Cable.objects.filter(pk=cable.pk))
+        table.columns.show('device_b')
+        row = list(table.rows)[0]
+
+        self.assertEqual(row.get_cell_value('device_b'), 'server4,server3,server2,server1')
+        self.assertEqual(
+            [ct.termination for ct in cable.terminations.filter(cable_end=CableEndChoices.SIDE_B)],
+            list(reversed(interfaces))
+        )
 
 
 class CableBundleTableTestCase(TableTestCases.StandardTableTestCase):
