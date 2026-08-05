@@ -167,7 +167,10 @@ class JobTestCase(
         completed.save()
         response = self.client.get(completed.get_absolute_url())
         self.assertHttpStatus(response, 200)
-        self.assertIn('1m 30s', str(response.content))
+        content = str(response.content)
+        self.assertIn('1m 30s', content)
+        # The panel must use the same label as the list column, filter form, and API field
+        self.assertIn('Execution Time', content)
 
         running = Job.objects.get(name='Job 2')
         running.started = now - timedelta(hours=2)
