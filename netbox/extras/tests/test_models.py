@@ -17,6 +17,7 @@ from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
+from rq.queue import Queue
 
 from core.events import OBJECT_CREATED
 from core.models import AutoSyncRecord, DataSource, ObjectType
@@ -1856,7 +1857,20 @@ class WebhookTestCase(TestCase):
     @override_settings(RQ_DEFAULT_TIMEOUT=-1)
     def test_unbounded_job_timeout_skips_validation(self):
         """
-        A non-positive RQ timeout disables RQ's death penalty, so there is no job timeout to validate against.
+        A negative RQ timeout (-1) disables RQ's death penalty, so there is no job timeout to validate against.
         """
         webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT=0)
+    def test_zero_job_timeout_is_validated_against_queue_default(self):
+        """
+        A zero (or absent) RQ timeout is not unbounded: RQ falls back to the queue's own default, which the
+        webhook timeout must still stay below.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=Queue.DEFAULT_TIMEOUT)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = Queue.DEFAULT_TIMEOUT - 1
         webhook.full_clean()

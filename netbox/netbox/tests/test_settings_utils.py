@@ -7,6 +7,7 @@ from unittest.mock import patch
 from django.conf import settings as django_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
+from rq.queue import Queue
 
 from netbox import settings_utils
 
@@ -225,11 +226,18 @@ class ParseJobTimeoutTest(SimpleTestCase):
         self.assertEqual(settings_utils.parse_job_timeout('30m'), 1800)
         self.assertEqual(settings_utils.parse_job_timeout('45s'), 45)
 
-    def test_non_positive_timeout_is_unbounded(self):
-        # A non-positive timeout disables RQ's death penalty; there is no ceiling to compare against.
-        self.assertIsNone(settings_utils.parse_job_timeout(0))
+    def test_absent_or_zero_timeout_falls_back_to_queue_default(self):
+        # RQ does not treat a null or zero default timeout as unlimited: Queue substitutes its own
+        # default, which remains a real ceiling on job execution.
+        for value in (None, 0, '0'):
+            with self.subTest(value=value):
+                self.assertEqual(settings_utils.parse_job_timeout(value), Queue.DEFAULT_TIMEOUT)
+
+    def test_negative_timeout_is_unbounded(self):
+        # -1 is RQ's documented infinite timeout; it disables the death penalty, so there is no
+        # ceiling to compare against.
         self.assertIsNone(settings_utils.parse_job_timeout(-1))
-        self.assertIsNone(settings_utils.parse_job_timeout(None))
+        self.assertIsNone(settings_utils.parse_job_timeout('-1'))
 
     def test_invalid_value_raises(self):
         for value in ('1x', 'abc', [300]):

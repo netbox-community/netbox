@@ -277,7 +277,10 @@ This is a wrapper for passing global configuration parameters to [Django RQ](htt
 
 Default: `300`
 
-The maximum execution time of a background task (such as running a custom script), in seconds. This may also be expressed as a duration string such as `1h` or `30m`, which NetBox normalizes to seconds when comparing it against webhook timeouts.
+The maximum execution time of a background task (such as running a custom script), in seconds. This may also be expressed as a duration string such as `1h` or `30m`, which NetBox normalizes to seconds when comparing it against webhook timeouts. Set this to `-1` to disable the job timeout entirely.
+
+!!! note
+    A value of zero (or `None`) does not disable the timeout: RQ falls back to its own default of 180 seconds, and NetBox validates webhook timeouts against that value accordingly.
 
 ---
 

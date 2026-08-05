@@ -9,6 +9,7 @@ from typing import NamedTuple
 
 from django.core.exceptions import ImproperlyConfigured
 from rq.exceptions import TimeoutFormatError
+from rq.queue import Queue
 from rq.utils import parse_timeout
 
 __all__ = (
@@ -81,8 +82,9 @@ def parse_job_timeout(value):
 
     RQ accepts a timeout as an integer, as a numeric string, or as a duration string such as
     "1h", so its own parser is used to arrive at a value which can be compared against webhook
-    timeouts. A non-positive timeout disables RQ's death penalty entirely; that (like an absent
-    timeout) is reported as None, meaning that job execution is unbounded.
+    timeouts. A negative timeout (-1 by convention) disables RQ's death penalty; that is reported
+    as None, meaning that job execution is unbounded. An absent or zero timeout is *not* unbounded:
+    RQ falls back to the queue's own default, which is reported in its place.
     """
     try:
         timeout = parse_timeout(value)
@@ -91,7 +93,10 @@ def parse_job_timeout(value):
             f"RQ_DEFAULT_TIMEOUT must be a number of seconds or a duration string such as '1h' "
             f"(found {value!r})"
         )
-    if timeout is None or timeout <= 0:
+    if timeout is None or timeout == 0:
+        # Queue treats a null or zero default timeout as unset and substitutes its class default.
+        return Queue.DEFAULT_TIMEOUT
+    if timeout < 0:
         return None
     return timeout
 
