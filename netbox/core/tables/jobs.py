@@ -45,7 +45,7 @@ class JobTable(NetBoxTable):
     completed = columns.DateTimeColumn(
         verbose_name=_('Completed'),
     )
-    execution_time = columns.DurationColumn(
+    execution_time = tables.Column(
         verbose_name=_('Execution Time'),
         # Render running jobs (which have no recorded execution time yet) rather than the placeholder
         empty_values=(),
@@ -87,10 +87,12 @@ class JobTable(NetBoxTable):
         return value
 
     def value_execution_time(self, record):
-        # Export the raw number of seconds rather than the humanized rendering
-        if (duration := record.elapsed_time) is None:
+        # Export the recorded execution time verbatim, as a raw number of seconds. A running job's
+        # provisional elapsed time is deliberately omitted, as is the clamping of anomalous negative
+        # values applied when rendering: an export is intended for analysis.
+        if record.execution_time is None:
             return None
-        return round(max(duration.total_seconds(), 0), 3)
+        return round(record.execution_time.total_seconds(), 3)
 
     def order_execution_time(self, queryset, is_descending):
         # Order by the value the column actually displays, so that a long-running job is not sorted

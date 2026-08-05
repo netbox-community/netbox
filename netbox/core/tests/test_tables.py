@@ -49,6 +49,10 @@ class JobExecutionTimeColumnTestCase(TestCase):
                 started=now, completed=now, execution_time=timedelta(seconds=-5),
             ),
             Job(
+                name='unrecorded', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_COMPLETED,
+                started=now - timedelta(seconds=90), completed=now,
+            ),
+            Job(
                 name='running', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_RUNNING,
                 started=now - timedelta(minutes=5),
             ),
@@ -87,28 +91,46 @@ class JobExecutionTimeColumnTestCase(TestCase):
         row = next(iter(table.rows))
         self.assertEqual(str(row.get_cell('execution_time')), table.default)
 
-    def test_export_value_is_raw_seconds(self):
-        table = JobTable(Job.objects.filter(name='completed-90s'))
+    def test_render_job_completed_without_execution_time(self):
+        # A completed job with no recorded execution time shows the placeholder, rather than
+        # accruing time since it started
+        table = JobTable(Job.objects.filter(name='unrecorded'))
+        table.columns.show('execution_time')
+        row = next(iter(table.rows))
+        self.assertEqual(str(row.get_cell('execution_time')), table.default)
+
+    def _export_value(self, name):
+        table = JobTable(Job.objects.filter(name=name))
         table.columns.show('execution_time')
         rows = list(table.as_values())
-        index = rows[0].index('Execution Time')
-        self.assertEqual(rows[1][index], 90.0)
+        return rows[1][rows[0].index('Execution Time')]
+
+    def test_export_value_is_raw_seconds(self):
+        self.assertEqual(self._export_value('completed-90s'), 90.0)
 
     def test_export_value_of_job_never_started(self):
-        table = JobTable(Job.objects.filter(name='pending'))
-        table.columns.show('execution_time')
-        rows = list(table.as_values())
-        index = rows[0].index('Execution Time')
-        self.assertIsNone(rows[1][index])
+        self.assertIsNone(self._export_value('pending'))
+
+    def test_export_value_of_running_job(self):
+        # Only the recorded execution time is exported; a running job has none yet
+        self.assertIsNone(self._export_value('running'))
+
+    def test_export_value_is_not_clamped(self):
+        # An anomalous negative value is clamped when rendered, but exported verbatim so that it
+        # remains visible to analysis
+        self.assertEqual(self._export_value('negative'), -5.0)
 
     def test_ordering_matches_displayed_values(self):
         """
         Sorting must order by the value the column displays — which for a running job is its elapsed
-        time, not a null — so that a long-running job is not buried. Jobs which never started sort
-        last in both directions.
+        time, not a null — so that a long-running job is not buried. Jobs with no elapsed time to
+        display sort last in both directions, in pk order.
         """
         # 'running' has been going 5 minutes, so it sorts between the 90s and 2d3h jobs
         ascending = ['negative', 'completed-subsecond', 'completed-90s', 'running', 'completed-long']
+        # Neither a job which never started nor one which completed without recording an execution
+        # time has a value to sort by
+        no_value = ['unrecorded', 'pending']
 
         for descending, expected in (
             (False, ascending),
@@ -119,7 +141,7 @@ class JobExecutionTimeColumnTestCase(TestCase):
                 queryset, modified = table.columns['execution_time'].order(Job.objects.all(), descending)
                 self.assertTrue(modified)
                 names = list(queryset.values_list('name', flat=True))
-                self.assertEqual(names, expected + ['pending'])
+                self.assertEqual(names, expected + no_value)
 
     def test_ordering_breaks_ties_on_pk(self):
         """

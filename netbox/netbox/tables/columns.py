@@ -1,6 +1,5 @@
 import zoneinfo
 from dataclasses import dataclass
-from datetime import timedelta
 from urllib.parse import quote
 
 import django_tables2 as tables
@@ -23,7 +22,6 @@ from extras.choices import CustomFieldTypeChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
-from utilities.string import humanize_duration
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import url_scheme_is_allowed
 from utilities.views import get_action_url
@@ -114,16 +112,17 @@ class DateTimeColumn(tables.Column):
 
 class DurationColumn(tables.Column):
     """
-    Express a duration of time in a human-friendly format. Accepts either a timedelta or a count of
-    minutes. Example: 437 minutes becomes "7h 17m"
+    Express a duration of time (in minutes) in a human-friendly format. Example: 437 minutes becomes "7h 17m"
     """
     def render(self, value):
-        if not isinstance(value, timedelta):
-            if not value:
-                # A zero count of minutes renders as empty rather than "0s"
-                return ''
-            value = timedelta(minutes=value)
-        return humanize_duration(value)
+        ret = ''
+        if days := value // 1440:
+            ret += f'{days}d '
+        if hours := value % 1440 // 60:
+            ret += f'{hours}h '
+        if minutes := value % 60:
+            ret += f'{minutes}m'
+        return ret.strip()
 
     def value(self, value):
         return value
