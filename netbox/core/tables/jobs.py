@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.db.models import F
 from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -79,7 +78,7 @@ class JobTable(NetBoxTable):
             return self.default
 
         value = humanize_duration(duration)
-        if record.execution_time is None:
+        if not record.completed:
             # The job is still running, so distinguish its (provisional) elapsed time from a final one
             return format_html(
                 '<span class="text-primary" title="{}">{}</span>', _('Still running'), value
@@ -91,13 +90,15 @@ class JobTable(NetBoxTable):
         # Export the raw number of seconds rather than the humanized rendering
         if (duration := record.elapsed_time) is None:
             return None
-        return max(duration.total_seconds(), 0)
+        return round(max(duration.total_seconds(), 0), 3)
 
     def order_execution_time(self, queryset, is_descending):
-        # Jobs with no recorded execution time are sorted last irrespective of the sort direction
-        field = F('execution_time')
-        ordering = field.desc(nulls_last=True) if is_descending else field.asc(nulls_last=True)
-        return queryset.order_by(ordering), True
+        # Order by the value the column actually displays, so that a long-running job is not sorted
+        # as though it had no execution time. Jobs which never started sort last in either
+        # direction, and pk breaks ties to keep pagination stable.
+        elapsed_time = Job.elapsed_time_expression()
+        ordering = elapsed_time.desc(nulls_last=True) if is_descending else elapsed_time.asc(nulls_last=True)
+        return queryset.order_by(ordering, 'pk'), True
 
 
 class JobLogEntryTable(BaseTable):

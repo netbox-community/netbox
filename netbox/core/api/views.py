@@ -1,6 +1,7 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
 from django_rq.queues import get_redis_connection
 from django_rq.settings import get_queues_list
 from django_rq.utils import get_statistics
@@ -19,6 +20,7 @@ from core.jobs import SyncDataSourceJob
 from core.models import *
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.filter_backends import OrderingFilter
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
@@ -71,6 +73,11 @@ class JobViewSet(NetBoxReadOnlyModelViewSet):
     queryset = Job.objects.all()
     serializer_class = serializers.JobSerializer
     filterset_class = filtersets.JobFilterSet
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    # Order by elapsed time for jobs which are still running, matching the jobs table in the UI
+    ordering_expressions = {
+        'execution_time': Job.elapsed_time_expression(),
+    }
 
 
 class ObjectChangeViewSet(NetBoxReadOnlyModelViewSet):

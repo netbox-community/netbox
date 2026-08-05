@@ -11,6 +11,8 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
+from django.db.models import ExpressionWrapper, F
+from django.db.models.functions import Coalesce, Now
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -194,14 +196,16 @@ class Job(models.Model):
             return timezone.now() - self.started
         return None
 
-    @property
-    def duration(self):
-        if self.execution_time is None:
-            return None
-
-        minutes, seconds = divmod(self.execution_time.total_seconds(), 60)
-
-        return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+    @staticmethod
+    def elapsed_time_expression():
+        """
+        A queryset expression mirroring the `elapsed_time` property, for use in ordering and
+        filtering. Resolves to null for jobs which have not yet started.
+        """
+        return Coalesce(
+            'execution_time',
+            ExpressionWrapper(Now() - F('started'), output_field=models.DurationField()),
+        )
 
     def delete(self, *args, **kwargs):
         # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs
