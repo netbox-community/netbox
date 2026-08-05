@@ -1033,6 +1033,7 @@ class CablePath(models.Model):
                 break
 
             if isinstance(remote_terminations[0], FrontPort):
+
                 # Follow FrontPorts to their corresponding RearPorts
                 if remote_terminations[0].positions > 1 and position_stack:
                     positions = position_stack.pop()
@@ -1040,15 +1041,44 @@ class CablePath(models.Model):
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_mappings = PortMapping.objects.filter(q_filter)
-                elif remote_terminations[0].positions > 1:
-                    is_split = True
-                    logger.debug(
-                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
-                        'trace.'
-                    )
-                    break
                 else:
                     port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
+
+                    # For multi-position FrontPorts with no positional context, check whether
+                    # all mapped RearPorts converge on the same remote parent (device/module).
+                    # If they diverge to different parents the split is genuinely ambiguous;
+                    # if they share a parent the split is convergent and safe to follow.
+                    if any(rt.positions > 1 for rt in remote_terminations):
+                        if not port_mappings:
+                            break
+                        rear_ports = [m.rear_port for m in port_mappings]
+                        termination_type = ObjectType.objects.get_for_model(rear_ports[0])
+                        local_cts = CableTermination.objects.filter(
+                            termination_type=termination_type,
+                            termination_id__in=[rp.pk for rp in rear_ports]
+                        )
+
+                        q_filter = Q()
+                        for lct in local_cts:
+                            far_end = 'A' if lct.cable_end == 'B' else 'B'
+                            q_filter |= Q(cable=lct.cable, cable_end=far_end)
+
+                        if q_filter:
+                            far_end_cts = CableTermination.objects.filter(q_filter).prefetch_related('termination')
+                            far_end_parents = set()
+                            for ct in far_end_cts:
+                                t = ct.termination
+                                far_end_parents.add(
+                                    ('module', t.module_id) if getattr(t, 'module_id', None)
+                                    else ('device', getattr(t, 'device_id', None))
+                                )
+                            if len(far_end_parents) > 1:
+                                is_split = True
+                                logger.debug(
+                                    'Multi-position FrontPort maps to RearPorts connected to different '
+                                    'remote parents; divergent path, aborting trace.'
+                                )
+                                break
                 if not port_mappings:
                     break
 
