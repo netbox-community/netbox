@@ -35,6 +35,9 @@ The amount of time the job spent executing, calculated as the difference between
 !!! warning "The duration property is deprecated"
     The job model's `duration` property, which returned a preformatted string such as `5 minutes, 3.00 seconds`, has been **deprecated** and is planned for removal in NetBox v5.0. Export templates and plugins should reference `elapsed_time` instead, which returns a duration rather than a string and which also reports progress for a job that is still running.
 
+!!! note "Filtering and sorting behave differently"
+    Filtering on execution time matches only the recorded value, so a job which is still running is never returned: it has no execution time yet. Sorting the jobs list by the **Execution Time** column instead orders by the value displayed, which for a running job is the time elapsed so far. A long-running job therefore appears near the top when sorting in descending order, but is excluded by a filter on the same attribute. Exports likewise carry only the recorded value, in seconds.
+
 ### User
 
 The user who created the job.
