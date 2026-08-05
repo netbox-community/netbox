@@ -1,0 +1,8 @@
+{% load helpers %}
+{% load i18n %}
+{% if object.completed %}
+  {{ value|humanize_duration }}
+{% else %}
+  {# The job is still running, so its elapsed time is provisional #}
+  <span class="text-primary" title="{% trans "Still running" %}">{{ value|humanize_duration }}</span>
+{% endif %}
