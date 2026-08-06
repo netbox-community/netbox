@@ -62,10 +62,11 @@ class JobTable(NetBoxTable):
         model = Job
         fields = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'scheduled', 'interval', 'started',
-            'completed', 'user', 'queue_name', 'log_entries', 'error', 'job_id', 'execution_time'
+            'completed', 'execution_time', 'user', 'queue_name', 'log_entries', 'error', 'job_id',
         )
         default_columns = (
-            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',
+            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'execution_time',
+            'user',
         )
 
     def render_log_entries(self, value):
@@ -73,6 +74,11 @@ class JobTable(NetBoxTable):
 
     def render_execution_time(self, value):
         return humanize_duration(value)
+
+    def value_execution_time(self, value):
+        # Export the recorded execution time as a raw number of seconds, rather than the humanized
+        # string, as an export is intended for analysis
+        return round(value.total_seconds(), 3)
 
 
 class JobLogEntryTable(BaseTable):
