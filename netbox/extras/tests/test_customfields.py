@@ -2076,6 +2076,33 @@ class CustomFieldModelTestCase(TestCase):
         site.custom_field_data['baz'] = 'def'
         site.clean()
 
+    def test_required_field_enforced_on_existing_objects(self):
+        """
+        Adding a required custom field invalidates the objects which already exist, whether they
+        carry no key for it -- the normal state now that empty values are not provisioned -- or an
+        explicit null. Both are rejected, as they were before: every object then held a materialized
+        null, which CustomField.validate() rejects for a required field.
+        """
+        site = Site.objects.create(name='Test Site', slug='test-site')
+
+        cf = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='req', required=True)
+        cf.save()
+        cf.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        # No value was provisioned onto the existing object
+        site.refresh_from_db()
+        self.assertNotIn('req', site.custom_field_data)
+        with self.assertRaises(ValidationError):
+            site.clean()
+
+        # An explicit null is rejected identically
+        site.custom_field_data['req'] = None
+        with self.assertRaises(ValidationError):
+            site.clean()
+
+        site.custom_field_data['req'] = 'value'
+        site.clean()
+
 
 class MissingKeyAwareFilterTestCase(TestCase):
     """
