@@ -793,7 +793,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
         # A negated lookup must match objects which carry no key for this field at all; see
         # MissingKeyAwareFilterMixin. BooleanFilter is never negated, so it is left alone.
-        if filter_class is not django_filters.BooleanFilter:
+        if not issubclass(filter_class, django_filters.BooleanFilter):
             filter_class = missing_key_aware_filter_factory(filter_class)
 
         filter_instance = filter_class(**kwargs)
