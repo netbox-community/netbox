@@ -1,4 +1,4 @@
-from django.test import Client, TestCase, override_settings, tag
+from django.test import Client, RequestFactory, TestCase, override_settings, tag
 from django.urls import reverse
 from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
@@ -16,7 +16,13 @@ from netbox.config import get_config
 from netbox.plugins import register_serializer_resolver
 from netbox.registry import registry
 from users.models import ObjectPermission
-from utilities.api import get_prefetches_for_serializer, get_serializer_for_model, get_view_name
+from utilities.api import (
+    get_prefetches_for_serializer,
+    get_serializer_for_model,
+    get_view_name,
+    is_api_request,
+    is_graphql_request,
+)
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -715,3 +721,49 @@ class APITrailingSlashTestCase(APITestCase):
             response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Site.objects.filter(pk=self.site.pk).exists())
+
+
+class IsApiRequestTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_returns_true_for_api_path(self):
+        request = self.factory.get(reverse('api-root'))
+        self.assertTrue(is_api_request(request))
+
+    def test_returns_false_for_non_api_path(self):
+        request = self.factory.get('/dcim/interfaces/')
+        self.assertFalse(is_api_request(request))
+
+    def test_returns_false_for_path_merely_containing_api(self):
+        """
+        A path that contains 'api' as a substring, but does not start with the
+        API root, must not be classified as an API request.
+        """
+        request = self.factory.get('/dcim/api-widget/')
+        self.assertFalse(is_api_request(request))
+
+
+class IsGraphqlRequestTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_returns_true_for_graphql_json_request(self):
+        request = self.factory.post(
+            reverse('graphql'),
+            data='{"query": "{ __typename }"}',
+            content_type='application/json',
+        )
+        self.assertTrue(is_graphql_request(request))
+
+    def test_returns_false_for_graphql_non_json_request(self):
+        """
+        The GraphiQL browser UI hits the same path with a non-JSON content
+        type; it must not be classified as a GraphQL API request.
+        """
+        request = self.factory.get(reverse('graphql'))
+        self.assertFalse(is_graphql_request(request))
+
+    def test_returns_false_for_non_graphql_path(self):
+        request = self.factory.get(reverse('api-root'))
+        self.assertFalse(is_graphql_request(request))
