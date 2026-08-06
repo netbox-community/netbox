@@ -1715,6 +1715,10 @@ class CableImportForm(PrimaryModelImportForm):
         'b_terminations': 'side_b_name',
     }
 
+    # Columns which take effect only by resolving a side's terminations, and are therefore
+    # meaningless without that side's name column.
+    TERMINATION_DEPENDENT_COLUMNS = ('site', 'device', 'power_panel', 'type')
+
     # Termination A
     side_a_site = CSVModelChoiceField(
         label=_('Side A site'),
@@ -2106,6 +2110,32 @@ class CableImportForm(PrimaryModelImportForm):
                 _(f"{color} did not match any used color name and was longer than six characters: invalid hex.")
             )
         return color_parsed
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Termination resolution is driven by clean_side_<x>_name(), which Django never calls for a
+        # field BulkImportView has removed. An update record which supplies a side's supporting
+        # columns but omits its name column would therefore have those columns silently discarded
+        # and report an update which changed nothing; reject it instead. This cannot trigger on
+        # creation, where the name columns are always present (and required).
+        for side in ('a', 'b'):
+            if f'side_{side}_name' in self.fields:
+                continue
+            if supplied := [
+                column for column in self.TERMINATION_DEPENDENT_COLUMNS
+                if f'side_{side}_{column}' in self.fields
+            ]:
+                self.add_error(None, _(
+                    "Side {side_upper}: The side_{side}_name column must be included when modifying "
+                    "terminations (found {columns})"
+                ).format(
+                    side_upper=side.upper(),
+                    side=side,
+                    columns=', '.join(f'side_{side}_{column}' for column in supplied),
+                ))
+
+        return cleaned_data
 
     def clean_side_a_name(self):
         return self._clean_side('a')

@@ -4534,6 +4534,51 @@ class CableTestCase(
             ['Interface 1', 'Interface 2']
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_side_columns_without_name_column(self):
+        """Supporting side columns without the name column are rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type",
+            f'{cable.pk},Device 4,dcim.interface',
+        ))
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('side_b_name column must be included', content)
+        self.assertIn('side_b_device, side_b_type', content)
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_site_column_without_name_column(self):
+        """The site column only scopes termination resolution, so it too requires the name column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_site",
+            f'{cable.pk},Site 1',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_without_any_side_columns(self):
+        """An update touching no side columns is unaffected by the name column requirement."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,label",
+            f'{cable.pk},Relabeled',
+        ))
+        self.assertHttpStatus(response, 302)
+        cable = Cable.objects.get(pk=cable.pk)
+        self.assertEqual(cable.label, 'Relabeled')
+        self.assertEqual(cable.b_terminations, original)
+
 
 #
 # Connections
