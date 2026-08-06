@@ -33,11 +33,11 @@ A custom field must be assigned to one or more object types, or models, in NetBo
 !!! info "This behavior changed in NetBox v4.6.8."
     To improve performance when creating custom fields, empty field values are no longer pre-provisioned.
 
-Unless the field has been assigned a default value, creating a custom field does not write a value to the objects which already exist. An object which has never been assigned a value simply stores nothing for the field, and reports the field as having no value (or its default, where one is defined later) in the web UI, REST API, and exports, exactly as if it stored an explicit null.
+Unless the field has been assigned a default value, creating a custom field does not write a value to the objects which already exist. An object which has never been assigned a value simply stores nothing for the field, and reports the field as having no value in the web UI, REST API, GraphQL API, and exports, exactly as if it stored an explicit null. Filtering for objects with no value (`?cf_field_name=null`) matches them as well.
 
 This matters only if you query the underlying `custom_field_data` JSON directly, for example in a custom script. The field's key is absent from an object's data until a value is assigned to it, so read it with `obj.cf['field_name']` or `obj.custom_field_data.get('field_name')` rather than by direct subscript.
 
-Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time.
+Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
 
 Adding a required custom field does not retroactively invalidate the objects which already exist. Because no value is written to them, the requirement is enforced when an object is created, and by the web UI whenever an object is edited through a form; an object which predates the field can still be saved without a value from a custom script or via the REST API. Assign the field a default value if every object must carry one.
 

@@ -2380,6 +2380,61 @@ class CustomFieldModelFilterTestCase(TestCase):
                 self.assertIn(no_key.pk, pks, "an object carrying no key must match")
                 self.assertIn(explicit_null.pk, pks, "an object holding a null must match")
 
+    def test_filter_null_sentinel_matches_unset_values(self):
+        """
+        The null sentinel (FILTERS_NULL_CHOICE_VALUE) asks for the objects holding no value, which
+        must include those carrying no key as well as those holding an explicit null. Negating it
+        must therefore return exactly the objects which do hold a value -- and in particular must
+        not return the ones it is being asked to exclude.
+
+        Only string-backed field types are exercised: a numeric or date field rejects 'null' during
+        form validation ("Enter a whole number"), so the sentinel never reaches the filter at all.
+        That is a property of multivalue_field_factory() and is unaffected by this behavior.
+        """
+        no_key = Site.objects.get(slug='site-4')
+        explicit_null = Site.objects.create(name='Site 5', slug='site-5', custom_field_data={
+            'cf4': None,
+            'cf7': None,
+            'cf9': None,
+        })
+        has_value = set(
+            Site.objects.filter(slug__in=('site-1', 'site-2', 'site-3')).values_list('pk', flat=True)
+        )
+
+        for filter_name in ('cf_cf4', 'cf_cf7', 'cf_cf9'):
+            with self.subTest(filter_name):
+                pks = set(
+                    self.filterset({filter_name: ['null']}, self.queryset).qs.values_list('pk', flat=True)
+                )
+                self.assertEqual(pks, {no_key.pk, explicit_null.pk})
+
+                pks = set(
+                    self.filterset({f'{filter_name}__n': ['null']}, self.queryset)
+                    .qs.values_list('pk', flat=True)
+                )
+                self.assertEqual(pks, has_value)
+
+    def test_filter_null_sentinel_combined_with_a_value(self):
+        """
+        The sentinel may be passed alongside real values, in which case it widens the match rather
+        than replacing it. Under negation the valueless objects are then excluded, as they are among
+        the values being negated.
+        """
+        no_key = Site.objects.get(slug='site-4')
+        site_1 = Site.objects.get(slug='site-1')
+
+        pks = set(
+            self.filterset({'cf_cf4': ['foo', 'null']}, self.queryset).qs.values_list('pk', flat=True)
+        )
+        self.assertIn(site_1.pk, pks, "an object holding the value must match")
+        self.assertIn(no_key.pk, pks, "an object holding no value must match")
+
+        pks = set(
+            self.filterset({'cf_cf4__n': ['foo', 'null']}, self.queryset).qs.values_list('pk', flat=True)
+        )
+        self.assertNotIn(site_1.pk, pks, "an object holding the value must be excluded")
+        self.assertNotIn(no_key.pk, pks, "an object holding no value must be excluded")
+
     def test_filter_select(self):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf9__empty': True}, self.queryset).qs.count(), 1)
@@ -2387,7 +2442,8 @@ class CustomFieldModelFilterTestCase(TestCase):
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)  # Contains a literal null
+        # Matches both the object holding a literal null and the one carrying no key, as `empty` does
+        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_object(self):
