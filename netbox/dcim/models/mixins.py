@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models, router, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceTypeChoices
@@ -17,6 +17,7 @@ from utilities.conversion import (
 
 __all__ = (
     'CachedScopeMixin',
+    'ChannelRenameMixin',
     'CoolingLoopValidationMixin',
     'DiameterMixin',
     'InterfaceValidationMixin',
@@ -190,8 +191,7 @@ class InterfaceValidationMixin:
         if self.channel_id is not None and not can_bind_to_channel:
             raise ValidationError({
                 'channel_id': _(
-                    "A channel ID can be assigned only to a channel-type interface, or another physical "
-                    "interface type."
+                    "A channel ID cannot be assigned to a virtual, LAG, bridge, or wireless interface."
                 )
             })
 
@@ -259,6 +259,79 @@ class InterfaceValidationMixin:
         # RF role may be set only for wireless interfaces
         if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+
+
+class ChannelRenameMixin:
+    """
+    Shared save()-time logic for Interface and InterfaceTemplate: detects a rename of a channelized parent and
+    cascades it to any channel subinterface which follows the "<parent name>:<channel ID>" naming convention.
+
+    A model using this mixin must:
+      - call _init_channel_rename_tracking() from its own __init__(), after super().__init__()
+      - call _detect_channel_rename() from its own save(), before calling super().save()
+      - call _defer_channel_rename(*the tuple returned above) from its own save(), after calling super().save()
+    """
+
+    def _init_channel_rename_tracking(self):
+        self._original_name = self.__dict__.get('name')
+
+    def _detect_channel_rename(self):
+        """
+        Call before super().save(). Returns a (renamed, old_name, new_name) tuple for _defer_channel_rename().
+        """
+        renamed = self.pk and self.channels and self.name != self._original_name
+        return renamed, self._original_name, self.name
+
+    def _defer_channel_rename(self, renamed, old_name, new_name):
+        """
+        Call after super().save().
+        """
+        # Refreshed unconditionally (not only when renamed is True) so a later save() always compares against
+        # this save()'s name, rather than an earlier one it never cascaded from (e.g. a rename while channels was
+        # unset, or the initial create of an instance built without a name kwarg).
+        self._original_name = self.name
+
+        if renamed:
+            # Deferred via on_commit() (rather than run inline here) so it observes the final post-transaction
+            # state of each channel subinterface rather than a mid-batch snapshot. This matters for bulk views
+            # (e.g. BulkRenameView) which fetch every selected object up front and save() each in turn inside one
+            # atomic() block: a channel subinterface selected in the same batch has its own save() run against
+            # that stale in-memory copy, which would otherwise silently overwrite a rename applied here moments
+            # earlier. Deferring until commit ensures this cascade is the last write for any child whose name
+            # still matches the old convention once the whole batch (not just this one save()) has completed.
+            # old_name/new_name are captured now (not read from self.name inside the callback) so a second rename
+            # of this same instance before commit registers its own independent, correctly-paired callback. The
+            # callback is registered against this save's own write connection, matching where it actually writes.
+            transaction.on_commit(
+                lambda: self.rename_channel_subinterfaces(old_name, new_name),
+                using=router.db_for_write(type(self)),
+            )
+
+    def rename_channel_subinterfaces(self, old_name, new_name):
+        """
+        Update the name of each channel subinterface that follows the "<parent name>:<channel ID>" convention to
+        reflect this interface's new name. A subinterface named otherwise (the convention is not enforced) is left
+        untouched, as is one whose renamed form would collide with an existing sibling.
+        """
+        for child in self.child_interfaces.filter(channel_id__isnull=False):
+            if child.name != f'{old_name}:{child.channel_id}':
+                continue
+            # A full save() (rather than a queryset update()) is used deliberately here: a channel subinterface
+            # can never itself be channelized, so save() cannot recurse into this same cascade — and a full
+            # save() is what correctly recomputes _name (the NaturalOrderingField driving Meta.ordering), bumps
+            # last_updated, and records an ObjectChange (plus, for Interface, refreshes the cached search index),
+            # none of which a queryset update() would do.
+            if hasattr(child, 'snapshot'):
+                child.snapshot()
+            child.name = f'{new_name}:{child.channel_id}'
+            # Each child is renamed in its own savepoint, with the database's own unique constraint as the sole
+            # arbiter of a collision: a concurrent rename cannot slip past a pre-check the way a SELECT-then-UPDATE
+            # could, and a collision on one child cannot abort the rename of the others in the same batch.
+            try:
+                with transaction.atomic(using=router.db_for_write(type(self))):
+                    child.save()
+            except IntegrityError:
+                continue
 
 
 class CoolingLoopValidationMixin:

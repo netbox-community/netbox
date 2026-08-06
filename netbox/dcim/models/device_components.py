@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import IntegrityError, models, router, transaction
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -13,6 +13,7 @@ from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import (
+    ChannelRenameMixin,
     CoolingLoopValidationMixin,
     DiameterMixin,
     InterfaceValidationMixin,
@@ -923,6 +924,7 @@ class BaseInterface(models.Model):
 
 
 class Interface(
+    ChannelRenameMixin,
     InterfaceValidationMixin,
     ModularComponentModel,
     BaseInterface,
@@ -1134,9 +1136,7 @@ class Interface(
         self._original_channel_id = self.__dict__.get('channel_id')
         self._original_parent_id = self.__dict__.get('parent_id')
 
-        # Cache the original name so save() can detect a rename and update channel subinterface names to match
-        # (see rename_channel_subinterfaces()).
-        self._original_name = self.__dict__.get('name')
+        self._init_channel_rename_tracking()
 
     def clean(self):
         super().clean()
@@ -1271,21 +1271,11 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
-        renamed = self.pk and self.channels and self.name != self._original_name
-        old_name = self._original_name
+        rename_state = self._detect_channel_rename()
 
         super().save(*args, **kwargs)
 
-        if renamed:
-            # Deferred via on_commit() (rather than run inline here) so it observes the final post-transaction
-            # state of each channel subinterface rather than a mid-batch snapshot. This matters for bulk views
-            # (e.g. BulkRenameView) which fetch every selected object up front and save() each in turn inside one
-            # atomic() block: a channel subinterface selected in the same batch has its own save() run against
-            # that stale in-memory copy, which would otherwise silently overwrite a rename applied here moments
-            # earlier. Deferring until commit ensures this cascade is the last write for any child whose name
-            # still matches the old convention once the whole batch (not just this one save()) has completed.
-            transaction.on_commit(lambda: self.rename_channel_subinterfaces(old_name))
-            self._original_name = self.name
+        self._defer_channel_rename(*rename_state)
 
     @property
     def _occupied(self):
@@ -1398,29 +1388,6 @@ class Interface(
             cable_connector=None,
             cable_positions=None,
         )
-
-    def rename_channel_subinterfaces(self, old_name):
-        """
-        Update the name of each channel subinterface that follows the "<parent name>:<channel ID>" convention to
-        reflect this interface's new name. A subinterface named otherwise (the convention is not enforced) is left
-        untouched, as is one whose renamed form would collide with an existing sibling on the same device.
-        """
-        for child_pk, child_name, channel_id in self.child_interfaces.filter(
-            channel_id__isnull=False
-        ).values_list('pk', 'name', 'channel_id'):
-            if child_name != f'{old_name}:{channel_id}':
-                continue
-            new_name = f'{self.name}:{channel_id}'
-            # Each child is renamed in its own savepoint, with the database's own unique constraint as the sole
-            # arbiter of a collision: a concurrent rename cannot slip past a pre-check the way a SELECT-then-UPDATE
-            # could, and a collision on one child cannot abort the rename of the others in the same batch. A
-            # queryset update() bypasses the post_save signal, matching the convention used by
-            # propagate_channel_cables().
-            try:
-                with transaction.atomic(using=router.db_for_write(type(self))):
-                    type(self).objects.filter(pk=child_pk).update(name=new_name)
-            except IntegrityError:
-                continue
 
 
 #

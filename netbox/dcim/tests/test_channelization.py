@@ -1,8 +1,15 @@
-from django.core.exceptions import ValidationError
-from django.test import TestCase
-from django.urls import reverse
+import json
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.test import Client, TestCase, TransactionTestCase
+from django.urls import reverse
+from rest_framework.test import APIClient
+
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange
 from dcim.choices import CableProfileChoices, InterfaceTypeChoices
+from dcim.filtersets import InterfaceFilterSet
 from dcim.models import (
     Cable,
     CablePath,
@@ -17,6 +24,9 @@ from dcim.models import (
 from dcim.svg import CableTraceSVG
 from dcim.svg.cables import Connector
 from dcim.tests.utils import BaseCablePathTestCase
+from users.constants import TOKEN_PREFIX
+from users.models import Token, User
+from utilities.ordering import naturalize_interface
 from utilities.testing import TestCase as ViewTestCase
 
 
@@ -623,6 +633,109 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         plain.name = 'xe1'
         plain.save()  # Should not raise despite having no channel subinterfaces to check
 
+    def test_rename_then_channelize_then_rename_again(self):
+        # Renaming while channels is unset, then channelizing, then renaming again must correctly cascade the
+        # second rename to any child created in between.
+        interface = Interface.objects.create(
+            device=self.device, name='zz0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS
+        )
+        interface.name = 'zz1'
+        interface.save()  # Not yet channelized: no cascade, but _original_name must become 'zz1'
+
+        interface.channels = 4
+        interface.save()
+        child = Interface.objects.create(
+            device=self.device, name='zz1:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=interface, channel_id=1
+        )
+
+        interface.name = 'zz2'
+        with self.captureOnCommitCallbacks(execute=True):
+            interface.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'zz2:1')
+
+    def test_original_name_is_set_for_an_instance_built_without_a_name_kwarg(self):
+        # An instance constructed without passing name= (so __init__ caches _original_name as None) must still
+        # cascade correctly once a name and channels are assigned and it's saved for the first time.
+        interface = Interface(device=self.device, type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS)
+        interface.name = 'zz0'
+        interface.channels = 4
+        interface.save()
+        child = Interface.objects.create(
+            device=self.device, name='zz0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=interface, channel_id=1
+        )
+
+        interface.name = 'zz1'
+        with self.captureOnCommitCallbacks(execute=True):
+            interface.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'zz1:1')
+
+
+class ChannelizedInterfaceRenameSideEffectsTestCase(TransactionTestCase):
+    """
+    Test that a cascaded channel subinterface rename behaves as a full save() (updating _name and last_updated,
+    and recording an ObjectChange), not merely as a raw name update. Exercised via the REST API, using
+    TransactionTestCase (rather than TestCase) so that the request's own transaction really commits and its
+    on_commit() callback fires inline, as it would in production — under plain TestCase, the whole test body runs
+    inside one uncommitted transaction, so the deferred rename would never run without manually forcing it via
+    captureOnCommitCallbacks(), which fires only after the request has fully completed and its per-request
+    signal machinery (e.g. the changelog's current_request context) has already been torn down.
+    """
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', is_superuser=True)
+        self.token = Token.objects.create(user=self.user)
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
+        self.client = APIClient()
+
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        site = Site.objects.create(name='Site', slug='site')
+        self.device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 1')
+        self.parent = Interface.objects.create(
+            device=self.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
+        )
+        self.child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent,
+            channel_id=1
+        )
+
+    def _rename_parent(self):
+        url = reverse('dcim-api:interface-detail', kwargs={'pk': self.parent.pk})
+        response = self.client.patch(url, {'name': 'et1'}, format='json', **self.header)
+        self.assertEqual(response.status_code, 200, response.data)
+
+    def test_rename_updates_child_name_ordering_field(self):
+        self._rename_parent()
+
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.name, 'et1:1')
+        self.assertEqual(self.child._name, naturalize_interface('et1:1', max_length=100))
+
+    def test_rename_bumps_child_last_updated(self):
+        original_last_updated = self.child.last_updated
+
+        self._rename_parent()
+
+        self.child.refresh_from_db()
+        self.assertGreater(self.child.last_updated, original_last_updated)
+
+    def test_rename_records_child_changelog_entry(self):
+        self._rename_parent()
+
+        objectchange = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+            changed_object_type=ContentType.objects.get_for_model(Interface),
+            changed_object_id=self.child.pk,
+        ).first()
+        self.assertIsNotNone(objectchange, "No ObjectChange was recorded for the cascaded child rename")
+        self.assertEqual(objectchange.prechange_data['name'], 'et0:1')
+        self.assertEqual(objectchange.postchange_data['name'], 'et1:1')
+
 
 class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
     """
@@ -746,6 +859,56 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
             callback()
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
+
+
+class ChannelizedInterfaceKindFilterTestCase(TestCase):
+    """
+    Test that a channel subinterface is excluded from kind=physical (REST) / kind: PHYSICAL (GraphQL), even when
+    it keeps its own specific physical type rather than the generic "channel" type — matching Interface.is_wired,
+    since it derives its cable from its channelized parent and cannot be cabled directly.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        site = Site.objects.create(name='Site', slug='site')
+        device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 1')
+        cls.parent = Interface.objects.create(
+            device=device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=1
+        )
+        cls.channel = Interface.objects.create(
+            device=device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS, parent=cls.parent,
+            channel_id=1
+        )
+        cls.plain = Interface.objects.create(
+            device=device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+    def test_rest_kind_physical_excludes_channel_subinterface(self):
+        filterset = InterfaceFilterSet({'kind': 'physical'}, Interface.objects.all())
+        results = set(filterset.qs.values_list('pk', flat=True))
+        self.assertIn(self.parent.pk, results)
+        self.assertIn(self.plain.pk, results)
+        self.assertNotIn(self.channel.pk, results)
+
+    def test_graphql_kind_physical_excludes_channel_subinterface(self):
+        user = User.objects.create_user(username='testuser', is_superuser=True)
+        client = Client()
+        client.force_login(user)
+
+        query = '{ interface_list(filters: {kind: KIND_PHYSICAL}) { id } }'
+        response = client.post(
+            reverse('graphql'), data=json.dumps({'query': query}), content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        result_ids = {int(r['id']) for r in data['data']['interface_list']}
+        self.assertIn(self.parent.pk, result_ids)
+        self.assertIn(self.plain.pk, result_ids)
+        self.assertNotIn(self.channel.pk, result_ids)
 
 
 class ChannelizedInterfaceTemplateTestCase(TestCase):
