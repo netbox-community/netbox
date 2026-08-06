@@ -25,11 +25,6 @@ class MissingKeyAwareFilterMixin:
     text lookups (icontains, istartswith, etc.), which compare `data ->> 'foo'` and so are NULL for
     a JSON null as well.
 
-    Both states are common: custom field data is no longer provisioned onto every object when a
-    field is created (see CustomField.populate_initial_data()), leaving newer objects without the
-    key, while objects provisioned before that change -- and those created through the UI or REST
-    API, which record a null for each unset field -- hold an explicit null. Neither may be dropped.
-
     Only negated filters are affected; for others this is inert.
 
     Two constraints on where this may be mixed in, both satisfied by every filter class

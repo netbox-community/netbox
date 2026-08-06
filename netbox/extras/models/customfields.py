@@ -328,28 +328,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     def _update_object_data(model, filters=None, **update_kwargs):
         """
         Apply an UPDATE to the custom_field_data of every instance of the given model in batches,
-        bounding the number of rows touched by each statement. A single unbounded UPDATE across
-        millions of rows can exceed the database statement timeout, because JSONB updates rewrite
-        each affected row in full. Batches are selected via keyset pagination on the primary key.
-
-        The batches are not wrapped in a transaction of their own. A caller running inside a
-        request's transaction (e.g. provisioning initial data as a field is created) still gets one
-        all-or-nothing operation, but the background purge job does not: each batch commits as it
-        completes, so a job killed at its execution timeout leaves the work done so far in place
-        instead of discarding it, and holds no long-running transaction against a very large table
-        while it runs. Both key removal and renaming filter on the presence of the key being
-        replaced, so a subsequent run resumes where the previous one stopped.
+        bounding the number of rows touched by each statement.
 
         :param filters: Optional dict of ORM filters restricting which rows are updated. Callers
-            which only need to touch rows already holding a given key should pass
+            which need only to touch rows already holding a given key should pass
             `{'custom_field_data__has_key': ...}`; because keys are materialized only when a value
             is actually set (see populate_initial_data()), this typically excludes the bulk of the
             table.
-
-            The filters are applied to the UPDATE as well as to the selection of each batch, not
-            merely as an optimization: rename_object_data() builds a jsonb_set() expression which
-            evaluates to NULL for a row not holding the key, so a row which loses it between the
-            two statements would otherwise have its entire custom_field_data nulled out.
         """
         filters = filters or {}
         queryset = model.objects.filter(**filters)
