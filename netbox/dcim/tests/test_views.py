@@ -4478,7 +4478,7 @@ class CableTestCase(
             f'{cable.pk},dcim.interface,"Interface 1,Interface 2"',
         ))
         self.assertHttpStatus(response, 200)
-        self.assertIn('device column must be included', response.content.decode())
+        self.assertIn('side_b_device column must be included', response.content.decode())
         self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
@@ -4492,7 +4492,7 @@ class CableTestCase(
             f'{cable.pk},Device 4,"Interface 1,Interface 2"',
         ))
         self.assertHttpStatus(response, 200)
-        self.assertIn('termination type column must be included', response.content.decode())
+        self.assertIn('side_b_type column must be included', response.content.decode())
         self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])

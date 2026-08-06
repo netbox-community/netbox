@@ -1930,7 +1930,7 @@ class CableImportForm(PrimaryModelImportForm):
             value = str(value).split(',')
         return ['' if item is None else str(item).strip() for item in value]
 
-    def _check_companion_column(self, side, field_name, label):
+    def _check_companion_column(self, side, field_name):
         """
         Verify that a column needed to resolve a side's terminations is present on the form.
 
@@ -1942,8 +1942,8 @@ class CableImportForm(PrimaryModelImportForm):
         if field_name not in self.fields:
             raise forms.ValidationError(
                 _(
-                    "Side {side_upper}: The {label} column must be included when modifying terminations"
-                ).format(side_upper=side.upper(), label=label)
+                    "Side {side_upper}: The {column} column must be included when modifying terminations"
+                ).format(side_upper=side.upper(), column=field_name)
             )
 
     def _resolve_side_parent_objects(self, field_name):
@@ -2013,7 +2013,7 @@ class CableImportForm(PrimaryModelImportForm):
             # BulkImportView removes any field absent from an update record, so a missing termination
             # type here means the column was omitted rather than left blank. Reject it: silently
             # ignoring the submitted names would report a successful update which changed nothing.
-            self._check_companion_column(side, f'side_{side}_type', _('termination type'))
+            self._check_companion_column(side, f'side_{side}_type')
             return None
 
         if '' in names:
@@ -2036,7 +2036,7 @@ class CableImportForm(PrimaryModelImportForm):
                 _("Bulk import does not support {type} terminations").format(type=content_type)
             )
 
-        self._check_companion_column(side, parent_field_name, parent_label)
+        self._check_companion_column(side, parent_field_name)
 
         parents = self._resolve_side_parent_objects(parent_field_name)
         if parents is None:
