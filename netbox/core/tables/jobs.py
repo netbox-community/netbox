@@ -65,7 +65,8 @@ class JobTable(NetBoxTable):
             'completed', 'execution_time', 'user', 'queue_name', 'log_entries', 'error', 'job_id',
         )
         default_columns = (
-            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'execution_time', 'user',
+            'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'execution_time',
+            'user',
         )
 
     def render_log_entries(self, value):
