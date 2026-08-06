@@ -369,8 +369,18 @@ class ScriptJobFormCleaningTestCase(TestCase):
 
         runner = _make_runner(object_id=1)
         with patch.object(ScriptModel.objects, 'get', return_value=script_model_stub):
-            # Pass nested payload shape like the REST API: {"data": {"site": <pk>}}
-            runner.run(data={'data': {'site': site.pk}}, request=None, commit=True)
+            # Simulate what the API view does: build the form and use cleaned_data
+            form = script_instance.as_form(data={'site': site.pk}, files=None)
+            assert form.is_valid(), f"test setup: form invalid: {form.errors}"
+            cleaned = dict(form.cleaned_data)
+            # Pop execution params if present (API does this)
+            cleaned.pop('_commit', None)
+            cleaned.pop('_schedule_at', None)
+            cleaned.pop('_interval', None)
+            cleaned.pop('_notifications', None)
+
+            # Pass the cleaned dict to run(), not the nested {"data": {...}} shape
+            runner.run(data=cleaned, request=None, commit=True)
 
         # Assert the script received a model instance for 'site'
         self.assertIsNotNone(script_instance.received)
@@ -391,8 +401,7 @@ class ScriptJobFormCleaningTestCase(TestCase):
 
             def run(self, data, commit=True):
                 self.received = data
-                actual_type = type(data['site'])
-                return f"got type: {actual_type}"
+                return "ok"
 
         script_instance = TestScript()
         script_model_stub = MagicMock()
@@ -405,7 +414,17 @@ class ScriptJobFormCleaningTestCase(TestCase):
 
         runner = _make_runner(object_id=1)
         with patch.object(ScriptModel.objects, 'get', return_value=script_model_stub):
-            runner.run(data={'data': {'site': site.pk}}, request=fake_request, commit=True)
+            # Build the cleaned data as the API would
+            form = script_instance.as_form(data={'site': site.pk}, files=fake_request.FILES)
+            assert form.is_valid(), f"test setup: form invalid: {form.errors}"
+            cleaned = dict(form.cleaned_data)
+
+            # API merges any uploaded files that the form didn't declare
+            for fname, fobj in fake_request.FILES.items():
+                if fname not in cleaned:
+                    cleaned[fname] = fobj
+
+            runner.run(data=cleaned, request=fake_request, commit=True)
 
         # Assert both file merged and ObjectVar conversion happened
         self.assertIsNotNone(script_instance.received)

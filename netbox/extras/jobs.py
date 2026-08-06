@@ -2,7 +2,6 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.core.exceptions import ValidationError
 from django.db import DEFAULT_DB_ALIAS, router, transaction
 from django.utils.translation import gettext as _
 
@@ -113,52 +112,15 @@ class ScriptJob(JobRunner):
         script = script_model.python_class()
         self.logger.debug(f"Loaded script {script.full_name}")
 
+        # Add files to form data
+        if request:
+            files = request.FILES
+            for field_name, fileobj in files.items():
+                data[field_name] = fileobj
+
         # Add the current request as a property of the script
         script.request = request
         self.logger.debug(f"Request ID: {request.id if request else None}")
-
-        # Normalize incoming payload for the form: API callers submit variables under "data".
-        payload = data or {}
-        if isinstance(payload, dict) and 'data' in payload:
-            payload = payload['data'] or {}
-
-        files = request.FILES if request else None
-        if files:
-            for field_name, fileobj in files.items():
-                # merge into payload so script.run receives the uploaded files in data
-                payload[field_name] = fileobj
-
-        # Validate & clean using the script's form so ObjectVar/MultiObjectVar IDs become model instances
-        if hasattr(script, 'as_form') and callable(getattr(script, 'as_form')):
-            try:
-                form = script.as_form(data=payload, files=files)
-                if not form.is_valid():
-                    raise AbortScript(f"Script input validation failed: {form.errors.as_json()}")
-
-                cleaned = form.cleaned_data
-
-                # Remove execution parameters
-                for key in list(cleaned.keys()):
-                    if key.startswith('_'):
-                        cleaned.pop(key)
-
-                # Preserve uploaded files that were merged into the payload so scripts still see them
-                # even if the Script's form doesn't declare file fields.
-                if files:
-                    for fname, fobj in files.items():
-                        if fname not in cleaned:
-                            cleaned[fname] = fobj
-
-                # Use cleaned form data as the data passed into the script
-                data = cleaned
-            except AbortScript:
-                # Re-raise for run_script() to log/handle
-                raise
-            except (ValidationError, TypeError, ValueError) as e:
-                raise AbortScript(f"Error validating script input: {e!s}")
-        else:
-            # Script doesn't provide as_form (e.g., lightweight test double); keep `data` as-is.
-            data = payload
 
         if commit:
             self.logger.info("Executing script (commit enabled)")

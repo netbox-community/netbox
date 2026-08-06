@@ -367,17 +367,56 @@ class ScriptViewSet(ModelViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
+            # Instantiate the script class so we can validate/clean the input via its form.
+            script_class = script.python_class
+            script_instance = script_class()
+
+            # Prepare payload and files
+            payload = input_serializer.validated_data.get('data', {}) or {}
+            files = request.FILES if request else None
+
+            # Validate via the script's form so ObjectVar/MultiObjectVar IDs get converted
+            try:
+                form = script_instance.as_form(data=payload, files=files)
+            except Exception as e:
+                # Defensive: if form construction raises, respond 400 with a helpful message.
+                return Response({'detail': f"Error preparing script form: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not form.is_valid():
+                # Return form errors as a 400 so clients get immediate feedback (instead of a failed background job)
+                return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Use cleaned_data for execution parameters and script variables
+            cleaned = dict(form.cleaned_data)
+
+            # Pop known execution parameters explicitly (do not generically strip _-prefixed names)
+            schedule_at = cleaned.pop('_schedule_at', input_serializer.validated_data.get('schedule_at'))
+            interval = cleaned.pop('_interval', input_serializer.validated_data.get('interval'))
+            notifications = cleaned.pop('_notifications', input_serializer.validated_data.get('notifications'))
+            commit = cleaned.pop(
+                '_commit',
+                input_serializer.validated_data.get('commit', script_instance.commit_default)
+            )
+
+            # Ensure any uploaded files are preserved if not claimed by the form
+            if files:
+                for fname, fobj in files.items():
+                    if fname not in cleaned:
+                        cleaned[fname] = fobj
+
+            # Enqueue the job with cleaned data (model instances/QuerySets where appropriate)
             ScriptJob.enqueue(
                 instance=script,
                 user=request.user,
-                data=input_serializer.data['data'],
+                data=cleaned,
                 request=copy_safe_request(request),
-                commit=input_serializer.data['commit'],
-                job_timeout=script.python_class.job_timeout,
-                schedule_at=input_serializer.validated_data.get('schedule_at'),
-                interval=input_serializer.validated_data.get('interval'),
-                notifications=input_serializer.validated_data.get('notifications'),
+                commit=commit,
+                job_timeout=script_class.job_timeout,
+                schedule_at=schedule_at,
+                interval=interval,
+                notifications=notifications,
             )
+
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
             return Response(serializer.data)
