@@ -1148,6 +1148,23 @@ class CustomFieldTestCase(TestCase):
         self.assertEqual([s.pk for s in ordered][:2], [extra.pk, sites[0].pk])
         self.assertEqual({s.pk for s in ordered[2:]}, {sites[1].pk, sites[2].pk})
 
+    def test_table_ordering_tolerates_a_repeated_sort_alias(self):
+        """
+        The sort parameter is read with getlist(), so the same custom field column can appear in
+        the ordering more than once. django-tables2 calls order() once per alias, threading the
+        queryset forward, so the same annotation is applied twice to the same queryset.
+        """
+        cf = CustomField.objects.create(
+            name='sort_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER
+        )
+        cf.object_types.set([self.object_type])
+
+        table = SiteTable(Site.objects.all())
+        table.order_by = ['cf_sort_field', '-cf_sort_field']
+
+        self.assertEqual(len(list(table.rows)), Site.objects.count())
+
     def test_default_value_validation(self):
         choiceset = CustomFieldChoiceSet.objects.create(
             name="Test Choice Set",
