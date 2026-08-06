@@ -24,7 +24,7 @@ class JobTableTestCase(TableTestCases.StandardTableTestCase):
 
 class JobExecutionTimeColumnTestCase(TestCase):
     """
-    Test the rendering, export, and ordering behavior of JobTable's execution_time column.
+    Test the rendering and export behavior of JobTable's execution_time column.
     """
     @classmethod
     def setUpTestData(cls):
@@ -44,24 +44,16 @@ class JobExecutionTimeColumnTestCase(TestCase):
                 started=now - timedelta(days=2, hours=3), completed=now,
                 execution_time=timedelta(days=2, hours=3),
             ),
-            Job(
-                name='negative', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_COMPLETED,
-                started=now, completed=now, execution_time=timedelta(seconds=-5),
-            ),
-            Job(
-                name='unrecorded', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_COMPLETED,
-                started=now - timedelta(seconds=90), completed=now,
-            ),
-            Job(
-                name='running', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_RUNNING,
-                started=now - timedelta(minutes=5),
-            ),
             Job(name='pending', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_PENDING),
         ))
 
-    def _render(self, name):
+    def _table(self, name):
         table = JobTable(Job.objects.filter(name=name))
         table.columns.show('execution_time')
+        return table
+
+    def _render(self, name):
+        table = self._table(name)
         return str(next(iter(table.rows)).get_cell('execution_time'))
 
     def test_render_completed_job(self):
@@ -72,91 +64,21 @@ class JobExecutionTimeColumnTestCase(TestCase):
         # Sub-second jobs report millisecond precision rather than reading as zero
         self.assertEqual(self._render('completed-subsecond'), '0.43s')
 
-    def test_render_negative_execution_time(self):
-        # A negative stored value (e.g. from clock skew) never renders as negative
-        self.assertEqual(self._render('negative'), '0s')
-
-    def test_render_running_job(self):
-        """
-        A running job has no recorded execution time, so the column shows the time elapsed so far,
-        visually distinguished from a completed job's final value.
-        """
-        rendered = self._render('running')
-        self.assertIn('5m', rendered)
-        self.assertIn('text-primary', rendered)
-
-    def test_render_job_never_started(self):
-        table = JobTable(Job.objects.filter(name='pending'))
-        table.columns.show('execution_time')
-        row = next(iter(table.rows))
-        self.assertEqual(str(row.get_cell('execution_time')), table.default)
-
-    def test_render_job_completed_without_execution_time(self):
-        # A completed job with no recorded execution time shows the placeholder, rather than
-        # accruing time since it started
-        table = JobTable(Job.objects.filter(name='unrecorded'))
-        table.columns.show('execution_time')
-        row = next(iter(table.rows))
-        self.assertEqual(str(row.get_cell('execution_time')), table.default)
+    def test_render_job_without_execution_time(self):
+        table = self._table('pending')
+        self.assertEqual(str(next(iter(table.rows)).get_cell('execution_time')), table.default)
 
     def _export_value(self, name):
-        table = JobTable(Job.objects.filter(name=name))
-        table.columns.show('execution_time')
-        rows = list(table.as_values())
+        rows = list(self._table(name).as_values())
         return rows[1][rows[0].index('Execution Time')]
 
     def test_export_value_is_raw_seconds(self):
+        # Exports carry the recorded duration in seconds, not the humanized string
         self.assertEqual(self._export_value('completed-90s'), 90.0)
+        self.assertEqual(self._export_value('completed-subsecond'), 0.43)
 
-    def test_export_value_of_job_never_started(self):
+    def test_export_value_of_job_without_execution_time(self):
         self.assertIsNone(self._export_value('pending'))
-
-    def test_export_value_of_running_job(self):
-        # Only the recorded execution time is exported; a running job has none yet
-        self.assertIsNone(self._export_value('running'))
-
-    def test_export_value_is_not_clamped(self):
-        # An anomalous negative value is clamped when rendered, but exported verbatim so that it
-        # remains visible to analysis
-        self.assertEqual(self._export_value('negative'), -5.0)
-
-    def test_ordering_matches_displayed_values(self):
-        """
-        Sorting must order by the value the column displays — which for a running job is its elapsed
-        time, not a null — so that a long-running job is not buried. Jobs with no elapsed time to
-        display sort last in both directions, in pk order.
-        """
-        # 'running' has been going 5 minutes, so it sorts between the 90s and 2d3h jobs
-        ascending = ['negative', 'completed-subsecond', 'completed-90s', 'running', 'completed-long']
-        # Neither a job which never started nor one which completed without recording an execution
-        # time has a value to sort by
-        no_value = ['unrecorded', 'pending']
-
-        for descending, expected in (
-            (False, ascending),
-            (True, list(reversed(ascending))),
-        ):
-            with self.subTest(descending=descending):
-                table = JobTable(Job.objects.all())
-                queryset, modified = table.columns['execution_time'].order(Job.objects.all(), descending)
-                self.assertTrue(modified)
-                names = list(queryset.values_list('name', flat=True))
-                self.assertEqual(names, expected + no_value)
-
-    def test_ordering_breaks_ties_on_pk(self):
-        """
-        Tied rows need a stable secondary sort, or paginating through them can skip or repeat rows.
-        """
-        Job.objects.bulk_create(
-            Job(name=f'tied-{i}', job_id=uuid.uuid4(), status=JobStatusChoices.STATUS_PENDING)
-            for i in range(4)
-        )
-        table = JobTable(Job.objects.all())
-        queryset, _modified = table.columns['execution_time'].order(Job.objects.filter(
-            name__startswith='tied-'
-        ), True)
-        pks = list(queryset.values_list('pk', flat=True))
-        self.assertEqual(pks, sorted(pks))
 
 
 class ObjectChangeTableTestCase(TableTestCases.StandardTableTestCase):

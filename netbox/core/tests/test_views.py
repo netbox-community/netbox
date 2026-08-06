@@ -1,7 +1,7 @@
 import json
 import urllib.parse
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -150,40 +150,6 @@ class JobTestCase(
                 ),
             ]
         )
-
-    def test_execution_time_on_detail_view(self):
-        """
-        The job detail view must present execution time consistently with the jobs list: the recorded
-        value for a completed job, the elapsed time (visually distinguished) for a running one, and a
-        placeholder for a job which never started.
-        """
-        self.add_permissions('core.view_job')
-        now = timezone.now()
-
-        completed = Job.objects.get(name='Job 3')
-        completed.started = now - timedelta(seconds=90)
-        completed.completed = now
-        completed.execution_time = timedelta(seconds=90)
-        completed.save()
-        response = self.client.get(completed.get_absolute_url())
-        self.assertHttpStatus(response, 200)
-        content = str(response.content)
-        self.assertIn('1m 30s', content)
-        # The panel must use the same label as the list column, filter form, and API field
-        self.assertIn('Execution Time', content)
-
-        running = Job.objects.get(name='Job 2')
-        running.started = now - timedelta(hours=2)
-        running.save()
-        response = self.client.get(running.get_absolute_url())
-        self.assertHttpStatus(response, 200)
-        content = str(response.content)
-        self.assertIn('2h', content)
-        self.assertIn('Still running', content)
-
-        pending = Job.objects.get(name='Job 1')
-        response = self.client.get(pending.get_absolute_url())
-        self.assertHttpStatus(response, 200)
 
 
 class JobLogViewTestCase(TestCase):

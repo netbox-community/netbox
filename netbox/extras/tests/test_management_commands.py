@@ -1,4 +1,3 @@
-from datetime import timedelta
 from io import BytesIO, StringIO
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -274,7 +273,7 @@ class RunScriptTestCase(TestCase):
                 return form
 
         script_obj = SimpleNamespace(python_class=TestScript)
-        job = SimpleNamespace(elapsed_time=timedelta(0))
+        job = SimpleNamespace(duration='0 seconds')
 
         with (
             patch(
@@ -359,7 +358,7 @@ class RunScriptTestCase(TestCase):
                 return form
 
         script_obj = SimpleNamespace(python_class=TestScript)
-        job = SimpleNamespace(elapsed_time=timedelta(0))
+        job = SimpleNamespace(duration='0 seconds')
 
         with (
             patch(
@@ -399,7 +398,7 @@ class RunScriptTestCase(TestCase):
                 return form
 
         script_obj = SimpleNamespace(python_class=TestScript)
-        job = SimpleNamespace(elapsed_time=timedelta(0))
+        job = SimpleNamespace(duration='0 seconds')
 
         with (
             patch(

@@ -9,7 +9,6 @@ from extras.jobs import ScriptJob
 from extras.scripts import get_module_and_script
 from users.models import User
 from utilities.request import NetBoxFakeRequest
-from utilities.string import humanize_duration
 
 
 class Command(BaseCommand):
@@ -107,4 +106,4 @@ class Command(BaseCommand):
             commit=commit,
         )
 
-        logger.info(f"Script completed in {humanize_duration(job.elapsed_time)}")
+        logger.info(f"Script completed in {job.duration}")

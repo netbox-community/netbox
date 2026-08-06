@@ -44,8 +44,8 @@ class HumanizeDurationTest(TestCase):
         self.assertEqual(humanize_duration(timedelta(seconds=59, milliseconds=600)), '1m')
 
     def test_negative_duration_retains_sign(self):
-        # A negative duration is anomalous, so it is rendered as such rather than suppressed here.
-        # Callers which need a floor of zero (e.g. Job.elapsed_time) apply one themselves.
+        # A negative duration is anomalous (e.g. resulting from clock skew), so it is rendered as
+        # such rather than decomposed into a nonsensical value.
         self.assertEqual(humanize_duration(timedelta(seconds=-5)), '-5s')
         self.assertEqual(humanize_duration(timedelta(seconds=-1.5)), '-2s')
         self.assertEqual(humanize_duration(timedelta(days=-2)), '-2d')

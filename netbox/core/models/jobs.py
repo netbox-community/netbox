@@ -1,8 +1,6 @@
 import logging
 import uuid
-import warnings
 from dataclasses import asdict
-from datetime import timedelta
 from functools import partial
 
 import django_rq
@@ -13,8 +11,6 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
-from django.db.models import Case, ExpressionWrapper, F, When
-from django.db.models.functions import Coalesce, Now
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -188,17 +184,6 @@ class Job(models.Model):
 
     @property
     def duration(self):
-        """
-        Deprecated: use `elapsed_time` instead, which reports a timedelta and also covers jobs which
-        are still running. Retained for the benefit of existing export templates and plugins.
-        """
-        warnings.warn(
-            "Job.duration is deprecated and will be removed in NetBox v5.0; use Job.elapsed_time "
-            "instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
         if not self.completed:
             return None
 
@@ -210,43 +195,7 @@ class Job(models.Model):
         duration = self.completed - start_time
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
-        return f'{int(minutes)} minutes, {seconds:.2f} seconds'
-
-    @property
-    def elapsed_time(self):
-        """
-        The job's recorded execution time, or the time elapsed so far if it is still running.
-        Returns None for a job which has not yet started. As this is the value NetBox displays, an
-        anomalous negative duration (which can result from clock skew) is clamped to zero; the
-        stored `execution_time` is left as recorded.
-        """
-        if self.execution_time is not None:
-            elapsed = self.execution_time
-        elif self.started and not self.completed:
-            elapsed = timezone.now() - self.started
-        else:
-            return None
-
-        return max(elapsed, timedelta())
-
-    @staticmethod
-    def elapsed_time_expression():
-        """
-        A queryset expression mirroring the `elapsed_time` property, for use in ordering and
-        filtering. Resolves to null for jobs which have not yet started, and for jobs which have
-        completed without recording an execution time.
-        """
-        return Coalesce(
-            'execution_time',
-            # Only a job which has yet to complete accrues elapsed time
-            Case(
-                When(
-                    completed__isnull=True,
-                    then=ExpressionWrapper(Now() - F('started'), output_field=models.DurationField()),
-                ),
-                output_field=models.DurationField(),
-            ),
-        )
+        return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
     def delete(self, *args, **kwargs):
         # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs

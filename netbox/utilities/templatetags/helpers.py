@@ -17,7 +17,6 @@ from netbox.ui.attrs import (
 )
 from utilities.forms import TableConfigForm, get_selected_values
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
-from utilities.string import humanize_duration
 from utilities.views import get_action_url, get_viewname
 
 __all__ = (
@@ -32,7 +31,6 @@ __all__ = (
     'get_item',
     'get_key',
     'humanize_disk_capacity',
-    'humanize_duration_filter',
     'humanize_ram_capacity',
     'humanize_speed',
     'icon_from_status',
@@ -211,23 +209,6 @@ def _format_speed(speed, divisor, unit):
     precision = len(str(divisor)) - 1
     fraction = f'{remainder:0{precision}d}'.rstrip('0')
     return f'{whole}.{fraction} {unit}'
-
-
-@register.filter('humanize_duration')
-def humanize_duration_filter(value):
-    """
-    Express a timedelta in a human-friendly format, always using the largest appropriate units.
-    Sub-second durations are rendered with millisecond precision. A negative duration is rendered
-    with a leading minus sign rather than being suppressed.
-
-    Examples:
-
-        timedelta(seconds=90) => "1m 30s"
-        timedelta(hours=1, minutes=5, seconds=23) => "1h 5m 23s"
-        timedelta(milliseconds=430) => "0.43s"
-        timedelta(seconds=-5) => "-5s"
-    """
-    return humanize_duration(value)
 
 
 @register.filter()

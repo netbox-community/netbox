@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from django.utils.html import conditional_escape, format_html
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -47,8 +47,6 @@ class JobTable(NetBoxTable):
     )
     execution_time = tables.Column(
         verbose_name=_('Execution Time'),
-        # Render running jobs (which have no recorded execution time yet) rather than the placeholder
-        empty_values=(),
     )
     queue_name = tables.Column(
         verbose_name=_('Queue'),
@@ -73,34 +71,13 @@ class JobTable(NetBoxTable):
     def render_log_entries(self, value):
         return len(value)
 
-    def render_execution_time(self, record):
-        if (duration := record.elapsed_time) is None:
-            return self.default
+    def render_execution_time(self, value):
+        return humanize_duration(value)
 
-        value = humanize_duration(duration)
-        if not record.completed:
-            # The job is still running, so distinguish its (provisional) elapsed time from a final one
-            return format_html(
-                '<span class="text-primary" title="{}">{}</span>', _('Still running'), value
-            )
-
-        return value
-
-    def value_execution_time(self, record):
-        # Export the recorded execution time verbatim, as a raw number of seconds. A running job's
-        # provisional elapsed time is deliberately omitted, as is the clamping of anomalous negative
-        # values applied when rendering: an export is intended for analysis.
-        if record.execution_time is None:
-            return None
-        return round(record.execution_time.total_seconds(), 3)
-
-    def order_execution_time(self, queryset, is_descending):
-        # Order by the value the column actually displays, so that a long-running job is not sorted
-        # as though it had no execution time. Jobs which never started sort last in either
-        # direction, and pk breaks ties to keep pagination stable.
-        elapsed_time = Job.elapsed_time_expression()
-        ordering = elapsed_time.desc(nulls_last=True) if is_descending else elapsed_time.asc(nulls_last=True)
-        return queryset.order_by(ordering, 'pk'), True
+    def value_execution_time(self, value):
+        # Export the recorded execution time as a raw number of seconds, rather than the humanized
+        # string, as an export is intended for analysis
+        return round(value.total_seconds(), 3)
 
 
 class JobLogEntryTable(BaseTable):

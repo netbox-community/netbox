@@ -62,11 +62,7 @@ class JobSchedulingPanel(panels.ObjectAttributesPanel):
     scheduled = attrs.TemplatedAttr('scheduled', template_name='core/job/attrs/scheduled.html')
     started = attrs.DateTimeAttr('started')
     completed = attrs.DateTimeAttr('completed')
-    elapsed_time = attrs.TemplatedAttr(
-        'elapsed_time',
-        label=_('Execution Time'),
-        template_name='core/job/attrs/elapsed_time.html',
-    )
+    execution_time = attrs.DurationAttr('execution_time')
     queue = attrs.TextAttr('queue_name', label=_('Queue'))
 
 
