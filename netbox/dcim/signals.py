@@ -185,14 +185,25 @@ def nullify_connected_endpoints(instance, **kwargs):
         cablepath.retrace()
 
 
+# Fields this receiver actually reacts to. A save() that explicitly limits update_fields to something disjoint
+# from this set (e.g. Interface.rename_channel_subinterfaces() renaming a channel subinterface) cannot have
+# changed channelization or cabling, so there is nothing for this receiver to do.
+CHANNELIZATION_RELEVANT_FIELDS = frozenset({'channels', 'channel_id', 'parent', 'parent_id', 'cable', 'cable_id'})
+
+
 @receiver(post_save, sender=Interface)
-def update_channelized_cable_paths(instance, created, raw=False, **kwargs):
+def update_channelized_cable_paths(instance, created, raw=False, update_fields=None, **kwargs):
     """
     Rebuild cable paths when an interface's channelization changes without the Cable itself being modified: a channel
     subinterface is added, moved between parents, or has its channel_id changed, or channelization is toggled on an
     already-cabled interface. (The cable-tracing signals only fire when a Cable is saved.)
     """
     if raw:
+        return
+    # update_fields is a frozenset when Model.save() sends this signal, but some callers (e.g. Module's manual
+    # post_save.send() for bulk_update()-adopted components) pass a plain list, so isdisjoint() can't be
+    # relied on directly.
+    if update_fields is not None and not (set(update_fields) & CHANNELIZATION_RELEVANT_FIELDS):
         return
 
     parent_ids = set()

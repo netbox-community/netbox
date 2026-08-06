@@ -1271,7 +1271,7 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
-        rename_state = self._detect_channel_rename()
+        rename_state = self._detect_channel_rename(kwargs.get('update_fields'))
 
         super().save(*args, **kwargs)
 

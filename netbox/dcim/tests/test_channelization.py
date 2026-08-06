@@ -2,7 +2,9 @@ import json
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.test import Client, TestCase, TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -352,6 +354,58 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
         self.assertPathDoesNotExist((channel, cable, far[0]))
         self.assertPathDoesNotExist((far[0], cable, channel))
 
+    def _rename_cabled_channelized_pair(self, device_suffix, channel_count):
+        """
+        Build a cabled pair of channelized interfaces with the given channel count, rename the near parent, and
+        return (query_count, near_channels, far_channels, cable) for the caller to assert against.
+        """
+        far_device = Device.objects.create(
+            site=self.site, device_type=self.device.device_type, role=self.device.role,
+            name=f'Device {device_suffix}'
+        )
+        near_parent, near_channels = self._create_channelized_interface(f'et{device_suffix}', channel_count)
+        far_parent, far_channels = self._create_channelized_interface(
+            f'et{device_suffix}', channel_count, device=far_device
+        )
+        profile = {2: CableProfileChoices.SINGLE_1C2P, 8: CableProfileChoices.SINGLE_1C8P}[channel_count]
+        cable = Cable(profile=profile, a_terminations=[near_parent], b_terminations=[far_parent])
+        cable.clean()
+        cable.save()
+
+        near_parent.refresh_from_db()
+        with CaptureQueriesContext(connection) as ctx:
+            near_parent.name = f'ex{device_suffix}'
+            with self.captureOnCommitCallbacks(execute=True):
+                near_parent.save()
+
+        return len(ctx.captured_queries), near_channels, far_channels, cable
+
+    def test_111_rename_cabled_parent_preserves_cable_paths_without_quadratic_cost(self):
+        """
+        Renaming a channelized parent that carries a cable must cascade the channel subinterfaces' names without
+        disturbing their mirrored cable attributes or paths, and without re-deriving cable/channel state (a full
+        propagate_channel_cables() + rebuild_cable_paths() cycle) once per renamed child — which would make the
+        cost of a single rename quadratic in the channel count. Pinned here by comparing the query cost of
+        renaming a 2-channel cabled parent against an 8-channel one (4x the channels): per-child work is
+        necessarily linear in the channel count, but the quadratic regression this guards against would show up
+        as a much steeper increase than the 4x growth in channel count alone.
+        """
+        queries_2ch, near_channels, far_channels, cable = self._rename_cabled_channelized_pair('A', 2)
+        queries_8ch, _, _, _ = self._rename_cabled_channelized_pair('B', 8)
+
+        self.assertLess(
+            queries_8ch, queries_2ch * 4,
+            "Renaming an 8-channel cabled parent cost disproportionately more than a 2-channel one; check "
+            "whether update_channelized_cable_paths is re-running a full cable/path rebuild per renamed child."
+        )
+
+        for near, far in zip(near_channels, far_channels):
+            near.refresh_from_db()
+            self.assertTrue(near.name.startswith('exA:'))
+            self.assertEqual(near.cable_id, cable.pk)
+            self.assertPathExists((near, cable, far), is_complete=True, is_active=True)
+            self.assertPathExists((far, cable, near), is_complete=True, is_active=True)
+
 
 class ChannelizedInterfaceValidationTestCase(TestCase):
     """
@@ -672,6 +726,39 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'zz1:1')
+
+    def test_save_with_update_fields_excluding_name_does_not_cascade(self):
+        # A save() that explicitly excludes 'name' from update_fields does not persist the in-memory name change,
+        # so it must not cascade a rename to children, nor treat that unpersisted name as the new baseline.
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save(update_fields=['description'])
+
+        self.parent.refresh_from_db()
+        child.refresh_from_db()
+        self.assertEqual(self.parent.name, 'et0')  # Not persisted
+        self.assertEqual(child.name, 'et0:1')  # Not cascaded
+
+    def test_update_fields_excluding_name_does_not_desync_later_full_rename(self):
+        # After a save() that excludes 'name' from update_fields, a later full save() (this time actually
+        # persisting the name) must still correctly detect and cascade the rename — proving the partial save
+        # did not incorrectly refresh _original_name to the unpersisted in-memory value.
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        self.parent.save(update_fields=['description'])  # Not persisted; DB name is still 'et0'
+
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save()  # Full save: persists 'et1', cascading from the true prior (DB) name 'et0'
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
 
 
 class ChannelizedInterfaceRenameSideEffectsTestCase(TransactionTestCase):

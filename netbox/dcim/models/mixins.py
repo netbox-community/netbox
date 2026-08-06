@@ -268,28 +268,36 @@ class ChannelRenameMixin:
 
     A model using this mixin must:
       - call _init_channel_rename_tracking() from its own __init__(), after super().__init__()
-      - call _detect_channel_rename() from its own save(), before calling super().save()
+      - call _detect_channel_rename(update_fields) from its own save(), before calling super().save(), passing
+        through the same update_fields the caller passed to save()
       - call _defer_channel_rename(*the tuple returned above) from its own save(), after calling super().save()
     """
 
     def _init_channel_rename_tracking(self):
         self._original_name = self.__dict__.get('name')
 
-    def _detect_channel_rename(self):
+    def _detect_channel_rename(self, update_fields=None):
         """
-        Call before super().save(). Returns a (renamed, old_name, new_name) tuple for _defer_channel_rename().
+        Call before super().save(). Returns a (renamed, old_name, new_name, name_persisted) tuple for
+        _defer_channel_rename(). update_fields must be the same value (if any) about to be passed to save() —
+        when it's given and excludes 'name', this save will not actually persist self.name, so name_persisted is
+        False and neither a rename cascade nor the _original_name cache refresh may treat self.name as current.
         """
-        renamed = self.pk and self.channels and self.name != self._original_name
-        return renamed, self._original_name, self.name
+        name_persisted = update_fields is None or 'name' in update_fields
+        renamed = bool(self.pk and self.channels and name_persisted and self.name != self._original_name)
+        return renamed, self._original_name, self.name, name_persisted
 
-    def _defer_channel_rename(self, renamed, old_name, new_name):
+    def _defer_channel_rename(self, renamed, old_name, new_name, name_persisted):
         """
         Call after super().save().
         """
-        # Refreshed unconditionally (not only when renamed is True) so a later save() always compares against
-        # this save()'s name, rather than an earlier one it never cascaded from (e.g. a rename while channels was
-        # unset, or the initial create of an instance built without a name kwarg).
-        self._original_name = self.name
+        # Refreshed unconditionally whenever the name was actually persisted (not only when renamed is True) so
+        # a later save() always compares against this save()'s name, rather than an earlier one it never
+        # cascaded from (e.g. a rename while channels was unset, or the initial create of an instance built
+        # without a name kwarg). Left untouched when update_fields excluded 'name': self.name may hold an
+        # unpersisted in-memory value in that case, and caching it would desync _original_name from the database.
+        if name_persisted:
+            self._original_name = self.name
 
         if renamed:
             # Deferred via on_commit() (rather than run inline here) so it observes the final post-transaction
@@ -320,7 +328,10 @@ class ChannelRenameMixin:
             # can never itself be channelized, so save() cannot recurse into this same cascade — and a full
             # save() is what correctly recomputes _name (the NaturalOrderingField driving Meta.ordering), bumps
             # last_updated, and records an ObjectChange (plus, for Interface, refreshes the cached search index),
-            # none of which a queryset update() would do.
+            # none of which a queryset update() would do. update_fields is restricted to exactly what changes here
+            # (name, its derived ordering field, and the auto_now timestamp), so a receiver reacting to some other
+            # field (e.g. Interface's own channelized-cable-path rebuild) can cheaply tell this save didn't touch
+            # anything it cares about, rather than redundantly re-deriving state that didn't change.
             if hasattr(child, 'snapshot'):
                 child.snapshot()
             child.name = f'{new_name}:{child.channel_id}'
@@ -329,7 +340,7 @@ class ChannelRenameMixin:
             # could, and a collision on one child cannot abort the rename of the others in the same batch.
             try:
                 with transaction.atomic(using=router.db_for_write(type(self))):
-                    child.save()
+                    child.save(update_fields=['name', '_name', 'last_updated'])
             except IntegrityError:
                 continue
 

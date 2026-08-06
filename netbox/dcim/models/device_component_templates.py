@@ -705,7 +705,7 @@ class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularCom
                 })
 
     def save(self, *args, **kwargs):
-        rename_state = self._detect_channel_rename()
+        rename_state = self._detect_channel_rename(kwargs.get('update_fields'))
 
         super().save(*args, **kwargs)
 
