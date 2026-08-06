@@ -4496,6 +4496,30 @@ class CableTestCase(
         self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_profile_violation_without_termination_columns(self):
+        """
+        A profile change which conflicts with the cable's existing terminations reports a validation
+        error even though the record omits the termination columns.
+        """
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,profile",
+            f'{cable.pk},{CableProfileChoices.SINGLE_1C1P}',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('only 1 are permitted', response.content.decode())
+        self.assertEqual(
+            Cable.objects.get(pk=cable.pk).profile, CableProfileChoices.BREAKOUT_1C2P_2C1P
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_update_terminations_with_all_columns(self):
         """A complete set of side columns updates the terminations."""
         cable = self._get_queryset().first()

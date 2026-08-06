@@ -1888,16 +1888,26 @@ class CableImportForm(PrimaryModelImportForm):
     def add_error(self, field, error):
         # Remap any termination errors raised by Cable.clean() onto the relevant import column.
         # Without this, Django raises ValueError for an error reported against a field which does
-        # not exist on the form.
+        # not exist on the form. Errors are dispatched per key so that both sides can fall back to
+        # a non-field error without colliding.
         if field is None and hasattr(error, 'error_dict'):
-            error = forms.ValidationError({
-                self.TERMINATION_ERROR_FIELDS.get(name, name): errors
-                for name, errors in error.error_dict.items()
-            })
-        else:
-            field = self.TERMINATION_ERROR_FIELDS.get(field, field)
+            for name, errors in error.error_dict.items():
+                super().add_error(self._map_termination_field(name), errors)
+            return
 
-        super().add_error(field, error)
+        super().add_error(self._map_termination_field(field), error)
+
+    def _map_termination_field(self, field):
+        """
+        Return the import column against which a model-level termination error should be reported,
+        or None (i.e. a non-field error) if that column is not present on the form. Columns absent
+        from an update record are removed from the form by BulkImportView, so a cable profile
+        violation can be reported against a side whose terminations were not being modified.
+        """
+        if field not in self.TERMINATION_ERROR_FIELDS:
+            return field
+        mapped_field = self.TERMINATION_ERROR_FIELDS[field]
+        return mapped_field if mapped_field in self.fields else None
 
     @staticmethod
     def _split_side_values(value):
