@@ -538,6 +538,11 @@ class CustomFieldColumn(tables.Column):
         states), then fall back to the raw value so that numeric and date fields still sort by type
         rather than lexically.
 
+        Rows tying on both keys (every object holding no value ties on both) are broken apart by
+        the primary key, so that the ordering is total. Without it Postgres is free to return tied
+        rows in a different order for each query, which would cause paginated results to skip or
+        repeat rows from one page to the next.
+
         The annotation is named for the custom field so that ordering by two custom field columns
         cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
         and underscores, so the alias is always a legal identifier. Note that this does not make
@@ -550,7 +555,8 @@ class CustomFieldColumn(tables.Column):
             alias: Q(**{f'custom_field_data__{name}__empty': True})
         }).order_by(
             alias,
-            f'{"-" if is_descending else ""}custom_field_data__{name}'
+            f'{"-" if is_descending else ""}custom_field_data__{name}',
+            'pk'
         )
 
         return queryset, True

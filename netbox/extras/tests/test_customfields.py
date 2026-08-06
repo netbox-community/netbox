@@ -1148,6 +1148,40 @@ class CustomFieldTestCase(TestCase):
         self.assertEqual([s.pk for s in ordered][:2], [extra.pk, sites[0].pk])
         self.assertEqual({s.pk for s in ordered[2:]}, {sites[1].pk, sites[2].pk})
 
+    def test_table_ordering_breaks_ties_by_primary_key(self):
+        """
+        Rows tying on the sort value -- every object holding no value ties on both sort keys --
+        must still be totally ordered, or paginated results may skip or repeat rows between
+        page requests.
+        """
+        cf = CustomField.objects.create(
+            name='sort_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER
+        )
+        cf.object_types.set([self.object_type])
+
+        # None of these hold a value for the field, so all of them tie
+        Site.objects.bulk_create([
+            Site(name=f'Tied Site {i}', slug=f'tied-site-{i}') for i in range(1, 11)
+        ])
+
+        column = SiteTable(Site.objects.none()).columns['cf_sort_field'].column
+
+        for is_descending in (False, True):
+            ordered, _applied = column.order(Site.objects.all(), is_descending=is_descending)
+            self.assertEqual(
+                ordered.query.order_by[-1],
+                'pk',
+                "the primary key must be applied as the final sort key"
+            )
+
+            # Paging through the results must yield each object exactly once
+            expected = [site.pk for site in ordered]
+            paginated = []
+            for offset in range(0, len(expected), 4):
+                paginated.extend(site.pk for site in ordered[offset:offset + 4])
+            self.assertEqual(paginated, expected)
+
     def test_table_ordering_tolerates_a_repeated_sort_alias(self):
         """
         The sort parameter is read with getlist(), so the same custom field column can appear in
