@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from decimal import Decimal
 from unittest.mock import patch
 
+import django_filters
 from django.core.exceptions import ValidationError
 from django.db import connection, transaction
 from django.db.models import QuerySet
@@ -23,6 +24,7 @@ from dcim.models import Manufacturer, Rack, Site
 from dcim.tables import SiteTable
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_DATA_JOB_KEY
+from extras.filters import MissingKeyAwareFilterMixin, missing_key_aware_filter_factory
 from extras.jobs import CustomFieldDataJob
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
@@ -30,6 +32,7 @@ from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import current_request, query_cache
 from users.models import User
 from utilities.exceptions import AbortRequest
+from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter
 from utilities.testing import APITestCase, TestCase, post_data, run_pending_cf_purges
 from virtualization.models import VirtualMachine
 
@@ -2418,6 +2421,50 @@ class CustomFieldModelTestCase(TestCase):
 
         site.custom_field_data['baz'] = 'def'
         site.clean()
+
+
+class MissingKeyAwareFilterTestCase(TestCase):
+    """
+    MissingKeyAwareFilterMixin reimplements MultipleChoiceFilter.filter() for the negated case, so
+    it may only be mixed into a class which inherits that method unmodified and which does not
+    filter conjoined. Both constraints are enforced, as violating either would yield a wrong result
+    set rather than an error.
+    """
+    def test_factory_rejects_a_class_which_defines_filter(self):
+        # MultiValueMACAddressFilter overrides filter() to swallow ValidationError
+        with self.assertRaises(TypeError):
+            missing_key_aware_filter_factory(MultiValueMACAddressFilter)
+
+        # BooleanFilter does not inherit MultipleChoiceFilter.filter() at all
+        with self.assertRaises(TypeError):
+            missing_key_aware_filter_factory(django_filters.BooleanFilter)
+
+    def test_factory_accepts_a_class_which_inherits_filter(self):
+        filter_class = missing_key_aware_filter_factory(MultiValueCharFilter)
+
+        self.assertTrue(issubclass(filter_class, MissingKeyAwareFilterMixin))
+        self.assertTrue(issubclass(filter_class, MultiValueCharFilter))
+        # The factory is cached, so a class yields a single stable subclass
+        self.assertIs(filter_class, missing_key_aware_filter_factory(MultiValueCharFilter))
+
+    def test_conjoined_filtering_is_rejected(self):
+        filter_class = missing_key_aware_filter_factory(MultiValueCharFilter)
+
+        filter_class(field_name='custom_field_data__foo')
+        filter_class(field_name='custom_field_data__foo', conjoined=False)
+        with self.assertRaises(TypeError):
+            filter_class(field_name='custom_field_data__foo', conjoined=True)
+
+    def test_every_supported_custom_field_type_satisfies_the_constraints(self):
+        """
+        The filter classes CustomField.to_filter() selects must all remain admissible.
+        """
+        for cf_type in CustomFieldTypeChoices.values():
+            with self.subTest(cf_type):
+                cf = CustomField(name='test', type=cf_type)
+                # Raises TypeError if the selected filter class violates a constraint
+                cf.to_filter()
+                cf.to_filter(lookup_expr='empty')
 
 
 class CustomFieldModelFilterTestCase(TestCase):

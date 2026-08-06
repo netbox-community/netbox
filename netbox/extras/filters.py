@@ -33,9 +33,18 @@ class MissingKeyAwareFilterMixin:
     * The negated path reimplements MultipleChoiceFilter.filter() rather than delegating to it, so
       any custom filter() on the base class is bypassed when the filter is negated. Do not mix this
       into a class which overrides filter() (e.g. MultiValueMACAddressFilter,
-      MultiValueContentTypeFilter).
-    * `conjoined` is not honored: multiple values are always OR'ed before negation.
+      MultiValueContentTypeFilter). missing_key_aware_filter_factory() rejects such classes.
+    * `conjoined` is not honored: multiple values are always OR'ed before negation. Passing it
+      raises TypeError.
     """
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('conjoined'):
+            raise TypeError(
+                f"{type(self).__name__} does not support conjoined filtering: multiple values are "
+                f"always OR'ed before negation."
+            )
+        super().__init__(*args, **kwargs)
+
     def filter(self, qs, value):
         if not self.exclude or not value:
             return super().filter(qs, value)
@@ -62,7 +71,17 @@ def missing_key_aware_filter_factory(filter_class):
     Return a subclass of the given filter class which treats an absent JSON key as equivalent to a
     null one when negated. Results are cached so that each filter class yields a single stable
     subclass.
+
+    The class must inherit MultipleChoiceFilter.filter() unmodified: the mixin reimplements it for
+    the negated case, so a filter() of its own (and with it any custom predicate or short-circuit)
+    would be silently bypassed, yielding a wrong result set rather than an error.
     """
+    if filter_class.filter is not django_filters.MultipleChoiceFilter.filter:
+        raise TypeError(
+            f"{filter_class.__name__} cannot be made missing-key aware: it defines its own "
+            f"filter(), which MissingKeyAwareFilterMixin would bypass when negated."
+        )
+
     return type(
         f'MissingKeyAware{filter_class.__name__}',
         (MissingKeyAwareFilterMixin, filter_class),
