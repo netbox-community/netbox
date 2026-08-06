@@ -35,7 +35,7 @@ The type of interface. Interfaces may be physical or virtual in nature, but only
 
 ### Channels
 
-For a channelized (breakout) interface, the number of physical channels into which the interface is divided. For example, a 40GE interface broken out into four 10GE channels would have `channels` set to four. Each channel is modeled as a channel-type subinterface bound to this interface via its [channel ID](#channel-id).
+For a channelized (breakout) interface, the number of physical channels into which the interface is divided. For example, a 40GE interface broken out into four 10GE channels would have `channels` set to four. Each channel is modeled as a channel subinterface bound to this interface via its [channel ID](#channel-id).
 
 A single physical cable terminates to the channelized (parent) interface, occupying one connector shared by all of its channels; NetBox traces a distinct cable path for each channel subinterface. Only one layer of channelization is supported: an interface cannot be both channelized and itself bound to a channel.
 
@@ -87,7 +87,7 @@ If selected, this component will be treated as if a cable has been connected.
 Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. A channel subinterface is likewise bound to its [channelized](#channels) parent interface, whether it uses the generic **channel** type or its own specific physical type.
 
 !!! note
-    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent.
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent, unless the resulting name is already in use by another interface on the device (in which case that subinterface's name is left unchanged).
 
 ### Channel ID
 

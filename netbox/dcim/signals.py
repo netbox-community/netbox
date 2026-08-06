@@ -187,7 +187,7 @@ def nullify_connected_endpoints(instance, **kwargs):
 
 # Fields this receiver reacts to. A save() whose update_fields is disjoint from this set (e.g. a plain rename)
 # cannot have touched channelization or cabling, so there's nothing for this receiver to do.
-CHANNELIZATION_RELEVANT_FIELDS = frozenset({'channels', 'channel_id', 'parent', 'parent_id', 'cable', 'cable_id'})
+_CHANNELIZATION_RELEVANT_FIELDS = frozenset({'channels', 'channel_id', 'parent', 'parent_id', 'cable', 'cable_id'})
 
 
 @receiver(post_save, sender=Interface)
@@ -199,9 +199,7 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
     """
     if raw:
         return
-    # update_fields may be a plain list rather than a frozenset (e.g. from Module's manual post_save.send()),
-    # so isdisjoint() can't be relied on directly.
-    if update_fields is not None and not (set(update_fields) & CHANNELIZATION_RELEVANT_FIELDS):
+    if update_fields is not None and _CHANNELIZATION_RELEVANT_FIELDS.isdisjoint(update_fields):
         return
 
     parent_ids = set()

@@ -259,46 +259,60 @@ class InterfaceValidationMixin:
 
 class ChannelRenameMixin:
     """
-    Shared save()-time logic for Interface and InterfaceTemplate: detects a rename of a channelized parent and
-    cascades it to any channel subinterface which follows the "<parent name>:<channel ID>" naming convention.
+    Cooperative __init__()/save() mixin for Interface and InterfaceTemplate: detects a rename of a channelized
+    parent and cascades it to any channel subinterface which follows the "<parent name>:<channel ID>" naming
+    convention.
 
-    A model using this mixin must call _init_channel_rename_tracking() from __init__() (after super().__init__()),
-    then _detect_channel_rename(update_fields) from save() before calling super().save(), and finally
-    _defer_channel_rename(*that result) from save() after calling super().save().
+    Must precede the model's other bases so its __init__()/save() sit ahead of them in the MRO; both delegate
+    onward via super(), so a consuming model only needs to list this mixin first among its bases and call
+    super().__init__()/super().save() as usual -- no extra wiring required.
     """
 
-    def _init_channel_rename_tracking(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._original_name = self.__dict__.get('name')
+        # Also relied on by InterfaceValidationMixin.clean() (a channel-count reduction that would orphan an
+        # existing child). Tracked here rather than per-model so both concerns share one source of truth.
+        self._original_channels = self.__dict__.get('channels')
 
-    def _detect_channel_rename(self, update_fields=None):
-        # A save() whose update_fields excludes 'name' won't actually persist self.name, so neither the cascade
-        # nor the _original_name refresh below may treat it as current.
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        # A save() whose update_fields excludes 'name'/'channels' won't actually persist that attribute, so the
+        # cascade decision below can't treat self.name/self.channels as current in that case -- fall back to the
+        # last known persisted value instead. Without this, e.g. clearing self.channels in memory and saving
+        # with update_fields=['name'] would see a falsy self.channels and skip a cascade the DB still requires.
         name_persisted = update_fields is None or 'name' in update_fields
-        renamed = bool(self.pk and self.channels and name_persisted and self.name != self._original_name)
-        return renamed, self._original_name, self.name, name_persisted
+        channels_persisted = update_fields is None or 'channels' in update_fields
+        is_channelized = self.channels if channels_persisted else self._original_channels
+        old_name, new_name = self._original_name, self.name
+        renamed = bool(self.pk and is_channelized and name_persisted and new_name != old_name)
 
-    def _defer_channel_rename(self, renamed, old_name, new_name, name_persisted):
+        super().save(*args, **kwargs)
+
         if name_persisted:
-            self._original_name = self.name
+            self._original_name = new_name
+        if channels_persisted:
+            self._original_channels = self.channels
 
         if renamed:
-            # Deferred until commit, not run inline, so it sees the final post-transaction state rather than a
-            # mid-batch snapshot: BulkRenameView fetches every selected object up front and saves each in turn
-            # inside one atomic() block, so a channel subinterface selected in the same batch would otherwise
-            # have its own (stale) save() silently undo the rename applied here moments earlier.
+            # Defer until commit so a later save in the same transaction cannot overwrite the cascade.
             transaction.on_commit(
-                lambda: self.rename_channel_subinterfaces(old_name, new_name),
+                lambda: self._rename_channel_subinterfaces(old_name, new_name),
                 using=router.db_for_write(type(self)),
             )
 
-    def rename_channel_subinterfaces(self, old_name, new_name):
+    def _rename_channel_subinterfaces(self, old_name, new_name):
         """
         Rename each channel subinterface following the "<parent name>:<channel ID>" convention to match this
         interface's new name. A subinterface named otherwise is left untouched, as is one whose renamed form
-        would collide with an existing sibling.
+        would exceed the name field's max length or collide with an existing sibling.
         """
+        max_name_length = self._meta.get_field('name').max_length
         for child in self.child_interfaces.filter(channel_id__isnull=False):
             if child.name != f'{old_name}:{child.channel_id}':
+                continue
+            candidate_name = f'{new_name}:{child.channel_id}'
+            if len(candidate_name) > max_name_length:
                 continue
             # A full save() (not a queryset update()) so _name, last_updated, and the changelog get updated too;
             # a channel subinterface can never itself be channelized, so this can't recurse into the cascade.
@@ -306,14 +320,21 @@ class ChannelRenameMixin:
             # cable-path rebuild) can skip redundant work.
             if hasattr(child, 'snapshot'):
                 child.snapshot()
-            child.name = f'{new_name}:{child.channel_id}'
+            child.name = candidate_name
             # Renamed in its own savepoint: the DB's unique constraint is the sole arbiter of a collision, and a
             # collision on one child can't abort the rename of the others.
             try:
                 with transaction.atomic(using=router.db_for_write(type(self))):
                     child.save(update_fields=['name', '_name', 'last_updated'])
             except IntegrityError:
-                continue
+                # Confirm this was really the expected name collision (not some other constraint) before
+                # treating it as safe to skip. The (device, name) constraint is declared via Meta.constraints,
+                # which validate_unique() does not check -- only validate_constraints() does.
+                try:
+                    child.validate_constraints()
+                except ValidationError:
+                    continue
+                raise
 
 
 class CoolingLoopValidationMixin:

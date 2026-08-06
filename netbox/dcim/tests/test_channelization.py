@@ -387,8 +387,8 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
         channel count). Pinned by comparing query cost at 2 vs. 8 channels: linear per-child work scales with
         the 4x channel growth; a quadratic regression would blow well past it.
         """
-        queries_2ch, near_channels, far_channels, cable = self._rename_cabled_channelized_pair('A', 2)
-        queries_8ch, _, _, _ = self._rename_cabled_channelized_pair('B', 8)
+        queries_2ch, near_channels_2ch, far_channels_2ch, cable_2ch = self._rename_cabled_channelized_pair('A', 2)
+        queries_8ch, near_channels_8ch, far_channels_8ch, cable_8ch = self._rename_cabled_channelized_pair('B', 8)
 
         self.assertLess(
             queries_8ch, queries_2ch * 4,
@@ -396,17 +396,26 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
             "whether update_channelized_cable_paths is re-running a full cable/path rebuild per renamed child."
         )
 
-        for near, far in zip(near_channels, far_channels):
-            near.refresh_from_db()
-            self.assertTrue(near.name.startswith('exA:'))
-            self.assertEqual(near.cable_id, cable.pk)
-            self.assertPathExists((near, cable, far), is_complete=True, is_active=True)
-            self.assertPathExists((far, cable, near), is_complete=True, is_active=True)
+        # Both the 2- and 8-channel cascades must have actually renamed and preserved paths correctly; checking
+        # only the query count above would still pass if the larger (8-channel) cascade silently did neither.
+        for prefix, near_channels, far_channels, cable in (
+            ('exA:', near_channels_2ch, far_channels_2ch, cable_2ch),
+            ('exB:', near_channels_8ch, far_channels_8ch, cable_8ch),
+        ):
+            for near, far in zip(near_channels, far_channels):
+                near.refresh_from_db()
+                self.assertTrue(near.name.startswith(prefix))
+                self.assertEqual(near.cable_id, cable.pk)
+                self.assertPathExists((near, cable, far), is_complete=True, is_active=True)
+                self.assertPathExists((far, cable, near), is_complete=True, is_active=True)
 
 
-class ChannelizedInterfaceValidationTestCase(TestCase):
+class ChannelizedInterfaceTestCase(TestCase):
     """
-    Test validation of the channels and channel_id fields on Interface.
+    Test validation, properties, renaming, and REST/GraphQL filtering of channelized Interfaces and their channel
+    subinterfaces. Cable-path and bulk-view coverage remain in their own specialized TestCase classes below;
+    commit-dependent cascade side effects remain in the separate ChannelizedInterfaceRenameSideEffectsTestCase
+    (a TransactionTestCase).
     """
 
     @classmethod
@@ -419,6 +428,23 @@ class ChannelizedInterfaceValidationTestCase(TestCase):
         cls.parent = Interface.objects.create(
             device=cls.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
+
+        # A second, isolated device for the kind=physical filter tests further below, so their pre-built channel
+        # subinterface doesn't collide with the many ad hoc channel_id=1 children the tests above create against
+        # cls.parent.
+        cls.filter_device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 2')
+        cls.filter_parent = Interface.objects.create(
+            device=cls.filter_device, name='ft0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=1
+        )
+        cls.filter_channel = Interface.objects.create(
+            device=cls.filter_device, name='ft0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
+            parent=cls.filter_parent, channel_id=1
+        )
+        cls.filter_plain = Interface.objects.create(
+            device=cls.filter_device, name='fx0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+    # -- validation --------------------------------------------------------------------------------------------
 
     def test_valid_channel_subinterface(self):
         interface = Interface(
@@ -568,23 +594,9 @@ class ChannelizedInterfaceValidationTestCase(TestCase):
         with self.assertRaises(ValidationError):
             duplicate.full_clean()
 
-
-class ChannelizedInterfaceRenameTestCase(TestCase):
-    """
-    Test that renaming a channelized parent interface updates the names of any channel subinterfaces which follow
-    the "<parent name>:<channel ID>" convention.
-    """
-
-    @classmethod
-    def setUpTestData(cls):
-        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
-        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        site = Site.objects.create(name='Site', slug='site')
-        cls.device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 1')
-        cls.parent = Interface.objects.create(
-            device=cls.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
-        )
+    # -- renaming ----------------------------------------------------------------------------------------------
+    # Renaming a channelized parent interface updates the names of any channel subinterfaces which follow the
+    # "<parent name>:<channel ID>" convention.
 
     def test_rename_updates_conforming_children(self):
         child = Interface.objects.create(
@@ -749,6 +761,35 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
 
+    # -- kind=physical filtering ---------------------------------------------------------------------------------
+    # A channel subinterface is excluded from kind=physical (REST) / kind: PHYSICAL (GraphQL), even when it keeps
+    # its own specific physical type rather than the generic "channel" type -- matching Interface.is_wired, since
+    # it derives its cable from its channelized parent and cannot be cabled directly.
+
+    def test_rest_kind_physical_excludes_channel_subinterface(self):
+        filterset = InterfaceFilterSet({'kind': 'physical'}, Interface.objects.all())
+        results = set(filterset.qs.values_list('pk', flat=True))
+        self.assertIn(self.filter_parent.pk, results)
+        self.assertIn(self.filter_plain.pk, results)
+        self.assertNotIn(self.filter_channel.pk, results)
+
+    def test_graphql_kind_physical_excludes_channel_subinterface(self):
+        user = User.objects.create_user(username='testuser', is_superuser=True)
+        client = Client()
+        client.force_login(user)
+
+        query = '{ interface_list(filters: {kind: KIND_PHYSICAL}) { id } }'
+        response = client.post(
+            reverse('graphql'), data=json.dumps({'query': query}), content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        result_ids = {int(r['id']) for r in data['data']['interface_list']}
+        self.assertIn(self.filter_parent.pk, result_ids)
+        self.assertIn(self.filter_plain.pk, result_ids)
+        self.assertNotIn(self.filter_channel.pk, result_ids)
+
 
 class ChannelizedInterfaceRenameSideEffectsTestCase(TransactionTestCase):
     """
@@ -811,19 +852,148 @@ class ChannelizedInterfaceRenameSideEffectsTestCase(TransactionTestCase):
         self.assertEqual(objectchange.postchange_data['name'], 'et1:1')
 
 
-class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
+class ChannelizedInterfaceTemplateTestCase(TestCase):
     """
-    Test that renaming a channelized parent InterfaceTemplate updates the names of any channel subinterface
-    templates which follow the "<parent name>:<channel ID>" convention.
+    Test validation, instantiation-time replication, and renaming of channelized InterfaceTemplates and their
+    channel subinterface templates.
     """
 
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
         cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device', slug='test-device')
+        cls.role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        cls.site = Site.objects.create(name='Site', slug='site')
         cls.parent = InterfaceTemplate.objects.create(
             device_type=cls.device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
         )
+
+        # A second, isolated device type with its own pre-built channel subinterface templates, for the
+        # instantiation-replication test below -- so its four pre-existing channel_id 1-4 children don't collide
+        # with the many ad hoc children the validation/rename tests create against cls.parent.
+        cls.replication_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Replication Device', slug='replication-device'
+        )
+        replication_parent = InterfaceTemplate.objects.create(
+            device_type=cls.replication_device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4
+        )
+        for i in range(1, 5):
+            InterfaceTemplate.objects.create(
+                device_type=cls.replication_device_type,
+                name=f'et0:{i}',
+                type=InterfaceTypeChoices.TYPE_CHANNEL,
+                parent=replication_parent,
+                channel_id=i,
+            )
+
+    # -- instantiation-time replication -------------------------------------------------------------------------
+
+    def test_channelization_replicated_on_instantiation(self):
+        device = Device.objects.create(
+            site=self.site, device_type=self.replication_device_type, role=self.role, name='Device 1'
+        )
+
+        # The channelized parent carries its channel count
+        parent = device.interfaces.get(name='et0')
+        self.assertEqual(parent.channels, 4)
+        self.assertIsNone(parent.channel_id)
+
+        # Each channel subinterface carries its channel ID and is bound to the instantiated parent interface
+        for i in range(1, 5):
+            channel = device.interfaces.get(name=f'et0:{i}')
+            self.assertEqual(channel.channel_id, i)
+            self.assertIsNone(channel.channels)
+            self.assertEqual(channel.parent, parent)
+
+    # -- validation ----------------------------------------------------------------------------------------------
+
+    def test_parent_template_validation(self):
+        # A parent template must belong to the same device type
+        other_type = DeviceType.objects.create(
+            manufacturer=self.device_type.manufacturer, model='Other Device', slug='other-device'
+        )
+        template = InterfaceTemplate(
+            device_type=other_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_template_channel_id_allowed_on_specific_physical_type(self):
+        # A channel subinterface template may keep its own specific physical type (e.g. to record the actual
+        # transceiver in use) instead of the generic "channel" type.
+        template = InterfaceTemplate(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
+            parent=self.parent, channel_id=1
+        )
+        template.full_clean()  # Should not raise
+
+    def test_template_parent_channel_id_must_be_unique(self):
+        InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        duplicate = InterfaceTemplate(
+            device_type=self.device_type, name='et0:1b', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        with self.assertRaises(ValidationError):
+            duplicate.full_clean()
+
+    def test_template_channel_id_within_parent_range(self):
+        # A channel_id beyond the parent's channel count is rejected at the template level
+        template = InterfaceTemplate(
+            device_type=self.device_type, name='et0:5', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=5
+        )
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_template_channel_requires_channelized_parent(self):
+        # A channel template bound to a non-channelized parent template is rejected
+        plain_parent = InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        template = InterfaceTemplate(
+            device_type=self.device_type, name='xe0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=plain_parent, channel_id=1
+        )
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_template_channel_id_requires_parent(self):
+        # A channel_id with no parent assigned is rejected, regardless of type
+        template = InterfaceTemplate(
+            device_type=self.device_type, name='xe1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
+            channel_id=1
+        )
+        with self.assertRaises(ValidationError):
+            template.full_clean()
+
+    def test_template_reduce_channels_below_bound_child_rejected(self):
+        # Bind a channel to the highest channel of the parent, then attempt to reduce the parent's channel count
+        InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:4', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=4
+        )
+        self.parent.channels = 2
+        with self.assertRaises(ValidationError):
+            self.parent.full_clean()
+
+    def test_template_clear_channels_with_bound_child_rejected(self):
+        # De-channelizing a parent template entirely is rejected while a channel subinterface template is bound to it
+        InterfaceTemplate.objects.create(
+            device_type=self.device_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
+            parent=self.parent, channel_id=1
+        )
+        self.parent.channels = None
+        with self.assertRaises(ValidationError):
+            self.parent.full_clean()
+
+    # -- renaming ------------------------------------------------------------------------------------------------
+    # Renaming a channelized parent InterfaceTemplate updates the names of any channel subinterface templates
+    # which follow the "<parent name>:<channel ID>" convention.
 
     def test_rename_updates_conforming_children(self):
         child = InterfaceTemplate.objects.create(
@@ -933,169 +1103,6 @@ class ChannelizedInterfaceTemplateRenameTestCase(TestCase):
             callback()
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
-
-
-class ChannelizedInterfaceKindFilterTestCase(TestCase):
-    """
-    Test that a channel subinterface is excluded from kind=physical (REST) / kind: PHYSICAL (GraphQL), even when
-    it keeps its own specific physical type rather than the generic "channel" type — matching Interface.is_wired,
-    since it derives its cable from its channelized parent and cannot be cabled directly.
-    """
-
-    @classmethod
-    def setUpTestData(cls):
-        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
-        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        site = Site.objects.create(name='Site', slug='site')
-        device = Device.objects.create(site=site, device_type=device_type, role=role, name='Device 1')
-        cls.parent = Interface.objects.create(
-            device=device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=1
-        )
-        cls.channel = Interface.objects.create(
-            device=device, name='et0:1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS, parent=cls.parent,
-            channel_id=1
-        )
-        cls.plain = Interface.objects.create(
-            device=device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
-        )
-
-    def test_rest_kind_physical_excludes_channel_subinterface(self):
-        filterset = InterfaceFilterSet({'kind': 'physical'}, Interface.objects.all())
-        results = set(filterset.qs.values_list('pk', flat=True))
-        self.assertIn(self.parent.pk, results)
-        self.assertIn(self.plain.pk, results)
-        self.assertNotIn(self.channel.pk, results)
-
-    def test_graphql_kind_physical_excludes_channel_subinterface(self):
-        user = User.objects.create_user(username='testuser', is_superuser=True)
-        client = Client()
-        client.force_login(user)
-
-        query = '{ interface_list(filters: {kind: KIND_PHYSICAL}) { id } }'
-        response = client.post(
-            reverse('graphql'), data=json.dumps({'query': query}), content_type='application/json'
-        )
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.content)
-        self.assertNotIn('errors', data)
-        result_ids = {int(r['id']) for r in data['data']['interface_list']}
-        self.assertIn(self.parent.pk, result_ids)
-        self.assertIn(self.plain.pk, result_ids)
-        self.assertNotIn(self.channel.pk, result_ids)
-
-
-class ChannelizedInterfaceTemplateTestCase(TestCase):
-    """
-    Test that the channels, channel_id, and parent fields are replicated from InterfaceTemplate to the Interfaces
-    instantiated for a new Device, and that parent interfaces are populated before their channel subinterfaces.
-    """
-
-    @classmethod
-    def setUpTestData(cls):
-        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device', slug='test-device')
-        cls.role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        cls.site = Site.objects.create(name='Site', slug='site')
-
-        # A channelized parent template broken out into four channel subinterface templates bound to it
-        parent_template = InterfaceTemplate.objects.create(
-            device_type=cls.device_type, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS, channels=4
-        )
-        for i in range(1, 5):
-            InterfaceTemplate.objects.create(
-                device_type=cls.device_type,
-                name=f'et0:{i}',
-                type=InterfaceTypeChoices.TYPE_CHANNEL,
-                parent=parent_template,
-                channel_id=i,
-            )
-
-    def test_channelization_replicated_on_instantiation(self):
-        device = Device.objects.create(
-            site=self.site, device_type=self.device_type, role=self.role, name='Device 1'
-        )
-
-        # The channelized parent carries its channel count
-        parent = device.interfaces.get(name='et0')
-        self.assertEqual(parent.channels, 4)
-        self.assertIsNone(parent.channel_id)
-
-        # Each channel subinterface carries its channel ID and is bound to the instantiated parent interface
-        for i in range(1, 5):
-            channel = device.interfaces.get(name=f'et0:{i}')
-            self.assertEqual(channel.channel_id, i)
-            self.assertIsNone(channel.channels)
-            self.assertEqual(channel.parent, parent)
-
-    def test_parent_template_validation(self):
-        # A parent template must belong to the same device type
-        other_type = DeviceType.objects.create(
-            manufacturer=self.device_type.manufacturer, model='Other Device', slug='other-device'
-        )
-        foreign_parent = InterfaceTemplate.objects.get(device_type=self.device_type, name='et0')
-        template = InterfaceTemplate(
-            device_type=other_type, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
-            parent=foreign_parent, channel_id=1
-        )
-        with self.assertRaises(ValidationError):
-            template.full_clean()
-
-    def test_template_parent_channel_id_must_be_unique(self):
-        parent = InterfaceTemplate.objects.get(device_type=self.device_type, name='et0')
-        # Channel 1 already exists on the parent (created in setUpTestData)
-        duplicate = InterfaceTemplate(
-            device_type=self.device_type, name='et0:1b', type=InterfaceTypeChoices.TYPE_CHANNEL,
-            parent=parent, channel_id=1
-        )
-        with self.assertRaises(ValidationError):
-            duplicate.full_clean()
-
-    def test_template_channel_id_within_parent_range(self):
-        # A channel_id beyond the parent's channel count is rejected at the template level
-        parent = InterfaceTemplate.objects.get(device_type=self.device_type, name='et0')
-        template = InterfaceTemplate(
-            device_type=self.device_type, name='et0:5', type=InterfaceTypeChoices.TYPE_CHANNEL,
-            parent=parent, channel_id=5
-        )
-        with self.assertRaises(ValidationError):
-            template.full_clean()
-
-    def test_template_channel_requires_channelized_parent(self):
-        # A channel template bound to a non-channelized parent template is rejected
-        plain_parent = InterfaceTemplate.objects.create(
-            device_type=self.device_type, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
-        )
-        template = InterfaceTemplate(
-            device_type=self.device_type, name='xe0:1', type=InterfaceTypeChoices.TYPE_CHANNEL,
-            parent=plain_parent, channel_id=1
-        )
-        with self.assertRaises(ValidationError):
-            template.full_clean()
-
-    def test_template_channel_id_requires_channel_type(self):
-        # A channel_id on a non-channel-type template is rejected
-        template = InterfaceTemplate(
-            device_type=self.device_type, name='xe1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS,
-            channel_id=1
-        )
-        with self.assertRaises(ValidationError):
-            template.full_clean()
-
-    def test_template_reduce_channels_below_bound_child_rejected(self):
-        # Reducing a parent template's channel count below a bound child template's channel_id is rejected (channels
-        # 3 & 4 are bound in setUpTestData)
-        parent = InterfaceTemplate.objects.get(device_type=self.device_type, name='et0')
-        parent.channels = 2
-        with self.assertRaises(ValidationError):
-            parent.full_clean()
-
-    def test_template_clear_channels_with_bound_child_rejected(self):
-        # De-channelizing a parent template entirely is rejected while a channel subinterface template is bound to it
-        parent = InterfaceTemplate.objects.get(device_type=self.device_type, name='et0')
-        parent.channels = None
-        with self.assertRaises(ValidationError):
-            parent.full_clean()
 
 
 class ChannelizedBulkCreateTestCase(ViewTestCase):

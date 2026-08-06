@@ -1126,17 +1126,14 @@ class Interface(
         )
 
     def __init__(self, *args, **kwargs):
+        # ChannelRenameMixin.__init__() (reached via super(), first in the MRO) sets _original_channels, used
+        # below by InterfaceValidationMixin.clean() and by post_save signal handlers.
         super().__init__(*args, **kwargs)
 
         # Cache channelization-related fields so post-save signal handlers can detect changes which require rebuilding
         # cable paths (channelization does not involve modifying the Cable itself, so the cable signals do not fire).
-        # _original_channels is additionally used by InterfaceValidationMixin.clean() to detect a channel-count
-        # reduction that would orphan a bound subinterface.
-        self._original_channels = self.__dict__.get('channels')
         self._original_channel_id = self.__dict__.get('channel_id')
         self._original_parent_id = self.__dict__.get('parent_id')
-
-        self._init_channel_rename_tracking()
 
     def clean(self):
         super().clean()
@@ -1271,11 +1268,9 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
-        rename_state = self._detect_channel_rename(kwargs.get('update_fields'))
-
+        # ChannelRenameMixin.save() (reached via super(), first in the MRO) detects and cascades a channelized
+        # parent rename around this call.
         super().save(*args, **kwargs)
-
-        self._defer_channel_rename(*rename_state)
 
     @property
     def _occupied(self):

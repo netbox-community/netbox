@@ -663,14 +663,8 @@ class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularCom
         verbose_name = _('interface template')
         verbose_name_plural = _('interface templates')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Cache the original channel count for use by InterfaceValidationMixin.clean() to detect a channel-count
-        # reduction that would orphan a bound subinterface.
-        self._original_channels = self.__dict__.get('channels')
-
-        self._init_channel_rename_tracking()
+    # __init__() and save() are entirely handled by ChannelRenameMixin (first in the MRO above); no override
+    # needed here. _original_channels, set there, is also used below by InterfaceValidationMixin.clean().
 
     def clean(self):
         super().clean()
@@ -703,13 +697,6 @@ class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularCom
                         "Bridge interface ({bridge}) must belong to the same module type"
                     ).format(bridge=self.bridge)
                 })
-
-    def save(self, *args, **kwargs):
-        rename_state = self._detect_channel_rename(kwargs.get('update_fields'))
-
-        super().save(*args, **kwargs)
-
-        self._defer_channel_rename(*rename_state)
 
     def instantiate(self, **kwargs):
         return self.component_model(
