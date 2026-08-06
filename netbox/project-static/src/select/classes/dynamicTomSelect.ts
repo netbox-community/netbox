@@ -147,7 +147,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
         // succession). This response is stale; applying it now would risk clobbering
         // state already set by the newer, still-in-flight or already-resolved request.
         if (sequence !== self.loadSequence) {
-          self.discardStaleResponse();
+          self.finalizeStaleLoad();
           return;
         }
         self.loadCallback(options, []);
@@ -165,7 +165,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       })
       .catch(() => {
         if (sequence !== self.loadSequence) {
-          self.discardStaleResponse();
+          self.finalizeStaleLoad();
           return;
         }
         self.pendingRestoreValue = undefined;
@@ -173,21 +173,20 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       });
   }
 
-  // Finalize the loading state for a response that arrived after a newer load() call has
-  // already superseded it: decrement the loading counter and, once it settles back to zero,
-  // remove the wrapper's loading class and force Tom Select to re-render the dropdown so any
-  // stale loading indicator it rendered internally is cleared too.
-  private discardStaleResponse(): void {
+  /**
+   * Custom methods
+   */
+
+  // Finalizes Tom Select's loading state after a superseded (stale) response settles: clears
+  // the loading counter and, once it reaches zero, removes the wrapper's loading class and
+  // refreshes the dropdown to drop any stale loading indicator rendered internally.
+  private finalizeStaleLoad(): void {
     this.loading = Math.max(this.loading - 1, 0);
     if (!this.loading) {
       removeClasses(this.wrapper, this.settings.loadingClass);
       this.refreshOptions(false);
     }
   }
-
-  /**
-   * Custom methods
-   */
 
   // Formulate and return the complete URL for an API request, including any query parameters.
   getRequestUrl(search: string): string {
