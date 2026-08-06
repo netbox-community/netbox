@@ -1,5 +1,6 @@
 import datetime
 import json
+from collections import defaultdict
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -16,6 +17,7 @@ from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.context import query_cache
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -825,6 +827,22 @@ class CustomFieldManagerTestCase(TestCase):
     def test_get_for_model(self):
         self.assertEqual(CustomField.objects.get_for_model(Site).count(), 1)
         self.assertEqual(CustomField.objects.get_for_model(VirtualMachine).count(), 0)
+
+    def test_get_for_model_caches_models_with_no_custom_fields(self):
+        """
+        A model with no custom fields assigned must be served from the request cache like any other.
+        An empty QuerySet is falsy, so testing the cached value for truthiness would treat it as a
+        miss and re-query on every call.
+        """
+        token = query_cache.set(defaultdict(dict))
+        self.addCleanup(query_cache.reset, token)
+
+        # Site has one custom field assigned, VirtualMachine none
+        for model in (Site, VirtualMachine):
+            # Prime the cache, iterating so that the QuerySet's own result cache is populated too
+            list(CustomField.objects.get_for_model(model))
+            with self.assertNumQueries(0):
+                list(CustomField.objects.get_for_model(model))
 
 
 class CustomFieldAPITestCase(APITestCase):

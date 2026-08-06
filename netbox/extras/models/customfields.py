@@ -71,10 +71,12 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         """
         Return all CustomFields assigned to the given model.
         """
-        # Check the request cache before hitting the database
+        # Check the request cache before hitting the database. Test the cached value against None
+        # rather than for truthiness: a model with no custom fields caches an empty QuerySet, which
+        # would otherwise be treated as a miss and re-queried on every call.
         cache = query_cache.get()
         if cache is not None:
-            if custom_fields := cache['custom_fields'].get(model._meta.model):
+            if (custom_fields := cache['custom_fields'].get(model._meta.model)) is not None:
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
