@@ -419,6 +419,31 @@ class GraphQLAPITestCase(APITestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(int(data['data']['table_config']['object_type']['id']), site_ct.pk)
 
+    def test_graphql_custom_fields_include_unset_fields(self):
+        """
+        CustomFieldsMixin.custom_fields must emit a key for every custom field assigned to the model,
+        as the REST API does, rather than returning the stored data verbatim. A key is materialized
+        only once a value is assigned, so an object predating a field carries none; without this such
+        a field would be absent from the response instead of null. Stale data for a field which no
+        longer applies is likewise omitted.
+        """
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+
+        cf = CustomField.objects.create(name='cf1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        cf.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site.objects.get(slug='site-1')
+        self.assertNotIn('cf1', site.custom_field_data)
+        Site.objects.filter(pk=site.pk).update(custom_field_data={'stale': 'value'})
+
+        query = '{ site(id: ' + str(site.pk) + ') { custom_fields } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['site']['custom_fields'], {'cf1': None})
+
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphql_device_list_tags_are_prefetched(self):
         """
