@@ -37,7 +37,7 @@ NetBox functions as the **source of truth** for your network infrastructure. Its
   <img src="docs/media/misc/reference_architecture.png" alt="Reference network automation architecture" />
 </p>
 
-The diagram above illustrates the recommended deployment architecture for an automated network, leveraging NetBox as the central authority for network state. This approach allows your team to swap out individual tools to meet changing needs while retaining a predictable, modular workflow.
+The diagram above illustrates a recommended deployment architecture for an automated network, with NetBox serving as the central source of truth for network state. This architecture enables teams to replace or integrate individual tools as requirements evolve while maintaining a predictable, modular, and scalable automation workflow.
 
 ## Why NetBox?
 
