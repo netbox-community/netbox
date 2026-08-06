@@ -836,6 +836,15 @@ class CustomFieldTestCase(TestCase):
         bystander.refresh_from_db()
         self.assertEqual(bystander.custom_field_data, {'other': 'untouched'})
 
+    @staticmethod
+    def order_sites_by(*aliases):
+        """
+        Order a SiteTable by the given column aliases and return the underlying QuerySet.
+        """
+        table = SiteTable(Site.objects.all())
+        table.order_by = aliases
+        return table.data.data
+
     def test_table_ordering_groups_objects_with_no_value(self):
         """
         Objects holding no value sort together regardless of whether they store a JSON null or
@@ -856,9 +865,7 @@ class CustomFieldTestCase(TestCase):
             name='Site D', slug='site-d', custom_field_data={'sort_field': 100}
         )
 
-        column = SiteTable(Site.objects.none()).columns['cf_sort_field'].column
-
-        ordered, _applied = column.order(Site.objects.all(), is_descending=False)
+        ordered = self.order_sites_by('cf_sort_field')
         self.assertEqual(
             [s.pk for s in ordered][:2],
             [sites[0].pk, extra.pk],
@@ -870,9 +877,14 @@ class CustomFieldTestCase(TestCase):
             "the JSON-null and missing-key rows must group together at the end"
         )
 
-        ordered, _applied = column.order(Site.objects.all(), is_descending=True)
-        self.assertEqual([s.pk for s in ordered][:2], [extra.pk, sites[0].pk])
-        self.assertEqual({s.pk for s in ordered[2:]}, {sites[1].pk, sites[2].pk})
+        # Reversing the ordering carries the empty rows to the front, as it would SQL nulls
+        ordered = self.order_sites_by('-cf_sort_field')
+        self.assertEqual(
+            {s.pk for s in ordered[:2]},
+            {sites[1].pk, sites[2].pk},
+            "the JSON-null and missing-key rows must still group together"
+        )
+        self.assertEqual([s.pk for s in ordered[2:]], [extra.pk, sites[0].pk])
 
     def test_table_ordering_breaks_ties_by_primary_key(self):
         """
@@ -891,10 +903,8 @@ class CustomFieldTestCase(TestCase):
             Site(name=f'Tied Site {i}', slug=f'tied-site-{i}') for i in range(1, 11)
         ])
 
-        column = SiteTable(Site.objects.none()).columns['cf_sort_field'].column
-
-        for is_descending in (False, True):
-            ordered, _applied = column.order(Site.objects.all(), is_descending=is_descending)
+        for alias in ('cf_sort_field', '-cf_sort_field'):
+            ordered = self.order_sites_by(alias)
             self.assertEqual(
                 ordered.query.order_by[-1],
                 'pk',
@@ -908,11 +918,44 @@ class CustomFieldTestCase(TestCase):
                 paginated.extend(site.pk for site in ordered[offset:offset + 4])
             self.assertEqual(paginated, expected)
 
+    def test_table_ordering_composes_with_other_columns(self):
+        """
+        A custom field column must contribute its sort keys to a multi-column ordering rather than
+        replace it. (The sort parameter is read with getlist(), and a saved TableConfig records an
+        ordering of arbitrary length.)
+        """
+        cf = CustomField.objects.create(
+            name='sort_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER
+        )
+        cf.object_types.set([self.object_type])
+
+        sites = list(Site.objects.order_by('name'))
+        # Ordering by the custom field alone would reverse the first two sites
+        Site.objects.filter(pk=sites[0].pk).update(custom_field_data={'sort_field': 2})
+        Site.objects.filter(pk=sites[1].pk).update(custom_field_data={'sort_field': 1})
+        Site.objects.filter(pk=sites[2].pk).update(custom_field_data={'sort_field': 3})
+
+        ordered = self.order_sites_by('name', 'cf_sort_field')
+        self.assertEqual(
+            [site.pk for site in ordered],
+            [site.pk for site in sites],
+            "the preceding sort key must survive the addition of a custom field column"
+        )
+
+        # A column named after the custom field column must likewise still apply
+        Site.objects.update(custom_field_data={'sort_field': 1})
+        ordered = self.order_sites_by('cf_sort_field', '-name')
+        self.assertEqual(
+            [site.pk for site in ordered],
+            [site.pk for site in reversed(sites)],
+            "the trailing sort key must be applied before the primary key tie breaker"
+        )
+
     def test_table_ordering_tolerates_a_repeated_sort_alias(self):
         """
         The sort parameter is read with getlist(), so the same custom field column can appear in
-        the ordering more than once. django-tables2 calls order() once per alias, threading the
-        queryset forward, so the same annotation is applied twice to the same queryset.
+        the ordering more than once, applying the same annotation to the queryset twice.
         """
         cf = CustomField.objects.create(
             name='sort_field',

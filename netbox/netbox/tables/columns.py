@@ -522,44 +522,45 @@ class CustomFieldColumn(tables.Column):
             CustomFieldTypeChoices.TYPE_MULTIOBJECT
         ):
             kwargs['orderable'] = False
+        else:
+            kwargs.setdefault('order_by', (
+                self.unset_alias,
+                f'custom_field_data__{customfield.name}',
+            ))
 
         super().__init__(*args, **kwargs)
 
-    def order(self, queryset, is_descending):
+    @property
+    def unset_alias(self):
         """
-        Sort objects holding no value for this field together, at the end of the results.
+        Return the name of the annotation which groups together the objects holding no value for
+        this field (see get_ordering_annotation()).
+
+        The annotation is named for the custom field so that ordering by two custom field columns
+        cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
+        and underscores, so the alias is always a legal identifier.
+        """
+        return f'_cf_{self.customfield.name}_unset'
+
+    def get_ordering_annotation(self):
+        """
+        Return the annotation by which objects holding no value for this field are sorted together,
+        as the leading sort key for the column. (BaseTable applies it to the queryset when ordering
+        by this column.)
 
         An object can lack a value either by storing a JSON null or by carrying no key for the
         field at all -- the latter being the normal state for objects which predate it, as data is
         no longer provisioned onto existing objects (see CustomField.populate_initial_data()).
         Postgres sorts those two apart: a JSON null is the lowest jsonb value, whereas a missing
         key yields SQL NULL and sorts last, so the "empty" rows would otherwise land at both ends
-        of the same column. Group them with a leading sort key (the `empty` lookup covers both
-        states), then fall back to the raw value so that numeric and date fields still sort by type
-        rather than lexically.
-
-        Rows tying on both keys (every object holding no value ties on both) are broken apart by
-        the primary key, so that the ordering is total. Without it Postgres is free to return tied
-        rows in a different order for each query, which would cause paginated results to skip or
-        repeat rows from one page to the next.
-
-        The annotation is named for the custom field so that ordering by two custom field columns
-        cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
-        and underscores, so the alias is always a legal identifier. Note that this does not make
-        the two orderings compose: as with any django-tables2 column defining order(), the second
-        column's order_by() replaces the first's rather than extending it.
+        of the same column. This key (the `empty` lookup covers both states) groups them at one
+        end, matching how SQL NULLs are ordered for an ordinary column: last when ascending, first
+        when descending. The column's second sort key then orders by the raw value, so that numeric
+        and date fields still sort by type rather than lexically.
         """
-        name = self.customfield.name
-        alias = f'_cf_{name}_unset'
-        queryset = queryset.annotate(**{
-            alias: Q(**{f'custom_field_data__{name}__empty': True})
-        }).order_by(
-            alias,
-            f'{"-" if is_descending else ""}custom_field_data__{name}',
-            'pk'
-        )
-
-        return queryset, True
+        return {
+            self.unset_alias: Q(**{f'custom_field_data__{self.customfield.name}__empty': True})
+        }
 
     @staticmethod
     def _linkify_item(item):
