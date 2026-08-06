@@ -14,16 +14,6 @@ CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 # each statement orders of magnitude below a typical statement timeout.
 CUSTOMFIELD_DATA_BATCH_SIZE = 5000
 
-# Execution timeout (in seconds) for the background job which purges stored data for a custom field
-# which has been deleted or unassigned. This is deliberately far above RQ_DEFAULT_TIMEOUT: the job
-# may need to walk every row of several very large tables, and being killed partway through leaves
-# stale data behind (which in turn blocks reuse of the field's name).
-CUSTOMFIELD_DATA_JOB_TIMEOUT = 3600
-
-# Key under which the custom field data cleanup job records its target in Job.data. Namespaced
-# because Job.data is shared with other job types (e.g. script output).
-CUSTOMFIELD_DATA_JOB_KEY = 'cf_data_purge'
-
 # ImageAttachment
 IMAGE_ATTACHMENT_IMAGE_FORMATS = {
     'avif': 'image/avif',

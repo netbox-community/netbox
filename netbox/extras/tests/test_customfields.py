@@ -1,54 +1,32 @@
 import datetime
 import json
-import uuid
 from collections import defaultdict
-from contextlib import contextmanager
 from decimal import Decimal
 from unittest.mock import patch
 
 import django_filters
 from django.core.exceptions import ValidationError
-from django.db import connection, transaction
+from django.db import connection
 from django.db.models import QuerySet
-from django.test import RequestFactory, tag
+from django.test import tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework import status
 
-from core.choices import JobStatusChoices
-from core.models import Job, ObjectChange, ObjectType
+from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from dcim.tables import SiteTable
 from extras.choices import *
-from extras.constants import CUSTOMFIELD_DATA_JOB_KEY
 from extras.filters import MissingKeyAwareFilterMixin, missing_key_aware_filter_factory
-from extras.jobs import CustomFieldDataJob
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
-from netbox.context import current_request, query_cache
-from users.models import User
-from utilities.exceptions import AbortRequest
+from netbox.context import query_cache
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter
-from utilities.testing import APITestCase, TestCase, post_data, run_pending_cf_purges
+from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
-
-
-@contextmanager
-def assert_aborts(testcase):
-    """
-    Assert that the enclosed operation raises AbortRequest.
-
-    The exception is raised from a signal handler inside Django's own atomic block, which leaves
-    the surrounding transaction unusable. Views roll back at that point; tests carry on, so wrap
-    the operation in a savepoint of its own to keep the connection usable afterwards.
-    """
-    with testcase.assertRaises(AbortRequest):
-        with transaction.atomic():
-            yield
 
 
 class CustomFieldTestCase(TestCase):
@@ -694,13 +672,8 @@ class CustomFieldTestCase(TestCase):
             0
         )
 
-        # Removal: deleting the field enqueues a purge; the key survives until that job runs
+        # Removal: deleting the field strips the key from every existing object
         cf.delete()
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
-            site_count
-        )
-        run_pending_cf_purges()
         self.assertEqual(
             Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
             0
@@ -776,9 +749,9 @@ class CustomFieldTestCase(TestCase):
         site.refresh_from_db()
         self.assertEqual(site.custom_field_data['sparse_renamed'], 'value')
 
-    def test_removal_from_object_type_is_deferred(self):
+    def test_removal_from_object_type_purges_data(self):
         """
-        Unassigning a field from an object type purges its data in the background.
+        Unassigning a field from an object type removes its data from those objects.
         """
         cf = CustomField.objects.create(
             name='unassigned_field',
@@ -792,193 +765,16 @@ class CustomFieldTestCase(TestCase):
         )
 
         cf.object_types.remove(self.object_type)
-        run_pending_cf_purges()
 
         self.assertEqual(
             Site.objects.filter(custom_field_data__has_key='unassigned_field').count(),
             0
         )
 
-    def test_name_reuse_blocked_while_purge_outstanding(self):
-        """
-        Recreating a deleted field before its data has been purged would silently adopt the old
-        field's values, so it must be refused until the cleanup job has run.
-        """
-        cf = CustomField.objects.create(
-            name='recycled_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        # The purge has not run, so the old values are still on disk
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__recycled_field='old value').count(),
-            Site.objects.count()
-        )
-
-        replacement = CustomField.objects.create(
-            name='recycled_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        with assert_aborts(self):
-            replacement.object_types.set([self.object_type])
-
-        # Once the purge completes the name is free again, and the new field starts out empty
-        run_pending_cf_purges()
-        replacement.object_types.set([self.object_type])
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__has_key='recycled_field').count(),
-            0
-        )
-
-    def test_name_reuse_allowed_for_unaffected_object_types(self):
-        """
-        The guard is scoped to the object types actually awaiting cleanup; an unrelated one is
-        unaffected.
-        """
-        cf = CustomField.objects.create(
-            name='scoped_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        # Racks were never assigned the original field, so nothing can be inherited there
-        rack_type = ObjectType.objects.get_for_model(Rack)
-        replacement = CustomField.objects.create(
-            name='scoped_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        replacement.object_types.set([rack_type])
-
-        self.assertEqual(list(replacement.object_types.values_list('pk', flat=True)), [rack_type.pk])
-
-        # The purge is still outstanding, and still guards the object type it actually covers
-        self.assertEqual(
-            len(CustomFieldDataJob.get_pending_purges('scoped_field', [self.object_type])),
-            1
-        )
-        self.assertEqual(CustomFieldDataJob.get_pending_purges('scoped_field', [rack_type]), [])
-
-    def test_name_reuse_blocked_after_failed_purge(self):
-        """
-        A purge which errored (or which no worker ever picked up) has left data behind just as
-        surely as one still queued, so it must keep blocking reuse of the name. The stalled job is
-        resubmitted, so that a failed cleanup does not block the name permanently.
-        """
-        cf = CustomField.objects.create(
-            name='stuck_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'stuck_field'})
-        job.status = JobStatusChoices.STATUS_ERRORED
-        job.started = timezone.now()
-        job.completed = timezone.now()
-        job.error = 'Something went wrong'
-        job.save()
-
-        replacement = CustomField.objects.create(
-            name='stuck_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        with patch('extras.jobs.django_rq.get_queue') as get_queue:
-            with assert_aborts(self):
-                replacement.object_types.set([self.object_type])
-
-        # The stalled job was resubmitted for execution. Note that this happens in Redis rather
-        # than the database, as the abort rolls back the transaction.
-        get_queue.return_value.enqueue.assert_called_once()
-        kwargs = get_queue.return_value.enqueue.call_args.kwargs
-        self.assertEqual(kwargs['job_id'], str(job.job_id))
-
-        # The previous attempt's execution state was cleared on the instance handed to RQ, so that
-        # the worker records the new attempt rather than skipping Job.start() and reporting the old
-        # error against it
-        requeued = kwargs['job']
-        self.assertEqual(requeued.status, JobStatusChoices.STATUS_PENDING)
-        self.assertIsNone(requeued.started)
-        self.assertIsNone(requeued.completed)
-        self.assertEqual(requeued.error, '')
-        self.assertEqual(requeued.data[CUSTOMFIELD_DATA_JOB_KEY]['custom_field_name'], 'stuck_field')
-
-    def test_rename_into_pending_name_blocked(self):
-        """
-        A rename claims the new name just as an assignment does: it must be refused while data for
-        a previous field of that name is still being purged, as the renamed field would otherwise
-        adopt those values and then have them deleted when the purge runs.
-        """
-        cf = CustomField.objects.create(
-            name='retired_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        replacement = CustomField.objects.create(
-            name='live_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        replacement.object_types.set([self.object_type])
-
-        replacement.name = 'retired_field'
-        with assert_aborts(self):
-            replacement.save()
-
-        # The rename was rolled back
-        replacement = CustomField.objects.get(pk=replacement.pk)
-        self.assertEqual(replacement.name, 'live_field')
-
-        # Once the purge completes the name is free, and the renamed field starts out empty
-        run_pending_cf_purges()
-        replacement.name = 'retired_field'
-        replacement.save()
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__has_key='retired_field').count(),
-            0
-        )
-
-    def test_rename_allowed_for_unaffected_object_types(self):
-        """
-        As with assignment, the guard on renaming is scoped to the object types awaiting cleanup.
-        """
-        cf = CustomField.objects.create(
-            name='retired_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        # Racks were never assigned the original field, so nothing can be inherited there
-        replacement = CustomField.objects.create(
-            name='live_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        replacement.object_types.set([ObjectType.objects.get_for_model(Rack)])
-        replacement.name = 'retired_field'
-        replacement.save()
-
-        replacement.refresh_from_db()
-        self.assertEqual(replacement.name, 'retired_field')
-
-        # The original field's data is still awaiting its purge, untouched by the rename
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__retired_field='old value').count(),
-            Site.objects.count()
-        )
-
-    def test_clearing_object_types_is_deferred(self):
+    def test_clearing_object_types_purges_data(self):
         """
         clear() unassigns every object type at once and reports no pk_set, so it must be handled
-        before the fact. Its data is purged just as remove()'s is.
+        before the fact. Its data is removed just as remove()'s is.
         """
         cf = CustomField.objects.create(
             name='cleared_field',
@@ -993,12 +789,6 @@ class CustomFieldTestCase(TestCase):
 
         cf.object_types.clear()
 
-        # As with remove(), the data outlives the assignment until the job runs
-        self.assertEqual(
-            Site.objects.filter(custom_field_data__has_key='cleared_field').count(),
-            Site.objects.count()
-        )
-        run_pending_cf_purges()
         self.assertEqual(
             Site.objects.filter(custom_field_data__has_key='cleared_field').count(),
             0
@@ -1045,73 +835,6 @@ class CustomFieldTestCase(TestCase):
         self.assertEqual(holder.custom_field_data, {'drifted_field': 'value'})
         bystander.refresh_from_db()
         self.assertEqual(bystander.custom_field_data, {'other': 'untouched'})
-
-    def test_enqueue_purge_does_not_clobber_a_finished_job(self):
-        """
-        Job.enqueue() dispatches to RQ via transaction.on_commit(), which fires immediately when no
-        transaction is open, so a worker can run the job to completion before enqueue_purge()
-        records its target. Writing the whole row back at that point would roll the job's status
-        back to pending and block reuse of the field's name indefinitely.
-        """
-        enqueue = CustomFieldDataJob.enqueue
-
-        def enqueue_and_complete(*args, **kwargs):
-            job = enqueue(*args, **kwargs)
-            # Stand in for a worker which picks the job up and finishes it straight away
-            Job.objects.filter(pk=job.pk).update(status=JobStatusChoices.STATUS_COMPLETED)
-            return job
-
-        with patch.object(CustomFieldDataJob, 'enqueue', enqueue_and_complete):
-            job = CustomFieldDataJob.enqueue_purge('ghost_field', [self.object_type])
-
-        job.refresh_from_db()
-        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
-        self.assertEqual(job.data[CUSTOMFIELD_DATA_JOB_KEY]['custom_field_name'], 'ghost_field')
-
-        # A completed purge does not block reuse of the name
-        self.assertEqual(
-            CustomFieldDataJob.get_pending_purges('ghost_field', [self.object_type]),
-            []
-        )
-
-    def test_purge_job_is_attributed_to_the_current_user(self):
-        """
-        The user making the change is the party being asked to wait for the purge, so the job is
-        attributed to them where a request context is available.
-        """
-        user = User.objects.create_user(username='cf_purger')
-        request = RequestFactory().get('/')
-        request.id = uuid.uuid4()
-        request.user = user
-
-        cf = CustomField.objects.create(
-            name='attributed_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        cf.object_types.set([self.object_type])
-
-        token = current_request.set(request)
-        try:
-            cf.delete()
-        finally:
-            current_request.reset(token)
-
-        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'attributed_field'})
-        self.assertEqual(job.user, user)
-
-    def test_purge_job_has_no_user_outside_a_request(self):
-        """
-        Outside a request (e.g. under nbshell) there is nobody to attribute the job to.
-        """
-        cf = CustomField.objects.create(
-            name='unattributed_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-        job = Job.objects.get(**{f'data__{CUSTOMFIELD_DATA_JOB_KEY}__custom_field_name': 'unattributed_field'})
-        self.assertIsNone(job.user)
 
     def test_table_ordering_groups_objects_with_no_value(self):
         """
@@ -1343,75 +1066,6 @@ class CustomFieldTestCase(TestCase):
                 name='test', type=CustomFieldTypeChoices.TYPE_JSON,
                 validation_schema=schema, default={'age': 25}
             ).full_clean()
-
-
-class PendingPurgeGuardMixin:
-    """
-    Set up a deleted CustomField whose data has yet to be purged, leaving its name unavailable.
-    """
-    def setUp(self):
-        super().setUp()
-
-        self.object_type = ObjectType.objects.get_for_model(Site)
-        Site.objects.create(name='Site A', slug='site-a')
-
-        cf = CustomField.objects.create(
-            name='reclaimed_field',
-            type=CustomFieldTypeChoices.TYPE_TEXT,
-            default='old value'
-        )
-        cf.object_types.set([self.object_type])
-        cf.delete()
-
-
-class CustomFieldPendingPurgeViewTestCase(PendingPurgeGuardMixin, TestCase):
-    """
-    The guard against claiming a name whose data is still being purged is raised from a signal
-    handler, so verify that the UI surfaces it as a form error rather than a server error.
-    """
-    def test_creation_reports_a_form_error(self):
-        self.add_permissions('extras.add_customfield')
-
-        form_data = {
-            'name': 'reclaimed_field',
-            'label': 'Reclaimed',
-            'type': CustomFieldTypeChoices.TYPE_TEXT,
-            'object_types': [self.object_type.pk],
-            'search_weight': 1000,
-            'filter_logic': CustomFieldFilterLogicChoices.FILTER_LOOSE,
-            'weight': 100,
-            'ui_visible': CustomFieldUIVisibleChoices.ALWAYS,
-            'ui_editable': CustomFieldUIEditableChoices.YES,
-        }
-        response = self.client.post(reverse('extras:customfield_add'), data=post_data(form_data))
-
-        # The form is redisplayed carrying the error, rather than the request failing outright
-        self.assertHttpStatus(response, 200)
-        self.assertIn('still being removed', response.content.decode())
-
-        # The abort rolled the whole request back, so no field was created
-        self.assertFalse(CustomField.objects.filter(name='reclaimed_field').exists())
-
-
-class CustomFieldPendingPurgeAPITestCase(PendingPurgeGuardMixin, APITestCase):
-    """
-    As above, but for the REST API: the guard must produce a 400, not a 500.
-    """
-    model = CustomField
-
-    def test_creation_reports_a_validation_error(self):
-        self.add_permissions('extras.add_customfield')
-
-        data = {
-            'name': 'reclaimed_field',
-            'type': CustomFieldTypeChoices.TYPE_TEXT,
-            'object_types': ['dcim.site'],
-        }
-        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
-
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('still being removed', str(response.data))
-        self.assertFalse(CustomField.objects.filter(name='reclaimed_field').exists())
 
 
 class CustomFieldManagerTestCase(TestCase):

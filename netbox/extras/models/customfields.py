@@ -8,7 +8,7 @@ import jsonschema
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F, Func, Value
 from django.urls import reverse
 from django.utils.html import escape
@@ -328,7 +328,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     def _update_object_data(model, filters=None, **update_kwargs):
         """
         Apply an UPDATE to the custom_field_data of every instance of the given model in batches,
-        bounding the number of rows touched by each statement.
+        bounding the number of rows touched by each statement. A single unbounded UPDATE across
+        millions of rows can exceed the database statement timeout, because JSONB updates rewrite
+        each affected row in full. Batches are selected via keyset pagination on the primary key.
+
+        The batched updates are wrapped in a transaction so that the operation remains atomic, as
+        it was when performed by a single UPDATE. This guards against partially-applied data (e.g.
+        a renamed field landing on only some objects) should the loop be interrupted when not
+        already running inside a request's transaction. Batching avoids the statement timeout
+        regardless, as that limit applies per statement rather than per transaction.
 
         :param filters: Optional dict of ORM filters restricting which rows are updated. Callers
             which need only to touch rows already holding a given key should pass
@@ -338,16 +346,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         filters = filters or {}
         queryset = model.objects.filter(**filters)
-        last_pk = 0
-        while True:
-            pks = list(
-                queryset.filter(pk__gt=last_pk).order_by('pk')
-                .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
-            )
-            if not pks:
-                break
-            queryset.filter(pk__in=pks).update(**update_kwargs)
-            last_pk = pks[-1]
+        with transaction.atomic():
+            last_pk = 0
+            while True:
+                pks = list(
+                    queryset.filter(pk__gt=last_pk).order_by('pk')
+                    .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
+                )
+                if not pks:
+                    break
+                queryset.filter(pk__in=pks).update(**update_kwargs)
+                last_pk = pks[-1]
 
     def populate_initial_data(self, content_types):
         """
@@ -375,20 +384,21 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                     )
                 )
 
-    @classmethod
-    def purge_object_data(cls, name, content_types):
+    def remove_stale_data(self, content_types):
         """
-        Delete stored data for the named custom field from all objects of the given types.
+        Delete custom field data which is no longer relevant (either because the CustomField is
+        no longer assigned to a model, or because it has been deleted).
 
-        Keyed on the field's name rather than on a CustomField instance so that this can run after
-        the field itself has been deleted (see extras.jobs.CustomFieldDataJob).
+        Only objects which actually hold a value for the field are rewritten. Because keys are
+        materialized only when a value is set (see populate_initial_data()), this typically
+        excludes the bulk of the table.
         """
         for ct in content_types:
             if model := ct.model_class():
-                cls._update_object_data(
+                self._update_object_data(
                     model,
-                    filters={'custom_field_data__has_key': name},
-                    custom_field_data=F('custom_field_data') - name
+                    filters={'custom_field_data__has_key': self.name},
+                    custom_field_data=F('custom_field_data') - self.name
                 )
 
     def rename_object_data(self, old_name, new_name):
