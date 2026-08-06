@@ -3463,6 +3463,40 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_import_omitted_field_validation_error(self):
+        """
+        Regression test for #22683: when bulk-importing a CSV update that omits a
+        field referenced by model-level validation, the response must be 200 with a
+        descriptive validation error rather than a 500 ValueError.
+        """
+        device = Device.objects.first()
+        wireless_interface = Interface.objects.create(
+            device=device,
+            name='Wireless-22683',
+            type=InterfaceTypeChoices.TYPE_802_11AC,
+            rf_channel_width=Decimal('20.0'),
+        )
+        self.add_permissions('dcim.add_interface', 'dcim.change_interface')
+        csv_data = '\n'.join([
+            'id,type',
+            f'{wireless_interface.pk},{InterfaceTypeChoices.TYPE_1GE_GBIC}',
+        ])
+        response = self.client.post(
+            self._get_url('bulk_import'),
+            data={
+                'data': csv_data,
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
+            },
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'rf_channel_width')
+        self.assertContains(response, 'Channel width may be set only on wireless interfaces.')
+        wireless_interface.refresh_from_db()
+        self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_802_11AC)
+        self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort

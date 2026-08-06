@@ -76,17 +76,28 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
         Override to handle ValidationErrors from model.full_clean() that reference
         fields not present on this import form. Rather than crashing with a ValueError,
         remap those errors to non-field errors so bulk import surfaces a readable
-        validation message instead of a 500.
+        validation message instead of a 500. The originating field name is prepended
+        to each remapped message so users can identify which omitted column or existing
+        value caused the failure. Remapped errors are added after calling Django's
+        _update_errors() to avoid triggering Meta.error_messages[NON_FIELD_ERRORS]
+        overrides intended for genuine non-field errors.
         """
         if hasattr(errors, 'error_dict'):
-            new_error_dict = {}
+            remapped = []
+            passthrough = {}
             for field, error_list in errors.error_dict.items():
-                if field == NON_FIELD_ERRORS or field not in self.fields:
-                    new_error_dict.setdefault(NON_FIELD_ERRORS, []).extend(error_list)
+                if field == NON_FIELD_ERRORS or field in self.fields:
+                    passthrough[field] = error_list
                 else:
-                    new_error_dict[field] = error_list
-            errors = ValidationError(new_error_dict)
-        super()._update_errors(errors)
+                    for error in error_list:
+                        for message in error.messages:
+                            remapped.append(ValidationError(f"{field}: {message}"))
+            if passthrough:
+                super()._update_errors(ValidationError(passthrough))
+            for error in remapped:
+                self.add_error(None, error)
+        else:
+            super()._update_errors(errors)
 
 
 class OwnerCSVMixin(forms.Form):

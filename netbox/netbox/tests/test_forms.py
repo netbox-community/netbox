@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError as DjangoValidationError
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -326,7 +326,7 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
             result = form.is_valid()
 
         self.assertFalse(result)
-        self.assertIn('Field error.', form.non_field_errors())
+        self.assertIn('absent_field: Field error.', form.non_field_errors())
 
     def test_non_field_error_not_overwritten_by_remapped_missing_field_error(self):
         """
@@ -345,8 +345,8 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         # absent_field appears first to expose the former overwrite bug
         form._update_errors(DjangoValidationError({
             'absent_field': ['Field error.'],
-            '__all__': ['A general error.'],
+            NON_FIELD_ERRORS: ['A general error.'],
         }))
         non_field_errors = form.non_field_errors()
         self.assertIn('A general error.', non_field_errors)
-        self.assertIn('Field error.', non_field_errors)
+        self.assertIn('absent_field: Field error.', non_field_errors)
