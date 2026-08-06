@@ -1283,9 +1283,7 @@ class Interface(
 
     @property
     def is_wired(self):
-        # Excludes virtual and wireless interfaces, plus any channel subinterface (whether generically typed as
-        # "channel" or given its own specific physical type) — a channel subinterface derives its cable from the
-        # channelized parent and cannot be cabled directly.
+        # Also excludes any channel subinterface, which derives its cable from the channelized parent.
         return self.type not in NONCONNECTABLE_IFACE_TYPES and self.channel_id is None
 
     @property
@@ -1306,8 +1304,7 @@ class Interface(
 
     @property
     def is_channel(self):
-        # A channel subinterface is identified by channel_id, not by type — it may be generically typed as
-        # "channel" or keep its own specific physical type (see is_wired).
+        # Identified by channel_id, not type — it may keep its own specific physical type instead of "channel".
         return self.channel_id is not None
 
     @property

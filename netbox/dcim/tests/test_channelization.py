@@ -382,13 +382,10 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
 
     def test_111_rename_cabled_parent_preserves_cable_paths_without_quadratic_cost(self):
         """
-        Renaming a channelized parent that carries a cable must cascade the channel subinterfaces' names without
-        disturbing their mirrored cable attributes or paths, and without re-deriving cable/channel state (a full
-        propagate_channel_cables() + rebuild_cable_paths() cycle) once per renamed child — which would make the
-        cost of a single rename quadratic in the channel count. Pinned here by comparing the query cost of
-        renaming a 2-channel cabled parent against an 8-channel one (4x the channels): per-child work is
-        necessarily linear in the channel count, but the quadratic regression this guards against would show up
-        as a much steeper increase than the 4x growth in channel count alone.
+        Renaming a cabled channelized parent must cascade the children's names without disturbing their cable
+        paths, and without re-deriving cable state per child (which would make the rename quadratic in the
+        channel count). Pinned by comparing query cost at 2 vs. 8 channels: linear per-child work scales with
+        the 4x channel growth; a quadratic regression would blow well past it.
         """
         queries_2ch, near_channels, far_channels, cable = self._rename_cabled_channelized_pair('A', 2)
         queries_8ch, _, _, _ = self._rename_cabled_channelized_pair('B', 8)
@@ -628,11 +625,8 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         self.assertEqual(colliding_child.name, 'et0:1')
 
     def test_rename_collision_on_one_child_does_not_block_others(self):
-        # Each child is renamed independently: a collision on one must not prevent another, non-colliding
-        # subinterface in the same batch from being renamed. (This holds under the current per-child atomic
-        # implementation; a single-statement bulk_update() would have aborted the whole batch if a collision
-        # were present at execution time rather than being filtered out beforehand — not reachable here without
-        # an actual concurrent write, but this pins the currently intended per-child independence regardless.)
+        # colliding_child conforms to the naming convention, so it reaches save() and genuinely hits
+        # IntegrityError; a collision there must not block the other, non-colliding child's rename.
         colliding_child = Interface.objects.create(
             device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
         )
@@ -651,9 +645,8 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         self.assertEqual(clear_child.name, 'et1:2')
 
     def test_rename_cascade_is_deferred_until_transaction_commits(self):
-        # The cascade must not run until the enclosing transaction commits, so that a sibling object saved later
-        # in the same transaction (e.g. by a bulk view processing several selected objects together) cannot
-        # silently undo it by writing back a stale in-memory copy of the child's name.
+        # A sibling object saved later in the same transaction (e.g. by a bulk view) must not be able to
+        # silently undo the cascade by writing back a stale in-memory copy of the child's name.
         child = Interface.objects.create(
             device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
         )
@@ -662,19 +655,16 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
             self.parent.name = 'et1'
             self.parent.save()
 
-            # The rename has not yet propagated: it's deferred until "commit" (i.e. until the captured
-            # callbacks below are actually run).
+            # Deferred until "commit" (running the captured callbacks below): not yet propagated.
             child.refresh_from_db()
             self.assertEqual(child.name, 'et0:1')
 
-            # Simulate a sibling object's own save() in the same batch, re-asserting the child's stale name -
-            # exactly what BulkRenameView does when the same child is also selected in a bulk rename.
+            # Simulate a sibling's own save() in the same batch, re-asserting the child's stale name — exactly
+            # what BulkRenameView does when the same child is also selected in a bulk rename.
             stale_copy = Interface.objects.get(pk=child.pk)
             stale_copy.save()
 
-        # Once the transaction commits (simulated here by running the captured on_commit callbacks), the
-        # deferred cascade is the last write: it still renames the child, rather than having been silently
-        # overwritten by the sibling's stale save() above.
+        # The deferred cascade is the last write once the transaction commits: still renames the child.
         for callback in callbacks:
             callback()
         child.refresh_from_db()
@@ -744,9 +734,8 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
         self.assertEqual(child.name, 'et0:1')  # Not cascaded
 
     def test_update_fields_excluding_name_does_not_desync_later_full_rename(self):
-        # After a save() that excludes 'name' from update_fields, a later full save() (this time actually
-        # persisting the name) must still correctly detect and cascade the rename — proving the partial save
-        # did not incorrectly refresh _original_name to the unpersisted in-memory value.
+        # A later full save() must still correctly cascade, proving the earlier partial save didn't refresh
+        # _original_name to its unpersisted in-memory value.
         child = Interface.objects.create(
             device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
         )
@@ -764,12 +753,10 @@ class ChannelizedInterfaceRenameTestCase(TestCase):
 class ChannelizedInterfaceRenameSideEffectsTestCase(TransactionTestCase):
     """
     Test that a cascaded channel subinterface rename behaves as a full save() (updating _name and last_updated,
-    and recording an ObjectChange), not merely as a raw name update. Exercised via the REST API, using
-    TransactionTestCase (rather than TestCase) so that the request's own transaction really commits and its
-    on_commit() callback fires inline, as it would in production — under plain TestCase, the whole test body runs
-    inside one uncommitted transaction, so the deferred rename would never run without manually forcing it via
-    captureOnCommitCallbacks(), which fires only after the request has fully completed and its per-request
-    signal machinery (e.g. the changelog's current_request context) has already been torn down.
+    and recording an ObjectChange), not merely as a raw name update. Uses TransactionTestCase, not TestCase, so
+    the request's transaction really commits and on_commit() fires inline as in production — under TestCase the
+    whole test runs inside one uncommitted transaction, and captureOnCommitCallbacks() would only fire the
+    deferred rename after the request (and its changelog's current_request context) has already torn down.
     """
 
     def setUp(self):
