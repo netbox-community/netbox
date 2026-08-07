@@ -2187,9 +2187,9 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            # Note: `mode` is configured on the explicitly declared field above (widget and label),
-            # not here. Meta.widgets and Meta.labels are both ignored for explicitly declared fields.
         }
+        # Note: `mode` is configured on the explicitly declared field above (widget and label),
+        # not here. Meta.widgets and Meta.labels are both ignored for explicitly declared fields.
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):

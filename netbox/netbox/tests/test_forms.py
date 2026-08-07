@@ -4,7 +4,14 @@ from django.test import TestCase
 from circuits.forms import CircuitGroupAssignmentForm, CircuitTerminationForm
 from core.forms import DataSourceForm
 from dcim.choices import InterfaceTypeChoices
-from dcim.forms import CableForm, InterfaceForm, InterfaceImportForm, ModuleTypeForm
+from dcim.forms import (
+    CableForm,
+    FrontPortCreateForm,
+    InterfaceForm,
+    InterfaceImportForm,
+    ModuleTypeForm,
+    RackForm,
+)
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.forms import CustomFieldForm, EventRuleForm
 from ipam.forms import PrefixForm, ServiceForm, VLANGroupForm
@@ -349,6 +356,8 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
         (CustomFieldForm, 'type'),
         (DataSourceForm, 'type'),
         (VirtualMachineForm, 'virtual_machine_type'),
+        (RackForm, 'rack_type'),
+        (FrontPortCreateForm, 'device'),
     )
 
     @staticmethod
@@ -361,7 +370,9 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
         """
         widget = field.widget
         if isinstance(widget, forms.MultiWidget):
-            return next(w for w in widget.widgets if isinstance(w, HTMXSelect))
+            hx = next((w for w in widget.widgets if isinstance(w, HTMXSelect)), None)
+            assert hx is not None, f'{type(widget).__name__} has no HTMXSelect subwidget'
+            return hx
         return widget
 
     def test_partial_swap_fields_target_their_fieldset(self):
@@ -375,6 +386,14 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
                 self.assertIn('hx-get', attrs)
                 self.assertEqual(attrs.get('hx-select'), f'#{target_id}')
                 self.assertEqual(attrs.get('hx-target'), f'#{target_id}')
+                # The target must name a real swap container, or the swap fails silently in the
+                # browser. A typo'd id passes the assertions above (both read the same source), so
+                # check it against the form's declared FieldSet html_ids. CableForm is exempt: its
+                # targets are <div id="..."> in a hand-rolled template (cable_edit.html), not
+                # FieldSets, so it has no `fieldsets` to check against.
+                if getattr(form, 'fieldsets', None):
+                    fieldset_ids = {getattr(fs, 'html_id', None) for fs in form.fieldsets}
+                    self.assertIn(target_id, fieldset_ids)
 
     def test_interface_mode_retains_option_descriptions(self):
         # The mode field must keep its 802.1Q Mode option descriptions (a description-aware widget
