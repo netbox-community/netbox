@@ -4579,6 +4579,44 @@ class CableTestCase(
         self.assertEqual(cable.label, 'Relabeled')
         self.assertEqual(cable.b_terminations, original)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_blank_name_column(self):
+        """A blank name column alongside its supporting columns is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name: This field is required', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_reorders_terminations(self):
+        """Reordering a side's terminations rewires the cable, even though its members are unchanged."""
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')[:2]
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,"{interfaces[1].name},{interfaces[0].name}"',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [
+                (ct.connector, ct.termination)
+                for ct in Cable.objects.get(pk=cable.pk).terminations.filter(cable_end=CableEndChoices.SIDE_B)
+            ],
+            [(1, interfaces[1]), (2, interfaces[0])]
+        )
+
 
 #
 # Connections
