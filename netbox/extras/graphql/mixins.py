@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 from strawberry.types import Info
 
-from extras.models import ImageAttachment, JournalEntry
+from extras.models import CustomField, ImageAttachment, JournalEntry
 from utilities.querysets import RestrictedPrefetch
 
 __all__ = (
@@ -50,9 +50,13 @@ class ConfigContextMixin:
 @strawberry.type
 class CustomFieldsMixin:
 
-    @strawberry_django.field
+    @strawberry_django.field(only=['custom_field_data'])
     def custom_fields(self) -> strawberry.scalars.JSON:
-        return self.custom_field_data
+        data = dict(self.custom_field_data)
+        for cf in CustomField.objects.get_for_model(type(self)):
+            if cf.name in data:
+                data[cf.name] = cf.resolve_selection_value(data[cf.name])
+        return data
 
 
 @strawberry.type

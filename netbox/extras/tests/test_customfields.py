@@ -3,7 +3,9 @@ import json
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
@@ -15,6 +17,7 @@ from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.context import query_cache
 from netbox.tables.columns import CustomFieldColumn
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
@@ -1134,6 +1137,87 @@ class CustomFieldAPITestCase(APITestCase):
             'value': 'stale',
             'label': 'stale',
         })
+
+    def test_graphql_selection_field_representation_matches_rest(self):
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['select_field'], self._select('bar'))
+        self.assertEqual(custom_fields['multiselect_field'], self._multiselect(['bar', 'baz']))
+
+    def test_graphql_selection_field_unresolved_label(self):
+        site2 = Site.objects.get(name='Site 2')
+        site2.custom_field_data['select_field'] = 'stale'
+        site2.save()
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['site']['custom_fields']['select_field'], {
+            'value': 'stale',
+            'label': 'stale',
+        })
+
+    def test_graphql_non_selection_fields_pass_through_unchanged(self):
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['text_field'], 'bar')
+        self.assertEqual(custom_fields['integer_field'], 456)
+        self.assertEqual(custom_fields['boolean_field'], True)
+
+    def test_graphql_selection_field_list_query_is_not_n_plus_one(self):
+        self.add_permissions('dcim.view_site')
+        query = '{ site_list { custom_fields } }'
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 8)])
+        # Prime process-level caches (e.g. ContentType) outside the measured request.
+        self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 7)
+        baseline_query_count = len(ctx.captured_queries)
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(8, 13)])
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 12)
+
+        self.assertEqual(
+            len(ctx.captured_queries), baseline_query_count,
+            "custom_fields label resolution should not scale with the number of objects returned"
+        )
+
+    def test_get_for_model_select_related_choice_set(self):
+        query_cache.set(None)
+        custom_fields = list(CustomField.objects.get_for_model(Site))
+        with self.assertNumQueries(0):
+            resolved = {cf.name: cf.resolve_selection_value(cf.default) for cf in custom_fields}
+        self.assertEqual(resolved['select_field'], self._select('foo'))
+        self.assertEqual(resolved['multiselect_field'], self._multiselect(['foo']))
 
     @tag('regression')
     def test_update_selection_field_rejects_read_format(self):

@@ -77,7 +77,9 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type).select_related('related_object_type')
+        custom_fields = self.get_queryset().filter(object_types=content_type).select_related(
+            'related_object_type', 'choice_set'
+        )
 
         # Populate the request cache to avoid redundant lookups
         if cache is not None:
@@ -327,6 +329,20 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         if self.choice_set:
             return self.choice_set.get_choice_color(value)
         return None
+
+    def resolve_selection_value(self, value):
+        """
+        For a Selection or Multiple selection field, wrap the value(s) with their resolved label as
+        {'value': ..., 'label': ...} (a list thereof for multi-select). Other field types pass through
+        unchanged. Shared by the REST API and GraphQL so selection labels resolve consistently (#20897).
+        """
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            return {'value': value, 'label': self.get_choice_label(value)}
+        if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            return [{'value': v, 'label': self.get_choice_label(v)} for v in value]
+        return value
 
     def populate_initial_data(self, content_types):
         """
