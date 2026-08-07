@@ -228,7 +228,5 @@ class WirelessLinkForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
                 attrs={'data-toggle': 'password'}
             ),
         }
-        labels = {
-            'auth_type': 'Type',
-            'auth_cipher': 'Cipher',
-        }
+        # Note: `auth_type` and `auth_cipher` are explicitly declared with these same labels;
+        # Meta.labels entries for them would be silently discarded, so they are not set here.

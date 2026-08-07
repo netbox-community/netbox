@@ -360,6 +360,10 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
         (FrontPortCreateForm, 'device'),
     )
 
+    # Forms whose swap target is not a FieldSet(html_id=...) and so cannot be checked against
+    # `form.fieldsets`. CableForm targets <div id="..."> in a hand-rolled template (cable_edit.html).
+    FIELDSET_ID_EXEMPT = {CableForm}
+
     @staticmethod
     def _hx_widget(field):
         """
@@ -388,11 +392,11 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
                 self.assertEqual(attrs.get('hx-target'), f'#{target_id}')
                 # The target must name a real swap container, or the swap fails silently in the
                 # browser. A typo'd id passes the assertions above (both read the same source), so
-                # check it against the form's declared FieldSet html_ids. CableForm is exempt: its
-                # targets are <div id="..."> in a hand-rolled template (cable_edit.html), not
-                # FieldSets, so it has no `fieldsets` to check against.
-                if getattr(form, 'fieldsets', None):
-                    fieldset_ids = {getattr(fs, 'html_id', None) for fs in form.fieldsets}
+                # check it against the form's declared FieldSet html_ids. Exempt forms (CableForm)
+                # target template <div>s instead and are checked explicitly, not by absence of
+                # fieldsets, so a non-exempt form that forgets its fieldsets still fails here.
+                if form_class not in self.FIELDSET_ID_EXEMPT:
+                    fieldset_ids = {getattr(fs, 'html_id', None) for fs in getattr(form, 'fieldsets', ())}
                     self.assertIn(target_id, fieldset_ids)
 
     def test_interface_mode_retains_option_descriptions(self):
@@ -411,3 +415,64 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
                 self.assertIn('hx-get', attrs)
                 self.assertEqual(attrs.get('hx-target'), '#form_fields')
                 self.assertNotIn('hx-select', attrs)
+
+
+class MetaShadowingTestCase(TestCase):
+    """
+    Guard the whole bug class behind #15165, not just the HTMX fields. Django's ModelFormMetaclass
+    applies Meta.widgets/labels/help_texts only to fields it generates from the model; for a field
+    the form declares explicitly, the declared field wins and the Meta entry is silently discarded.
+    A key appearing in both is therefore dead config at best and a dropped widget/label/help_text at
+    worst (the #15165 regression, and the VirtualChassis master SelectWithPK before this PR). This
+    walks every ModelForm and asserts the two never overlap, so the next occurrence fails here.
+    """
+    # ConfigRevisionForm builds its parameter fields via a custom metaclass (ConfigFormMetaclass)
+    # that turns them into declared_fields while still sourcing widgets from Meta.widgets. Its
+    # overlap is a known consequence of that design, not the shadowing bug this guards; excluded
+    # here and left for a separate cleanup.
+    ALLOWED = {'ConfigRevisionForm'}
+
+    @staticmethod
+    def _all_model_forms():
+        # Import every app's forms package so all ModelForm subclasses are registered before walking.
+        import importlib
+        import pkgutil
+        for app in (
+            'circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'utilities',
+            'virtualization', 'vpn', 'wireless', 'netbox',
+        ):
+            try:
+                pkg = importlib.import_module(f'{app}.forms')
+            except ImportError:
+                continue
+            for module in getattr(pkg, '__path__', []) and pkgutil.iter_modules(pkg.__path__) or []:
+                try:
+                    importlib.import_module(f'{app}.forms.{module.name}')
+                except ImportError:
+                    pass
+
+        seen, stack = set(), [forms.ModelForm]
+        while stack:
+            for sub in stack.pop().__subclasses__():
+                if sub not in seen:
+                    seen.add(sub)
+                    stack.append(sub)
+        return seen
+
+    def test_meta_config_does_not_shadow_declared_fields(self):
+        for form_class in self._all_model_forms():
+            if form_class.__name__ in self.ALLOWED:
+                continue
+            meta = getattr(form_class, 'Meta', None)
+            declared = set(getattr(form_class, 'declared_fields', {}))
+            if meta is None or not declared:
+                continue
+            for attr in ('widgets', 'labels', 'help_texts'):
+                overlap = declared & set(getattr(meta, attr, None) or {})
+                with self.subTest(form=form_class.__name__, meta=attr):
+                    self.assertEqual(
+                        overlap, set(),
+                        f"{form_class.__module__}.{form_class.__name__} sets Meta.{attr} for "
+                        f"explicitly declared field(s) {sorted(overlap)}; Django discards these. "
+                        f"Move the config onto the declared field or drop the Meta entry."
+                    )

@@ -1242,6 +1242,7 @@ class VirtualChassisForm(PrimaryModelForm):
         label=_('Master'),
         queryset=Device.objects.all(),
         required=False,
+        widget=SelectWithPK(),
     )
 
     class Meta:
@@ -1249,9 +1250,6 @@ class VirtualChassisForm(PrimaryModelForm):
         fields = [
             'name', 'domain', 'master', 'description', 'owner', 'comments', 'tags',
         ]
-        widgets = {
-            'master': SelectWithPK(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
