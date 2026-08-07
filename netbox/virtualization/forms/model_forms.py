@@ -510,11 +510,8 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf',
             'owner', 'tags',
         ]
-        labels = {
-            'mode': _('802.1Q Mode'),
-        }
-        # Note: the HTMXSelect widget for `mode` is set on the explicitly declared field above.
-        # Meta.widgets is ignored for explicitly declared fields, so it must not be set here.
+        # Note: `mode` is configured on the explicitly declared field above (widget and label),
+        # not here. Meta.widgets and Meta.labels are both ignored for explicitly declared fields.
 
 
 class VirtualDiskForm(VMComponentForm):

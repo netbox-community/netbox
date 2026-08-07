@@ -2187,11 +2187,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            # Note: the HTMXSelect widget for `mode` is set on the explicitly declared field above,
-            # not here. Meta.widgets is ignored for explicitly declared fields.
-        }
-        labels = {
-            'mode': '802.1Q Mode',
+            # Note: `mode` is configured on the explicitly declared field above (widget and label),
+            # not here. Meta.widgets and Meta.labels are both ignored for explicitly declared fields.
         }
 
 

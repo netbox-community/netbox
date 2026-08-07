@@ -26,6 +26,13 @@ class AttrSelectMixin:
         super().__init__(*args, **kwargs)
         self.descriptions = descriptions or {}
 
+    def __deepcopy__(self, memo):
+        # Django's ChoiceWidget.__deepcopy__ copies attrs and choices but not descriptions, so
+        # every per-instance widget copy would otherwise share one dict with the class-level widget.
+        obj = super().__deepcopy__(memo)
+        obj.descriptions = self.descriptions.copy()
+        return obj
+
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex, attrs)
 
