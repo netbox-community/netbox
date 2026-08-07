@@ -90,9 +90,13 @@ class ColorSelect(forms.Select):
         self.attrs['class'] = 'color-select'
 
 
-class HTMXSelect(forms.Select):
+class HTMXSelect(AttrSelectMixin, forms.Select):
     """
     Selection widget that will re-generate the HTML form upon the selection of a new option.
+
+    Includes AttrSelectMixin so that a field using this widget can still render per-option
+    descriptions (see ChoiceField/TypedChoiceField), rather than having to choose between HTMX
+    re-rendering and description subtitles.
     """
     def __init__(self, method='get', hx_url='.', hx_include_id='form_fields', hx_target_id=None, attrs=None, **kwargs):
         method = method.lower()

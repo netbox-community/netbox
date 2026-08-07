@@ -5,7 +5,12 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
+from circuits.forms import CircuitGroupAssignmentForm, CircuitTerminationForm
+from core.forms import DataSourceForm
+from dcim.forms import CableForm, InterfaceForm, ModuleTypeForm
 from dcim.models import Site
+from extras.forms import CustomFieldForm, EventRuleForm
+from ipam.forms import PrefixForm, ServiceForm, VLANGroupForm
 from netbox.choices import ImportFormatChoices
 from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
@@ -25,6 +30,9 @@ from utilities.forms.utils import (
     parse_numeric_range,
 )
 from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
+from virtualization.forms import ClusterForm, VirtualMachineForm, VMInterfaceForm
+from vpn.forms import TunnelCreateForm, TunnelTerminationForm
+from wireless.forms import WirelessLANForm
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -1068,3 +1076,80 @@ class DescriptionSelectTestCase(TestCase):
         self.assertTrue(calls)
         # And descriptions are still collected as normal
         self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+
+class HTMXPartialSwapRenderingTestCase(TestCase):
+    """
+    Verify that each form field's HTMX swap wiring resolves to the widget actually bound to the
+    field. An explicitly declared form field silently overrides a widget set via Meta.widgets, so
+    a field can have HTMXSelect assigned in Meta yet end up with a plain widget carrying no HTMX
+    wiring. The unit-level widget tests above cannot see that, which is how the interface 802.1Q
+    mode swap regressed unnoticed. These tests read the bound field's widget attrs directly so a
+    shadowed field is caught.
+    """
+    # (form, bound field name, target fieldset id) — the field's change must swap only that fieldset.
+    PARTIAL_SWAP_FIELDS = (
+        (InterfaceForm, 'mode', 'dot1q-switching'),
+        (VMInterfaceForm, 'mode', 'dot1q-switching'),
+        (ModuleTypeForm, 'profile', 'profile-attributes'),
+        (CableForm, 'a_terminations_type', 'cable-side-a'),
+        (CableForm, 'b_terminations_type', 'cable-side-b'),
+        (VLANGroupForm, 'scope', 'scope'),
+        (ServiceForm, 'parent', 'service'),
+        (CircuitTerminationForm, 'termination', 'circuit-termination'),
+        (CircuitGroupAssignmentForm, 'member', 'circuit-group-assignment'),
+        (TunnelCreateForm, 'termination1_type', 'tunnel-termination1'),
+        (TunnelCreateForm, 'termination2_type', 'tunnel-termination2'),
+        (TunnelTerminationForm, 'type', 'tunnel-termination'),
+        (EventRuleForm, 'action_type', 'event-rule-action'),
+        (ClusterForm, 'scope', 'scope'),
+        (WirelessLANForm, 'scope', 'scope'),
+        (PrefixForm, 'scope', 'scope'),
+    )
+
+    @staticmethod
+    def _hx_widget(field):
+        """
+        Return the widget carrying the HTMX attrs for a bound field. For plain HTMXSelect fields
+        that is the field's own widget; for a generic-object selector (a MultiWidget), the HTMX
+        content-type selector is its first subwidget.
+        """
+        widget = field.widget
+        if hasattr(widget, 'widgets'):
+            return widget.widgets[0]
+        return widget
+
+    def test_partial_swap_fields_target_their_fieldset(self):
+        for form_class, field_name, target_id in self.PARTIAL_SWAP_FIELDS:
+            with self.subTest(form=form_class.__name__, field=field_name):
+                form = form_class()
+                self.assertIn(field_name, form.fields)
+                attrs = self._hx_widget(form.fields[field_name]).attrs
+                self.assertEqual(attrs.get('hx-select'), f'#{target_id}')
+                self.assertEqual(attrs.get('hx-target'), f'#{target_id}')
+
+    def test_interface_mode_retains_option_descriptions(self):
+        # The mode field must keep its 802.1Q Mode option descriptions (a description-aware widget
+        # feature) alongside the restored partial swap; the two must coexist on the same field.
+        for form_class in (InterfaceForm, VMInterfaceForm):
+            with self.subTest(form=form_class.__name__):
+                self.assertTrue(form_class().fields['mode'].widget.descriptions)
+
+    # These fields intentionally re-render the whole form rather than a single fieldset, because
+    # changing them adds or removes entire fieldsets that a targeted swap would miss. The guard
+    # ensures they keep targeting #form_fields and are not "optimized" into a partial swap that
+    # would silently drop the added/removed fieldsets.
+    FULL_FORM_FIELDS = (
+        (CustomFieldForm, 'type'),
+        (DataSourceForm, 'type'),
+        (VirtualMachineForm, 'virtual_machine_type'),
+    )
+
+    def test_full_form_fields_do_not_partial_swap(self):
+        for form_class, field_name in self.FULL_FORM_FIELDS:
+            with self.subTest(form=form_class.__name__, field=field_name):
+                form = form_class()
+                self.assertIn(field_name, form.fields)
+                attrs = self._hx_widget(form.fields[field_name]).attrs
+                self.assertEqual(attrs.get('hx-target'), '#form_fields')
+                self.assertNotIn('hx-select', attrs)

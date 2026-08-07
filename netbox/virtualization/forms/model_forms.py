@@ -422,6 +422,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
     )
     primary_mac_address = DynamicModelChoiceField(
         queryset=MACAddress.objects.all(),
@@ -512,9 +513,8 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         labels = {
             'mode': _('802.1Q Mode'),
         }
-        widgets = {
-            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
-        }
+        # Note: the HTMXSelect widget for `mode` is set on the explicitly declared field above.
+        # Meta.widgets is ignored for explicitly declared fields, so it must not be set here.
 
 
 class VirtualDiskForm(VMComponentForm):

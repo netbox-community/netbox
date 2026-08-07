@@ -2043,6 +2043,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
     )
     rf_role = TypedChoiceField(
         label=_('Wireless role'),
@@ -2186,7 +2187,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
+            # Note: the HTMXSelect widget for `mode` is set on the explicitly declared field above,
+            # not here. Meta.widgets is ignored for explicitly declared fields.
         }
         labels = {
             'mode': '802.1Q Mode',
