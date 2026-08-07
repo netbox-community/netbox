@@ -129,10 +129,8 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         help_texts = {
-            'type': _(
-                "The type of data stored in this field. For object/multi-object fields, select the related object "
-                "type below."
-            ),
+            # Note: `type` is explicitly declared above with the same help_text; a Meta.help_texts
+            # entry for it would be silently discarded, so it must not be set here.
             'description': _("This will be displayed as help text for the form field. Markdown is supported.")
         }
 
@@ -641,7 +639,8 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
             'action_object_type', 'action_object_id', 'action_data', 'owner', 'comments', 'tags'
         )
         widgets = {
-            'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
+            # Note: `conditions` is explicitly declared above (a JSONField that already renders a
+            # monospace Textarea); a Meta.widgets entry for it would be silently discarded.
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
         }

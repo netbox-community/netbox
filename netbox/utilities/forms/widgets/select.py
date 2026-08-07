@@ -26,6 +26,13 @@ class AttrSelectMixin:
         super().__init__(*args, **kwargs)
         self.descriptions = descriptions or {}
 
+    def __deepcopy__(self, memo):
+        # Django's ChoiceWidget.__deepcopy__ copies attrs and choices but not descriptions, so
+        # every per-instance widget copy would otherwise share one dict with the class-level widget.
+        obj = super().__deepcopy__(memo)
+        obj.descriptions = self.descriptions.copy()
+        return obj
+
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex, attrs)
 
@@ -90,9 +97,13 @@ class ColorSelect(forms.Select):
         self.attrs['class'] = 'color-select'
 
 
-class HTMXSelect(forms.Select):
+class HTMXSelect(Select):
     """
     Selection widget that will re-generate the HTML form upon the selection of a new option.
+
+    Subclasses the local description-aware `Select` (not `forms.Select`) so that a field using this
+    widget can still render per-option descriptions (see ChoiceField/TypedChoiceField), rather than
+    having to choose between HTMX re-rendering and description subtitles.
     """
     def __init__(self, method='get', hx_url='.', hx_include_id='form_fields', hx_target_id=None, attrs=None, **kwargs):
         method = method.lower()
