@@ -775,6 +775,36 @@ class CableTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('Duplicate termination', str(form.errors.get('side_b_name')))
 
+    def test_import_terminations_exceeding_profile_capacity(self):
+        """A side carrying more terminations than its profile permits reports against that side's column."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('only 2 are permitted', str(form.errors.get('side_b_name')))
+
+    def test_import_terminations_exceeding_profile_capacity_side_a(self):
+        """The same applies to side A, whose profile capacity is often lower than side B's."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0,et-0/0/1',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('only 1 are permitted', str(form.errors.get('side_a_name')))
+
     def test_import_multiple_terminations_empty_name(self):
         """A trailing comma produces an empty termination name and is rejected."""
         form = CableImportForm(data={

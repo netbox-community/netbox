@@ -2353,6 +2353,97 @@ class CableTestCase(TestCase):
         self.assertEqual(a_terms, [interface1])
         self.assertEqual(b_terms, [interface2])
 
+    def _create_multiposition_cable(self, count=4):
+        """
+        Create a cable with `count` terminations at either end, using the 4C1P trunk profile. Returns
+        the cable and its A & B terminating objects.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+        a_interfaces = [
+            Interface.objects.create(device=device1, name=f'trunk-a{i}') for i in range(count)
+        ]
+        b_interfaces = [
+            Interface.objects.create(device=device2, name=f'trunk-b{i}') for i in range(count)
+        ]
+        cable = Cable(
+            a_terminations=a_interfaces,
+            b_terminations=b_interfaces,
+            profile=CableProfileChoices.TRUNK_4C1P,
+        )
+        cable.save()
+
+        return cable, a_interfaces, b_interfaces
+
+    def _get_connectors(self, cable, cable_end):
+        return [
+            (ct.connector, ct.termination) for ct in cable.terminations.filter(cable_end=cable_end)
+        ]
+
+    def test_reordering_terminations_reassigns_connectors(self):
+        """
+        A Cable's terminations are assigned to connectors in the order given, so reordering them must
+        rewire the Cable even though its set of terminating objects is unchanged.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate(b_interfaces, start=1))
+        )
+
+        # Reverse the B side terminations
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = list(reversed(b_interfaces))
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate(reversed(b_interfaces), start=1))
+        )
+
+        # The A side, which was not modified, must be left alone
+        self.assertEqual(
+            self._get_connectors(cable, 'A'), list(enumerate(a_interfaces, start=1))
+        )
+
+        # The reordering must be reflected in the terminations' link peers
+        self.assertEqual(
+            Interface.objects.get(pk=a_interfaces[0].pk).link_peers, [b_interfaces[-1]]
+        )
+
+    def test_removing_a_termination_reassigns_connectors(self):
+        """
+        Removing a termination from the middle of a Cable's list must renumber the connectors of those
+        which follow it.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable()
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [b_interfaces[0], b_interfaces[2], b_interfaces[3]]
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'),
+            [(1, b_interfaces[0]), (2, b_interfaces[2]), (3, b_interfaces[3])]
+        )
+
+    def test_appending_a_termination_preserves_connectors(self):
+        """
+        Appending a termination must not disturb the connectors already assigned to the terminations
+        which precede it.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable(count=3)
+        original_cts = {ct.termination: ct.pk for ct in cable.terminations.filter(cable_end='B')}
+        new_interface = Interface.objects.create(device=Device.objects.get(name='TestDevice2'), name='trunk-b3')
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [*b_interfaces, new_interface]
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate([*b_interfaces, new_interface], start=1))
+        )
+
+        # The existing CableTerminations must not have been recreated
+        for ct in cable.terminations.filter(cable_end='B'):
+            if ct.termination in original_cts:
+                self.assertEqual(ct.pk, original_cts[ct.termination])
+
     @tag('regression')  # #21498
     def test_path_refreshes_replaced_cablepath_reference(self):
         """

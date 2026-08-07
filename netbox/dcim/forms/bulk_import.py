@@ -2,8 +2,9 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils.functional import lazy
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -77,6 +78,10 @@ __all__ = (
     'VirtualChassisImportForm',
     'VirtualDeviceContextImportForm'
 )
+
+# A lazily evaluated format_html(), for help text which must not resolve its translated content until
+# the field is rendered. Unlike mark_safe(), this escapes the interpolated arguments.
+format_html_lazy = lazy(format_html, SafeString)
 
 
 class RegionImportForm(NestedGroupModelImportForm):
@@ -1702,20 +1707,32 @@ class CableBundleImportForm(PrimaryModelImportForm):
 
 
 class CableImportForm(PrimaryModelImportForm):
+    # Cable.clean() reports termination errors (e.g. cable profile violations) against the model's
+    # a_terminations/b_terminations attributes, which have no corresponding fields on this form.
+    # Map them onto the columns which define each side's terminations.
+    TERMINATION_ERROR_FIELDS = {
+        'a_terminations': 'side_a_name',
+        'b_terminations': 'side_b_name',
+    }
+
+    # Columns which take effect only by resolving a side's terminations, and are therefore
+    # meaningless without that side's name column.
+    TERMINATION_DEPENDENT_COLUMNS = ('site', 'device', 'power_panel', 'type')
+
     # Termination A
     side_a_site = CSVModelChoiceField(
         label=_('Side A site'),
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device A (if any)'),
+        help_text=_('Site of parent device A (if any). Restricts the devices & power panels which may be matched.'),
     )
     side_a_device = CSVModelMultipleChoiceField(
         label=_('Side A device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Device name(s) for device component terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
@@ -1727,7 +1744,7 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
@@ -1742,7 +1759,7 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_a_name = forms.CharField(
         label=_('Side A name'),
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
               'Example:'),
@@ -1756,14 +1773,14 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device B (if any)'),
+        help_text=_('Site of parent device B (if any). Restricts the devices & power panels which may be matched.'),
     )
     side_b_device = CSVModelMultipleChoiceField(
         label=_('Side B device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Device name(s) for device component terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
@@ -1775,7 +1792,7 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
               'encased with double quotes. Example:'),
@@ -1790,7 +1807,7 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_b_name = forms.CharField(
         label=_('Side B name'),
-        help_text=format_html(
+        help_text=format_html_lazy(
             '{} <code>{}</code>',
             _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
               'Example:'),
@@ -1877,6 +1894,30 @@ class CableImportForm(PrimaryModelImportForm):
                     **side_b_parent_params
                 )
 
+    def add_error(self, field, error):
+        # Remap any termination errors raised by Cable.clean() onto the relevant import column.
+        # Without this, Django raises ValueError for an error reported against a field which does
+        # not exist on the form. Errors are dispatched per key so that both sides can fall back to
+        # a non-field error without colliding.
+        if field is None and hasattr(error, 'error_dict'):
+            for name, errors in error.error_dict.items():
+                super().add_error(self._map_termination_field(name), errors)
+            return
+
+        super().add_error(self._map_termination_field(field), error)
+
+    def _map_termination_field(self, field):
+        """
+        Return the import column against which a model-level termination error should be reported,
+        or None (i.e. a non-field error) if that column is not present on the form. Columns absent
+        from an update record are removed from the form by BulkImportView, so a cable profile
+        violation can be reported against a side whose terminations were not being modified.
+        """
+        if field not in self.TERMINATION_ERROR_FIELDS:
+            return field
+        mapped_field = self.TERMINATION_ERROR_FIELDS[field]
+        return mapped_field if mapped_field in self.fields else None
+
     @staticmethod
     def _split_side_values(value):
         """
@@ -1888,6 +1929,22 @@ class CableImportForm(PrimaryModelImportForm):
         if not isinstance(value, (list, tuple)):
             value = str(value).split(',')
         return ['' if item is None else str(item).strip() for item in value]
+
+    def _check_companion_column(self, side, field_name):
+        """
+        Verify that a column needed to resolve a side's terminations is present on the form.
+
+        When updating an existing object, BulkImportView removes every field which does not appear
+        in the record. A record which redefines a side's termination names must therefore also
+        include the columns identifying their type and parent, otherwise the names cannot be
+        resolved and the update would appear to succeed while changing nothing.
+        """
+        if field_name not in self.fields:
+            raise forms.ValidationError(
+                _(
+                    "Side {side_upper}: The {column} column must be included when modifying terminations"
+                ).format(side_upper=side.upper(), column=field_name)
+            )
 
     def _resolve_side_parent_objects(self, field_name):
         """
@@ -1949,7 +2006,14 @@ class CableImportForm(PrimaryModelImportForm):
         if not isinstance(names, (list, tuple)):
             names = self.cleaned_data.get(f'side_{side}_name')
         names = self._split_side_values(names)
-        if not content_type or not names:
+        if not names:
+            return None
+
+        if not content_type:
+            # BulkImportView removes any field absent from an update record, so a missing termination
+            # type here means the column was omitted rather than left blank. Reject it: silently
+            # ignoring the submitted names would report a successful update which changed nothing.
+            self._check_companion_column(side, f'side_{side}_type')
             return None
 
         if '' in names:
@@ -1971,6 +2035,8 @@ class CableImportForm(PrimaryModelImportForm):
             raise forms.ValidationError(
                 _("Bulk import does not support {type} terminations").format(type=content_type)
             )
+
+        self._check_companion_column(side, parent_field_name)
 
         parents = self._resolve_side_parent_objects(parent_field_name)
         if parents is None:
@@ -2044,6 +2110,32 @@ class CableImportForm(PrimaryModelImportForm):
                 _(f"{color} did not match any used color name and was longer than six characters: invalid hex.")
             )
         return color_parsed
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Termination resolution is driven by clean_side_<x>_name(), which Django never calls for a
+        # field BulkImportView has removed. An update record which supplies a side's supporting
+        # columns but omits its name column would therefore have those columns silently discarded
+        # and report an update which changed nothing; reject it instead. This cannot trigger on
+        # creation, where the name columns are always present (and required).
+        for side in ('a', 'b'):
+            if f'side_{side}_name' in self.fields:
+                continue
+            if supplied := [
+                column for column in self.TERMINATION_DEPENDENT_COLUMNS
+                if f'side_{side}_{column}' in self.fields
+            ]:
+                self.add_error(None, _(
+                    "Side {side_upper}: The side_{side}_name column must be included when modifying "
+                    "terminations (found {columns})"
+                ).format(
+                    side_upper=side.upper(),
+                    side=side,
+                    columns=', '.join(f'side_{side}_{column}' for column in supplied),
+                ))
+
+        return cleaned_data
 
     def clean_side_a_name(self):
         return self._clean_side('a')

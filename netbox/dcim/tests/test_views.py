@@ -4438,6 +4438,185 @@ class CableTestCase(
         self.assertIn('not one of the available choices', response.content.decode())
         self.assertEqual(self._get_queryset().count(), initial_count)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_exceeding_profile_capacity(self):
+        """A record with more terminations than its profile permits reports a validation error."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            'Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,'
+            '"Interface 1,Interface 2,Interface 3",breakout-1c2p-2c1p',
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('only 2 are permitted', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+    def _post_cable_update(self, csv_data):
+        self.add_permissions('dcim.add_cable', 'dcim.change_cable')
+        return self.client.post(self._get_url('bulk_import'), {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_parent_column(self):
+        """Redefining termination names without the parent column is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_type,side_b_name",
+            f'{cable.pk},dcim.interface,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_device column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_type_column(self):
+        """The same applies to the termination type column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_name",
+            f'{cable.pk},Device 4,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_type column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_profile_violation_without_termination_columns(self):
+        """
+        A profile change which conflicts with the cable's existing terminations reports a validation
+        error even though the record omits the termination columns.
+        """
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,profile",
+            f'{cable.pk},{CableProfileChoices.SINGLE_1C1P}',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('only 1 are permitted', response.content.decode())
+        self.assertEqual(
+            Cable.objects.get(pk=cable.pk).profile, CableProfileChoices.BREAKOUT_1C2P_2C1P
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_with_all_columns(self):
+        """A complete set of side columns updates the terminations."""
+        cable = self._get_queryset().first()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name,profile",
+            f'{cable.pk},Device 4,dcim.interface,"Interface 1,Interface 2",breakout-1c2p-2c1p',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(t) for t in Cable.objects.get(pk=cable.pk).b_terminations],
+            ['Interface 1', 'Interface 2']
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_side_columns_without_name_column(self):
+        """Supporting side columns without the name column are rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type",
+            f'{cable.pk},Device 4,dcim.interface',
+        ))
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('side_b_name column must be included', content)
+        self.assertIn('side_b_device, side_b_type', content)
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_site_column_without_name_column(self):
+        """The site column only scopes termination resolution, so it too requires the name column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_site",
+            f'{cable.pk},Site 1',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_without_any_side_columns(self):
+        """An update touching no side columns is unaffected by the name column requirement."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,label",
+            f'{cable.pk},Relabeled',
+        ))
+        self.assertHttpStatus(response, 302)
+        cable = Cable.objects.get(pk=cable.pk)
+        self.assertEqual(cable.label, 'Relabeled')
+        self.assertEqual(cable.b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_blank_name_column(self):
+        """A blank name column alongside its supporting columns is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name: This field is required', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_reorders_terminations(self):
+        """Reordering a side's terminations rewires the cable, even though its members are unchanged."""
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')[:2]
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,"{interfaces[1].name},{interfaces[0].name}"',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [
+                (ct.connector, ct.termination)
+                for ct in Cable.objects.get(pk=cable.pk).terminations.filter(cable_end=CableEndChoices.SIDE_B)
+            ],
+            [(1, interfaces[1]), (2, interfaces[0])]
+        )
+
 
 #
 # Connections

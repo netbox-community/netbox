@@ -458,6 +458,24 @@ class Cable(PrimaryModel):
 
         return a_terminations, b_terminations
 
+    def _connectors_reassigned(self, existing, terminations):
+        """
+        Return True if any of the given terminating objects already terminates this Cable, but would be
+        assigned to a different connector than the one it currently occupies.
+
+        Args:
+            existing: Mapping of terminating objects to their current CableTerminations, as returned by
+                get_terminations()
+            terminations: The ordered list of terminating objects to be assigned to this end of the Cable
+        """
+        if not self.profile:
+            # Connectors are assigned only for a Cable which has a profile
+            return False
+        for connector, termination in enumerate(terminations, start=1):
+            if (ct := existing.get(termination)) and ct.connector != connector:
+                return True
+        return False
+
     def update_terminations(self, force=False):
         """
         Create/delete CableTerminations for this Cable to reflect its current state.
@@ -468,27 +486,33 @@ class Cable(PrimaryModel):
         """
         a_terminations, b_terminations = self.get_terminations()
 
+        # A CableTermination's connector is derived from its position within its end's list of terminating
+        # objects, so reordering that list (or removing an object from the middle of it) rewires the Cable
+        # without changing which objects it connects. Recreate the affected end's CableTerminations so that
+        # each is reassigned to its new connector.
+        force_a = force or self._connectors_reassigned(a_terminations, self.a_terminations)
+        force_b = force or self._connectors_reassigned(b_terminations, self.b_terminations)
+
         # When force-recreating terminations (e.g. after a profile change), cache the termination objects
         # from the database before deleting, so they are available for recreation. Without this, the
         # a_terminations/b_terminations properties would query the DB after deletion and return empty lists.
-        if force:
-            if not hasattr(self, '_a_terminations'):
-                self._a_terminations = list(a_terminations.keys())
-            if not hasattr(self, '_b_terminations'):
-                self._b_terminations = list(b_terminations.keys())
+        if force_a and not hasattr(self, '_a_terminations'):
+            self._a_terminations = list(a_terminations.keys())
+        if force_b and not hasattr(self, '_b_terminations'):
+            self._b_terminations = list(b_terminations.keys())
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
-            if force or (termination.pk and termination not in self.a_terminations):
+            if force_a or (termination.pk and termination not in self.a_terminations):
                 ct.delete()
         for termination, ct in b_terminations.items():
-            if force or (termination.pk and termination not in self.b_terminations):
+            if force_b or (termination.pk and termination not in self.b_terminations):
                 ct.delete()
 
         # Save any new CableTerminations
         profile = self.profile_class() if self.profile else None
         for i, termination in enumerate(self.a_terminations, start=1):
-            if force or not termination.pk or termination not in a_terminations:
+            if force_a or not termination.pk or termination not in a_terminations:
                 connector = positions = None
                 if profile:
                     connector = i
@@ -501,7 +525,7 @@ class Cable(PrimaryModel):
                     termination=termination
                 ).save()
         for i, termination in enumerate(self.b_terminations, start=1):
-            if force or not termination.pk or termination not in b_terminations:
+            if force_b or not termination.pk or termination not in b_terminations:
                 connector = positions = None
                 if profile:
                     connector = i
