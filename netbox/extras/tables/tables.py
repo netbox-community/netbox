@@ -2,6 +2,7 @@ import json
 
 import django_tables2 as tables
 from django.template.defaultfilters import filesizeformat
+from django.urls import resolve
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
@@ -816,10 +817,27 @@ class ScriptResultsTable(BaseTable):
         )
 
     def render_object(self, value, record):
-        return format_html("<a href='{}'>{}</a>", record['url'], value)
+        try:
+            match = resolve(record['url'])
+            view_class = match.func.view_class
+            if not (hasattr(view_class, "queryset") and hasattr(view_class.queryset, "model")):
+                return format_html("<a href='{}'>{}</a>", record['url'], value)
+            model = view_class.queryset.model
+            obj = model.objects.get(**match.kwargs)
 
-    def render_url(self, value):
-        return format_html("<a href='{}'>{}</a>", value, value)
+            if hasattr(obj, "parent_object") and obj.parent_object:
+                return format_html(
+                    "<a href='{}'>{}</a> / <a href='{}'>{}</a>",
+                    obj.parent_object.get_absolute_url(),
+                    obj.parent_object,
+                    record['url'],
+                    value,
+                )
+        except Exception:
+            # in case anything goes wrong at all, we always can fall back to the previous style
+            pass
+
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
 
 
 class ScriptJobTable(JobTable):
