@@ -878,6 +878,130 @@ class GraphQLAPITestCase(APITestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site_list'][0]['devices']), 3)
 
+    def test_distinct_nested_list(self):
+        """
+        The `DISTINCT` filter should deduplicate a nested list field which is filtered across a to-many
+        relation, just as it does for the equivalent top-level list field.
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_site')
+        url = reverse('graphql')
+
+        site = Site.objects.get(slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Device {i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 3)
+        ])
+        Interface.objects.bulk_create([
+            Interface(device=device, name=f'eth{i}', type='1000base-t')
+            for device in devices
+            for i in range(3)
+        ])
+
+        # Each device should be returned exactly once, despite having three matching interfaces
+        query = """
+        {
+            site_list(filters: {slug: {exact: "site-1"}}) {
+                name
+                devices(filters: {DISTINCT: true, interfaces: {name: {starts_with: "eth"}}}) {
+                    name
+                }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            [device['name'] for device in data['data']['site_list'][0]['devices']],
+            ['Device 1', 'Device 2']
+        )
+
+        # The equivalent top-level query should return the same devices
+        query = """
+        {
+            device_list(filters: {DISTINCT: true, interfaces: {name: {starts_with: "eth"}}}) {
+                name
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            [device['name'] for device in data['data']['device_list']],
+            ['Device 1', 'Device 2']
+        )
+
+    @override_settings(MAX_PAGE_SIZE=2)
+    def test_distinct_nested_list_max_page_size(self):
+        """
+        MAX_PAGE_SIZE should still be enforced on a deduplicated nested list field, and should be applied
+        to the number of distinct objects returned (not to the number of joined rows).
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_site')
+        url = reverse('graphql')
+
+        site = Site.objects.get(slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Device {i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 5)
+        ])
+        Interface.objects.bulk_create([
+            Interface(device=device, name=f'eth{i}', type='1000base-t')
+            for device in devices
+            for i in range(3)
+        ])
+
+        query = """
+        {
+            site_list(filters: {slug: {exact: "site-1"}}) {
+                name
+                devices(filters: {DISTINCT: true, interfaces: {name: {starts_with: "eth"}}}) {
+                    name
+                }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            [device['name'] for device in data['data']['site_list'][0]['devices']],
+            ['Device 1', 'Device 2']
+        )
+
+        # An explicit offset should likewise be applied to the distinct objects
+        query = """
+        {
+            site_list(filters: {slug: {exact: "site-1"}}) {
+                name
+                devices(
+                    pagination: {offset: 1, limit: 2},
+                    filters: {DISTINCT: true, interfaces: {name: {starts_with: "eth"}}}
+                ) {
+                    name
+                }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            [device['name'] for device in data['data']['site_list'][0]['devices']],
+            ['Device 2', 'Device 3']
+        )
+
     def test_pagination_conflict(self):
         url = reverse('graphql')
         query = """
