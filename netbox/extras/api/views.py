@@ -1,22 +1,21 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ModelViewSet
 
 from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenPermissions, TokenWritePermission
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
@@ -308,51 +307,16 @@ class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, UpdateModelMi
         return obj
 
 
-@extend_schema_view(
-    update=extend_schema(request=serializers.ScriptInputSerializer),
-    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
-)
-class ScriptViewSet(ModelViewSet):
+class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+    # Individual scripts are created, modified, and deleted through their module (see ScriptModuleViewSet),
+    # so the standard write actions are intentionally omitted here. Only listing/retrieving a script (GET)
+    # and running one (POST to the detail route) are supported.
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
     filterset_class = filtersets.ScriptFilterSet
 
     lookup_value_regex = '[^/]+'  # Allow dots
-
-    # Map each standard viewset action to the object action used to restrict the view's QuerySet. Running a
-    # script (POST to the detail route) is not a standard action and is handled separately in initial().
-    queryset_actions = {
-        'create': 'add',
-        'update': 'change',
-        'partial_update': 'change',
-        'destroy': 'delete',
-    }
-
-    def get_permissions(self):
-        # Standard CRUD operations are gated by the corresponding model permission and (for token auth)
-        # a write-enabled token.
-        if self.action in ('create', 'update', 'partial_update', 'destroy'):
-            return [TokenPermissions()]
-        # Retrieving/listing scripts and running one (POST to the detail route) only require authentication.
-        # The run() handler performs its own run_script permission and token write-ability checks.
-        return [IsAuthenticatedOrLoginNotRequired()]
-
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-
-        # Restrict the view's QuerySet to allow only the permitted objects. Key off self.action (not the HTTP
-        # method) so that create is restricted with 'add' rather than 'run': POST is used both to create a
-        # script (list route) and to run one (detail route), but only the latter is a run operation.
-        if request.user.is_authenticated:
-            if self.action:
-                # A standard viewset action (list, retrieve, create, update, partial_update, destroy)
-                action = self.queryset_actions.get(self.action, 'view')
-            elif request.method == 'POST':
-                # POST to the detail route runs a script (not a standard viewset action, so self.action is None)
-                action = 'run'
-            else:
-                action = 'view'
-            self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
@@ -373,11 +337,18 @@ class ScriptViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-    def post(self, request, pk):
+    def post(self, request, pk=None):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
+        # This handler is bound only to the detail route (POST /scripts/<id>/); a POST to the list route
+        # carries no pk and is not a supported operation.
+        if pk is None:
+            raise MethodNotAllowed(request.method)
 
+        # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
+        # the QuerySet on 'run' before resolving the script.
+        self.queryset = Script.objects.restrict(request.user, 'run')
         script = self._get_script(pk)
 
         # Running a script is a write operation; reject read-only tokens.

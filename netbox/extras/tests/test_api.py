@@ -1490,65 +1490,33 @@ class ScriptTestCase(APITestCase):
         response = self.client.post(self.url, payload, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-    def test_delete_script_without_permission(self):
+    def test_modify_script_methods_disabled(self):
         """
-        A user with only view_script must not be able to delete a script.
+        Individual scripts are created, modified, and deleted through their module, so PUT/PATCH/DELETE on
+        the script endpoint are not supported (even for a user holding the corresponding permissions).
         """
-        script = Script.objects.first()
-        with disable_warnings('django.request'):
-            response = self.client.delete(self.url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
-
-    def test_delete_script_read_only_token(self):
-        """
-        A read-only token must not be able to delete a script, even with the delete_script permission.
-        """
-        self.add_permissions('extras.delete_script')
+        self.add_permissions('extras.change_script', 'extras.delete_script')
         script = Script.objects.first()
 
-        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
-        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
-        with disable_warnings('django.request'):
-            response = self.client.delete(self.url, **ro_header)
-        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
-
-    def test_delete_script(self):
-        """
-        A user with delete_script and a write-enabled token can delete a script.
-        """
-        self.add_permissions('extras.delete_script')
-        script = Script.objects.first()
-
-        response = self.client.delete(self.url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Script.objects.filter(pk=script.pk).exists())
-
-    def test_update_script_without_permission(self):
-        """
-        A user with only view_script must not be able to update a script via PUT/PATCH.
-        """
-        for method in ('put', 'patch'):
+        for method in ('put', 'patch', 'delete'):
             with self.subTest(method=method):
                 with disable_warnings('django.request'):
                     response = getattr(self.client, method)(self.url, {}, format='json', **self.header)
-                self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+                self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_update_script_read_only_token(self):
-        """
-        A read-only token must not be able to update a script via PUT/PATCH, even with the change_script
-        permission.
-        """
-        self.add_permissions('extras.change_script')
+        # The script must remain untouched
+        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
 
-        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
-        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
-        for method in ('put', 'patch'):
-            with self.subTest(method=method):
-                with disable_warnings('django.request'):
-                    response = getattr(self.client, method)(self.url, {}, format='json', **ro_header)
-                self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+    def test_create_script_disabled(self):
+        """
+        Scripts cannot be created via the API; a POST to the list route (without a PK) is not supported.
+        """
+        self.add_permissions('extras.add_script')
+        list_url = reverse('extras-api:script-list')
+
+        with disable_warnings('django.request'):
+            response = self.client.post(list_url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):
