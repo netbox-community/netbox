@@ -52,8 +52,20 @@ def apply_pagination(
     # Enforce MAX_PAGE_SIZE on the pagination limit
     max_page_size = get_config().MAX_PAGE_SIZE
     if max_page_size:
+        # A limit is meaningless for a field which returns at most one object, and synthesizing one for a
+        # prefetched to-one relation is actively harmful. strawberry-django deliberately leaves `pagination`
+        # as None there so that the prefetch remains a plain `WHERE id IN (...)` query; making it non-None
+        # switches the prefetch to a window function partitioned by the parent ID. Every partition then
+        # holds exactly one row, so ROW_NUMBER() is 1 throughout and the row number filter discards nothing,
+        # causing the join back to the parent table to return every row which shares the related object.
+        # See strawberry-graphql/strawberry-django#719.
+        returns_single_object = not (self.is_list or self.is_paginated or self.is_connection)
+
         if pagination is None:
-            pagination = OffsetPaginationInput(limit=max_page_size)
+            # Note that `pagination` is never None for a single-object field unless it is a prefetched
+            # relation: strawberry-django populates it with an implicit limit of its own beforehand.
+            if not returns_single_object:
+                pagination = OffsetPaginationInput(limit=max_page_size)
         elif pagination.limit in (None, UNSET) or pagination.limit > max_page_size:
             pagination.limit = max_page_size
         elif pagination.limit <= 0:

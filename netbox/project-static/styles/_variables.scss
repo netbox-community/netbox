@@ -18,6 +18,11 @@ $table-cell-padding-y: 0.5rem;
 // Ensure active nav-pill has a background color in dark mode
 $nav-pills-link-active-bg: rgba(var(--tblr-secondary-rgb), 0.15);
 
+// Tabler borders unchecked form controls with the translucent token, which drops to
+// 1.1:1 against the dark-mode control fill. Restate it as a solid grey in dark mode.
+$form-check-input-border: var(--tblr-border-width) var(--tblr-border-style)
+  light-dark(var(--tblr-border-color-translucent), var(--tblr-gray-600));
+
 // Brand colors
 $rich-black: #001423;
 $rich-black-light: #081B2A;

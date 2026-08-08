@@ -32,7 +32,12 @@ The events which will trigger the webhook. At least one event type must be selec
 
 ### URL
 
-The URL to which the webhook HTTP request will be made.
+The URL to which the webhook HTTP request will be made. Must be `http://` or `https://`, though
+part or all of the value may be a Jinja2 template rendered at send time (e.g.
+`http://{{ data.name }}.example.com/hook`, or `{{ data.custom_fields.callback_url }}` if the whole
+URL comes from a template). A literal scheme is always validated as such, even if the rest of the
+URL is templated; otherwise the value is checked only for valid Jinja2 syntax, since its rendered
+value isn't known until the webhook actually fires.
 
 ### HTTP Method
 

@@ -198,3 +198,46 @@ class IPAddressOrderingTestCase(OrderingTestBase):
 
         # Test
         self._compare(IPAddress.objects.all(), addresses)
+
+    def test_duplicate_address_ordering(self):
+        """
+        Host addresses are not unique, so tied addresses must be ordered by primary key to yield a stable, total
+        ordering. Without a tiebreaker the database may return tied rows in a different order from one query to the
+        next, duplicating or omitting objects across paginated requests.
+        """
+        # Create several duplicates of each address, interleaved so that primary key order does not follow
+        # address order.
+        addresses = [
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, address=netaddr.IPNetwork(f'10.0.{i}.1/24'))
+            for _ in range(4)
+            for i in range(100)
+        ]
+        IPAddress.objects.bulk_create(addresses)
+
+        pks = list(IPAddress.objects.values_list('pk', flat=True))
+        expected = [
+            ip.pk for ip in sorted(IPAddress.objects.all(), key=lambda ip: (ip.address.ip, ip.pk))
+        ]
+
+        self.assertEqual(pks, expected)
+
+    def test_duplicate_address_pagination(self):
+        """
+        Paginating over duplicate addresses must not return the same object on two pages, nor omit any object.
+        """
+        addresses = [
+            IPAddress(status=IPAddressStatusChoices.STATUS_ACTIVE, address=netaddr.IPNetwork(f'10.0.{i}.1/24'))
+            for _ in range(4)
+            for i in range(100)
+        ]
+        IPAddress.objects.bulk_create(addresses)
+
+        queryset = IPAddress.objects.values_list('pk', flat=True)
+        page_size = 37
+        paginated = []
+        for offset in range(0, len(addresses), page_size):
+            paginated.extend(queryset[offset:offset + page_size])
+
+        self.assertEqual(len(paginated), len(addresses))
+        self.assertEqual(len(set(paginated)), len(addresses))
+        self.assertEqual(paginated, list(queryset))

@@ -2,7 +2,9 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import SimpleTestCase, TestCase
+from django.db import connection, transaction
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test.utils import CaptureQueriesContext
 
 from dcim import signals
 from dcim.choices import CableEndChoices, CableProfileChoices, LinkStatusChoices
@@ -21,6 +23,7 @@ from dcim.models import (
     PowerPanel,
     Rack,
     RearPort,
+    Region,
     Site,
     SiteGroup,
     VirtualChassis,
@@ -272,8 +275,8 @@ class CableSignalTestCase(TestCase):
         self.assertIsNone(interface_b._path_id)
         self.assertIsNone(interface_a.cable_id)
         self.assertIsNone(interface_b.cable_id)
-        self.assertEqual(interface_a.cable_end, '')
-        self.assertEqual(interface_b.cable_end, '')
+        self.assertIsNone(interface_a.cable_end)
+        self.assertIsNone(interface_b.cable_end)
 
     def test_deleting_profiled_cable_nullifies_endpoints(self):
         """
@@ -301,7 +304,7 @@ class CableSignalTestCase(TestCase):
         for interface in (interface_a, interface_b):
             interface.refresh_from_db()
             self.assertIsNone(interface.cable_id)
-            self.assertEqual(interface.cable_end, '')
+            self.assertIsNone(interface.cable_end)
             self.assertIsNone(interface.cable_connector)
             self.assertIsNone(interface.cable_positions)
 
@@ -367,7 +370,7 @@ class CableSignalTestCase(TestCase):
         termination.delete()
         interface_a.refresh_from_db()
         self.assertIsNone(interface_a.cable_id)
-        self.assertEqual(interface_a.cable_end, '')
+        self.assertIsNone(interface_a.cable_end)
 
 
 class MACAddressInterfaceSignalTestCase(TestCase):
@@ -484,6 +487,348 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
     def test_create_site_does_not_attempt_to_resync(self):
         # Should not raise — newly-created sites have nothing to sync.
         Site.objects.create(name='New Site', slug='new-site')
+
+    def test_save_with_unchanged_scope_fields_skips_resync(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site', group=group)
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+        self.assertIsNone(prefix._location)
+
+        # Poison a cached column via a signal-less update; a skipped resync must leave it as-is.
+        # _location is poisoned (rather than _region/_site_group) because the denormalized-field
+        # registry (netbox.denormalized) unconditionally rewrites those two on every Site save,
+        # which would mask whether this signal ran.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=location)
+
+        site.description = 'updated'
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._location, location)
+
+    def test_location_save_with_unchanged_site_skips_resync(self):
+        region = Region.objects.create(name='Region', slug='region')
+        site = Site.objects.create(name='Site', slug='site')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=location)
+        self.assertIsNone(prefix._region)
+
+        # Poison a cached column via a signal-less update; a skipped resync must leave it as-is.
+        # _region is poisoned because the denormalized-field registry unconditionally rewrites
+        # _site on every Location save, which would mask whether this signal ran.
+        Prefix.objects.filter(pk=prefix.pk).update(_region=region)
+
+        location.description = 'updated'
+        location.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._region, region)
+
+    def test_save_with_changed_site_group_resyncs(self):
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', group=group_a)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+        self.assertEqual(prefix._site_group, group_a)
+
+        site.group = group_b
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site)
+        self.assertEqual(prefix._site_group, group_b)
+        self.assertIsNone(prefix._region)
+        self.assertIsNone(prefix._location)
+
+    def test_save_with_changed_region_resyncs(self):
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+        self.assertEqual(prefix._region, region_a)
+
+        site.region = region_b
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._region, region_b)
+        self.assertEqual(prefix._site, site)
+
+        # A region-to-None transition must also resync.
+        site.region = None
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertIsNone(prefix._region)
+        self.assertEqual(prefix._site, site)
+
+    def test_location_save_with_changed_site_resyncs(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        location = Location.objects.create(name='Loc', slug='loc', site=site_a)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=location)
+        self.assertEqual(prefix._site, site_a)
+
+        location.site = site_b
+        location.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._location, location)
+
+    def test_noop_save_skips_resync(self):
+        site = Site.objects.create(name='Site', slug='site')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+
+        # Poison a cached column, then save the Site with no field changes. The resync is
+        # skipped: the pre-save values read from the database match what is being written.
+        # Stale cached values are prevented at their source (handle_location_site_change
+        # repairs descendant-scoped objects), so a no-op save no longer doubles as a
+        # repair mechanism. _location is poisoned because only this signal (not the
+        # denormalized-field registry) could repair it on a Site save.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=location)
+
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._location, location)
+
+    def test_location_site_change_updates_descendant_scoped_caches(self):
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site_a = Site.objects.create(name='Site A', slug='site-a', group=group_a)
+        site_b = Site.objects.create(name='Site B', slug='site-b', group=group_b)
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=child)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=child)
+        self.assertEqual(prefix._site, site_a)
+        self.assertEqual(cluster._site, site_a)
+
+        # Moving the parent Location drags the child along via a signal-less queryset
+        # update, so no post_save fires for the child. The cached scope fields of objects
+        # scoped to descendant locations must be updated in the same handler.
+        parent.site = site_b
+        parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.site, site_b)
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._site_group, group_b)
+        self.assertEqual(prefix._location, child)
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site, site_b)
+        self.assertEqual(cluster._site_group, group_b)
+
+    def test_location_site_change_repairs_descendant_row_with_poisoned_location_cache(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        other = Location.objects.create(name='Other', slug='other', site=site_a)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=child)
+
+        # Poison the cached _location to point outside the subtree. The repair must select
+        # rows through the authoritative scope (scope_type/scope_id), not the cached
+        # column, or this descendant-scoped row is missed — and it must repair _location
+        # itself, or the row stays invisible to future saves of its real location.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=other)
+
+        # Re-fetch: creating further Locations renumbers the MPTT tree, and the in-memory
+        # instance's stale bounds would otherwise select the wrong subtree (a pre-existing
+        # handler hazard, tracked separately).
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site = site_b
+        parent.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._location, child)
+
+    def test_location_site_change_ignores_foreign_row_with_poisoned_location_cache(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        site_c = Site.objects.create(name='Site C', slug='site-c')
+        parent = Location.objects.create(name='Parent', slug='parent', site=site_a)
+        child = Location.objects.create(name='Child', slug='child', site=site_a, parent=parent)
+        elsewhere = Location.objects.create(name='Elsewhere', slug='elsewhere', site=site_c)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=elsewhere)
+
+        # Poison the cached _location to point INTO the subtree being moved. A repair that
+        # selects rows through the cached column would wrongly stamp this unrelated object
+        # with the destination site.
+        Prefix.objects.filter(pk=prefix.pk).update(_location=child)
+
+        # Re-fetch to avoid stale in-memory MPTT bounds (see the sibling test).
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site = site_b
+        parent.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_c)
+        # The poisoned _location is intentional residue: this row is not scoped to the
+        # moved subtree, so only a save touching its own scope chain repairs it.
+        self.assertEqual(prefix._location, child)
+
+    def test_resync_recomputes_from_scope_not_from_saved_instance(self):
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        group_c = SiteGroup.objects.create(name='Group C', slug='group-c')
+        site_a = Site.objects.create(name='Site A', slug='site-a', group=group_a)
+        site_b = Site.objects.create(name='Site B', slug='site-b', group=group_b)
+        location = Location.objects.create(name='Loc', slug='loc', site=site_b)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=location)
+        self.assertEqual(prefix._site, site_b)
+
+        # Fabricate a stale row pointing at the wrong site, then trigger site_a's resync
+        # with a real scope change. The row matches site_a's rebuild filter (_site=site_a)
+        # but its actual scope lives under site_b: recomputed values must derive from the
+        # row's scope, never be stamped from the saved instance.
+        Prefix.objects.filter(pk=prefix.pk).update(_site=site_a, _site_group=group_a)
+
+        site_a.group = group_c
+        site_a.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._site_group, group_b)
+        self.assertEqual(prefix._location, location)
+
+    def test_stale_save_after_concurrent_update_resyncs(self):
+        """
+        A stale full save can write an old scope value back over a concurrent update
+        (when the client sends no If-Match header). The resync must run so the caches follow
+        whatever was actually written. A Cluster is used because it has no
+        denormalized-field registration to mask a skipped resync (unlike Prefix). The
+        lock-wait variant of this race (the concurrent update not yet committed) cannot
+        be exercised in a single-connection TestCase.
+        """
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
+
+        # Client 1 loads the site (and, like every request-driven save, snapshots it).
+        s1 = Site.objects.get(pk=site.pk)
+        s1.snapshot()
+
+        # Client 2 changes the region and saves; caches follow.
+        s2 = Site.objects.get(pk=site.pk)
+        s2.region = region_b
+        s2.save()
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region_b)
+
+        # Client 1's stale save writes region_a back. From client 1's point of view
+        # nothing changed, but the database value did: the resync must run.
+        s1.save()
+
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region_a)
+
+    def test_resync_groups_updates_by_distinct_scope(self):
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', group=group_a)
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix_1 = Prefix.objects.create(prefix='10.0.1.0/24', scope=site)
+        prefix_2 = Prefix.objects.create(prefix='10.0.2.0/24', scope=site)
+        prefix_3 = Prefix.objects.create(prefix='10.0.3.0/24', scope=location)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
+
+        site.group = group_b
+        site.save()
+
+        # Each object's cached fields must derive from its own scope; a resync that
+        # applies one scope's computed values to all matched rows would corrupt these.
+        for prefix in (prefix_1, prefix_2):
+            prefix.refresh_from_db()
+            self.assertIsNone(prefix._location)
+            self.assertEqual(prefix._site, site)
+            self.assertEqual(prefix._site_group, group_b)
+        prefix_3.refresh_from_db()
+        self.assertEqual(prefix_3._location, location)
+        self.assertEqual(prefix_3._site, site)
+        self.assertEqual(prefix_3._site_group, group_b)
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site_group, group_b)
+
+    def test_resync_issues_one_update_per_distinct_scope(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        for i in range(1, 4):
+            Prefix.objects.create(prefix=f'10.0.{i}.0/24', scope=site)
+        for i in range(4, 6):
+            Prefix.objects.create(prefix=f'10.0.{i}.0/24', scope=location)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        Cluster.objects.create(name='Cluster 1', type=cluster_type, scope=site)
+        Cluster.objects.create(name='Cluster 2', type=cluster_type, scope=site)
+
+        # One UPDATE per distinct (scope_type, scope) pair — not one per row (nor a single
+        # per-row CASE WHEN statement). Multiple rows per scope are seeded above so that a
+        # default-ordering leak into DISTINCT (which degrades grouping to one pair per row)
+        # changes these counts. Only this signal's UPDATEs set _location_id; the
+        # denormalized-field registry (netbox.denormalized) also updates Prefix on every
+        # Site save but touches only _region_id/_site_group_id, so the filter below
+        # excludes it.
+        distinct_prefix_scopes = len(set(
+            Prefix.objects.filter(_site=site).values_list('scope_type_id', 'scope_id')
+        ))
+        self.assertEqual(distinct_prefix_scopes, 2)
+
+        site.group = group  # A real scope change: the resync must run
+
+        with CaptureQueriesContext(connection) as ctx:
+            site.save()
+
+        prefix_updates = [
+            q for q in ctx.captured_queries
+            if q['sql'].startswith('UPDATE "ipam_prefix"') and '"_location_id"' in q['sql']
+        ]
+        self.assertEqual(len(prefix_updates), distinct_prefix_scopes)
+        cluster_updates = [
+            q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')
+        ]
+        self.assertEqual(len(cluster_updates), 1)
+
+
+class SyncCachedScopeFieldsAutocommitTestCase(TransactionTestCase):
+    """
+    Exercise the autocommit save path, which TestCase cannot reach (it wraps every test
+    in a transaction). Outside an atomic block the pre-save read and the save's UPDATE
+    run in separate transactions, so the skip guard is disabled there: the stash is
+    cleared and the rebuild runs unconditionally.
+
+    Note: TransactionTestCase teardown flushes all tables, which removes rows seeded by
+    data migrations from a --keepdb database (e.g. the dcim.0206 ModuleTypeProfiles).
+    A fresh test database restores them.
+    """
+
+    def test_autocommit_noop_save_always_resyncs(self):
+        group = SiteGroup.objects.create(name='Group', slug='group')
+        site = Site.objects.create(name='Site', slug='site', group=group)
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        prefix = Prefix.objects.create(prefix='10.0.0.0/24', scope=site)
+
+        # A transactional save first, so the instance carries a stash. The subsequent
+        # autocommit save must clear it rather than compare against a previous save's
+        # values.
+        with transaction.atomic():
+            site.save()
+
+        Prefix.objects.filter(pk=prefix.pk).update(_location=location)
+
+        site.save()  # Autocommit: no stash, unconditional rebuild
+
+        prefix.refresh_from_db()
+        self.assertIsNone(prefix._location)
 
 
 class CableSignalDirectHandlerTestCase(SimpleTestCase):

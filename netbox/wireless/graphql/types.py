@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 
+from dcim.models import Location, Region, Site, SiteGroup
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.types import NestedGroupObjectType, PrimaryObjectType
 from wireless import models
 
@@ -46,7 +48,18 @@ class WirelessLANType(PrimaryObjectType):
 
     interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'scope',
+            [
+                Region,
+                SiteGroup,
+                Site,
+                Location,
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]

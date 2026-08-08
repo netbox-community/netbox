@@ -17,6 +17,7 @@
         {# Cable trace SVG & options #}
         <div class="col col-md-5">
           {% if path %}
+            {% if svg_url %}
             <div class="text-center my-3">
               <object data="{{ svg_url }}" class="rack_elevation"></object>
               <div>
@@ -25,6 +26,7 @@
                 </a>
               </div>
             </div>
+            {% endif %}
             <div class="trace-end">
                 {% if path.is_split and path.get_asymmetric_nodes %}
                     <h3 class="text-danger">{% trans "Asymmetric Path" %}!</h3>

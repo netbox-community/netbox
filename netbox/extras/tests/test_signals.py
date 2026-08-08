@@ -81,8 +81,8 @@ class CustomFieldDeletedSignalTestCase(TestCase):
 
 class CustomFieldObjectTypeSignalTestCase(TestCase):
     """
-    Verify extras.signals.handle_cf_added_obj_types and handle_cf_removed_obj_types
-    populate or strip default values when a CustomField's object_types m2m changes.
+    Verify extras.signals.handle_cf_object_types_changed populates or strips default values when a
+    CustomField's object_types m2m changes.
     """
 
     def test_adding_object_type_populates_default_value(self):

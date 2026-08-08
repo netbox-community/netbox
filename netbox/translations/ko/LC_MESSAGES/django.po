@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-12 05:59+0000\n"
+"POT-Creation-Date: 2026-07-30 05:52+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Korean (https://app.transifex.com/netbox-community/teams/178115/ko/)\n"
@@ -175,10 +175,10 @@ msgstr "사이트 그룹 (slug)"
 #: netbox/circuits/forms/filtersets.py:249
 #: netbox/circuits/tables/circuits.py:125 netbox/dcim/forms/bulk_edit.py:176
 #: netbox/dcim/forms/bulk_edit.py:339 netbox/dcim/forms/bulk_edit.py:696
-#: netbox/dcim/forms/bulk_edit.py:906 netbox/dcim/forms/bulk_import.py:148
-#: netbox/dcim/forms/bulk_import.py:256 netbox/dcim/forms/bulk_import.py:365
-#: netbox/dcim/forms/bulk_import.py:656 netbox/dcim/forms/bulk_import.py:1701
-#: netbox/dcim/forms/bulk_import.py:1729 netbox/dcim/forms/filtersets.py:108
+#: netbox/dcim/forms/bulk_edit.py:906 netbox/dcim/forms/bulk_import.py:149
+#: netbox/dcim/forms/bulk_import.py:257 netbox/dcim/forms/bulk_import.py:366
+#: netbox/dcim/forms/bulk_import.py:657 netbox/dcim/forms/bulk_import.py:1789
+#: netbox/dcim/forms/bulk_import.py:1817 netbox/dcim/forms/filtersets.py:108
 #: netbox/dcim/forms/filtersets.py:258 netbox/dcim/forms/filtersets.py:390
 #: netbox/dcim/forms/filtersets.py:500 netbox/dcim/forms/filtersets.py:895
 #: netbox/dcim/forms/filtersets.py:1117 netbox/dcim/forms/filtersets.py:1198
@@ -194,7 +194,7 @@ msgstr "사이트 그룹 (slug)"
 #: netbox/extras/filtersets.py:734 netbox/ipam/forms/bulk_edit.py:419
 #: netbox/ipam/forms/bulk_import.py:515 netbox/ipam/forms/filtersets.py:176
 #: netbox/ipam/forms/filtersets.py:256 netbox/ipam/forms/filtersets.py:487
-#: netbox/ipam/forms/filtersets.py:594 netbox/ipam/forms/model_forms.py:694
+#: netbox/ipam/forms/filtersets.py:594 netbox/ipam/forms/model_forms.py:702
 #: netbox/ipam/tables/vlans.py:94
 #: netbox/templates/dcim/inc/cable_termination.html:8
 #: netbox/templates/dcim/inc/cable_termination.html:36
@@ -305,7 +305,7 @@ msgstr "종단 A (ID)"
 #: netbox/extras/filtersets.py:503 netbox/extras/filtersets.py:562
 #: netbox/extras/filtersets.py:623 netbox/extras/filtersets.py:662
 #: netbox/extras/filtersets.py:695 netbox/extras/filtersets.py:869
-#: netbox/ipam/forms/model_forms.py:515 netbox/netbox/filtersets.py:311
+#: netbox/ipam/forms/model_forms.py:523 netbox/netbox/filtersets.py:324
 #: netbox/netbox/forms/filtersets.py:32 netbox/netbox/forms/search.py:20
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:43
@@ -406,7 +406,7 @@ msgstr "인터페이스 (ID)"
 #: netbox/dcim/forms/bulk_edit.py:142 netbox/dcim/forms/filtersets.py:227
 #: netbox/dcim/forms/model_forms.py:144 netbox/dcim/tables/sites.py:74
 #: netbox/ipam/models/asns.py:164 netbox/ipam/tables/asn.py:37
-#: netbox/ipam/tables/ip.py:126 netbox/ipam/views.py:383
+#: netbox/ipam/tables/ip.py:126 netbox/ipam/views.py:384
 #: netbox/netbox/navigation/menu.py:189 netbox/netbox/navigation/menu.py:192
 msgid "ASNs"
 msgstr "ASN"
@@ -454,7 +454,7 @@ msgstr "서비스 ID"
 #: netbox/dcim/forms/bulk_edit.py:628 netbox/dcim/forms/bulk_edit.py:849
 #: netbox/dcim/forms/bulk_edit.py:1103 netbox/dcim/forms/bulk_edit.py:1202
 #: netbox/dcim/forms/bulk_edit.py:1229 netbox/dcim/forms/bulk_edit.py:1773
-#: netbox/dcim/forms/bulk_import.py:1541 netbox/dcim/forms/filtersets.py:1283
+#: netbox/dcim/forms/bulk_import.py:1629 netbox/dcim/forms/filtersets.py:1283
 #: netbox/dcim/forms/filtersets.py:1613 netbox/dcim/forms/filtersets.py:1829
 #: netbox/dcim/forms/filtersets.py:1848 netbox/dcim/forms/filtersets.py:1872
 #: netbox/dcim/forms/filtersets.py:1891 netbox/dcim/tables/devices.py:804
@@ -483,12 +483,12 @@ msgstr "색상"
 #: netbox/dcim/forms/bulk_edit.py:1033 netbox/dcim/forms/bulk_edit.py:1056
 #: netbox/dcim/forms/bulk_edit.py:1098 netbox/dcim/forms/bulk_edit.py:1146
 #: netbox/dcim/forms/bulk_edit.py:1197 netbox/dcim/forms/bulk_edit.py:1224
-#: netbox/dcim/forms/bulk_import.py:214 netbox/dcim/forms/bulk_import.py:300
-#: netbox/dcim/forms/bulk_import.py:829 netbox/dcim/forms/bulk_import.py:855
-#: netbox/dcim/forms/bulk_import.py:881 netbox/dcim/forms/bulk_import.py:902
-#: netbox/dcim/forms/bulk_import.py:988 netbox/dcim/forms/bulk_import.py:1117
-#: netbox/dcim/forms/bulk_import.py:1136 netbox/dcim/forms/bulk_import.py:1515
-#: netbox/dcim/forms/bulk_import.py:1766 netbox/dcim/forms/filtersets.py:1155
+#: netbox/dcim/forms/bulk_import.py:215 netbox/dcim/forms/bulk_import.py:301
+#: netbox/dcim/forms/bulk_import.py:830 netbox/dcim/forms/bulk_import.py:856
+#: netbox/dcim/forms/bulk_import.py:882 netbox/dcim/forms/bulk_import.py:903
+#: netbox/dcim/forms/bulk_import.py:989 netbox/dcim/forms/bulk_import.py:1118
+#: netbox/dcim/forms/bulk_import.py:1224 netbox/dcim/forms/bulk_import.py:1603
+#: netbox/dcim/forms/bulk_import.py:1854 netbox/dcim/forms/filtersets.py:1155
 #: netbox/dcim/forms/filtersets.py:1268 netbox/dcim/forms/filtersets.py:1401
 #: netbox/dcim/forms/filtersets.py:1492 netbox/dcim/forms/filtersets.py:1512
 #: netbox/dcim/forms/filtersets.py:1532 netbox/dcim/forms/filtersets.py:1552
@@ -547,11 +547,11 @@ msgstr "프로바이더 계정"
 #: netbox/dcim/forms/bulk_edit.py:719 netbox/dcim/forms/bulk_edit.py:778
 #: netbox/dcim/forms/bulk_edit.py:822 netbox/dcim/forms/bulk_edit.py:942
 #: netbox/dcim/forms/bulk_edit.py:1747 netbox/dcim/forms/bulk_edit.py:1791
-#: netbox/dcim/forms/bulk_import.py:105 netbox/dcim/forms/bulk_import.py:164
-#: netbox/dcim/forms/bulk_import.py:281 netbox/dcim/forms/bulk_import.py:390
-#: netbox/dcim/forms/bulk_import.py:621 netbox/dcim/forms/bulk_import.py:781
-#: netbox/dcim/forms/bulk_import.py:1258 netbox/dcim/forms/bulk_import.py:1503
-#: netbox/dcim/forms/bulk_import.py:1761 netbox/dcim/forms/bulk_import.py:1824
+#: netbox/dcim/forms/bulk_import.py:106 netbox/dcim/forms/bulk_import.py:165
+#: netbox/dcim/forms/bulk_import.py:282 netbox/dcim/forms/bulk_import.py:391
+#: netbox/dcim/forms/bulk_import.py:622 netbox/dcim/forms/bulk_import.py:782
+#: netbox/dcim/forms/bulk_import.py:1346 netbox/dcim/forms/bulk_import.py:1591
+#: netbox/dcim/forms/bulk_import.py:1849 netbox/dcim/forms/bulk_import.py:1912
 #: netbox/dcim/forms/filtersets.py:210 netbox/dcim/forms/filtersets.py:270
 #: netbox/dcim/forms/filtersets.py:413 netbox/dcim/forms/filtersets.py:528
 #: netbox/dcim/forms/filtersets.py:941 netbox/dcim/forms/filtersets.py:1064
@@ -569,7 +569,7 @@ msgstr "프로바이더 계정"
 #: netbox/ipam/forms/bulk_import.py:305 netbox/ipam/forms/bulk_import.py:536
 #: netbox/ipam/forms/filtersets.py:239 netbox/ipam/forms/filtersets.py:318
 #: netbox/ipam/forms/filtersets.py:407 netbox/ipam/forms/filtersets.py:606
-#: netbox/ipam/forms/model_forms.py:534 netbox/ipam/tables/ip.py:187
+#: netbox/ipam/forms/model_forms.py:542 netbox/ipam/tables/ip.py:187
 #: netbox/ipam/tables/ip.py:266 netbox/ipam/tables/ip.py:319
 #: netbox/ipam/tables/ip.py:394 netbox/ipam/tables/ip.py:421
 #: netbox/ipam/tables/vlans.py:102 netbox/templates/core/rq_task.html:81
@@ -610,10 +610,10 @@ msgstr "상태"
 #: netbox/dcim/forms/bulk_edit.py:195 netbox/dcim/forms/bulk_edit.py:361
 #: netbox/dcim/forms/bulk_edit.py:486 netbox/dcim/forms/bulk_edit.py:709
 #: netbox/dcim/forms/bulk_edit.py:834 netbox/dcim/forms/bulk_edit.py:1796
-#: netbox/dcim/forms/bulk_import.py:124 netbox/dcim/forms/bulk_import.py:169
-#: netbox/dcim/forms/bulk_import.py:267 netbox/dcim/forms/bulk_import.py:395
-#: netbox/dcim/forms/bulk_import.py:595 netbox/dcim/forms/bulk_import.py:1521
-#: netbox/dcim/forms/bulk_import.py:1817 netbox/dcim/forms/filtersets.py:145
+#: netbox/dcim/forms/bulk_import.py:125 netbox/dcim/forms/bulk_import.py:170
+#: netbox/dcim/forms/bulk_import.py:268 netbox/dcim/forms/bulk_import.py:396
+#: netbox/dcim/forms/bulk_import.py:596 netbox/dcim/forms/bulk_import.py:1609
+#: netbox/dcim/forms/bulk_import.py:1905 netbox/dcim/forms/filtersets.py:145
 #: netbox/dcim/forms/filtersets.py:204 netbox/dcim/forms/filtersets.py:237
 #: netbox/dcim/forms/filtersets.py:374 netbox/dcim/forms/filtersets.py:459
 #: netbox/dcim/forms/filtersets.py:480 netbox/dcim/forms/filtersets.py:863
@@ -704,7 +704,7 @@ msgstr "서비스 매개변수"
 #: netbox/circuits/forms/filtersets.py:325
 #: netbox/circuits/forms/filtersets.py:341 netbox/core/forms/filtersets.py:78
 #: netbox/core/forms/filtersets.py:150 netbox/dcim/forms/bulk_edit.py:867
-#: netbox/dcim/forms/bulk_import.py:504 netbox/dcim/forms/filtersets.py:203
+#: netbox/dcim/forms/bulk_import.py:505 netbox/dcim/forms/filtersets.py:203
 #: netbox/dcim/forms/filtersets.py:236 netbox/dcim/forms/filtersets.py:1054
 #: netbox/dcim/forms/filtersets.py:1207 netbox/dcim/forms/filtersets.py:1219
 #: netbox/dcim/forms/filtersets.py:1355 netbox/dcim/forms/filtersets.py:1482
@@ -751,12 +751,12 @@ msgstr "속성"
 #: netbox/ipam/forms/bulk_edit.py:388 netbox/ipam/forms/model_forms.py:72
 #: netbox/ipam/forms/model_forms.py:89 netbox/ipam/forms/model_forms.py:120
 #: netbox/ipam/forms/model_forms.py:141 netbox/ipam/forms/model_forms.py:171
-#: netbox/ipam/forms/model_forms.py:235 netbox/ipam/forms/model_forms.py:267
-#: netbox/ipam/forms/model_forms.py:289 netbox/ipam/forms/model_forms.py:347
-#: netbox/ipam/forms/model_forms.py:496 netbox/ipam/forms/model_forms.py:645
-#: netbox/ipam/forms/model_forms.py:741 netbox/netbox/navigation/menu.py:27
+#: netbox/ipam/forms/model_forms.py:235 netbox/ipam/forms/model_forms.py:275
+#: netbox/ipam/forms/model_forms.py:297 netbox/ipam/forms/model_forms.py:355
+#: netbox/ipam/forms/model_forms.py:504 netbox/ipam/forms/model_forms.py:653
+#: netbox/ipam/forms/model_forms.py:749 netbox/netbox/navigation/menu.py:27
 #: netbox/templates/dcim/device_edit.html:87
-#: netbox/templates/dcim/htmx/cable_edit.html:76
+#: netbox/templates/dcim/htmx/cable_edit.html:86
 #: netbox/templates/ipam/vlan_edit.html:38
 #: netbox/virtualization/forms/model_forms.py:78
 #: netbox/virtualization/forms/model_forms.py:275
@@ -800,7 +800,7 @@ msgstr "설명"
 
 #: netbox/circuits/forms/bulk_edit.py:192
 #: netbox/circuits/forms/model_forms.py:198
-#: netbox/dcim/forms/bulk_import.py:1461 netbox/dcim/forms/bulk_import.py:1494
+#: netbox/dcim/forms/bulk_import.py:1549 netbox/dcim/forms/bulk_import.py:1582
 msgid "Termination type"
 msgstr "종단 유형"
 
@@ -874,7 +874,7 @@ msgstr "프로바이더 네트워크"
 #: netbox/circuits/forms/filtersets.py:393
 #: netbox/circuits/forms/model_forms.py:399 netbox/dcim/forms/bulk_edit.py:372
 #: netbox/dcim/forms/bulk_edit.py:1301 netbox/dcim/forms/bulk_edit.py:1737
-#: netbox/dcim/forms/bulk_import.py:286 netbox/dcim/forms/bulk_import.py:1227
+#: netbox/dcim/forms/bulk_import.py:287 netbox/dcim/forms/bulk_import.py:1315
 #: netbox/dcim/forms/filtersets.py:421 netbox/dcim/forms/filtersets.py:919
 #: netbox/dcim/forms/filtersets.py:1990 netbox/dcim/forms/filtersets.py:2030
 #: netbox/dcim/forms/model_forms.py:312 netbox/dcim/forms/model_forms.py:1298
@@ -891,7 +891,7 @@ msgstr "프로바이더 네트워크"
 #: netbox/ipam/forms/filtersets.py:326 netbox/ipam/forms/filtersets.py:412
 #: netbox/ipam/forms/filtersets.py:614 netbox/ipam/forms/model_forms.py:159
 #: netbox/ipam/forms/model_forms.py:197 netbox/ipam/forms/model_forms.py:223
-#: netbox/ipam/forms/model_forms.py:278 netbox/ipam/forms/model_forms.py:709
+#: netbox/ipam/forms/model_forms.py:286 netbox/ipam/forms/model_forms.py:717
 #: netbox/ipam/tables/asn.py:75 netbox/ipam/tables/ip.py:213
 #: netbox/ipam/tables/ip.py:270 netbox/ipam/tables/ip.py:323
 #: netbox/ipam/tables/vlans.py:106
@@ -931,10 +931,10 @@ msgstr "회선 유형"
 
 #: netbox/circuits/forms/bulk_import.py:102
 #: netbox/circuits/forms/bulk_import.py:228
-#: netbox/dcim/forms/bulk_import.py:107 netbox/dcim/forms/bulk_import.py:166
-#: netbox/dcim/forms/bulk_import.py:283 netbox/dcim/forms/bulk_import.py:392
-#: netbox/dcim/forms/bulk_import.py:623 netbox/dcim/forms/bulk_import.py:783
-#: netbox/dcim/forms/bulk_import.py:1260 netbox/dcim/forms/bulk_import.py:1763
+#: netbox/dcim/forms/bulk_import.py:108 netbox/dcim/forms/bulk_import.py:167
+#: netbox/dcim/forms/bulk_import.py:284 netbox/dcim/forms/bulk_import.py:393
+#: netbox/dcim/forms/bulk_import.py:624 netbox/dcim/forms/bulk_import.py:784
+#: netbox/dcim/forms/bulk_import.py:1348 netbox/dcim/forms/bulk_import.py:1851
 #: netbox/ipam/forms/bulk_import.py:207 netbox/ipam/forms/bulk_import.py:271
 #: netbox/ipam/forms/bulk_import.py:307 netbox/ipam/forms/bulk_import.py:538
 #: netbox/ipam/forms/bulk_import.py:551
@@ -948,10 +948,10 @@ msgstr "운영 상태"
 #: netbox/circuits/forms/bulk_import.py:115
 #: netbox/circuits/forms/bulk_import.py:174
 #: netbox/circuits/forms/bulk_import.py:235
-#: netbox/dcim/forms/bulk_import.py:128 netbox/dcim/forms/bulk_import.py:173
-#: netbox/dcim/forms/bulk_import.py:399 netbox/dcim/forms/bulk_import.py:599
-#: netbox/dcim/forms/bulk_import.py:1525 netbox/dcim/forms/bulk_import.py:1758
-#: netbox/dcim/forms/bulk_import.py:1821 netbox/ipam/forms/bulk_import.py:49
+#: netbox/dcim/forms/bulk_import.py:129 netbox/dcim/forms/bulk_import.py:174
+#: netbox/dcim/forms/bulk_import.py:400 netbox/dcim/forms/bulk_import.py:600
+#: netbox/dcim/forms/bulk_import.py:1613 netbox/dcim/forms/bulk_import.py:1846
+#: netbox/dcim/forms/bulk_import.py:1909 netbox/ipam/forms/bulk_import.py:49
 #: netbox/ipam/forms/bulk_import.py:78 netbox/ipam/forms/bulk_import.py:106
 #: netbox/ipam/forms/bulk_import.py:126 netbox/ipam/forms/bulk_import.py:153
 #: netbox/ipam/forms/bulk_import.py:181 netbox/ipam/forms/bulk_import.py:266
@@ -996,13 +996,13 @@ msgstr "운영 역할"
 #: netbox/circuits/forms/bulk_import.py:258
 #: netbox/circuits/forms/model_forms.py:402
 #: netbox/circuits/tables/virtual_circuits.py:109
-#: netbox/circuits/ui/panels.py:179 netbox/dcim/forms/bulk_import.py:1358
+#: netbox/circuits/ui/panels.py:179 netbox/dcim/forms/bulk_import.py:1446
 #: netbox/dcim/forms/model_forms.py:1372 netbox/dcim/forms/model_forms.py:1641
 #: netbox/dcim/forms/model_forms.py:1822 netbox/dcim/forms/model_forms.py:1857
 #: netbox/dcim/forms/model_forms.py:1982 netbox/dcim/tables/connections.py:66
 #: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3571
 #: netbox/dcim/views.py:3675 netbox/ipam/forms/bulk_import.py:330
-#: netbox/ipam/forms/model_forms.py:308 netbox/ipam/forms/model_forms.py:317
+#: netbox/ipam/forms/model_forms.py:316 netbox/ipam/forms/model_forms.py:325
 #: netbox/ipam/tables/fhrp.py:61 netbox/ipam/tables/ip.py:328
 #: netbox/ipam/tables/vlans.py:149
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:40
@@ -1024,9 +1024,9 @@ msgstr "인터페이스"
 #: netbox/circuits/tables/circuits.py:140 netbox/dcim/forms/bulk_edit.py:348
 #: netbox/dcim/forms/bulk_edit.py:462 netbox/dcim/forms/bulk_edit.py:701
 #: netbox/dcim/forms/bulk_edit.py:750 netbox/dcim/forms/bulk_edit.py:915
-#: netbox/dcim/forms/bulk_import.py:261 netbox/dcim/forms/bulk_import.py:371
-#: netbox/dcim/forms/bulk_import.py:662 netbox/dcim/forms/bulk_import.py:1707
-#: netbox/dcim/forms/bulk_import.py:1741 netbox/dcim/forms/filtersets.py:116
+#: netbox/dcim/forms/bulk_import.py:262 netbox/dcim/forms/bulk_import.py:372
+#: netbox/dcim/forms/bulk_import.py:663 netbox/dcim/forms/bulk_import.py:1795
+#: netbox/dcim/forms/bulk_import.py:1829 netbox/dcim/forms/filtersets.py:116
 #: netbox/dcim/forms/filtersets.py:369 netbox/dcim/forms/filtersets.py:404
 #: netbox/dcim/forms/filtersets.py:455 netbox/dcim/forms/filtersets.py:508
 #: netbox/dcim/forms/filtersets.py:860 netbox/dcim/forms/filtersets.py:904
@@ -1097,7 +1097,7 @@ msgstr "구역"
 #: netbox/ipam/forms/filtersets.py:644 netbox/ipam/forms/filtersets.py:664
 #: netbox/netbox/navigation/menu.py:430
 #: netbox/templates/dcim/device_edit.html:104
-#: netbox/templates/dcim/htmx/cable_edit.html:84
+#: netbox/templates/dcim/htmx/cable_edit.html:94
 #: netbox/templates/dcim/virtualchassis_edit.html:39
 #: netbox/templates/generic/bulk_edit.html:65
 #: netbox/templates/htmx/form.html:28 netbox/templates/ipam/vlan_edit.html:74
@@ -1148,7 +1148,7 @@ msgstr "담당자"
 #: netbox/circuits/forms/filtersets.py:239
 #: netbox/circuits/tables/circuits.py:135 netbox/dcim/forms/bulk_edit.py:121
 #: netbox/dcim/forms/bulk_edit.py:323 netbox/dcim/forms/bulk_edit.py:890
-#: netbox/dcim/forms/bulk_import.py:110 netbox/dcim/forms/filtersets.py:94
+#: netbox/dcim/forms/bulk_import.py:111 netbox/dcim/forms/filtersets.py:94
 #: netbox/dcim/forms/filtersets.py:171 netbox/dcim/forms/filtersets.py:217
 #: netbox/dcim/forms/filtersets.py:244 netbox/dcim/forms/filtersets.py:382
 #: netbox/dcim/forms/filtersets.py:486 netbox/dcim/forms/filtersets.py:881
@@ -1202,7 +1202,7 @@ msgstr "종단 측"
 #: netbox/circuits/forms/filtersets.py:296 netbox/dcim/forms/bulk_edit.py:1596
 #: netbox/extras/forms/model_forms.py:794 netbox/extras/ui/panels.py:446
 #: netbox/ipam/forms/filtersets.py:154 netbox/ipam/forms/filtersets.py:663
-#: netbox/ipam/forms/model_forms.py:354 netbox/ipam/ui/panels.py:122
+#: netbox/ipam/forms/model_forms.py:362 netbox/ipam/ui/panels.py:122
 #: netbox/templates/ipam/vlan_edit.html:46
 #: netbox/tenancy/forms/filtersets.py:116
 #: netbox/users/forms/model_forms.py:388 netbox/users/forms/model_forms.py:430
@@ -1212,12 +1212,12 @@ msgstr "할당"
 #: netbox/circuits/forms/filtersets.py:311
 #: netbox/circuits/forms/model_forms.py:289
 #: netbox/circuits/tables/circuits.py:187 netbox/dcim/forms/bulk_edit.py:126
-#: netbox/dcim/forms/bulk_edit.py:356 netbox/dcim/forms/bulk_import.py:117
+#: netbox/dcim/forms/bulk_edit.py:356 netbox/dcim/forms/bulk_import.py:118
 #: netbox/dcim/forms/model_forms.py:137 netbox/dcim/tables/racks.py:139
 #: netbox/dcim/tables/racks.py:232 netbox/dcim/tables/sites.py:69
 #: netbox/extras/forms/filtersets.py:612 netbox/ipam/filtersets.py:1049
 #: netbox/ipam/forms/bulk_edit.py:428 netbox/ipam/forms/bulk_import.py:522
-#: netbox/ipam/forms/model_forms.py:592 netbox/ipam/tables/fhrp.py:64
+#: netbox/ipam/forms/model_forms.py:600 netbox/ipam/tables/fhrp.py:64
 #: netbox/ipam/tables/vlans.py:98
 #: netbox/templates/dcim/panels/interface_wireless_lans.html:8
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:23
@@ -1282,13 +1282,13 @@ msgid "Group Assignment"
 msgstr "그룹 할당"
 
 #: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:117
-#: netbox/dcim/models/device_component_templates.py:363
-#: netbox/dcim/models/device_component_templates.py:606
-#: netbox/dcim/models/device_component_templates.py:679
-#: netbox/dcim/models/device_components.py:663
-#: netbox/dcim/models/device_components.py:1246
-#: netbox/dcim/models/device_components.py:1294
-#: netbox/dcim/models/device_components.py:1536
+#: netbox/dcim/models/device_component_templates.py:364
+#: netbox/dcim/models/device_component_templates.py:611
+#: netbox/dcim/models/device_component_templates.py:684
+#: netbox/dcim/models/device_components.py:664
+#: netbox/dcim/models/device_components.py:1251
+#: netbox/dcim/models/device_components.py:1299
+#: netbox/dcim/models/device_components.py:1541
 #: netbox/dcim/models/devices.py:395 netbox/dcim/models/racks.py:254
 #: netbox/extras/models/tags.py:30
 msgid "color"
@@ -1315,12 +1315,12 @@ msgstr "고유 회선 ID"
 #: netbox/circuits/models/circuits.py:73
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:93
-#: netbox/dcim/models/device_components.py:634
-#: netbox/dcim/models/device_components.py:1575
-#: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1261
+#: netbox/dcim/models/device_components.py:635
+#: netbox/dcim/models/device_components.py:1580
+#: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1264
 #: netbox/dcim/models/modules.py:269 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:329 netbox/dcim/models/racks.py:713
-#: netbox/dcim/models/sites.py:163 netbox/dcim/models/sites.py:287
+#: netbox/dcim/models/sites.py:187 netbox/dcim/models/sites.py:311
 #: netbox/ipam/models/ip.py:252 netbox/ipam/models/ip.py:680
 #: netbox/ipam/models/ip.py:971 netbox/ipam/models/vlans.py:242
 #: netbox/virtualization/models/clusters.py:70
@@ -1417,14 +1417,14 @@ msgstr "패치 패널 ID와 포트 번호"
 
 #: netbox/circuits/models/circuits.py:301
 #: netbox/circuits/models/virtual_circuits.py:149
-#: netbox/dcim/models/device_component_templates.py:69
-#: netbox/dcim/models/device_components.py:67 netbox/dcim/models/racks.py:730
-#: netbox/extras/models/configs.py:42 netbox/extras/models/configs.py:95
-#: netbox/extras/models/configs.py:286
+#: netbox/dcim/models/device_component_templates.py:70
+#: netbox/dcim/models/device_components.py:68 netbox/dcim/models/racks.py:730
+#: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:98
+#: netbox/extras/models/configs.py:289
 #: netbox/extras/models/customfields.py:153 netbox/extras/models/models.py:73
-#: netbox/extras/models/models.py:182 netbox/extras/models/models.py:429
-#: netbox/extras/models/models.py:497 netbox/extras/models/models.py:581
-#: netbox/extras/models/models.py:724
+#: netbox/extras/models/models.py:182 netbox/extras/models/models.py:435
+#: netbox/extras/models/models.py:503 netbox/extras/models/models.py:587
+#: netbox/extras/models/models.py:730
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
 #: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
@@ -1450,18 +1450,18 @@ msgstr "회선 종단은 종단 객체에 연결되어야 합니다."
 #: netbox/circuits/models/providers.py:63
 #: netbox/circuits/models/providers.py:98 netbox/core/models/data.py:40
 #: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:55
-#: netbox/dcim/models/device_component_templates.py:55
-#: netbox/dcim/models/device_components.py:56
+#: netbox/dcim/models/device_component_templates.py:56
+#: netbox/dcim/models/device_components.py:57
 #: netbox/dcim/models/devices.py:543 netbox/dcim/models/devices.py:1184
-#: netbox/dcim/models/devices.py:1256 netbox/dcim/models/modules.py:37
+#: netbox/dcim/models/devices.py:1259 netbox/dcim/models/modules.py:37
 #: netbox/dcim/models/power.py:39 netbox/dcim/models/power.py:90
-#: netbox/dcim/models/racks.py:290 netbox/dcim/models/sites.py:151
-#: netbox/extras/models/configs.py:37 netbox/extras/models/configs.py:79
-#: netbox/extras/models/configs.py:282
+#: netbox/dcim/models/racks.py:290 netbox/dcim/models/sites.py:175
+#: netbox/extras/models/configs.py:40 netbox/extras/models/configs.py:82
+#: netbox/extras/models/configs.py:285
 #: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:68
-#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:319
-#: netbox/extras/models/models.py:425 netbox/extras/models/models.py:487
-#: netbox/extras/models/models.py:577 netbox/extras/models/models.py:719
+#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:325
+#: netbox/extras/models/models.py:431 netbox/extras/models/models.py:493
+#: netbox/extras/models/models.py:583 netbox/extras/models/models.py:725
 #: netbox/extras/models/notifications.py:127
 #: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:63
@@ -1489,8 +1489,8 @@ msgid "Full name of the provider"
 msgstr "프로바이더의 전체 이름"
 
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
-#: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:158
-#: netbox/extras/models/models.py:492 netbox/ipam/models/asns.py:24
+#: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:182
+#: netbox/extras/models/models.py:498 netbox/ipam/models/asns.py:24
 #: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
 #: netbox/tenancy/models/tenants.py:50
@@ -1707,13 +1707,13 @@ msgstr "종단"
 #: netbox/circuits/tables/virtual_circuits.py:106
 #: netbox/dcim/forms/bulk_edit.py:749 netbox/dcim/forms/bulk_edit.py:1320
 #: netbox/dcim/forms/bulk_edit.py:1732 netbox/dcim/forms/bulk_edit.py:1786
-#: netbox/dcim/forms/bulk_import.py:763 netbox/dcim/forms/bulk_import.py:824
-#: netbox/dcim/forms/bulk_import.py:850 netbox/dcim/forms/bulk_import.py:876
-#: netbox/dcim/forms/bulk_import.py:897 netbox/dcim/forms/bulk_import.py:953
-#: netbox/dcim/forms/bulk_import.py:1112 netbox/dcim/forms/bulk_import.py:1131
-#: netbox/dcim/forms/bulk_import.py:1150 netbox/dcim/forms/bulk_import.py:1168
-#: netbox/dcim/forms/bulk_import.py:1222 netbox/dcim/forms/bulk_import.py:1344
-#: netbox/dcim/forms/bulk_import.py:1811 netbox/dcim/forms/connections.py:34
+#: netbox/dcim/forms/bulk_import.py:764 netbox/dcim/forms/bulk_import.py:825
+#: netbox/dcim/forms/bulk_import.py:851 netbox/dcim/forms/bulk_import.py:877
+#: netbox/dcim/forms/bulk_import.py:898 netbox/dcim/forms/bulk_import.py:954
+#: netbox/dcim/forms/bulk_import.py:1113 netbox/dcim/forms/bulk_import.py:1219
+#: netbox/dcim/forms/bulk_import.py:1238 netbox/dcim/forms/bulk_import.py:1256
+#: netbox/dcim/forms/bulk_import.py:1310 netbox/dcim/forms/bulk_import.py:1432
+#: netbox/dcim/forms/bulk_import.py:1899 netbox/dcim/forms/connections.py:34
 #: netbox/dcim/forms/filtersets.py:158 netbox/dcim/forms/filtersets.py:1061
 #: netbox/dcim/forms/filtersets.py:1098 netbox/dcim/forms/filtersets.py:1265
 #: netbox/dcim/forms/filtersets.py:1486 netbox/dcim/forms/filtersets.py:1509
@@ -1740,7 +1740,7 @@ msgstr "종단"
 #: netbox/dcim/tables/devices.py:1055 netbox/dcim/tables/devices.py:1181
 #: netbox/dcim/tables/modules.py:84 netbox/extras/forms/filtersets.py:410
 #: netbox/ipam/forms/bulk_import.py:316 netbox/ipam/forms/filtersets.py:670
-#: netbox/ipam/forms/model_forms.py:350 netbox/ipam/tables/vlans.py:160
+#: netbox/ipam/forms/model_forms.py:358 netbox/ipam/tables/vlans.py:160
 #: netbox/templates/dcim/device_edit.html:12
 #: netbox/templates/dcim/panels/interface_connection.html:60
 #: netbox/templates/dcim/panels/virtual_chassis_members.html:8
@@ -1787,7 +1787,7 @@ msgid "Connection"
 msgstr "연결"
 
 #: netbox/circuits/ui/panels.py:99 netbox/dcim/forms/bulk_edit.py:1480
-#: netbox/dcim/forms/bulk_import.py:835 netbox/dcim/forms/bulk_import.py:861
+#: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/bulk_import.py:862
 #: netbox/dcim/forms/filtersets.py:1497 netbox/dcim/forms/filtersets.py:1537
 #: netbox/dcim/forms/filtersets.py:1675 netbox/dcim/tables/devices.py:662
 #: netbox/dcim/ui/panels.py:488
@@ -1988,7 +1988,7 @@ msgstr "정보"
 msgid "Warning"
 msgstr "경고"
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:597
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:625
 msgid "Error"
 msgstr "오류"
 
@@ -2090,7 +2090,7 @@ msgid "Sync interval"
 msgstr "동기화 간격"
 
 #: netbox/core/forms/bulk_edit.py:33 netbox/extras/forms/model_forms.py:388
-#: netbox/extras/views.py:394 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:395 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:299
 #: netbox/vpn/forms/model_forms.py:320 netbox/vpn/forms/model_forms.py:336
@@ -2355,7 +2355,7 @@ msgstr "이 객체 유형({type})에서는 변경 로그가 지원되지 않습�
 
 #: netbox/core/models/config.py:22 netbox/core/models/data.py:290
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:932 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:938 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
 #: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
 msgid "created"
@@ -2391,20 +2391,20 @@ msgid "Config revision #{id}"
 msgstr "설정 리비전 #{id}"
 
 #: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:86
-#: netbox/dcim/models/device_component_templates.py:220
-#: netbox/dcim/models/device_component_templates.py:255
-#: netbox/dcim/models/device_component_templates.py:291
-#: netbox/dcim/models/device_component_templates.py:356
-#: netbox/dcim/models/device_component_templates.py:447
-#: netbox/dcim/models/device_component_templates.py:601
-#: netbox/dcim/models/device_component_templates.py:674
-#: netbox/dcim/models/device_components.py:440
-#: netbox/dcim/models/device_components.py:467
-#: netbox/dcim/models/device_components.py:498
-#: netbox/dcim/models/device_components.py:640
-#: netbox/dcim/models/device_components.py:858
-#: netbox/dcim/models/device_components.py:1241
-#: netbox/dcim/models/device_components.py:1289
+#: netbox/dcim/models/device_component_templates.py:221
+#: netbox/dcim/models/device_component_templates.py:256
+#: netbox/dcim/models/device_component_templates.py:292
+#: netbox/dcim/models/device_component_templates.py:357
+#: netbox/dcim/models/device_component_templates.py:448
+#: netbox/dcim/models/device_component_templates.py:606
+#: netbox/dcim/models/device_component_templates.py:679
+#: netbox/dcim/models/device_components.py:441
+#: netbox/dcim/models/device_components.py:468
+#: netbox/dcim/models/device_components.py:499
+#: netbox/dcim/models/device_components.py:641
+#: netbox/dcim/models/device_components.py:859
+#: netbox/dcim/models/device_components.py:1246
+#: netbox/dcim/models/device_components.py:1294
 #: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:106
 #: netbox/extras/models/search.py:42
 #: netbox/virtualization/models/clusters.py:57
@@ -2420,14 +2420,14 @@ msgid "URL"
 msgstr "URL"
 
 #: netbox/core/models/data.py:60
-#: netbox/dcim/models/device_component_templates.py:452
-#: netbox/dcim/models/device_component_templates.py:744
-#: netbox/dcim/models/device_component_templates.py:779
-#: netbox/dcim/models/device_components.py:695
-#: netbox/dcim/models/device_components.py:1374
-#: netbox/dcim/models/device_components.py:1475
-#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:324
-#: netbox/extras/models/models.py:512 netbox/extras/models/models.py:596
+#: netbox/dcim/models/device_component_templates.py:453
+#: netbox/dcim/models/device_component_templates.py:749
+#: netbox/dcim/models/device_component_templates.py:784
+#: netbox/dcim/models/device_components.py:696
+#: netbox/dcim/models/device_components.py:1379
+#: netbox/dcim/models/device_components.py:1480
+#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:330
+#: netbox/extras/models/models.py:518 netbox/extras/models/models.py:602
 #: netbox/users/models/permissions.py:32 netbox/users/models/tokens.py:65
 msgid "enabled"
 msgstr "활성화"
@@ -2444,7 +2444,7 @@ msgstr "무시 규칙"
 msgid "Patterns (one per line) matching files or paths to ignore when syncing"
 msgstr "동기화 시 무시할 파일 또는 경로와 일치하는 패턴 (한 줄에 하나)"
 
-#: netbox/core/models/data.py:75 netbox/extras/models/models.py:520
+#: netbox/core/models/data.py:75 netbox/extras/models/models.py:526
 msgid "parameters"
 msgstr "매개변수"
 
@@ -2702,7 +2702,7 @@ msgstr "ID"
 msgid "Interval"
 msgstr "간격"
 
-#: netbox/core/tables/jobs.py:51 netbox/core/views.py:271
+#: netbox/core/tables/jobs.py:51 netbox/core/views.py:272
 msgid "Log Entries"
 msgstr "로그 항목"
 
@@ -2869,7 +2869,7 @@ msgstr "스케줄링"
 msgid "Change"
 msgstr "변경"
 
-#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:570
+#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:571
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr "작업 {job_id}을(를) 찾을 수 없습니다"
@@ -2879,62 +2879,62 @@ msgstr "작업 {job_id}을(를) 찾을 수 없습니다"
 msgid "Job {id} not found."
 msgstr "작업 {id}을(를) 찾을 수 없습니다."
 
-#: netbox/core/views.py:135
+#: netbox/core/views.py:136
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr "{datasource} 동기화를 위해 작업 #{id}이(가) 큐에 추가됨"
 
-#: netbox/core/views.py:253 netbox/extras/forms/filtersets.py:184
+#: netbox/core/views.py:254 netbox/extras/forms/filtersets.py:184
 #: netbox/extras/forms/filtersets.py:385 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/filtersets.py:504
 #: netbox/extras/forms/model_forms.py:784 netbox/extras/ui/panels.py:381
 msgid "Data"
 msgstr "데이터"
 
-#: netbox/core/views.py:264 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:265 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr "로그"
 
-#: netbox/core/views.py:506
+#: netbox/core/views.py:507
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr "설정 리비전 #{id} 복원됨"
 
-#: netbox/core/views.py:609
+#: netbox/core/views.py:610
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr "작업 {id}이(가) 삭제되었습니다."
 
-#: netbox/core/views.py:611
+#: netbox/core/views.py:612
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr "작업 {id} 삭제 중 오류: {error}"
 
-#: netbox/core/views.py:620
+#: netbox/core/views.py:621
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr "작업 {id}이(가) 다시 큐에 추가되었습니다."
 
-#: netbox/core/views.py:629
+#: netbox/core/views.py:630
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr "작업 {id}이(가) 큐에 추가되었습니다."
 
-#: netbox/core/views.py:638
+#: netbox/core/views.py:639
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr "작업 {id}이(가) 중지되었습니다."
 
-#: netbox/core/views.py:640
+#: netbox/core/views.py:641
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr "작업 {id}을(를) 중지하지 못했습니다"
 
-#: netbox/core/views.py:854
+#: netbox/core/views.py:855
 msgid "Plugins catalog could not be loaded"
 msgstr "플러그인 카탈로그를 불러올 수 없습니다"
 
-#: netbox/core/views.py:890
+#: netbox/core/views.py:891
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr "플러그인 {name}을(를) 찾을 수 없습니다"
@@ -2958,7 +2958,7 @@ msgid "Position (U)"
 msgstr "위치 (U)"
 
 #: netbox/dcim/api/serializers_/devices.py:193
-#: netbox/dcim/forms/bulk_import.py:786 netbox/dcim/forms/model_forms.py:819
+#: netbox/dcim/forms/bulk_import.py:787 netbox/dcim/forms/model_forms.py:819
 msgid "Replicate components"
 msgstr "구성 요소 복제"
 
@@ -2969,12 +2969,12 @@ msgid ""
 msgstr "이 모듈 유형과 연관된 구성 요소를 자동으로 채우기 (기본값: true)"
 
 #: netbox/dcim/api/serializers_/devices.py:200
-#: netbox/dcim/forms/bulk_import.py:791 netbox/dcim/forms/model_forms.py:825
+#: netbox/dcim/forms/bulk_import.py:792 netbox/dcim/forms/model_forms.py:825
 msgid "Adopt components"
 msgstr "구성 요소 재할당"
 
 #: netbox/dcim/api/serializers_/devices.py:201
-#: netbox/dcim/forms/bulk_import.py:793 netbox/dcim/forms/model_forms.py:828
+#: netbox/dcim/forms/bulk_import.py:794 netbox/dcim/forms/model_forms.py:828
 msgid "Adopt already existing components"
 msgstr "기존 구성 요소를 재할당"
 
@@ -3105,11 +3105,11 @@ msgstr "오래됨"
 #: netbox/dcim/choices.py:170 netbox/dcim/forms/bulk_edit.py:87
 #: netbox/dcim/forms/bulk_edit.py:101 netbox/dcim/forms/bulk_edit.py:181
 #: netbox/dcim/forms/bulk_edit.py:623 netbox/dcim/forms/bulk_edit.py:651
-#: netbox/dcim/forms/bulk_edit.py:1447 netbox/dcim/forms/bulk_import.py:77
-#: netbox/dcim/forms/bulk_import.py:91 netbox/dcim/forms/bulk_import.py:154
-#: netbox/dcim/forms/bulk_import.py:530 netbox/dcim/forms/bulk_import.py:556
-#: netbox/dcim/forms/bulk_import.py:682 netbox/dcim/forms/bulk_import.py:958
-#: netbox/dcim/forms/bulk_import.py:1239 netbox/dcim/forms/filtersets.py:267
+#: netbox/dcim/forms/bulk_edit.py:1447 netbox/dcim/forms/bulk_import.py:78
+#: netbox/dcim/forms/bulk_import.py:92 netbox/dcim/forms/bulk_import.py:155
+#: netbox/dcim/forms/bulk_import.py:531 netbox/dcim/forms/bulk_import.py:557
+#: netbox/dcim/forms/bulk_import.py:683 netbox/dcim/forms/bulk_import.py:959
+#: netbox/dcim/forms/bulk_import.py:1327 netbox/dcim/forms/filtersets.py:267
 #: netbox/dcim/forms/filtersets.py:820 netbox/dcim/forms/filtersets.py:836
 #: netbox/dcim/forms/model_forms.py:95 netbox/dcim/forms/model_forms.py:113
 #: netbox/dcim/forms/model_forms.py:216 netbox/dcim/forms/model_forms.py:559
@@ -3118,7 +3118,7 @@ msgstr "오래됨"
 #: netbox/dcim/forms/object_import.py:193 netbox/dcim/tables/devices.py:722
 #: netbox/dcim/tables/devices.py:757 netbox/dcim/tables/devices.py:992
 #: netbox/dcim/tables/devices.py:1082 netbox/dcim/tables/devices.py:1235
-#: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:809
+#: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:817
 #: netbox/ipam/tables/fhrp.py:56 netbox/ipam/tables/ip.py:334
 #: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:380
 #: netbox/netbox/ui/panels.py:230 netbox/tenancy/forms/bulk_edit.py:33
@@ -3249,7 +3249,7 @@ msgid "Virtual interfaces"
 msgstr "가상 인터페이스"
 
 #: netbox/dcim/choices.py:1164 netbox/dcim/forms/bulk_edit.py:1455
-#: netbox/dcim/forms/bulk_import.py:965 netbox/dcim/forms/model_forms.py:1171
+#: netbox/dcim/forms/bulk_import.py:966 netbox/dcim/forms/model_forms.py:1171
 #: netbox/dcim/tables/devices.py:761
 #: netbox/virtualization/forms/bulk_edit.py:231
 #: netbox/virtualization/forms/bulk_import.py:198
@@ -3879,8 +3879,8 @@ msgstr "전체 깊이 사용 여부"
 
 #: netbox/dcim/filtersets.py:1394 netbox/dcim/forms/filtersets.py:960
 #: netbox/dcim/forms/filtersets.py:1702 netbox/dcim/forms/filtersets.py:2067
-#: netbox/dcim/forms/model_forms.py:1979 netbox/dcim/models/devices.py:1359
-#: netbox/dcim/models/devices.py:1383 netbox/dcim/ui/panels.py:383
+#: netbox/dcim/forms/model_forms.py:1979 netbox/dcim/models/devices.py:1362
+#: netbox/dcim/models/devices.py:1386 netbox/dcim/ui/panels.py:383
 #: netbox/dcim/ui/panels.py:518 netbox/virtualization/filtersets.py:282
 #: netbox/virtualization/filtersets.py:370
 #: netbox/virtualization/forms/filtersets.py:247
@@ -3937,14 +3937,14 @@ msgstr "랙 (이름)"
 
 #: netbox/dcim/filtersets.py:1723 netbox/dcim/filtersets.py:1830
 #: netbox/dcim/filtersets.py:2040 netbox/ipam/filtersets.py:659
-#: netbox/ipam/filtersets.py:906 netbox/ipam/filtersets.py:1241
+#: netbox/ipam/filtersets.py:906 netbox/ipam/filtersets.py:1249
 #: netbox/virtualization/filtersets.py:205 netbox/vpn/filtersets.py:423
 msgid "Device (ID)"
 msgstr "장비 (ID)"
 
 #: netbox/dcim/filtersets.py:1730 netbox/dcim/filtersets.py:1837
 #: netbox/dcim/filtersets.py:2035 netbox/ipam/filtersets.py:654
-#: netbox/ipam/filtersets.py:901 netbox/ipam/filtersets.py:1236
+#: netbox/ipam/filtersets.py:901 netbox/ipam/filtersets.py:1244
 #: netbox/vpn/filtersets.py:418
 msgid "Device (name)"
 msgstr "장비 (이름)"
@@ -3992,13 +3992,13 @@ msgid "Cable (ID)"
 msgstr "케이블 (ID)"
 
 #: netbox/dcim/filtersets.py:2045 netbox/ipam/filtersets.py:664
-#: netbox/ipam/filtersets.py:911 netbox/ipam/filtersets.py:1246
+#: netbox/ipam/filtersets.py:911 netbox/ipam/filtersets.py:1254
 #: netbox/vpn/filtersets.py:429
 msgid "Virtual machine (name)"
 msgstr "가상 머신 (이름)"
 
 #: netbox/dcim/filtersets.py:2050 netbox/ipam/filtersets.py:669
-#: netbox/ipam/filtersets.py:916 netbox/ipam/filtersets.py:1251
+#: netbox/ipam/filtersets.py:916 netbox/ipam/filtersets.py:1259
 #: netbox/virtualization/filtersets.py:347
 #: netbox/virtualization/filtersets.py:405 netbox/vpn/filtersets.py:434
 msgid "Virtual machine (ID)"
@@ -4023,7 +4023,7 @@ msgstr "VM 인터페이스 (ID)"
 msgid "Is assigned"
 msgstr "할당 여부"
 
-#: netbox/dcim/filtersets.py:2080 netbox/dcim/forms/bulk_import.py:1365
+#: netbox/dcim/filtersets.py:2080 netbox/dcim/forms/bulk_import.py:1453
 #: netbox/ipam/forms/bulk_import.py:344
 msgid "Is primary"
 msgstr "기본 여부"
@@ -4044,9 +4044,9 @@ msgid "Assigned VID"
 msgstr "할당된 VID"
 
 #: netbox/dcim/filtersets.py:2158 netbox/dcim/forms/bulk_edit.py:1568
-#: netbox/dcim/forms/bulk_import.py:1050 netbox/dcim/forms/filtersets.py:1755
+#: netbox/dcim/forms/bulk_import.py:1051 netbox/dcim/forms/filtersets.py:1755
 #: netbox/dcim/forms/model_forms.py:1619
-#: netbox/dcim/models/device_components.py:957
+#: netbox/dcim/models/device_components.py:958
 #: netbox/dcim/tables/devices.py:678 netbox/dcim/ui/panels.py:521
 #: netbox/ipam/filtersets.py:372 netbox/ipam/filtersets.py:384
 #: netbox/ipam/filtersets.py:523 netbox/ipam/filtersets.py:630
@@ -4056,9 +4056,9 @@ msgstr "할당된 VID"
 #: netbox/ipam/forms/bulk_import.py:291 netbox/ipam/forms/filtersets.py:70
 #: netbox/ipam/forms/filtersets.py:199 netbox/ipam/forms/filtersets.py:353
 #: netbox/ipam/forms/model_forms.py:70 netbox/ipam/forms/model_forms.py:211
-#: netbox/ipam/forms/model_forms.py:275 netbox/ipam/forms/model_forms.py:328
-#: netbox/ipam/forms/model_forms.py:491 netbox/ipam/forms/model_forms.py:511
-#: netbox/ipam/forms/model_forms.py:525 netbox/ipam/models/ip.py:232
+#: netbox/ipam/forms/model_forms.py:283 netbox/ipam/forms/model_forms.py:336
+#: netbox/ipam/forms/model_forms.py:499 netbox/ipam/forms/model_forms.py:519
+#: netbox/ipam/forms/model_forms.py:533 netbox/ipam/models/ip.py:232
 #: netbox/ipam/models/ip.py:670 netbox/ipam/models/ip.py:961
 #: netbox/ipam/models/vrfs.py:64 netbox/ipam/tables/ip.py:192
 #: netbox/ipam/tables/ip.py:263 netbox/ipam/tables/ip.py:316
@@ -4080,14 +4080,14 @@ msgstr "VRF"
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: netbox/dcim/filtersets.py:2170 netbox/ipam/filtersets.py:1096
+#: netbox/dcim/filtersets.py:2170 netbox/ipam/filtersets.py:1100
 #: netbox/vpn/filtersets.py:385
 msgid "L2VPN (ID)"
 msgstr "L2VPN (ID)"
 
 #: netbox/dcim/filtersets.py:2176 netbox/dcim/forms/filtersets.py:1760
 #: netbox/dcim/tables/devices.py:618 netbox/dcim/ui/panels.py:501
-#: netbox/ipam/filtersets.py:1102 netbox/ipam/forms/filtersets.py:634
+#: netbox/ipam/filtersets.py:1106 netbox/ipam/forms/filtersets.py:634
 #: netbox/ipam/tables/vlans.py:120 netbox/ipam/ui/panels.py:207
 #: netbox/virtualization/forms/filtersets.py:311
 #: netbox/vpn/forms/bulk_import.py:285 netbox/vpn/forms/filtersets.py:268
@@ -4097,14 +4097,14 @@ msgstr "L2VPN (ID)"
 msgid "L2VPN"
 msgstr "L2VPN"
 
-#: netbox/dcim/filtersets.py:2182 netbox/ipam/filtersets.py:1180
+#: netbox/dcim/filtersets.py:2182 netbox/ipam/filtersets.py:1188
 msgid "VLAN Translation Policy (ID)"
 msgstr "VLAN 변환 정책 (ID)"
 
 #: netbox/dcim/filtersets.py:2189 netbox/dcim/forms/filtersets.py:1726
 #: netbox/dcim/forms/model_forms.py:1636
-#: netbox/dcim/models/device_components.py:758
-#: netbox/ipam/forms/filtersets.py:552 netbox/ipam/forms/model_forms.py:754
+#: netbox/dcim/models/device_components.py:759
+#: netbox/ipam/forms/filtersets.py:552 netbox/ipam/forms/model_forms.py:762
 #: netbox/virtualization/forms/bulk_edit.py:285
 #: netbox/virtualization/forms/filtersets.py:321
 #: netbox/virtualization/forms/model_forms.py:454
@@ -4267,7 +4267,7 @@ msgstr "연락처 전화번호"
 msgid "Contact E-mail"
 msgstr "연락처 이메일"
 
-#: netbox/dcim/forms/bulk_edit.py:160 netbox/dcim/forms/bulk_import.py:140
+#: netbox/dcim/forms/bulk_edit.py:160 netbox/dcim/forms/bulk_import.py:141
 #: netbox/dcim/forms/model_forms.py:159
 msgid "Time zone"
 msgstr "시간대"
@@ -4276,9 +4276,9 @@ msgstr "시간대"
 #: netbox/dcim/forms/bulk_edit.py:584 netbox/dcim/forms/bulk_edit.py:656
 #: netbox/dcim/forms/bulk_edit.py:675 netbox/dcim/forms/bulk_edit.py:762
 #: netbox/dcim/forms/bulk_edit.py:1306 netbox/dcim/forms/bulk_edit.py:1742
-#: netbox/dcim/forms/bulk_import.py:208 netbox/dcim/forms/bulk_import.py:432
-#: netbox/dcim/forms/bulk_import.py:482 netbox/dcim/forms/bulk_import.py:566
-#: netbox/dcim/forms/bulk_import.py:602 netbox/dcim/forms/bulk_import.py:1233
+#: netbox/dcim/forms/bulk_import.py:209 netbox/dcim/forms/bulk_import.py:433
+#: netbox/dcim/forms/bulk_import.py:483 netbox/dcim/forms/bulk_import.py:567
+#: netbox/dcim/forms/bulk_import.py:603 netbox/dcim/forms/bulk_import.py:1321
 #: netbox/dcim/forms/filtersets.py:355 netbox/dcim/forms/filtersets.py:426
 #: netbox/dcim/forms/filtersets.py:578 netbox/dcim/forms/filtersets.py:728
 #: netbox/dcim/forms/filtersets.py:841 netbox/dcim/forms/filtersets.py:924
@@ -4297,21 +4297,21 @@ msgid "Manufacturer"
 msgstr "제조사"
 
 #: netbox/dcim/forms/bulk_edit.py:240 netbox/dcim/forms/bulk_edit.py:392
-#: netbox/dcim/forms/bulk_import.py:217 netbox/dcim/forms/bulk_import.py:303
+#: netbox/dcim/forms/bulk_import.py:218 netbox/dcim/forms/bulk_import.py:304
 #: netbox/dcim/forms/filtersets.py:301
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:6
 msgid "Form factor"
 msgstr "폼 팩터"
 
 #: netbox/dcim/forms/bulk_edit.py:245 netbox/dcim/forms/bulk_edit.py:397
-#: netbox/dcim/forms/bulk_import.py:225 netbox/dcim/forms/bulk_import.py:306
+#: netbox/dcim/forms/bulk_import.py:226 netbox/dcim/forms/bulk_import.py:307
 #: netbox/dcim/forms/filtersets.py:306
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:10
 msgid "Width"
 msgstr "너비"
 
 #: netbox/dcim/forms/bulk_edit.py:251 netbox/dcim/forms/bulk_edit.py:403
-#: netbox/dcim/forms/bulk_import.py:313
+#: netbox/dcim/forms/bulk_import.py:314
 msgid "Height (U)"
 msgstr "높이 (U)"
 
@@ -4333,7 +4333,7 @@ msgid "Outer depth"
 msgstr "외형 깊이"
 
 #: netbox/dcim/forms/bulk_edit.py:278 netbox/dcim/forms/bulk_edit.py:426
-#: netbox/dcim/forms/bulk_import.py:230 netbox/dcim/forms/bulk_import.py:316
+#: netbox/dcim/forms/bulk_import.py:231 netbox/dcim/forms/bulk_import.py:317
 msgid "Outer unit"
 msgstr "외형 단위"
 
@@ -4345,7 +4345,7 @@ msgstr "장착 깊이"
 #: netbox/dcim/forms/bulk_edit.py:441 netbox/dcim/forms/bulk_edit.py:465
 #: netbox/dcim/forms/bulk_edit.py:542 netbox/dcim/forms/bulk_edit.py:559
 #: netbox/dcim/forms/bulk_edit.py:598 netbox/dcim/forms/bulk_edit.py:614
-#: netbox/dcim/forms/bulk_import.py:445 netbox/dcim/forms/bulk_import.py:493
+#: netbox/dcim/forms/bulk_import.py:446 netbox/dcim/forms/bulk_import.py:494
 #: netbox/dcim/forms/filtersets.py:326 netbox/dcim/forms/filtersets.py:348
 #: netbox/dcim/forms/filtersets.py:373 netbox/dcim/forms/filtersets.py:458
 #: netbox/dcim/forms/filtersets.py:571 netbox/dcim/forms/filtersets.py:683
@@ -4370,8 +4370,8 @@ msgstr "최대 무게"
 
 #: netbox/dcim/forms/bulk_edit.py:298 netbox/dcim/forms/bulk_edit.py:451
 #: netbox/dcim/forms/bulk_edit.py:547 netbox/dcim/forms/bulk_edit.py:603
-#: netbox/dcim/forms/bulk_import.py:236 netbox/dcim/forms/bulk_import.py:328
-#: netbox/dcim/forms/bulk_import.py:450 netbox/dcim/forms/bulk_import.py:498
+#: netbox/dcim/forms/bulk_import.py:237 netbox/dcim/forms/bulk_import.py:329
+#: netbox/dcim/forms/bulk_import.py:451 netbox/dcim/forms/bulk_import.py:499
 #: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:687
 #: netbox/dcim/forms/filtersets.py:799
 msgid "Weight unit"
@@ -4403,7 +4403,7 @@ msgstr "치수"
 msgid "Numbering"
 msgstr "번호 지정"
 
-#: netbox/dcim/forms/bulk_edit.py:377 netbox/dcim/forms/bulk_import.py:293
+#: netbox/dcim/forms/bulk_edit.py:377 netbox/dcim/forms/bulk_import.py:294
 #: netbox/dcim/forms/filtersets.py:434
 msgid "Rack type"
 msgstr "랙 유형"
@@ -4421,17 +4421,17 @@ msgstr "자산 태그"
 
 #: netbox/dcim/forms/bulk_edit.py:436 netbox/dcim/forms/bulk_edit.py:537
 #: netbox/dcim/forms/bulk_edit.py:593 netbox/dcim/forms/bulk_edit.py:724
-#: netbox/dcim/forms/bulk_import.py:322 netbox/dcim/forms/bulk_import.py:487
-#: netbox/dcim/forms/bulk_import.py:696 netbox/dcim/forms/filtersets.py:437
+#: netbox/dcim/forms/bulk_import.py:323 netbox/dcim/forms/bulk_import.py:488
+#: netbox/dcim/forms/bulk_import.py:697 netbox/dcim/forms/filtersets.py:437
 #: netbox/dcim/forms/filtersets.py:600 netbox/dcim/forms/filtersets.py:790
 #: netbox/dcim/forms/filtersets.py:946
 msgid "Airflow"
 msgstr "공기 흐름"
 
 #: netbox/dcim/forms/bulk_edit.py:460 netbox/dcim/forms/bulk_edit.py:937
-#: netbox/dcim/forms/bulk_import.py:378 netbox/dcim/forms/bulk_import.py:381
-#: netbox/dcim/forms/bulk_import.py:669 netbox/dcim/forms/bulk_import.py:1748
-#: netbox/dcim/forms/bulk_import.py:1752 netbox/dcim/forms/filtersets.py:125
+#: netbox/dcim/forms/bulk_import.py:379 netbox/dcim/forms/bulk_import.py:382
+#: netbox/dcim/forms/bulk_import.py:670 netbox/dcim/forms/bulk_import.py:1836
+#: netbox/dcim/forms/bulk_import.py:1840 netbox/dcim/forms/filtersets.py:125
 #: netbox/dcim/forms/filtersets.py:370 netbox/dcim/forms/filtersets.py:465
 #: netbox/dcim/forms/filtersets.py:479 netbox/dcim/forms/filtersets.py:525
 #: netbox/dcim/forms/filtersets.py:914 netbox/dcim/forms/filtersets.py:1130
@@ -4457,7 +4457,7 @@ msgstr "랙"
 msgid "Hardware"
 msgstr "하드웨어"
 
-#: netbox/dcim/forms/bulk_edit.py:513 netbox/dcim/forms/bulk_import.py:438
+#: netbox/dcim/forms/bulk_edit.py:513 netbox/dcim/forms/bulk_import.py:439
 #: netbox/dcim/forms/filtersets.py:583 netbox/dcim/forms/model_forms.py:416
 #: netbox/virtualization/forms/bulk_edit.py:85
 #: netbox/virtualization/forms/bulk_import.py:89
@@ -4496,8 +4496,8 @@ msgid "Schema"
 msgstr "스키마"
 
 #: netbox/dcim/forms/bulk_edit.py:572 netbox/dcim/forms/bulk_edit.py:579
-#: netbox/dcim/forms/bulk_edit.py:828 netbox/dcim/forms/bulk_import.py:476
-#: netbox/dcim/forms/bulk_import.py:1509 netbox/dcim/forms/filtersets.py:723
+#: netbox/dcim/forms/bulk_edit.py:828 netbox/dcim/forms/bulk_import.py:477
+#: netbox/dcim/forms/bulk_import.py:1597 netbox/dcim/forms/filtersets.py:723
 #: netbox/dcim/forms/filtersets.py:1146 netbox/dcim/forms/filtersets.py:1278
 #: netbox/dcim/forms/model_forms.py:463 netbox/dcim/forms/model_forms.py:476
 #: netbox/dcim/tables/modules.py:43 netbox/dcim/tables/modules.py:97
@@ -4530,10 +4530,10 @@ msgid "VM role"
 msgstr "VM 역할"
 
 #: netbox/dcim/forms/bulk_edit.py:637 netbox/dcim/forms/bulk_edit.py:661
-#: netbox/dcim/forms/bulk_edit.py:734 netbox/dcim/forms/bulk_import.py:540
-#: netbox/dcim/forms/bulk_import.py:544 netbox/dcim/forms/bulk_import.py:573
-#: netbox/dcim/forms/bulk_import.py:577 netbox/dcim/forms/bulk_import.py:702
-#: netbox/dcim/forms/bulk_import.py:706 netbox/dcim/forms/filtersets.py:815
+#: netbox/dcim/forms/bulk_edit.py:734 netbox/dcim/forms/bulk_import.py:541
+#: netbox/dcim/forms/bulk_import.py:545 netbox/dcim/forms/bulk_import.py:574
+#: netbox/dcim/forms/bulk_import.py:578 netbox/dcim/forms/bulk_import.py:703
+#: netbox/dcim/forms/bulk_import.py:707 netbox/dcim/forms/filtersets.py:815
 #: netbox/dcim/forms/filtersets.py:846 netbox/dcim/forms/filtersets.py:965
 #: netbox/dcim/forms/model_forms.py:554 netbox/dcim/forms/model_forms.py:591
 #: netbox/dcim/forms/model_forms.py:716
@@ -4545,19 +4545,19 @@ msgid "Config template"
 msgstr "설정 템플릿"
 
 #: netbox/dcim/forms/bulk_edit.py:680 netbox/dcim/forms/bulk_edit.py:1086
-#: netbox/dcim/forms/bulk_import.py:608 netbox/dcim/forms/filtersets.py:135
+#: netbox/dcim/forms/bulk_import.py:609 netbox/dcim/forms/filtersets.py:135
 #: netbox/dcim/forms/filtersets.py:1438 netbox/dcim/forms/model_forms.py:661
 #: netbox/dcim/forms/model_forms.py:1048 netbox/dcim/forms/model_forms.py:1065
 #: netbox/extras/filtersets.py:756
 msgid "Device type"
 msgstr "장비 유형"
 
-#: netbox/dcim/forms/bulk_edit.py:691 netbox/dcim/forms/bulk_import.py:589
+#: netbox/dcim/forms/bulk_edit.py:691 netbox/dcim/forms/bulk_import.py:590
 #: netbox/dcim/forms/filtersets.py:140 netbox/dcim/forms/model_forms.py:669
 msgid "Device role"
 msgstr "장비 역할"
 
-#: netbox/dcim/forms/bulk_edit.py:714 netbox/dcim/forms/bulk_import.py:614
+#: netbox/dcim/forms/bulk_edit.py:714 netbox/dcim/forms/bulk_import.py:615
 #: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/filtersets.py:938
 #: netbox/dcim/forms/model_forms.py:602 netbox/dcim/forms/model_forms.py:674
 #: netbox/dcim/tables/devices.py:191 netbox/extras/filtersets.py:772
@@ -4569,7 +4569,7 @@ msgstr "장비 역할"
 msgid "Platform"
 msgstr "플랫폼"
 
-#: netbox/dcim/forms/bulk_edit.py:739 netbox/dcim/forms/bulk_import.py:633
+#: netbox/dcim/forms/bulk_edit.py:739 netbox/dcim/forms/bulk_import.py:634
 #: netbox/dcim/forms/filtersets.py:870 netbox/dcim/forms/filtersets.py:1040
 #: netbox/dcim/forms/model_forms.py:683 netbox/dcim/tables/devices.py:211
 #: netbox/extras/filtersets.py:805 netbox/extras/forms/filtersets.py:411
@@ -4598,12 +4598,12 @@ msgstr "설정"
 msgid "Virtualization"
 msgstr "가상화"
 
-#: netbox/dcim/forms/bulk_edit.py:767 netbox/dcim/forms/bulk_import.py:775
+#: netbox/dcim/forms/bulk_edit.py:767 netbox/dcim/forms/bulk_import.py:776
 #: netbox/dcim/forms/model_forms.py:811 netbox/dcim/forms/model_forms.py:1073
 msgid "Module type"
 msgstr "모듈 유형"
 
-#: netbox/dcim/forms/bulk_edit.py:839 netbox/dcim/forms/bulk_import.py:1528
+#: netbox/dcim/forms/bulk_edit.py:839 netbox/dcim/forms/bulk_import.py:1616
 #: netbox/dcim/forms/filtersets.py:1305 netbox/dcim/forms/model_forms.py:888
 #: netbox/dcim/tables/cables.py:124
 msgid "Bundle"
@@ -4627,8 +4627,8 @@ msgstr "레이블"
 msgid "Length"
 msgstr "길이"
 
-#: netbox/dcim/forms/bulk_edit.py:858 netbox/dcim/forms/bulk_import.py:1535
-#: netbox/dcim/forms/bulk_import.py:1538 netbox/dcim/forms/filtersets.py:1291
+#: netbox/dcim/forms/bulk_edit.py:858 netbox/dcim/forms/bulk_import.py:1623
+#: netbox/dcim/forms/bulk_import.py:1626 netbox/dcim/forms/filtersets.py:1291
 msgid "Length unit"
 msgstr "길이 단위"
 
@@ -4636,17 +4636,17 @@ msgstr "길이 단위"
 msgid "Domain"
 msgstr "도메인"
 
-#: netbox/dcim/forms/bulk_edit.py:932 netbox/dcim/forms/bulk_import.py:1735
+#: netbox/dcim/forms/bulk_edit.py:932 netbox/dcim/forms/bulk_import.py:1823
 #: netbox/dcim/forms/filtersets.py:1384 netbox/dcim/forms/model_forms.py:927
 msgid "Power panel"
 msgstr "배전반"
 
-#: netbox/dcim/forms/bulk_edit.py:954 netbox/dcim/forms/bulk_import.py:1771
+#: netbox/dcim/forms/bulk_edit.py:954 netbox/dcim/forms/bulk_import.py:1859
 #: netbox/dcim/forms/filtersets.py:1406
 msgid "Supply"
 msgstr "공급 전원"
 
-#: netbox/dcim/forms/bulk_edit.py:960 netbox/dcim/forms/bulk_import.py:1776
+#: netbox/dcim/forms/bulk_edit.py:960 netbox/dcim/forms/bulk_import.py:1864
 #: netbox/dcim/forms/filtersets.py:1411
 msgid "Phase"
 msgstr "상(위상)"
@@ -4668,8 +4668,8 @@ msgid "Maximum draw"
 msgstr "최대 소비 전력"
 
 #: netbox/dcim/forms/bulk_edit.py:1064
-#: netbox/dcim/models/device_component_templates.py:302
-#: netbox/dcim/models/device_components.py:510
+#: netbox/dcim/models/device_component_templates.py:303
+#: netbox/dcim/models/device_components.py:511
 msgid "Maximum power draw (watts)"
 msgstr "최대 소비 전력 (와트)"
 
@@ -4678,18 +4678,18 @@ msgid "Allocated draw"
 msgstr "할당된 소비 전력"
 
 #: netbox/dcim/forms/bulk_edit.py:1070
-#: netbox/dcim/models/device_component_templates.py:309
-#: netbox/dcim/models/device_components.py:517
+#: netbox/dcim/models/device_component_templates.py:310
+#: netbox/dcim/models/device_components.py:518
 msgid "Allocated power draw (watts)"
 msgstr "할당된 소비 전력 (와트)"
 
-#: netbox/dcim/forms/bulk_edit.py:1107 netbox/dcim/forms/bulk_import.py:908
+#: netbox/dcim/forms/bulk_edit.py:1107 netbox/dcim/forms/bulk_import.py:909
 #: netbox/dcim/forms/model_forms.py:1144 netbox/dcim/forms/model_forms.py:1509
 #: netbox/dcim/forms/model_forms.py:1838 netbox/dcim/forms/object_import.py:56
 msgid "Power port"
 msgstr "전원 포트"
 
-#: netbox/dcim/forms/bulk_edit.py:1112 netbox/dcim/forms/bulk_import.py:915
+#: netbox/dcim/forms/bulk_edit.py:1112 netbox/dcim/forms/bulk_import.py:916
 msgid "Feed leg"
 msgstr "피드 레그"
 
@@ -4699,18 +4699,18 @@ msgid "Management only"
 msgstr "관리 전용"
 
 #: netbox/dcim/forms/bulk_edit.py:1168 netbox/dcim/forms/bulk_edit.py:1495
-#: netbox/dcim/forms/bulk_import.py:1001 netbox/dcim/forms/filtersets.py:1711
+#: netbox/dcim/forms/bulk_import.py:1002 netbox/dcim/forms/filtersets.py:1711
 #: netbox/dcim/forms/filtersets.py:1796 netbox/dcim/forms/object_import.py:91
-#: netbox/dcim/models/device_component_templates.py:472
-#: netbox/dcim/models/device_components.py:929 netbox/dcim/ui/panels.py:494
+#: netbox/dcim/models/device_component_templates.py:473
+#: netbox/dcim/models/device_components.py:930 netbox/dcim/ui/panels.py:494
 msgid "PoE mode"
 msgstr "PoE 모드"
 
 #: netbox/dcim/forms/bulk_edit.py:1174 netbox/dcim/forms/bulk_edit.py:1501
-#: netbox/dcim/forms/bulk_import.py:1007 netbox/dcim/forms/filtersets.py:1716
+#: netbox/dcim/forms/bulk_import.py:1008 netbox/dcim/forms/filtersets.py:1716
 #: netbox/dcim/forms/filtersets.py:1801 netbox/dcim/forms/object_import.py:96
-#: netbox/dcim/models/device_component_templates.py:479
-#: netbox/dcim/models/device_components.py:936 netbox/dcim/ui/panels.py:495
+#: netbox/dcim/models/device_component_templates.py:480
+#: netbox/dcim/models/device_components.py:937 netbox/dcim/ui/panels.py:495
 msgid "PoE type"
 msgstr "PoE 유형"
 
@@ -4733,7 +4733,7 @@ msgstr "LAG"
 msgid "Virtual device contexts"
 msgstr "가상 장비 컨텍스트"
 
-#: netbox/dcim/forms/bulk_edit.py:1509 netbox/dcim/forms/bulk_import.py:1010
+#: netbox/dcim/forms/bulk_edit.py:1509 netbox/dcim/forms/bulk_import.py:1011
 #: netbox/virtualization/forms/bulk_edit.py:252
 #: netbox/virtualization/forms/bulk_import.py:205
 #: netbox/vpn/forms/bulk_edit.py:128 netbox/vpn/forms/bulk_edit.py:196
@@ -4744,7 +4744,7 @@ msgstr "가상 장비 컨텍스트"
 msgid "Mode"
 msgstr "모드"
 
-#: netbox/dcim/forms/bulk_edit.py:1517 netbox/dcim/forms/bulk_import.py:1016
+#: netbox/dcim/forms/bulk_edit.py:1517 netbox/dcim/forms/bulk_import.py:1017
 #: netbox/dcim/forms/model_forms.py:1585 netbox/ipam/forms/bulk_import.py:184
 #: netbox/ipam/forms/filtersets.py:603 netbox/ipam/models/vlans.py:99
 #: netbox/virtualization/forms/bulk_edit.py:259
@@ -4753,7 +4753,7 @@ msgstr "모드"
 msgid "VLAN group"
 msgstr "VLAN 그룹"
 
-#: netbox/dcim/forms/bulk_edit.py:1526 netbox/dcim/forms/bulk_import.py:1023
+#: netbox/dcim/forms/bulk_edit.py:1526 netbox/dcim/forms/bulk_import.py:1024
 #: netbox/dcim/forms/model_forms.py:1591 netbox/dcim/tables/devices.py:627
 #: netbox/dcim/ui/panels.py:498 netbox/virtualization/forms/bulk_edit.py:267
 #: netbox/virtualization/forms/bulk_import.py:218
@@ -4761,7 +4761,7 @@ msgstr "VLAN 그룹"
 msgid "Untagged VLAN"
 msgstr "태그 없는 VLAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1535 netbox/dcim/forms/bulk_import.py:1030
+#: netbox/dcim/forms/bulk_edit.py:1535 netbox/dcim/forms/bulk_import.py:1031
 #: netbox/dcim/forms/model_forms.py:1600 netbox/dcim/tables/devices.py:633
 #: netbox/virtualization/forms/bulk_edit.py:275
 #: netbox/virtualization/forms/bulk_import.py:225
@@ -4777,7 +4777,7 @@ msgstr "태그된 VLAN 추가"
 msgid "Remove tagged VLANs"
 msgstr "태그된 VLAN 제거"
 
-#: netbox/dcim/forms/bulk_edit.py:1558 netbox/dcim/forms/bulk_import.py:1043
+#: netbox/dcim/forms/bulk_edit.py:1558 netbox/dcim/forms/bulk_import.py:1044
 #: netbox/dcim/forms/model_forms.py:1609
 #: netbox/virtualization/forms/bulk_import.py:238
 #: netbox/virtualization/forms/model_forms.py:439
@@ -4845,336 +4845,336 @@ msgstr "VLAN을 할당하려면 인터페이스 모드를 지정해야 합니다
 msgid "An access interface cannot have tagged VLANs assigned."
 msgstr "액세스 인터페이스에는 태그된 VLAN을 할당할 수 없습니다."
 
-#: netbox/dcim/forms/bulk_import.py:81
+#: netbox/dcim/forms/bulk_import.py:82
 msgid "Name of parent region"
 msgstr "상위 지역 이름"
 
-#: netbox/dcim/forms/bulk_import.py:95
+#: netbox/dcim/forms/bulk_import.py:96
 msgid "Name of parent site group"
 msgstr "상위 사이트 그룹 이름"
 
-#: netbox/dcim/forms/bulk_import.py:114
+#: netbox/dcim/forms/bulk_import.py:115
 msgid "Assigned region"
 msgstr "할당된 지역"
 
-#: netbox/dcim/forms/bulk_import.py:121 netbox/tenancy/forms/bulk_import.py:50
+#: netbox/dcim/forms/bulk_import.py:122 netbox/tenancy/forms/bulk_import.py:50
 #: netbox/wireless/forms/bulk_import.py:41
 msgid "Assigned group"
 msgstr "할당된 그룹"
 
-#: netbox/dcim/forms/bulk_import.py:140
+#: netbox/dcim/forms/bulk_import.py:141
 msgid "available options"
 msgstr "사용 가능한 옵션"
 
-#: netbox/dcim/forms/bulk_import.py:151 netbox/dcim/forms/bulk_import.py:659
-#: netbox/dcim/forms/bulk_import.py:1732 netbox/ipam/forms/bulk_import.py:519
+#: netbox/dcim/forms/bulk_import.py:152 netbox/dcim/forms/bulk_import.py:660
+#: netbox/dcim/forms/bulk_import.py:1820 netbox/ipam/forms/bulk_import.py:519
 #: netbox/virtualization/forms/bulk_import.py:66
 msgid "Assigned site"
 msgstr "할당된 사이트"
 
-#: netbox/dcim/forms/bulk_import.py:158
+#: netbox/dcim/forms/bulk_import.py:159
 msgid "Parent location"
 msgstr "상위 구역"
 
-#: netbox/dcim/forms/bulk_import.py:160
+#: netbox/dcim/forms/bulk_import.py:161
 msgid "Location not found."
 msgstr "구역을 찾을 수 없습니다."
 
-#: netbox/dcim/forms/bulk_import.py:211
+#: netbox/dcim/forms/bulk_import.py:212
 msgid "The manufacturer of this rack type"
 msgstr "이 랙 유형의 제조사"
 
-#: netbox/dcim/forms/bulk_import.py:222
+#: netbox/dcim/forms/bulk_import.py:223
 msgid "The lowest-numbered position in the rack"
 msgstr "랙에서 가장 낮은 번호의 위치"
 
-#: netbox/dcim/forms/bulk_import.py:227 netbox/dcim/forms/bulk_import.py:309
+#: netbox/dcim/forms/bulk_import.py:228 netbox/dcim/forms/bulk_import.py:310
 msgid "Rail-to-rail width (in inches)"
 msgstr "레일 간 너비 (인치)"
 
-#: netbox/dcim/forms/bulk_import.py:233 netbox/dcim/forms/bulk_import.py:319
+#: netbox/dcim/forms/bulk_import.py:234 netbox/dcim/forms/bulk_import.py:320
 msgid "Unit for outer dimensions"
 msgstr "외형 치수 단위"
 
-#: netbox/dcim/forms/bulk_import.py:239 netbox/dcim/forms/bulk_import.py:331
+#: netbox/dcim/forms/bulk_import.py:240 netbox/dcim/forms/bulk_import.py:332
 msgid "Unit for rack weights"
 msgstr "랙 무게 단위"
 
-#: netbox/dcim/forms/bulk_import.py:271
+#: netbox/dcim/forms/bulk_import.py:272
 msgid "Name of assigned tenant"
 msgstr "할당된 테넌트 이름"
 
-#: netbox/dcim/forms/bulk_import.py:274 netbox/dcim/forms/filtersets.py:410
+#: netbox/dcim/forms/bulk_import.py:275 netbox/dcim/forms/filtersets.py:410
 #: netbox/dcim/forms/filtersets.py:515 netbox/dcim/ui/panels.py:47
 #: netbox/ipam/forms/filtersets.py:497
 msgid "Rack group"
 msgstr "랙 그룹"
 
-#: netbox/dcim/forms/bulk_import.py:278
+#: netbox/dcim/forms/bulk_import.py:279
 msgid "Name of assigned group"
 msgstr "할당된 그룹 이름"
 
-#: netbox/dcim/forms/bulk_import.py:290
+#: netbox/dcim/forms/bulk_import.py:291
 msgid "Name of assigned role"
 msgstr "할당된 역할 이름"
 
-#: netbox/dcim/forms/bulk_import.py:297
+#: netbox/dcim/forms/bulk_import.py:298
 msgid "Rack type model"
 msgstr "랙 유형 모델"
 
-#: netbox/dcim/forms/bulk_import.py:325 netbox/dcim/forms/bulk_import.py:490
-#: netbox/dcim/forms/bulk_import.py:699
+#: netbox/dcim/forms/bulk_import.py:326 netbox/dcim/forms/bulk_import.py:491
+#: netbox/dcim/forms/bulk_import.py:700
 msgid "Airflow direction"
 msgstr "공기 흐름 방향"
 
-#: netbox/dcim/forms/bulk_import.py:358
+#: netbox/dcim/forms/bulk_import.py:359
 msgid "Width must be set if not specifying a rack type."
 msgstr "랙 유형을 지정하지 않으면 너비를 설정해야 합니다."
 
-#: netbox/dcim/forms/bulk_import.py:360
+#: netbox/dcim/forms/bulk_import.py:361
 msgid "U height must be set if not specifying a rack type."
 msgstr "랙 유형을 지정하지 않으면 U 높이를 설정해야 합니다."
 
-#: netbox/dcim/forms/bulk_import.py:368
+#: netbox/dcim/forms/bulk_import.py:369
 msgid "Parent site"
 msgstr "상위 사이트"
 
-#: netbox/dcim/forms/bulk_import.py:375 netbox/dcim/forms/bulk_import.py:1745
+#: netbox/dcim/forms/bulk_import.py:376 netbox/dcim/forms/bulk_import.py:1833
 msgid "Rack's location (if any)"
 msgstr "랙의 구역 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:384 netbox/dcim/forms/model_forms.py:376
+#: netbox/dcim/forms/bulk_import.py:385 netbox/dcim/forms/model_forms.py:376
 #: netbox/dcim/tables/racks.py:242
 #: netbox/templates/dcim/rackreservation.html:7
 msgid "Units"
 msgstr "단위"
 
-#: netbox/dcim/forms/bulk_import.py:387
+#: netbox/dcim/forms/bulk_import.py:388
 msgid "Comma-separated list of individual unit numbers"
 msgstr "쉼표로 구분된 개별 유닛 번호 목록"
 
-#: netbox/dcim/forms/bulk_import.py:435
+#: netbox/dcim/forms/bulk_import.py:436
 msgid "The manufacturer which produces this device type"
 msgstr "이 장비 유형을 생산하는 제조사"
 
-#: netbox/dcim/forms/bulk_import.py:442
+#: netbox/dcim/forms/bulk_import.py:443
 msgid "The default platform for devices of this type (optional)"
 msgstr "이 유형 장비의 기본 플랫폼 (선택)"
 
-#: netbox/dcim/forms/bulk_import.py:447
+#: netbox/dcim/forms/bulk_import.py:448
 msgid "Device weight"
 msgstr "장비 무게"
 
-#: netbox/dcim/forms/bulk_import.py:453
+#: netbox/dcim/forms/bulk_import.py:454
 msgid "Unit for device weight"
 msgstr "장비 무게 단위"
 
-#: netbox/dcim/forms/bulk_import.py:495
+#: netbox/dcim/forms/bulk_import.py:496
 msgid "Module weight"
 msgstr "모듈 무게"
 
-#: netbox/dcim/forms/bulk_import.py:501
+#: netbox/dcim/forms/bulk_import.py:502
 msgid "Unit for module weight"
 msgstr "모듈 무게 단위"
 
-#: netbox/dcim/forms/bulk_import.py:506
+#: netbox/dcim/forms/bulk_import.py:507
 msgid "Attribute values for the assigned profile, passed as a dictionary"
 msgstr "딕셔너리로 전달되는 할당된 프로필의 속성 값"
 
-#: netbox/dcim/forms/bulk_import.py:521
+#: netbox/dcim/forms/bulk_import.py:522
 msgid "Profile must be specified if attribute data is provided."
 msgstr "속성 데이터를 제공하려면 프로필을 지정해야 합니다."
 
-#: netbox/dcim/forms/bulk_import.py:534
+#: netbox/dcim/forms/bulk_import.py:535
 msgid "Parent Device Role"
 msgstr "상위 장비 역할"
 
-#: netbox/dcim/forms/bulk_import.py:536
+#: netbox/dcim/forms/bulk_import.py:537
 msgid "Device role not found."
 msgstr "장비 역할을 찾을 수 없습니다."
 
-#: netbox/dcim/forms/bulk_import.py:560
+#: netbox/dcim/forms/bulk_import.py:561
 msgid "Parent platform"
 msgstr "상위 플랫폼"
 
-#: netbox/dcim/forms/bulk_import.py:562
+#: netbox/dcim/forms/bulk_import.py:563
 msgid "Platform not found."
 msgstr "플랫폼을 찾을 수 없습니다."
 
-#: netbox/dcim/forms/bulk_import.py:570
+#: netbox/dcim/forms/bulk_import.py:571
 msgid "Limit platform assignments to this manufacturer"
 msgstr "플랫폼 할당을 이 제조사로 제한"
 
-#: netbox/dcim/forms/bulk_import.py:592 netbox/dcim/forms/bulk_import.py:1814
+#: netbox/dcim/forms/bulk_import.py:593 netbox/dcim/forms/bulk_import.py:1902
 #: netbox/tenancy/forms/bulk_import.py:116
 msgid "Assigned role"
 msgstr "할당된 역할"
 
-#: netbox/dcim/forms/bulk_import.py:605
+#: netbox/dcim/forms/bulk_import.py:606
 msgid "Device type manufacturer"
 msgstr "장비 유형 제조사"
 
-#: netbox/dcim/forms/bulk_import.py:611
+#: netbox/dcim/forms/bulk_import.py:612
 msgid "Device type model"
 msgstr "장비 유형 모델"
 
-#: netbox/dcim/forms/bulk_import.py:618
+#: netbox/dcim/forms/bulk_import.py:619
 #: netbox/virtualization/forms/bulk_import.py:165
 msgid "Assigned platform"
 msgstr "할당된 플랫폼"
 
-#: netbox/dcim/forms/bulk_import.py:626 netbox/dcim/forms/bulk_import.py:630
+#: netbox/dcim/forms/bulk_import.py:627 netbox/dcim/forms/bulk_import.py:631
 #: netbox/dcim/forms/model_forms.py:697
 msgid "Virtual chassis"
 msgstr "가상 섀시"
 
-#: netbox/dcim/forms/bulk_import.py:637
+#: netbox/dcim/forms/bulk_import.py:638
 msgid "Virtualization cluster"
 msgstr "가상화 클러스터"
 
-#: netbox/dcim/forms/bulk_import.py:666
+#: netbox/dcim/forms/bulk_import.py:667
 msgid "Assigned location (if any)"
 msgstr "할당된 구역 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:673
+#: netbox/dcim/forms/bulk_import.py:674
 msgid "Assigned rack (if any)"
 msgstr "할당된 랙 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:676 netbox/dcim/forms/model_forms.py:653
+#: netbox/dcim/forms/bulk_import.py:677 netbox/dcim/forms/model_forms.py:653
 msgid "Face"
 msgstr "면"
 
-#: netbox/dcim/forms/bulk_import.py:679
+#: netbox/dcim/forms/bulk_import.py:680
 msgid "Mounted rack face"
 msgstr "랙 장착 면"
 
-#: netbox/dcim/forms/bulk_import.py:686
+#: netbox/dcim/forms/bulk_import.py:687
 msgid "Parent device (for child devices)"
 msgstr "상위 장비 (하위 장비용)"
 
-#: netbox/dcim/forms/bulk_import.py:689
+#: netbox/dcim/forms/bulk_import.py:690
 msgid "Device bay"
 msgstr "장비 베이"
 
-#: netbox/dcim/forms/bulk_import.py:693
+#: netbox/dcim/forms/bulk_import.py:694
 msgid "Device bay in which this device is installed (for child devices)"
 msgstr "이 장비가 설치된 장비 베이 (하위 장비용)"
 
-#: netbox/dcim/forms/bulk_import.py:766
+#: netbox/dcim/forms/bulk_import.py:767
 msgid "The device in which this module is installed"
 msgstr "이 모듈이 설치된 장비"
 
-#: netbox/dcim/forms/bulk_import.py:769 netbox/dcim/forms/model_forms.py:801
+#: netbox/dcim/forms/bulk_import.py:770 netbox/dcim/forms/model_forms.py:801
 msgid "Module bay"
 msgstr "모듈 베이"
 
-#: netbox/dcim/forms/bulk_import.py:772
+#: netbox/dcim/forms/bulk_import.py:773
 msgid "The module bay in which this module is installed"
 msgstr "이 모듈이 설치된 모듈 베이"
 
-#: netbox/dcim/forms/bulk_import.py:778
+#: netbox/dcim/forms/bulk_import.py:779
 msgid "The type of module"
 msgstr "모듈 유형"
 
-#: netbox/dcim/forms/bulk_import.py:788
+#: netbox/dcim/forms/bulk_import.py:789
 msgid ""
 "Automatically populate components associated with this module type (enabled "
 "by default)"
 msgstr "이 모듈 유형과 연관된 구성 요소를 자동으로 채우기 (기본 활성화)"
 
-#: netbox/dcim/forms/bulk_import.py:832 netbox/dcim/forms/bulk_import.py:858
-#: netbox/dcim/forms/bulk_import.py:884
+#: netbox/dcim/forms/bulk_import.py:833 netbox/dcim/forms/bulk_import.py:859
+#: netbox/dcim/forms/bulk_import.py:885
 msgid "Port type"
 msgstr "포트 유형"
 
-#: netbox/dcim/forms/bulk_import.py:840 netbox/dcim/forms/bulk_import.py:866
+#: netbox/dcim/forms/bulk_import.py:841 netbox/dcim/forms/bulk_import.py:867
 msgid "Port speed in bps"
 msgstr "포트 속도 (bps)"
 
-#: netbox/dcim/forms/bulk_import.py:905
+#: netbox/dcim/forms/bulk_import.py:906
 msgid "Outlet type"
 msgstr "콘센트 유형"
 
-#: netbox/dcim/forms/bulk_import.py:912
+#: netbox/dcim/forms/bulk_import.py:913
 msgid "Local power port which feeds this outlet"
 msgstr "이 콘센트에 전원을 공급하는 로컬 전원 포트"
 
-#: netbox/dcim/forms/bulk_import.py:918
+#: netbox/dcim/forms/bulk_import.py:919
 msgid "Electrical phase (for three-phase circuits)"
 msgstr "전기 상 (3상 회로용)"
 
-#: netbox/dcim/forms/bulk_import.py:962 netbox/dcim/forms/model_forms.py:1547
+#: netbox/dcim/forms/bulk_import.py:963 netbox/dcim/forms/model_forms.py:1547
 #: netbox/virtualization/forms/bulk_import.py:195
 #: netbox/virtualization/forms/model_forms.py:400
 msgid "Parent interface"
 msgstr "상위 인터페이스"
 
-#: netbox/dcim/forms/bulk_import.py:969 netbox/dcim/forms/model_forms.py:1555
+#: netbox/dcim/forms/bulk_import.py:970 netbox/dcim/forms/model_forms.py:1555
 #: netbox/virtualization/forms/bulk_import.py:202
 #: netbox/virtualization/forms/model_forms.py:408
 msgid "Bridged interface"
 msgstr "브리지된 인터페이스"
 
-#: netbox/dcim/forms/bulk_import.py:972
+#: netbox/dcim/forms/bulk_import.py:973
 msgid "Lag"
 msgstr "LAG"
 
-#: netbox/dcim/forms/bulk_import.py:976
+#: netbox/dcim/forms/bulk_import.py:977
 msgid "Parent LAG interface"
 msgstr "상위 LAG 인터페이스"
 
-#: netbox/dcim/forms/bulk_import.py:979
+#: netbox/dcim/forms/bulk_import.py:980
 msgid "Vdcs"
 msgstr "VDC"
 
-#: netbox/dcim/forms/bulk_import.py:984
+#: netbox/dcim/forms/bulk_import.py:985
 msgid "VDC names separated by commas, encased with double quotes. Example:"
 msgstr "큰따옴표로 감싼 쉼표 구분 VDC 이름. 예:"
 
-#: netbox/dcim/forms/bulk_import.py:990
+#: netbox/dcim/forms/bulk_import.py:991
 msgid "Physical medium"
 msgstr "물리 매체"
 
-#: netbox/dcim/forms/bulk_import.py:993 netbox/dcim/forms/filtersets.py:1682
+#: netbox/dcim/forms/bulk_import.py:994 netbox/dcim/forms/filtersets.py:1682
 msgid "Duplex"
 msgstr "듀플렉스"
 
-#: netbox/dcim/forms/bulk_import.py:998
+#: netbox/dcim/forms/bulk_import.py:999
 msgid "Poe mode"
 msgstr "PoE 모드"
 
-#: netbox/dcim/forms/bulk_import.py:1004
+#: netbox/dcim/forms/bulk_import.py:1005
 msgid "Poe type"
 msgstr "PoE 유형"
 
-#: netbox/dcim/forms/bulk_import.py:1013
+#: netbox/dcim/forms/bulk_import.py:1014
 #: netbox/virtualization/forms/bulk_import.py:208
 msgid "IEEE 802.1Q operational mode (for L2 interfaces)"
 msgstr "IEEE 802.1Q 운영 모드 (L2 인터페이스용)"
 
-#: netbox/dcim/forms/bulk_import.py:1020
+#: netbox/dcim/forms/bulk_import.py:1021
 #: netbox/virtualization/forms/bulk_import.py:215
 msgid "Filter VLANs available for assignment by group"
 msgstr "할당 가능한 VLAN을 그룹별로 필터링"
 
-#: netbox/dcim/forms/bulk_import.py:1027
+#: netbox/dcim/forms/bulk_import.py:1028
 #: netbox/virtualization/forms/bulk_import.py:222
 msgid "Assigned untagged VLAN ID (filtered by VLAN group)"
 msgstr "할당된 태그 없는 VLAN ID (VLAN 그룹으로 필터링)"
 
-#: netbox/dcim/forms/bulk_import.py:1036
+#: netbox/dcim/forms/bulk_import.py:1037
 #: netbox/virtualization/forms/bulk_import.py:231
 msgid ""
 "Assigned tagged VLAN IDs separated by commas, encased with double quotes "
 "(filtered by VLAN group). Example:"
 msgstr "큰따옴표로 감싼 쉼표 구분 할당 태그 VLAN ID (VLAN 그룹으로 필터링). 예:"
 
-#: netbox/dcim/forms/bulk_import.py:1047
+#: netbox/dcim/forms/bulk_import.py:1048
 #: netbox/virtualization/forms/bulk_import.py:242
 msgid "Assigned Q-in-Q Service VLAN ID (filtered by VLAN group)"
 msgstr "할당된 Q-in-Q 서비스 VLAN ID (VLAN 그룹으로 필터링)"
 
-#: netbox/dcim/forms/bulk_import.py:1054 netbox/ipam/forms/bulk_import.py:174
+#: netbox/dcim/forms/bulk_import.py:1055 netbox/ipam/forms/bulk_import.py:174
 #: netbox/ipam/forms/bulk_import.py:259 netbox/ipam/forms/bulk_import.py:295
 #: netbox/ipam/forms/filtersets.py:230 netbox/ipam/forms/filtersets.py:314
 #: netbox/ipam/forms/filtersets.py:383
@@ -5182,74 +5182,104 @@ msgstr "할당된 Q-in-Q 서비스 VLAN ID (VLAN 그룹으로 필터링)"
 msgid "Assigned VRF"
 msgstr "할당된 VRF"
 
-#: netbox/dcim/forms/bulk_import.py:1057
+#: netbox/dcim/forms/bulk_import.py:1058
 msgid "Rf role"
 msgstr "RF 역할"
 
-#: netbox/dcim/forms/bulk_import.py:1060
+#: netbox/dcim/forms/bulk_import.py:1061
 msgid "Wireless role (AP/station)"
 msgstr "무선 역할 (AP/스테이션)"
 
-#: netbox/dcim/forms/bulk_import.py:1103
+#: netbox/dcim/forms/bulk_import.py:1104
 #, python-brace-format
 msgid "VDC {vdc} is not assigned to device {device}"
 msgstr "VDC {vdc}은(는) 장비 {device}에 할당되어 있지 않습니다"
 
-#: netbox/dcim/forms/bulk_import.py:1119 netbox/dcim/forms/bulk_import.py:1137
-#: netbox/dcim/forms/bulk_import.py:1518
+#: netbox/dcim/forms/bulk_import.py:1120 netbox/dcim/forms/bulk_import.py:1225
+#: netbox/dcim/forms/bulk_import.py:1606
 msgid "Physical medium classification"
 msgstr "물리 매체 분류"
 
-#: netbox/dcim/forms/bulk_import.py:1173
+#: netbox/dcim/forms/bulk_import.py:1123 netbox/dcim/forms/model_forms.py:1846
+#: netbox/dcim/forms/object_import.py:145
+msgid "Rear port"
+msgstr "후면 포트"
+
+#: netbox/dcim/forms/bulk_import.py:1126
+msgid "Corresponding rear port (mapped to the front port's first position)"
+msgstr "해당 후면 포트 (전면 포트의 첫 번째 위치에 매핑됨)"
+
+#: netbox/dcim/forms/bulk_import.py:1129
+msgid "Rear port position"
+msgstr "후면 포트 위치"
+
+#: netbox/dcim/forms/bulk_import.py:1131
+msgid "Mapped position on the corresponding rear port (defaults to 1)"
+msgstr "해당 후면 포트의 매핑된 위치 (기본값 1)"
+
+#: netbox/dcim/forms/bulk_import.py:1175 netbox/dcim/models/base.py:59
+#, python-brace-format
+msgid ""
+"Invalid rear port position ({rear_port_position}): Rear port {name} has only"
+" {positions} positions."
+msgstr ""
+"잘못된 후면 포트 위치({rear_port_position}): 후면 포트 {name}에는 {positions}개 위치만 있습니다."
+
+#: netbox/dcim/forms/bulk_import.py:1193
+#, python-brace-format
+msgid "Rear port {name} position {rear_port_position} is already occupied."
+msgstr "후면 포트 {name} 위치를 지정합니다 {rear_port_position} 이미 점령됐어."
+
+#: netbox/dcim/forms/bulk_import.py:1261
 msgid "Installed device"
 msgstr "설치된 장비"
 
-#: netbox/dcim/forms/bulk_import.py:1177
+#: netbox/dcim/forms/bulk_import.py:1265
 msgid "Child device installed within this bay"
 msgstr "이 베이에 설치된 하위 장비"
 
-#: netbox/dcim/forms/bulk_import.py:1179
+#: netbox/dcim/forms/bulk_import.py:1267
 msgid "Child device not found."
 msgstr "하위 장비를 찾을 수 없습니다."
 
-#: netbox/dcim/forms/bulk_import.py:1243
+#: netbox/dcim/forms/bulk_import.py:1331
 msgid "Parent inventory item"
 msgstr "상위 인벤토리 항목"
 
-#: netbox/dcim/forms/bulk_import.py:1246
+#: netbox/dcim/forms/bulk_import.py:1334
 msgid "Component type"
 msgstr "구성 요소 유형"
 
-#: netbox/dcim/forms/bulk_import.py:1250
+#: netbox/dcim/forms/bulk_import.py:1338
 msgid "Component Type"
 msgstr "구성 요소 유형"
 
-#: netbox/dcim/forms/bulk_import.py:1253
+#: netbox/dcim/forms/bulk_import.py:1341
 msgid "Component name"
 msgstr "구성 요소 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1255
+#: netbox/dcim/forms/bulk_import.py:1343
 msgid "Component Name"
 msgstr "구성 요소 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1298 netbox/dcim/forms/bulk_import.py:1316
+#: netbox/dcim/forms/bulk_import.py:1386 netbox/dcim/forms/bulk_import.py:1404
 msgid "Component name must be specified when component type is specified"
 msgstr "구성 요소 유형을 지정할 때는 구성 요소 이름을 지정해야 합니다"
 
-#: netbox/dcim/forms/bulk_import.py:1308
+#: netbox/dcim/forms/bulk_import.py:1396
 #, python-brace-format
 msgid "Component not found: {device} - {component_name}"
 msgstr "구성 요소를 찾을 수 없음: {device} - {component_name}"
 
-#: netbox/dcim/forms/bulk_import.py:1321
+#: netbox/dcim/forms/bulk_import.py:1409
 msgid "Component type must be specified when component name is specified"
 msgstr "구성 요소 이름을 지정할 때는 구성 요소 유형을 지정해야 합니다"
 
-#: netbox/dcim/forms/bulk_import.py:1348 netbox/ipam/forms/bulk_import.py:320
+#: netbox/dcim/forms/bulk_import.py:1436 netbox/ipam/forms/bulk_import.py:320
 msgid "Parent device of assigned interface (if any)"
 msgstr "할당된 인터페이스의 상위 장비 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:1351 netbox/ipam/forms/bulk_import.py:323
+#: netbox/dcim/forms/bulk_import.py:1439 netbox/ipam/forms/bulk_import.py:323
 #: netbox/virtualization/filtersets.py:354
 #: netbox/virtualization/filtersets.py:412
 #: netbox/virtualization/forms/bulk_edit.py:219
@@ -5263,187 +5293,187 @@ msgstr "할당된 인터페이스의 상위 장비 (있는 경우)"
 msgid "Virtual machine"
 msgstr "가상 머신"
 
-#: netbox/dcim/forms/bulk_import.py:1355 netbox/ipam/forms/bulk_import.py:327
+#: netbox/dcim/forms/bulk_import.py:1443 netbox/ipam/forms/bulk_import.py:327
 msgid "Parent VM of assigned interface (if any)"
 msgstr "할당된 인터페이스의 상위 VM (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:1362 netbox/ipam/filtersets.py:1107
+#: netbox/dcim/forms/bulk_import.py:1450 netbox/ipam/filtersets.py:1111
 #: netbox/ipam/forms/bulk_import.py:334
 msgid "Assigned interface"
 msgstr "할당된 인터페이스"
 
-#: netbox/dcim/forms/bulk_import.py:1366
+#: netbox/dcim/forms/bulk_import.py:1454
 msgid "Make this the primary MAC address for the assigned interface"
 msgstr "이 MAC 주소를 할당된 인터페이스의 기본 MAC 주소로 설정"
 
-#: netbox/dcim/forms/bulk_import.py:1404
+#: netbox/dcim/forms/bulk_import.py:1492
 msgid "Must specify the parent device or VM when assigning an interface"
 msgstr "인터페이스를 할당할 때는 상위 장비 또는 VM을 지정해야 합니다"
 
-#: netbox/dcim/forms/bulk_import.py:1437
+#: netbox/dcim/forms/bulk_import.py:1525
 msgid "Side A site"
 msgstr "A측 사이트"
 
-#: netbox/dcim/forms/bulk_import.py:1441
+#: netbox/dcim/forms/bulk_import.py:1529
 #: netbox/wireless/forms/bulk_import.py:93
 msgid "Site of parent device A (if any)"
 msgstr "상위 장비 A의 사이트 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:1444
+#: netbox/dcim/forms/bulk_import.py:1532
 msgid "Side A device"
 msgstr "A측 장비"
 
-#: netbox/dcim/forms/bulk_import.py:1448 netbox/dcim/forms/bulk_import.py:1481
+#: netbox/dcim/forms/bulk_import.py:1536 netbox/dcim/forms/bulk_import.py:1569
 msgid "Device name (for device component terminations)"
 msgstr "장비 이름 (장비 구성 요소 종단용)"
 
-#: netbox/dcim/forms/bulk_import.py:1451
+#: netbox/dcim/forms/bulk_import.py:1539
 msgid "Side A power panel"
 msgstr "A측 배전반"
 
-#: netbox/dcim/forms/bulk_import.py:1455 netbox/dcim/forms/bulk_import.py:1488
+#: netbox/dcim/forms/bulk_import.py:1543 netbox/dcim/forms/bulk_import.py:1576
 msgid "Power panel name (for power feed terminations)"
 msgstr "배전반 이름 (전원 피드 종단용)"
 
-#: netbox/dcim/forms/bulk_import.py:1458
+#: netbox/dcim/forms/bulk_import.py:1546
 msgid "Side A type"
 msgstr "A측 유형"
 
-#: netbox/dcim/forms/bulk_import.py:1464
+#: netbox/dcim/forms/bulk_import.py:1552
 msgid "Side A name"
 msgstr "A측 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1465 netbox/dcim/forms/bulk_import.py:1498
+#: netbox/dcim/forms/bulk_import.py:1553 netbox/dcim/forms/bulk_import.py:1586
 msgid "Termination name"
 msgstr "종단 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1470
+#: netbox/dcim/forms/bulk_import.py:1558
 msgid "Side B site"
 msgstr "B측 사이트"
 
-#: netbox/dcim/forms/bulk_import.py:1474
+#: netbox/dcim/forms/bulk_import.py:1562
 #: netbox/wireless/forms/bulk_import.py:114
 msgid "Site of parent device B (if any)"
 msgstr "상위 장비 B의 사이트 (있는 경우)"
 
-#: netbox/dcim/forms/bulk_import.py:1477
+#: netbox/dcim/forms/bulk_import.py:1565
 msgid "Side B device"
 msgstr "B측 장비"
 
-#: netbox/dcim/forms/bulk_import.py:1484
+#: netbox/dcim/forms/bulk_import.py:1572
 msgid "Side B power panel"
 msgstr "B측 배전반"
 
-#: netbox/dcim/forms/bulk_import.py:1491
+#: netbox/dcim/forms/bulk_import.py:1579
 msgid "Side B type"
 msgstr "B측 유형"
 
-#: netbox/dcim/forms/bulk_import.py:1497
+#: netbox/dcim/forms/bulk_import.py:1585
 msgid "Side B name"
 msgstr "B측 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1506
+#: netbox/dcim/forms/bulk_import.py:1594
 #: netbox/templates/dcim/panels/connection.html:60
 #: netbox/wireless/forms/bulk_import.py:133
 msgid "Connection status"
 msgstr "연결 상태"
 
-#: netbox/dcim/forms/bulk_import.py:1512
+#: netbox/dcim/forms/bulk_import.py:1600
 msgid "Cable connection profile"
 msgstr "케이블 연결 프로필"
 
-#: netbox/dcim/forms/bulk_import.py:1532
+#: netbox/dcim/forms/bulk_import.py:1620
 msgid "Cable bundle name"
 msgstr "케이블 번들 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1544
+#: netbox/dcim/forms/bulk_import.py:1632
 msgid "Color name (e.g. \"Red\") or hex code (e.g. \"f44336\")"
 msgstr "색상 이름 (예: \"Red\") 또는 16진수 코드 (예: \"f44336\")"
 
-#: netbox/dcim/forms/bulk_import.py:1587
+#: netbox/dcim/forms/bulk_import.py:1675
 #, python-brace-format
 msgid "Invalid side designation: {side}"
 msgstr "잘못된 측 지정: {side}"
 
-#: netbox/dcim/forms/bulk_import.py:1606
+#: netbox/dcim/forms/bulk_import.py:1694
 #, python-brace-format
 msgid ""
 "Side {side_upper}: {power_panel} {termination_object} is already connected"
 msgstr "{side_upper}측: {power_panel} {termination_object}은(는) 이미 연결되어 있습니다"
 
-#: netbox/dcim/forms/bulk_import.py:1612
+#: netbox/dcim/forms/bulk_import.py:1700
 #, python-brace-format
 msgid "{side_upper} side termination not found: {power_panel} {name}"
 msgstr "{side_upper}측 종단을 찾을 수 없음: {power_panel} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:1630
+#: netbox/dcim/forms/bulk_import.py:1718
 #, python-brace-format
 msgid "Side {side_upper}: {device} {termination_object} is already connected"
 msgstr "{side_upper}측: {device} {termination_object}은(는) 이미 연결되어 있습니다"
 
-#: netbox/dcim/forms/bulk_import.py:1636
+#: netbox/dcim/forms/bulk_import.py:1724
 #, python-brace-format
 msgid "{side_upper} side termination not found: {device} {name}"
 msgstr "{side_upper}측 종단을 찾을 수 없음: {device} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:1658
+#: netbox/dcim/forms/bulk_import.py:1746
 #, python-brace-format
 msgid ""
 "{color} did not match any used color name and was longer than six "
 "characters: invalid hex."
 msgstr "{color}은(는) 어떤 색상 이름과도 일치하지 않고 6자를 초과합니다: 잘못된 16진수."
 
-#: netbox/dcim/forms/bulk_import.py:1683 netbox/dcim/forms/model_forms.py:962
+#: netbox/dcim/forms/bulk_import.py:1771 netbox/dcim/forms/model_forms.py:962
 #: netbox/dcim/tables/devices.py:1154
 #: netbox/templates/dcim/panels/virtual_chassis_members.html:10
 msgid "Master"
 msgstr "마스터"
 
-#: netbox/dcim/forms/bulk_import.py:1687
+#: netbox/dcim/forms/bulk_import.py:1775
 msgid "Master device"
 msgstr "마스터 장비"
 
-#: netbox/dcim/forms/bulk_import.py:1704
+#: netbox/dcim/forms/bulk_import.py:1792
 msgid "Name of parent site"
 msgstr "상위 사이트 이름"
 
-#: netbox/dcim/forms/bulk_import.py:1738
+#: netbox/dcim/forms/bulk_import.py:1826
 msgid "Upstream power panel"
 msgstr "업스트림 배전반"
 
-#: netbox/dcim/forms/bulk_import.py:1768
+#: netbox/dcim/forms/bulk_import.py:1856
 msgid "Primary or redundant"
 msgstr "기본 또는 이중화"
 
-#: netbox/dcim/forms/bulk_import.py:1773
+#: netbox/dcim/forms/bulk_import.py:1861
 msgid "Supply type (AC/DC)"
 msgstr "공급 전원 유형 (AC/DC)"
 
-#: netbox/dcim/forms/bulk_import.py:1778
+#: netbox/dcim/forms/bulk_import.py:1866
 msgid "Single or three-phase"
 msgstr "단상 또는 3상"
 
-#: netbox/dcim/forms/bulk_import.py:1828 netbox/dcim/forms/model_forms.py:1939
+#: netbox/dcim/forms/bulk_import.py:1916 netbox/dcim/forms/model_forms.py:1939
 #: netbox/dcim/ui/panels.py:111 netbox/dcim/ui/panels.py:371
 #: netbox/virtualization/ui/panels.py:55
 msgid "Primary IPv4"
 msgstr "기본 IPv4"
 
-#: netbox/dcim/forms/bulk_import.py:1832
+#: netbox/dcim/forms/bulk_import.py:1920
 msgid "IPv4 address with mask, e.g. 1.2.3.4/24"
 msgstr "마스크가 있는 IPv4 주소 (예: 1.2.3.4/24)"
 
-#: netbox/dcim/forms/bulk_import.py:1835 netbox/dcim/forms/model_forms.py:1948
+#: netbox/dcim/forms/bulk_import.py:1923 netbox/dcim/forms/model_forms.py:1948
 #: netbox/dcim/ui/panels.py:116 netbox/dcim/ui/panels.py:376
 #: netbox/virtualization/ui/panels.py:60
 msgid "Primary IPv6"
 msgstr "기본 IPv6"
 
-#: netbox/dcim/forms/bulk_import.py:1839
+#: netbox/dcim/forms/bulk_import.py:1927
 msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
 msgstr "프리픽스 길이가 있는 IPv6 주소 (예: 2001:db8::1/64)"
 
-#: netbox/dcim/forms/common.py:20 netbox/dcim/models/device_components.py:705
+#: netbox/dcim/forms/common.py:20 netbox/dcim/models/device_components.py:706
 #: netbox/dcim/ui/panels.py:490 netbox/virtualization/forms/bulk_edit.py:244
 #: netbox/virtualization/ui/panels.py:98
 msgid "MTU"
@@ -5575,7 +5605,7 @@ msgid "Mgmt only"
 msgstr "관리 전용"
 
 #: netbox/dcim/forms/filtersets.py:1706 netbox/dcim/forms/model_forms.py:1631
-#: netbox/dcim/models/device_components.py:882 netbox/dcim/ui/panels.py:520
+#: netbox/dcim/models/device_components.py:883 netbox/dcim/ui/panels.py:520
 msgid "WWN"
 msgstr "WWN"
 
@@ -5636,16 +5666,16 @@ msgstr "인터페이스의 기본 MAC"
 msgid "A virtual chassis member already exists in position {vc_position}."
 msgstr "위치 {vc_position}에 가상 섀시 멤버가 이미 존재합니다."
 
-#: netbox/dcim/forms/mixins.py:32 netbox/dcim/forms/mixins.py:93
-#: netbox/ipam/forms/bulk_edit.py:365 netbox/ipam/forms/model_forms.py:631
+#: netbox/dcim/forms/mixins.py:31 netbox/dcim/forms/mixins.py:92
+#: netbox/ipam/forms/bulk_edit.py:365 netbox/ipam/forms/model_forms.py:639
 msgid "Scope type"
 msgstr "범위 유형"
 
-#: netbox/dcim/forms/mixins.py:35 netbox/dcim/forms/mixins.py:96
+#: netbox/dcim/forms/mixins.py:34 netbox/dcim/forms/mixins.py:95
 #: netbox/ipam/forms/bulk_edit.py:233 netbox/ipam/forms/bulk_edit.py:368
 #: netbox/ipam/forms/bulk_edit.py:387 netbox/ipam/forms/filtersets.py:200
-#: netbox/ipam/forms/model_forms.py:233 netbox/ipam/forms/model_forms.py:265
-#: netbox/ipam/forms/model_forms.py:634 netbox/ipam/forms/model_forms.py:644
+#: netbox/ipam/forms/model_forms.py:233 netbox/ipam/forms/model_forms.py:273
+#: netbox/ipam/forms/model_forms.py:642 netbox/ipam/forms/model_forms.py:652
 #: netbox/ipam/tables/ip.py:198 netbox/ipam/tables/vlans.py:40
 #: netbox/virtualization/forms/bulk_edit.py:76
 #: netbox/virtualization/forms/filtersets.py:57
@@ -5658,53 +5688,53 @@ msgstr "범위 유형"
 msgid "Scope"
 msgstr "범위"
 
-#: netbox/dcim/forms/mixins.py:61 netbox/dcim/forms/mixins.py:172
-#: netbox/dcim/models/mixins.py:95
+#: netbox/dcim/forms/mixins.py:60 netbox/dcim/forms/mixins.py:171
+#: netbox/dcim/models/mixins.py:98
 #, python-brace-format
 msgid "Please select a {scope_type}."
 msgstr "{scope_type}을(를) 선택하세요."
 
-#: netbox/dcim/forms/mixins.py:122 netbox/ipam/forms/bulk_import.py:489
+#: netbox/dcim/forms/mixins.py:121 netbox/ipam/forms/bulk_import.py:489
 msgid "Scope type (app & model)"
 msgstr "범위 유형 (앱 및 모델)"
 
-#: netbox/dcim/forms/mixins.py:126
+#: netbox/dcim/forms/mixins.py:125
 msgid "Scope name"
 msgstr "범위 이름"
 
-#: netbox/dcim/forms/mixins.py:127
+#: netbox/dcim/forms/mixins.py:126
 msgid "Name of the assigned scope object (if not using ID)"
 msgstr "할당된 범위 객체 이름 (ID를 사용하지 않는 경우)"
 
-#: netbox/dcim/forms/mixins.py:139
+#: netbox/dcim/forms/mixins.py:138
 msgid "scope_name and scope_id are mutually exclusive."
 msgstr "scope_name과 scope_id는 동시에 사용할 수 없습니다."
 
-#: netbox/dcim/forms/mixins.py:143
+#: netbox/dcim/forms/mixins.py:142
 msgid "scope_type must be specified when using scope_name"
 msgstr "scope_name을 사용하려면 scope_type을 지정해야 합니다"
 
-#: netbox/dcim/forms/mixins.py:145
+#: netbox/dcim/forms/mixins.py:144
 msgid "scope_type must be specified when using scope_id"
 msgstr "scope_id를 사용하려면 scope_type을 지정해야 합니다"
 
-#: netbox/dcim/forms/mixins.py:154
+#: netbox/dcim/forms/mixins.py:153
 #, python-brace-format
 msgid "{scope_type} \"{name}\" not found."
 msgstr "{scope_type} \"{name}\"을(를) 찾을 수 없습니다."
 
-#: netbox/dcim/forms/mixins.py:162
+#: netbox/dcim/forms/mixins.py:161
 #, python-brace-format
 msgid ""
 "Multiple {scope_type} objects match \"{name}\". Use scope_id to specify the "
 "intended object."
 msgstr "여러 {scope_type} 객체가 \"{name}\"과(와) 일치합니다. scope_id로 대상 객체를 지정하세요."
 
-#: netbox/dcim/forms/mixins.py:180 netbox/dcim/tables/devices.py:260
+#: netbox/dcim/forms/mixins.py:179 netbox/dcim/tables/devices.py:260
 msgid "Rear ports"
 msgstr "후면 포트"
 
-#: netbox/dcim/forms/mixins.py:196
+#: netbox/dcim/forms/mixins.py:195
 #, python-brace-format
 msgid ""
 "The total number of front port positions ({frontport_count}) must match the "
@@ -5911,11 +5941,6 @@ msgstr "전면 포트"
 msgid "Power outlet"
 msgstr "전원 콘센트"
 
-#: netbox/dcim/forms/model_forms.py:1846
-#: netbox/dcim/forms/object_import.py:145
-msgid "Rear port"
-msgstr "후면 포트"
-
 #: netbox/dcim/forms/model_forms.py:1852
 msgid "Inventory Item"
 msgstr "인벤토리 항목"
@@ -5929,7 +5954,7 @@ msgid "VM Interface"
 msgstr "VM 인터페이스"
 
 #: netbox/dcim/forms/model_forms.py:2007 netbox/ipam/forms/filtersets.py:675
-#: netbox/ipam/forms/model_forms.py:351 netbox/ipam/tables/vlans.py:190
+#: netbox/ipam/forms/model_forms.py:359 netbox/ipam/tables/vlans.py:190
 #: netbox/virtualization/forms/filtersets.py:272
 #: netbox/virtualization/forms/filtersets.py:330
 #: netbox/virtualization/forms/model_forms.py:272
@@ -5963,7 +5988,7 @@ msgstr "제공된 패턴은 {value_count}개 값을 지정하지만 {pattern_cou
 
 #: netbox/dcim/forms/object_create.py:312 netbox/dcim/tables/devices.py:1160
 #: netbox/ipam/tables/fhrp.py:31 netbox/ipam/ui/panels.py:185
-#: netbox/ipam/views.py:1589 netbox/templates/dcim/virtualchassis_edit.html:59
+#: netbox/ipam/views.py:1594 netbox/templates/dcim/virtualchassis_edit.html:59
 #: netbox/users/views.py:375
 msgid "Members"
 msgstr "멤버"
@@ -5986,14 +6011,6 @@ msgstr "멤버 장비"
 msgid "A position must be specified for the first VC member."
 msgstr "첫 번째 VC 멤버의 위치를 지정해야 합니다."
 
-#: netbox/dcim/models/base.py:54
-#, python-brace-format
-msgid ""
-"Invalid rear port position ({rear_port_position}): Rear port {name} has only"
-" {positions} positions."
-msgstr ""
-"잘못된 후면 포트 위치({rear_port_position}): 후면 포트 {name}에는 {positions}개 위치만 있습니다."
-
 #: netbox/dcim/models/cables.py:62
 msgid "cable bundle"
 msgstr "케이블 번들"
@@ -6007,8 +6024,8 @@ msgid "profile"
 msgstr "프로필"
 
 #: netbox/dcim/models/cables.py:112
-#: netbox/dcim/models/device_component_templates.py:63
-#: netbox/dcim/models/device_components.py:61
+#: netbox/dcim/models/device_component_templates.py:64
+#: netbox/dcim/models/device_components.py:62
 #: netbox/extras/models/customfields.py:139
 msgid "label"
 msgstr "레이블"
@@ -6094,7 +6111,7 @@ msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr "잘못된 케이블 종단: 할당된 종단 객체가 존재하지 않습니다."
 
-#: netbox/dcim/models/cables.py:749 netbox/extras/models/configs.py:100
+#: netbox/dcim/models/cables.py:749 netbox/extras/models/configs.py:103
 msgid "is active"
 msgstr "활성 여부"
 
@@ -6134,454 +6151,454 @@ msgstr "모든 링크는 케이블 또는 무선이어야 합니다"
 msgid "All links must match first link type"
 msgstr "모든 링크는 첫 번째 링크 유형과 일치해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:58
+#: netbox/dcim/models/device_component_templates.py:59
 #, python-brace-format
 msgid ""
 "{module} is accepted as a substitution for the module bay position when "
 "attached to a module type."
 msgstr "{module}은(는) 모듈 유형에 연결될 때 모듈 베이 위치의 대체 값으로 사용됩니다."
 
-#: netbox/dcim/models/device_component_templates.py:66
-#: netbox/dcim/models/device_components.py:64
+#: netbox/dcim/models/device_component_templates.py:67
+#: netbox/dcim/models/device_components.py:65
 msgid "Physical label"
 msgstr "물리 레이블"
 
-#: netbox/dcim/models/device_component_templates.py:111
+#: netbox/dcim/models/device_component_templates.py:112
 msgid "Component templates cannot be moved to a different device type."
 msgstr "구성 요소 템플릿은 다른 장비 유형으로 이동할 수 없습니다."
 
-#: netbox/dcim/models/device_component_templates.py:165
+#: netbox/dcim/models/device_component_templates.py:166
 msgid ""
 "A component template cannot be associated with both a device type and a "
 "module type."
 msgstr "구성 요소 템플릿은 장비 유형과 모듈 유형에 동시에 연결할 수 없습니다."
 
-#: netbox/dcim/models/device_component_templates.py:169
+#: netbox/dcim/models/device_component_templates.py:170
 msgid ""
 "A component template must be associated with either a device type or a "
 "module type."
 msgstr "구성 요소 템플릿은 장비 유형 또는 모듈 유형 중 하나에 연결되어야 합니다."
 
-#: netbox/dcim/models/device_component_templates.py:230
+#: netbox/dcim/models/device_component_templates.py:231
 msgid "console port template"
 msgstr "콘솔 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:231
+#: netbox/dcim/models/device_component_templates.py:232
 msgid "console port templates"
 msgstr "콘솔 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:265
+#: netbox/dcim/models/device_component_templates.py:266
 msgid "console server port template"
 msgstr "콘솔 서버 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:266
+#: netbox/dcim/models/device_component_templates.py:267
 msgid "console server port templates"
 msgstr "콘솔 서버 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:298
-#: netbox/dcim/models/device_components.py:506
+#: netbox/dcim/models/device_component_templates.py:299
+#: netbox/dcim/models/device_components.py:507
 msgid "maximum draw"
 msgstr "최대 소비 전력"
 
-#: netbox/dcim/models/device_component_templates.py:305
-#: netbox/dcim/models/device_components.py:513
+#: netbox/dcim/models/device_component_templates.py:306
+#: netbox/dcim/models/device_components.py:514
 msgid "allocated draw"
 msgstr "할당된 소비 전력"
 
-#: netbox/dcim/models/device_component_templates.py:315
+#: netbox/dcim/models/device_component_templates.py:316
 msgid "power port template"
 msgstr "전원 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:316
+#: netbox/dcim/models/device_component_templates.py:317
 msgid "power port templates"
 msgstr "전원 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:336
-#: netbox/dcim/models/device_components.py:533
+#: netbox/dcim/models/device_component_templates.py:337
+#: netbox/dcim/models/device_components.py:534
 #, python-brace-format
 msgid "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
 msgstr "할당된 소비 전력은 최대 소비 전력({maximum_draw}W)을 초과할 수 없습니다."
 
-#: netbox/dcim/models/device_component_templates.py:374
-#: netbox/dcim/models/device_components.py:655
+#: netbox/dcim/models/device_component_templates.py:375
+#: netbox/dcim/models/device_components.py:656
 msgid "feed leg"
 msgstr "피드 레그"
 
-#: netbox/dcim/models/device_component_templates.py:379
-#: netbox/dcim/models/device_components.py:660
+#: netbox/dcim/models/device_component_templates.py:380
+#: netbox/dcim/models/device_components.py:661
 msgid "Phase (for three-phase feeds)"
 msgstr "상 (3상 피드용)"
 
-#: netbox/dcim/models/device_component_templates.py:385
+#: netbox/dcim/models/device_component_templates.py:386
 msgid "power outlet template"
 msgstr "전원 콘센트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:386
+#: netbox/dcim/models/device_component_templates.py:387
 msgid "power outlet templates"
 msgstr "전원 콘센트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:395
+#: netbox/dcim/models/device_component_templates.py:396
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same device type"
 msgstr "상위 전원 포트({power_port})는 동일한 장비 유형에 속해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:401
+#: netbox/dcim/models/device_component_templates.py:402
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same module type"
 msgstr "상위 전원 포트({power_port})는 동일한 모듈 유형에 속해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:457
-#: netbox/dcim/models/device_components.py:864
+#: netbox/dcim/models/device_component_templates.py:458
+#: netbox/dcim/models/device_components.py:865
 msgid "management only"
 msgstr "관리 전용"
 
-#: netbox/dcim/models/device_component_templates.py:465
-#: netbox/dcim/models/device_components.py:729
+#: netbox/dcim/models/device_component_templates.py:466
+#: netbox/dcim/models/device_components.py:730
 msgid "bridge interface"
 msgstr "브리지 인터페이스"
 
-#: netbox/dcim/models/device_component_templates.py:486
-#: netbox/dcim/models/device_components.py:890
+#: netbox/dcim/models/device_component_templates.py:487
+#: netbox/dcim/models/device_components.py:891
 msgid "wireless role"
 msgstr "무선 역할"
 
-#: netbox/dcim/models/device_component_templates.py:492
+#: netbox/dcim/models/device_component_templates.py:493
 msgid "interface template"
 msgstr "인터페이스 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:493
+#: netbox/dcim/models/device_component_templates.py:494
 msgid "interface templates"
 msgstr "인터페이스 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:502
+#: netbox/dcim/models/device_component_templates.py:503
 #, python-brace-format
 msgid "Bridge interface ({bridge}) must belong to the same device type"
 msgstr "브리지 인터페이스({bridge})는 동일한 장비 유형에 속해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:508
+#: netbox/dcim/models/device_component_templates.py:509
 #, python-brace-format
 msgid "Bridge interface ({bridge}) must belong to the same module type"
 msgstr "브리지 인터페이스({bridge})는 동일한 모듈 유형에 속해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:576
+#: netbox/dcim/models/device_component_templates.py:581
 #, python-brace-format
 msgid "Rear port ({rear_port}) must belong to the same device type"
 msgstr "후면 포트({rear_port})는 동일한 장비 유형에 속해야 합니다"
 
-#: netbox/dcim/models/device_component_templates.py:610
-#: netbox/dcim/models/device_component_templates.py:683
-#: netbox/dcim/models/device_components.py:1250
-#: netbox/dcim/models/device_components.py:1298
+#: netbox/dcim/models/device_component_templates.py:615
+#: netbox/dcim/models/device_component_templates.py:688
+#: netbox/dcim/models/device_components.py:1255
+#: netbox/dcim/models/device_components.py:1303
 msgid "positions"
 msgstr "위치 수"
 
-#: netbox/dcim/models/device_component_templates.py:631
+#: netbox/dcim/models/device_component_templates.py:636
 msgid "front port template"
 msgstr "전면 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:632
+#: netbox/dcim/models/device_component_templates.py:637
 msgid "front port templates"
 msgstr "전면 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:643
+#: netbox/dcim/models/device_component_templates.py:648
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped rear port "
 "templates ({count})"
 msgstr "위치 수는 매핑된 후면 포트 템플릿 수({count})보다 적을 수 없습니다"
 
-#: netbox/dcim/models/device_component_templates.py:694
+#: netbox/dcim/models/device_component_templates.py:699
 msgid "rear port template"
 msgstr "후면 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:695
+#: netbox/dcim/models/device_component_templates.py:700
 msgid "rear port templates"
 msgstr "후면 포트 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:706
+#: netbox/dcim/models/device_component_templates.py:711
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped front port "
 "templates ({count})"
 msgstr "위치 수는 매핑된 전면 포트 템플릿 수({count})보다 적을 수 없습니다"
 
-#: netbox/dcim/models/device_component_templates.py:738
-#: netbox/dcim/models/device_components.py:1368
+#: netbox/dcim/models/device_component_templates.py:743
+#: netbox/dcim/models/device_components.py:1373
 msgid "position"
 msgstr "위치"
 
-#: netbox/dcim/models/device_component_templates.py:741
-#: netbox/dcim/models/device_components.py:1371
+#: netbox/dcim/models/device_component_templates.py:746
+#: netbox/dcim/models/device_components.py:1376
 msgid "Identifier to reference when renaming installed components"
 msgstr "설치된 구성 요소 이름 변경 시 참조할 식별자"
 
-#: netbox/dcim/models/device_component_templates.py:751
+#: netbox/dcim/models/device_component_templates.py:756
 msgid "module bay template"
 msgstr "모듈 베이 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:752
+#: netbox/dcim/models/device_component_templates.py:757
 msgid "module bay templates"
 msgstr "모듈 베이 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:786
+#: netbox/dcim/models/device_component_templates.py:791
 msgid "device bay template"
 msgstr "장비 베이 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:787
+#: netbox/dcim/models/device_component_templates.py:792
 msgid "device bay templates"
 msgstr "장비 베이 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:802
+#: netbox/dcim/models/device_component_templates.py:807
 #, python-brace-format
 msgid ""
 "Subdevice role of device type ({device_type}) must be set to \"parent\" to "
 "allow device bays."
 msgstr "장비 베이를 허용하려면 장비 유형({device_type})의 하위 장비 역할을 \"parent\"로 설정해야 합니다."
 
-#: netbox/dcim/models/device_component_templates.py:858
-#: netbox/dcim/models/device_components.py:1596
+#: netbox/dcim/models/device_component_templates.py:863
+#: netbox/dcim/models/device_components.py:1601
 msgid "part ID"
 msgstr "부품 ID"
 
-#: netbox/dcim/models/device_component_templates.py:860
-#: netbox/dcim/models/device_components.py:1598
+#: netbox/dcim/models/device_component_templates.py:865
+#: netbox/dcim/models/device_components.py:1603
 msgid "Manufacturer-assigned part identifier"
 msgstr "제조사 지정 부품 식별자"
 
-#: netbox/dcim/models/device_component_templates.py:877
+#: netbox/dcim/models/device_component_templates.py:882
 msgid "inventory item template"
 msgstr "인벤토리 항목 템플릿"
 
-#: netbox/dcim/models/device_component_templates.py:878
+#: netbox/dcim/models/device_component_templates.py:883
 msgid "inventory item templates"
 msgstr "인벤토리 항목 템플릿"
 
-#: netbox/dcim/models/device_components.py:127
+#: netbox/dcim/models/device_components.py:128
 msgid "Components cannot be moved to a different device."
 msgstr "구성 요소는 다른 장비로 이동할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:174
+#: netbox/dcim/models/device_components.py:175
 msgid "cable end"
 msgstr "케이블 끝"
 
-#: netbox/dcim/models/device_components.py:199
+#: netbox/dcim/models/device_components.py:200
 msgid "mark connected"
 msgstr "연결됨으로 표시"
 
-#: netbox/dcim/models/device_components.py:201
+#: netbox/dcim/models/device_components.py:202
 msgid "Treat as if a cable is connected"
 msgstr "케이블이 연결된 것으로 처리"
 
-#: netbox/dcim/models/device_components.py:220
+#: netbox/dcim/models/device_components.py:221
 msgid "Must specify cable end (A or B) when attaching a cable."
 msgstr "케이블을 연결할 때는 케이블 끝(A 또는 B)을 지정해야 합니다."
 
-#: netbox/dcim/models/device_components.py:224
+#: netbox/dcim/models/device_components.py:225
 msgid "Must specify position(s) when specifying a cable connector."
 msgstr "케이블 커넥터를 지정할 때는 위치를 지정해야 합니다."
 
-#: netbox/dcim/models/device_components.py:228
+#: netbox/dcim/models/device_components.py:229
 msgid "Cable positions cannot be set without a cable connector."
 msgstr "케이블 커넥터 없이 케이블 위치를 설정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:232
+#: netbox/dcim/models/device_components.py:233
 msgid "Cannot mark as connected with a cable attached."
 msgstr "케이블이 연결된 상태에서는 연결됨으로 표시할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:237
+#: netbox/dcim/models/device_components.py:238
 msgid "Cable end must not be set without a cable."
 msgstr "케이블 없이 케이블 끝을 설정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:241
+#: netbox/dcim/models/device_components.py:242
 msgid "Cable connector must not be set without a cable."
 msgstr "케이블 없이 케이블 커넥터를 설정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:245
+#: netbox/dcim/models/device_components.py:246
 msgid "Cable termination positions must not be set without a cable."
 msgstr "케이블 없이 케이블 종단 위치를 설정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:296
+#: netbox/dcim/models/device_components.py:297
 #, python-brace-format
 msgid "{class_name} models must declare a parent_object property"
 msgstr "{class_name} 모델은 parent_object 속성을 선언해야 합니다"
 
-#: netbox/dcim/models/device_components.py:445
-#: netbox/dcim/models/device_components.py:472
-#: netbox/dcim/models/device_components.py:503
-#: netbox/dcim/models/device_components.py:645
+#: netbox/dcim/models/device_components.py:446
+#: netbox/dcim/models/device_components.py:473
+#: netbox/dcim/models/device_components.py:504
+#: netbox/dcim/models/device_components.py:646
 msgid "Physical port type"
 msgstr "물리 포트 유형"
 
-#: netbox/dcim/models/device_components.py:448
-#: netbox/dcim/models/device_components.py:475
+#: netbox/dcim/models/device_components.py:449
+#: netbox/dcim/models/device_components.py:476
 msgid "speed"
 msgstr "속도"
 
-#: netbox/dcim/models/device_components.py:452
-#: netbox/dcim/models/device_components.py:479
+#: netbox/dcim/models/device_components.py:453
+#: netbox/dcim/models/device_components.py:480
 msgid "Port speed in bits per second"
 msgstr "포트 속도 (bps)"
 
-#: netbox/dcim/models/device_components.py:458
+#: netbox/dcim/models/device_components.py:459
 msgid "console port"
 msgstr "콘솔 포트"
 
-#: netbox/dcim/models/device_components.py:459
+#: netbox/dcim/models/device_components.py:460
 msgid "console ports"
 msgstr "콘솔 포트"
 
-#: netbox/dcim/models/device_components.py:485
+#: netbox/dcim/models/device_components.py:486
 msgid "console server port"
 msgstr "콘솔 서버 포트"
 
-#: netbox/dcim/models/device_components.py:486
+#: netbox/dcim/models/device_components.py:487
 msgid "console server ports"
 msgstr "콘솔 서버 포트"
 
-#: netbox/dcim/models/device_components.py:523
+#: netbox/dcim/models/device_components.py:524
 msgid "power port"
 msgstr "전원 포트"
 
-#: netbox/dcim/models/device_components.py:524
+#: netbox/dcim/models/device_components.py:525
 msgid "power ports"
 msgstr "전원 포트"
 
-#: netbox/dcim/models/device_components.py:670
+#: netbox/dcim/models/device_components.py:671
 msgid "power outlet"
 msgstr "전원 콘센트"
 
-#: netbox/dcim/models/device_components.py:671
+#: netbox/dcim/models/device_components.py:672
 msgid "power outlets"
 msgstr "전원 콘센트"
 
-#: netbox/dcim/models/device_components.py:679
+#: netbox/dcim/models/device_components.py:680
 #, python-brace-format
 msgid "Parent power port ({power_port}) must belong to the same device"
 msgstr "상위 전원 포트({power_port})는 동일한 장비에 속해야 합니다"
 
-#: netbox/dcim/models/device_components.py:708 netbox/vpn/models/crypto.py:80
+#: netbox/dcim/models/device_components.py:709 netbox/vpn/models/crypto.py:80
 #: netbox/vpn/models/crypto.py:222
 msgid "mode"
 msgstr "모드"
 
-#: netbox/dcim/models/device_components.py:713
+#: netbox/dcim/models/device_components.py:714
 msgid "IEEE 802.1Q tagging strategy"
 msgstr "IEEE 802.1Q 태깅 전략"
 
-#: netbox/dcim/models/device_components.py:721
+#: netbox/dcim/models/device_components.py:722
 msgid "parent interface"
 msgstr "상위 인터페이스"
 
-#: netbox/dcim/models/device_components.py:737
+#: netbox/dcim/models/device_components.py:738
 msgid "untagged VLAN"
 msgstr "태그 없는 VLAN"
 
-#: netbox/dcim/models/device_components.py:743
+#: netbox/dcim/models/device_components.py:744
 msgid "tagged VLANs"
 msgstr "태그된 VLAN"
 
-#: netbox/dcim/models/device_components.py:751
+#: netbox/dcim/models/device_components.py:752
 #: netbox/dcim/tables/devices.py:636 netbox/dcim/ui/panels.py:497
 #: netbox/ipam/forms/bulk_edit.py:456 netbox/ipam/forms/bulk_import.py:554
-#: netbox/ipam/forms/filtersets.py:629 netbox/ipam/forms/model_forms.py:715
+#: netbox/ipam/forms/filtersets.py:629 netbox/ipam/forms/model_forms.py:723
 #: netbox/ipam/tables/vlans.py:113 netbox/ipam/ui/panels.py:206
 #: netbox/virtualization/ui/panels.py:100
 msgid "Q-in-Q SVLAN"
 msgstr "Q-in-Q SVLAN"
 
-#: netbox/dcim/models/device_components.py:766
+#: netbox/dcim/models/device_components.py:767
 msgid "primary MAC address"
 msgstr "기본 MAC 주소"
 
-#: netbox/dcim/models/device_components.py:778
+#: netbox/dcim/models/device_components.py:779
 msgid "Only Q-in-Q interfaces may specify a service VLAN."
 msgstr "Q-in-Q 인터페이스만 서비스 VLAN을 지정할 수 있습니다."
 
-#: netbox/dcim/models/device_components.py:789
+#: netbox/dcim/models/device_components.py:790
 #, python-brace-format
 msgid ""
 "MAC address {mac_address} is assigned to a different interface "
 "({interface})."
 msgstr "MAC 주소 {mac_address}은(는) 다른 인터페이스({interface})에 할당되어 있습니다."
 
-#: netbox/dcim/models/device_components.py:855
+#: netbox/dcim/models/device_components.py:856
 msgid "parent LAG"
 msgstr "상위 LAG"
 
-#: netbox/dcim/models/device_components.py:865
+#: netbox/dcim/models/device_components.py:866
 msgid "This interface is used only for out-of-band management"
 msgstr "이 인터페이스는 대역 외 관리 전용입니다"
 
-#: netbox/dcim/models/device_components.py:870
+#: netbox/dcim/models/device_components.py:871
 msgid "speed (Kbps)"
 msgstr "속도 (Kbps)"
 
-#: netbox/dcim/models/device_components.py:873
+#: netbox/dcim/models/device_components.py:874
 msgid "duplex"
 msgstr "듀플렉스"
 
-#: netbox/dcim/models/device_components.py:883
+#: netbox/dcim/models/device_components.py:884
 msgid "64-bit World Wide Name"
 msgstr "64비트 WWN (World Wide Name)"
 
-#: netbox/dcim/models/device_components.py:897
+#: netbox/dcim/models/device_components.py:898
 msgid "wireless channel"
 msgstr "무선 채널"
 
-#: netbox/dcim/models/device_components.py:904
+#: netbox/dcim/models/device_components.py:905
 msgid "channel frequency (MHz)"
 msgstr "채널 주파수 (MHz)"
 
-#: netbox/dcim/models/device_components.py:905
-#: netbox/dcim/models/device_components.py:913
+#: netbox/dcim/models/device_components.py:906
+#: netbox/dcim/models/device_components.py:914
 msgid "Populated by selected channel (if set)"
 msgstr "선택한 채널에 따라 자동 설정 (설정된 경우)"
 
-#: netbox/dcim/models/device_components.py:922
+#: netbox/dcim/models/device_components.py:923
 msgid "transmit power (dBm)"
 msgstr "송신 출력 (dBm)"
 
-#: netbox/dcim/models/device_components.py:949 netbox/wireless/models.py:125
+#: netbox/dcim/models/device_components.py:950 netbox/wireless/models.py:125
 msgid "wireless LANs"
 msgstr "무선 LAN"
 
-#: netbox/dcim/models/device_components.py:997
+#: netbox/dcim/models/device_components.py:998
 #: netbox/virtualization/models/virtualmachines.py:515
 msgid "interface"
 msgstr "인터페이스"
 
-#: netbox/dcim/models/device_components.py:998
+#: netbox/dcim/models/device_components.py:999
 #: netbox/virtualization/models/virtualmachines.py:516
 msgid "interfaces"
 msgstr "인터페이스"
 
-#: netbox/dcim/models/device_components.py:1006
+#: netbox/dcim/models/device_components.py:1007
 #, python-brace-format
 msgid "{display_type} interfaces cannot have a cable attached."
 msgstr "{display_type} 인터페이스에는 케이블을 연결할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1014
+#: netbox/dcim/models/device_components.py:1015
 #, python-brace-format
 msgid "{display_type} interfaces cannot be marked as connected."
 msgstr "{display_type} 인터페이스는 연결됨으로 표시할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1023
+#: netbox/dcim/models/device_components.py:1024
 #: netbox/virtualization/models/virtualmachines.py:526
 msgid "An interface cannot be its own parent."
 msgstr "인터페이스는 자기 자신의 상위가 될 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1027
+#: netbox/dcim/models/device_components.py:1028
 msgid "Only virtual interfaces may be assigned to a parent interface."
 msgstr "상위 인터페이스에는 가상 인터페이스만 할당할 수 있습니다."
 
-#: netbox/dcim/models/device_components.py:1034
+#: netbox/dcim/models/device_components.py:1035
 #, python-brace-format
 msgid ""
 "The selected parent interface ({interface}) belongs to a different device "
 "({device})"
 msgstr "선택한 상위 인터페이스({interface})는 다른 장비({device})에 속합니다"
 
-#: netbox/dcim/models/device_components.py:1040
+#: netbox/dcim/models/device_components.py:1041
 #, python-brace-format
 msgid ""
 "The selected parent interface ({interface}) belongs to {device}, which is "
@@ -6589,14 +6606,14 @@ msgid ""
 msgstr ""
 "선택한 상위 인터페이스({interface})는 가상 섀시 {virtual_chassis}에 속하지 않는 {device}의 것입니다."
 
-#: netbox/dcim/models/device_components.py:1056
+#: netbox/dcim/models/device_components.py:1057
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({bridge}) belongs to a different device "
 "({device})."
 msgstr "선택한 브리지 인터페이스({bridge})는 다른 장비({device})에 속합니다."
 
-#: netbox/dcim/models/device_components.py:1062
+#: netbox/dcim/models/device_components.py:1063
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({interface}) belongs to {device}, which is "
@@ -6604,187 +6621,187 @@ msgid ""
 msgstr ""
 "선택한 브리지 인터페이스({interface})는 가상 섀시 {virtual_chassis}에 속하지 않는 {device}의 것입니다."
 
-#: netbox/dcim/models/device_components.py:1073
+#: netbox/dcim/models/device_components.py:1074
 msgid "Virtual interfaces cannot have a parent LAG interface."
 msgstr "가상 인터페이스는 상위 LAG 인터페이스를 가질 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1077
+#: netbox/dcim/models/device_components.py:1078
 msgid "A LAG interface cannot be its own parent."
 msgstr "LAG 인터페이스는 자기 자신의 상위가 될 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1084
+#: netbox/dcim/models/device_components.py:1085
 #, python-brace-format
 msgid ""
 "The selected LAG interface ({lag}) belongs to a different device ({device})."
 msgstr "선택한 LAG 인터페이스({lag})는 다른 장비({device})에 속합니다."
 
-#: netbox/dcim/models/device_components.py:1090
+#: netbox/dcim/models/device_components.py:1091
 #, python-brace-format
 msgid ""
 "The selected LAG interface ({lag}) belongs to {device}, which is not part of"
 " virtual chassis {virtual_chassis}."
 msgstr "선택한 LAG 인터페이스({lag})는 가상 섀시 {virtual_chassis}에 속하지 않는 {device}의 것입니다."
 
-#: netbox/dcim/models/device_components.py:1100
+#: netbox/dcim/models/device_components.py:1101
 msgid "Channel may be set only on wireless interfaces."
 msgstr "채널은 무선 인터페이스에서만 설정할 수 있습니다."
 
-#: netbox/dcim/models/device_components.py:1106
+#: netbox/dcim/models/device_components.py:1107
 msgid "Channel frequency may be set only on wireless interfaces."
 msgstr "채널 주파수는 무선 인터페이스에서만 설정할 수 있습니다."
 
-#: netbox/dcim/models/device_components.py:1110
+#: netbox/dcim/models/device_components.py:1111
 msgid "Cannot specify custom frequency with channel selected."
 msgstr "채널이 선택된 상태에서는 사용자 정의 주파수를 지정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1116
+#: netbox/dcim/models/device_components.py:1117
 msgid "Channel width may be set only on wireless interfaces."
 msgstr "채널 폭은 무선 인터페이스에서만 설정할 수 있습니다."
 
-#: netbox/dcim/models/device_components.py:1118
+#: netbox/dcim/models/device_components.py:1119
 msgid "Cannot specify custom width with channel selected."
 msgstr "채널이 선택된 상태에서는 사용자 정의 폭을 지정할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1122
+#: netbox/dcim/models/device_components.py:1123
 msgid "Interface mode does not support an untagged vlan."
 msgstr "인터페이스 모드가 태그 없는 VLAN을 지원하지 않습니다."
 
-#: netbox/dcim/models/device_components.py:1128
+#: netbox/dcim/models/device_components.py:1129
 #, python-brace-format
 msgid ""
 "The untagged VLAN ({untagged_vlan}) must belong to the same site as the "
 "interface's parent device, or it must be global."
 msgstr "태그 없는 VLAN({untagged_vlan})은 인터페이스의 상위 장비와 같은 사이트에 속하거나 전역이어야 합니다."
 
-#: netbox/dcim/models/device_components.py:1225
+#: netbox/dcim/models/device_components.py:1230
 #, python-brace-format
 msgid "Rear port ({rear_port}) must belong to the same device"
 msgstr "후면 포트({rear_port})는 동일한 장비에 속해야 합니다"
 
-#: netbox/dcim/models/device_components.py:1267
+#: netbox/dcim/models/device_components.py:1272
 msgid "front port"
 msgstr "전면 포트"
 
-#: netbox/dcim/models/device_components.py:1268
+#: netbox/dcim/models/device_components.py:1273
 msgid "front ports"
 msgstr "전면 포트"
 
-#: netbox/dcim/models/device_components.py:1279
+#: netbox/dcim/models/device_components.py:1284
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped rear ports "
 "({count})"
 msgstr "위치 수는 매핑된 후면 포트 수({count})보다 적을 수 없습니다"
 
-#: netbox/dcim/models/device_components.py:1309
+#: netbox/dcim/models/device_components.py:1314
 msgid "rear port"
 msgstr "후면 포트"
 
-#: netbox/dcim/models/device_components.py:1310
+#: netbox/dcim/models/device_components.py:1315
 msgid "rear ports"
 msgstr "후면 포트"
 
-#: netbox/dcim/models/device_components.py:1321
+#: netbox/dcim/models/device_components.py:1326
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped front ports"
 " ({count})"
 msgstr "위치 수는 매핑된 전면 포트 수({count})보다 적을 수 없습니다"
 
-#: netbox/dcim/models/device_components.py:1395
+#: netbox/dcim/models/device_components.py:1400
 msgid "module bay"
 msgstr "모듈 베이"
 
-#: netbox/dcim/models/device_components.py:1396
+#: netbox/dcim/models/device_components.py:1401
 msgid "module bays"
 msgstr "모듈 베이"
 
-#: netbox/dcim/models/device_components.py:1413
+#: netbox/dcim/models/device_components.py:1418
 #: netbox/dcim/models/modules.py:326
 msgid "A module bay cannot belong to a module installed within it."
 msgstr "모듈 베이는 그 안에 설치된 모듈에 속할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1482
+#: netbox/dcim/models/device_components.py:1487
 msgid "device bay"
 msgstr "장비 베이"
 
-#: netbox/dcim/models/device_components.py:1483
+#: netbox/dcim/models/device_components.py:1488
 msgid "device bays"
 msgstr "장비 베이"
 
-#: netbox/dcim/models/device_components.py:1490
+#: netbox/dcim/models/device_components.py:1495
 #, python-brace-format
 msgid "This type of device ({device_type}) does not support device bays."
 msgstr "이 유형의 장비({device_type})는 장비 베이를 지원하지 않습니다."
 
-#: netbox/dcim/models/device_components.py:1501
+#: netbox/dcim/models/device_components.py:1506
 msgid "Cannot install a device in a disabled device bay."
 msgstr "비활성화된 장비 베이에는 장비를 설치할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1506
+#: netbox/dcim/models/device_components.py:1511
 msgid "Cannot install a device into itself."
 msgstr "장비를 자기 자신에게 설치할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1514
+#: netbox/dcim/models/device_components.py:1519
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
 msgstr "지정된 장비를 설치할 수 없음: 장비가 이미 {bay}에 설치되어 있습니다."
 
-#: netbox/dcim/models/device_components.py:1542
+#: netbox/dcim/models/device_components.py:1547
 msgid "inventory item role"
 msgstr "인벤토리 항목 역할"
 
-#: netbox/dcim/models/device_components.py:1543
+#: netbox/dcim/models/device_components.py:1548
 msgid "inventory item roles"
 msgstr "인벤토리 항목 역할"
 
-#: netbox/dcim/models/device_components.py:1602
+#: netbox/dcim/models/device_components.py:1607
 #: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:277
 #: netbox/dcim/models/racks.py:345
 #: netbox/virtualization/models/virtualmachines.py:221
 msgid "serial number"
 msgstr "시리얼 번호"
 
-#: netbox/dcim/models/device_components.py:1610
+#: netbox/dcim/models/device_components.py:1615
 #: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:284
 #: netbox/dcim/models/racks.py:352
 msgid "asset tag"
 msgstr "자산 태그"
 
-#: netbox/dcim/models/device_components.py:1611
+#: netbox/dcim/models/device_components.py:1616
 msgid "A unique tag used to identify this item"
 msgstr "이 항목을 식별하는 데 사용되는 고유 태그"
 
-#: netbox/dcim/models/device_components.py:1614
+#: netbox/dcim/models/device_components.py:1619
 msgid "discovered"
 msgstr "자동 탐지됨"
 
-#: netbox/dcim/models/device_components.py:1616
+#: netbox/dcim/models/device_components.py:1621
 msgid "This item was automatically discovered"
 msgstr "이 항목은 자동으로 탐지되었습니다"
 
-#: netbox/dcim/models/device_components.py:1634
+#: netbox/dcim/models/device_components.py:1639
 msgid "inventory item"
 msgstr "인벤토리 항목"
 
-#: netbox/dcim/models/device_components.py:1635
+#: netbox/dcim/models/device_components.py:1640
 msgid "inventory items"
 msgstr "인벤토리 항목"
 
-#: netbox/dcim/models/device_components.py:1643
+#: netbox/dcim/models/device_components.py:1648
 msgid "Cannot assign self as parent."
 msgstr "자기 자신을 상위로 할당할 수 없습니다."
 
-#: netbox/dcim/models/device_components.py:1651
+#: netbox/dcim/models/device_components.py:1656
 msgid "Parent inventory item does not belong to the same device."
 msgstr "상위 인벤토리 항목이 동일한 장비에 속하지 않습니다."
 
-#: netbox/dcim/models/device_components.py:1657
+#: netbox/dcim/models/device_components.py:1662
 msgid "Cannot move an inventory item with dependent children"
 msgstr "하위 항목이 있는 인벤토리 항목은 이동할 수 없습니다"
 
-#: netbox/dcim/models/device_components.py:1665
+#: netbox/dcim/models/device_components.py:1670
 msgid "Cannot assign inventory item to component on another device"
 msgstr "인벤토리 항목을 다른 장비의 구성 요소에 할당할 수 없습니다"
 
@@ -6947,12 +6964,12 @@ msgstr "위치 (U)"
 msgid "rack face"
 msgstr "랙 면"
 
-#: netbox/dcim/models/devices.py:617 netbox/dcim/models/devices.py:1277
+#: netbox/dcim/models/devices.py:617 netbox/dcim/models/devices.py:1280
 #: netbox/virtualization/models/virtualmachines.py:190
 msgid "primary IPv4"
 msgstr "기본 IPv4"
 
-#: netbox/dcim/models/devices.py:625 netbox/dcim/models/devices.py:1285
+#: netbox/dcim/models/devices.py:625 netbox/dcim/models/devices.py:1288
 #: netbox/virtualization/models/virtualmachines.py:198
 msgid "primary IPv6"
 msgstr "기본 IPv6"
@@ -6977,16 +6994,16 @@ msgstr "VC 우선순위"
 msgid "Virtual chassis master election priority"
 msgstr "가상 섀시 마스터 선출 우선순위"
 
-#: netbox/dcim/models/devices.py:663 netbox/dcim/models/sites.py:217
+#: netbox/dcim/models/devices.py:663 netbox/dcim/models/sites.py:241
 msgid "latitude"
 msgstr "위도"
 
 #: netbox/dcim/models/devices.py:672 netbox/dcim/models/devices.py:684
-#: netbox/dcim/models/sites.py:226 netbox/dcim/models/sites.py:238
+#: netbox/dcim/models/sites.py:250 netbox/dcim/models/sites.py:262
 msgid "GPS coordinate in decimal format (xx.yyyyyy)"
 msgstr "십진수 형식의 GPS 좌표 (xx.yyyyyy)"
 
-#: netbox/dcim/models/devices.py:675 netbox/dcim/models/sites.py:229
+#: netbox/dcim/models/devices.py:675 netbox/dcim/models/sites.py:253
 msgid "longitude"
 msgstr "경도"
 
@@ -7124,83 +7141,84 @@ msgid ""
 "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr "선택한 마스터({master})는 이 가상 섀시에 할당되어 있지 않습니다."
 
-#: netbox/dcim/models/devices.py:1233
+#: netbox/dcim/models/devices.py:1234
 #, python-brace-format
 msgid ""
-"Unable to delete virtual chassis {self}. There are member interfaces which "
-"form a cross-chassis LAG interfaces."
-msgstr "가상 섀시 {self}을(를) 삭제할 수 없습니다. 섀시 간 LAG를 구성하는 멤버 인터페이스가 있습니다."
+"Unable to delete virtual chassis {virtual_chassis}. One or more member "
+"interfaces form a cross-chassis LAG."
+msgstr ""
+"가상 섀시를 삭제할 수 없습니다. {virtual_chassis}.하나 이상의 멤버 인터페이스가 크로스 섀시 LAG를 형성합니다."
 
-#: netbox/dcim/models/devices.py:1266 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1269 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr "식별자"
 
-#: netbox/dcim/models/devices.py:1267
+#: netbox/dcim/models/devices.py:1270
 msgid "Numeric identifier unique to the parent device"
 msgstr "상위 장비에 고유한 숫자 식별자"
 
-#: netbox/dcim/models/devices.py:1295 netbox/extras/models/customfields.py:264
-#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:892
+#: netbox/dcim/models/devices.py:1298 netbox/extras/models/customfields.py:264
+#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:898
 #: netbox/netbox/models/__init__.py:154 netbox/netbox/models/__init__.py:193
 #: netbox/netbox/models/__init__.py:243
 msgid "comments"
 msgstr "코멘트"
 
-#: netbox/dcim/models/devices.py:1314
+#: netbox/dcim/models/devices.py:1317
 msgid "virtual device context"
 msgstr "가상 장비 컨텍스트"
 
-#: netbox/dcim/models/devices.py:1315
+#: netbox/dcim/models/devices.py:1318
 msgid "virtual device contexts"
 msgstr "가상 장비 컨텍스트"
 
-#: netbox/dcim/models/devices.py:1343
+#: netbox/dcim/models/devices.py:1346
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr "{ip}은(는) IPv{family} 주소가 아닙니다."
 
-#: netbox/dcim/models/devices.py:1349
+#: netbox/dcim/models/devices.py:1352
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr "기본 IP 주소는 할당된 장비의 인터페이스에 속해야 합니다."
 
-#: netbox/dcim/models/devices.py:1384
+#: netbox/dcim/models/devices.py:1387
 msgid "MAC addresses"
 msgstr "MAC 주소"
 
-#: netbox/dcim/models/devices.py:1416
+#: netbox/dcim/models/devices.py:1419
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an"
 " object"
 msgstr "객체의 기본 MAC으로 지정된 동안에는 MAC 주소 할당을 해제할 수 없습니다"
 
-#: netbox/dcim/models/devices.py:1420
+#: netbox/dcim/models/devices.py:1423
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an"
 " object"
 msgstr "객체의 기본 MAC으로 지정된 동안에는 MAC 주소를 재할당할 수 없습니다"
 
-#: netbox/dcim/models/mixins.py:132
+#: netbox/dcim/models/mixins.py:135
 #: netbox/virtualization/models/virtualmachines.py:541
 msgid "An interface cannot be bridged to itself."
 msgstr "인터페이스는 자기 자신에게 브리지될 수 없습니다."
 
-#: netbox/dcim/models/mixins.py:137
+#: netbox/dcim/models/mixins.py:140
 msgid "Virtual interfaces cannot have a PoE mode."
 msgstr "가상 인터페이스에는 PoE 모드를 설정할 수 없습니다."
 
-#: netbox/dcim/models/mixins.py:141
+#: netbox/dcim/models/mixins.py:144
 msgid "Virtual interfaces cannot have a PoE type."
 msgstr "가상 인터페이스에는 PoE 유형을 설정할 수 없습니다."
 
-#: netbox/dcim/models/mixins.py:147
+#: netbox/dcim/models/mixins.py:150
 msgid "Must specify PoE mode when designating a PoE type."
 msgstr "PoE 유형을 지정할 때는 PoE 모드를 지정해야 합니다."
 
-#: netbox/dcim/models/mixins.py:152
+#: netbox/dcim/models/mixins.py:155
 msgid "Wireless role may be set only on wireless interfaces."
 msgstr "무선 역할은 무선 인터페이스에서만 설정할 수 있습니다."
 
-#: netbox/dcim/models/modules.py:45 netbox/extras/models/configs.py:50
+#: netbox/dcim/models/modules.py:45 netbox/extras/models/configs.py:53
 msgid "schema"
 msgstr "스키마"
 
@@ -7497,91 +7515,91 @@ msgstr "{height}U 랙에 대한 잘못된 유닛: {unit_list}"
 msgid "The following units have already been reserved: {unit_list}"
 msgstr "다음 유닛은 이미 예약되어 있습니다: {unit_list}"
 
-#: netbox/dcim/models/sites.py:59
+#: netbox/dcim/models/sites.py:71
 msgid "A top-level region with this name already exists."
 msgstr "이 이름의 최상위 지역이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:69
+#: netbox/dcim/models/sites.py:81
 msgid "A top-level region with this slug already exists."
 msgstr "이 slug의 최상위 지역이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:72
+#: netbox/dcim/models/sites.py:84
 msgid "region"
 msgstr "지역"
 
-#: netbox/dcim/models/sites.py:73
+#: netbox/dcim/models/sites.py:85
 msgid "regions"
 msgstr "지역"
 
-#: netbox/dcim/models/sites.py:118
+#: netbox/dcim/models/sites.py:142
 msgid "A top-level site group with this name already exists."
 msgstr "이 이름의 최상위 사이트 그룹이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:128
+#: netbox/dcim/models/sites.py:152
 msgid "A top-level site group with this slug already exists."
 msgstr "이 slug의 최상위 사이트 그룹이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:131
+#: netbox/dcim/models/sites.py:155
 msgid "site group"
 msgstr "사이트 그룹"
 
-#: netbox/dcim/models/sites.py:132
+#: netbox/dcim/models/sites.py:156
 msgid "site groups"
 msgstr "사이트 그룹"
 
-#: netbox/dcim/models/sites.py:154
+#: netbox/dcim/models/sites.py:178
 msgid "Full name of the site"
 msgstr "사이트의 전체 이름"
 
-#: netbox/dcim/models/sites.py:190 netbox/dcim/models/sites.py:300
+#: netbox/dcim/models/sites.py:214 netbox/dcim/models/sites.py:324
 msgid "facility"
 msgstr "시설"
 
-#: netbox/dcim/models/sites.py:193 netbox/dcim/models/sites.py:303
+#: netbox/dcim/models/sites.py:217 netbox/dcim/models/sites.py:327
 msgid "Local facility ID or description"
 msgstr "로컬 시설 ID 또는 설명"
 
-#: netbox/dcim/models/sites.py:205
+#: netbox/dcim/models/sites.py:229
 msgid "physical address"
 msgstr "물리 주소"
 
-#: netbox/dcim/models/sites.py:208
+#: netbox/dcim/models/sites.py:232
 msgid "Physical location of the building"
 msgstr "건물의 물리적 위치"
 
-#: netbox/dcim/models/sites.py:211
+#: netbox/dcim/models/sites.py:235
 msgid "shipping address"
 msgstr "배송 주소"
 
-#: netbox/dcim/models/sites.py:214
+#: netbox/dcim/models/sites.py:238
 msgid "If different from the physical address"
 msgstr "물리 주소와 다른 경우"
 
-#: netbox/dcim/models/sites.py:262
+#: netbox/dcim/models/sites.py:286
 msgid "site"
 msgstr "사이트"
 
-#: netbox/dcim/models/sites.py:263
+#: netbox/dcim/models/sites.py:287
 msgid "sites"
 msgstr "사이트"
 
-#: netbox/dcim/models/sites.py:339
+#: netbox/dcim/models/sites.py:363
 msgid "A location with this name already exists within the specified site."
 msgstr "지정된 사이트 내에 이 이름의 구역이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:349
+#: netbox/dcim/models/sites.py:373
 msgid "A location with this slug already exists within the specified site."
 msgstr "지정된 사이트 내에 이 slug의 구역이 이미 존재합니다."
 
-#: netbox/dcim/models/sites.py:352
+#: netbox/dcim/models/sites.py:376
 msgid "location"
 msgstr "구역"
 
-#: netbox/dcim/models/sites.py:353
+#: netbox/dcim/models/sites.py:377
 msgid "locations"
 msgstr "구역"
 
-#: netbox/dcim/models/sites.py:364
+#: netbox/dcim/models/sites.py:388
 #, python-brace-format
 msgid "Parent location ({parent}) must belong to the same site ({site})."
 msgstr "상위 구역({parent})은(는) 동일한 사이트({site})에 속해야 합니다."
@@ -7688,8 +7706,8 @@ msgid "U Height"
 msgstr "U 높이"
 
 #: netbox/dcim/tables/devices.py:196 netbox/dcim/tables/devices.py:1191
-#: netbox/ipam/forms/bulk_import.py:627 netbox/ipam/forms/model_forms.py:334
-#: netbox/ipam/forms/model_forms.py:346 netbox/ipam/forms/model_forms.py:495
+#: netbox/ipam/forms/bulk_import.py:627 netbox/ipam/forms/model_forms.py:342
+#: netbox/ipam/forms/model_forms.py:354 netbox/ipam/forms/model_forms.py:503
 #: netbox/ipam/tables/ip.py:312 netbox/ipam/tables/ip.py:376
 #: netbox/ipam/tables/ip.py:391 netbox/ipam/tables/ip.py:414
 #: netbox/virtualization/tables/virtualmachines.py:106
@@ -7815,9 +7833,9 @@ msgid "Allocated draw (W)"
 msgstr "할당된 소비 전력 (W)"
 
 #: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3402
-#: netbox/ipam/forms/model_forms.py:826 netbox/ipam/tables/fhrp.py:28
-#: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:922
-#: netbox/ipam/views.py:1047 netbox/netbox/navigation/menu.py:175
+#: netbox/ipam/forms/model_forms.py:834 netbox/ipam/tables/fhrp.py:28
+#: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:924
+#: netbox/ipam/views.py:1052 netbox/netbox/navigation/menu.py:175
 #: netbox/netbox/navigation/menu.py:177 netbox/vpn/tables/tunnels.py:98
 msgid "IP Addresses"
 msgstr "IP 주소"
@@ -8245,7 +8263,7 @@ msgstr "가상 장비 컨텍스트"
 
 #: netbox/dcim/views.py:3414 netbox/ipam/forms/filtersets.py:469
 #: netbox/ipam/models/vlans.py:308 netbox/ipam/tables/ip.py:121
-#: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1381
+#: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1386
 #: netbox/netbox/navigation/menu.py:210 netbox/netbox/navigation/menu.py:212
 msgid "VLANs"
 msgstr "VLAN"
@@ -8320,7 +8338,7 @@ msgstr "이 객체에 대한 설정 템플릿을 결정할 수 없습니다."
 msgid "An error occurred while rendering the config template."
 msgstr "설정 템플릿 렌더링 중 오류가 발생했습니다."
 
-#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1306
+#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1307
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr "ID {id}인 설정 템플릿을 찾을 수 없습니다."
@@ -8599,94 +8617,94 @@ msgstr "위젯 유형"
 msgid "Unregistered widget class: {name}"
 msgstr "등록되지 않은 위젯 클래스: {name}"
 
-#: netbox/extras/dashboard/widgets.py:150
+#: netbox/extras/dashboard/widgets.py:152
 #, python-brace-format
 msgid "{class_name} must define a render() method."
 msgstr "{class_name}은(는) render() 메서드를 정의해야 합니다."
 
-#: netbox/extras/dashboard/widgets.py:169
+#: netbox/extras/dashboard/widgets.py:171
 msgid "Note"
 msgstr "메모"
 
-#: netbox/extras/dashboard/widgets.py:170
+#: netbox/extras/dashboard/widgets.py:172
 msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr "임의의 사용자 정의 콘텐츠를 표시합니다. 마크다운을 지원합니다."
 
-#: netbox/extras/dashboard/widgets.py:183 netbox/templates/core/system.html:35
+#: netbox/extras/dashboard/widgets.py:185 netbox/templates/core/system.html:35
 #: netbox/templates/core/system.html:168
 msgid "Object Counts"
 msgstr "객체 수"
 
-#: netbox/extras/dashboard/widgets.py:184
+#: netbox/extras/dashboard/widgets.py:186
 msgid ""
 "Display a set of NetBox models and the number of objects created for each "
 "type."
 msgstr "NetBox 모델 집합과 유형별 생성된 객체 수를 표시합니다."
 
-#: netbox/extras/dashboard/widgets.py:194
+#: netbox/extras/dashboard/widgets.py:196
 msgid "Filters to apply when counting the number of objects"
 msgstr "객체 수를 셀 때 적용할 필터"
 
-#: netbox/extras/dashboard/widgets.py:202
+#: netbox/extras/dashboard/widgets.py:204
 msgid "Invalid format. Object filters must be passed as a dictionary."
 msgstr "잘못된 형식. 객체 필터는 딕셔너리로 전달해야 합니다."
 
-#: netbox/extras/dashboard/widgets.py:236
+#: netbox/extras/dashboard/widgets.py:238
 msgid "Object List"
 msgstr "객체 목록"
 
-#: netbox/extras/dashboard/widgets.py:237
+#: netbox/extras/dashboard/widgets.py:239
 msgid "Display an arbitrary list of objects."
 msgstr "임의의 객체 목록을 표시합니다."
 
-#: netbox/extras/dashboard/widgets.py:250
+#: netbox/extras/dashboard/widgets.py:252
 msgid "The default number of objects to display"
 msgstr "표시할 객체의 기본 개수"
 
-#: netbox/extras/dashboard/widgets.py:262
+#: netbox/extras/dashboard/widgets.py:264
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr "잘못된 형식. URL 매개변수는 딕셔너리로 전달해야 합니다."
 
-#: netbox/extras/dashboard/widgets.py:271
+#: netbox/extras/dashboard/widgets.py:273
 msgid "Invalid model selection: {self['model'].data} is not supported."
 msgstr "잘못된 모델 선택: {self['model'].data}은(는) 지원되지 않습니다."
 
-#: netbox/extras/dashboard/widgets.py:311
+#: netbox/extras/dashboard/widgets.py:313
 msgid "RSS Feed"
 msgstr "RSS 피드"
 
-#: netbox/extras/dashboard/widgets.py:318
+#: netbox/extras/dashboard/widgets.py:320
 msgid "Embed an RSS feed from an external website."
 msgstr "외부 웹사이트의 RSS 피드를 삽입합니다."
 
-#: netbox/extras/dashboard/widgets.py:325
+#: netbox/extras/dashboard/widgets.py:327
 msgid "Feed URL"
 msgstr "피드 URL"
 
-#: netbox/extras/dashboard/widgets.py:329
+#: netbox/extras/dashboard/widgets.py:331
 msgid "Requires external connection"
 msgstr "외부 연결 필요"
 
-#: netbox/extras/dashboard/widgets.py:335
+#: netbox/extras/dashboard/widgets.py:337
 msgid "The maximum number of objects to display"
 msgstr "표시할 객체의 최대 개수"
 
-#: netbox/extras/dashboard/widgets.py:340
+#: netbox/extras/dashboard/widgets.py:342
 msgid "How long to stored the cached content (in seconds)"
 msgstr "캐시된 콘텐츠 보존 시간 (초 단위)"
 
-#: netbox/extras/dashboard/widgets.py:346
+#: netbox/extras/dashboard/widgets.py:348
 msgid "Timeout value for fetching the feed (in seconds)"
 msgstr "피드 가져오기 타임아웃 값 (초 단위)"
 
-#: netbox/extras/dashboard/widgets.py:403
+#: netbox/extras/dashboard/widgets.py:431
 #: netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:41
 msgid "Bookmarks"
 msgstr "북마크"
 
-#: netbox/extras/dashboard/widgets.py:407
+#: netbox/extras/dashboard/widgets.py:435
 msgid "Show your personal bookmarks"
 msgstr "개인 북마크 표시"
 
@@ -8826,7 +8844,7 @@ msgstr "버튼 클래스"
 
 #: netbox/extras/forms/bulk_edit.py:165 netbox/extras/forms/bulk_edit.py:384
 #: netbox/extras/forms/filtersets.py:208 netbox/extras/forms/filtersets.py:531
-#: netbox/extras/models/mixins.py:106 netbox/extras/ui/panels.py:238
+#: netbox/extras/models/mixins.py:107 netbox/extras/ui/panels.py:238
 #: netbox/extras/ui/panels.py:464
 msgid "MIME type"
 msgstr "MIME 유형"
@@ -8862,7 +8880,7 @@ msgstr "HTTP 메서드"
 msgid "Payload URL"
 msgstr "페이로드 URL"
 
-#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:238
+#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:240
 #: netbox/extras/ui/panels.py:347
 msgid "SSL verification"
 msgstr "SSL 검증"
@@ -8972,11 +8990,11 @@ msgstr "잘못된 색상 매핑 '{line}'. value:color 형식을 사용하세요.
 msgid "Duplicate color mapping defined for choice '{value}'."
 msgstr "선택지 '{value}'에 중복 색상 매핑이 정의되었습니다."
 
-#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:346
+#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:352
 msgid "button class"
 msgstr "버튼 클래스"
 
-#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:350
+#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:356
 msgid ""
 "The class of the first link in a group will be used for the dropdown button"
 msgstr "그룹 내 첫 번째 링크의 클래스가 드롭다운 버튼에 사용됩니다"
@@ -9041,14 +9059,14 @@ msgstr "항목의 분류"
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
 #: netbox/netbox/tables/tables.py:346 netbox/netbox/tables/tables.py:361
 #: netbox/netbox/tables/tables.py:384 netbox/netbox/ui/panels.py:243
-#: netbox/templates/dcim/htmx/cable_edit.html:100
+#: netbox/templates/dcim/htmx/cable_edit.html:110
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
 #: netbox/utilities/forms/fields/fields.py:63
 msgid "Comments"
 msgstr "코멘트"
 
-#: netbox/extras/forms/bulk_import.py:350
+#: netbox/extras/forms/bulk_import.py:356
 #: netbox/extras/forms/model_forms.py:502 netbox/extras/ui/panels.py:321
 #: netbox/netbox/navigation/menu.py:423 netbox/users/forms/filtersets.py:181
 #: netbox/users/forms/model_forms.py:275 netbox/users/forms/model_forms.py:287
@@ -9058,11 +9076,11 @@ msgstr "코멘트"
 msgid "Users"
 msgstr "사용자"
 
-#: netbox/extras/forms/bulk_import.py:354
+#: netbox/extras/forms/bulk_import.py:360
 msgid "User names separated by commas, encased with double quotes"
 msgstr "큰따옴표로 감싼 쉼표 구분 사용자 이름"
 
-#: netbox/extras/forms/bulk_import.py:357
+#: netbox/extras/forms/bulk_import.py:363
 #: netbox/extras/forms/model_forms.py:497 netbox/extras/ui/panels.py:316
 #: netbox/netbox/navigation/menu.py:306 netbox/netbox/navigation/menu.py:424
 #: netbox/tenancy/forms/bulk_edit.py:121
@@ -9076,7 +9094,7 @@ msgstr "큰따옴표로 감싼 쉼표 구분 사용자 이름"
 msgid "Groups"
 msgstr "그룹"
 
-#: netbox/extras/forms/bulk_import.py:361
+#: netbox/extras/forms/bulk_import.py:367
 msgid "Group names separated by commas, encased with double quotes"
 msgstr "큰따옴표로 감싼 쉼표 구분 그룹 이름"
 
@@ -9426,73 +9444,73 @@ msgstr "오류로 인해 데이터베이스 변경 사항이 되돌려졌습니�
 msgid "No indexers found!"
 msgstr "인덱서가 없습니다!"
 
-#: netbox/extras/models/configs.py:51
+#: netbox/extras/models/configs.py:54
 msgid ""
 "A JSON schema specifying the structure of the context data for this profile"
 msgstr "이 프로필의 컨텍스트 데이터 구조를 지정하는 JSON 스키마"
 
-#: netbox/extras/models/configs.py:58
+#: netbox/extras/models/configs.py:61
 msgid "config context profile"
 msgstr "설정 컨텍스트 프로필"
 
-#: netbox/extras/models/configs.py:59
+#: netbox/extras/models/configs.py:62
 msgid "config context profiles"
 msgstr "설정 컨텍스트 프로필"
 
-#: netbox/extras/models/configs.py:91 netbox/extras/models/models.py:336
-#: netbox/extras/models/models.py:508 netbox/extras/models/models.py:592
+#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:342
+#: netbox/extras/models/models.py:514 netbox/extras/models/models.py:598
 #: netbox/extras/models/search.py:49 netbox/extras/models/tags.py:45
 #: netbox/ipam/models/ip.py:200 netbox/netbox/models/mixins.py:32
 msgid "weight"
 msgstr "무게"
 
-#: netbox/extras/models/configs.py:182
+#: netbox/extras/models/configs.py:185
 msgid "config context"
 msgstr "설정 컨텍스트"
 
-#: netbox/extras/models/configs.py:183
+#: netbox/extras/models/configs.py:186
 msgid "config contexts"
 msgstr "설정 컨텍스트"
 
-#: netbox/extras/models/configs.py:201 netbox/extras/models/configs.py:264
+#: netbox/extras/models/configs.py:204 netbox/extras/models/configs.py:267
 msgid "JSON data must be in object form. Example:"
 msgstr "JSON 데이터는 객체 형식이어야 합니다. 예:"
 
-#: netbox/extras/models/configs.py:209
+#: netbox/extras/models/configs.py:212
 #, python-brace-format
 msgid "Data does not conform to profile schema: {error}"
 msgstr "데이터가 프로필 스키마에 맞지 않습니다: {error}"
 
-#: netbox/extras/models/configs.py:228
+#: netbox/extras/models/configs.py:231
 msgid ""
 "Local config context data takes precedence over source contexts in the final"
 " rendered config context"
 msgstr "최종 렌더링된 설정 컨텍스트에서는 로컬 설정 컨텍스트 데이터가 소스 컨텍스트보다 우선합니다"
 
-#: netbox/extras/models/configs.py:291
+#: netbox/extras/models/configs.py:294
 msgid "debug"
 msgstr "디버그"
 
-#: netbox/extras/models/configs.py:294
+#: netbox/extras/models/configs.py:297
 msgid ""
 "Enable verbose error output when rendering this template. Not recommended "
 "for production use."
 msgstr "이 템플릿 렌더링 시 상세 오류 출력을 활성화합니다. 운영 환경에서는 권장하지 않습니다."
 
-#: netbox/extras/models/configs.py:303
+#: netbox/extras/models/configs.py:306
 msgid "config template"
 msgstr "설정 템플릿"
 
-#: netbox/extras/models/configs.py:304
+#: netbox/extras/models/configs.py:307
 msgid "config templates"
 msgstr "설정 템플릿"
 
-#: netbox/extras/models/configs.py:340
+#: netbox/extras/models/configs.py:359
 #, python-brace-format
 msgid "Template: {name}"
 msgstr "템플릿: {name}"
 
-#: netbox/extras/models/configs.py:342
+#: netbox/extras/models/configs.py:361
 #, python-brace-format
 msgid "Line: {lineno}"
 msgstr "행: {lineno}"
@@ -9527,7 +9545,7 @@ msgid ""
 "will be used)"
 msgstr "사용자에게 표시되는 필드 이름 (지정하지 않으면 필드 이름이 사용됩니다)"
 
-#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:340
+#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:346
 msgid "group name"
 msgstr "그룹 이름"
 
@@ -9867,63 +9885,63 @@ msgstr "대시보드"
 msgid "dashboards"
 msgstr "대시보드"
 
-#: netbox/extras/models/mixins.py:91
+#: netbox/extras/models/mixins.py:92
 msgid "template code"
 msgstr "템플릿 코드"
 
-#: netbox/extras/models/mixins.py:92
+#: netbox/extras/models/mixins.py:93
 msgid "Jinja template code."
 msgstr "Jinja 템플릿 코드."
 
-#: netbox/extras/models/mixins.py:95
+#: netbox/extras/models/mixins.py:96
 msgid "environment parameters"
 msgstr "환경 매개변수"
 
-#: netbox/extras/models/mixins.py:100
+#: netbox/extras/models/mixins.py:101
 #, python-brace-format
 msgid ""
 "Any <a href=\"{url}\">additional parameters</a> to pass when constructing "
 "the Jinja environment"
 msgstr "Jinja 환경 구성 시 전달할 <a href=\"{url}\">추가 매개변수</a>"
 
-#: netbox/extras/models/mixins.py:107
+#: netbox/extras/models/mixins.py:108
 #, python-brace-format
 msgid "Defaults to <code>{default}</code>"
 msgstr "기본값: <code>{default}</code>"
 
-#: netbox/extras/models/mixins.py:112
+#: netbox/extras/models/mixins.py:113
 msgid "Filename to give to the rendered export file"
 msgstr "렌더링된 내보내기 파일에 부여할 파일 이름"
 
-#: netbox/extras/models/mixins.py:115
+#: netbox/extras/models/mixins.py:116
 msgid "file extension"
 msgstr "파일 확장자"
 
-#: netbox/extras/models/mixins.py:118
+#: netbox/extras/models/mixins.py:119
 msgid "Extension to append to the rendered filename"
 msgstr "렌더링된 파일 이름에 추가할 확장자"
 
-#: netbox/extras/models/mixins.py:121
+#: netbox/extras/models/mixins.py:122
 msgid "as attachment"
 msgstr "첨부 파일로"
 
-#: netbox/extras/models/mixins.py:123
+#: netbox/extras/models/mixins.py:124
 msgid "Download file as attachment"
 msgstr "파일을 첨부 파일로 다운로드"
 
-#: netbox/extras/models/mixins.py:151
+#: netbox/extras/models/mixins.py:152
 #, python-brace-format
 msgid ""
 "The \"{key}\" parameter is deprecated and may not be set on new or modified "
 "templates."
 msgstr "\"{key}\" 매개변수는 사용 중단되어 새로 만들거나 수정하는 템플릿에는 설정할 수 없습니다."
 
-#: netbox/extras/models/mixins.py:157
+#: netbox/extras/models/mixins.py:158
 #, python-brace-format
 msgid "\"{key}\" is not a permitted Jinja2 environment parameter."
 msgstr "\"{key}\"은(는) 허용되지 않는 Jinja2 환경 매개변수입니다."
 
-#: netbox/extras/models/mixins.py:165
+#: netbox/extras/models/mixins.py:166
 #, python-brace-format
 msgid ""
 "Invalid value \"{value}\" for parameter \"{key}\". Allowed values are: "
@@ -9994,16 +10012,21 @@ msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
 "HTTP content type. Headers should be defined in the format <code>Name: "
 "Value</code>. Jinja2 template processing is supported with the same context "
-"as the request body (below)."
+"as the request body (below). When interpolating untrusted data (such as "
+"object attributes) into a header value, apply the <code>header_safe</code> "
+"filter to guard against HTTP header injection, e.g. <code>X-Object: {{ "
+"data.name | header_safe }}</code>."
 msgstr ""
-"HTTP 콘텐츠 유형 외에 요청과 함께 전송할 사용자 지정 HTTP 헤더. 헤더는 <code>Name: Value</code> 형식으로 "
-"정의하세요. 요청 본문(아래)과 동일한 컨텍스트로 Jinja2 템플릿 처리를 지원합니다."
+"HTTP 콘텐츠 유형 외에 요청과 함께 전송될 사용자 제공 HTTP 헤더입니다.헤더는 다음 형식으로 정의해야 합니다. <code>이름: "
+"값</code>.Jinja2 템플릿 처리는 요청 본문과 동일한 컨텍스트에서 지원됩니다 (아래 참조).신뢰할 수 없는 데이터 (예: 객체 "
+"속성) 를 헤더 값에 삽입할 때는 다음을 적용하세요. <code>헤더_세이프</code> HTTP 헤더 삽입을 방지하는 필터, 예: "
+"<code>X-오브젝트: {{data.name | 헤더_세이프}}</code>."
 
-#: netbox/extras/models/models.py:219
+#: netbox/extras/models/models.py:221
 msgid "body template"
 msgstr "본문 템플릿"
 
-#: netbox/extras/models/models.py:222
+#: netbox/extras/models/models.py:224
 msgid ""
 "Jinja2 template for a custom request body. If blank, a JSON object "
 "representing the change will be included. Available context data includes: "
@@ -10014,11 +10037,11 @@ msgstr ""
 " <code>event</code>, <code>model</code>, <code>timestamp</code>, "
 "<code>username</code>, <code>request_id</code>, <code>data</code>."
 
-#: netbox/extras/models/models.py:228
+#: netbox/extras/models/models.py:230
 msgid "secret"
 msgstr "시크릿"
 
-#: netbox/extras/models/models.py:232
+#: netbox/extras/models/models.py:234
 msgid ""
 "When provided, the request will include a <code>X-Hook-Signature</code> "
 "header containing a HMAC hex digest of the payload body using the secret as "
@@ -10027,186 +10050,186 @@ msgstr ""
 "제공하면 요청에 시크릿을 키로 사용한 페이로드 본문의 HMAC 16진수 다이제스트가 담긴 <code>X-Hook-"
 "Signature</code> 헤더가 포함됩니다. 시크릿 자체는 요청으로 전송되지 않습니다."
 
-#: netbox/extras/models/models.py:239
+#: netbox/extras/models/models.py:241
 msgid "Enable SSL certificate verification. Disable with caution!"
 msgstr "SSL 인증서 검증을 활성화합니다. 비활성화는 신중하게!"
 
-#: netbox/extras/models/models.py:245
+#: netbox/extras/models/models.py:247
 msgid "CA File Path"
 msgstr "CA 파일 경로"
 
-#: netbox/extras/models/models.py:247
+#: netbox/extras/models/models.py:249
 msgid ""
 "The specific CA certificate file to use for SSL verification. Leave blank to"
 " use the system defaults."
 msgstr "SSL 검증에 사용할 특정 CA 인증서 파일. 시스템 기본값을 사용하려면 비워 두세요."
 
-#: netbox/extras/models/models.py:258
+#: netbox/extras/models/models.py:260
 msgid "webhook"
 msgstr "Webhook"
 
-#: netbox/extras/models/models.py:259
+#: netbox/extras/models/models.py:261
 msgid "webhooks"
 msgstr "Webhooks"
 
-#: netbox/extras/models/models.py:277
+#: netbox/extras/models/models.py:279
 msgid "Do not specify a CA certificate file if SSL verification is disabled."
 msgstr "SSL 검증이 비활성화된 경우 CA 인증서 파일을 지정하지 마세요."
 
-#: netbox/extras/models/models.py:316
+#: netbox/extras/models/models.py:322
 msgid "The object type(s) to which this link applies."
 msgstr "이 링크가 적용되는 객체 유형."
 
-#: netbox/extras/models/models.py:328
+#: netbox/extras/models/models.py:334
 msgid "link text"
 msgstr "링크 텍스트"
 
-#: netbox/extras/models/models.py:329
+#: netbox/extras/models/models.py:335
 msgid "Jinja2 template code for link text"
 msgstr "링크 텍스트용 Jinja2 템플릿 코드"
 
-#: netbox/extras/models/models.py:332
+#: netbox/extras/models/models.py:338
 msgid "link URL"
 msgstr "링크 URL"
 
-#: netbox/extras/models/models.py:333
+#: netbox/extras/models/models.py:339
 msgid "Jinja2 template code for link URL"
 msgstr "링크 URL용 Jinja2 템플릿 코드"
 
-#: netbox/extras/models/models.py:343
+#: netbox/extras/models/models.py:349
 msgid "Links with the same group will appear as a dropdown menu"
 msgstr "같은 그룹의 링크는 드롭다운 메뉴로 표시됩니다"
 
-#: netbox/extras/models/models.py:353
+#: netbox/extras/models/models.py:359
 msgid "new window"
 msgstr "새 창"
 
-#: netbox/extras/models/models.py:355
+#: netbox/extras/models/models.py:361
 msgid "Force link to open in a new window"
 msgstr "링크를 항상 새 창으로 열기"
 
-#: netbox/extras/models/models.py:367
+#: netbox/extras/models/models.py:373
 msgid "custom link"
 msgstr "사용자 정의 링크"
 
-#: netbox/extras/models/models.py:368
+#: netbox/extras/models/models.py:374
 msgid "custom links"
 msgstr "사용자 정의 링크"
 
-#: netbox/extras/models/models.py:422
+#: netbox/extras/models/models.py:428
 msgid "The object type(s) to which this template applies."
 msgstr "이 템플릿이 적용되는 객체 유형."
 
-#: netbox/extras/models/models.py:443
+#: netbox/extras/models/models.py:449
 msgid "export template"
 msgstr "내보내기 템플릿"
 
-#: netbox/extras/models/models.py:444
+#: netbox/extras/models/models.py:450
 msgid "export templates"
 msgstr "내보내기 템플릿"
 
-#: netbox/extras/models/models.py:461
+#: netbox/extras/models/models.py:467
 #, python-brace-format
 msgid "\"{name}\" is a reserved name. Please choose a different name."
 msgstr "\"{name}\"은(는) 예약된 이름입니다. 다른 이름을 선택하세요."
 
-#: netbox/extras/models/models.py:484
+#: netbox/extras/models/models.py:490
 msgid "The object type(s) to which this filter applies."
 msgstr "이 필터가 적용되는 객체 유형."
 
-#: netbox/extras/models/models.py:516 netbox/extras/models/models.py:600
+#: netbox/extras/models/models.py:522 netbox/extras/models/models.py:606
 msgid "shared"
 msgstr "공유"
 
-#: netbox/extras/models/models.py:534
+#: netbox/extras/models/models.py:540
 msgid "saved filter"
 msgstr "저장된 필터"
 
-#: netbox/extras/models/models.py:535
+#: netbox/extras/models/models.py:541
 msgid "saved filters"
 msgstr "저장된 필터"
 
-#: netbox/extras/models/models.py:553
+#: netbox/extras/models/models.py:559
 msgid "Filter parameters must be stored as a dictionary of keyword arguments."
 msgstr "필터 매개변수는 키워드 인수의 딕셔너리로 저장해야 합니다."
 
-#: netbox/extras/models/models.py:570
+#: netbox/extras/models/models.py:576
 msgid "The table's object type"
 msgstr "테이블의 객체 유형"
 
-#: netbox/extras/models/models.py:573
+#: netbox/extras/models/models.py:579
 msgid "table"
 msgstr "테이블"
 
-#: netbox/extras/models/models.py:621
+#: netbox/extras/models/models.py:627
 msgid "table config"
 msgstr "테이블 구성"
 
-#: netbox/extras/models/models.py:622
+#: netbox/extras/models/models.py:628
 msgid "table configs"
 msgstr "테이블 구성"
 
-#: netbox/extras/models/models.py:664
+#: netbox/extras/models/models.py:670
 #, python-brace-format
 msgid "Unknown table: {name}"
 msgstr "알 수 없는 테이블: {name}"
 
-#: netbox/extras/models/models.py:675 netbox/extras/models/models.py:682
+#: netbox/extras/models/models.py:681 netbox/extras/models/models.py:688
 #, python-brace-format
 msgid "Unknown column: {name}"
 msgstr "알 수 없는 열: {name}"
 
-#: netbox/extras/models/models.py:705
+#: netbox/extras/models/models.py:711
 msgid "image height"
 msgstr "이미지 높이"
 
-#: netbox/extras/models/models.py:708
+#: netbox/extras/models/models.py:714
 msgid "image width"
 msgstr "이미지 너비"
 
-#: netbox/extras/models/models.py:714
+#: netbox/extras/models/models.py:720
 msgid "image size"
 msgstr "이미지 크기"
 
-#: netbox/extras/models/models.py:760
+#: netbox/extras/models/models.py:766
 msgid "image attachment"
 msgstr "이미지 첨부 파일"
 
-#: netbox/extras/models/models.py:761
+#: netbox/extras/models/models.py:767
 msgid "image attachments"
 msgstr "이미지 첨부 파일"
 
-#: netbox/extras/models/models.py:775
+#: netbox/extras/models/models.py:781
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr "이 객체 유형({type})에는 이미지 첨부 파일을 할당할 수 없습니다."
 
-#: netbox/extras/models/models.py:886
+#: netbox/extras/models/models.py:892
 msgid "kind"
 msgstr "종류"
 
-#: netbox/extras/models/models.py:901
+#: netbox/extras/models/models.py:907
 msgid "journal entry"
 msgstr "저널 항목"
 
-#: netbox/extras/models/models.py:902
+#: netbox/extras/models/models.py:908
 msgid "journal entries"
 msgstr "저널 항목"
 
-#: netbox/extras/models/models.py:920
+#: netbox/extras/models/models.py:926
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr "이 객체 유형({type})에서는 저널이 지원되지 않습니다."
 
-#: netbox/extras/models/models.py:963
+#: netbox/extras/models/models.py:969
 msgid "bookmark"
 msgstr "북마크"
 
-#: netbox/extras/models/models.py:964
+#: netbox/extras/models/models.py:970
 msgid "bookmarks"
 msgstr "북마크"
 
-#: netbox/extras/models/models.py:980
+#: netbox/extras/models/models.py:986
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr "이 객체 유형({type})에는 북마크를 할당할 수 없습니다."
@@ -10487,7 +10510,7 @@ msgstr "위젯을 다시 구성하거나 대시보드에서 제거해 보세요.
 #: netbox/extras/ui/panels.py:58 netbox/netbox/navigation/menu.py:359
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:41
 #: netbox/templates/dcim/device_edit.html:113
-#: netbox/templates/dcim/htmx/cable_edit.html:93
+#: netbox/templates/dcim/htmx/cable_edit.html:103
 #: netbox/templates/dcim/virtualchassis_edit.html:48
 #: netbox/templates/generic/bulk_edit.html:89
 #: netbox/templates/htmx/form.html:19 netbox/templates/inc/filter_list.html:30
@@ -10531,8 +10554,8 @@ msgstr "사용처"
 msgid "Attachment"
 msgstr "첨부 파일"
 
-#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:248
-#: netbox/extras/views.py:319
+#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:249
+#: netbox/extras/views.py:320
 msgid "Assigned Models"
 msgstr "할당된 모델"
 
@@ -10605,67 +10628,67 @@ msgstr "요청에 대한 잘못된 속성 \"{name}\""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr "{model}에 대한 잘못된 속성 \"{name}\""
 
-#: netbox/extras/views.py:251
+#: netbox/extras/views.py:252
 msgid "Link Text"
 msgstr "링크 텍스트"
 
-#: netbox/extras/views.py:252
+#: netbox/extras/views.py:253
 msgid "Link URL"
 msgstr "링크 URL"
 
-#: netbox/extras/views.py:320 netbox/extras/views.py:1210
+#: netbox/extras/views.py:321 netbox/extras/views.py:1211
 msgid "Environment Parameters"
 msgstr "환경 매개변수"
 
-#: netbox/extras/views.py:323 netbox/extras/views.py:1213
+#: netbox/extras/views.py:324 netbox/extras/views.py:1214
 msgid "Template"
 msgstr "템플릿"
 
-#: netbox/extras/views.py:487
+#: netbox/extras/views.py:488
 msgid "Table configurations must be created from an object list view."
 msgstr "테이블 구성은 객체 목록 보기에서 생성해야 합니다."
 
-#: netbox/extras/views.py:772
+#: netbox/extras/views.py:773
 msgid "Additional Headers"
 msgstr "추가 헤더"
 
-#: netbox/extras/views.py:773
+#: netbox/extras/views.py:774
 msgid "Body Template"
 msgstr "본문 템플릿"
 
-#: netbox/extras/views.py:842
+#: netbox/extras/views.py:843
 msgid "Conditions"
 msgstr "조건"
 
-#: netbox/extras/views.py:916
+#: netbox/extras/views.py:917
 msgid "Tagged Objects"
 msgstr "태그된 객체"
 
-#: netbox/extras/views.py:1008
+#: netbox/extras/views.py:1009
 msgid "JSON Schema"
 msgstr "JSON 스키마"
 
-#: netbox/extras/views.py:1501
+#: netbox/extras/views.py:1502
 msgid "Your dashboard has been reset."
 msgstr "대시보드가 초기화되었습니다."
 
-#: netbox/extras/views.py:1547
+#: netbox/extras/views.py:1548
 msgid "Added widget: "
 msgstr "추가된 위젯: "
 
-#: netbox/extras/views.py:1588
+#: netbox/extras/views.py:1589
 msgid "Updated widget: "
 msgstr "수정된 위젯: "
 
-#: netbox/extras/views.py:1624
+#: netbox/extras/views.py:1625
 msgid "Deleted widget: "
 msgstr "삭제된 위젯: "
 
-#: netbox/extras/views.py:1626
+#: netbox/extras/views.py:1627
 msgid "Error deleting widget: "
 msgstr "위젯 삭제 중 오류 발생: "
 
-#: netbox/extras/views.py:1741
+#: netbox/extras/views.py:1743
 msgid "Unable to run script: RQ worker process not running."
 msgstr "스크립트를 실행할 수 없음: RQ 워커 프로세스가 실행 중이 아닙니다."
 
@@ -10790,7 +10813,7 @@ msgid "Exporting L2VPN (identifier)"
 msgstr "내보내는 L2VPN (식별자)"
 
 #: netbox/ipam/filtersets.py:173 netbox/ipam/filtersets.py:336
-#: netbox/ipam/forms/model_forms.py:231 netbox/ipam/forms/model_forms.py:263
+#: netbox/ipam/forms/model_forms.py:231 netbox/ipam/forms/model_forms.py:271
 #: netbox/ipam/tables/ip.py:162
 #: netbox/templates/ipam/inc/prefix_edit_header.html:7
 msgid "Prefix"
@@ -10841,7 +10864,7 @@ msgid "VLAN number (1-4094)"
 msgstr "VLAN 번호 (1-4094)"
 
 #: netbox/ipam/filtersets.py:510 netbox/ipam/filtersets.py:514
-#: netbox/ipam/filtersets.py:612 netbox/ipam/forms/model_forms.py:529
+#: netbox/ipam/filtersets.py:612 netbox/ipam/forms/model_forms.py:537
 #: netbox/tenancy/forms/bulk_edit.py:108
 msgid "Address"
 msgstr "주소"
@@ -10870,51 +10893,51 @@ msgstr "애플리케이션 서비스 (ID)"
 msgid "NAT inside IP address (ID)"
 msgstr "NAT 내부 IP 주소 (ID)"
 
-#: netbox/ipam/filtersets.py:1087
+#: netbox/ipam/filtersets.py:1091
 msgid "Q-in-Q SVLAN (ID)"
 msgstr "Q-in-Q SVLAN (ID)"
 
-#: netbox/ipam/filtersets.py:1091
+#: netbox/ipam/filtersets.py:1095
 msgid "Q-in-Q SVLAN number (1-4094)"
 msgstr "Q-in-Q SVLAN 번호 (1-4094)"
 
-#: netbox/ipam/filtersets.py:1112
+#: netbox/ipam/filtersets.py:1116
 msgid "Assigned VM interface"
 msgstr "할당된 VM 인터페이스"
 
-#: netbox/ipam/filtersets.py:1187
+#: netbox/ipam/filtersets.py:1195
 msgid "VLAN Translation Policy (name)"
 msgstr "VLAN 변환 정책 (이름)"
 
-#: netbox/ipam/filtersets.py:1256
+#: netbox/ipam/filtersets.py:1264
 msgid "FHRP Group (name)"
 msgstr "FHRP 그룹 (이름)"
 
-#: netbox/ipam/filtersets.py:1261
+#: netbox/ipam/filtersets.py:1269
 msgid "FHRP Group (ID)"
 msgstr "FHRP 그룹 (ID)"
 
-#: netbox/ipam/filtersets.py:1266
+#: netbox/ipam/filtersets.py:1274
 msgid "IP address (ID)"
 msgstr "IP 주소 (ID)"
 
-#: netbox/ipam/filtersets.py:1272 netbox/ipam/models/ip.py:1030
+#: netbox/ipam/filtersets.py:1280 netbox/ipam/models/ip.py:1030
 msgid "IP address"
 msgstr "IP 주소"
 
-#: netbox/ipam/filtersets.py:1325
+#: netbox/ipam/filtersets.py:1333
 msgid "Primary IPv4 (ID)"
 msgstr "기본 IPv4 (ID)"
 
-#: netbox/ipam/filtersets.py:1332
+#: netbox/ipam/filtersets.py:1340
 msgid "Primary IPv4 (address)"
 msgstr "기본 IPv4 (주소)"
 
-#: netbox/ipam/filtersets.py:1338
+#: netbox/ipam/filtersets.py:1346
 msgid "Primary IPv6 (ID)"
 msgstr "기본 IPv6 (ID)"
 
-#: netbox/ipam/filtersets.py:1345
+#: netbox/ipam/filtersets.py:1353
 msgid "Primary IPv6 (address)"
 msgstr "기본 IPv6 (주소)"
 
@@ -10948,7 +10971,7 @@ msgstr "CIDR 마스크 (예: /24)가 필요합니다."
 msgid "Pattern"
 msgstr "패턴"
 
-#: netbox/ipam/forms/bulk_create.py:28 netbox/ipam/forms/model_forms.py:625
+#: netbox/ipam/forms/bulk_create.py:28 netbox/ipam/forms/model_forms.py:633
 #: netbox/ipam/ui/panels.py:162
 msgid "VLAN IDs"
 msgstr "VLAN ID"
@@ -10987,14 +11010,14 @@ msgid "Date added"
 msgstr "추가일"
 
 #: netbox/ipam/forms/bulk_edit.py:182 netbox/ipam/forms/filtersets.py:286
-#: netbox/ipam/forms/model_forms.py:642 netbox/ipam/forms/model_forms.py:691
+#: netbox/ipam/forms/model_forms.py:650 netbox/ipam/forms/model_forms.py:699
 #: netbox/ipam/tables/ip.py:205 netbox/templates/ipam/vlan_edit.html:53
 msgid "VLAN Group"
 msgstr "VLAN 그룹"
 
 #: netbox/ipam/forms/bulk_edit.py:187 netbox/ipam/forms/bulk_import.py:198
 #: netbox/ipam/forms/filtersets.py:291 netbox/ipam/forms/model_forms.py:220
-#: netbox/ipam/forms/model_forms.py:739 netbox/ipam/models/vlans.py:307
+#: netbox/ipam/forms/model_forms.py:747 netbox/ipam/models/vlans.py:307
 #: netbox/ipam/tables/ip.py:210 netbox/ipam/ui/panels.py:148
 #: netbox/templates/ipam/inc/vlan_edit_header.html:9
 #: netbox/templates/ipam/vlan/base.html:6
@@ -11023,7 +11046,7 @@ msgid "Treat as fully utilized"
 msgstr "전체 사용 중으로 처리"
 
 #: netbox/ipam/forms/bulk_edit.py:234 netbox/ipam/forms/filtersets.py:198
-#: netbox/ipam/forms/model_forms.py:234 netbox/ipam/forms/model_forms.py:266
+#: netbox/ipam/forms/model_forms.py:234 netbox/ipam/forms/model_forms.py:274
 msgid "VLAN Assignment"
 msgstr "VLAN 할당"
 
@@ -11066,7 +11089,7 @@ msgid "Authentication key"
 msgstr "인증 키"
 
 #: netbox/ipam/forms/bulk_edit.py:355 netbox/ipam/forms/filtersets.py:435
-#: netbox/ipam/forms/model_forms.py:539 netbox/ipam/ui/panels.py:189
+#: netbox/ipam/forms/model_forms.py:547 netbox/ipam/ui/panels.py:189
 #: netbox/netbox/navigation/menu.py:421 netbox/wireless/forms/bulk_edit.py:83
 #: netbox/wireless/forms/bulk_edit.py:135
 #: netbox/wireless/forms/filtersets.py:43
@@ -11095,23 +11118,23 @@ msgid "Site & Group"
 msgstr "사이트 및 그룹"
 
 #: netbox/ipam/forms/bulk_edit.py:485 netbox/ipam/forms/bulk_import.py:578
-#: netbox/ipam/forms/model_forms.py:766 netbox/ipam/tables/vlans.py:234
+#: netbox/ipam/forms/model_forms.py:774 netbox/ipam/tables/vlans.py:234
 #: netbox/vpn/forms/model_forms.py:319 netbox/vpn/forms/model_forms.py:356
 msgid "Policy"
 msgstr "정책"
 
-#: netbox/ipam/forms/bulk_edit.py:506 netbox/ipam/forms/model_forms.py:784
-#: netbox/ipam/forms/model_forms.py:816 netbox/ipam/tables/services.py:20
+#: netbox/ipam/forms/bulk_edit.py:506 netbox/ipam/forms/model_forms.py:792
+#: netbox/ipam/forms/model_forms.py:824 netbox/ipam/tables/services.py:20
 #: netbox/ipam/tables/services.py:47 netbox/ipam/ui/panels.py:240
 #: netbox/ipam/ui/panels.py:248
 msgid "Ports"
 msgstr "포트"
 
-#: netbox/ipam/forms/bulk_import.py:55 netbox/ipam/views.py:72
+#: netbox/ipam/forms/bulk_import.py:55 netbox/ipam/views.py:73
 msgid "Import route targets"
 msgstr "가져오기 라우트 타깃"
 
-#: netbox/ipam/forms/bulk_import.py:61 netbox/ipam/views.py:75
+#: netbox/ipam/forms/bulk_import.py:61 netbox/ipam/views.py:76
 msgid "Export route targets"
 msgstr "내보내기 라우트 타깃"
 
@@ -11139,8 +11162,8 @@ msgid "Scope ID"
 msgstr "범위 ID"
 
 #: netbox/ipam/forms/bulk_import.py:337 netbox/ipam/forms/filtersets.py:680
-#: netbox/ipam/forms/model_forms.py:323 netbox/ipam/forms/model_forms.py:352
-#: netbox/ipam/forms/model_forms.py:538
+#: netbox/ipam/forms/model_forms.py:331 netbox/ipam/forms/model_forms.py:360
+#: netbox/ipam/forms/model_forms.py:546
 msgid "FHRP Group"
 msgstr "FHRP 그룹"
 
@@ -11313,7 +11336,7 @@ msgstr "로컬 VLAN ID"
 msgid "Remote VLAN ID"
 msgstr "원격 VLAN ID"
 
-#: netbox/ipam/forms/filtersets.py:572 netbox/ipam/forms/model_forms.py:740
+#: netbox/ipam/forms/filtersets.py:572 netbox/ipam/forms/model_forms.py:748
 msgid "Q-in-Q/802.1ad"
 msgstr "Q-in-Q/802.1ad"
 
@@ -11335,58 +11358,58 @@ msgstr "애그리게이트"
 msgid "ASN Range"
 msgstr "ASN 범위"
 
-#: netbox/ipam/forms/model_forms.py:287
+#: netbox/ipam/forms/model_forms.py:295
 msgid "IP Range"
 msgstr "IP 범위"
 
-#: netbox/ipam/forms/model_forms.py:338
+#: netbox/ipam/forms/model_forms.py:346
 msgid "Make this the primary IP for the device/VM"
 msgstr "이 IP를 장비/VM의 기본 IP로 설정"
 
-#: netbox/ipam/forms/model_forms.py:342
+#: netbox/ipam/forms/model_forms.py:350
 msgid "Make this the out-of-band IP for the device"
 msgstr "이 IP를 장비의 대역 외(OOB) IP로 설정"
 
-#: netbox/ipam/forms/model_forms.py:356
+#: netbox/ipam/forms/model_forms.py:364
 msgid "NAT IP (Inside)"
 msgstr "NAT IP (내부)"
 
-#: netbox/ipam/forms/model_forms.py:418
+#: netbox/ipam/forms/model_forms.py:426
 msgid "An IP address can only be assigned to a single object."
 msgstr "IP 주소는 하나의 객체에만 할당할 수 있습니다."
 
-#: netbox/ipam/forms/model_forms.py:425
+#: netbox/ipam/forms/model_forms.py:433
 msgid "Cannot reassign primary IP address for the parent device/VM"
 msgstr "상위 장비/VM의 기본 IP 주소를 재할당할 수 없습니다"
 
-#: netbox/ipam/forms/model_forms.py:429
+#: netbox/ipam/forms/model_forms.py:437
 msgid "Cannot reassign out-of-Band IP address for the parent device"
 msgstr "상위 장비의 대역 외 IP 주소를 재할당할 수 없습니다"
 
-#: netbox/ipam/forms/model_forms.py:439
+#: netbox/ipam/forms/model_forms.py:447
 msgid ""
 "Only IP addresses assigned to an interface can be designated as primary IPs."
 msgstr "인터페이스에 할당된 IP 주소만 기본 IP로 지정할 수 있습니다."
 
-#: netbox/ipam/forms/model_forms.py:447
+#: netbox/ipam/forms/model_forms.py:455
 msgid ""
 "Only IP addresses assigned to a device interface can be designated as the "
 "out-of-band IP for a device."
 msgstr "장비 인터페이스에 할당된 IP 주소만 장비의 대역 외 IP로 지정할 수 있습니다."
 
-#: netbox/ipam/forms/model_forms.py:540
+#: netbox/ipam/forms/model_forms.py:548
 msgid "Virtual IP Address"
 msgstr "가상 IP 주소"
 
-#: netbox/ipam/forms/model_forms.py:617
+#: netbox/ipam/forms/model_forms.py:625
 msgid "Assignment already exists"
 msgstr "이미 할당되어 있습니다"
 
-#: netbox/ipam/forms/model_forms.py:643
+#: netbox/ipam/forms/model_forms.py:651
 msgid "Child VLANs"
 msgstr "하위 VLAN"
 
-#: netbox/ipam/forms/model_forms.py:702
+#: netbox/ipam/forms/model_forms.py:710
 msgid ""
 "The direct assignment of VLANs to a site is deprecated and will be removed "
 "in a future release. Users are encouraged to utilize VLAN groups for this "
@@ -11394,50 +11417,50 @@ msgid ""
 msgstr ""
 "사이트에 VLAN을 직접 할당하는 것은 사용 중단되었으며 향후 릴리스에서 제거됩니다. 이 용도로는 VLAN 그룹 사용을 권장합니다."
 
-#: netbox/ipam/forms/model_forms.py:747
+#: netbox/ipam/forms/model_forms.py:755
 #, python-brace-format
 msgid "Use {vid} as a placeholder for the VLAN ID. Example: VLAN-{vid}."
 msgstr "{vid}을(를) VLAN ID의 자리 표시자로 사용하세요. 예: VLAN-{vid}."
 
-#: netbox/ipam/forms/model_forms.py:772
+#: netbox/ipam/forms/model_forms.py:780
 msgid "VLAN Translation Rule"
 msgstr "VLAN 변환 규칙"
 
-#: netbox/ipam/forms/model_forms.py:789 netbox/ipam/forms/model_forms.py:821
+#: netbox/ipam/forms/model_forms.py:797 netbox/ipam/forms/model_forms.py:829
 msgid ""
 "Comma-separated list of one or more port numbers. A range may be specified "
 "using a hyphen."
 msgstr "쉼표로 구분된 포트 번호 목록. 하이픈으로 범위를 지정할 수 있습니다."
 
-#: netbox/ipam/forms/model_forms.py:793
+#: netbox/ipam/forms/model_forms.py:801
 msgid "Application Service Template"
 msgstr "애플리케이션 서비스 템플릿"
 
-#: netbox/ipam/forms/model_forms.py:806
+#: netbox/ipam/forms/model_forms.py:814
 msgid "Parent type"
 msgstr "상위 유형"
 
-#: netbox/ipam/forms/model_forms.py:832
+#: netbox/ipam/forms/model_forms.py:840
 msgid "Port(s)"
 msgstr "포트"
 
-#: netbox/ipam/forms/model_forms.py:833 netbox/ipam/forms/model_forms.py:899
+#: netbox/ipam/forms/model_forms.py:841 netbox/ipam/forms/model_forms.py:907
 msgid "Application Service"
 msgstr "애플리케이션 서비스"
 
-#: netbox/ipam/forms/model_forms.py:887
+#: netbox/ipam/forms/model_forms.py:895
 msgid "Application Service template"
 msgstr "애플리케이션 서비스 템플릿"
 
-#: netbox/ipam/forms/model_forms.py:896
+#: netbox/ipam/forms/model_forms.py:904
 msgid "From Template"
 msgstr "템플릿에서"
 
-#: netbox/ipam/forms/model_forms.py:897
+#: netbox/ipam/forms/model_forms.py:905
 msgid "Custom"
 msgstr "사용자 정의"
 
-#: netbox/ipam/forms/model_forms.py:929
+#: netbox/ipam/forms/model_forms.py:937
 msgid ""
 "Must specify name, protocol, and port(s) if not using an application service"
 " template."
@@ -11925,8 +11948,8 @@ msgid "Added"
 msgstr "추가일"
 
 #: netbox/ipam/tables/ip.py:76 netbox/ipam/tables/ip.py:111
-#: netbox/ipam/tables/vlans.py:125 netbox/ipam/views.py:621
-#: netbox/ipam/views.py:1731 netbox/netbox/navigation/menu.py:182
+#: netbox/ipam/tables/vlans.py:125 netbox/ipam/views.py:623
+#: netbox/ipam/views.py:1736 netbox/netbox/navigation/menu.py:182
 #: netbox/netbox/navigation/menu.py:184
 msgid "Prefixes"
 msgstr "프리픽스"
@@ -12127,101 +12150,101 @@ msgid ""
 "are allowed in DNS names"
 msgstr "DNS 이름에는 영숫자, 별표, 하이픈, 마침표, 밑줄만 사용할 수 있습니다"
 
-#: netbox/ipam/views.py:106 netbox/ipam/views.py:1761
+#: netbox/ipam/views.py:107 netbox/ipam/views.py:1766
 msgid "Device Interfaces"
 msgstr "장비 인터페이스"
 
-#: netbox/ipam/views.py:111 netbox/ipam/views.py:1779
+#: netbox/ipam/views.py:112 netbox/ipam/views.py:1784
 msgid "VM Interfaces"
 msgstr "VM 인터페이스"
 
-#: netbox/ipam/views.py:196
+#: netbox/ipam/views.py:197
 msgid "Importing VRFs"
 msgstr "가져오는 VRF"
 
-#: netbox/ipam/views.py:203
+#: netbox/ipam/views.py:204
 msgid "Exporting VRFs"
 msgstr "내보내는 VRF"
 
-#: netbox/ipam/views.py:212
+#: netbox/ipam/views.py:213
 msgid "Importing L2VPNs"
 msgstr "가져오는 L2VPN"
 
-#: netbox/ipam/views.py:219
+#: netbox/ipam/views.py:220
 msgid "Exporting L2VPNs"
 msgstr "내보내는 L2VPN"
 
-#: netbox/ipam/views.py:798
+#: netbox/ipam/views.py:800
 msgid "Duplicate prefixes"
 msgstr "중복 프리픽스"
 
-#: netbox/ipam/views.py:799 netbox/ipam/views.py:1012
-#: netbox/ipam/views.py:1120
+#: netbox/ipam/views.py:801 netbox/ipam/views.py:1017
+#: netbox/ipam/views.py:1125
 msgid "Parent prefixes"
 msgstr "상위 프리픽스"
 
-#: netbox/ipam/views.py:851
+#: netbox/ipam/views.py:853
 msgid "Child Prefixes"
 msgstr "하위 프리픽스"
 
-#: netbox/ipam/views.py:895
+#: netbox/ipam/views.py:897
 msgid "Child Ranges"
 msgstr "하위 범위"
 
-#: netbox/ipam/views.py:1121
+#: netbox/ipam/views.py:1126
 msgid "Duplicate IPs"
 msgstr "중복 IP"
 
-#: netbox/ipam/views.py:1125
+#: netbox/ipam/views.py:1130
 msgid "Application services"
 msgstr "애플리케이션 서비스"
 
-#: netbox/ipam/views.py:1291
+#: netbox/ipam/views.py:1296
 msgid "Related IPs"
 msgstr "관련 IP"
 
-#: netbox/ipam/views.py:1432
+#: netbox/ipam/views.py:1437
 msgid "VLAN translation rules"
 msgstr "VLAN 변환 규칙"
 
-#: netbox/ipam/views.py:1438
+#: netbox/ipam/views.py:1443
 msgid "Add Rule"
 msgstr "규칙 추가"
 
-#: netbox/ipam/views.py:1580
+#: netbox/ipam/views.py:1585
 msgid "Virtual IP addresses"
 msgstr "가상 IP 주소"
 
-#: netbox/ipam/views.py:1585 netbox/templates/ipam/iprange/ip_addresses.html:8
+#: netbox/ipam/views.py:1590 netbox/templates/ipam/iprange/ip_addresses.html:8
 #: netbox/templates/ipam/prefix/ip_addresses.html:7
 msgid "Add IP Address"
 msgstr "IP 주소 추가"
 
-#: netbox/ipam/views.py:1744
+#: netbox/ipam/views.py:1749
 msgid "Add a Prefix"
 msgstr "프리픽스 추가"
 
-#: netbox/netbox/api/fields.py:69
+#: netbox/netbox/api/fields.py:68
 msgid "This field may not be blank."
 msgstr "이 필드는 비워 둘 수 없습니다."
 
-#: netbox/netbox/api/fields.py:74
+#: netbox/netbox/api/fields.py:73
 msgid ""
 "Value must be passed directly (e.g. \"foo\": 123); do not use a dictionary "
 "or list."
 msgstr "값은 직접 전달해야 합니다 (예: \"foo\": 123). 딕셔너리나 리스트는 사용하지 마세요."
 
-#: netbox/netbox/api/fields.py:95
+#: netbox/netbox/api/fields.py:94
 #, python-brace-format
 msgid "{value} is not a valid choice."
 msgstr "{value}은(는) 유효한 선택지가 아닙니다."
 
-#: netbox/netbox/api/fields.py:108
+#: netbox/netbox/api/fields.py:107
 #, python-brace-format
 msgid "Invalid content type: {content_type}"
 msgstr "잘못된 콘텐츠 유형: {content_type}"
 
-#: netbox/netbox/api/fields.py:109
+#: netbox/netbox/api/fields.py:108
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr "잘못된 값. 콘텐츠 유형을 '<app_label>.<model_name>' 형식으로 지정하세요."
 
@@ -13302,71 +13325,71 @@ msgstr "초기화 후에는 레지스트리에 스토어를 추가할 수 없습
 msgid "Cannot delete stores from registry"
 msgstr "레지스트리에서 스토어를 삭제할 수 없습니다"
 
-#: netbox/netbox/settings.py:881
+#: netbox/netbox/settings.py:893
 msgid "Czech"
 msgstr "체코어"
 
-#: netbox/netbox/settings.py:882
+#: netbox/netbox/settings.py:894
 msgid "Danish"
 msgstr "덴마크어"
 
-#: netbox/netbox/settings.py:883
+#: netbox/netbox/settings.py:895
 msgid "German"
 msgstr "독일어"
 
-#: netbox/netbox/settings.py:884
+#: netbox/netbox/settings.py:896
 msgid "English"
 msgstr "영어"
 
-#: netbox/netbox/settings.py:885
+#: netbox/netbox/settings.py:897
 msgid "Spanish"
 msgstr "스페인어"
 
-#: netbox/netbox/settings.py:886
+#: netbox/netbox/settings.py:898
 msgid "French"
 msgstr "프랑스어"
 
-#: netbox/netbox/settings.py:887
+#: netbox/netbox/settings.py:899
 msgid "Italian"
 msgstr "이탈리아어"
 
-#: netbox/netbox/settings.py:888
+#: netbox/netbox/settings.py:900
 msgid "Japanese"
 msgstr "일본어"
 
-#: netbox/netbox/settings.py:889
+#: netbox/netbox/settings.py:901
 msgid "Korean"
 msgstr "한국어"
 
-#: netbox/netbox/settings.py:890
+#: netbox/netbox/settings.py:902
 msgid "Latvian"
 msgstr "라트비아어"
 
-#: netbox/netbox/settings.py:891
+#: netbox/netbox/settings.py:903
 msgid "Dutch"
 msgstr "네덜란드어"
 
-#: netbox/netbox/settings.py:892
+#: netbox/netbox/settings.py:904
 msgid "Polish"
 msgstr "폴란드어"
 
-#: netbox/netbox/settings.py:893
+#: netbox/netbox/settings.py:905
 msgid "Portuguese"
 msgstr "포르투갈어"
 
-#: netbox/netbox/settings.py:894
+#: netbox/netbox/settings.py:906
 msgid "Russian"
 msgstr "러시아어"
 
-#: netbox/netbox/settings.py:895
+#: netbox/netbox/settings.py:907
 msgid "Turkish"
 msgstr "터키어"
 
-#: netbox/netbox/settings.py:896
+#: netbox/netbox/settings.py:908
 msgid "Ukrainian"
 msgstr "우크라이나어"
 
-#: netbox/netbox/settings.py:897
+#: netbox/netbox/settings.py:909
 msgid "Chinese"
 msgstr "중국어"
 
@@ -13442,42 +13465,42 @@ msgstr "잘못된 max_items 값: {max_items}! 양의 정수 또는 None이어야
 msgid "GPS coordinates"
 msgstr "GPS 좌표"
 
-#: netbox/netbox/views/generic/bulk_views.py:140
+#: netbox/netbox/views/generic/bulk_views.py:141
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr "선택한 내보내기 템플릿({template}) 렌더링 중 오류 발생: {error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:321
+#: netbox/netbox/views/generic/bulk_views.py:322
 msgid "General"
 msgstr "일반"
 
-#: netbox/netbox/views/generic/bulk_views.py:331
+#: netbox/netbox/views/generic/bulk_views.py:332
 #, python-brace-format
 msgid "{value}: {field}: {error}"
 msgstr "{value}: {field}: {error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:503
+#: netbox/netbox/views/generic/bulk_views.py:504
 msgid "Must be a list."
 msgstr "리스트여야 합니다."
 
-#: netbox/netbox/views/generic/bulk_views.py:513
+#: netbox/netbox/views/generic/bulk_views.py:514
 msgid "Must be a dictionary."
 msgstr "딕셔너리여야 합니다."
 
-#: netbox/netbox/views/generic/bulk_views.py:570
+#: netbox/netbox/views/generic/bulk_views.py:571
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr "ID {id}인 객체가 존재하지 않습니다"
 
-#: netbox/netbox/views/generic/bulk_views.py:633
+#: netbox/netbox/views/generic/bulk_views.py:634
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
 msgstr "중복 객체 발견: ID {ids}인 {model}이(가) 여러 번 나타납니다"
 
-#: netbox/netbox/views/generic/bulk_views.py:650
+#: netbox/netbox/views/generic/bulk_views.py:651
 #, python-brace-format
 msgid ""
 "This import includes {count} record(s) that reference an existing object by "
@@ -13487,71 +13510,71 @@ msgstr ""
 "이 가져오기에는 ID로 기존 객체를 참조하여 해당 객체를 업데이트하게 되는 레코드가 {count}개 포함되어 있으며, 이를 위해서는 "
 "{permission} 권한이 필요합니다. 대신 새 객체를 생성하려면 ID 열을 제거하세요."
 
-#: netbox/netbox/views/generic/bulk_views.py:715
+#: netbox/netbox/views/generic/bulk_views.py:716
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr "{count}개 {object_type} 일괄 가져오기"
 
-#: netbox/netbox/views/generic/bulk_views.py:728
+#: netbox/netbox/views/generic/bulk_views.py:729
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr "{count}개 {object_type} 가져옴"
 
-#: netbox/netbox/views/generic/bulk_views.py:842
+#: netbox/netbox/views/generic/bulk_views.py:843
 #, python-brace-format
 msgid "Custom field form field name must begin with 'cf_': {name}"
 msgstr "사용자 정의 필드 폼 필드 이름은 'cf_'로 시작해야 합니다: {name}"
 
-#: netbox/netbox/views/generic/bulk_views.py:921
+#: netbox/netbox/views/generic/bulk_views.py:922
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr "{count}개 {object_type} 일괄 편집"
 
-#: netbox/netbox/views/generic/bulk_views.py:937
+#: netbox/netbox/views/generic/bulk_views.py:938
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr "{count}개 {object_type} 수정됨"
 
-#: netbox/netbox/views/generic/bulk_views.py:970
-#: netbox/netbox/views/generic/bulk_views.py:1249
-#: netbox/netbox/views/generic/bulk_views.py:1297
+#: netbox/netbox/views/generic/bulk_views.py:971
+#: netbox/netbox/views/generic/bulk_views.py:1250
+#: netbox/netbox/views/generic/bulk_views.py:1298
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "선택된 {object_type}이(가) 없습니다."
 
-#: netbox/netbox/views/generic/bulk_views.py:1077
+#: netbox/netbox/views/generic/bulk_views.py:1078
 msgid "Select at least one field to rename."
 msgstr "이름을 변경할 필드를 하나 이상 선택하세요."
 
-#: netbox/netbox/views/generic/bulk_views.py:1107
+#: netbox/netbox/views/generic/bulk_views.py:1108
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "{count}개 {object_type} 이름 변경됨"
 
-#: netbox/netbox/views/generic/bulk_views.py:1178
+#: netbox/netbox/views/generic/bulk_views.py:1179
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr "{count}개 {object_type} 일괄 삭제"
 
-#: netbox/netbox/views/generic/bulk_views.py:1205
+#: netbox/netbox/views/generic/bulk_views.py:1206
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "{count}개 {object_type} 삭제됨"
 
-#: netbox/netbox/views/generic/bulk_views.py:1222
+#: netbox/netbox/views/generic/bulk_views.py:1223
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr "하나 이상의 종속 객체가 있어 삭제하지 못했습니다."
 
-#: netbox/netbox/views/generic/bulk_views.py:1310
+#: netbox/netbox/views/generic/bulk_views.py:1311
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr "{count}개 {object_type} 일괄 추가"
 
-#: netbox/netbox/views/generic/bulk_views.py:1363
+#: netbox/netbox/views/generic/bulk_views.py:1364
 msgid "An integrity error occurred while creating components"
 msgstr "구성 요소 생성 중 무결성 오류가 발생했습니다"
 
-#: netbox/netbox/views/generic/bulk_views.py:1375
+#: netbox/netbox/views/generic/bulk_views.py:1376
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr "{parent_count}개 {parent}에 {count}개 {component} 추가됨."
@@ -13578,7 +13601,7 @@ msgstr "{object_type} {object}의 데이터가 동기화되었습니다."
 msgid "Synced {count} {object_type}"
 msgstr "{count}개 {object_type} 동기화됨"
 
-#: netbox/netbox/views/generic/object_views.py:118
+#: netbox/netbox/views/generic/object_views.py:120
 #, python-brace-format
 msgid "{class_name} must implement get_children()"
 msgstr "{class_name}은(는) get_children()을 구현해야 합니다"
@@ -15508,7 +15531,7 @@ msgstr "페이지당"
 msgid "Data is out of sync with upstream file"
 msgstr "데이터가 업스트림 파일과 동기화되지 않았습니다"
 
-#: netbox/templates/inc/table_controls_htmx.html:11
+#: netbox/templates/inc/table_controls_htmx.html:10
 #: netbox/templates/inc/table_controls_htmx.html:12
 msgid "Quick search"
 msgstr "빠른 검색"
@@ -16497,24 +16520,24 @@ msgstr "소유자 멤버십"
 msgid "Assigned Users"
 msgstr "할당된 사용자"
 
-#: netbox/utilities/api.py:236
+#: netbox/utilities/api.py:251
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr "제공된 속성으로 관련 객체를 찾을 수 없음: {params}"
 
-#: netbox/utilities/api.py:239
+#: netbox/utilities/api.py:254
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr "제공된 속성과 일치하는 객체가 여러 개입니다: {params}"
 
-#: netbox/utilities/api.py:251
+#: netbox/utilities/api.py:266
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr "관련 객체는 숫자 ID 또는 속성 딕셔너리로 참조해야 합니다. 인식할 수 없는 값 수신: {value}"
 
-#: netbox/utilities/api.py:260
+#: netbox/utilities/api.py:275
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr "제공된 숫자 ID로 관련 객체를 찾을 수 없음: {id}"
@@ -16558,7 +16581,7 @@ msgstr "<strong>{objects}</strong>을(를) 삭제할 수 없습니다. {count}�
 msgid "More than 50"
 msgstr "50개 이상"
 
-#: netbox/utilities/export.py:27 netbox/utilities/export.py:61
+#: netbox/utilities/export.py:28 netbox/utilities/export.py:62
 #, python-brace-format
 msgid "Invalid delimiter name: {name}"
 msgstr "잘못된 구분자 이름: {name}"
@@ -16720,14 +16743,14 @@ msgstr "인식할 수 없는 헤더: {name}"
 #: netbox/utilities/forms/mixins.py:28 netbox/utilities/forms/mixins.py:40
 #: netbox/utilities/forms/mixins.py:50 netbox/utilities/forms/mixins.py:60
 #: netbox/utilities/forms/mixins.py:70 netbox/utilities/forms/mixins.py:76
-#: netbox/utilities/forms/mixins.py:88 netbox/utilities/forms/mixins.py:94
+#: netbox/utilities/forms/mixins.py:89 netbox/utilities/forms/mixins.py:95
 msgid "is"
 msgstr "같음"
 
 #: netbox/utilities/forms/mixins.py:29 netbox/utilities/forms/mixins.py:41
 #: netbox/utilities/forms/mixins.py:51 netbox/utilities/forms/mixins.py:61
 #: netbox/utilities/forms/mixins.py:71 netbox/utilities/forms/mixins.py:77
-#: netbox/utilities/forms/mixins.py:89 netbox/utilities/forms/mixins.py:95
+#: netbox/utilities/forms/mixins.py:90 netbox/utilities/forms/mixins.py:96
 msgid "is not"
 msgstr "같지 않음"
 
@@ -16758,16 +16781,16 @@ msgstr "패턴 일치 (대소문자 구분 없음)"
 #: netbox/utilities/forms/mixins.py:36 netbox/utilities/forms/mixins.py:46
 #: netbox/utilities/forms/mixins.py:56 netbox/utilities/forms/mixins.py:66
 #: netbox/utilities/forms/mixins.py:72 netbox/utilities/forms/mixins.py:78
-#: netbox/utilities/forms/mixins.py:84 netbox/utilities/forms/mixins.py:90
-#: netbox/utilities/forms/mixins.py:96
+#: netbox/utilities/forms/mixins.py:85 netbox/utilities/forms/mixins.py:91
+#: netbox/utilities/forms/mixins.py:97
 msgid "is empty"
 msgstr "비어 있음"
 
 #: netbox/utilities/forms/mixins.py:37 netbox/utilities/forms/mixins.py:47
 #: netbox/utilities/forms/mixins.py:57 netbox/utilities/forms/mixins.py:67
 #: netbox/utilities/forms/mixins.py:73 netbox/utilities/forms/mixins.py:79
-#: netbox/utilities/forms/mixins.py:85 netbox/utilities/forms/mixins.py:91
-#: netbox/utilities/forms/mixins.py:97
+#: netbox/utilities/forms/mixins.py:86 netbox/utilities/forms/mixins.py:92
+#: netbox/utilities/forms/mixins.py:98
 msgid "is not empty"
 msgstr "비어 있지 않음"
 
@@ -16808,18 +16831,22 @@ msgid "has these tags"
 msgstr "다음 태그 포함"
 
 #: netbox/utilities/forms/mixins.py:83
+msgid "has any of these tags"
+msgstr "다음 태그 중 하나가 있습니다."
+
+#: netbox/utilities/forms/mixins.py:84
 msgid "does not have these tags"
 msgstr "다음 태그 미포함"
 
-#: netbox/utilities/forms/mixins.py:104
+#: netbox/utilities/forms/mixins.py:105
 msgid "Background job"
 msgstr "백그라운드 작업"
 
-#: netbox/utilities/forms/mixins.py:105
+#: netbox/utilities/forms/mixins.py:106
 msgid "Execute this task via a background job"
 msgstr "이 작업을 백그라운드 작업으로 실행"
 
-#: netbox/utilities/forms/mixins.py:152
+#: netbox/utilities/forms/mixins.py:153
 msgid ""
 "This object has been modified since the form was rendered. Please consult "
 "the object's change log for details."

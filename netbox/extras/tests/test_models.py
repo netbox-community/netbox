@@ -32,6 +32,7 @@ from extras.models import (
     TableConfig,
     Tag,
     TaggedItem,
+    Webhook,
 )
 from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
@@ -1578,6 +1579,95 @@ class ExportTemplateRenderTestCase(TestCase):
         self.assertEqual(response['Content-Type'], DEFAULT_MIME_TYPE)
         self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
         self.assertEqual(response.content.decode(), 'Site A\nSite B\nSite C\n')
+
+
+class WebhookTestCase(TestCase):
+    """Tests for Webhook.clean()'s validation of payload_url (#22828)."""
+
+    def test_payload_url_accepts_literal_url(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_rejects_non_url(self):
+        webhook = Webhook(name='Webhook 1', payload_url='not-a-url-at-all')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_disallowed_scheme(self):
+        webhook = Webhook(name='Webhook 1', payload_url='file:///etc/passwd')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_accepts_jinja2_template(self):
+        """A templated payload_url must not be rejected merely for not being a literal URL."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://{{ data.name }}.example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_accepts_template_using_a_registered_filter(self):
+        webhook = Webhook(name='Webhook 1', payload_url="http://example.com/{{ 'HOME' | env }}")
+        webhook.clean()
+
+    def test_payload_url_rejects_malformed_template_syntax(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://{{ data.name }.example.com/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_template_with_unregistered_filter(self):
+        webhook = Webhook(
+            name='Webhook 1', payload_url='http://example.com/{{ data.name | totally_unregistered_filter }}'
+        )
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_accepts_single_label_host(self):
+        """A Docker/Kubernetes-style internal service name is a legitimate webhook target (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://webhook-receiver:8080/hook')
+        webhook.clean()
+
+    def test_payload_url_accepts_underscore_in_hostname(self):
+        """requests accepts an underscore in a hostname even though Django's URLValidator does not (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://my_host.example.com/hook')
+        webhook.clean()
+
+    def test_payload_url_rejects_missing_host(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http:///hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_payload_url_rejects_templated_disallowed_scheme(self):
+        """A literal, disallowed scheme must be rejected even when the rest of the URL is templated (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='file:///{{ data.name }}')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
+
+    def test_blank_payload_url_produces_a_single_error(self):
+        """clean() must not add its own error on top of clean_fields()'s for a blank value (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.full_clean()
+        self.assertEqual(cm.exception.message_dict['payload_url'], ['This field cannot be blank.'])
+
+    def test_none_payload_url_does_not_raise_typeerror(self):
+        webhook = Webhook(name='Webhook 1', payload_url=None)
+        webhook.clean()
+
+    def test_payload_url_accepts_fully_templated_value(self):
+        """A value with no literal scheme at all (the scheme itself is templated) must still be usable (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='{{ data.custom_fields.callback_url }}')
+        webhook.clean()
+
+    def test_payload_url_rejects_malformed_bracketed_host_gracefully(self):
+        """A malformed netloc must raise ValidationError, not an uncaught ValueError from urlsplit() (#22832)."""
+        webhook = Webhook(name='Webhook 1', payload_url='http://[2001:db8::1/hook')
+        with self.assertRaises(ValidationError) as cm:
+            webhook.clean()
+        self.assertIn('payload_url', cm.exception.message_dict)
 
 
 class EventRuleTestCase(TestCase):

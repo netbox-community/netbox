@@ -1,5 +1,69 @@
 # NetBox v4.6
 
+## v4.6.7 (2026-07-30)
+
+### Performance Improvements
+
+* [#22810](https://github.com/netbox-community/netbox/issues/22810) - Skip cached scope rebuild for sites and locations when scope fields are unchanged
+* [#22813](https://github.com/netbox-community/netbox/issues/22813) - Avoid extraneous database queries when fetching custom field data via the GraphQL API
+* [#22822](https://github.com/netbox-community/netbox/issues/22822) - Avoid an extra database query when including rack reservation units via the GraphQL API
+* [#22823](https://github.com/netbox-community/netbox/issues/22823) - Avoid extraneous database queries when fetching the IP address or prefix family via the GraphQL API
+
+### Bug Fixes
+
+* [#22738](https://github.com/netbox-community/netbox/issues/22738) - Correctly evaluate IP availability for users whose permissions are constrained by a custom field on a related object
+* [#22800](https://github.com/netbox-community/netbox/issues/22800) - Filter circuit group assignments by member type to avoid displaying assignments belonging to a virtual circuit with the same ID
+
+---
+
+## v4.6.6 (2026-07-28)
+
+### Enhancements
+
+* [#19273](https://github.com/netbox-community/netbox/issues/19273) - Enable the selection of VLANs scoped to a device's cluster or cluster group when assigning VLANs to interfaces
+* [#22522](https://github.com/netbox-community/netbox/issues/22522) - Render colored badges for custom field choices in tables
+* [#22623](https://github.com/netbox-community/netbox/issues/22623) - Change the default color of the DHCP IP address status from green to purple to distinguish it from "available"
+* [#22685](https://github.com/netbox-community/netbox/issues/22685) - Introduce an "any" lookup for the `tag` and `tag_id` filters to match objects assigned any of the specified tags
+* [#22753](https://github.com/netbox-community/netbox/issues/22753) - Add a `header_safe` Jinja2 filter for sanitizing HTTP header values
+
+### Performance Improvements
+
+* [#22497](https://github.com/netbox-community/netbox/issues/22497) - Improve the speed of bulk object deletion by avoiding per-object cascade handling and N+1 counter updates
+* [#22687](https://github.com/netbox-community/netbox/issues/22687) - Avoid an unnecessary queryset evaluation when rendering export templates
+
+### Bug Fixes
+
+* [#21988](https://github.com/netbox-community/netbox/issues/21988) - Ensure view permissions are enforced when referencing a related object by its attributes in the REST API
+* [#22513](https://github.com/netbox-community/netbox/issues/22513) - Make `JournalEntry.created_by` immutable after creation to prevent audit trail spoofing
+* [#22565](https://github.com/netbox-community/netbox/issues/22565) - Include circuit distance when calculating the total length of a cable path
+* [#22588](https://github.com/netbox-community/netbox/issues/22588) - Restrict the VLANs available for assignment to a prefix scoped to a site group
+* [#22644](https://github.com/netbox-community/netbox/issues/22644) - Record changes to front/rear port mappings in the changelog
+* [#22654](https://github.com/netbox-community/netbox/issues/22654) - Redact server filesystem paths from tracebacks rendered by ConfigTemplate debug mode
+* [#22656](https://github.com/netbox-community/netbox/issues/22656) - Pre-populate interface attributes when using "Create & Add Another"
+* [#22662](https://github.com/netbox-community/netbox/issues/22662) - Avoid raising a `DataError` exception when a cable length exceeds the maximum supported value
+* [#22675](https://github.com/netbox-community/netbox/issues/22675) - Validate the URL scheme of RSS feed entries to prevent DOM-based cross-site scripting
+* [#22677](https://github.com/netbox-community/netbox/issues/22677) - Display validation errors for form fields which lack HTML5 constraints
+* [#22682](https://github.com/netbox-community/netbox/issues/22682) - Prevent the deletion of a site group from cascading to prefixes scoped to its member sites
+* [#22690](https://github.com/netbox-community/netbox/issues/22690) - Restore the left border on the quick search field
+* [#22697](https://github.com/netbox-community/netbox/issues/22697) - Return to the scripts list when cancelling out of the "add script" form
+* [#22707](https://github.com/netbox-community/netbox/issues/22707) - Fix the resolution of port mappings when `{vc_position}` is used on device type component templates
+* [#22712](https://github.com/netbox-community/netbox/issues/22712) - Highlight relevant dropdown fields when form validation fails
+* [#22717](https://github.com/netbox-community/netbox/issues/22717) - Fix `KeyError` raised when validating a device assigned to a cluster scoped to a different location
+* [#22719](https://github.com/netbox-community/netbox/issues/22719) - Avoid raising a `KeyError` for malformed IP address and prefix values submitted via the REST API
+* [#22720](https://github.com/netbox-community/netbox/issues/22720) - Raise a protected-deletion error rather than a `TypeError` when deleting a virtual chassis with a cross-chassis LAG
+* [#22729](https://github.com/netbox-community/netbox/issues/22729) - Escape object names when populating the `Content-Disposition` header of file responses
+* [#22736](https://github.com/netbox-community/netbox/issues/22736) - Include the `comments` field of ASNs in the global search index
+* [#22737](https://github.com/netbox-community/netbox/issues/22737) - Clear stale connector metadata from cable endpoints when deleting a profiled cable
+* [#22748](https://github.com/netbox-community/netbox/issues/22748) - Ensure `ContentTypeField` respects its declared queryset to prevent the selection of non-public object types
+* [#22752](https://github.com/netbox-community/netbox/issues/22752) - Restore the rear port fields on the front port bulk import form
+* [#22766](https://github.com/netbox-community/netbox/issues/22766) - Fix the GraphQL `length` lookup for array filters
+* [#22767](https://github.com/netbox-community/netbox/issues/22767) - Include the `comments` field of several models in the global search indexes
+* [#22768](https://github.com/netbox-community/netbox/issues/22768) - Store a null value rather than an empty string for `cable_end` when removing a cable
+* [#22773](https://github.com/netbox-community/netbox/issues/22773) - Fix `TypeError` exception when bulk adding module bays to devices
+* [#22790](https://github.com/netbox-community/netbox/issues/22790) - Enforce saved filter visibility when applied via the `filter` or `filter_id` query parameter
+
+---
+
 ## v4.6.5 (2026-07-14)
 
 ### Enhancements

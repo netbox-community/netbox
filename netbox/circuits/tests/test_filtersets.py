@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.choices import *
@@ -778,6 +779,30 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'virtual_circuit': [virtual_circuits[0].cid, virtual_circuits[1].cid]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_member_type(self):
+        params = {'member_type': ['circuits.circuit']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'member_type_id': [ContentType.objects.get_for_model(Circuit).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'member_type_id': [ContentType.objects.get_for_model(VirtualCircuit).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_member(self):
+        """The member type and ID are matched together, so a matching ID of another type is excluded."""
+        circuit = Circuit.objects.first()
+        circuit_type = ContentType.objects.get_for_model(Circuit)
+        virtual_circuit_type = ContentType.objects.get_for_model(VirtualCircuit)
+        expected = self.queryset.get(member_type=circuit_type, member_id=circuit.pk)
+
+        # A virtual circuit assignment sharing the circuit's object ID must not match
+        group = CircuitGroup.objects.create(name='Circuit Group 4', slug='circuit-group-4')
+        CircuitGroupAssignment.objects.create(
+            group=group, member_type=virtual_circuit_type, member_id=circuit.pk
+        )
+
+        params = {'member_type_id': [circuit_type.pk], 'member_id': [circuit.pk]}
+        self.assertEqual(list(self.filterset(params, self.queryset).qs), [expected])
 
     def test_provider(self):
         providers = Provider.objects.all()[:2]

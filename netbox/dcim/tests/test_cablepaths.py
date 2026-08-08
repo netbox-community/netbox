@@ -60,11 +60,11 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         interface2.refresh_from_db()
 
         self.assertIsNone(interface1.cable_id)
-        self.assertEqual(interface1.cable_end, '')
+        self.assertIsNone(interface1.cable_end)
         self.assertPathIsNotSet(interface1)
 
         self.assertIsNone(interface2.cable_id)
-        self.assertEqual(interface2.cable_end, '')
+        self.assertIsNone(interface2.cable_end)
         self.assertPathIsNotSet(interface2)
 
     def test_102_consoleport_to_consoleserverport(self):
@@ -2679,6 +2679,45 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_225_circuittermination_origin_passive_network(self):
+        """
+        [CT1] --C1-- [RP1] [FP1]
+
+        A CircuitTermination cabled into a passive (FrontPort/RearPort-only) device can become a
+        CablePath origin. Unlike PathEndpoint origins, CircuitTermination has no `_path` back-reference
+        field, so saving and deleting such a path must not attempt to write it (see #22825).
+        """
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device, front_port=frontport1, front_port_position=1,
+            rear_port=rearport1, rear_port_position=1,
+        )
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        cable1 = Cable(
+            a_terminations=[circuittermination1],
+            b_terminations=[rearport1]
+        )
+        cable1.save()
+
+        # Re-fetch so the in-memory instance reflects the cable set above (from_origin reads .cable).
+        circuittermination1.refresh_from_db()
+
+        # A path traced from the CircuitTermination origin must save without raising FieldDoesNotExist
+        # on the missing `_path` field.
+        cablepath = CablePath.from_origin([circuittermination1])
+        cablepath.save()
+        self.assertEqual(cablepath.origin_type.model_class(), CircuitTermination)
+        self.assertEqual(cablepath.origins, [circuittermination1])
+
+        # Deleting the path must likewise not attempt to clear a nonexistent `_path` field.
+        cablepath.delete()
+        self.assertIsNone(CablePath.objects.filter(pk=cablepath.pk).first())
 
     def test_301_create_path_via_existing_cable(self):
         """

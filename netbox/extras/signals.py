@@ -20,20 +20,33 @@ from .utils import run_validators
 #
 
 
-def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
+def handle_cf_object_types_changed(instance, action, pk_set, reverse, **kwargs):
     """
-    Handle the population of default/null values when a CustomField is added to one or more ContentTypes.
+    Handle the stored data of a CustomField as it is assigned to or unassigned from object types.
+
+    Only the forward direction is handled: every action below operates on the CustomField, whereas
+    the reverse of this relation (ContentType.custom_fields) reports the ContentType as the sender's
+    instance. Nothing in NetBox assigns object types that way.
     """
+    if reverse or action not in ('pre_clear', 'post_add', 'post_remove'):
+        return
+
+    if action == 'pre_clear':
+        # clear() unassigns every object type at once. It must be handled before the fact: no
+        # pk_set is reported for a clear, so the assignments have to be read while they still
+        # exist. (Note that set() diffs via remove()/add() by default, so it does not land here.)
+        instance.remove_stale_data(instance.object_types.all())
+        return
+
+    object_types = ContentType.objects.filter(pk__in=pk_set)
+
     if action == 'post_add':
-        instance.populate_initial_data(ContentType.objects.filter(pk__in=pk_set))
+        # Populate the field's default value (if any) on all existing objects
+        instance.populate_initial_data(object_types)
 
-
-def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
-    """
-    Handle the cleanup of old custom field data when a CustomField is removed from one or more ContentTypes.
-    """
-    if action == 'post_remove':
-        instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
+    else:
+        # Remove the field's stored data from objects to which it no longer applies
+        instance.remove_stale_data(object_types)
 
 
 def handle_cf_renamed(instance, created, **kwargs):
@@ -53,8 +66,7 @@ def handle_cf_deleted(instance, **kwargs):
 
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
-m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.object_types.through)
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types.through)
+m2m_changed.connect(handle_cf_object_types_changed, sender=CustomField.object_types.through)
 
 
 #

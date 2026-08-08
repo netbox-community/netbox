@@ -23,6 +23,9 @@ Custom scripts are Python code which exists outside the NetBox code base, so the
 
 ## Writing Custom Scripts
 
+!!! warning "Choose a unique file name"
+    A script file's name (without the `.py` extension) becomes its Python module name when the script is loaded. A script file must not share its name with a NetBox application (e.g. `circuits.py` or `dcim.py`) or any other installed Python module: the script will shadow that module in Python's import system and can break unrelated functionality. Choose a unique, descriptive file name, such as `circuit_maintenance.py`.
+
 All custom scripts must inherit from the `extras.scripts.Script` base class. This class provides the functionality necessary to generate forms and log activity.
 
 ```python

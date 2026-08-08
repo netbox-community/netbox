@@ -5,10 +5,13 @@ import strawberry_django
 
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
+from dcim.models import Device, Interface, Location, Rack, RackGroup, Region, Site, SiteGroup
 from extras.graphql.mixins import ContactsMixin
 from ipam import models
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 from .filters import *
 from .mixins import IPAddressesMixin
@@ -18,6 +21,7 @@ if TYPE_CHECKING:
         DeviceType,
         InterfaceType,
         LocationType,
+        RackGroupType,
         RackType,
         RegionType,
         SiteGroupType,
@@ -51,21 +55,14 @@ __all__ = (
 
 @strawberry.type
 class IPAddressFamilyType:
+    """
+    The address family (4 or 6) of a model's IP address or prefix column. Each type exposing this
+    declares its own `family` resolver, hinted with the column backing it so that the query optimizer
+    does not defer that column. `value` is non-null because those columns are: the models' `family`
+    properties return None only for an unsaved instance with no address assigned.
+    """
     value: int
     label: str
-
-
-@strawberry.type
-class BaseIPAddressFamilyType:
-    """
-    Base type for models that need to expose their IPAddress family type.
-    """
-
-    @strawberry.field
-    def family(self) -> IPAddressFamilyType:
-        # Note that self, is an instance of models.IPAddress
-        # thus resolves to the address family value.
-        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
 @strawberry_django.type(
@@ -103,10 +100,15 @@ class ASNRangeType(OrganizationalObjectType):
     filters=AggregateFilter,
     pagination=True
 )
-class AggregateType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class AggregateType(ContactsMixin, PrimaryObjectType):
     prefix: str
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
+
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['prefix'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
 @strawberry_django.type(
@@ -128,7 +130,16 @@ class FHRPGroupType(IPAddressesMixin, PrimaryObjectType):
 class FHRPGroupAssignmentType(BaseObjectType):
     group: Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
 
-    @strawberry_django.field(prefetch_related='interface')
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'interface',
+            [
+                Interface,
+                VMInterface,
+            ],
+        ),
+        only=['interface_type', 'interface_id'],
+    )
     def interface(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
@@ -143,17 +154,31 @@ class FHRPGroupAssignmentType(BaseObjectType):
     filters=IPAddressFilter,
     pagination=True
 )
-class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class IPAddressType(ContactsMixin, PrimaryObjectType):
     address: str
     vrf: Annotated['VRFType', strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
     nat_inside: Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')] | None
-
     nat_outside: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='assigned_object')
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['address'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
+
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'assigned_object',
+            [
+                models.FHRPGroup,
+                Interface,
+                VMInterface,
+            ],
+        ),
+        only=['assigned_object_type', 'assigned_object_id'],
+    )
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
@@ -183,14 +208,30 @@ class IPRangeType(ContactsMixin, PrimaryObjectType):
     filters=PrefixFilter,
     pagination=True
 )
-class PrefixType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+class PrefixType(ContactsMixin, PrimaryObjectType):
     prefix: str
     vrf: Annotated['VRFType', strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
     vlan: Annotated['VLANType', strawberry.lazy('ipam.graphql.types')] | None
     role: Annotated['RoleType', strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field(prefetch_related='scope')
+    # Note that self is the Django model instance, so self.family resolves to the model's family property
+    @strawberry_django.field(only=['prefix'])
+    def family(self) -> IPAddressFamilyType:
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
+
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'scope',
+            [
+                Region,
+                SiteGroup,
+                Site,
+                Location,
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
@@ -252,7 +293,17 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     ports: list[int]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='parent')
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'parent',
+            [
+                Device,
+                VirtualMachine,
+                models.FHRPGroup,
+            ],
+        ),
+        only=['parent_object_type', 'parent_object_id'],
+    )
     def parent(self) -> Annotated[
         Annotated['DeviceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VirtualMachineType', strawberry.lazy('virtualization.graphql.types')]
@@ -291,7 +342,7 @@ class VLANType(PrimaryObjectType):
     interfaces_as_tagged: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     vminterfaces_as_tagged: list[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='qinq_svlan')
+    @strawberry_django.field(prefetch_related='qinq_svlan', only=['qinq_svlan_id'])
     def qinq_svlan(self) -> Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None:
         return self.qinq_svlan
 
@@ -309,11 +360,27 @@ class VLANGroupType(OrganizationalObjectType):
     total_vlan_ids: BigInt
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'scope',
+            [
+                Cluster,
+                ClusterGroup,
+                Location,
+                Rack,
+                RackGroup,
+                Region,
+                Site,
+                SiteGroup,
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['ClusterType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['ClusterGroupType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['RackGroupType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RackType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['SiteType', strawberry.lazy('dcim.graphql.types')]
