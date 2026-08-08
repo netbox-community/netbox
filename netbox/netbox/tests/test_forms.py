@@ -1,3 +1,7 @@
+from unittest.mock import patch
+
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -301,3 +305,49 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         )
         self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
         self.assertIsNone(form.cleaned_data['wwn'])
+
+    def test_missing_field_validation_error_becomes_non_field_error(self):
+        """
+        Integration test: when model.full_clean() raises a ValidationError keyed to
+        a field absent from the import form, is_valid() should return False with a
+        non-field error rather than raising ValueError. Regression test for #22683.
+        """
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        with patch.object(
+            form.instance,
+            'full_clean',
+            side_effect=DjangoValidationError({'absent_field': ['Field error.']}),
+        ):
+            result = form.is_valid()
+
+        self.assertFalse(result)
+        self.assertIn('absent_field: Field error.', form.non_field_errors())
+
+    def test_non_field_error_not_overwritten_by_remapped_missing_field_error(self):
+        """
+        When ValidationError contains both a missing-field error and a genuine
+        non-field error, both should appear in non_field_errors() after remapping.
+        Regression test for #22683.
+        """
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Mixed',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        form.is_valid()  # Initialize form._errors
+        # absent_field appears first to expose the former overwrite bug
+        form._update_errors(DjangoValidationError({
+            'absent_field': ['Field error.'],
+            NON_FIELD_ERRORS: ['A general error.'],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn('A general error.', non_field_errors)
+        self.assertIn('absent_field: Field error.', non_field_errors)
