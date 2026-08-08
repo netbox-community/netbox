@@ -5,7 +5,7 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
-from django.db import models
+from django.db import models, router, transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +17,7 @@ from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.managers import NetBoxTaggableManager, NetBoxTaggableManagerField
 from extras.utils import is_taggable
 from netbox.config import get_config
-from netbox.constants import CORE_APPS
+from netbox.constants import CORE_APPS, JOB_DELETE_BATCH_SIZE
 from netbox.models.deletion import DeleteMixin
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
@@ -43,6 +43,7 @@ __all__ = (
     'NotificationsMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'batch_delete_jobs',
     'get_model_features',
     'has_feature',
     'model_is_public',
@@ -449,6 +450,26 @@ class NotificationsMixin(models.Model):
         abstract = True
 
 
+def batch_delete_jobs(job_queryset):
+    """
+    Delete the Jobs in `job_queryset` in JOB_DELETE_BATCH_SIZE chunks, so the caller never has
+    to load thousands of Job rows (each carrying potentially large data/log_entries payloads)
+    into memory at once. Callers are responsible for wrapping this in a transaction. As with the
+    prior cascade behavior, this bulk delete does not invoke Job.delete() and therefore does not
+    cancel the backing RQ job. See #22812.
+    """
+    from core.models import Job
+
+    job_pks = job_queryset.order_by('pk').values_list('pk', flat=True)
+    # Re-slice the queryset each iteration: it re-queries after each batch delete, so the
+    # remaining set shrinks and the loop terminates (do not hoist this into a cursor).
+    while pks := list(job_pks[:JOB_DELETE_BATCH_SIZE]):
+        # only('pk'): the batch still can't fast-delete (a global pre_delete receiver forces
+        # per-instance signals), so each Job in the batch is instantiated. Loading just the PK
+        # avoids pulling the large data/log_entries payloads into those instances.
+        Job.objects.filter(pk__in=pks).only('pk').delete()
+
+
 class JobsMixin(models.Model):
     """
     Enables support for job results.
@@ -462,6 +483,16 @@ class JobsMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def delete(self, *args, **kwargs):
+        # Delete associated jobs in batches so the cascade never has to load thousands of Job
+        # rows into memory at once. Wrapped in a transaction so that a failure in the parent
+        # delete rolls the job deletions back as well. See #22812.
+        using = router.db_for_write(self.__class__, instance=self)
+        with transaction.atomic(using=using):
+            batch_delete_jobs(self.jobs)
+            return super().delete(*args, **kwargs)
+    delete.alters_data = True
 
     def get_latest_jobs(self):
         """

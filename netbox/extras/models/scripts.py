@@ -3,7 +3,8 @@ import logging
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.db import models, router, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -11,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.utils import is_script
-from netbox.models.features import EventRulesMixin, JobsMixin
+from netbox.models.features import EventRulesMixin, JobsMixin, batch_delete_jobs
 from utilities.querysets import RestrictedQuerySet
 
 from .mixins import PythonModuleMixin
@@ -118,6 +119,28 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def __str__(self):
         return self.python_name
+
+    def delete(self, *args, **kwargs):
+        # Job is imported here rather than at module level to avoid a circular import
+        # (core.models.jobs -> core.signals -> extras.events -> extras.models -> this module).
+        from core.models import Job
+
+        # Deleting a ScriptModule cascades (via the Script.module FK) to its child Scripts, and
+        # Django's collector would materialize every one of those Scripts' Jobs to delete them.
+        # A module's scripts can accumulate thousands of jobs, exhausting memory. Batch-delete
+        # the child Scripts' jobs up front, in a single queryset (no per-script loop), before
+        # delegating to the cascade. Wrapped in a transaction so a failure in the parent delete
+        # rolls these deletions back as well. See #22812.
+        using = router.db_for_write(self.__class__, instance=self)
+        with transaction.atomic(using=using):
+            script_type = ContentType.objects.get_for_model(Script, for_concrete_model=False)
+            child_jobs = Job.objects.filter(
+                object_type=script_type,
+                object_id__in=self.scripts.values_list('pk', flat=True),
+            )
+            batch_delete_jobs(child_jobs)
+            return super().delete(*args, **kwargs)
+    delete.alters_data = True
 
     @property
     def ordered_scripts(self):

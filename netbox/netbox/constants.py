@@ -74,3 +74,8 @@ CENSOR_TOKEN_CHANGED = '***CHANGED***'
 
 # Placeholder text for empty tables
 EMPTY_TABLE_TEXT = 'No results found'
+
+# Batch size for deleting a JobsMixin object's associated jobs during cascade deletion.
+# Kept small because each Job carries potentially large data/log_entries payloads and
+# cannot be fast-deleted (a global pre_delete receiver forces per-instance signals). See #22812.
+JOB_DELETE_BATCH_SIZE = 100

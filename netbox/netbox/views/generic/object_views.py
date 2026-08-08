@@ -4,7 +4,6 @@ from collections import defaultdict
 from django.contrib import messages
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
-from django.db.models.deletion import Collector
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -13,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from netbox.models.deletion import ConfirmCollector, CountOnly
 from netbox.object_actions import BulkDelete, BulkEdit, CloneObject, DeleteObject, EditObject
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
@@ -385,14 +385,19 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
     def _get_dependent_objects(self, obj):
         """
-        Returns a dictionary mapping of dependent objects (organized by model) which will be deleted as a result of
-        deleting the requested object.
+        Returns a dictionary mapping each dependent model to the objects (of that model) which will
+        be deleted as a result of deleting the requested object.
+
+        Values are normally a list of instances. For high-cardinality relations that we do not
+        materialize to avoid excessive memory use (currently a JobsMixin object's jobs, see
+        #22812), the value is a `CountOnly` — a lenient empty iterable whose `len()` is the true
+        row count, so it renders as a non-expandable row alongside the itemized relations.
 
         Args:
             obj: The object to return dependent objects for
         """
         using = router.db_for_write(obj._meta.model)
-        collector = Collector(using=using)
+        collector = ConfirmCollector(using=using)
         collector.collect([obj])
 
         # Compile a mapping of models to instances
@@ -406,7 +411,13 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 continue
             dependent_objects[model].append(instances)
 
-        return dict(dependent_objects)
+        # Add count-only entries for relations the collector enumerated by count rather than by
+        # instance (e.g. jobs), so they render as non-expandable rows in the same mapping.
+        dependent_objects = dict(dependent_objects)
+        for model, count in collector.generic_relation_counts.items():
+            dependent_objects[model] = CountOnly(count)
+
+        return dependent_objects
 
     def _handle_protected_objects(self, obj, protected_objects, request, exc):
         """
