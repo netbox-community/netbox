@@ -722,6 +722,10 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         method='_inventory_items',
         label=_('Has inventory items'),
     )
+    has_images = django_filters.BooleanFilter(
+        method='_has_images',
+        label=('Has images'),
+    )
 
     class Meta:
         model = DeviceType
@@ -793,6 +797,9 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
 
     def _inventory_items(self, queryset, name, value):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
+
+    def _has_images(self, queryset, name, value):
+        return queryset.exclude(images__isnull=value)
 
 
 @register_filterset
@@ -866,6 +873,10 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         method='_module_bays',
         label=_('Has module bays'),
     )
+    has_images = django_filters.BooleanFilter(
+        method='_has_images',
+        label=_('Has images'),
+    )
 
     class Meta:
         model = ModuleType
@@ -918,6 +929,9 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
 
     def _module_bays(self, queryset, name, value):
         return queryset.exclude(modulebaytemplates__isnull=value)
+
+    def _has_images(self, queryset, name, value):
+        return queryset.exclude(images__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):
