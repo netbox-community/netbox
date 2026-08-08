@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError as DjangoValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices

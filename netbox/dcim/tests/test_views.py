@@ -3474,7 +3474,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         wireless_interface = Interface.objects.create(
             device=device,
             name='Wireless-22683',
-            type=InterfaceTypeChoices.TYPE_802_11AC,
+            type=InterfaceTypeChoices.TYPE_80211AC,
             rf_channel_width=Decimal('20.0'),
         )
         self.add_permissions('dcim.add_interface', 'dcim.change_interface')
@@ -3494,7 +3494,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertContains(response, 'rf_channel_width')
         self.assertContains(response, 'Channel width may be set only on wireless interfaces.')
         wireless_interface.refresh_from_db()
-        self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_802_11AC)
+        self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
         self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
 
 
