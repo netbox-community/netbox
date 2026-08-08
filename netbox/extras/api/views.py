@@ -1,16 +1,15 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ModelViewSet
 
 from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
@@ -22,6 +21,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
+from users.models import Token
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
@@ -307,26 +307,16 @@ class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, UpdateModelMi
         return obj
 
 
-@extend_schema_view(
-    update=extend_schema(request=serializers.ScriptInputSerializer),
-    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
-)
-class ScriptViewSet(ModelViewSet):
+class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
+    # Individual scripts are created, modified, and deleted through their module (see ScriptModuleViewSet),
+    # so the standard write actions are intentionally omitted here. Only listing/retrieving a script (GET)
+    # and running one (POST to the detail route) are supported.
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
     filterset_class = filtersets.ScriptFilterSet
 
-    _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
-
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-
-        # Restrict the view's QuerySet to allow only the permitted objects
-        if request.user.is_authenticated:
-            action = 'run' if request.method == 'POST' else 'view'
-            self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
@@ -347,12 +337,23 @@ class ScriptViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
-    def post(self, request, pk):
+    def post(self, request, pk=None):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
+        # This handler is bound only to the detail route (POST /scripts/<id>/); a POST to the list route
+        # carries no pk and is not a supported operation.
+        if pk is None:
+            raise MethodNotAllowed(request.method)
 
+        # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
+        # the QuerySet on 'run' before resolving the script.
+        self.queryset = Script.objects.restrict(request.user, 'run')
         script = self._get_script(pk)
+
+        # Running a script is a write operation; reject read-only tokens.
+        if isinstance(request.auth, Token) and not request.auth.write_enabled:
+            raise PermissionDenied("This token does not permit write operations (running a script).")
 
         if not request.user.has_perm('extras.run_script', obj=script):
             raise PermissionDenied("This user does not have permission to run this script.")
