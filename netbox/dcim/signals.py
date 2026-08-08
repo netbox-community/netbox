@@ -185,14 +185,21 @@ def nullify_connected_endpoints(instance, **kwargs):
         cablepath.retrace()
 
 
+# Fields this receiver reacts to. A save() whose update_fields is disjoint from this set (e.g. a plain rename)
+# cannot have touched channelization or cabling, so there's nothing for this receiver to do.
+_CHANNELIZATION_RELEVANT_FIELDS = frozenset({'channels', 'channel_id', 'parent', 'parent_id', 'cable', 'cable_id'})
+
+
 @receiver(post_save, sender=Interface)
-def update_channelized_cable_paths(instance, created, raw=False, **kwargs):
+def update_channelized_cable_paths(instance, created, raw=False, update_fields=None, **kwargs):
     """
     Rebuild cable paths when an interface's channelization changes without the Cable itself being modified: a channel
     subinterface is added, moved between parents, or has its channel_id changed, or channelization is toggled on an
     already-cabled interface. (The cable-tracing signals only fire when a Cable is saved.)
     """
     if raw:
+        return
+    if update_fields is not None and _CHANNELIZATION_RELEVANT_FIELDS.isdisjoint(update_fields):
         return
 
     parent_ids = set()

@@ -13,6 +13,7 @@ from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import (
+    ChannelRenameMixin,
     CoolingLoopValidationMixin,
     DiameterMixin,
     InterfaceValidationMixin,
@@ -923,6 +924,7 @@ class BaseInterface(models.Model):
 
 
 class Interface(
+    ChannelRenameMixin,
     InterfaceValidationMixin,
     ModularComponentModel,
     BaseInterface,
@@ -1124,13 +1126,12 @@ class Interface(
         )
 
     def __init__(self, *args, **kwargs):
+        # ChannelRenameMixin.__init__() (reached via super(), first in the MRO) sets _original_channels, used
+        # below by InterfaceValidationMixin.clean() and by post_save signal handlers.
         super().__init__(*args, **kwargs)
 
         # Cache channelization-related fields so post-save signal handlers can detect changes which require rebuilding
         # cable paths (channelization does not involve modifying the Cable itself, so the cable signals do not fire).
-        # _original_channels is additionally used by InterfaceValidationMixin.clean() to detect a channel-count
-        # reduction that would orphan a bound subinterface.
-        self._original_channels = self.__dict__.get('channels')
         self._original_channel_id = self.__dict__.get('channel_id')
         self._original_parent_id = self.__dict__.get('parent_id')
 
@@ -1267,6 +1268,8 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
+        # ChannelRenameMixin.save() (reached via super(), first in the MRO) detects and cascades a channelized
+        # parent rename around this call.
         super().save(*args, **kwargs)
 
     @property
@@ -1275,9 +1278,8 @@ class Interface(
 
     @property
     def is_wired(self):
-        # Excludes virtual, wireless, and channel-type interfaces (channel subinterfaces derive their cable from the
-        # channelized parent and cannot be cabled directly).
-        return self.type not in NONCONNECTABLE_IFACE_TYPES
+        # Also excludes any channel subinterface, which derives its cable from the channelized parent.
+        return self.type not in NONCONNECTABLE_IFACE_TYPES and self.channel_id is None
 
     @property
     def is_virtual(self):
@@ -1297,7 +1299,8 @@ class Interface(
 
     @property
     def is_channel(self):
-        return self.type == InterfaceTypeChoices.TYPE_CHANNEL
+        # Identified by channel_id, not type — it may keep its own specific physical type instead of "channel".
+        return self.channel_id is not None
 
     @property
     def link(self):

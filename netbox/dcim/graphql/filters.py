@@ -635,7 +635,11 @@ class InterfaceFilter(
         prefix: str
     ):
         if value == InterfaceKindEnum.KIND_PHYSICAL:
-            return queryset, ~Q(**{f"{prefix}type__in": NONCONNECTABLE_IFACE_TYPES})
+            # A channel subinterface is excluded even if its type is otherwise connectable: it derives its cable
+            # from its channelized parent and cannot be cabled directly (matches Interface.is_wired).
+            return queryset, ~Q(**{f"{prefix}type__in": NONCONNECTABLE_IFACE_TYPES}) & Q(
+                **{f"{prefix}channel_id__isnull": True}
+            )
         if value == InterfaceKindEnum.KIND_VIRTUAL:
             return queryset, Q(**{f"{prefix}type__in": VIRTUAL_IFACE_TYPES})
         if value == InterfaceKindEnum.KIND_WIRELESS:

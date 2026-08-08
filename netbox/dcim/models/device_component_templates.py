@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
+from dcim.models.mixins import ChannelRenameMixin, DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
@@ -568,7 +568,7 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
         }
 
 
-class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel):
+class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -663,12 +663,8 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         verbose_name = _('interface template')
         verbose_name_plural = _('interface templates')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Cache the original channel count for use by InterfaceValidationMixin.clean() to detect a channel-count
-        # reduction that would orphan a bound subinterface.
-        self._original_channels = self.__dict__.get('channels')
+    # __init__() and save() are entirely handled by ChannelRenameMixin (first in the MRO above); no override
+    # needed here. _original_channels, set there, is also used below by InterfaceValidationMixin.clean().
 
     def clean(self):
         super().clean()
