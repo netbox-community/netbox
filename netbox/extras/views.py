@@ -21,6 +21,7 @@ from dcim.models import Device, DeviceRole, Platform
 from extras.choices import LogLevelChoices
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
+from extras.scripts import prepare_script_form
 from extras.utils import SharedObjectViewMixin
 from netbox.object_actions import *
 from netbox.ui import layout
@@ -1730,13 +1731,7 @@ class ScriptView(BaseScriptView):
                 'script': script,
             })
 
-        # Populate missing variables with their default values, if defined
-        post_data = request.POST.copy()
-        for name, var in script_class._get_vars().items():
-            if name not in post_data and (initial := var.field_attrs.get('initial')) is not None:
-                post_data[name] = initial
-
-        form = script_class.as_form(post_data, request.FILES)
+        form = prepare_script_form(script_class, request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not any_workers_for_queue('default'):

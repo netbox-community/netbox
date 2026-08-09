@@ -41,6 +41,7 @@ __all__ = (
     'StringVar',
     'TextVar',
     'get_module_and_script',
+    'prepare_script_form',
 )
 
 
@@ -655,3 +656,18 @@ def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
     script = module.scripts.get(name=script_name)
     return module, script
+
+
+def prepare_script_form(script_instance, data, files=None):
+    """
+    Build a bound ScriptForm for an already-instantiated Script object, back-filling any
+    declared variable's `default` value into `data` when the caller omitted it.
+
+    Used by both the UI (extras/views.py) and the REST API (extras/api/views.py) so the
+    two entry points share one contract and can't drift apart again.
+    """
+    data = data.copy() if data is not None else {}
+    for name, var in script_instance._get_vars().items():
+        if name not in data and (initial := var.field_attrs.get('initial')) is not None:
+            data[name] = initial
+    return script_instance.as_form(data=data, files=files)

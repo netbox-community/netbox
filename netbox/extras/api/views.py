@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
@@ -16,6 +16,7 @@ from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
+from extras.scripts import prepare_script_form
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -366,62 +367,45 @@ class ScriptViewSet(ModelViewSet):
         if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
-        if input_serializer.is_valid():
-            # Instantiate the script class so we can validate/clean the input via its form.
-            script_class = script.python_class
-            script_instance = script_class()
+        if not input_serializer.is_valid():
+            return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Prepare payload and files
-            payload = input_serializer.validated_data.get('data', {}) or {}
-            files = request.FILES if request else None
+        validated = input_serializer.validated_data
 
-            # Validate via the script's form so ObjectVar/MultiObjectVar IDs get converted
-            try:
-                form = script_instance.as_form(data=payload, files=files)
-            except Exception as e:
-                # Defensive: if form construction raises, respond 400 with a helpful message.
-                return Response({'detail': f"Error preparing script form: {e}"}, status=status.HTTP_400_BAD_REQUEST)
-
-            if not form.is_valid():
-                # Return form errors as a 400 so clients get immediate feedback (instead of a failed background job)
-                return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            # Use cleaned_data for execution parameters and script variables
-            cleaned = dict(form.cleaned_data)
-
-            # Pop known execution parameters explicitly (do not generically strip _-prefixed names)
-            schedule_at = cleaned.pop('_schedule_at', input_serializer.validated_data.get('schedule_at'))
-            interval = cleaned.pop('_interval', input_serializer.validated_data.get('interval'))
-            notifications = cleaned.pop('_notifications', input_serializer.validated_data.get('notifications'))
-            commit = cleaned.pop(
-                '_commit',
-                input_serializer.validated_data.get('commit', script_instance.commit_default)
+        payload = validated.get('data')
+        if not isinstance(payload, dict):
+            raise ValidationError(
+                {'data': _('Invalid data payload; expected an object mapping variable names to values.')}
             )
 
-            # Ensure any uploaded files are preserved if not claimed by the form
-            if files:
-                for fname, fobj in files.items():
-                    if fname not in cleaned:
-                        cleaned[fname] = fobj
+        script_class = script.python_class
+        if not script_class:
+            raise ValidationError({'script': _('Script class could not be loaded; cannot determine job timeout.')})
+        script_instance = script_class()
 
-            # Enqueue the job with cleaned data (model instances/QuerySets where appropriate)
-            ScriptJob.enqueue(
-                instance=script,
-                user=request.user,
-                data=cleaned,
-                request=copy_safe_request(request),
-                commit=commit,
-                job_timeout=script_class.job_timeout,
-                schedule_at=schedule_at,
-                interval=interval,
-                notifications=notifications,
-            )
+        form = prepare_script_form(script_instance, payload, files=request.FILES)
+        if not form.is_valid():
+            # remove internal fields (_commit etc.) from API error message
+            errors = {k: v for k, v in form.errors.items() if not k.startswith('_')}
+            raise ValidationError(errors)
 
-            serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        data = form.cleaned_data.copy()
+        for k in ('_commit', '_schedule_at', '_interval', '_notifications'):
+            data.pop(k, None)
 
-            return Response(serializer.data)
-
-        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        ScriptJob.enqueue(
+            instance=script,
+            user=request.user,
+            data=data,
+            request=copy_safe_request(request),
+            commit=validated.get('commit'),
+            job_timeout=script_class.job_timeout,
+            schedule_at=validated.get('schedule_at'),
+            interval=validated.get('interval'),
+            notifications=validated.get('notifications'),
+        )
+        serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        return Response(serializer.data)
 
 
 #
