@@ -1,3 +1,4 @@
+import warnings
 from contextlib import contextmanager
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +10,7 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.settings import api_settings
 
 from core.models import ObjectType
 from core.signals import clear_events
@@ -22,6 +24,7 @@ from utilities.rqworker import any_workers_for_queue
 
 __all__ = (
     'BackgroundOperationMixin',
+    'BulkCreateModelMixin',
     'BulkDestroyModelMixin',
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
@@ -232,64 +235,108 @@ class ExportTemplatesMixin:
         return super().list(request, *args, **kwargs)
 
 
-class SequentialBulkCreatesMixin:
+class BulkCreateModelMixin:
     """
-    Perform bulk creation of new objects sequentially, rather than all at once. This ensures that any validation
-    which depends on the evaluation of existing objects (such as checking for free space within a rack) functions
-    appropriately.
+    Support the creation of multiple objects using the list endpoint for a model. Accepts a POST action with a list
+    of one or more JSON objects, each specifying the attributes of an object to be created. For example:
+
+    POST /api/dcim/sites/
+    [
+        {"name": "Site 1", "slug": "site-1"},
+        {"name": "Site 2", "slug": "site-2"}
+    ]
     """
-    def create(self, request, *args, **kwargs):
-        # If background processing was requested for a bulk (list) create, enqueue a job and
-        # return immediately. _handle_background_request() comes from BackgroundOperationMixin;
-        # fall back to "no background" so this mixin remains usable on its own (e.g. in custom
-        # viewsets).
-        handle_background = getattr(self, '_handle_background_request', lambda *a, **kw: None)
-        if (response := handle_background(request, 'create')) is not None:
-            return response
-
-        # Create objects sequentially so each validation sees the state left by prior creates
-        # (e.g. rack space checks). Collect per-object errors instead of failing on the first.
-        errors = []
-        return_data = []
-        using = router.db_for_write(self.queryset.model)
-        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
-            if not isinstance(request.data, list):
-                # Creating a single object
-                return super().create(request, *args, **kwargs)
-
-            total = len(request.data)
-            for i, data in enumerate(request.data):
-                serializer = self.get_serializer(data=data)
-                if not serializer.is_valid():
-                    errors.append({'index': i, 'errors': serializer.errors})
-                    continue
-                try:
-                    # Provisionally create even when a prior item failed, so subsequent
-                    # cross-object validators (e.g. rack space checks) see a realistic state.
-                    # All creates are rolled back together if any item in the batch fails.
-                    self.perform_create(serializer)
-                except AbortRequest as e:
-                    errors.append({'index': i, 'errors': {'__all__': [str(e.message)]}})
-                else:
-                    return_data.append(serializer.data)
-
-            if errors:
-                transaction.set_rollback(True)
+    def bulk_create(self, request, *args, **kwargs):
+        created_pks, errors = self.perform_bulk_create(request.data)
 
         if errors:
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects failed validation.').format(
                         failed_count=len(errors),
-                        total=total,
+                        total=len(request.data),
                     ),
                     'errors': errors,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        headers = self.get_success_headers(return_data[-1]) if return_data else {}
-        return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
+        # Re-fetch the new objects to serialize them with their related objects prefetched. Order by PK
+        # to ensure that the ordering of objects in the response matches the ordering of those in the
+        # request (the objects were created in the order given, so PK order is request order).
+        qs = self.get_queryset().filter(pk__in=created_pks).order_by('pk')
+        serializer = self.get_serializer(qs, many=True)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_bulk_create(self, data):
+        created_pks = []
+        errors = []
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
+            # Validate and save each object in turn, rather than validating the entire batch up front,
+            # so that validation which depends on the state left by prior saves is evaluated correctly.
+            # This covers both validation against other existing objects (e.g. checking for free space
+            # within a rack) and uniqueness: two objects in one batch which conflict with one another
+            # would otherwise both validate against the pre-batch state and then fail on save, raising
+            # an unhandled IntegrityError.
+            for i, item in enumerate(data):
+                if not isinstance(item, dict):
+                    # Checked explicitly because get_serializer() infers many=True from a list, so a
+                    # nested list would otherwise be validated as a batch of its own
+                    errors.append({
+                        'index': i,
+                        'errors': {
+                            api_settings.NON_FIELD_ERRORS_KEY: [
+                                _('Invalid data. Expected a dictionary, but got {datatype}.').format(
+                                    datatype=type(item).__name__
+                                ),
+                            ],
+                        },
+                    })
+                    continue
+                serializer = self.get_serializer(data=item)
+                if not serializer.is_valid():
+                    errors.append({'index': i, 'errors': serializer.errors})
+                    continue
+                try:
+                    # Provisionally create even when a prior item failed, so subsequent
+                    # cross-object validators see a realistic state. All creates are rolled
+                    # back together if any item in the batch fails.
+                    self.perform_create(serializer)
+                except AbortRequest as e:
+                    # Raised by a signal receiver rather than by validation (e.g. assigning a tag
+                    # which is restricted to other object types). perform_create() wraps its write
+                    # in its own atomic block, so the connection is rolled back to that savepoint
+                    # and the remaining objects in the batch can still be evaluated. The message is
+                    # coerced to a string because a few receivers pass an exception rather than text.
+                    errors.append({'index': i, 'errors': {'__all__': [str(e.message)]}})
+                else:
+                    created_pks.append(serializer.instance.pk)
+            if errors:
+                transaction.set_rollback(True)
+        return created_pks, errors
+
+
+# TODO: Remove this in NetBox v5.0
+class SequentialBulkCreatesMixin:
+    """
+    Deprecated no-op mixin retained for backward compatibility.
+
+    Historically this was applied to individual ViewSets to make their bulk creates run one object
+    at a time. All ViewSets derived from NetBoxModelViewSet now do this unconditionally (see
+    BulkCreateModelMixin), so this mixin is a transparent pass-through and may be removed in a
+    future release. Plugins should stop inheriting from it.
+    """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        warnings.warn(
+            "SequentialBulkCreatesMixin is deprecated and no longer does anything; all bulk "
+            f"creates are now performed sequentially. Remove it from {cls.__name__}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
 
 class BulkUpdateModelMixin:

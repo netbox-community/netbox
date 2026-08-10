@@ -152,6 +152,7 @@ class NetBoxReadOnlyModelViewSet(
 class NetBoxModelViewSet(
     ETagMixin,
     mixins.BackgroundOperationMixin,
+    mixins.BulkCreateModelMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
@@ -250,31 +251,27 @@ class NetBoxModelViewSet(
         if (response := self._handle_background_request(request, 'create')) is not None:
             return response
 
+        # Creating multiple objects, which are validated and saved one at a time in order to
+        # collect per-object errors (see BulkCreateModelMixin)
+        if isinstance(request.data, list):
+            return self.bulk_create(request, *args, **kwargs)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        bulk_create = getattr(serializer, 'many', False)
         self.perform_create(serializer)
 
-        # After creating the instance(s), re-initialize the serializer with a queryset
+        # After creating the instance, re-initialize the serializer with a queryset
         # to ensure related objects are prefetched.
-        if bulk_create:
-            instance_pks = [obj.pk for obj in serializer.instance]
-            # Order by PK to ensure that the ordering of objects in the response
-            # matches the ordering of those in the request.
-            qs = self.get_queryset().filter(pk__in=instance_pks).order_by('pk')
-        else:
-            qs = self.get_queryset().get(pk=serializer.instance.pk)
+        qs = self.get_queryset().get(pk=serializer.instance.pk)
 
-        # Re-serialize the instance(s) with prefetched data
-        serializer = self.get_serializer(qs, many=bulk_create)
+        # Re-serialize the instance with prefetched data
+        serializer = self.get_serializer(qs)
 
         headers = self.get_success_headers(serializer.data)
         response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-        # Add ETag for single-object creation only (bulk returns a list, no single ETag)
-        if not bulk_create:
-            if etag := self._get_etag(qs):
-                response['ETag'] = etag
+        if etag := self._get_etag(qs):
+            response['ETag'] = etag
 
         return response
 

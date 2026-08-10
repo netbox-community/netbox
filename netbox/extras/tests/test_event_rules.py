@@ -306,7 +306,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         site = Site.objects.create(name='Site 1', slug='site-1')
 
-        # DeviceViewSet uses SequentialBulkCreatesMixin, so each valid object is provisionally
+        # Bulk creates are performed one object at a time, so each valid object is provisionally
         # created (and its event queued) before a later object fails validation.
         event_rule = EventRule.objects.get(name='Event Rule 1')
         event_rule.object_types.set([ObjectType.objects.get_for_model(Device)])

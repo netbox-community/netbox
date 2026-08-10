@@ -388,6 +388,40 @@ class APIViewTestCases:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_CREATE,
                         message=changelog_message)
 
+        def test_bulk_create_objects_invalid_item(self):
+            """
+            POST a set of objects in which one item is invalid. The failure must be correlated to
+            that item's position in the request, and the entire batch must be rolled back.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            initial_count = self._get_queryset().count()
+
+            # A non-dictionary is used as the invalid item because it is guaranteed to fail for every
+            # model, whereas which *fields* are required varies from one model to the next.
+            response = self.client.post(
+                self._get_list_url(),
+                [self.create_data[0], 'this is not an object'],
+                format='json',
+                **self.header,
+            )
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                self._get_queryset().count(), initial_count,
+                'No objects should be created when any sibling fails validation'
+            )
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('errors', response.data['errors'][0])
+
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
         bulk_update_data = None

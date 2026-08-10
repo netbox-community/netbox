@@ -467,6 +467,33 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_create_objects_conflicting(self):
+        """
+        POST a set of objects in which two conflict with one another. Objects are created one at a
+        time, so the second must fail validation against the first rather than passing validation
+        and then raising an IntegrityError on save.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {'name': 'Site 10', 'slug': 'site-10'},
+            {'name': 'Site 11', 'slug': 'site-11'},
+            {'name': 'Site 10', 'slug': 'site-10'},  # Duplicates the first item
+        ]
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+        # Only the third item failed; the first two were provisionally created and rolled back
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['index'], 2)
+        self.assertIn('slug', response.data['errors'][0]['errors'])
+
     def test_bulk_delete_objects_protected(self):
         """
         DELETE a set of objects where one has a protected FK dependency. Verify the structured
@@ -2383,10 +2410,9 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
     def test_bulk_create_objects_validation_error(self):
         """
-        POST a set of Device objects where the first passes and the second fails validation.
-        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should report only the
-        failed object, and no objects should be created despite the first item passing
-        (atomic rollback).
+        POST a set of Device objects where the first passes and the second fails validation. The
+        response should report only the failed object, and no objects should be created despite
+        the first item passing (atomic rollback).
         """
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
