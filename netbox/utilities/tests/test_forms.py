@@ -1044,8 +1044,6 @@ class DescriptionSelectTestCase(TestCase):
         self.assertInHTML('<option value="y">Y</option>', html)
 
     def test_deepcopy_does_not_share_descriptions(self):
-        """Each deep-copied widget (one per form instance) must own its descriptions dict, so a
-        mutation on one instance cannot leak across requests."""
         widget = Select(choices=[('x', 'X')], descriptions={'x': 'Description X'})
         clone = copy.deepcopy(widget)
         self.assertIsNot(widget.descriptions, clone.descriptions)

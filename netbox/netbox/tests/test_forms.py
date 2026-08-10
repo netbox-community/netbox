@@ -320,15 +320,9 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
 
 
 class HTMXPartialSwapRenderingTestCase(TestCase):
-    """
-    Verify that each form field's HTMX swap wiring resolves to the widget actually bound to the
-    field. An explicitly declared form field silently overrides a widget set via Meta.widgets, so
-    a field can have HTMXSelect assigned in Meta yet end up with a plain widget carrying no HTMX
-    wiring. Unit-testing the widget in isolation cannot see that, which is how the interface 802.1Q
-    mode swap regressed unnoticed. These tests read the bound field's widget attrs directly so a
-    shadowed field is caught.
-    """
-    # (form, bound field name, target fieldset id) — the field's change must swap only that fieldset.
+    """Ensure each form field's HTMX swap wiring is present on the widget bound to the field."""
+
+    # (form, bound field name, target fieldset id)
     PARTIAL_SWAP_FIELDS = (
         (InterfaceForm, 'mode', 'dot1q-switching'),
         (VMInterfaceForm, 'mode', 'dot1q-switching'),
@@ -348,10 +342,7 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
         (PrefixForm, 'scope', 'scope'),
     )
 
-    # These fields intentionally re-render the whole form rather than a single fieldset, because
-    # changing them adds or removes entire fieldsets that a targeted swap would miss. The guard
-    # ensures they keep targeting #form_fields and are not "optimized" into a partial swap that
-    # would silently drop the added/removed fieldsets.
+    # Fields that intentionally re-render the whole form (#form_fields) rather than a single fieldset.
     FULL_FORM_FIELDS = (
         (CustomFieldForm, 'type'),
         (DataSourceForm, 'type'),
@@ -360,18 +351,13 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
         (FrontPortCreateForm, 'device'),
     )
 
-    # Forms whose swap target is not a FieldSet(html_id=...) and so cannot be checked against
-    # `form.fieldsets`. CableForm targets <div id="..."> in a hand-rolled template (cable_edit.html).
+    # CableForm targets template <div>s, not FieldSet(html_id=...), so its target can't be checked
+    # against form.fieldsets.
     FIELDSET_ID_EXEMPT = {CableForm}
 
     @staticmethod
     def _hx_widget(field):
-        """
-        Return the HTMXSelect carrying the field's HTMX attrs. For a plain HTMXSelect field that is
-        the field's own widget; for a generic-object selector (a MultiWidget) it is the HTMXSelect
-        subwidget, located by type rather than position so a change in subwidget ordering can't
-        silently select the wrong one.
-        """
+        """Return the HTMXSelect carrying the field's HTMX attrs, unwrapping a MultiWidget by type."""
         widget = field.widget
         if isinstance(widget, forms.MultiWidget):
             hx = next((w for w in widget.widgets if isinstance(w, HTMXSelect)), None)
@@ -385,23 +371,17 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
                 form = form_class()
                 self.assertIn(field_name, form.fields)
                 attrs = self._hx_widget(form.fields[field_name]).attrs
-                # A verb (hx-get) is what actually issues the request; hx-target/hx-select alone
-                # are inert. Its absence was the reported symptom ("changing mode fires no request").
+                # hx-get issues the request; hx-target/hx-select alone are inert.
                 self.assertIn('hx-get', attrs)
                 self.assertEqual(attrs.get('hx-select'), f'#{target_id}')
                 self.assertEqual(attrs.get('hx-target'), f'#{target_id}')
-                # The target must name a real swap container, or the swap fails silently in the
-                # browser. A typo'd id passes the assertions above (both read the same source), so
-                # check it against the form's declared FieldSet html_ids. Exempt forms (CableForm)
-                # target template <div>s instead and are checked explicitly, not by absence of
-                # fieldsets, so a non-exempt form that forgets its fieldsets still fails here.
+                # The target must name a declared FieldSet html_id, else the swap fails silently.
                 if form_class not in self.FIELDSET_ID_EXEMPT:
                     fieldset_ids = {getattr(fs, 'html_id', None) for fs in getattr(form, 'fieldsets', ())}
                     self.assertIn(target_id, fieldset_ids)
 
     def test_interface_mode_retains_option_descriptions(self):
-        # The mode field must keep its 802.1Q Mode option descriptions (a description-aware widget
-        # feature) alongside the restored partial swap; the two must coexist on the same field.
+        # Partial swap and option descriptions must coexist on the mode field.
         for form_class in (InterfaceForm, VMInterfaceForm):
             with self.subTest(form=form_class.__name__):
                 self.assertTrue(form_class().fields['mode'].widget.descriptions)
@@ -418,14 +398,7 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
 
 
 class MetaShadowingTestCase(TestCase):
-    """
-    Guard the whole bug class behind #15165, not just the HTMX fields. Django's ModelFormMetaclass
-    applies Meta.widgets/labels/help_texts only to fields it generates from the model; for a field
-    the form declares explicitly, the declared field wins and the Meta entry is silently discarded.
-    A key appearing in both is therefore dead config at best and a dropped widget/label/help_text at
-    worst (the #15165 regression, and the VirtualChassis master SelectWithPK before this PR). This
-    walks every ModelForm and asserts the two never overlap, so the next occurrence fails here.
-    """
+    """Ensure declared fields do not shadow supported `ModelForm.Meta` configuration."""
     # ConfigRevisionForm builds its parameter fields via a custom metaclass (ConfigFormMetaclass)
     # that turns them into declared_fields while still sourcing widgets from Meta.widgets. Its
     # overlap is a known consequence of that design, not the shadowing bug this guards; excluded

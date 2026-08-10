@@ -510,8 +510,6 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf',
             'owner', 'tags',
         ]
-        # Note: `mode` is configured on the explicitly declared field above (widget and label),
-        # not here. Meta.widgets and Meta.labels are both ignored for explicitly declared fields.
 
 
 class VirtualDiskForm(VMComponentForm):
