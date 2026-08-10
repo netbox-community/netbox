@@ -1,3 +1,4 @@
+import re
 import signal
 import uuid
 from contextlib import contextmanager
@@ -1239,6 +1240,100 @@ class ModuleCrossDeviceBlockerTestCase(TestCase):
         )
         self._assert_move_allowed()
 
+    #
+    # Blockers name the offending components, not just how many there are
+    #
+
+    def _blocked_message(self):
+        self.module.device = self.device_b
+        self.module.module_bay = self.bay_b
+        with self.assertRaises(ValidationError) as cm:
+            self.module.full_clean()
+        return str(cm.exception)
+
+    @staticmethod
+    def _samples(message):
+        """Every parenthesized "e.g." list in a blocker message, as a list of name lists."""
+        return [
+            [name.strip() for name in group.split(',')]
+            for group in re.findall(r'\(e\.g\. ([^)]*)\)', message)
+        ]
+
+    def test_cable_blocker_names_offending_component(self):
+        peer = Interface.objects.create(
+            device=self.device_a, name='peer0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        Cable(a_terminations=[self.interface], b_terminations=[peer]).save()
+        # A second moved interface with no cable must not be named
+        Interface.objects.create(
+            device=self.device_a, module=self.module, name='quiet0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        message = self._blocked_message()
+        self.assertIn('eth0', message)
+        self.assertNotIn('quiet0', message)
+
+    def test_interface_state_blocker_names_offending_interface(self):
+        IPAddress.objects.create(address='192.0.2.1/24', assigned_object=self.interface)
+        self.assertEqual(self._samples(self._blocked_message()), [['eth0']])
+
+    def test_boundary_blocker_names_both_directions(self):
+        outsider = Interface.objects.create(
+            device=self.device_a, name='outsider0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        self.interface.bridge = outsider
+        self.interface.save()
+        lag = Interface.objects.create(
+            device=self.device_a, module=self.module, name='lag0', type=InterfaceTypeChoices.TYPE_LAG
+        )
+        Interface.objects.create(
+            device=self.device_a, name='member0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+        message = self._blocked_message()
+        self.assertIn('2 parent, bridge, or LAG interface relations', message)
+        self.assertEqual(self._samples(message), [['eth0', 'member0']])
+
+    def test_split_power_outlet_blocker_names_outlet(self):
+        power_port = PowerPort.objects.create(device=self.device_a, name='PP 1')
+        PowerOutlet.objects.create(
+            device=self.device_a, module=self.module, name='Outlet 1', power_port=power_port
+        )
+        self.assertEqual(self._samples(self._blocked_message()), [['Outlet 1']])
+
+    def test_split_port_mapping_blocker_names_front_port(self):
+        front_port = FrontPort.objects.create(
+            device=self.device_a, module=self.module, name='Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPort.objects.create(
+            device=self.device_a, name='Rear 1', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        self.assertEqual(self._samples(self._blocked_message()), [['Front 1']])
+
+    def test_inventory_item_blocker_names_component(self):
+        InventoryItem.objects.create(device=self.device_a, name='Item 1', component=self.interface)
+        self.assertEqual(self._samples(self._blocked_message()), [['eth0']])
+
+    def test_blocker_sample_is_capped_but_count_is_complete(self):
+        peer = Interface.objects.create(
+            device=self.device_a, name='peer0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        Cable(a_terminations=[self.interface], b_terminations=[peer]).save()
+        for i in range(1, 8):
+            marked = Interface.objects.create(
+                device=self.device_a, module=self.module, name=f'eth{i}',
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            )
+            marked.mark_connected = True
+            marked.save()
+        message = self._blocked_message()
+        self.assertIn('8 cabled or connection-marked interfaces', message)
+        sample, = self._samples(message)
+        self.assertEqual(len(sample), ModuleMovePlan.SAMPLE_LIMIT)
+        self.assertEqual(sample, ['eth0', 'eth1', 'eth2', 'eth3', 'eth4'])
+
     def test_mac_address_is_allowed(self):
         mac = MACAddress.objects.create(mac_address='00:11:22:33:44:55', assigned_object=self.interface)
         self.interface.primary_mac_address = mac
@@ -1612,6 +1707,7 @@ class ModuleMoveCoolingTestCase(TestCase):
         with self.assertRaises(ValidationError) as cm:
             self.card.full_clean()
         self.assertIn('cooling outflow relations crossing', str(cm.exception))
+        self.assertIn('Outflow 1/1', str(cm.exception))
 
     def test_inward_cooling_outflow_relation_blocks(self):
         device_outflow = CoolingOutflow.objects.create(device=self.device_a, name='Chassis Outflow')
@@ -1622,6 +1718,7 @@ class ModuleMoveCoolingTestCase(TestCase):
         with self.assertRaises(ValidationError) as cm:
             self.card.full_clean()
         self.assertIn('cooling outflow relations crossing', str(cm.exception))
+        self.assertIn('Chassis Outflow', str(cm.exception))
 
     def test_intra_module_cooling_pair_is_allowed(self):
         self.outflow.cooling_intake = self.intake

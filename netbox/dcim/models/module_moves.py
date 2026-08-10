@@ -366,6 +366,9 @@ class ModuleMovePlan:
             if pks:
                 list(model.objects.select_for_update().filter(pk__in=pks).order_by('pk'))
 
+    # Maximum number of object names quoted when a validation error names its offenders
+    SAMPLE_LIMIT = 5
+
     # Interface relations carrying topology or device-scoped configuration state which
     # block a cross-device move
     INTERFACE_BLOCKERS = (
@@ -407,12 +410,37 @@ class ModuleMovePlan:
         if errors:
             raise ValidationError(errors)
 
+    def _name_sample(self, description, *querysets, name_field='name'):
+        """
+        Append a sample of the offending objects' names to a blocker description, so that a
+        rejected move names the components to fix rather than only counting them. Each
+        queryset is fetched with its own LIMIT and the walk stops as soon as the sample is
+        full, so the cost stays fixed no matter how many rows offend.
+
+        Called only from branches that have already found offenders, so a permitted move
+        pays nothing for this.
+        """
+        names = []
+        for queryset in querysets:
+            names.extend(
+                queryset.order_by(name_field).values_list(name_field, flat=True)[:self.SAMPLE_LIMIT]
+            )
+            if len(names) >= self.SAMPLE_LIMIT:
+                break
+        # Dedupe without re-sorting: the name column carries a natural_sort collation, so the
+        # database has already ordered each group the way a user expects to read it.
+        if not (sample := list(dict.fromkeys(names))[:self.SAMPLE_LIMIT]):
+            return description
+        return _("{description} (e.g. {names})").format(description=description, names=', '.join(sample))
+
     def _check_cross_device_blockers(self):
         """
         Reject a cross-device move when any moved component carries topology or
         device-scoped configuration state, or when a parent/bridge/LAG, power outlet,
         or port mapping relation would cross the moved subtree's boundary in either
         direction. Inventory items attached to a moved component also block (v1).
+
+        Each blocker names a sample of the offending components; see _name_sample().
         """
         blockers = []
         moved_interface_pks = {obj.pk for obj in self.components[Interface]}
@@ -425,51 +453,63 @@ class ModuleMovePlan:
             pks = [obj.pk for obj in instances]
             if not pks:
                 continue
-            count = model.objects.filter(pk__in=pks).filter(
+            offenders = model.objects.filter(pk__in=pks).filter(
                 Q(cable__isnull=False) | Q(mark_connected=True)
-            ).count()
-            if count:
-                blockers.append(_("{count} cabled or connection-marked {type}").format(
-                    count=count, type=model._meta.verbose_name_plural
+            )
+            if count := offenders.count():
+                blockers.append(self._name_sample(
+                    _("{count} cabled or connection-marked {type}").format(
+                        count=count, type=model._meta.verbose_name_plural
+                    ),
+                    offenders,
                 ))
 
         # Interface topology/configuration state
         for label, condition in self.INTERFACE_BLOCKERS:
-            count = Interface.objects.filter(pk__in=moved_interface_pks).filter(
-                condition
-            ).distinct().count()
-            if count:
-                blockers.append(_("{count} interfaces with {label}").format(count=count, label=label))
+            offenders = Interface.objects.filter(pk__in=moved_interface_pks).filter(condition).distinct()
+            if count := offenders.count():
+                blockers.append(self._name_sample(
+                    _("{count} interfaces with {label}").format(count=count, label=label),
+                    offenders,
+                ))
 
         # Parent/bridge/LAG relations crossing the moved-set boundary (either direction)
         outward = Interface.objects.filter(pk__in=moved_interface_pks).filter(
             Q(parent__isnull=False) & ~Q(parent_id__in=moved_interface_pks) |
             Q(bridge__isnull=False) & ~Q(bridge_id__in=moved_interface_pks) |
             Q(lag__isnull=False) & ~Q(lag_id__in=moved_interface_pks)
-        ).count()
+        )
         inward = Interface.objects.exclude(pk__in=moved_interface_pks).filter(
             Q(parent_id__in=moved_interface_pks) |
             Q(bridge_id__in=moved_interface_pks) |
             Q(lag_id__in=moved_interface_pks)
-        ).count()
-        if outward or inward:
-            blockers.append(_(
-                "{count} parent, bridge, or LAG interface relations crossing the moved module's boundary"
-            ).format(count=outward + inward))
+        )
+        outward_count, inward_count = outward.count(), inward.count()
+        if outward_count or inward_count:
+            blockers.append(self._name_sample(
+                _(
+                    "{count} parent, bridge, or LAG interface relations crossing the moved module's boundary"
+                ).format(count=outward_count + inward_count),
+                outward, inward,
+            ))
 
         # Power outlet to power port relations crossing the boundary
         moved_outlet_pks = {obj.pk for obj in self.components[PowerOutlet]}
         moved_power_port_pks = {obj.pk for obj in self.components[PowerPort]}
-        split_power = PowerOutlet.objects.filter(
+        split_outlets = PowerOutlet.objects.filter(
             pk__in=moved_outlet_pks, power_port__isnull=False
-        ).exclude(power_port_id__in=moved_power_port_pks).count()
-        split_power += PowerOutlet.objects.exclude(pk__in=moved_outlet_pks).filter(
+        ).exclude(power_port_id__in=moved_power_port_pks)
+        adopted_outlets = PowerOutlet.objects.exclude(pk__in=moved_outlet_pks).filter(
             power_port_id__in=moved_power_port_pks
-        ).count()
+        )
+        split_power = split_outlets.count() + adopted_outlets.count()
         if split_power:
-            blockers.append(_(
-                "{count} power outlet relations crossing the moved module's boundary"
-            ).format(count=split_power))
+            blockers.append(self._name_sample(
+                _(
+                    "{count} power outlet relations crossing the moved module's boundary"
+                ).format(count=split_power),
+                split_outlets, adopted_outlets,
+            ))
 
         # Cooling outflow to cooling intake relations crossing the boundary. Only this direction is
         # device-scoped (CoolingOutflow.clean() requires an intake on the same device); an intake's
@@ -477,45 +517,57 @@ class ModuleMovePlan:
         # deliberately left alone.
         moved_intake_pks = {obj.pk for obj in self.components[CoolingIntake]}
         moved_outflow_pks = {obj.pk for obj in self.components[CoolingOutflow]}
-        split_cooling = CoolingOutflow.objects.filter(
+        split_outflows = CoolingOutflow.objects.filter(
             pk__in=moved_outflow_pks, cooling_intake__isnull=False
-        ).exclude(cooling_intake_id__in=moved_intake_pks).count()
-        split_cooling += CoolingOutflow.objects.exclude(pk__in=moved_outflow_pks).filter(
+        ).exclude(cooling_intake_id__in=moved_intake_pks)
+        adopted_outflows = CoolingOutflow.objects.exclude(pk__in=moved_outflow_pks).filter(
             cooling_intake_id__in=moved_intake_pks
-        ).count()
+        )
+        split_cooling = split_outflows.count() + adopted_outflows.count()
         if split_cooling:
-            blockers.append(_(
-                "{count} cooling outflow relations crossing the moved module's boundary"
-            ).format(count=split_cooling))
+            blockers.append(self._name_sample(
+                _(
+                    "{count} cooling outflow relations crossing the moved module's boundary"
+                ).format(count=split_cooling),
+                split_outflows, adopted_outflows,
+            ))
 
-        # Front/rear port mappings crossing the boundary
+        # Front/rear port mappings crossing the boundary. PortMapping has no name of its own, so the
+        # sample names the front ports, which is what a user has to act on.
         moved_front_port_pks = {obj.pk for obj in self.components[FrontPort]}
         moved_rear_port_pks = {obj.pk for obj in self.components[RearPort]}
-        split_mappings = PortMapping.objects.filter(
+        split_fronts = PortMapping.objects.filter(
             front_port_id__in=moved_front_port_pks
-        ).exclude(rear_port_id__in=moved_rear_port_pks).count()
-        split_mappings += PortMapping.objects.filter(
+        ).exclude(rear_port_id__in=moved_rear_port_pks)
+        split_rears = PortMapping.objects.filter(
             rear_port_id__in=moved_rear_port_pks
-        ).exclude(front_port_id__in=moved_front_port_pks).count()
+        ).exclude(front_port_id__in=moved_front_port_pks)
+        split_mappings = split_fronts.count() + split_rears.count()
         if split_mappings:
-            blockers.append(_(
-                "{count} front/rear port mappings crossing the moved module's boundary"
-            ).format(count=split_mappings))
+            blockers.append(self._name_sample(
+                _(
+                    "{count} front/rear port mappings crossing the moved module's boundary"
+                ).format(count=split_mappings),
+                FrontPort.objects.filter(pk__in=split_fronts.values('front_port_id')),
+                FrontPort.objects.filter(pk__in=split_rears.values('front_port_id')),
+            ))
 
         # Attached inventory items (blocked in v1)
-        item_count = 0
+        item_querysets = []
         for model, instances in self.components.items():
-            pks = [obj.pk for obj in instances]
-            if pks:
-                item_count += model.objects.filter(
-                    pk__in=pks, inventory_items__isnull=False
-                ).distinct().count()
+            if pks := [obj.pk for obj in instances]:
+                item_querysets.append(
+                    model.objects.filter(pk__in=pks, inventory_items__isnull=False).distinct()
+                )
         if bay_pks := [bay.pk for bay in self.moved_bays]:
-            item_count += ModuleBay.objects.filter(
-                pk__in=bay_pks, inventory_items__isnull=False
-            ).distinct().count()
-        if item_count:
-            blockers.append(_("{count} components with attached inventory items").format(count=item_count))
+            item_querysets.append(
+                ModuleBay.objects.filter(pk__in=bay_pks, inventory_items__isnull=False).distinct()
+            )
+        if item_count := sum(queryset.count() for queryset in item_querysets):
+            blockers.append(self._name_sample(
+                _("{count} components with attached inventory items").format(count=item_count),
+                *item_querysets,
+            ))
 
         if not blockers:
             return []
@@ -544,7 +596,9 @@ class ModuleMovePlan:
                 device_id=self.new_device_id, name__in=seen
             ).exclude(pk__in=[move.instance.pk for move in moves])
             if count := conflict_qs.count():
-                sample = ', '.join(conflict_qs.order_by('name').values_list('name', flat=True)[:5])
+                sample = ', '.join(
+                    conflict_qs.order_by('name').values_list('name', flat=True)[:self.SAMPLE_LIMIT]
+                )
                 errors.append(
                     _(
                         "Moving this module would conflict with {count} existing {type} on device "
