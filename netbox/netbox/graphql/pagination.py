@@ -1,6 +1,5 @@
 import strawberry
 from django.db import DEFAULT_DB_ALIAS
-from django.db.models import Count
 from django.db.models.functions import DenseRank
 from strawberry.types.unset import UNSET
 from strawberry_django.pagination import _QS, _PaginationWindow, _resolve_limit, apply
@@ -61,17 +60,16 @@ def apply_distinct_window_pagination(
     # never be assigned the same rank (and hence be counted only once against the limit).
     order_by.append('pk')
 
+    # Note that we omit the `_strawberry_total_count` annotation which strawberry-django adds, as it
+    # cannot be made accurate here: window functions are evaluated before `DISTINCT`, so it would count
+    # the duplicate rows. strawberry-django's `get_total_count()` already disregards the annotation for
+    # a queryset with `DISTINCT` enabled and falls back to `count()`, so computing it would be wasted
+    # work: an extra window aggregate over every joined row.
     queryset = queryset.annotate(
         _strawberry_row_number=_PaginationWindow(
             DenseRank(),
             partition_by=related_field_id,
             order_by=order_by,
-        ),
-        # Note that this count includes the duplicate rows. strawberry-django's `get_total_count()`
-        # already disregards the annotation for a queryset with `DISTINCT` enabled.
-        _strawberry_total_count=_PaginationWindow(
-            Count(1),
-            partition_by=related_field_id,
         ),
     )
 
