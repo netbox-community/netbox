@@ -5643,6 +5643,43 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIn('csrfmiddlewaretoken', html)
         self.assertNotIn('formaction=', html)
 
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_list_view_request(self):
+        """
+        Request-level coverage of the real list-view wiring: GET the MAC list and confirm the
+        table is served inside the bulk-edit <form> with the Set as primary action riding it via
+        formaction, and no nested <form>. This fails if the list view stops wrapping the table in
+        a form or the column's context detection breaks (the class of regression #18821 was).
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+
+        response = self.client.get(reverse('dcim:macaddress_list'))
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn(f'formaction="{set_primary_url}"', content)
+        self.assertNotIn('<form method="post" action=', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_embedded_request(self):
+        """
+        Request-level coverage of the embedded panel wiring: GET the MAC list as an embedded HTMX
+        partial (?embedded=True) and confirm the action renders a self-contained <form> because
+        there is no surrounding form to ride. Fails if embedded handling moves or the panel stops
+        going through the partial.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+
+        response = self.client.get(
+            reverse('dcim:macaddress_list') + '?embedded=True', headers={'hx-request': 'true'}
+        )
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn(f'<form method="post" action="{set_primary_url}"', content)
+
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):
         """

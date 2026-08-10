@@ -1257,9 +1257,13 @@ class MACAddressActionsColumn(columns.ActionsColumn):
             request = getattr(table, 'context', {}).get('request')
             if request:
                 url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
+                # `embedded` distinguishes the two contexts this table renders in, which differ in
+                # whether a surrounding <form> exists. A standalone list view (generic/object_list.html)
+                # always wraps the table in the bulk-edit <form>; an embedded HTMX partial (htmx/table.html,
+                # embedded=True) has none. core templates gate their own form-dependent markup on this same
+                # flag, so it is the established signal for "is this table inside the bulk form".
                 if getattr(table, 'embedded', False):
-                    # Embedded (e.g. an interface's MAC panel) renders the table outside any form,
-                    # so a self-contained POST form is valid here and carries its own CSRF token.
+                    # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
                     action_li = format_html(
                         '<li><form method="post" action="{}">'
                         '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
@@ -1269,9 +1273,9 @@ class MACAddressActionsColumn(columns.ActionsColumn):
                         url, get_token(request), _('Set as primary'),
                     )
                 else:
-                    # The standalone list view wraps the table in the bulk-edit <form>. A nested
-                    # <form> is invalid HTML and gets dropped by the parser, so ride the surrounding
-                    # form via formaction/formmethod instead (matching the DataSource sync button).
+                    # Inside the bulk-edit <form>: a nested <form> is invalid HTML and gets dropped by the
+                    # parser, so ride the surrounding form via formaction/formmethod instead (matching the
+                    # DataSource sync button in core/tables/template_code.py).
                     action_li = format_html(
                         '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
                         '<i class="mdi mdi-star-outline"></i> {}'
