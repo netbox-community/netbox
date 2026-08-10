@@ -4,13 +4,6 @@
 {% load render_table from django_tables2 %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% if object.manufacturer %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:platform_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a></li>
-  {% endif %}
-{% endblock %}
-
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
     <a href="{% url 'dcim:device_add' %}?platform={{ object.pk }}" class="btn btn-primary">

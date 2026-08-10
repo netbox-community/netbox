@@ -5,13 +5,13 @@ from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, 
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANTranslationPolicy
 from tenancy.models import Tenant, TenantGroup
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
+from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device
 from virtualization.choices import *
 from virtualization.filtersets import *
 from virtualization.models import *
 
 
-class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ClusterType.objects.all()
     filterset = ClusterTypeFilterSet
 
@@ -42,7 +42,7 @@ class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ClusterGroup.objects.all()
     filterset = ClusterGroupFilterSet
 
@@ -73,7 +73,7 @@ class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ClusterTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Cluster.objects.all()
     filterset = ClusterFilterSet
 
@@ -230,7 +230,7 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualMachineTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualMachineTypeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualMachineType.objects.all()
     filterset = VirtualMachineTypeFilterSet
 
@@ -340,7 +340,7 @@ class VirtualMachineTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualMachine.objects.all()
     filterset = VirtualMachineFilterSet
 
@@ -700,7 +700,7 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
     ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan')
@@ -880,7 +880,7 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
+class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = VirtualDisk.objects.all()
     filterset = VirtualDiskFilterSet
 

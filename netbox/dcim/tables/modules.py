@@ -1,16 +1,44 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Module, ModuleType, ModuleTypeProfile
+from dcim.models import Module, ModuleBayType, ModuleType, ModuleTypeProfile
 from netbox.tables import PrimaryModelTable, columns
 
 from .template_code import MODULETYPEPROFILE_ATTRIBUTES, WEIGHT
 
 __all__ = (
+    'ModuleBayTypeTable',
     'ModuleTable',
     'ModuleTypeProfileTable',
     'ModuleTypeTable',
 )
+
+
+class ModuleBayTypeTable(PrimaryModelTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
+        linkify=True
+    )
+    color = columns.ColorColumn(
+        verbose_name=_('Color'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:modulebaytype_list'
+    )
+
+    class Meta(PrimaryModelTable.Meta):
+        model = ModuleBayType
+        fields = (
+            'pk', 'id', 'name', 'slug', 'manufacturer', 'color', 'description', 'comments', 'tags',
+            'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'manufacturer', 'color', 'description',
+        )
 
 
 class ModuleTypeProfileTable(PrimaryModelTable):
@@ -47,9 +75,16 @@ class ModuleTypeTable(PrimaryModelTable):
         verbose_name=_('Manufacturer'),
         linkify=True
     )
+    module_bay_types = columns.ManyToManyColumn(
+        verbose_name=_('Bay Types'),
+        linkify_item=True,
+    )
     model = tables.Column(
         linkify=True,
         verbose_name=_('Module Type')
+    )
+    cooling_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Method'),
     )
     weight = columns.TemplateColumn(
         verbose_name=_('Weight'),
@@ -71,8 +106,9 @@ class ModuleTypeTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = ModuleType
         fields = (
-            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
-            'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'cooling_method', 'weight',
+            'end_of_life', 'module_bay_types',
+            'description', 'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'profile', 'manufacturer', 'part_number', 'module_count',

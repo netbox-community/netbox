@@ -1,5 +1,4 @@
 import re
-import warnings
 
 from django import forms
 from django.forms.models import fields_for_model
@@ -26,13 +25,24 @@ __all__ = (
 )
 
 
-def parse_numeric_range(string, base=10):
+def parse_numeric_range(string, base=10, min_value=None, max_value=None):
     """
     Expand a numeric range (continuous or not) into a decimal or
     hexadecimal list, as specified by the base parameter
       '0-3,5' => [0, 1, 2, 3, 5]
       '2,8-b,d,f' => [2, 8, 9, a, b, d, f]
+
+    Pass BOTH ``min_value`` and ``max_value`` to validate each range against those bounds *before* it is
+    expanded: a reversed or out-of-bounds range then raises rather than materializing a huge list or
+    silently expanding to nothing (which would be swallowed when combined with valid ranges, e.g.
+    "80,9000-53"). Bounds are all-or-nothing — supplying only one raises ``ValueError`` — so a caller
+    can't opt into a lower bound while leaving the expansion size uncapped. With no bounds (e.g.
+    IP/pattern expansion) a reversed range yields an empty list, as before.
     """
+    bounded = min_value is not None or max_value is not None
+    if bounded and (min_value is None or max_value is None):
+        raise ValueError("parse_numeric_range() requires both min_value and max_value, or neither.")
+
     values = list()
     for dash_range in string.split(','):
         try:
@@ -43,6 +53,16 @@ def parse_numeric_range(string, base=10):
             begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         except ValueError:
             raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+        if bounded:
+            # Reject reversed ranges and endpoints outside the permitted range before expanding.
+            if begin > end - 1:
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+            if begin < min_value or end - 1 > max_value:
+                raise forms.ValidationError(
+                    _('Range "{value}" is not within the permitted range ({min}-{max}).').format(
+                        value=dash_range, min=min_value, max=max_value
+                    )
+                )
         values.extend(range(begin, end))
     return sorted(set(values))
 
@@ -196,9 +216,10 @@ def get_selected_values(form, field_name):
 
 def add_blank_choice(choices):
     """
-    Add a blank choice to the beginning of a choices list.
+    Add a blank choice to the beginning of a choices list. Any Choice objects are preserved (rather than reduced to
+    plain tuples) so that description-aware fields can still reference their descriptions.
     """
-    return ((None, '---------'),) + tuple(choices)
+    return ((None, '---------'), *choices)
 
 
 def form_from_model(model, fields):
@@ -295,15 +316,3 @@ def validate_csv(headers, fields, required_fields):
         for f in required_fields:
             if f not in headers:
                 raise forms.ValidationError(_('Required column header "{header}" not found.').format(header=f))
-
-
-# TODO: Remove in NetBox v4.7.0
-def __getattr__(name):
-    if name == 'expand_ipaddress_pattern':
-        warnings.warn(
-            "expand_ipaddress_pattern() has been renamed to expand_ipnetwork_pattern(). "
-            "expand_ipaddress_pattern() will be removed in NetBox v4.7.0.",
-            FutureWarning,
-        )
-        return expand_ipnetwork_pattern
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

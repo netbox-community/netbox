@@ -3,13 +3,11 @@ from collections import defaultdict
 
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
+from django.db import DatabaseError, ProgrammingError, transaction
 from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
-from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from netaddr.core import AddrFormatError
@@ -31,7 +29,8 @@ logger = logging.getLogger(__name__)
 
 class SearchBackend:
     """
-    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()` methods below.
+    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()`
+    methods below.
     """
     _object_types = None
 
@@ -63,6 +62,11 @@ class SearchBackend:
         """
         raise NotImplementedError
 
+    # caching_handler() and removal_handler() are the default, synchronous signal receivers; they are
+    # connected to post_save/post_delete from netbox.search.signals (wired from CoreConfig.ready()).
+    # They are internal plumbing for signal dispatch, not a documented extension point: the public
+    # backend contract is cache()/remove()/clear(). A backend that needs to do something other than
+    # index inline (e.g. defer the work) overrides these in its subclass; see CachedValueSearchBackend.
     def caching_handler(self, sender, instance, created, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
@@ -114,6 +118,60 @@ class SearchBackend:
 
 
 class CachedValueSearchBackend(SearchBackend):
+
+    # These override the base's synchronous receivers to defer indexing past the response. They are
+    # the seam where this backend captures the `using` alias Django passes to post_save/post_delete:
+    # the deferred write runs after the transaction commits (and possibly in a worker), by which point
+    # the originating routing context is gone, so the alias must be captured here and replayed on the
+    # deferred write to keep cache entries in the originating schema (e.g. a branch schema under
+    # netbox-branching). Deferral is internal to this backend; the public contract is unchanged.
+    #
+    # mark_for_deferred_indexing() etc. are imported inside each method rather than at module level:
+    # this module's own top would import deferred.py *before* search_backend is defined further down
+    # this same file, and deferred.py (plus jobs.py) need that singleton at their own module level.
+    # A module-level import here would close that loop into a backends -> deferred -> backends
+    # cycle. See #22485.
+    def caching_handler(self, sender, instance, created, using=None, **kwargs):
+        """
+        Receiver for the post_save signal, responsible for caching object creation/changes.
+        """
+        from .deferred import OP_CACHE, mark_for_deferred_indexing
+
+        # Skip non-cacheable objects without scheduling any deferred work.
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            return
+
+        try:
+            object_type = ObjectType.objects.get_for_model(indexer.model)
+        except ProgrammingError as e:
+            # The schema may be incomplete during migrations; skip caching.
+            logger.warning(f"Skipping search cache update due to schema error: {e}")
+            return
+
+        mark_for_deferred_indexing(object_type.pk, instance.pk, OP_CACHE, using=using)
+
+    def removal_handler(self, sender, instance, using=None, **kwargs):
+        """
+        Receiver for the post_delete signal, responsible for caching object deletion.
+        """
+        from .deferred import OP_REMOVE, mark_for_deferred_indexing
+
+        # Skip non-cacheable objects without scheduling any deferred work.
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            return
+
+        try:
+            object_type = ObjectType.objects.get_for_model(indexer.model)
+        except ProgrammingError as e:
+            # The schema may be incomplete during migrations; skip caching.
+            logger.warning(f"Skipping search cache update due to schema error: {e}")
+            return
+
+        mark_for_deferred_indexing(object_type.pk, instance.pk, OP_REMOVE, using=using)
 
     def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
@@ -196,12 +254,25 @@ class CachedValueSearchBackend(SearchBackend):
 
         return ret
 
-    def cache(self, instances, indexer=None, remove_existing=True):
+    # `using` here is a PostgreSQL/schema concern specific to this backend's deferred-write path (it
+    # replays the originating alias so branch writes land in the branch schema). It is deliberately
+    # NOT on the base cache()/remove() contract: a non-PostgreSQL backend (Redis, Solr, etc.) has no
+    # such concept. Do not lift `using` onto the base for symmetry; doing so would leak this backend's
+    # storage model into the generic contract.
+    def cache(self, instances, indexer=None, remove_existing=True, using=None):
         custom_fields = None
 
         # Convert a single instance to an iterable
         if not hasattr(instances, '__iter__'):
             instances = [instances]
+
+        # Determine the queryset manager used to write cache entries. When a
+        # database alias is provided (e.g. by a deferred task replaying the alias
+        # the originating write used), entries are written to that connection;
+        # otherwise the configured router decides. `using` is expected to be a
+        # concrete alias or falsy (None) per the caller's contract; a falsy value
+        # defers to the router, which is the correct behavior either way.
+        manager = CachedValue.objects.using(using) if using else CachedValue.objects
 
         buffer = []
         counter = 0
@@ -225,7 +296,7 @@ class CachedValueSearchBackend(SearchBackend):
 
             # Wipe out any previously cached values for the object
             if remove_existing:
-                self.remove(instance)
+                self.remove(instance, using=using)
 
             # Generate cache data
             object_type = ObjectType.objects.get_for_model(indexer.model)
@@ -243,27 +314,106 @@ class CachedValueSearchBackend(SearchBackend):
 
             # Check whether the buffer needs to be flushed
             if len(buffer) >= 2000:
-                counter += len(CachedValue.objects.bulk_create(buffer))
+                counter += len(manager.bulk_create(buffer))
                 buffer = []
 
         # Final buffer flush
         if buffer:
-            counter += len(CachedValue.objects.bulk_create(buffer))
+            counter += len(manager.bulk_create(buffer))
 
         return counter
 
-    def remove(self, instance):
+    def _remove_by_id(self, object_type_id, object_ids, using=None):
+        """
+        Delete cached values for the given content type and object IDs using a
+        single raw DELETE. Shared by remove() and the deferred search task.
+        """
+        if not object_ids:
+            return None
+
+        qs = CachedValue.objects.filter(object_type_id=object_type_id, object_id__in=object_ids)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=using or qs.db)
+
+    def remove(self, instance, using=None):
         # Avoid attempting to query for non-cacheable objects
         try:
-            get_indexer(instance)
+            indexer = get_indexer(instance)
         except KeyError:
             return None
 
-        ct = ContentType.objects.get_for_model(instance)
-        qs = CachedValue.objects.filter(object_type=ct, object_id=instance.pk)
+        # Use the indexer's (concrete) model to resolve the object type, matching
+        # the content type that cache() writes entries under.
+        object_type = ObjectType.objects.get_for_model(indexer.model)
 
-        # Call _raw_delete() on the queryset to avoid first loading instances into memory
-        return qs._raw_delete(using=qs.db)
+        return self._remove_by_id(object_type.pk, [instance.pk], using=using)
+
+    # Postgres SQLSTATEs indicating the target schema/table no longer exists. This happens when a
+    # branch is merged or deprovisioned (its schema dropped) between the time an update was enqueued
+    # and when it is applied. Such errors are expected and safe to skip; the index is rebuilt on the
+    # next reindex. Any other DatabaseError (e.g. a deadlock or lost connection) is transient and must
+    # propagate so the work fails visibly, rather than silently dropping index updates.
+    _MISSING_SCHEMA_SQLSTATES = frozenset((
+        '3F000',  # invalid_schema_name
+        '42P01',  # undefined_table
+    ))
+
+    def _is_missing_schema(self, exc):
+        """
+        Return True if the given DatabaseError was caused by the target schema/table no longer existing
+        (vs. a transient error that should propagate).
+        """
+        sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
+        return sqlstate in self._MISSING_SCHEMA_SQLSTATES
+
+    def _apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=logger):
+        """
+        Apply a coalesced batch of updates to the search cache. Private to this backend; called by the
+        deferred-flush machinery (netbox.search.deferred) and the background job
+        (netbox.search.jobs.SearchCacheJob), not part of the public backend contract.
+
+        The `using` alias captured when each object was saved/deleted is replayed here so entries are
+        written to the originating database/schema (e.g. a branch schema under netbox-branching),
+        regardless of any routing context that is no longer active by the time this runs.
+        """
+        # Removals are a single DELETE per content type, so (unlike the cache loop below) there is no
+        # multi-step state to wrap in a transaction. A transient error here propagates and errors the
+        # caller; the remaining work is dropped rather than retried (NetBox does not retry these jobs
+        # by default) and is recovered by the next reindex.
+        for object_type_id, pks in (remove_groups or {}).items():
+            try:
+                self._remove_by_id(object_type_id, pks, using=using)
+            except DatabaseError as e:
+                if not self._is_missing_schema(e):
+                    raise
+                log.warning(f"Skipping search cache removal for object type {object_type_id}: {e}")
+
+        for object_type_id, pks in (cache_groups or {}).items():
+            try:
+                object_type = ObjectType.objects.get(pk=object_type_id)
+            except ObjectType.DoesNotExist:
+                continue
+            model = object_type.model_class()
+            if model is None:
+                continue
+
+            try:
+                # Re-fetch live instances from the originating database. Reading on `using` is
+                # required: a branch object's PK may be absent (or refer to a different object) on the
+                # default connection.
+                queryset = model.objects.using(using).filter(pk__in=pks)
+
+                # Clear any stale entries for these objects, then re-insert. Wrapping both in one
+                # transaction avoids leaving an object with no cache rows if execution fails between
+                # the delete and the insert.
+                with transaction.atomic(using=using):
+                    self._remove_by_id(object_type_id, pks, using=using)
+                    self.cache(queryset, remove_existing=False, using=using)
+            except DatabaseError as e:
+                if not self._is_missing_schema(e):
+                    raise
+                log.warning(f"Skipping search cache update for object type {object_type_id}: {e}")
 
     def clear(self, object_types=None):
         qs = CachedValue.objects.all()
@@ -298,7 +448,3 @@ def get_backend():
 
 
 search_backend = get_backend()
-
-# Connect handlers to the appropriate model signals
-post_save.connect(search_backend.caching_handler)
-post_delete.connect(search_backend.removal_handler)

@@ -28,10 +28,16 @@ An alternative physical label identifying the interface.
 
 ### Type
 
-The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables.
+The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. The generic **channel** type identifies a [channelized subinterface](#channel-id) bound to a parent interface.
 
 !!! note
     The interface type refers to the physical termination or port on the device. Interfaces which employ a removable optic or similar transceiver should be defined to represent the type of transceiver in use, irrespective of the physical termination to that transceiver.
+
+### Channels
+
+For a channelized (breakout) interface, the number of physical channels into which the interface is divided. For example, a 40GE interface broken out into four 10GE channels would have `channels` set to four. Each channel is modeled as a channel-type subinterface bound to this interface via its [channel ID](#channel-id).
+
+A single physical cable terminates to the channelized (parent) interface, occupying one connector shared by all of its channels; NetBox traces a distinct cable path for each channel subinterface. Only one layer of channelization is supported: an interface cannot be both channelized and itself bound to a channel.
 
 ### Speed
 
@@ -78,10 +84,17 @@ If selected, this component will be treated as if a cable has been connected.
 
 ### Parent Interface
 
-Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface.
+Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. Channel-type subinterfaces are likewise bound to their [channelized](#channels) parent interface.
 
 !!! note
     An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned.
+
+### Channel ID
+
+For a channel-type subinterface, the numeric channel on its [channelized](#channels) parent interface to which this subinterface is bound. The channel ID must fall within the range of channels provided by the parent (e.g. one through four for a parent with four channels). A channel subinterface derives its cable connection from the parent's; it cannot be cabled directly.
+
+!!! note "Channel IDs are one-indexed"
+    Channel IDs increment starting at one, even for interfaces with a zero-based identifier. This ensures that each subinterface maps cleanly to the profile of an attached cable.
 
 ### Bridged Interface
 

@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import ChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from vpn.choices import *
 from vpn.models import *
@@ -29,7 +29,7 @@ class TunnelGroupBulkEditForm(OrganizationalModelBulkEditForm):
 
 
 class TunnelBulkEditForm(PrimaryModelBulkEditForm):
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(TunnelStatusChoices),
         required=False
@@ -39,7 +39,7 @@ class TunnelBulkEditForm(PrimaryModelBulkEditForm):
         label=_('Tunnel group'),
         required=False
     )
-    encapsulation = forms.ChoiceField(
+    encapsulation = ChoiceField(
         label=_('Encapsulation'),
         choices=add_blank_choice(TunnelEncapsulationChoices),
         required=False
@@ -71,7 +71,7 @@ class TunnelBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class TunnelTerminationBulkEditForm(NetBoxModelBulkEditForm):
-    role = forms.ChoiceField(
+    role = ChoiceField(
         label=_('Role'),
         choices=add_blank_choice(TunnelTerminationRoleChoices),
         required=False
@@ -81,22 +81,22 @@ class TunnelTerminationBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class IKEProposalBulkEditForm(PrimaryModelBulkEditForm):
-    authentication_method = forms.ChoiceField(
+    authentication_method = ChoiceField(
         label=_('Authentication method'),
         choices=add_blank_choice(AuthenticationMethodChoices),
         required=False
     )
-    encryption_algorithm = forms.ChoiceField(
+    encryption_algorithm = ChoiceField(
         label=_('Encryption algorithm'),
         choices=add_blank_choice(EncryptionAlgorithmChoices),
         required=False
     )
-    authentication_algorithm = forms.ChoiceField(
+    authentication_algorithm = ChoiceField(
         label=_('Authentication algorithm'),
         choices=add_blank_choice(AuthenticationAlgorithmChoices),
         required=False
     )
-    group = forms.ChoiceField(
+    group = ChoiceField(
         label=_('Group'),
         choices=add_blank_choice(DHGroupChoices),
         required=False
@@ -119,12 +119,12 @@ class IKEProposalBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class IKEPolicyBulkEditForm(PrimaryModelBulkEditForm):
-    version = forms.ChoiceField(
+    version = ChoiceField(
         label=_('Version'),
         choices=add_blank_choice(IKEVersionChoices),
         required=False
     )
-    mode = forms.ChoiceField(
+    mode = ChoiceField(
         label=_('Mode'),
         choices=add_blank_choice(IKEModeChoices),
         required=False
@@ -144,12 +144,12 @@ class IKEPolicyBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class IPSecProposalBulkEditForm(PrimaryModelBulkEditForm):
-    encryption_algorithm = forms.ChoiceField(
+    encryption_algorithm = ChoiceField(
         label=_('Encryption algorithm'),
         choices=add_blank_choice(EncryptionAlgorithmChoices),
         required=False
     )
-    authentication_algorithm = forms.ChoiceField(
+    authentication_algorithm = ChoiceField(
         label=_('Authentication algorithm'),
         choices=add_blank_choice(AuthenticationAlgorithmChoices),
         required=False
@@ -176,7 +176,7 @@ class IPSecProposalBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class IPSecPolicyBulkEditForm(PrimaryModelBulkEditForm):
-    pfs_group = forms.ChoiceField(
+    pfs_group = ChoiceField(
         label=_('PFS group'),
         choices=add_blank_choice(DHGroupChoices),
         required=False
@@ -192,7 +192,7 @@ class IPSecPolicyBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class IPSecProfileBulkEditForm(PrimaryModelBulkEditForm):
-    mode = forms.ChoiceField(
+    mode = ChoiceField(
         label=_('Mode'),
         choices=add_blank_choice(IPSecModeChoices),
         required=False
@@ -218,11 +218,11 @@ class IPSecProfileBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class L2VPNBulkEditForm(PrimaryModelBulkEditForm):
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=L2VPNStatusChoices,
     )
-    type = forms.ChoiceField(
+    type = ChoiceField(
         label=_('Type'),
         choices=add_blank_choice(L2VPNTypeChoices),
         required=False

@@ -2,6 +2,8 @@ from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
+from utilities.querysets import chunked_update
+
 from .models import Cluster, VirtualDisk, VirtualMachine
 
 
@@ -22,4 +24,4 @@ def update_virtualmachine_site(instance, **kwargs):
     Update the assigned site for all VMs to match that of the Cluster (if any).
     """
     if instance._site:
-        VirtualMachine.objects.filter(cluster=instance).update(site=instance._site)
+        chunked_update(VirtualMachine.objects.filter(cluster=instance), site=instance._site)

@@ -8,25 +8,64 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
-def get_module_bay_positions(module_bay):
+def inherit_module_token(position, parent_positions):
     """
-    Given a module bay, traverse up the module hierarchy and return
-    a list of bay position strings from root to leaf, resolving any
-    {module} tokens in each position using the parent position
-    (position inheritance).
+    Resolve a single {module} token in a bay position by inheriting from the position
+    one level deeper in a module bay hierarchy. Returns position unchanged unless
+    parent_positions is non-empty and position contains {module}, in which case the
+    token is substituted with parent_positions[-1].
+
+    Used by resolve_position_chain(), the single inheritance implementation shared by
+    get_module_bay_positions() and the module move planner.
+    """
+    if parent_positions and MODULE_TOKEN in position:
+        return position.replace(MODULE_TOKEN, parent_positions[-1])
+    return position
+
+
+def get_module_bay_raw_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return the stored
+    (unresolved) bay position strings from root to leaf.
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
     """
     positions = []
+    visited = set()
     while module_bay:
-        pos = module_bay.position or ''
-        if positions and MODULE_TOKEN in pos:
-            pos = pos.replace(MODULE_TOKEN, positions[-1])
-        positions.append(pos)
-        if module_bay.module:
-            module_bay = module_bay.module.module_bay
-        else:
-            module_bay = None
+        if module_bay.pk in visited:
+            raise ValueError(_("Module bay hierarchy contains a cycle."))
+        visited.add(module_bay.pk)
+        positions.append(module_bay.position or '')
+        module_bay = module_bay.module.module_bay if module_bay.module else None
     positions.reverse()
     return positions
+
+
+def resolve_position_chain(raw_positions):
+    """
+    Apply leaf-to-root {module} token inheritance over a root-to-leaf list of raw bay
+    positions: each position inherits from the resolved position one level deeper, and
+    the leaf's own token is never resolved. Shared by get_module_bay_positions() and
+    the module move planner so a planned chain always equals what a fresh walk
+    computes once the planned positions are stored.
+    """
+    resolved = []
+    for position in reversed(raw_positions):
+        resolved.append(inherit_module_token(position, resolved))
+    resolved.reverse()
+    return resolved
+
+
+def get_module_bay_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return a list of bay
+    position strings from root to leaf, resolving any {module} tokens in each
+    position using the parent position (position inheritance).
+
+    Raises ValueError if the module bay hierarchy contains a cycle.
+    """
+    return resolve_position_chain(get_module_bay_raw_positions(module_bay))
 
 
 def resolve_module_placeholder(value, positions):
@@ -92,12 +131,29 @@ def create_cablepaths(objects):
 
     :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
-    from dcim.models import CablePath
+    from dcim.models import CablePath, Interface
 
-    # Arrange objects by cable connector. All objects with a null connector are grouped together.
-    origins = defaultdict(list)
+    # Expand any channelized interface into its channel subinterfaces. A channelized parent originates no path of its
+    # own; instead, each channel subinterface traces independently from the single connector position it occupies.
+    # Plain (non-channelized) origins pass through unchanged, keeping this expansion re-entrant so that
+    # rebuild_paths() -> create_cablepaths(cp.origins) does not re-expand the channel subinterfaces it already holds.
+    expanded = []
     for obj in objects:
-        origins[obj.cable_connector].append(obj)
+        if isinstance(obj, Interface) and obj.channels:
+            expanded.extend(obj.child_interfaces.filter(channel_id__isnull=False, cable__isnull=False))
+        else:
+            expanded.append(obj)
+
+    # Arrange objects by cable connector. All objects with a null connector are grouped together. Channel
+    # subinterfaces must each originate their own path, as sharing a connector would otherwise collapse a group of
+    # siblings into a single malformed path.
+    origins = defaultdict(list)
+    for obj in expanded:
+        if isinstance(obj, Interface) and obj.channel_id:
+            if cp := CablePath.from_origin([obj]):
+                cp.save()
+        else:
+            origins[obj.cable_connector].append(obj)
 
     for connector, objects in origins.items():
         if cp := CablePath.from_origin(objects):
@@ -117,6 +173,54 @@ def rebuild_paths(terminations):
             for cp in cable_paths:
                 cp.delete()
                 create_cablepaths(cp.origins)
+
+
+def rebuild_cable_paths(cable):
+    """
+    Delete and rebuild every CablePath traversing the given Cable, tracing freshly from the Cable's current
+    terminations in both directions. Used when the channelization of a terminated interface changes (e.g. a channel
+    subinterface is added, moved, or removed) without the Cable itself being modified.
+    """
+    from dcim.choices import CableEndChoices
+    from dcim.models import CablePath, CableTermination, PathEndpoint
+
+    with transaction.atomic(using=router.db_for_write(CablePath)):
+        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
+        for cp in CablePath.objects.filter(_nodes__contains=cable):
+            cp.delete()
+
+        a_terminations, b_terminations = [], []
+        for ct in CableTermination.objects.filter(cable=cable):
+            if ct.cable_end == CableEndChoices.SIDE_A:
+                a_terminations.append(ct.termination)
+            else:
+                b_terminations.append(ct.termination)
+
+        for nodes in (a_terminations, b_terminations):
+            if not nodes:
+                continue
+            if isinstance(nodes[0], PathEndpoint):
+                create_cablepaths(nodes)
+            else:
+                rebuild_paths(nodes)
+
+
+def update_interface_parents(device, interface_templates, module=None):
+    """
+    Used for device and module instantiation. Iterates all InterfaceTemplates with a parent assigned and applies it to
+    the actual interfaces. Must run after all interfaces have been instantiated (so that every parent interface exists)
+    and before update_interface_bridges() (so that channel subinterfaces validate against a populated parent).
+    """
+    Interface = apps.get_model('dcim', 'Interface')
+
+    for interface_template in interface_templates.exclude(parent=None):
+        interface = Interface.objects.get(device=device, name=interface_template.resolve_name(module=module))
+        interface.parent = Interface.objects.get(
+            device=device,
+            name=interface_template.parent.resolve_name(module=module)
+        )
+        interface.full_clean()
+        interface.save()
 
 
 def update_interface_bridges(device, interface_templates, module=None):

@@ -148,6 +148,9 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'planned',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
     graphql_filter_tests = (
         GraphQLFilterTest(
             name='tenant__name__exact',
@@ -464,6 +467,37 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_delete_objects_protected(self):
+        """
+        DELETE a set of objects where one has a protected FK dependency. Verify the structured
+        per-object error response and that no objects are deleted (atomic rollback).
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Site 1 has no dependent Device; Site 2 gets one (Device FK is on_delete=PROTECT)
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        create_test_device('Protected Device', site=site2)
+
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+        self.assertIn('errors', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+
+        # Site 2 (has Device) should be the only entry, since Site 1 succeeded
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+        self.assertIn('errors', response.data['errors'][0])
+
+        # Verify that no sites were actually deleted (transaction rolled back)
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
 
 class LocationTestCase(APIViewTestCases.APIViewTestCase):
     model = Location
@@ -645,6 +679,8 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
+        'cooling_capability': RackCoolingCapabilityChoices.CAPABILITY_HYBRID,
+        'cooling_capacity': 50,
     }
     user_permissions = ('dcim.view_manufacturer',)
 
@@ -684,12 +720,15 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'model': 'Rack Type 4',
                 'slug': 'rack-type-4',
                 'form_factor': RackFormFactorChoices.TYPE_CABINET,
+                'cooling_capability': RackCoolingCapabilityChoices.CAPABILITY_LIQUID_ONLY,
+                'cooling_capacity': 80,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Rack Type 5',
                 'slug': 'rack-type-5',
                 'form_factor': RackFormFactorChoices.TYPE_CABINET,
+                'cooling_capability': RackCoolingCapabilityChoices.CAPABILITY_HYBRID,
             },
             {
                 'manufacturer': manufacturers[1].pk,
@@ -938,6 +977,7 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
+        'end_of_life': '2030-01-01',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -969,6 +1009,7 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'model': 'Device Type 5',
                 'slug': 'device-type-5',
                 'u_height': 0.5,
+                'end_of_life': '2035-06-30',
             },
             {
                 'manufacturer': manufacturers[1].pk,
@@ -984,6 +1025,7 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'module_count', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
+        'end_of_life': '2030-01-01',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -1011,6 +1053,7 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Module Type 5',
+                'end_of_life': '2035-06-30',
             },
             {
                 'manufacturer': manufacturers[1].pk,
@@ -1081,6 +1124,47 @@ class ModuleTypeProfileTestCase(APIViewTestCases.APIViewTestCase):
             ),
         )
         ModuleTypeProfile.objects.bulk_create(module_type_profiles)
+
+
+class ModuleBayTypeTestCase(APIViewTestCases.APIViewTestCase):
+    model = ModuleBayType
+    brief_fields = ['color', 'description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 2', slug='module-bay-type-2'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 3', slug='module-bay-type-3'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+
+        cls.create_data = [
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 4',
+                'slug': 'module-bay-type-4',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 5',
+                'slug': 'module-bay-type-5',
+            },
+            {
+                'manufacturer': manufacturers[1].pk,
+                'name': 'Module Bay Type 6',
+                'slug': 'module-bay-type-6',
+            },
+        ]
 
 
 class ConsolePortTemplateTestCase(APIViewTestCases.APIViewTestCase):
@@ -1293,9 +1377,11 @@ class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         interface_templates = (
             InterfaceTemplate(device_type=devicetype, name='Interface Template 1', type='1000base-t'),
             InterfaceTemplate(device_type=devicetype, name='Interface Template 2', type='1000base-t'),
-            InterfaceTemplate(device_type=devicetype, name='Interface Template 3', type='1000base-t'),
+            # Interface Template 3 is channelized, so that channel subinterface templates may be bound to it
+            InterfaceTemplate(device_type=devicetype, name='Interface Template 3', type='1000base-t', channels=4),
         )
         InterfaceTemplate.objects.bulk_create(interface_templates)
+        channelized_parent = interface_templates[2]
 
         cls.create_data = [
             {
@@ -1317,6 +1403,21 @@ class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
                 'module_type': moduletype.pk,
                 'name': 'Interface Template 7',
                 'type': '1000base-t',
+            },
+            {
+                # A channelized parent template
+                'device_type': devicetype.pk,
+                'name': 'Interface Template 8',
+                'type': InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+                'channels': 4,
+            },
+            {
+                # A channel subinterface template bound to a channelized parent
+                'device_type': devicetype.pk,
+                'name': 'Interface Template 9',
+                'type': InterfaceTypeChoices.TYPE_CHANNEL,
+                'parent': channelized_parent.pk,
+                'channel_id': 1,
             },
         ]
 
@@ -1883,16 +1984,6 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
 
-    def test_config_context_excluded(self):
-        """
-        Check that config context data can be excluded by passing ?exclude=config_context.
-        """
-        self.add_permissions('dcim.view_device')
-        url = reverse('dcim-api:device-list') + '?exclude=config_context'
-        response = self.client.get(url, **self.header)
-
-        self.assertFalse('config_context' in response.data['results'][0])
-
     def test_unique_name_per_site_constraint(self):
         """
         Check that creating a device with a duplicate name within a site fails.
@@ -2044,7 +2135,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -2072,7 +2163,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -2168,6 +2259,39 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, {'config_template_id': override_template.pk}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_create_objects_validation_error(self):
+        """
+        POST a set of Device objects where the first passes and the second fails validation.
+        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should report only the
+        failed object, and no objects should be created despite the first item passing
+        (atomic rollback).
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        # First item is valid; second is empty (missing required fields) and will fail
+        response = self.client.post(
+            self._get_list_url(),
+            [self.create_data[0], {}],
+            format='json',
+            **self.header,
+        )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any sibling fails validation',
+        )
+        self.assertIn('detail', response.data)
+        self.assertIn('errors', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        # Second item failed validation — first item succeeded so it's omitted
+        self.assertEqual(response.data['errors'][0]['index'], 1)
+        self.assertIn('errors', response.data['errors'][0])
+
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):
     model = Module
@@ -2240,6 +2364,62 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
                 'asset_tag': 'Foo3',
             },
         ]
+
+        cls.update_data = {
+            'device': device.pk,
+            'module_bay': module_bays[3].pk,
+            'module_type': module_types[0].pk,
+            'status': 'active',
+            'serial': 'ABC123',
+        }
+
+    def test_is_bay_compatible_flag(self):
+        """
+        is_bay_compatible should be True when no bay types are set, and False when the
+        bay's types and the module type's types are both set but share no common members.
+        """
+        self.add_permissions('dcim.view_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Compat Test Device')
+
+        bay_type_a = ModuleBayType.objects.create(manufacturer=manufacturer, name='Bay Type A', slug='bay-type-a')
+        bay_type_b = ModuleBayType.objects.create(manufacturer=manufacturer, name='Bay Type B', slug='bay-type-b')
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Compat Module Type')
+        module_type.module_bay_types.set([bay_type_a])
+
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compatible Bay')
+        compatible_bay.module_bay_types.set([bay_type_a])
+
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Incompatible Bay')
+        incompatible_bay.module_bay_types.set([bay_type_b])
+
+        unconstrained_bay = ModuleBay.objects.create(device=device, name='Unconstrained Bay')
+
+        compatible_module = Module.objects.create(
+            device=device, module_bay=compatible_bay, module_type=module_type
+        )
+        incompatible_module = Module.objects.create(
+            device=device, module_bay=incompatible_bay, module_type=module_type
+        )
+        unconstrained_module = Module.objects.create(
+            device=device, module_bay=unconstrained_bay, module_type=module_type
+        )
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': compatible_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_bay_compatible'])
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': incompatible_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(response.data['is_bay_compatible'])
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': unconstrained_module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_bay_compatible'])
 
     def test_replicate_components(self):
         """
@@ -2503,6 +2683,72 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
 
+    def test_patch_module_bay_derives_device(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        device_b = create_test_device('Module Move Device B')
+        bay_b = ModuleBay.objects.create(device=device_b, name='Module Move Bay B1')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        module.refresh_from_db()
+        self.assertEqual(module.device, device_b)
+        self.assertEqual(module.module_bay, bay_b)
+
+    def test_patch_device_and_module_bay_mismatch_fails(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        device_b = create_test_device('Module Move Device B')
+        same_device_bay = ModuleBay.objects.create(device=module.device, name='Module Move Bay A9')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(
+            url, {'device': device_b.pk, 'module_bay': same_device_bay.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_patch_module_type_with_move_fails(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        empty_bay = ModuleBay.objects.filter(
+            device=module.device, installed_module__isnull=True
+        ).first()
+        other_type = ModuleType.objects.exclude(pk=module.module_type_id).first()
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(
+            url, {'module_bay': empty_bay.pk, 'module_type': other_type.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('module_type', response.data)
+
+    def test_patch_occupied_bay_fails(self):
+        self.add_permissions('dcim.change_module')
+        module_1, module_2 = Module.objects.order_by('pk')[:2]
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module_1.pk})
+        response = self.client.patch(
+            url, {'module_bay': module_2.module_bay_id}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('module_bay', response.data)
+
+    def test_patch_cross_device_move_blocked_by_ip_address(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        interface = Interface.objects.create(
+            device=module.device, module=module, name='Move Test Interface 1',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        IPAddress.objects.create(address='192.0.2.10/32', assigned_object=interface)
+        device_b = create_test_device('Module Move Device B')
+        bay_b = ModuleBay.objects.create(device=device_b, name='Module Move Bay B1')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
@@ -2699,9 +2945,11 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         interfaces = (
             Interface(device=device, name='Interface 1', type='1000base-t'),
             Interface(device=device, name='Interface 2', type='1000base-t'),
-            Interface(device=device, name='Interface 3', type='1000base-t'),
+            # Interface 3 is channelized, so that channel subinterfaces may be bound to it
+            Interface(device=device, name='Interface 3', type='1000base-t', channels=4),
         )
         Interface.objects.bulk_create(interfaces)
+        channelized_parent = interfaces[2]
 
         vdcs = (
             VirtualDeviceContext(name='VDC 1', identifier=1, device=device),
@@ -2788,6 +3036,21 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
                 'wireless_lans': [wireless_lans[0].pk, wireless_lans[1].pk],
                 'rf_channel': "",
                 'qinq_svlan': vlans[3].pk,
+            },
+            {
+                # A channelized parent interface
+                'device': device.pk,
+                'name': 'Interface 9',
+                'type': InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+                'channels': 4,
+            },
+            {
+                # A channel subinterface bound to a channelized parent
+                'device': device.pk,
+                'name': 'Interface 10',
+                'type': InterfaceTypeChoices.TYPE_CHANNEL,
+                'parent': channelized_parent.pk,
+                'channel_id': 1,
             },
         ]
 
@@ -2886,6 +3149,93 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED, invalid_data)
         # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
+
+    def test_mac_address_create(self):
+        """
+        Creating an interface with mac_address creates the primary MACAddress in one request.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface MAC Create',
+            'type': '1000base-t',
+            'mac_address': 'AA:BB:CC:DD:EE:FF',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        iface = Interface.objects.get(pk=response.data['id'])
+        self.assertIsNotNone(iface.primary_mac_address)
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:FF')
+        self.assertEqual(iface.primary_mac_address.assigned_object, iface)
+
+    def test_mac_address_update(self):
+        """
+        Patching mac_address creates/updates the primary MACAddress in one request.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+        url = self._get_detail_url(iface)
+
+        # Set a new primary MAC via mac_address shortcut
+        response = self.client.patch(url, {'mac_address': '11:22:33:44:55:66'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertIsNotNone(iface.primary_mac_address)
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), '11:22:33:44:55:66')
+
+        # Update the MAC to a new value
+        response = self.client.patch(url, {'mac_address': 'AA:BB:CC:DD:EE:FF'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertEqual(str(iface.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:FF')
+
+        # Clear the primary MAC by sending null
+        response = self.client.patch(url, {'mac_address': None}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertIsNone(iface.primary_mac_address)
+
+    def test_mac_address_invalid(self):
+        """
+        Sending an invalid MAC address string returns a 400 error.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface MAC Bad',
+            'type': '1000base-t',
+            'mac_address': 'not-a-mac',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('mac_address', response.data)
+
+    def test_mac_address_find_or_create(self):
+        """
+        Patching mac_address with a MAC that already exists on the interface promotes it to primary
+        without creating a duplicate MACAddress record.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+
+        # Pre-create two MACs assigned to this interface
+        mac1 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:01', assigned_object=iface)
+        mac2 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:02', assigned_object=iface)
+        iface.primary_mac_address = mac1
+        iface.save()
+
+        mac_count_before = iface.mac_addresses.count()
+        url = self._get_detail_url(iface)
+
+        # PATCH with mac2's address — should promote mac2, not create a new record
+        response = self.client.patch(url, {'mac_address': 'CC:DD:EE:FF:00:02'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        iface.refresh_from_db()
+        self.assertEqual(iface.primary_mac_address.pk, mac2.pk)
+        self.assertEqual(iface.mac_addresses.count(), mac_count_before)
 
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
@@ -3163,6 +3513,52 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Device Bay 6',
             },
         ]
+
+    def test_is_module_compatible_flag(self):
+        """
+        is_module_compatible should be True when no bay types restrict the bay, and False
+        when the bay's types and the installed module type's types share no common members.
+        """
+        self.add_permissions('dcim.view_modulebay', 'dcim.view_module', 'dcim.view_moduletype')
+        manufacturer = Manufacturer.objects.create(
+            name='Compat Manufacturer', slug='compat-manufacturer'
+        )
+        device = create_test_device('Compat Bay Test Device')
+
+        bay_type_a = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Compat Bay Type A', slug='compat-bay-type-a'
+        )
+        bay_type_b = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Compat Bay Type B', slug='compat-bay-type-b'
+        )
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Compat MT')
+        module_type.module_bay_types.set([bay_type_a])
+
+        compatible_bay = ModuleBay.objects.create(device=device, name='Compat Bay C')
+        compatible_bay.module_bay_types.set([bay_type_a])
+        Module.objects.create(device=device, module_bay=compatible_bay, module_type=module_type)
+
+        incompatible_bay = ModuleBay.objects.create(device=device, name='Compat Bay I')
+        incompatible_bay.module_bay_types.set([bay_type_b])
+        Module.objects.create(device=device, module_bay=incompatible_bay, module_type=module_type)
+
+        empty_bay = ModuleBay.objects.create(device=device, name='Compat Bay E')
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': compatible_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_module_compatible'])
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': incompatible_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(response.data['is_module_compatible'])
+
+        url = reverse('dcim-api:modulebay-detail', kwargs={'pk': empty_bay.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        self.assertTrue(response.data['is_module_compatible'])
 
 
 class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):
@@ -3847,6 +4243,326 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class CoolingIntakeTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingIntakeTemplate
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
+
+        cooling_intake_templates = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        )
+        CoolingIntakeTemplate.objects.bulk_create(cooling_intake_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Port Template 4',
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Port Template 5',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Port Template 6',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Port Template 7',
+            },
+        ]
+
+
+class CoolingOutflowTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingOutflowTemplate
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    user_permissions = ('dcim.view_devicetype', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
+
+        cooling_intake_templates = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+        )
+        CoolingIntakeTemplate.objects.bulk_create(cooling_intake_templates)
+
+        cooling_outflow_templates = (
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        )
+        CoolingOutflowTemplate.objects.bulk_create(cooling_outflow_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 4',
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
+                'cooling_intake': cooling_intake_templates[0].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 5',
+                'cooling_intake': cooling_intake_templates[1].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 6',
+                'cooling_intake': None,
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Outlet Template 7',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Outlet Template 8',
+            },
+        ]
+
+
+class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingIntake
+    brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    user_permissions = ('dcim.view_device', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
+        device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
+
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+            CoolingIntake(device=device, name='Cooling Port 3'),
+        )
+        CoolingIntake.objects.bulk_create(cooling_intakes)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 4',
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
+                'cooling_outflow': cooling_outflow.pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 5',
+                'type': CoolingConnectorTypeChoices.TYPE_QDC,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 6',
+            },
+        ]
+
+
+class CoolingOutflowTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingOutflow
+    brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    user_permissions = ('dcim.view_device', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
+        device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+        )
+        CoolingIntake.objects.bulk_create(cooling_intakes)
+
+        cooling_outflows = (
+            CoolingOutflow(device=device, name='Cooling Outlet 1'),
+            CoolingOutflow(device=device, name='Cooling Outlet 2'),
+            CoolingOutflow(device=device, name='Cooling Outlet 3'),
+        )
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 4',
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
+                'cooling_intake': cooling_intakes[0].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 5',
+                'cooling_intake': cooling_intakes[1].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 6',
+                'cooling_intake': None,
+            },
+        ]
+
+
+class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingSource
+    brief_fields = ['coolingfeed_count', 'description', 'display', 'id', 'name', 'url']
+    user_permissions = ('dcim.view_site', )
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+        )
+
+        locations = (
+            Location.objects.create(name='Location 1', slug='location-1', site=sites[0]),
+            Location.objects.create(name='Location 2', slug='location-2', site=sites[0]),
+            Location.objects.create(name='Location 3', slug='location-3', site=sites[0]),
+            Location.objects.create(name='Location 4', slug='location-3', site=sites[1]),
+        )
+
+        cooling_sources = (
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 1',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[1], name='Cooling Source 2',
+                type=CoolingSourceTypeChoices.TYPE_COOLING_TOWER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[2], name='Cooling Source 3',
+                type=CoolingSourceTypeChoices.TYPE_DRY_COOLER
+            ),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        cls.create_data = [
+            {
+                'name': 'Cooling Source 4',
+                'site': sites[0].pk,
+                'location': locations[0].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
+            },
+            {
+                'name': 'Cooling Source 5',
+                'site': sites[0].pk,
+                'location': locations[1].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
+            },
+            {
+                'name': 'Cooling Source 6',
+                'site': sites[0].pk,
+                'location': locations[2].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'site': sites[1].pk,
+            'location': locations[3].pk
+        }
+
+
+class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingFeed
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'status': 'planned',
+    }
+    user_permissions = ('dcim.view_coolingsource', )
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        location = Location.objects.create(site=site, name='Location 1', slug='location-1')
+        rackrole = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
+
+        racks = (
+            Rack(site=site, location=location, role=rackrole, name='Rack 1'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 2'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 3'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 4'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cooling_sources = (
+            CoolingSource(
+                site=site, location=location, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=site, location=location, name='Cooling Source 2', type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        cooling_feeds = (
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B'),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B'),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A'),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B'),
+        )
+        CoolingFeed.objects.bulk_create(cooling_feeds)
+
+        cls.create_data = [
+            {
+                'name': 'Cooling Feed 4A',
+                'cooling_source': cooling_sources[0].pk,
+                'rack': racks[3].pk,
+            },
+            {
+                'name': 'Cooling Feed 4B',
+                'cooling_source': cooling_sources[1].pk,
+                'rack': racks[3].pk,
+            },
+            {
+                'name': 'Cooling Feed 4C',
+                'cooling_source': cooling_sources[0].pk,
+                'rack': racks[3].pk,
+            },
+        ]
+
+
 class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualDeviceContext
     brief_fields = ['description', 'device', 'display', 'id', 'identifier', 'name', 'url']
@@ -4011,3 +4727,25 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
                 'mac_address': '00:00:00:00:00:06',
             },
         ]
+
+    def test_is_primary_field(self):
+        """
+        The read-only is_primary field should reflect whether the MAC address is the primary on its interface.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:01')
+        non_primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:02')
+
+        # Designate one MAC address as the primary on its interface
+        interface = primary_mac.assigned_object
+        interface.primary_mac_address = primary_mac
+        interface.save()
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertTrue(response.data['is_primary'])
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': non_primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertFalse(response.data['is_primary'])

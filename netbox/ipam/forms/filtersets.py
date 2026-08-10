@@ -640,12 +640,24 @@ class ServiceTemplateFilterForm(PrimaryModelFilterSetForm):
     model = ServiceTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('protocol', 'port', name=_('Attributes')),
+        FieldSet('port_mappings', 'protocol', 'port', name=_('Attributes')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    protocol = forms.ChoiceField(
+    # A complete protocol/port pair, matched as a whole. Unlike `protocol` and `port` (which are
+    # correlated but independently specified), this is a single free-text value: an unknown protocol or
+    # malformed pair simply matches nothing, so no client-side validation is needed here.
+    port_mappings = forms.CharField(
+        label=_('Port mapping'),
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'e.g. tcp/80',
+            }
+        )
+    )
+    protocol = forms.MultipleChoiceField(
         label=_('Protocol'),
-        choices=add_blank_choice(ServiceProtocolChoices),
+        choices=ServiceProtocolChoices,
         required=False
     )
     port = forms.IntegerField(
@@ -659,7 +671,7 @@ class ServiceFilterForm(ContactModelFilterForm, ServiceTemplateFilterForm):
     model = Service
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('protocol', 'port', name=_('Attributes')),
+        FieldSet('port_mappings', 'protocol', 'port', name=_('Attributes')),
         FieldSet('device_id', 'virtual_machine_id', 'fhrpgroup_id', name=_('Assignment')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),

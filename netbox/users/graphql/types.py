@@ -1,7 +1,6 @@
 
-import strawberry_django
 
-from netbox.graphql.types import BaseObjectType
+from netbox.graphql.types import BaseObjectType, register_type
 from users.models import Group, Owner, OwnerGroup, User
 
 from .filters import *
@@ -14,7 +13,7 @@ __all__ = (
 )
 
 
-@strawberry_django.type(
+@register_type(
     Group,
     fields=['id', 'name'],
     filters=GroupFilter,
@@ -24,7 +23,7 @@ class GroupType(BaseObjectType):
     pass
 
 
-@strawberry_django.type(
+@register_type(
     User,
     fields=[
         'id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'date_joined', 'groups',
@@ -36,7 +35,7 @@ class UserType(BaseObjectType):
     groups: list[GroupType]
 
 
-@strawberry_django.type(
+@register_type(
     OwnerGroup,
     fields=['id', 'name', 'description'],
     filters=OwnerGroupFilter,
@@ -46,7 +45,7 @@ class OwnerGroupType(BaseObjectType):
     pass
 
 
-@strawberry_django.type(
+@register_type(
     Owner,
     fields=['id', 'group', 'name', 'description', 'user_groups', 'users'],
     filters=OwnerFilter,

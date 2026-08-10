@@ -1,8 +1,0 @@
-{% extends 'generic/object.html' %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item">
-    <a href="{% url 'circuits:circuitgroupassignment_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
-  </li>
-{% endblock %}

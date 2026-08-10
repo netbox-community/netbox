@@ -106,6 +106,12 @@ class RackTypeTable(PrimaryModelTable):
         url_params={'rack_type_id': 'pk'},
         verbose_name=_('Rack Count'),
     )
+    cooling_capability = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Capability'),
+    )
+    cooling_capacity = tables.Column(
+        verbose_name=_('Cooling Capacity (kW)')
+    )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
@@ -114,8 +120,8 @@ class RackTypeTable(PrimaryModelTable):
         model = RackType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments',
-            'rack_count', 'tags', 'created', 'last_updated',
+            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'cooling_capability',
+            'cooling_capacity', 'description', 'comments', 'rack_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'rack_count',
@@ -196,13 +202,20 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )
+    cooling_capability = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Capability'),
+    )
+    cooling_capacity = tables.Column(
+        verbose_name=_('Cooling Capacity (kW)')
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'group', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
             'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments',
+            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'cooling_capability',
+            'cooling_capacity', 'weight', 'max_weight', 'comments',
             'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts',
             'tags', 'created', 'last_updated',
         )

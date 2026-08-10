@@ -8,7 +8,7 @@ import jsonschema
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
-from django.db import models, transaction
+from django.db import models
 from django.db.models import F, Func, Value
 from django.urls import reverse
 from django.utils.html import escape
@@ -18,7 +18,6 @@ from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.choices import *
-from extras.constants import CUSTOMFIELD_DATA_BATCH_SIZE
 from extras.data import CHOICE_SETS
 from extras.fields import ChoiceSetField
 from netbox.context import query_cache
@@ -43,9 +42,9 @@ from utilities.forms.fields import (
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
 from utilities.jsonschema import validate_schema
-from utilities.querysets import RestrictedQuerySet
+from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.validators import validate_regex
+from utilities.validators import url_scheme_is_allowed, validate_regex
 
 __all__ = (
     'CustomField',
@@ -79,7 +78,9 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type).select_related('related_object_type')
+        custom_fields = self.get_queryset().filter(object_types=content_type).select_related(
+            'related_object_type', 'choice_set'
+        )
 
         # Populate the request cache to avoid redundant lookups
         if cache is not None:
@@ -261,6 +262,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         verbose_name=_('is cloneable'),
         help_text=_('Replicate this value when cloning objects')
     )
+    nulls_first = models.BooleanField(
+        default=True,
+        verbose_name=_('nulls first'),
+        help_text=_('Sort null values before non-null values when ordering by this field')
+    )
     comments = models.TextField(
         verbose_name=_('comments'),
         blank=True
@@ -272,6 +278,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
         'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
         'validation_regex', 'validation_schema', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'nulls_first',
     )
 
     class Meta:
@@ -324,39 +331,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return self.choice_set.get_choice_color(value)
         return None
 
-    @staticmethod
-    def _update_object_data(model, filters=None, **update_kwargs):
+    def resolve_selection_value(self, value):
         """
-        Apply an UPDATE to the custom_field_data of every instance of the given model in batches,
-        bounding the number of rows touched by each statement. A single unbounded UPDATE across
-        millions of rows can exceed the database statement timeout, because JSONB updates rewrite
-        each affected row in full. Batches are selected via keyset pagination on the primary key.
-
-        The batched updates are wrapped in a transaction so that the operation remains atomic, as
-        it was when performed by a single UPDATE. This guards against partially-applied data (e.g.
-        a renamed field landing on only some objects) should the loop be interrupted when not
-        already running inside a request's transaction. Batching avoids the statement timeout
-        regardless, as that limit applies per statement rather than per transaction.
-
-        :param filters: Optional dict of ORM filters restricting which rows are updated. Callers
-            which need only to touch rows already holding a given key should pass
-            `{'custom_field_data__has_key': ...}`; because keys are materialized only when a value
-            is actually set (see populate_initial_data()), this typically excludes the bulk of the
-            table.
+        For a Selection or Multiple selection field, wrap the value(s) with their resolved label as
+        {'value': ..., 'label': ...} (a list thereof for multi-select). Other field types pass through
+        unchanged. Shared by the REST API and GraphQL so selection labels resolve consistently (#20897).
         """
-        filters = filters or {}
-        queryset = model.objects.filter(**filters)
-        with transaction.atomic():
-            last_pk = 0
-            while True:
-                pks = list(
-                    queryset.filter(pk__gt=last_pk).order_by('pk')
-                    .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
-                )
-                if not pks:
-                    break
-                queryset.filter(pk__in=pks).update(**update_kwargs)
-                last_pk = pks[-1]
+        if value is None:
+            return value
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+            return {'value': value, 'label': self.get_choice_label(value)}
+        if self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            return [{'value': v, 'label': self.get_choice_label(v)} for v in value]
+        return value
 
     def populate_initial_data(self, content_types):
         """
@@ -374,8 +361,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         value = Value(self.default, models.JSONField())
         for ct in content_types:
             if model := ct.model_class():
-                self._update_object_data(
-                    model,
+                chunked_update(
+                    model.objects.all(),
                     custom_field_data=Func(
                         F('custom_field_data'),
                         Value([self.name]),
@@ -395,9 +382,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         for ct in content_types:
             if model := ct.model_class():
-                self._update_object_data(
-                    model,
-                    filters={'custom_field_data__has_key': self.name},
+                chunked_update(
+                    model.objects.filter(custom_field_data__has_key=self.name),
                     custom_field_data=F('custom_field_data') - self.name
                 )
 
@@ -408,9 +394,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         for ct in self.object_types.all():
             if model := ct.model_class():
-                self._update_object_data(
-                    model,
-                    filters={'custom_field_data__has_key': old_name},
+                chunked_update(
+                    model.objects.filter(custom_field_data__has_key=old_name),
                     custom_field_data=Func(
                         F('custom_field_data') - old_name,
                         Value([new_name]),
@@ -818,6 +803,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
+                # Enforce ALLOWED_URL_SCHEMES to guard against dangerous schemes (e.g. javascript:). A
+                # schemeless value is permitted and treated as relative.
+                if not url_scheme_is_allowed(value):
+                    raise ValidationError(
+                        _("URLs must use a scheme permitted by ALLOWED_URL_SCHEMES.")
+                    )
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 
@@ -883,7 +874,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                if not set(value).issubset(self.choice_set.values):
+                # Require a list of valid string choices. The isinstance() check short-circuits the membership
+                # test so that non-string members (e.g. a client echoing back the {value, label} read
+                # representation) raise a ValidationError rather than an unhashable-type TypeError.
+                valid_values = set(self.choice_set.values)
+                if type(value) is not list or not all(isinstance(v, str) and v in valid_values for v in value):
                     raise ValidationError(
                         _("Invalid choice(s) ({value}) for choice set {choiceset}.").format(
                             value=value,

@@ -6,12 +6,14 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import ValidationError
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
@@ -22,6 +24,7 @@ from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import SharedObjectQuerySet
 from extras.utils import image_upload
 from netbox.config import get_config
+from netbox.event_rules import get_event_rule_action, get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
@@ -34,6 +37,7 @@ from netbox.models.features import (
     has_feature,
 )
 from netbox.models.mixins import OwnerMixin
+from netbox.settings_utils import parse_job_timeout
 from utilities.html import clean_html
 from utilities.jinja2 import JINJA2_TEMPLATE_RE, render_jinja2, sanitize_http_header, validate_jinja2_syntax
 from utilities.querydict import dict_to_querydict
@@ -97,15 +101,19 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
 
     # Action to take
     action_type = models.CharField(
-        max_length=30,
-        choices=EventRuleActionChoices,
+        max_length=100,
+        # Bare callable, re-evaluated fresh on each access via Django's CallableChoiceIterator,
+        # so a plugin action registered after this module was first imported is still reflected.
+        choices=get_event_rule_action_choices,
         default=EventRuleActionChoices.WEBHOOK,
         verbose_name=_('action type')
     )
     action_object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         related_name='eventrule_actions',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     action_object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -140,6 +148,26 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
     def get_absolute_url(self):
         return reverse('extras:eventrule', args=[self.pk])
 
+    @property
+    def action_provider(self):
+        """
+        Return the registered EventRuleAction instance for this rule's action_type, or None if it
+        is not currently registered (e.g. the providing plugin is not installed).
+        """
+        return get_event_rule_action(self.action_type)
+
+    @property
+    def action_is_available(self):
+        return self.action_provider is not None
+
+    def get_action_type_display(self):
+        if action := self.action_provider:
+            return action.label
+        return _('{slug} (unavailable)').format(slug=self.action_type)
+
+    def get_action_type_color(self):
+        return None if self.action_is_available else 'red'
+
     def clean(self):
         super().clean()
 
@@ -153,6 +181,11 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
         # action_data must be a JSON object (or null)
         if self.action_data is not None and not isinstance(self.action_data, dict):
             raise ValidationError({'action_data': _('Action data must be a JSON object or null.')})
+
+        # action_type's own validity is already enforced by the field's dynamic choices= (Field.
+        # validate(), earlier in full_clean()); guard here only in case clean() ran standalone.
+        if self.action_is_available:
+            self.action_provider._validate(action_object=self.action_object, action_data=self.action_data)
 
     def eval_conditions(self, data):
         """
@@ -230,7 +263,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         help_text=_(
             "Jinja2 template for a custom request body. If blank, a JSON object representing the change will be "
             "included. Available context data includes: <code>event</code>, <code>model</code>, "
-            "<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>."
+            "<code>timestamp</code>, <code>request</code>, and <code>data</code>."
         )
     )
     secret = models.CharField(
@@ -254,6 +287,22 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         verbose_name=_('CA File Path'),
         help_text=_(
             "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
+        )
+    )
+    timeout = models.PositiveSmallIntegerField(
+        verbose_name=_('timeout'),
+        null=True,
+        blank=True,
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(3600),
+        ),
+        help_text=format_lazy(
+            _(
+                "The maximum time (in seconds) to wait for a response before failing the request. Leave blank to use "
+                "the system default ({default_timeout} seconds)."
+            ),
+            default_timeout=settings.WEBHOOK_DEFAULT_TIMEOUT
         )
     )
     events = GenericRelation(
@@ -314,6 +363,17 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
 
         if errors:
             raise ValidationError(errors)
+
+        # A timeout which meets or exceeds the background job timeout leaves no room for the request's own timeout
+        # to apply: the worker will terminate the job first. (Staying below the job timeout does not guarantee that
+        # the request times out on its own, as the timeout applies separately to connecting and to reading data.)
+        job_timeout = parse_job_timeout(settings.RQ_DEFAULT_TIMEOUT)
+        if self.timeout is not None and job_timeout is not None and self.timeout >= job_timeout:
+            raise ValidationError({
+                'timeout': _(
+                    "Timeout must be less than the background job timeout ({timeout} seconds)."
+                ).format(timeout=job_timeout)
+            })
 
     def render_headers(self, context):
         """

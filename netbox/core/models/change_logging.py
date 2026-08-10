@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel
 
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
@@ -160,13 +159,26 @@ class ObjectChange(models.Model):
         model = self.changed_object_type.model_class()
         attrs = set()
 
+        # model_class() returns None when the model's app is no longer installed
+        # (e.g. a removed plugin); there are no fields to exclude, and the
+        # issubclass() checks below would raise TypeError on None.
+        if model is None:
+            return attrs
+
         # Exclude auto-populated change tracking fields
         if issubclass(model, ChangeLoggingMixin):
             attrs.update({'created', 'last_updated'})
 
-        # Exclude MPTT-internal fields
+        # Exclude trigger-maintained ltree columns (path and the optional sort_path)
+        from netbox.models.ltree import LtreeModel
+        if issubclass(model, LtreeModel):
+            attrs.update({'path', 'sort_path'})
+
+        # Exclude MPTT bookkeeping columns for the deprecated MPTT-backed
+        # NestedGroupModel still shipped for plugin compatibility.
+        from mptt.models import MPTTModel
         if issubclass(model, MPTTModel):
-            attrs.update({'level', 'lft', 'rght', 'tree_id'})
+            attrs.update({'lft', 'rght', 'tree_id', 'level'})
 
         return attrs
 

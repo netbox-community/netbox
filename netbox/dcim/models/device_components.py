@@ -2,23 +2,28 @@ from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import InterfaceValidationMixin
+from dcim.models.mixins import (
+    CoolingLoopValidationMixin,
+    DiameterMixin,
+    InterfaceValidationMixin,
+    MaxFlowMixin,
+)
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
+from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.tracking import TrackingModelMixin
@@ -30,6 +35,8 @@ __all__ = (
     'CabledObjectModel',
     'ConsolePort',
     'ConsoleServerPort',
+    'CoolingIntake',
+    'CoolingOutflow',
     'DeviceBay',
     'FrontPort',
     'Interface',
@@ -685,6 +692,96 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
 
 #
+# Cooling components
+#
+
+class CoolingIntake(
+    CoolingLoopValidationMixin, DiameterMixin, MaxFlowMixin, ModularComponentModel, TrackingModelMixin
+):
+    """
+    A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
+    CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    # max_flow, max_flow_unit, _abs_max_flow provided by MaxFlowMixin
+    cooling_outflow = models.ForeignKey(
+        to='dcim.CoolingOutflow',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingintakes',
+        help_text=_('The upstream cooling outflow supplying this intake')
+    )
+
+    clone_fields = (
+        'device', 'module', 'type', 'diameter', 'diameter_unit', 'max_flow',
+        'max_flow_unit',
+    )
+    upstream_field = 'cooling_outflow'
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling intake')
+        verbose_name_plural = _('cooling intakes')
+
+    def clean(self):
+        super().clean()
+
+        # Prevent the intake/outflow chain from forming a loop
+        self.validate_cooling_loop()
+
+
+class CoolingOutflow(CoolingLoopValidationMixin, DiameterMixin, ModularComponentModel, TrackingModelMixin):
+    """
+    A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
+    CoolingIntakes (referenced via CoolingIntake.cooling_outflow).
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
+    cooling_intake = models.ForeignKey(
+        to='dcim.CoolingIntake',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingoutflows'
+    )
+
+    clone_fields = ('device', 'module', 'type', 'diameter', 'diameter_unit', 'cooling_intake')
+    upstream_field = 'cooling_intake'
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling outflow')
+        verbose_name_plural = _('cooling outflows')
+
+    def clean(self):
+        super().clean()
+
+        # Validate cooling intake assignment
+        if self.cooling_intake and self.cooling_intake.device != self.device:
+            raise ValidationError(
+                _("Parent cooling intake ({cooling_intake}) must belong to the same device").format(
+                    cooling_intake=self.cooling_intake)
+            )
+
+        # Prevent the intake/outflow chain from forming a loop
+        self.validate_cooling_loop()
+
+
+#
 # Interfaces
 #
 
@@ -860,6 +957,26 @@ class Interface(
         max_length=50,
         choices=InterfaceTypeChoices
     )
+    channels = models.PositiveSmallIntegerField(
+        verbose_name=_('channels'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The number of channels into which this interface is channelized')
+    )
+    channel_id = models.PositiveSmallIntegerField(
+        verbose_name=_('channel ID'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(INTERFACE_CHANNELS_MIN),
+            MaxValueValidator(INTERFACE_CHANNELS_MAX)
+        ),
+        help_text=_('The channel on the parent interface to which this subinterface is bound')
+    )
     mgmt_only = models.BooleanField(
         default=False,
         verbose_name=_('management only'),
@@ -989,14 +1106,33 @@ class Interface(
     )
 
     clone_fields = (
-        'device', 'module', 'parent', 'bridge', 'lag', 'type', 'mgmt_only', 'mtu', 'mode', 'speed', 'duplex', 'rf_role',
-        'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode', 'poe_type', 'vrf',
+        'device', 'module', 'parent', 'bridge', 'lag', 'type', 'channels', 'mgmt_only', 'mtu', 'mode', 'speed',
+        'duplex', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'poe_mode',
+        'poe_type', 'vrf',
     )
 
     class Meta(ModularComponentModel.Meta):
         ordering = ('device', CollateAsChar('_name'))
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
+        constraints = (
+            *ModularComponentModel.Meta.constraints,
+            models.UniqueConstraint(
+                fields=('parent', 'channel_id'),
+                name='%(app_label)s_%(class)s_unique_parent_channel_id'
+            ),
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache channelization-related fields so post-save signal handlers can detect changes which require rebuilding
+        # cable paths (channelization does not involve modifying the Cable itself, so the cable signals do not fire).
+        # _original_channels is additionally used by InterfaceValidationMixin.clean() to detect a channel-count
+        # reduction that would orphan a bound subinterface.
+        self._original_channels = self.__dict__.get('channels')
+        self._original_channel_id = self.__dict__.get('channel_id')
+        self._original_parent_id = self.__dict__.get('parent_id')
 
     def clean(self):
         super().clean()
@@ -1017,15 +1153,7 @@ class Interface(
                 )
             })
 
-        # Parent validation
-
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': _("An interface cannot be its own parent.")})
-
-        # A physical interface cannot have a parent interface
-        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
-            raise ValidationError({'parent': _("Only virtual interfaces may be assigned to a parent interface.")})
+        # Parent validation (self-reference and interface-type restrictions are enforced by InterfaceValidationMixin)
 
         # An interface's parent must belong to the same device or virtual chassis
         if self.parent and self.parent.device != self.device:
@@ -1147,7 +1275,9 @@ class Interface(
 
     @property
     def is_wired(self):
-        return not self.is_virtual and not self.is_wireless
+        # Excludes virtual, wireless, and channel-type interfaces (channel subinterfaces derive their cable from the
+        # channelized parent and cannot be cabled directly).
+        return self.type not in NONCONNECTABLE_IFACE_TYPES
 
     @property
     def is_virtual(self):
@@ -1164,6 +1294,10 @@ class Interface(
     @property
     def is_bridge(self):
         return self.type == InterfaceTypeChoices.TYPE_BRIDGE
+
+    @property
+    def is_channel(self):
+        return self.type == InterfaceTypeChoices.TYPE_CHANNEL
 
     @property
     def link(self):
@@ -1191,6 +1325,58 @@ class Interface(
         if self.is_virtual and hasattr(self, 'virtual_circuit_termination'):
             return self.virtual_circuit_termination.peer_terminations
         return super().connected_endpoints
+
+    def set_cable_termination(self, termination):
+        super().set_cable_termination(termination)
+
+        # A channelized interface carries no path of its own; instead, its cable is mirrored onto each channel
+        # subinterface (occupying a single position of the shared connector) so that each channel traces independently.
+        if self.channels:
+            self.propagate_channel_cables()
+
+    def clear_cable_termination(self, termination):
+        super().clear_cable_termination(termination)
+
+        if self.channels:
+            self.clear_channel_cables()
+
+    def propagate_channel_cables(self):
+        """
+        Mirror this channelized interface's cable attributes onto each of its channel subinterfaces, restricting each
+        child to the single connector position identified by its channel_id. Only profiled cables map connector
+        positions to channels; a positionless (unprofiled) cable carries no per-channel path, so nothing is mirrored.
+        """
+        # Only a profiled cable defines the connector positions that channels map onto; without one, clear any
+        # previously-mirrored attributes rather than propagate an unusable cable reference.
+        if not (self.cable and self.cable.profile):
+            self.clear_channel_cables()
+            return
+
+        # Mirror via bulk_update() to issue a single UPDATE and, crucially, to bypass the post_save signal — a
+        # per-child save() would re-trigger update_channelized_cable_paths() and recurse indefinitely.
+        children = list(self.child_interfaces.filter(channel_id__isnull=False))
+        for child in children:
+            child.cable = self.cable
+            child.cable_end = self.cable_end
+            child.cable_connector = self.cable_connector
+            child.cable_positions = [child.channel_id]
+        type(self).objects.bulk_update(
+            children, ['cable', 'cable_end', 'cable_connector', 'cable_positions']
+        )
+
+    def clear_channel_cables(self):
+        """
+        Clear the mirrored cable attributes from this channelized interface's channel subinterfaces.
+        """
+        # A queryset update() clears every child in a single query and bypasses the post_save signal (see above).
+        # cable_end is cleared to '' to match the convention used elsewhere when nullifying a termination (see
+        # nullify_connected_endpoints() and update_channelized_cable_paths() in dcim.signals).
+        self.child_interfaces.filter(channel_id__isnull=False).update(
+            cable=None,
+            cable_end='',
+            cable_connector=None,
+            cable_positions=None,
+        )
 
 
 #
@@ -1333,34 +1519,11 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBayManager(TreeManager):
-    """
-    Order ModuleBays by the natural-sort name of each tree's root, then by MPTT
-    left value within the tree. Combined with the root-insert bypass in
-    ModuleBay.save(), this lets us keep MPTTMeta.order_insertion_by for cheap
-    intra-tree sibling placement while skipping the global tree_id renumbering
-    it would otherwise perform on every root insert.
-    """
-    def get_queryset(self, *args, **kwargs):
-        # Use the raw manager to avoid recursing through this get_queryset() when
-        # building the annotation subquery.
-        root_name = self.model._objects_raw.filter(
-            tree_id=models.OuterRef('tree_id'),
-            level=0,
-        ).values('name')[:1]
-        return super().get_queryset(*args, **kwargs).annotate(
-            _root_name=models.Subquery(
-                root_name,
-                output_field=models.CharField(db_collation='natural_sort'),
-            )
-        ).order_by('_root_name', 'lft')
-
-
-class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
     """
     An empty space within a Device which can house a child device
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='children',
@@ -1379,18 +1542,38 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         verbose_name=_('enabled'),
         default=True,
     )
-
-    objects = ModuleBayManager()
-    # Plain TreeManager used by ModuleBayManager to build the _root_name subquery
-    # without recursing through our annotated get_queryset().
-    _objects_raw = TreeManager()
+    module_bay_types = models.ManyToManyField(
+        to='dcim.ModuleBayType',
+        related_name='module_bays',
+        blank=True,
+        verbose_name=_('module bay types'),
+        help_text=_('Types of modules that can be installed in this bay (empty = unconstrained)'),
+    )
+    # sort_path inherits `name`'s natural_sort collation automatically (LtreeModelBase),
+    # so ORDER BY sort_path sorts siblings naturally (Slot 0..Slot 13) — as MPTT's
+    # order_insertion_by=('name',) did — rather than lexicographically.
+    sort_path = SortPathField(
+        editable=False,
+        blank=True,
+        default='',
+    )
 
     clone_fields = ('device', 'enabled')
 
+    objects = LtreeManager()
+
     class Meta(ModularComponentModel.Meta):
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        # Order by sort_path alone (not device-first), reproducing the MPTT
+        # ModuleBayManager's ('_root_name', 'lft'): sort_path begins with the tree's
+        # root-bay name (natural_sort collation), so the global list groups by
+        # root-bay name across devices, descendants following their root. `pk`
+        # gives a deterministic tie-break among same-named roots on different devices
+        # (MPTT's lft=1 left this order arbitrary).
+        ordering = ('sort_path', 'pk')
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_modulebay_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'module', 'name'),
@@ -1399,12 +1582,6 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
-
-    class MPTTMeta:
-        # Used for placing siblings within a single tree at insert time. Costs
-        # are bounded to that tree's rows. Cross-tree (root) insertion is
-        # handled in save() to avoid the O(N) tree_id shift this would trigger.
-        order_insertion_by = ('name',)
 
     def clean(self):
         super().clean()
@@ -1425,37 +1602,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
             self.parent = self.module.module_bay
         else:
             self.parent = None
-        opts = self._mptt_meta
-        # For new root nodes, allocate the next tree_id and pre-set MPTT fields
-        # so super().save() skips MPTT's order_insertion_by-driven insertion
-        # path. That path would otherwise UPDATE every later tree_id on each
-        # root insert (NB-2800). Children still go through MPTT, which keeps
-        # siblings in name order via the same order_insertion_by setting.
-        if self._state.adding and self.parent_id is None and not self.lft and not self.rght:
-            max_tree_id = ModuleBay._objects_raw.aggregate(
-                models.Max('tree_id')
-            )['tree_id__max'] or 0
-            self.tree_id = max_tree_id + 1
-            self.lft = 1
-            self.rght = 2
-            self.level = 0
-        elif (
-            not self._state.adding
-            and self.parent_id is None
-            and self._mptt_cached_fields.get(opts.parent_attr) is None
-        ):
-            # Existing root being updated. Spoof the cached order_insertion_by
-            # values so MPTT's same_order check passes and it skips its reorder
-            # path, which would UPDATE every later tree_id on each root rename.
-            # ModuleBayManager._root_name recovers display order at query time,
-            # so the tree_id reshuffling would be wasted work. Child renames
-            # and root<->child transitions intentionally fall through to MPTT.
-            for field_name in opts.order_insertion_by:
-                field_name = field_name.lstrip('-')
-                self._mptt_cached_fields[field_name] = opts.get_raw_field_value(
-                    self, field_name
-                )
         super().save(*args, **kwargs)
+
+    def _parent_creates_cycle(self):
+        # A ModuleBay's parent is system-derived from its module (see save()), not
+        # user-assigned, and module/bay recursion is validated in clean(); skip the
+        # generic ltree cycle guard.
+        return False
 
     @property
     def _occupied(self):
@@ -1463,6 +1616,32 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         Indicates whether the module bay is occupied by a module.
         """
         return bool(not self.enabled or hasattr(self, 'installed_module'))
+
+    @property
+    def is_module_compatible(self):
+        """
+        Return True if the installed module (if any) is compatible with this bay's type constraints,
+        or if this bay has no type constraints, or if no module is installed.
+        Returns False when this bay and the installed module's type have non-empty, disjoint bay type sets.
+        """
+        module = getattr(self, 'installed_module', None)
+        if module is None:
+            return True
+        # Use .all() so a prefetch cache is honoured; see Module.is_bay_compatible for details.
+        bay_types = {t.pk for t in self.module_bay_types.all()}
+        if not bay_types:
+            return True
+        type_types = {t.pk for t in module.module_type.module_bay_types.all()}
+        if type_types and not (bay_types & type_types):
+            return False
+        return True
+
+    def get_incompatible_module(self):
+        """
+        Return the installed Module if it is incompatible with this bay's type constraints, else None.
+        """
+        module = getattr(self, 'installed_module', None)
+        return module if module and not self.is_module_compatible else None
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
@@ -1548,12 +1727,12 @@ class InventoryItemRole(OrganizationalModel):
         verbose_name_plural = _('inventory item roles')
 
 
-class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
+class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
@@ -1621,14 +1800,19 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         help_text=_('This item was automatically discovered')
     )
 
-    objects = TreeManager()
-
     clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
 
+    objects = LtreeManager()
+
     class Meta:
-        ordering = ('device__id', 'parent__id', 'name')
+        # Global list is flat + alphabetical by name (natural_sort collation). The
+        # per-device Inventory tab renders the hierarchy instead — DeviceInventoryView
+        # .get_children() orders that by `path`. `pk` is a deterministic tie-break for
+        # same-named items on different devices.
+        ordering = ('name', 'pk')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
+            GistIndex(fields=['path'], name='dcim_inventoryitem_path_gist'),
         )
         constraints = (
             models.UniqueConstraint(
@@ -1641,12 +1825,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # An InventoryItem cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": _("Cannot assign self as parent.")
-            })
 
         # Validation for moving InventoryItems
         if not self._state.adding:

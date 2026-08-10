@@ -1,20 +1,48 @@
 import inspect
+import logging
 
+from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
+from netbox.graphql.utils import get_model_label
 from netbox.registry import registry
 
 from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from .templates import PluginTemplateExtension
 
+logger = logging.getLogger(__name__)
+
 __all__ = (
+    'register_graphql_filter_extensions',
     'register_graphql_schema',
+    'register_graphql_type_extensions',
+    'register_jinja_filters',
     'register_menu',
     'register_menu_items',
     'register_serializer_resolver',
     'register_template_extensions',
     'register_user_preferences',
 )
+
+
+def register_jinja_filters(filters):
+    """
+    Register a dict of Jinja filter functions provided by a plugin. Each key is the
+    filter name as it will appear in templates; the value is the callable implementing it.
+    Plugin-registered filters have lower precedence than instance-level JINJA_FILTERS
+    so that site admins can always override them in configuration.py.
+    """
+    if not isinstance(filters, dict):
+        raise TypeError(_("jinja_filters must be a dict mapping filter names to callables"))
+    for name, fn in filters.items():
+        if not callable(fn):
+            raise TypeError(_("Jinja filter '{name}' must be callable").format(name=name))
+        if name in registry['plugins']['jinja_filters']:
+            logger.warning(
+                "Jinja filter '%s' registered by a plugin is being overridden by a later-loaded plugin",
+                name,
+            )
+    registry['plugins']['jinja_filters'].update(filters)
 
 
 def register_template_extensions(class_list):
@@ -76,6 +104,74 @@ def register_graphql_schema(graphql_schema):
     Register a GraphQL schema class for inclusion in NetBox's GraphQL API.
     """
     registry['plugins']['graphql_schemas'].extend(graphql_schema)
+
+
+def _register_graphql_extensions(class_list, store):
+    """
+    Collect a list of GraphQL output-type or filter mixin classes into the given registry store, bucketed by the
+    model labels declared on each class's `models` attribute. Each declared label is validated against the app
+    registry and normalized to the canonical `app_label.model_name` form (via `get_model_label`) so that the
+    stored key always matches the label `register_type`/`register_filter` look up.
+    """
+    for extension in class_list:
+        if not inspect.isclass(extension):
+            raise TypeError(
+                _("GraphQL extension {extension} was passed as an instance!").format(extension=extension)
+            )
+        models = getattr(extension, 'models', None)
+        if not models:
+            raise TypeError(
+                _("GraphQL extension {extension} must declare a non-empty 'models' attribute.").format(
+                    extension=extension
+                )
+            )
+        # Must be @strawberry.type-decorated for its fields to be collected. Check the class's own __dict__ (not
+        # hasattr) so an undecorated subclass of a @strawberry.type base is still rejected. `__strawberry_definition__`
+        # is a Strawberry internal (verified against strawberry-graphql 0.321.0); revisit on dependency upgrades.
+        if '__strawberry_definition__' not in vars(extension):
+            raise TypeError(
+                _("GraphQL extension {extension} must be decorated with @strawberry.type.").format(
+                    extension=extension
+                )
+            )
+        for label in models:
+            # Resolve the model to validate the label and derive its canonical key; a bad label would otherwise
+            # register into a bucket that is never looked up, silently dropping the extension.
+            try:
+                model = apps.get_model(label)
+            except (LookupError, ValueError):
+                raise TypeError(
+                    _("GraphQL extension {extension} targets unknown model '{label}'.").format(
+                        extension=extension, label=label
+                    )
+                )
+            canonical_label = get_model_label(model)
+            # If the core type/filter was already assembled (a plugin imported a core graphql module during
+            # ready()), this extension is too late to be spliced in and will not appear in the schema. Fetch the
+            # logger lazily (not the module-level one) so it isn't disabled by a `disable_existing_loggers` config.
+            if (store, canonical_label) in registry['plugins']['graphql_extensions_assembled']:
+                logging.getLogger('netbox.graphql').warning(
+                    "GraphQL extension %s for '%s' was registered after the core type was assembled and will be "
+                    "ignored. Avoid importing core GraphQL modules from a plugin's ready().",
+                    extension, canonical_label,
+                )
+            registry['plugins'][store][canonical_label].append(extension)
+
+
+def register_graphql_type_extensions(class_list):
+    """
+    Register a list of GraphQL output-type mixin classes. Each class must be decorated with @strawberry.type and
+    declare a `models` attribute listing the `app_label.model` labels of the core types it extends.
+    """
+    _register_graphql_extensions(class_list, 'graphql_type_extensions')
+
+
+def register_graphql_filter_extensions(class_list):
+    """
+    Register a list of GraphQL filter mixin classes. Each class must be decorated with @strawberry.type and declare
+    a `models` attribute listing the `app_label.model` labels of the core filters it extends.
+    """
+    _register_graphql_extensions(class_list, 'graphql_filter_extensions')
 
 
 def register_user_preferences(plugin_name, preferences):

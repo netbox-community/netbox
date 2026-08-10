@@ -1,3 +1,4 @@
+import re
 from unittest import skipIf
 
 from django.conf import settings
@@ -216,6 +217,26 @@ class PluginTestCase(TestCase):
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
 
+    def test_graphql_type_extensions(self):
+        """
+        Validate that plugin GraphQL type & filter extensions are registered and spliced into the built schema.
+        """
+        from netbox.graphql.schema import schema
+        from netbox.tests.dummy_plugin.graphql import SiteFilterExtension, SiteTypeExtension
+
+        # Extensions are registered against the targeted core model
+        self.assertIn(SiteTypeExtension, registry['plugins']['graphql_type_extensions']['dcim.site'])
+        self.assertIn(SiteFilterExtension, registry['plugins']['graphql_filter_extensions']['dcim.site'])
+
+        # The injected field and filter appear in the assembled schema
+        schema_str = schema.as_str()
+        site_type = re.search(r'\ntype SiteType \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_type, "SiteType not found in GraphQL schema")
+        self.assertIn('dummy_plugin_field', site_type.group(0))
+        site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL)
+        self.assertIsNotNone(site_filter, "SiteFilter not found in GraphQL schema")
+        self.assertIn('dummy_plugin_filter', site_filter.group(0))
+
     @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):
         """
@@ -237,6 +258,85 @@ class PluginTestCase(TestCase):
         Test the registration of webhook callbacks.
         """
         self.assertIn(set_context, registry['webhook_callbacks'])
+
+    def test_jinja_filters_registered(self):
+        """
+        Check that Jinja filters exported by the dummy plugin are registered in
+        registry['plugins']['jinja_filters'] after ready().
+        """
+        from netbox.tests.dummy_plugin.jinja_env import dummy_upper
+        self.assertIn('dummy_upper', registry['plugins']['jinja_filters'])
+        self.assertIs(registry['plugins']['jinja_filters']['dummy_upper'], dummy_upper)
+
+    def test_jinja_filter_available_in_render(self):
+        """
+        Filters registered by a plugin must be usable inside render_jinja2().
+        """
+        from utilities.jinja2 import render_jinja2
+        result = render_jinja2("{{ 'hello' | dummy_upper }}", {})
+        self.assertEqual(result, 'HELLO')
+
+    def test_get_jinja_context_merged_into_render(self):
+        """
+        Variables returned by a plugin's get_jinja_context() must appear in the
+        context produced by RenderTemplateMixin.get_context().
+        """
+        from extras.models import ConfigTemplate
+        ct = ConfigTemplate(name='jinja-ctx-test', template_code='')
+        ctx = ct.get_context()
+        self.assertIn('dummy_plugin_var', ctx)
+        self.assertEqual(ctx['dummy_plugin_var'], 'hello_from_dummy')
+
+    def test_get_jinja_context_bad_return_is_silenced(self):
+        """
+        A non-dict return from get_jinja_context() must not crash the render.
+        """
+        from unittest.mock import patch
+
+        from extras.models import ConfigTemplate
+        from netbox.tests.dummy_plugin import DummyPluginConfig
+        ct = ConfigTemplate(name='bad-ctx-test', template_code='')
+        with patch.object(DummyPluginConfig, 'get_jinja_context', return_value='not_a_dict'):
+            ctx = ct.get_context()
+        self.assertNotIn('dummy_plugin_var', ctx)
+
+    def test_instance_jinja_filters_override_plugin_filters(self):
+        """
+        Instance-level JINJA_FILTERS must take precedence over plugin-registered filters
+        of the same name.
+        """
+        from utilities.jinja2 import render_jinja2
+        override = {'dummy_upper': lambda v: 'overridden'}
+        with self.settings(JINJA_FILTERS=override):
+            result = render_jinja2("{{ 'hello' | dummy_upper }}", {})
+        self.assertEqual(result, 'overridden')
+
+
+@skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+class PluginJinjaRegistrationTest(TestCase):
+    """
+    Tests for the register_jinja_filters() registration helper independent of
+    the dummy plugin's startup path.
+    """
+
+    def test_register_jinja_filters_rejects_non_dict(self):
+        from netbox.plugins.registration import register_jinja_filters
+        with self.assertRaises(TypeError):
+            register_jinja_filters([('my_filter', lambda v: v)])
+
+    def test_register_jinja_filters_rejects_non_callable_value(self):
+        from netbox.plugins.registration import register_jinja_filters
+        with self.assertRaises(TypeError):
+            register_jinja_filters({'my_filter': 'not_a_function'})
+
+    def test_register_jinja_filters_merges_into_registry(self):
+        from netbox.plugins.registration import register_jinja_filters
+        fn = lambda v: v  # noqa: E731
+        register_jinja_filters({'_test_temp_filter': fn})
+        try:
+            self.assertIs(registry['plugins']['jinja_filters']['_test_temp_filter'], fn)
+        finally:
+            del registry['plugins']['jinja_filters']['_test_temp_filter']
 
 
 class PluginNavigationTestCase(TestCase):
@@ -280,3 +380,93 @@ class PluginNavigationTestCase(TestCase):
         self.assertIsNot(item1.permissions, item2.permissions)
         self.assertEqual(item1.permissions, ['explicit_permission'])
         self.assertEqual(item2.permissions, ['different_permission'])
+
+
+class RegisterGraphQLExtensionsTestCase(TestCase):
+    """Validate registration-time checks for GraphQL type/filter extensions."""
+
+    def test_rejects_extension_without_models(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class NoModels:
+            pass
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([NoModels])
+
+    def test_rejects_undecorated_extension(self):
+        # A plain class (no @strawberry.type) must be rejected...
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        class Undecorated:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Undecorated])
+
+    def test_rejects_undecorated_subclass_of_strawberry_type(self):
+        # ...as must a subclass that only inherits __strawberry_definition__ without its own decoration.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class Base:
+            pass
+
+        class Child(Base):
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Child])
+
+    def test_rejects_unknown_model_label(self):
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class BadTarget:
+            models = ['dcim.notamodel']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([BadTarget])
+
+    def test_filter_extension_requires_strawberry_type(self):
+        # The filter path enforces the same @strawberry.type requirement as the type path.
+        from netbox.plugins.registration import register_graphql_filter_extensions
+
+        class UndecoratedFilter:
+            models = ['dcim.device']
+
+        with self.assertRaises(TypeError):
+            register_graphql_filter_extensions([UndecoratedFilter])
+
+    def test_warns_when_registered_after_assembly(self):
+        # An extension registered after its core type was already assembled is warned and will be dropped.
+        import strawberry
+
+        from netbox.plugins.registration import register_graphql_type_extensions
+
+        @strawberry.type
+        class LateExt:
+            models = ['dcim.cable']
+            late_field: str
+
+        store, label = 'graphql_type_extensions', 'dcim.cable'
+        assembled = registry['plugins']['graphql_extensions_assembled']
+        was_present = (store, label) in assembled
+        assembled.add((store, label))
+        # Restore global registry state regardless of outcome so other tests are unaffected.
+        self.addCleanup(lambda: registry['plugins'][store].__setitem__(
+            label, [e for e in registry['plugins'][store][label] if e is not LateExt]
+        ))
+        if not was_present:
+            self.addCleanup(assembled.discard, (store, label))
+
+        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+            register_graphql_type_extensions([LateExt])
+        self.assertTrue(any('after the core type was assembled' in msg for msg in cm.output))

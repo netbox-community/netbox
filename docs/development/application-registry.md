@@ -16,10 +16,6 @@ A dictionary mapping of models to foreign keys with which cached counter fields 
 
 A dictionary mapping data backend types to their respective classes. These are used to interact with [remote data sources](../models/core/datasource.md).
 
-### `denormalized_fields`
-
-Stores registration made using `netbox.denormalized.register()`. For each model, a list of related models and their field mappings is maintained to facilitate automatic updates.
-
 ### `filtersets`
 
 A dictionary mapping each model (identified by its app and label) to its filterset class, if one has been registered for it. Filtersets are registered using the `@register_filterset` decorator.

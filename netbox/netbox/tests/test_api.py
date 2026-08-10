@@ -74,7 +74,7 @@ class RelatedObjectCountFieldTestCase(TestCase):
         self.assertIsInstance(serializer.fields['device_count'], RelatedObjectCountField)
 
 
-class OptionalLimitOffsetPaginationTestCase(TestCase):
+class NetBoxPaginationTestCase(TestCase):
 
     def setUp(self):
         self.paginator = NetBoxPagination()

@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.mixins import ScopedImportForm
@@ -7,6 +9,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.validators import validate_port_mappings
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -586,19 +589,41 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
         fields = ('policy', 'local_vid', 'remote_vid')
 
 
-class ServiceTemplateImportForm(PrimaryModelImportForm):
-    protocol = CSVChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-        help_text=_('IP protocol')
+class ServicePortMappingsImportMixin(forms.Form):
+    """
+    Adds a ``port_mappings`` CSV column parsed from a comma-separated list of ``protocol/port`` pairs
+    (e.g. "tcp/80,udp/53") into the model's flat ``['tcp/80', 'udp/53']`` list.
+    """
+    port_mappings = SimpleArrayField(
+        base_field=forms.CharField(),
+        label=_('Port mappings'),
+        required=True,
+        help_text=_('Comma-separated list of protocol/port pairs in double quotes (e.g. "tcp/80,udp/53").')
     )
+
+    def clean_port_mappings(self):
+        mappings = self.cleaned_data.get('port_mappings')
+        if not mappings:
+            return []
+        # Strip surrounding whitespace from each CSV token; validate_port_mappings matches the protocol
+        # case-insensitively and returns the normalized (canonical) list, so protocols may be given in
+        # any case (e.g. "TCP/80") without folding here.
+        mappings = [mapping.strip() for mapping in mappings]
+        try:
+            mappings = validate_port_mappings(mappings)
+        except DjangoValidationError as exc:
+            raise forms.ValidationError(exc.messages)
+        return mappings
+
+
+class ServiceTemplateImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'port_mappings', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceImportForm(PrimaryModelImportForm):
+class ServiceImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):
     parent_object_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
@@ -615,11 +640,6 @@ class ServiceImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Parent object ID'),
     )
-    protocol = CSVChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-        help_text=_('IP protocol')
-    )
     ipaddresses = CSVModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
@@ -630,7 +650,7 @@ class ServiceImportForm(PrimaryModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'ipaddresses', 'name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags',
+            'ipaddresses', 'name', 'port_mappings', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

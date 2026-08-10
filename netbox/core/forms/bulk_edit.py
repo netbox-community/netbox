@@ -5,6 +5,7 @@ from core.choices import JobIntervalChoices
 from core.models import *
 from netbox.forms import PrimaryModelBulkEditForm
 from netbox.utils import get_data_backend_choices
+from utilities.forms.fields import ChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
@@ -14,7 +15,7 @@ __all__ = (
 
 
 class DataSourceBulkEditForm(PrimaryModelBulkEditForm):
-    type = forms.ChoiceField(
+    type = ChoiceField(
         label=_('Type'),
         choices=get_data_backend_choices,
         required=False
@@ -24,7 +25,7 @@ class DataSourceBulkEditForm(PrimaryModelBulkEditForm):
         widget=BulkEditNullBooleanSelect(),
         label=_('Enabled')
     )
-    sync_interval = forms.ChoiceField(
+    sync_interval = ChoiceField(
         choices=JobIntervalChoices,
         required=False,
         label=_('Sync interval')

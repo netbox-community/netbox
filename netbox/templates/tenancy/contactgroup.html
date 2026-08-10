@@ -1,8 +1,0 @@
-{% extends 'generic/object.html' %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% for ancestor in object.get_ancestors %}
-    <li class="breadcrumb-item"><a href="{% url 'tenancy:contactgroup_list' %}?parent_id={{ ancestor.pk }}">{{ ancestor }}</a></li>
-  {% endfor %}
-{% endblock %}

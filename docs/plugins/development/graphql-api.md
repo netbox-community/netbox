@@ -25,15 +25,103 @@ class MyModelType:
 @strawberry.type
 class MyQuery:
     @strawberry.field
-    def dummymodel(self, id: int) -> DummyModelType:
+    def mymodel(self, id: int) -> MyModelType:
         return None
-    dummymodel_list: list[DummyModelType] = strawberry_django.field()
+    mymodel_list: list[MyModelType] = strawberry_django.field()
 
 
 schema = [
     MyQuery,
 ]
 ```
+
+## Extending Core Types & Filters
+
+!!! info "This feature was introduced in NetBox v4.6."
+
+In addition to registering its own top-level query fields, a plugin can inject fields and filters onto NetBox's **existing** core GraphQL types (e.g. `DeviceType`). This allows a plugin's related data to be traversed within a single query rooted at a core object, rather than requiring a separate top-level query. This mirrors the `PluginTemplateExtension` mechanism used to extend core object views in the UI.
+
+An extension is a mixin class declaring a `models` attribute: a list of the lowercased `app_label.model` labels of the core types it extends. Output-type extensions are collected from `graphql.type_extensions` and filter extensions from `graphql.filter_extensions` by default; these paths can be overridden via the `graphql_type_extensions` and `graphql_filter_extensions` attributes on the PluginConfig.
+
+Each declared path must resolve to a list named `type_extensions` (or `filter_extensions`) - for example, defined in `graphql.py` alongside the schema, or re-exported from the plugin's `graphql` package.
+
+!!! warning
+    Do not import core GraphQL modules (e.g. `dcim.graphql.types`) from a plugin's `ready()`. Doing so assembles the affected core types before other plugins have registered their extensions, which are then silently dropped. A warning is logged under `netbox.graphql` if this occurs.
+
+### Type Extensions
+
+An output-type extension is a `@strawberry.type` class whose fields and resolvers are spliced into the target type:
+
+```python
+# graphql.py (or graphql/type_extensions.py)
+from typing import Annotated
+
+import strawberry
+import strawberry_django
+
+from utilities.querysets import RestrictedPrefetch
+from my_plugin.models import Widget
+
+
+@strawberry.type
+class DeviceTypeExtension:
+    models = ['dcim.device']
+
+    @strawberry_django.field(
+        prefetch_related=lambda info: RestrictedPrefetch(
+            'widgets', info.context.request.user, 'view', queryset=Widget.objects.all()
+        ),
+    )
+    def widgets(self) -> list[Annotated['WidgetType', strawberry.lazy('my_plugin.graphql.types')]]:
+        return self.widgets.all()
+
+
+type_extensions = [
+    DeviceTypeExtension,
+]
+```
+
+!!! note
+    Scope any related-object resolver with `RestrictedPrefetch(..., info.context.request.user, 'view', ...)`, as shown above. Object permissions are only applied to the top-level queryset, so a plain `prefetch_related='widgets'` returns related objects the requesting user may not be permitted to see.
+
+### Filter Extensions
+
+A filter extension is a `@strawberry.type` class declaring additional filters - either as annotated filter fields or as custom filter methods - which are spliced into the target filter:
+
+```python
+# graphql.py (or graphql/filter_extensions.py)
+import strawberry
+import strawberry_django
+from django.db.models import Q
+
+
+@strawberry.type
+class DeviceFilterExtension:
+    models = ['dcim.device']
+
+    @strawberry_django.filter_field()
+    def has_widgets(self, value: bool, prefix) -> Q:
+        return Q(**{f'{prefix}widgets__isnull': not value})
+
+
+filter_extensions = [
+    DeviceFilterExtension,
+]
+```
+
+With both registered, a client can fetch a device and its plugin-provided data in a single query:
+
+```graphql
+query {
+  device_list(filters: { has_widgets: true }) {
+    name
+    widgets { id name }
+  }
+}
+```
+
+!!! note
+    Extensions are strictly additive: they can only add new fields, never replace existing ones. If an extension declares a name the core type already provides, the core definition always takes precedence and the extension's version is ignored. If two extensions on the same type declare the same new name, the one whose plugin is loaded first (earlier in `PLUGINS`) wins. Both cases are logged as warnings under the `netbox.graphql` logger.
 
 ## GraphQL Objects
 

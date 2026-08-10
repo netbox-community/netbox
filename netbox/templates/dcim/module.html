@@ -2,14 +2,6 @@
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
-{% load mptt %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item">
-    <a href="{% url 'dcim:module_list' %}?module_type_id={{ object.module_type.pk }}">{{ object.module_type }}</a>
-  </li>
-{% endblock %}
 
 {% block extra_controls %}
   {% if perms.dcim.change_module %}

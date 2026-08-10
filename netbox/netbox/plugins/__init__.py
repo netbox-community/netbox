@@ -7,6 +7,7 @@ from django.utils.module_loading import import_string
 from packaging import version
 
 from core.exceptions import IncompatiblePluginError
+from netbox.event_rules import register_event_rule_action
 from netbox.registry import registry
 from netbox.search import register_search
 from netbox.utils import register_data_backend
@@ -20,6 +21,12 @@ from .utils import *
 registry['plugins'].update({
     'installed': [],
     'graphql_schemas': [],
+    'jinja_filters': {},
+    'graphql_type_extensions': collections.defaultdict(list),
+    'graphql_filter_extensions': collections.defaultdict(list),
+    # (store_key, label) pairs whose core type/filter has already been assembled, used to detect extensions
+    # registered too late to be spliced in.
+    'graphql_extensions_assembled': set(),
     'menus': [],
     'menu_items': {},
     'preferences': {},
@@ -29,7 +36,11 @@ registry['plugins'].update({
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
+    'event_rule_actions': 'event_rules.event_rule_actions',
     'graphql_schema': 'graphql.schema',
+    'jinja_filters': 'jinja_env.filters',
+    'graphql_type_extensions': 'graphql.type_extensions',
+    'graphql_filter_extensions': 'graphql.filter_extensions',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -77,13 +88,30 @@ class PluginConfig(AppConfig):
     # Optional plugin resources
     search_indexes = None
     data_backends = None
+    event_rule_actions = None
     graphql_schema = None
+    jinja_filters = None
+    graphql_type_extensions = None
+    graphql_filter_extensions = None
     menu = None
     menu_items = None
     serializer_resolver = None
     template_extensions = None
     user_preferences = None
     events_pipeline = []
+
+    def get_jinja_context(self):
+        """
+        Return a dict of additional variables to inject into the Jinja template context
+        when rendering ConfigTemplates. Override this in a PluginConfig subclass to expose
+        plugin-managed data to config templates without requiring template authors to know
+        internal model names.
+
+        The returned dict is merged into the template context after the standard
+        ObjectType-based model population, so keys here can shadow the auto-populated
+        entries if needed.
+        """
+        return {}
 
     def _load_resource(self, name):
         # Import from the configured path, if defined.
@@ -117,6 +145,15 @@ class PluginConfig(AppConfig):
         for backend in data_backends:
             register_data_backend()(backend)
 
+        # Register event rule actions (if defined)
+        event_rule_actions = self._load_resource('event_rule_actions') or []
+        for action in event_rule_actions:
+            register_event_rule_action(action)
+
+        # Register Jinja filters (if defined)
+        if jinja_filters := self._load_resource('jinja_filters'):
+            register_jinja_filters(jinja_filters)
+
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):
             register_template_extensions(template_extensions)
@@ -130,6 +167,13 @@ class PluginConfig(AppConfig):
         # Register GraphQL schema (if defined)
         if graphql_schema := self._load_resource('graphql_schema'):
             register_graphql_schema(graphql_schema)
+
+        # Register GraphQL type & filter extensions (if defined). These must be registered before the GraphQL
+        # schema is assembled (during ROOT_URLCONF loading), which occurs after all apps' ready() methods run.
+        if graphql_type_extensions := self._load_resource('graphql_type_extensions'):
+            register_graphql_type_extensions(graphql_type_extensions)
+        if graphql_filter_extensions := self._load_resource('graphql_filter_extensions'):
+            register_graphql_filter_extensions(graphql_filter_extensions)
 
         # Register user preferences (if defined)
         if user_preferences := self._load_resource('user_preferences'):

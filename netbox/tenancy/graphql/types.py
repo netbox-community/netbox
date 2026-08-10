@@ -1,10 +1,15 @@
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
-import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, NestedGroupObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import (
+    BaseObjectType,
+    NestedLtreeGroupObjectType,
+    OrganizationalObjectType,
+    PrimaryObjectType,
+    register_type,
+)
 from tenancy import models
 
 from .filters import *
@@ -52,7 +57,7 @@ __all__ = (
 # Tenants
 #
 
-@strawberry_django.type(
+@register_type(
     models.Tenant,
     fields='__all__',
     filters=TenantFilter,
@@ -86,13 +91,13 @@ class TenantType(ContactsMixin, PrimaryObjectType):
     l2vpns: list[Annotated['L2VPNType', strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.TenantGroup,
-    fields='__all__',
+    exclude=['path', 'sort_path'],
     filters=TenantGroupFilter,
     pagination=True
 )
-class TenantGroupType(NestedGroupObjectType):
+class TenantGroupType(NestedLtreeGroupObjectType):
     parent: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     tenants: list[TenantType]
@@ -103,7 +108,7 @@ class TenantGroupType(NestedGroupObjectType):
 # Contacts
 #
 
-@strawberry_django.type(
+@register_type(
     models.Contact,
     fields='__all__',
     filters=ContactFilter,
@@ -113,7 +118,7 @@ class ContactType(ContactAssignmentsMixin, PrimaryObjectType):
     groups: list[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactRole,
     fields='__all__',
     filters=ContactRoleFilter,
@@ -123,20 +128,20 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     pass
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactGroup,
-    fields='__all__',
+    exclude=['path', 'sort_path'],
     filters=ContactGroupFilter,
     pagination=True
 )
-class ContactGroupType(NestedGroupObjectType):
+class ContactGroupType(NestedLtreeGroupObjectType):
     parent: Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     contacts: list[ContactType]
     children: list[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ContactAssignment,
     fields='__all__',
     filters=ContactAssignmentFilter,

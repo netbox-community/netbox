@@ -27,22 +27,32 @@ class CableTerminationsColumn(tables.Column):
         self.attr = attr
         super().__init__(accessor=Accessor('terminations'), *args, **kwargs)
 
-    def _get_terminations(self, manager):
-        terminations = set()
+    def _get_terminations(self, manager, deduplicate=False):
+        # CableTerminations are ordered by connector, which defines the mapping between the two ends of
+        # a cable, so the order in which they are listed is significant: collecting them into a set would
+        # render (and export) them in an arbitrary order, which for a cable with a profile assigned no
+        # longer reflects how it is wired.
+        terminations = []
         for cabletermination in manager.all():
             if cabletermination.cable_end == self.cable_end:
                 if termination := getattr(cabletermination, self.attr, None):
-                    terminations.add(termination)
+                    if deduplicate and termination in terminations:
+                        continue
+                    terminations.append(termination)
 
         return terminations
 
     def render(self, value):
+        # Collapse any repeated parent objects (e.g. several terminations on the same device) for display
         links = [
-            f'<a href="{term.get_absolute_url()}">{escape(term)}</a>' for term in self._get_terminations(value)
+            f'<a href="{term.get_absolute_url()}">{escape(term)}</a>'
+            for term in self._get_terminations(value, deduplicate=True)
         ]
         return mark_safe('<br />'.join(links) or '&mdash;')
 
     def value(self, value):
+        # Exported values are never deduplicated: each termination must be accompanied by its parent
+        # object at the same position for the exported data to be re-importable.
         return ','.join([str(t) for t in self._get_terminations(value)])
 
 

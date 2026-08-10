@@ -19,6 +19,22 @@ FANOUT_LEG_HEIGHT = 15
 CABLE_HEIGHT = 5 * LINE_HEIGHT + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT
 
 
+def _cable_side_nodes(term_nodes, cable_terminations):
+    """
+    Filter a list of termination nodes to those connected to the given side of a Cable. A channel subinterface does
+    not terminate the cable directly; it derives its connection from its (channelized) parent interface, which carries
+    the actual CableTermination, so it is matched via its parent.
+    """
+    def matches(obj):
+        if obj in cable_terminations:
+            return True
+        if getattr(obj, 'channel_id', None):
+            return obj.parent in cable_terminations
+        return False
+
+    return [node for node in term_nodes if matches(node.object)]
+
+
 class Node(Hyperlink):
     """
     Create a node to be represented in the SVG document as a rectangular box with a hyperlink.
@@ -380,13 +396,14 @@ class CableTraceSVG:
                             description.append(f"{cable.length} {cable.get_length_unit_display()}")
                         color = cable.color or '000000'
 
-                        # Collect all connected nodes to this cable
-                        near = [term for term in near_terminations if term.object in cable.a_terminations]
-                        far = [term for term in far_terminations if term.object in cable.b_terminations]
+                        # Collect all connected nodes to this cable. Channel subinterfaces are matched via their
+                        # parent interface, which carries the actual cable termination.
+                        near = _cable_side_nodes(near_terminations, cable.a_terminations)
+                        far = _cable_side_nodes(far_terminations, cable.b_terminations)
                         if not (near and far):
                             # a and b terminations may be swapped
-                            near = [term for term in near_terminations if term.object in cable.b_terminations]
-                            far = [term for term in far_terminations if term.object in cable.a_terminations]
+                            near = _cable_side_nodes(near_terminations, cable.b_terminations)
+                            far = _cable_side_nodes(far_terminations, cable.a_terminations)
                     elif isinstance(cable, WirelessLink):
                         labels = [f"{cable}"] if len(links) > 2 else [f"Wireless {cable}", cable.get_status_display()]
                         if cable.ssid:

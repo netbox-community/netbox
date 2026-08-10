@@ -31,11 +31,7 @@ Context:
 
       {# Breadcrumbs #}
       <ol class="breadcrumb" aria-label="breadcrumbs">
-        {% block breadcrumbs %}
-          <li class="breadcrumb-item">
-            <a href="{% action_url object 'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
-          </li>
-        {% endblock breadcrumbs %}
+        {% block breadcrumbs %}{% render_breadcrumbs %}{% endblock breadcrumbs %}
       </ol>
 
       {# Object identifier #}

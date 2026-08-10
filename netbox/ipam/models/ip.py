@@ -284,7 +284,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     objects = PrefixQuerySet.as_manager()
 
     clone_fields = (
-        'scope_type', 'scope_id', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+        'scope', 'vrf', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
     )
 
     class Meta:

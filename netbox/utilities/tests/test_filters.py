@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.http import QueryDict
 from django.test import RequestFactory, TestCase
-from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
 from core.models import ObjectType
@@ -181,9 +180,11 @@ class DummyModel(models.Model):
     integerfield = models.IntegerField()
     macaddressfield = MACAddressField()
     timefield = models.TimeField()
-    treeforeignkeyfield = TreeForeignKey(
+    treeforeignkeyfield = models.ForeignKey(
         to='self',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     tags = TaggableManager(through=TaggedItem)

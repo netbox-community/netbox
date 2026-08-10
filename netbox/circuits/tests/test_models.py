@@ -3,7 +3,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
-from dcim.models import Site
+from dcim.models import Location, Region, Site, SiteGroup
 
 
 class CircuitTerminationTestCase(TestCase):
@@ -166,3 +166,85 @@ class CircuitTerminationTestCase(TestCase):
         self.assertIn(NON_FIELD_ERRORS, errors)
         self.assertIn('Please select a Provider Network.', errors[NON_FIELD_ERRORS])
         self.assertNotIn('termination_id', errors)
+
+
+class CircuitTerminationDenormalizationTriggerTestCase(TestCase):
+    """
+    Verify the PostgreSQL triggers (installed by circuits migration 0058) that keep a
+    CircuitTermination's denormalized scope columns in sync with its Site/Location.
+
+    These replace the former Python `post_save` handler in netbox.denormalized. Unlike that
+    handler, the triggers also fire for bulk QuerySet.update() writes (exercised below).
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        cls.circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+
+    def test_site_region_group_change_propagates_to_termination(self):
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a, group=group_a)
+
+        termination = CircuitTermination.objects.create(
+            circuit=self.circuit, term_side='A', termination=site,
+        )
+        self.assertEqual(termination._region, region_a)
+        self.assertEqual(termination._site_group, group_a)
+
+        # Reassign the Site's region/group; the trigger should update the termination.
+        site.region = region_b
+        site.group = group_b
+        site.save()
+
+        termination.refresh_from_db()
+        self.assertEqual(termination._region, region_b)
+        self.assertEqual(termination._site_group, group_b)
+
+    def test_location_site_change_propagates_to_termination(self):
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site_a = Site.objects.create(name='Site A', slug='site-a', region=region_a, group=group_a)
+        site_b = Site.objects.create(name='Site B', slug='site-b', region=region_b, group=group_b)
+        location = Location.objects.create(name='Loc', slug='loc', site=site_a)
+
+        termination = CircuitTermination.objects.create(
+            circuit=self.circuit, term_side='A', termination=location,
+        )
+        self.assertEqual(termination._site, site_a)
+        self.assertEqual(termination._location, location)
+
+        # Move the Location to a different Site; the trigger updates _site and pulls the new
+        # site's region/group through in the same statement.
+        location.site = site_b
+        location.save()
+
+        termination.refresh_from_db()
+        self.assertEqual(termination._site, site_b)
+        self.assertEqual(termination._region, region_b)
+        self.assertEqual(termination._site_group, group_b)
+
+    def test_bulk_update_of_site_propagates_to_termination(self):
+        """
+        A QuerySet.update() bypasses post_save (the old handler never fired for it); the
+        DB trigger fires regardless, which is the behavior this change introduces.
+        """
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a)
+
+        termination = CircuitTermination.objects.create(
+            circuit=self.circuit, term_side='A', termination=site,
+        )
+        self.assertEqual(termination._region, region_a)
+
+        Site.objects.filter(pk=site.pk).update(region=region_b)
+
+        termination.refresh_from_db()
+        self.assertEqual(termination._region, region_b)

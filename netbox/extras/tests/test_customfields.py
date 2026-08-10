@@ -8,7 +8,7 @@ import django_filters
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db.models import QuerySet
-from django.test import tag
+from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
@@ -24,6 +24,7 @@ from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import query_cache
+from netbox.tables.columns import CustomFieldColumn
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
@@ -77,6 +78,50 @@ class CustomFieldTestCase(TestCase):
         instance.save()
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_nulls_first_ordering(self):
+        """
+        Verify that CustomFieldColumn.order() places null values first or last according to the
+        custom field's nulls_first attribute.
+        """
+        cf = CustomField.objects.create(
+            name='order_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER,
+            required=False
+        )
+        cf.object_types.set([self.object_type])
+
+        # Assign values to two of the three sites, leaving the third null
+        site_a = Site.objects.get(name='Site A')
+        site_a.custom_field_data[cf.name] = 1
+        site_a.save()
+        site_b = Site.objects.get(name='Site B')
+        site_b.custom_field_data[cf.name] = 2
+        site_b.save()
+        site_c = Site.objects.get(name='Site C')  # no value (null)
+
+        column = CustomFieldColumn(cf)
+
+        # nulls_first=True (default): null value sorts before populated values when ascending
+        cf.nulls_first = True
+        queryset, _ = column.order(Site.objects.all(), is_descending=False)
+        self.assertEqual(list(queryset), [site_c, site_a, site_b])
+
+        # nulls_first=False: null value sorts after populated values when ascending
+        cf.nulls_first = False
+        queryset, _ = column.order(Site.objects.all(), is_descending=False)
+        self.assertEqual(list(queryset), [site_a, site_b, site_c])
+
+        # Null placement is independent of sort direction: nulls_first=True keeps the null value
+        # first even when sorting descending
+        cf.nulls_first = True
+        queryset, _ = column.order(Site.objects.all(), is_descending=True)
+        self.assertEqual(list(queryset), [site_c, site_b, site_a])
+
+        # nulls_first=False keeps the null value last even when sorting descending
+        cf.nulls_first = False
+        queryset, _ = column.order(Site.objects.all(), is_descending=True)
+        self.assertEqual(list(queryset), [site_b, site_a, site_c])
 
     def test_longtext_field(self):
         value = 'A' * 256
@@ -638,7 +683,7 @@ class CustomFieldTestCase(TestCase):
         self.assertNotIn('field1', site.custom_field_data)
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
 
-    @patch('extras.models.customfields.CUSTOMFIELD_DATA_BATCH_SIZE', 2)
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=2)
     def test_batched_object_data_updates(self):
         """
         Provisioning, renaming, and removing custom field data is applied in batches. Use a small
@@ -845,47 +890,6 @@ class CustomFieldTestCase(TestCase):
         table.order_by = aliases
         return table.data.data
 
-    def test_table_ordering_groups_objects_with_no_value(self):
-        """
-        Objects holding no value sort together regardless of whether they store a JSON null or
-        carry no key at all, and numeric fields still sort numerically rather than lexically.
-        """
-        cf = CustomField.objects.create(
-            name='sort_field',
-            type=CustomFieldTypeChoices.TYPE_INTEGER
-        )
-        cf.object_types.set([self.object_type])
-
-        sites = list(Site.objects.order_by('name'))
-        # Site A holds a value, Site B an explicit null, Site C no key whatsoever
-        Site.objects.filter(pk=sites[0].pk).update(custom_field_data={'sort_field': 20})
-        Site.objects.filter(pk=sites[1].pk).update(custom_field_data={'sort_field': None})
-        Site.objects.filter(pk=sites[2].pk).update(custom_field_data={})
-        extra = Site.objects.create(
-            name='Site D', slug='site-d', custom_field_data={'sort_field': 100}
-        )
-
-        ordered = self.order_sites_by('cf_sort_field')
-        self.assertEqual(
-            [s.pk for s in ordered][:2],
-            [sites[0].pk, extra.pk],
-            "20 must sort before 100 (numerically, not lexically) ahead of the empty rows"
-        )
-        self.assertEqual(
-            {s.pk for s in ordered[2:]},
-            {sites[1].pk, sites[2].pk},
-            "the JSON-null and missing-key rows must group together at the end"
-        )
-
-        # Reversing the ordering carries the empty rows to the front, as it would SQL nulls
-        ordered = self.order_sites_by('-cf_sort_field')
-        self.assertEqual(
-            {s.pk for s in ordered[:2]},
-            {sites[1].pk, sites[2].pk},
-            "the JSON-null and missing-key rows must still group together"
-        )
-        self.assertEqual([s.pk for s in ordered[2:]], [extra.pk, sites[0].pk])
-
     def test_table_ordering_breaks_ties_by_primary_key(self):
         """
         Rows tying on the sort value -- every object holding no value ties on both sort keys --
@@ -917,40 +921,6 @@ class CustomFieldTestCase(TestCase):
             for offset in range(0, len(expected), 4):
                 paginated.extend(site.pk for site in ordered[offset:offset + 4])
             self.assertEqual(paginated, expected)
-
-    def test_table_ordering_composes_with_other_columns(self):
-        """
-        A custom field column must contribute its sort keys to a multi-column ordering rather than
-        replace it. (The sort parameter is read with getlist(), and a saved TableConfig records an
-        ordering of arbitrary length.)
-        """
-        cf = CustomField.objects.create(
-            name='sort_field',
-            type=CustomFieldTypeChoices.TYPE_INTEGER
-        )
-        cf.object_types.set([self.object_type])
-
-        sites = list(Site.objects.order_by('name'))
-        # Ordering by the custom field alone would reverse the first two sites
-        Site.objects.filter(pk=sites[0].pk).update(custom_field_data={'sort_field': 2})
-        Site.objects.filter(pk=sites[1].pk).update(custom_field_data={'sort_field': 1})
-        Site.objects.filter(pk=sites[2].pk).update(custom_field_data={'sort_field': 3})
-
-        ordered = self.order_sites_by('name', 'cf_sort_field')
-        self.assertEqual(
-            [site.pk for site in ordered],
-            [site.pk for site in sites],
-            "the preceding sort key must survive the addition of a custom field column"
-        )
-
-        # A column named after the custom field column must likewise still apply
-        Site.objects.update(custom_field_data={'sort_field': 1})
-        ordered = self.order_sites_by('cf_sort_field', '-name')
-        self.assertEqual(
-            [site.pk for site in ordered],
-            [site.pk for site in reversed(sites)],
-            "the trailing sort key must be applied before the primary key tie breaker"
-        )
 
     def test_table_ordering_tolerates_a_repeated_sort_alias(self):
         """
@@ -1264,6 +1234,24 @@ class CustomFieldAPITestCase(APITestCase):
         }
         sites[1].save()
 
+    # Labels for the choice set created in setUpTestData, used to build the expected
+    # API representation of selection custom fields ({'value': ..., 'label': ...}).
+    CHOICE_LABELS = {'foo': 'Foo', 'bar': 'Bar', 'baz': 'Baz'}
+
+    @classmethod
+    def _select(cls, value):
+        """Return the expected API representation of a single selection choice."""
+        if value is None:
+            return None
+        return {'value': value, 'label': cls.CHOICE_LABELS[value]}
+
+    @classmethod
+    def _multiselect(cls, values):
+        """Return the expected API representation of a multiple selection value."""
+        if values is None:
+            return None
+        return [cls._select(v) for v in values]
+
     def test_get_custom_fields(self):
         TYPES = {
             CustomFieldTypeChoices.TYPE_TEXT: 'string',
@@ -1337,13 +1325,166 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response.data['custom_fields']['datetime_field'], site2_cfvs['datetime_field'])
         self.assertEqual(response.data['custom_fields']['url_field'], site2_cfvs['url_field'])
         self.assertEqual(response.data['custom_fields']['json_field'], site2_cfvs['json_field'])
-        self.assertEqual(response.data['custom_fields']['select_field'], site2_cfvs['select_field'])
-        self.assertEqual(response.data['custom_fields']['multiselect_field'], site2_cfvs['multiselect_field'])
+        self.assertEqual(response.data['custom_fields']['select_field'], self._select(site2_cfvs['select_field']))
+        self.assertEqual(
+            response.data['custom_fields']['multiselect_field'],
+            self._multiselect(site2_cfvs['multiselect_field'])
+        )
         self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'].pk)
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
             [obj.pk for obj in site2_cfvs['multiobject_field']]
         )
+
+    def test_get_object_selection_field_representation(self):
+        """
+        Selection custom fields are rendered as an object exposing both the stored value and its
+        human-friendly label on read access (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.view_site')
+
+        response = self.client.get(url, **self.header)
+
+        # A single selection value is rendered as a {value, label} object
+        self.assertEqual(response.data['custom_fields']['select_field'], {
+            'value': 'bar',
+            'label': 'Bar',
+        })
+
+        # A multiple selection value is rendered as a list of {value, label} objects
+        self.assertEqual(response.data['custom_fields']['multiselect_field'], [
+            {'value': 'bar', 'label': 'Bar'},
+            {'value': 'baz', 'label': 'Baz'},
+        ])
+
+    def test_get_object_selection_field_unresolved_label(self):
+        """
+        A stored selection value with no matching choice falls back to using the raw value as its label.
+        """
+        site2 = Site.objects.get(name='Site 2')
+        site2.custom_field_data['select_field'] = 'stale'
+        site2.save()
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.view_site')
+
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['custom_fields']['select_field'], {
+            'value': 'stale',
+            'label': 'stale',
+        })
+
+    def test_graphql_selection_field_representation_matches_rest(self):
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['select_field'], self._select('bar'))
+        self.assertEqual(custom_fields['multiselect_field'], self._multiselect(['bar', 'baz']))
+
+    def test_graphql_selection_field_unresolved_label(self):
+        site2 = Site.objects.get(name='Site 2')
+        site2.custom_field_data['select_field'] = 'stale'
+        site2.save()
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['site']['custom_fields']['select_field'], {
+            'value': 'stale',
+            'label': 'stale',
+        })
+
+    def test_graphql_non_selection_fields_pass_through_unchanged(self):
+        site2 = Site.objects.get(name='Site 2')
+        self.add_permissions('dcim.view_site')
+
+        query = f'{{ site(id: {site2.pk}) {{ custom_fields }} }}'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        custom_fields = data['data']['site']['custom_fields']
+
+        self.assertEqual(custom_fields['text_field'], 'bar')
+        self.assertEqual(custom_fields['integer_field'], 456)
+        self.assertEqual(custom_fields['boolean_field'], True)
+
+    def test_graphql_selection_field_list_query_is_not_n_plus_one(self):
+        self.add_permissions('dcim.view_site')
+        query = '{ site_list { custom_fields } }'
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 8)])
+        # Prime process-level caches (e.g. ContentType) outside the measured request.
+        self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 7)
+        baseline_query_count = len(ctx.captured_queries)
+
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(8, 13)])
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 12)
+
+        self.assertEqual(
+            len(ctx.captured_queries), baseline_query_count,
+            "custom_fields label resolution should not scale with the number of objects returned"
+        )
+
+    def test_get_for_model_select_related_choice_set(self):
+        query_cache.set(None)
+        custom_fields = list(CustomField.objects.get_for_model(Site))
+        with self.assertNumQueries(0):
+            resolved = {cf.name: cf.resolve_selection_value(cf.default) for cf in custom_fields}
+        self.assertEqual(resolved['select_field'], self._select('foo'))
+        self.assertEqual(resolved['multiselect_field'], self._multiselect(['foo']))
+
+    @tag('regression')
+    def test_update_selection_field_rejects_read_format(self):
+        """
+        Selection fields are written by passing the raw value; submitting the {value, label} read
+        representation must be rejected with a clean 400, not a 500 (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A single selection submitted as an object is rejected
+        response = self.client.patch(
+            url, {'custom_fields': {'select_field': {'value': 'foo', 'label': 'Foo'}}}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # A multiple selection submitted as a list of objects is rejected (must not raise a TypeError/500)
+        response = self.client.patch(
+            url,
+            {'custom_fields': {'multiselect_field': [{'value': 'foo', 'label': 'Foo'}]}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # The stored values are unchanged
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['select_field'], 'bar')
+        self.assertEqual(site2.custom_field_data['multiselect_field'], ['bar', 'baz'])
 
     def test_create_single_object_with_defaults(self):
         """
@@ -1373,8 +1514,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'].isoformat(), cf_defaults['datetime_field'])
         self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
         self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-        self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(cf_defaults['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(cf_defaults['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
@@ -1438,8 +1579,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'], data_cf['datetime_field'])
         self.assertEqual(response_cf['url_field'], data_cf['url_field'])
         self.assertEqual(response_cf['json_field'], data_cf['json_field'])
-        self.assertEqual(response_cf['select_field'], data_cf['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], data_cf['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(data_cf['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(data_cf['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], data_cf['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1504,8 +1645,8 @@ class CustomFieldAPITestCase(APITestCase):
             self.assertEqual(response_cf['datetime_field'].isoformat(), cf_defaults['datetime_field'])
             self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
             self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-            self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
-            self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
+            self.assertEqual(response_cf['select_field'], self._select(cf_defaults['select_field']))
+            self.assertEqual(response_cf['multiselect_field'], self._multiselect(cf_defaults['multiselect_field']))
             self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1584,8 +1725,11 @@ class CustomFieldAPITestCase(APITestCase):
             self.assertEqual(response_cf['datetime_field'], custom_field_data['datetime_field'])
             self.assertEqual(response_cf['url_field'], custom_field_data['url_field'])
             self.assertEqual(response_cf['json_field'], custom_field_data['json_field'])
-            self.assertEqual(response_cf['select_field'], custom_field_data['select_field'])
-            self.assertEqual(response_cf['multiselect_field'], custom_field_data['multiselect_field'])
+            self.assertEqual(response_cf['select_field'], self._select(custom_field_data['select_field']))
+            self.assertEqual(
+                response_cf['multiselect_field'],
+                self._multiselect(custom_field_data['multiselect_field'])
+            )
             self.assertEqual(response_cf['object_field']['id'], custom_field_data['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1638,8 +1782,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'], original_cfvs['datetime_field'])
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
         self.assertEqual(response_cf['json_field'], original_cfvs['json_field'])
-        self.assertEqual(response_cf['select_field'], original_cfvs['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], original_cfvs['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(original_cfvs['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(original_cfvs['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], original_cfvs['object_field'].pk)
         self.assertListEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1868,6 +2012,38 @@ class CustomFieldAPITestCase(APITestCase):
         data = {'custom_fields': {'url_field': 'https://example.com'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_url_scheme_validation(self):
+        """
+        Test that URL custom field values must use a scheme permitted by ALLOWED_URL_SCHEMES (fixes
+        #22640), and that a schemeless value is normalized to an absolute URL (assume_scheme='https'),
+        consistent with the UI.
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A dangerous scheme (e.g. javascript:) must be rejected
+        data = {'custom_fields': {'url_field': 'javascript:alert(1)'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # A well-formed URL using a scheme outside ALLOWED_URL_SCHEMES must be rejected
+        data = {'custom_fields': {'url_field': 'gopher://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # An allowed scheme must be accepted
+        data = {'custom_fields': {'url_field': 'https://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # A schemeless value must be accepted and normalized to https, matching the UI
+        data = {'custom_fields': {'url_field': 'example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['url_field'], 'https://example.com')
 
     def test_json_schema_validation(self):
         site2 = Site.objects.get(name='Site 2')

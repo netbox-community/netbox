@@ -74,22 +74,21 @@ def check_postgresql_version(app_configs, **kwargs):
 @register(Tags.caches)
 def check_redis_version(app_configs, **kwargs):
     """
-    Warn if the Redis version is less than 6.0, as support for Redis older than 6.0
-    will be removed in NetBox v4.7.
+    Report an error if the Redis version is less than 6.0.
     """
-    warnings = []
+    errors = []
     try:
         client = cache.client.get_client()
         redis_version = tuple(int(x) for x in client.info()['redis_version'].split('.'))
         if redis_version < (6, 0):
-            warnings.append(
-                Warning(
-                    f'Support for Redis {".".join(str(x) for x in redis_version)} is deprecated and will be '
-                    f'removed in NetBox v4.7.',
+            errors.append(
+                Error(
+                    f'Redis {".".join(str(x) for x in redis_version)} is not supported. NetBox requires Redis 6.0 '
+                    f'or later.',
                     hint='Please upgrade to Redis 6.0 or later.',
-                    id='netbox.W002',
+                    id='netbox.E002',
                 )
             )
     except Exception:
         pass
-    return warnings
+    return errors

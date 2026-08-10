@@ -1,17 +1,16 @@
 import logging
+import warnings
 from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
-from django_pglocks import advisory_lock
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
-from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
@@ -19,6 +18,7 @@ from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
+    'MPTTLockedMixin',
     'NetBoxModelViewSet',
     'NetBoxReadOnlyModelViewSet',
 )
@@ -151,6 +151,7 @@ class NetBoxReadOnlyModelViewSet(
 
 class NetBoxModelViewSet(
     ETagMixin,
+    mixins.BackgroundOperationMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
@@ -215,9 +216,40 @@ class NetBoxModelViewSet(
                 **kwargs
             )
 
+    def exception_to_response(self, exc):
+        """
+        Translate a NetBox/Django exception that is not a DRF APIException into the same
+        Response that dispatch() would return for it. Returns None if the exception is not
+        one this method handles (the caller should then re-raise or defer to DRF).
+
+        This mirrors the except clauses in dispatch(); it is also called by the background
+        job runner (netbox.jobs.AsyncAPIJob), which executes action methods directly and so
+        bypasses dispatch(). NOTE: dispatch() does not yet call this helper itself; the two
+        should be consolidated into a single source of truth in a future change.
+        """
+        logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
+        if isinstance(exc, (ProtectedError, RestrictedError)):
+            if type(exc) is ProtectedError:
+                protected_objects = list(exc.protected_objects)
+            else:
+                protected_objects = list(exc.restricted_objects)
+            msg = f'Unable to delete object. {len(protected_objects)} dependent objects were found: '
+            msg += ', '.join([f'{obj} ({obj.pk})' for obj in protected_objects])
+            logger.warning(msg)
+            return Response({'detail': msg}, status=409)
+        if isinstance(exc, AbortRequest):
+            logger.debug(exc.message)
+            return Response({'detail': exc.message}, status=400)
+        return None
+
     # Creates
 
     def create(self, request, *args, **kwargs):
+        # If background processing was requested for a bulk (list) create, enqueue a job and
+        # return immediately. Single-object creates always run synchronously.
+        if (response := self._handle_background_request(request, 'create')) is not None:
+            return response
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         bulk_create = getattr(serializer, 'many', False)
@@ -337,20 +369,25 @@ class NetBoxModelViewSet(
             raise PermissionDenied()
 
 
+# TODO: Remove this in NetBox v5.0
 class MPTTLockedMixin:
     """
-    Puts pglock on objects that derive from MPTTModel for parallel API calling.
-    Note: If adding this to a view, must add the model name to ADVISORY_LOCK_KEYS
+    Deprecated no-op mixin retained for backward compatibility.
+
+    Historically this acquired a pglock around create/update/destroy to serialize
+    concurrent writes to MPTT-based tree models. NetBox no longer uses MPTT: tree
+    integrity is now maintained by the PostgreSQL ltree triggers (see
+    `utilities.ltree`), which take per-tree advisory locks at the database level.
+    This mixin is therefore now a transparent pass-through and may be removed in a
+    future release. Plugins should stop inheriting from it.
     """
 
-    def create(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().destroy(request, *args, **kwargs)
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        warnings.warn(
+            "MPTTLockedMixin is deprecated and no longer does anything; tree write "
+            "concurrency is now handled by ltree database triggers. Remove it from "
+            f"{cls.__name__}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )

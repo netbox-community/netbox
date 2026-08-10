@@ -400,8 +400,8 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'circuit': circuits[2].pk,
             'term_side': 'A',
-            'termination_type': ContentType.objects.get_for_model(Site).pk,
-            'termination': sites[2].pk,
+            'termination_content_type': ContentType.objects.get_for_model(Site).pk,
+            'termination_object_id': sites[2].pk,
             'description': 'New description',
         }
 
@@ -541,8 +541,8 @@ class CircuitGroupAssignmentTestCase(
 
         cls.form_data = {
             'group': circuit_groups[3].pk,
-            'member_type': ContentType.objects.get_for_model(Circuit).pk,
-            'member': circuits[3].pk,
+            'member_content_type': ContentType.objects.get_for_model(Circuit).pk,
+            'member_object_id': circuits[3].pk,
             'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
             'tags': [t.pk for t in tags],
         }

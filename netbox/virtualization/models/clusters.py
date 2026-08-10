@@ -89,7 +89,7 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'scope_type', 'scope_id', 'type', 'group', 'status', 'tenant',
+        'scope', 'type', 'group', 'status', 'tenant',
     )
     prerequisite_models = (
         'virtualization.ClusterType',

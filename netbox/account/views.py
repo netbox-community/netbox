@@ -11,7 +11,7 @@ from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +27,7 @@ from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.ui import layout
+from netbox.ui.breadcrumbs import Breadcrumb
 from netbox.views import generic
 from users import forms
 from users.models import UserConfig
@@ -345,6 +346,12 @@ class UserTokenListView(LoginRequiredMixin, View):
 @register_model_view(UserToken)
 class UserTokenView(LoginRequiredMixin, View):
     layout = layout.SimpleLayout(
+        # The global UserToken list view is admin-only, so substitute the user's personal token list
+        # for the default root breadcrumb.
+        root_breadcrumb=False,
+        breadcrumbs=[
+            Breadcrumb(label=_('My API Tokens'), url=reverse_lazy('account:usertoken_list')),
+        ],
         left_panels=[
             TokenPanel(),
         ],
@@ -362,7 +369,7 @@ class UserTokenView(LoginRequiredMixin, View):
         plaintext = request.session.pop(f'_token_plaintext_{token.pk}', None)
         token_auth_string = f'{token.get_auth_header_prefix()}{plaintext}' if plaintext else None
 
-        return render(request, 'account/token.html', {
+        return render(request, 'users/token.html', {
             'object': token,
             'layout': self.layout,
             'token_auth_string': token_auth_string,

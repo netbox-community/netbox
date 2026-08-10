@@ -1,6 +1,7 @@
 import logging
 import re
 from collections import Counter
+from contextlib import contextmanager
 from copy import deepcopy
 from types import SimpleNamespace
 
@@ -17,7 +18,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import content_disposition_header
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from mptt.models import MPTTModel
 
 from core.exceptions import JobFailed
 from core.models import ObjectType
@@ -36,6 +36,7 @@ from utilities.htmx import htmx_partial
 from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
+from utilities.querydict import normalize_querydict
 from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
@@ -54,6 +55,35 @@ __all__ = (
     'BulkRenameView',
     'ObjectListView',
 )
+
+
+# TODO: Remove in NetBox v5.0.
+# MPTT support is retained only for plugins whose tree models still derive from the
+# deprecated MPTT-backed bases. NetBox core uses netbox.models.ltree.LtreeModel, whose
+# database triggers maintain the tree on every write, so ltree (and non-tree) models
+# need no special bulk handling. These two helpers confine all MPTT-specific bulk
+# bookkeeping so it can be deleted in one place; for non-MPTT models they are no-ops.
+@contextmanager
+def _delay_mptt_updates(model):
+    """
+    Defer tree (lft/rght/tree_id) recomputation until the end of a bulk write for
+    legacy MPTT models. A no-op context manager for ltree and non-tree models.
+    """
+    from mptt.models import MPTTModel
+
+    if issubclass(model, MPTTModel):
+        with model.objects.delay_mptt_updates():
+            yield
+    else:
+        yield
+
+
+def _rebuild_mptt_tree(model):
+    """Rebuild the MPTT tree after a bulk edit for legacy MPTT models; else a no-op."""
+    from mptt.models import MPTTModel
+
+    if issubclass(model, MPTTModel):
+        model.objects.rebuild()
 
 
 class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
@@ -662,11 +692,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             for obj in change_queryset.filter(id__in=prefetch_ids)
         } if prefetch_ids else {}
 
-        # For MPTT models, delay tree updates until all saves are complete
-        if issubclass(self.queryset.model, MPTTModel):
-            with self.queryset.model.objects.delay_mptt_updates():
-                saved_objects = self._process_import_records(form, request, records, prefetched_objects)
-        else:
+        # Delay tree updates until all saves are complete (MPTT plugin models only;
+        # no-op for ltree). TODO: Remove the wrapper in v5.0 (see _delay_mptt_updates).
+        with _delay_mptt_updates(self.queryset.model):
             saved_objects = self._process_import_records(form, request, records, prefetched_objects)
 
         # Enforce object-level permissions in aggregate. Newly created objects are constrained by the 'add'
@@ -779,6 +807,15 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
+    def pre_save_operations(self, form, obj):
+        """
+        This method is called for each object in _update_objects immediately before full_clean() and
+        save(). Override to modify the object from form fields that don't map directly to a model field
+        (e.g. add/remove-style deltas), so the change is validated and persisted within the single
+        bulk-edit save. No-op by default.
+        """
+        pass
+
     def post_save_operations(self, form, obj):
         """
         This method is called for each object in _update_objects. Override to perform additional object-level
@@ -856,6 +893,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 elif field.name in nullified_fields:
                     obj._m2m_values[field.name] = []
 
+            # Apply any form-driven modifications that don't map directly to a model field (e.g.
+            # add/remove deltas) before validation, so they're part of this single save.
+            self.pre_save_operations(form, obj)
+
             obj.full_clean()
             obj.save()
             updated_objects.append(obj)
@@ -872,9 +913,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if is_background_request(request):
                 request.job.logger.info(f"Updated {obj}")
 
-        # Rebuild the tree for MPTT models
-        if issubclass(self.queryset.model, MPTTModel):
-            self.queryset.model.objects.rebuild()
+        # Rebuild the tree for MPTT plugin models (no-op for ltree; its triggers keep
+        # the tree current). TODO: Remove in v5.0 (see _rebuild_mptt_tree).
+        _rebuild_mptt_tree(self.queryset.model)
 
         return updated_objects
 
@@ -910,7 +951,16 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
         post_data = request.POST.copy()
         post_data.setlist('pk', pk_list)
-        form = self.form(post_data, initial=initial_data)
+
+        # An HTMX request without "_apply" is a dependent-field refresh (e.g. changing a content type), not a
+        # submission. Build the form unbound with the submitted state as initial data so fields reconfigure
+        # without surfacing validation errors before the user clicks Apply.
+        if htmx_partial(request) and '_apply' not in request.POST:
+            initial_data.update(normalize_querydict(post_data))
+            initial_data['pk'] = pk_list
+            form = self.form(initial=initial_data)
+        else:
+            form = self.form(post_data, initial=initial_data)
         restrict_form_fields(form, request.user)
 
         if '_apply' in request.POST:
@@ -1084,15 +1134,10 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             renamed_pks = self._rename_objects(form, selected_objects, field_names)
 
                             if '_apply' in request.POST:
-                                # For MPTT models, delay tree updates until all saves are complete
-                                if issubclass(self.queryset.model, MPTTModel):
-                                    with self.queryset.model.objects.delay_mptt_updates():
-                                        for obj in selected_objects:
-                                            for field in field_names:
-                                                setattr(obj, field, getattr(obj.new_names, field))
-                                            obj._changelog_message = form.cleaned_data.get('changelog_message', '')
-                                            obj.save()
-                                else:
+                                # Delay tree updates until all saves are complete (MPTT
+                                # plugin models only; no-op for ltree).
+                                # TODO: Remove the wrapper in v5.0 (see _delay_mptt_updates).
+                                with _delay_mptt_updates(self.queryset.model):
                                     for obj in selected_objects:
                                         for field in field_names:
                                             setattr(obj, field, getattr(obj.new_names, field))

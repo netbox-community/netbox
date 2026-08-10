@@ -9,9 +9,42 @@ __all__ = (
     'ClearableSelect',
     'ColorSelect',
     'HTMXSelect',
+    'Select',
+    'SelectMultiple',
     'SelectWithPK',
     'SplitMultiSelectWidget',
 )
+
+
+class AttrSelectMixin:
+    """
+    Annotates each rendered <option> with a `data-description` attribute, which is displayed as subtitle text
+    beneath the option's label. Descriptions are sourced from an explicit value-to-description mapping set on
+    `descriptions`.
+    """
+    def __init__(self, *args, descriptions=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.descriptions = descriptions or {}
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+
+        if description := self.descriptions.get(value, ''):
+            option['attrs']['data-description'] = description
+
+        return option
+
+
+class Select(AttrSelectMixin, forms.Select):
+    """
+    A Select widget which renders an optional description beneath each option's label.
+    """
+
+
+class SelectMultiple(AttrSelectMixin, forms.SelectMultiple):
+    """
+    A SelectMultiple widget which renders an optional description beneath each option's label.
+    """
 
 
 class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
@@ -61,15 +94,18 @@ class HTMXSelect(forms.Select):
     """
     Selection widget that will re-generate the HTML form upon the selection of a new option.
     """
-    def __init__(self, method='get', hx_url='.', hx_target_id='form_fields', attrs=None, **kwargs):
+    def __init__(self, method='get', hx_url='.', hx_include_id='form_fields', hx_target_id=None, attrs=None, **kwargs):
         method = method.lower()
         if method not in ('delete', 'get', 'patch', 'post', 'put'):
             raise ValueError(f"Unsupported HTTP method: {method}")
         _attrs = {
             f'hx-{method}': hx_url,
-            'hx-include': f'#{hx_target_id}',
-            'hx-target': f'#{hx_target_id}',
+            'hx-include': f'#{hx_include_id}',
+            'hx-target': f'#{hx_target_id}' if hx_target_id else f'#{hx_include_id}',
         }
+        if hx_target_id:
+            _attrs['hx-select'] = f'#{hx_target_id}'
+            _attrs['hx-swap'] = 'outerHTML'
         if attrs:
             _attrs.update(attrs)
 

@@ -1,0 +1,8 @@
+{# As numeric.html, but renders the unit verbatim. Attributes which resolve their own unit abbreviation #}
+{# (e.g. DiameterAttr, FlowRateAttr) already supply correct casing, which "L/min" and "GPM" depend on. #}
+<span>
+  <span{% if name %} id="attr_{{ name }}"{% endif %}>{{ value }}</span>
+  {% if unit %}
+    {{ unit }}
+  {% endif %}
+</span>

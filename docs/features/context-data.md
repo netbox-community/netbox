@@ -90,3 +90,14 @@ Devices and virtual machines may also have a local context data defined. This lo
 A [config context profile](../models/extras/configcontextprofile.md) provides an organizational grouping for related config contexts and may optionally enforce a [JSON schema](https://json-schema.org/) describing the shape of their data. When a profile is assigned to a config context, NetBox validates the context's data against the profile's schema on save and rejects any context that fails validation. This makes it possible to constrain which keys may appear in a context, require certain keys to be present, or limit values to a defined enumeration — guarding against typos and drift as contexts proliferate.
 
 A profile's schema may be authored directly in NetBox or populated from an external [data source](../models/core/datasource.md), enabling teams to maintain schemas alongside the code or configurations that consume them.
+
+## Pre-rendered Caching
+
+!!! info "New in NetBox v4.7"
+
+NetBox pre-renders each device's and virtual machine's merged context data and stores it on the object itself, so most reads can return the result without recomputing the full set of applicable contexts. The cache is initially populated during upgrade (the upgrade script runs the `rebuild_config_context_cache` management command) and is thereafter kept current automatically: whenever an upstream change is detected — a config context being created, modified, or deleted; a device/VM's scope-relevant attribute changing (site, role, tenant, tags, cluster, etc.); or a related object being re-routed in a way that changes which contexts apply — NetBox marks the affected caches invalid and enqueues a non-blocking [background job](./background-jobs.md) to repopulate them.
+
+During the brief window between invalidation and re-render, requests for the affected object's config context fall back to the original on-demand rendering path, so the data returned is always correct — never stale — but may be slightly slower during that window. Once the background job completes, reads are served from the cache.
+
+!!! note
+    The pre-rendered cache supersedes the previous `?exclude=config_context` REST API query parameter. Config context data is now always returned for devices and virtual machines, and the parameter is silently ignored.

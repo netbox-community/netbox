@@ -9,14 +9,19 @@ import warnings
 from typing import NamedTuple
 
 from django.core.exceptions import ImproperlyConfigured
+from rq.exceptions import TimeoutFormatError
+from rq.queue import Queue
+from rq.utils import parse_timeout
 
 __all__ = (
     'InstallPaths',
     'get_configuration_dir',
     'load_configuration',
     'load_ldap_config',
+    'parse_job_timeout',
     'resolve_install_paths',
     'secret_key_hint',
+    'validate_webhook_default_timeout',
 )
 
 
@@ -71,6 +76,48 @@ def secret_key_hint(install_mode, base_dir):
     if install_mode == 'wheel':
         return 'netbox secret-key'
     return f'python {base_dir}/generate_secret_key.py'
+
+
+def parse_job_timeout(value):
+    """Normalize an RQ job timeout (i.e. RQ_DEFAULT_TIMEOUT) to a number of seconds.
+
+    RQ accepts a timeout as an integer, as a numeric string, or as a duration string such as
+    "1h", so its own parser is used to arrive at a value which can be compared against webhook
+    timeouts. A negative timeout (-1 by convention) disables RQ's death penalty; that is reported
+    as None, meaning that job execution is unbounded. An absent or zero timeout is *not* unbounded:
+    RQ falls back to the queue's own default, which is reported in its place.
+    """
+    try:
+        timeout = parse_timeout(value)
+    except (TimeoutFormatError, TypeError):
+        raise ImproperlyConfigured(
+            f"RQ_DEFAULT_TIMEOUT must be a number of seconds or a duration string such as '1h' "
+            f"(found {value!r})"
+        )
+    if timeout is None or timeout == 0:
+        # Queue treats a null or zero default timeout as unset and substitutes its class default.
+        return Queue.DEFAULT_TIMEOUT
+    if timeout < 0:
+        return None
+    return timeout
+
+
+def validate_webhook_default_timeout(timeout, job_timeout):
+    """Validate WEBHOOK_DEFAULT_TIMEOUT, including against the background job timeout.
+
+    job_timeout is the normalized RQ_DEFAULT_TIMEOUT (see parse_job_timeout()), or None if job
+    execution is unbounded. A webhook timeout which meets or exceeds the job timeout leaves no
+    room for the request's own timeout to apply, as the worker will terminate the job first.
+    """
+    if not isinstance(timeout, int) or not 1 <= timeout <= 3600:
+        raise ImproperlyConfigured(
+            f"WEBHOOK_DEFAULT_TIMEOUT must be an integer between 1 and 3600 (found {timeout!r})"
+        )
+    if job_timeout is not None and timeout >= job_timeout:
+        raise ImproperlyConfigured(
+            f"WEBHOOK_DEFAULT_TIMEOUT ({timeout}) must be less than RQ_DEFAULT_TIMEOUT ({job_timeout} seconds), "
+            f"which caps the total runtime of the background job."
+        )
 
 
 def _import_module(name):

@@ -8,6 +8,8 @@ from wireless.choices import WirelessRoleChoices
 __all__ = (
     'ConsolePortTemplateImportForm',
     'ConsoleServerPortTemplateImportForm',
+    'CoolingIntakeTemplateImportForm',
+    'CoolingOutflowTemplateImportForm',
     'DeviceBayTemplateImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
@@ -80,6 +82,46 @@ class PowerOutletTemplateImportForm(forms.ModelForm):
         return module_type
 
 
+class CoolingIntakeTemplateImportForm(forms.ModelForm):
+
+    class Meta:
+        model = CoolingIntakeTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'max_flow', 'max_flow_unit', 'description',
+        ]
+
+
+class CoolingOutflowTemplateImportForm(forms.ModelForm):
+    cooling_intake = forms.ModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntakeTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = CoolingOutflowTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description',
+        ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            cooling_intake = self.fields['cooling_intake']
+            cooling_intake.queryset = cooling_intake.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            cooling_intake = self.fields['cooling_intake']
+            cooling_intake.queryset = cooling_intake.queryset.filter(module_type=module_type)
+
+        return module_type
+
+
 class InterfaceTemplateImportForm(forms.ModelForm):
     type = forms.ChoiceField(
         label=_('Type'),
@@ -104,8 +146,8 @@ class InterfaceTemplateImportForm(forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode',
-            'poe_type', 'rf_role'
+            'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mgmt_only',
+            'description', 'poe_mode', 'poe_type', 'rf_role'
         ]
 
 

@@ -1,173 +1,57 @@
 import logging
 
-from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
-from django.db.models import F, Q
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models import Q
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
-from ipam.models import Prefix
 from netbox.search.backends import search_backend
-from virtualization.models import Cluster, VMInterface
-from wireless.models import WirelessLAN
+from utilities.querysets import chunked_update
+from virtualization.models import VMInterface
 
 from .models import (
     Cable,
     CablePath,
     CableTermination,
-    ConsolePort,
-    ConsoleServerPort,
     Device,
-    DeviceBay,
-    FrontPort,
     Interface,
-    InventoryItem,
     Location,
-    ModuleBay,
     PathEndpoint,
     PortMapping,
-    PowerOutlet,
     PowerPanel,
-    PowerPort,
     Rack,
-    RearPort,
-    Site,
     VirtualChassis,
 )
 from .models.cables import trace_paths
 from .search import DeviceIndex
-from .utils import create_cablepaths, rebuild_paths
-
-COMPONENT_MODELS = (
-    ConsolePort,
-    ConsoleServerPort,
-    DeviceBay,
-    FrontPort,
-    Interface,
-    InventoryItem,
-    ModuleBay,
-    PowerOutlet,
-    PowerPort,
-    RearPort,
-)
-
+from .utils import create_cablepaths, rebuild_cable_paths, rebuild_paths
 
 #
 # Location/rack/device assignment
 #
 
-@receiver(pre_save, sender=Location)
-@receiver(pre_save, sender=Site)
-def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
-    """
-    Stash the scope-relevant field values currently in the database so that the post_save
-    handlers below can determine whether this save actually changed any of them. The read
-    locks the row, so overlapping saves of the same object serialize here and the
-    comparison always runs against the final committed state.
-
-    Outside of a transaction no stash is taken (and any stash left by a previous
-    transactional save of the same instance is cleared): in autocommit, this read and the
-    subsequent UPDATE would run in separate transactions, so the comparison could race a
-    concurrent save. The post_save handlers treat a missing stash as "the values may have
-    changed" and rebuild or repair unconditionally.
-    """
-    if raw or instance.pk is None:
-        return
-    if not transaction.get_connection(using).in_atomic_block:
-        instance._presave_scope_fields = None
-        return
-    fields = ('region_id', 'group_id') if isinstance(instance, Site) else ('site_id',)
-    instance._presave_scope_fields = (
-        instance.__class__.objects.using(using)
-        .filter(pk=instance.pk)
-        # no_key: serializes overlapping saves of this object without blocking foreign
-        # key inserts that reference it
-        .select_for_update(no_key=True)
-        .values(*fields)
-        .first()
-    )
-
 
 @receiver(post_save, sender=Location)
 def handle_location_site_change(instance, created, **kwargs):
     """
-    Update child objects when a Location is saved. All updates are queryset update() calls,
-    which fire no signals and generate no change records for the affected objects.
+    Cascade a Location's Site assignment down to the Racks, Devices, and PowerPanels it contains
+    (and to descendant Locations).
     """
-    if created:
-        return
-    with transaction.atomic(savepoint=False):
-        instance.get_descendants().update(site=instance.site)
-        # Materialized once so every statement below sees the same membership, even if a
-        # concurrent commit renumbers the tree mid-handler.
-        locations = list(instance.get_descendants(include_self=True).values_list('pk', flat=True))
-        Rack.objects.filter(location__in=locations).update(site=instance.site)
-        Device.objects.filter(location__in=locations).update(site=instance.site)
-        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
-        CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
-        # Update component models for devices in these locations
-        for model in COMPONENT_MODELS:
-            model.objects.filter(device__location__in=locations).update(_site=instance.site)
-
-        # Objects scoped to descendant Locations receive no post_save of their own from the
-        # queryset updates above, so their cached scope fields are updated here whenever the
-        # Site assignment has actually changed. (Objects scoped to this Location itself are
-        # recomputed by sync_cached_scope_fields on this same save.) Values are read fresh
-        # from the database rather than taken from the saved instance, whose cached site
-        # relation may be stale.
-        prev = getattr(instance, '_presave_scope_fields', None)
-        if prev is None or prev['site_id'] != instance.site_id:
-            # Lock the destination Site (without blocking FK inserts that reference it) so
-            # a concurrent scope change on that Site serializes against this move; an
-            # unlocked read could stamp region/group values from before that change.
-            site = (
-                Site.objects.filter(pk=instance.site_id)
-                .select_for_update(no_key=True)
-                .values('region_id', 'group_id')
-                .first()
-            )
-            if site is not None:
-                # Select rows through the authoritative scope rather than the cached
-                # _location, which may itself be stale; scope_id doubles as the correct
-                # _location value for Location-scoped rows.
-                location_ct = ContentType.objects.get_for_model(Location)
-                for model in (Prefix, Cluster, WirelessLAN):
-                    model.objects.filter(scope_type=location_ct, scope_id__in=locations).update(
-                        _location_id=F('scope_id'),
-                        _site_id=instance.site_id,
-                        _region_id=site['region_id'],
-                        _site_group_id=site['group_id'],
-                    )
+    if not created:
+        chunked_update(instance.get_descendants(), site=instance.site)
+        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
+        chunked_update(Rack.objects.filter(location__in=locations), site=instance.site)
+        chunked_update(Device.objects.filter(location__in=locations), site=instance.site)
+        chunked_update(PowerPanel.objects.filter(location__in=locations), site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
 def handle_rack_site_change(instance, created, **kwargs):
     """
-    Update child Devices if Site or Location assignment has changed.
+    Cascade a Rack's Site/Location assignment down to the Devices it contains.
     """
     if not created:
-        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
-        # Update component models for devices in this rack
-        for model in COMPONENT_MODELS:
-            model.objects.filter(device__rack=instance).update(
-                _site=instance.site,
-                _location=instance.location,
-            )
-
-
-@receiver(post_save, sender=Device)
-def handle_device_site_change(instance, created, **kwargs):
-    """
-    Update child components to update the parent Site, Location, and Rack when a Device is saved.
-    """
-    if not created:
-        for model in COMPONENT_MODELS:
-            model.objects.filter(device=instance).update(
-                _site=instance.site,
-                _location=instance.location,
-                _rack=instance.rack,
-            )
+        chunked_update(Device.objects.filter(rack=instance), site=instance.site, location=instance.location)
 
 
 #
@@ -240,7 +124,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
     # Update status of CablePaths if Cable status has been changed
     elif instance.status != instance._orig_status:
         if instance.status != LinkStatusChoices.STATUS_CONNECTED:
-            CablePath.objects.filter(_nodes__contains=instance).update(is_active=False)
+            chunked_update(CablePath.objects.filter(_nodes__contains=instance), is_active=False)
         else:
             rebuild_paths([instance])
 
@@ -278,6 +162,14 @@ def nullify_connected_endpoints(instance, **kwargs):
         cable_positions=None,
     )
 
+    # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto its channel
+    # subinterfaces. This must happen before the retrace below so that each channel's (now dead) path is torn down
+    # rather than rebuilt from a stale cable reference.
+    if model is Interface:
+        Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
+            cable=None, cable_end='', cable_connector=None, cable_positions=None
+        )
+
     # If the parent Cable is being deleted in this same operation, skip the
     # per-termination retrace; retrace_cable_paths() will retrace each affected
     # path once after the Cable is deleted.
@@ -294,6 +186,66 @@ def nullify_connected_endpoints(instance, **kwargs):
 
 
 @receiver(post_save, sender=Interface)
+def update_channelized_cable_paths(instance, created, raw=False, **kwargs):
+    """
+    Rebuild cable paths when an interface's channelization changes without the Cable itself being modified: a channel
+    subinterface is added, moved between parents, or has its channel_id changed, or channelization is toggled on an
+    already-cabled interface. (The cable-tracing signals only fire when a Cable is saved.)
+    """
+    if raw:
+        return
+
+    parent_ids = set()
+
+    # A channel subinterface was added, moved between parents, or had its channel_id changed
+    if instance.channel_id or instance._original_channel_id:
+        parent_ids.update(pk for pk in (instance.parent_id, instance._original_parent_id) if pk)
+
+    # Channelization was toggled on this interface while it carries a cable
+    if instance.channels != instance._original_channels and instance.cable_id:
+        parent_ids.add(instance.pk)
+
+    # select_related('cable') avoids a per-parent round-trip to fetch the Cable, which both
+    # propagate_channel_cables() and rebuild_cable_paths() dereference. (Cable.profile is a plain field, not a
+    # relation, so it needs no prefetching.)
+    parents = Interface.objects.filter(pk__in=parent_ids, cable__isnull=False).select_related('cable')
+    for parent in parents:
+        if parent.channels:
+            parent.propagate_channel_cables()
+        rebuild_cable_paths(parent.cable)
+
+    # A channel subinterface whose parent no longer provides a cable must not retain stale mirrored cable attributes
+    if instance.channel_id and instance.cable_id:
+        parent = instance.parent
+        if not (parent and parent.channels and parent.cable_id):
+            Interface.objects.filter(pk=instance.pk).update(
+                cable=None, cable_end='', cable_connector=None, cable_positions=None
+            )
+            for cablepath in CablePath.objects.filter(_nodes__contains=instance):
+                if instance in cablepath.origins:
+                    cablepath.delete()
+
+    # Refresh the cached channelization state so that saving this same in-memory instance again compares against its
+    # current values rather than re-triggering propagation from a stale baseline.
+    instance._original_channels = instance.channels
+    instance._original_channel_id = instance.channel_id
+    instance._original_parent_id = instance.parent_id
+
+
+@receiver(post_delete, sender=Interface)
+def cleanup_channel_subinterface_paths(instance, **kwargs):
+    """
+    When a channel subinterface is deleted, rebuild its channelized parent's cable paths so the removed channel's path
+    is torn down.
+    """
+    if instance.channel_id and instance.parent_id:
+        parent = Interface.objects.filter(pk=instance.parent_id, cable__isnull=False).first()
+        if parent and parent.channels:
+            parent.propagate_channel_cables()
+            rebuild_cable_paths(parent.cable)
+
+
+@receiver(post_save, sender=Interface)
 @receiver(post_save, sender=VMInterface)
 def update_mac_address_interface(instance, created, raw, **kwargs):
     """
@@ -303,66 +255,3 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     if created and not raw and instance.primary_mac_address:
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
-
-
-@receiver(post_save, sender=Location)
-@receiver(post_save, sender=Site)
-def sync_cached_scope_fields(instance, created, **kwargs):
-    """
-    Rebuild cached scope fields for all CachedScopeMixin-based models
-    affected by a change to a Site or Location.
-
-    When the values read from the database immediately before this save
-    show that no scope-relevant field has changed, the rebuild is
-    skipped. Otherwise, cached fields are recomputed from each object's
-    authoritative scope relationships — never copied from the saved
-    instance — so rows holding stale cached values are also repaired.
-    """
-    if created:
-        return
-
-    if isinstance(instance, Location):
-        filters = {'_location': instance}
-    elif isinstance(instance, Site):
-        filters = {'_site': instance}
-    else:
-        return
-
-    # Skip the rebuild when this save changed no scope-relevant field. The pre-save values
-    # are read from the database by cache_presave_scope_fields() immediately before the
-    # write, with the row locked, so the comparison holds even when overlapping saves race
-    # on the same object. The stash exists only for saves made inside a transaction; when
-    # it's absent (autocommit saves), rebuild unconditionally.
-    prev = getattr(instance, '_presave_scope_fields', None)
-    if prev is not None:
-        if isinstance(instance, Site):
-            if prev['region_id'] == instance.region_id and prev['group_id'] == instance.group_id:
-                return
-        # The dispatch above ensures the instance can only be a Location here
-        elif prev['site_id'] == instance.site_id:
-            return
-
-    # These models are explicitly listed because they all subclass CachedScopeMixin
-    # and therefore require their cached scope fields to be recomputed.
-    with transaction.atomic(savepoint=False):
-        for model in (Prefix, Cluster, WirelessLAN):
-            qs = model.objects.filter(**filters)
-
-            # Recompute the cached fields once per distinct scope, then apply each result with a
-            # single UPDATE. This avoids loading every object into memory as well as the per-row
-            # CASE WHEN statement generated by bulk_update(), and does not trigger post_save
-            # signals, avoiding spurious change log entries. Ordering explicitly by the selected
-            # columns orders the scope groups and keeps the models' default ordering out of the
-            # DISTINCT (which would defeat the grouping); within each UPDATE, row lock order is
-            # plan-dependent, as it was with bulk_update(). The atomic block keeps the rebuild
-            # all-or-nothing outside a request transaction.
-            scopes = qs.values_list('scope_type_id', 'scope_id').order_by('scope_type_id', 'scope_id').distinct()
-            for scope_type_id, scope_id in scopes:
-                ref = model(scope_type_id=scope_type_id, scope_id=scope_id)
-                ref.cache_related_objects()
-                qs.filter(scope_type_id=scope_type_id, scope_id=scope_id).update(
-                    _location=ref._location,
-                    _site=ref._site,
-                    _site_group=ref._site_group,
-                    _region=ref._region,
-                )

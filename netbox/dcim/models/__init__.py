@@ -1,4 +1,5 @@
 from .cables import *
+from .cooling import *
 from .device_component_templates import *
 from .device_components import *
 from .devices import *
