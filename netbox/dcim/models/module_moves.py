@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import router
 from django.db.models import Q
@@ -38,8 +39,6 @@ __all__ = (
     'ComponentMove',
     'ModuleMovePlan',
 )
-
-BATCH_SIZE = 1000
 
 # Modular component models relocated during a move, mapped to the ModuleType template
 # accessor used for conservative template-derived renaming. ModuleBay is handled
@@ -773,7 +772,9 @@ class ModuleMovePlan:
             module.snapshot()
             module.device_id = self.new_device_id
             module.last_updated = self._now
-        self.module_model.objects.bulk_update(descendants, ['device', 'last_updated'], batch_size=BATCH_SIZE)
+        self.module_model.objects.bulk_update(
+            descendants, ['device', 'last_updated'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+        )
         self._send_post_saves(self.module_model, descendants, ['device', 'last_updated'])
 
     def _apply_bays(self):
@@ -823,7 +824,7 @@ class ModuleMovePlan:
         # Stage 1: parent-only, for the root's direct child bays being reparented.
         reparented = [bay for bay, changed in bay_changes if 'parent' in changed]
         if reparented:
-            ModuleBay.objects.bulk_update(reparented, ['parent'], batch_size=BATCH_SIZE)
+            ModuleBay.objects.bulk_update(reparented, ['parent'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
 
         # Stage 2: renames, level-by-level top-down. Same-level bays are disjoint
         # subtrees, so per-level statements cannot overlap, and level N's AFTER-trigger
@@ -847,11 +848,13 @@ class ModuleMovePlan:
         for level_index in sorted(renames_by_level):
             level_bays = renames_by_level[level_index]
             fields = sorted({field for _bay, bay_fields in level_bays for field in bay_fields})
-            ModuleBay.objects.bulk_update([bay for bay, _field in level_bays], fields, batch_size=BATCH_SIZE)
+            ModuleBay.objects.bulk_update(
+                [bay for bay, _field in level_bays], fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+            )
 
         # Stage 3: one scalar statement for every changed bay; never parent/name here.
         updated = [bay for bay, _ in bay_changes]
-        ModuleBay.objects.bulk_update(updated, ['last_updated'], batch_size=BATCH_SIZE)
+        ModuleBay.objects.bulk_update(updated, ['last_updated'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
 
         # Stage 4: sync in-memory ltree columns, then emit post_save per bay with the
         # union of its own changed fields (fields differ per bay, so one call each).
@@ -895,7 +898,7 @@ class ModuleMovePlan:
                 fields.add('_name')
             fields.add('last_updated')
             fields = sorted(fields)
-            model.objects.bulk_update(updated, fields, batch_size=BATCH_SIZE)
+            model.objects.bulk_update(updated, fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
             self._send_post_saves(model, updated, fields)
 
     def _apply_port_mappings(self):

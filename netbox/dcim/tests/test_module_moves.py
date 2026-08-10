@@ -8,7 +8,8 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError, connection, router, transaction
-from django.test import RequestFactory, TestCase
+from django.db.models import QuerySet
+from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
 from circuits.models import Provider, ProviderNetwork, VirtualCircuit, VirtualCircuitTermination, VirtualCircuitType
@@ -1536,6 +1537,53 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         one_child_queries = build_and_move(1)
         three_children_queries = build_and_move(3)
         self.assertEqual(one_child_queries, three_children_queries)
+
+    def test_bulk_updates_use_configured_chunk_size(self):
+        """
+        The move path must honour BULK_UPDATE_CHUNK_SIZE rather than a private constant, so
+        that an operator bounding rows-per-statement bounds this operation too.
+        """
+        original_bulk_update = QuerySet.bulk_update
+        batch_sizes = []
+
+        def recording_bulk_update(self, objs, fields, batch_size=None, **kwargs):
+            batch_sizes.append(batch_size)
+            return original_bulk_update(self, objs, fields, batch_size=batch_size, **kwargs)
+
+        with override_settings(BULK_UPDATE_CHUNK_SIZE=7):
+            with patch.object(QuerySet, 'bulk_update', recording_bulk_update):
+                self._move_to_device_b()
+
+        self.assertTrue(batch_sizes, 'the move issued no bulk_update calls')
+        self.assertEqual(set(batch_sizes), {7})
+
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=1)
+    def test_move_is_correct_when_updates_are_chunked(self):
+        """
+        A chunk size small enough to split every statement must not disturb the staged bay
+        writes, whose correctness depends on the ltree triggers settling per level.
+        """
+        sfp_interface = self.sfp_module.interfaces.get(name='SFP 1/1')
+        self._move_to_device_b()
+
+        self.line_card.refresh_from_db()
+        self.sfp_module.refresh_from_db()
+        self.assertEqual(self.line_card.device, self.device_b)
+        self.assertEqual(self.sfp_module.device, self.device_b)
+
+        moved_bay = ModuleBay.objects.get(pk=self.sfp_bay.pk)
+        dest_bay = ModuleBay.objects.get(pk=self.slot_2_b.pk)
+        self.assertEqual(moved_bay.name, 'SFP bay 2/1')
+        self.assertEqual(moved_bay.device, self.device_b)
+        self.assertTrue(str(moved_bay.path).startswith(f'{dest_bay.path}.'))
+
+        sfp_interface.refresh_from_db()
+        self.assertEqual(sfp_interface.name, 'SFP 2/1')
+        self.assertEqual(sfp_interface.device, self.device_b)
+        self.assertEqual(sfp_interface._site, self.site_b)
+        self.assertEqual(
+            self.line_card.interfaces.get().name, 'Ethernet2/1'
+        )
 
     def test_cross_device_move_refreshes_bay_sort_path(self):
         """
