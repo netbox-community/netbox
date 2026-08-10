@@ -5593,6 +5593,18 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         mac.assigned_object.refresh_from_db()
         self.assertIsNone(mac.assigned_object.primary_mac_address)
 
+    def test_set_primary_get_redirects(self):
+        """
+        A direct GET (bookmark, prefetch) degrades to the MAC's detail page rather than a 405.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+
     def test_set_primary_honors_return_url(self):
         """
         With a safe return_url supplied (as the list-view action does), the view redirects there

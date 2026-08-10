@@ -5858,6 +5858,12 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
 class MACAddressSetPrimaryView(GetReturnURLMixin, View):
     queryset = MACAddress.objects.all()
 
+    def get(self, request, pk):
+        # Degrade a direct GET (bookmark, prefetch) to the MAC's detail page rather than a 405,
+        # matching DataSourceSyncView.
+        mac = get_object_or_404(self.queryset.restrict(request.user, 'view'), pk=pk)
+        return redirect(mac.get_absolute_url())
+
     def post(self, request, pk):
         if not request.user.is_authenticated:
             return redirect_to_login(request.get_full_path())
