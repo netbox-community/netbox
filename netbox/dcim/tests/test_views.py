@@ -5593,6 +5593,21 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         mac.assigned_object.refresh_from_db()
         self.assertIsNone(mac.assigned_object.primary_mac_address)
 
+    def test_set_primary_honors_return_url(self):
+        """
+        With a safe return_url supplied (as the list-view action does), the view redirects there
+        rather than to the interface, so setting a primary MAC from the list keeps the user on it.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        return_url = reverse('dcim:macaddress_list')
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(f'{url}?return_url={return_url}')
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], return_url)
+
     def _render_set_primary_actions(self, embedded):
         """
         Render MACAddressTable's actions column for a non-primary, interface-assigned MAC and
@@ -5624,7 +5639,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
         })
         html = self._render_set_primary_actions(embedded=False)
-        self.assertIn(f'formaction="{set_primary_url}"', html)
+        self.assertIn(f'formaction="{set_primary_url}?return_url=', html)
         self.assertIn('formmethod="post"', html)
         # No nested <form> may be injected in the list context (it would be dropped by the parser).
         self.assertNotIn('<form method="post"', html)
@@ -5639,7 +5654,10 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
         })
         html = self._render_set_primary_actions(embedded=True)
+        # Embedded action posts to the bare set_primary URL with no return_url: the embedded request
+        # path is an HTMX partial, so the view must fall back to the interface page instead.
         self.assertIn(f'<form method="post" action="{set_primary_url}"', html)
+        self.assertNotIn(f'{set_primary_url}?return_url=', html)
         self.assertIn('csrfmiddlewaretoken', html)
         self.assertNotIn('formaction=', html)
 
@@ -5658,16 +5676,16 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(reverse('dcim:macaddress_list'))
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
-        self.assertIn(f'formaction="{set_primary_url}"', content)
+        self.assertIn(f'formaction="{set_primary_url}?return_url=', content)
         self.assertNotIn('<form method="post" action=', content)
 
     @tag('regression')  # Issue #18821
     def test_set_primary_action_embedded_request(self):
         """
         Request-level coverage of the embedded panel wiring: GET the MAC list as an embedded HTMX
-        partial (?embedded=True) and confirm the action renders a self-contained <form> because
-        there is no surrounding form to ride. Fails if embedded handling moves or the panel stops
-        going through the partial.
+        partial (?embedded=True) and confirm the action renders a self-contained <form> posting to
+        the bare set_primary URL (no return_url). Appending return_url here would capture the HTMX
+        partial URL and dump the user on a chrome-less table fragment, so it must be omitted.
         """
         self.add_permissions('dcim.view_macaddress')
         mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
@@ -5679,6 +5697,24 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
         self.assertIn(f'<form method="post" action="{set_primary_url}"', content)
+        self.assertNotIn(f'{set_primary_url}?return_url=', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_from_embedded_redirects_to_interface(self):
+        """
+        Setting a primary MAC from an interface's embedded panel must land on the interface, not on
+        the raw HTMX partial URL. The embedded action carries no return_url, so the view falls back
+        to the assigned object's detail page.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
 
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):

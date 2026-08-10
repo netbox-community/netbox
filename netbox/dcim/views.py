@@ -5855,7 +5855,7 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
 
 
 @register_model_view(MACAddress, 'set_primary')
-class MACAddressSetPrimaryView(View):
+class MACAddressSetPrimaryView(GetReturnURLMixin, View):
     queryset = MACAddress.objects.all()
 
     def post(self, request, pk):
@@ -5888,7 +5888,7 @@ class MACAddressSetPrimaryView(View):
                 )
             )
 
-        return redirect(assigned_object.get_absolute_url())
+        return redirect(self.get_return_url(request, assigned_object))
 
 
 @register_model_view(MACAddress, 'bulk_import', path='import', detail=False)

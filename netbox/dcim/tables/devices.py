@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import django_tables2 as tables
 from django.middleware.csrf import get_token
 from django.urls import reverse
@@ -1264,6 +1266,9 @@ class MACAddressActionsColumn(columns.ActionsColumn):
                 # flag, so it is the established signal for "is this table inside the bulk form".
                 if getattr(table, 'embedded', False):
                     # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
+                    # No return_url is appended here: request.get_full_path() in this context is the HTMX
+                    # partial-fetch URL (?embedded=True&...), not a user-facing page. Omitting it lets the view
+                    # fall back to the assigned interface's detail page, which is where the user should land.
                     action_li = format_html(
                         '<li><form method="post" action="{}">'
                         '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
@@ -1275,7 +1280,9 @@ class MACAddressActionsColumn(columns.ActionsColumn):
                 else:
                     # Inside the bulk-edit <form>: a nested <form> is invalid HTML and gets dropped by the
                     # parser, so ride the surrounding form via formaction/formmethod instead (matching the
-                    # DataSource sync button in core/tables/template_code.py).
+                    # DataSource sync button in core/tables/template_code.py). Pass return_url so the user
+                    # stays on the list rather than being redirected to the interface.
+                    url = f'{url}?return_url={quote(request.get_full_path())}'
                     action_li = format_html(
                         '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
                         '<i class="mdi mdi-star-outline"></i> {}'
