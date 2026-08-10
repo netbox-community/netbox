@@ -16,7 +16,7 @@ class ScriptRouter(NetBoxRouter):
     binds to every route of the ViewSet and is invisible to per-action permissions & schema generation.
     """
     def get_routes(self, viewset):
-        if viewset is not ScriptViewSet:
+        if not issubclass(viewset, ScriptViewSet):
             return super().get_routes(viewset)
 
         # Extend the detail route template. Applied before super() expands the templates so that any

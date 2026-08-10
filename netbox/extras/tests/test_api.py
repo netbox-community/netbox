@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -1492,6 +1493,19 @@ class ScriptTestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertTrue(Job.objects.exists())
 
+    @override_settings(LOGIN_REQUIRED=False, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_run_script_anonymous(self):
+        """
+        An unauthenticated user must be told that running a script is not permitted, rather than that the
+        script does not exist.
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        with disable_warnings('django.request'):
+            response = self.client.post(self.url, payload, format='json')
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Job.objects.exists())
+
     def test_run_script_read_only_token(self):
         """
         Running a script is a write operation and must be rejected for a read-only token.
@@ -1508,6 +1522,47 @@ class ScriptTestCase(APITestCase):
         # The default (write-enabled) token should succeed
         response = self.client.post(self.url, payload, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_run_script_read_only_token_without_permission(self):
+        """
+        A read-only token is rejected before the script is resolved, so an insufficient token is reported as
+        such regardless of the user's permission to run the script.
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # setUp() grants only extras.view_script
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        response = self.client.post(self.url, payload, format='json', **ro_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+    def test_run_script_not_executable(self):
+        """
+        A script whose Python class cannot be resolved must be rejected, not raise an exception.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # Simulate a script whose class can no longer be found in its module
+        class_patch = patch.object(Script, 'python_class', None)
+        class_patch.start()
+        self.addCleanup(class_patch.stop)
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Job.objects.exists())
+
+    def test_run_script_format_suffix(self):
+        """
+        The format-suffix variant of the detail route (e.g. /1.json) must dispatch to run().
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+        url = reverse('extras-api:script-detail', kwargs={'pk': Script.objects.first().pk, 'format': 'json'})
+
+        response = self.client.post(url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(Job.objects.exists())
 
     def test_modify_script_methods_disabled(self):
         """
@@ -1558,6 +1613,20 @@ class ScriptTestCase(APITestCase):
         self.assertNotIn('module', post_fields)
         self.assertNotIn('name', post_fields)
 
+    def test_options_detail_route_dynamic_fields(self):
+        """
+        The run input serializer does not support the fields/omit query parameters, but their presence must
+        not break the generation of OPTIONS metadata.
+        """
+        self.add_permissions('extras.run_script')
+
+        for query in ('fields=id', 'omit=id'):
+            with self.subTest(query=query):
+                response = self.client.options(f'{self.url}?{query}', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertIn('data', response.data['actions']['POST'])
+
     def test_unsupported_method(self):
         """
         A request using an HTTP method which maps to no action must be rejected with a 405.
@@ -1568,13 +1637,16 @@ class ScriptTestCase(APITestCase):
 
     def test_get_script_invalid_pk(self):
         """
-        A PK comprising numeric (but non-decimal) characters must yield a 404, not a server error.
+        A PK which cannot be cast to an integer must yield a 404, not a server error. This covers numeric (but
+        non-decimal) characters, as well as a decimal value too long for Python to convert.
         """
-        url = reverse('extras-api:script-detail', kwargs={'pk': '½'})
+        for pk in ('½', '1' * 5000):
+            with self.subTest(pk=pk[:10]):
+                url = reverse('extras-api:script-detail', kwargs={'pk': pk})
 
-        with disable_warnings('django.request'):
-            response = self.client.get(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+                with disable_warnings('django.request'):
+                    response = self.client.get(url, **self.header)
+                self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):

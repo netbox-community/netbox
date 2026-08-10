@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
@@ -318,19 +318,35 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    def get_serializer_class(self):
+    def get_serializer(self, *args, **kwargs):
         # A POST to the detail route runs the script, taking ScriptInputSerializer as its request body.
         # (This is keyed on the request method rather than on self.action, which is unset when generating
-        # OPTIONS metadata.)
+        # OPTIONS metadata.) ScriptInputSerializer is instantiated directly rather than via BaseViewSet,
+        # which would pass it the fields/omit kwargs supported only by BaseModelSerializer.
         if getattr(self.request, 'method', None) == 'POST':
-            return serializers.ScriptInputSerializer
-        return super().get_serializer_class()
+            kwargs.setdefault('context', self.get_serializer_context())
+            return serializers.ScriptInputSerializer(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+
+        # ScriptInputSerializer resolves its field defaults and validates scheduling against the script
+        # being run (set by run() below).
+        context['script'] = getattr(self, 'script', None)
+
+        return context
 
     def _get_script(self, pk):
         # Retrieve the script by ID if the PK is all decimal digits. (isdecimal() rather than isnumeric(),
         # as the latter also matches characters which cannot be cast to an integer.)
         if pk.isdecimal():
-            return get_object_or_404(self.queryset, pk=int(pk))
+            try:
+                pk = int(pk)
+            except ValueError:
+                # CPython refuses to convert digit strings longer than sys.int_info.default_max_str_digits
+                raise Http404
+            return get_object_or_404(self.queryset, pk=pk)
 
         # Default to retrieval by module & name
         try:
@@ -340,7 +356,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
         return get_object_or_404(self.queryset, module__file_path=f'{module_name}.py', name=script_name)
 
-    def retrieve(self, request, pk):
+    def retrieve(self, request, pk, **kwargs):
         script = self._get_script(pk)
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
@@ -356,27 +372,33 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             ),
         },
     )
-    def run(self, request, pk):
+    def run(self, request, pk, **kwargs):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
         # Bound to POST on the detail route by ScriptRouter
-        # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
-        # the QuerySet on 'run' before resolving the script.
-        self.queryset = self.queryset.model.objects.restrict(request.user, 'run')
-        script = self._get_script(pk)
 
-        # Reject read-only tokens (not via TokenWritePermission, which permits token auth only)
+        # Reject read-only tokens before resolving the script, so that an insufficient token is always
+        # reported as such. (Not via TokenWritePermission, which permits token auth only.)
         if isinstance(request.auth, Token) and not request.auth.write_enabled:
             raise PermissionDenied(_("This token does not permit write operations (running a script)."))
 
-        if not request.user.has_perm('extras.run_script', obj=script):
+        # An unauthenticated user can never run a script; report that explicitly, as restrict() below would
+        # match no scripts and yield a misleading 404.
+        if not request.user.is_authenticated:
             raise PermissionDenied(_("This user does not have permission to run this script."))
 
-        input_serializer = serializers.ScriptInputSerializer(
-            data=request.data,
-            context={'script': script}
-        )
+        # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
+        # the QuerySet on 'run' before resolving the script. A script the user cannot run yields a 404.
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'run')
+        self.script = script = self._get_script(pk)
+
+        # A script whose Python class cannot be resolved (e.g. its module has been modified or the script has
+        # been deleted, retaining the record for its jobs) cannot be run
+        if not script.is_executable or script.python_class is None:
+            raise ValidationError(_("This script is not currently executable."))
+
+        input_serializer = self.get_serializer(data=request.data)
 
         # Check that at least one RQ worker is running
         if not any_workers_for_queue('default'):

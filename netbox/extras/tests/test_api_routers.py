@@ -28,6 +28,16 @@ class ScriptRouterTestCase(TestCase):
         self.assertEqual(actions['dummy-detail'], {'get': 'retrieve', 'post': 'run'})
         self.assertEqual(actions['dummy-list'], {'get': 'list'})
 
+    def test_script_viewset_subclass(self):
+        # A subclass of ScriptViewSet (e.g. as registered by a plugin) gets the same route mapping
+        class MyScriptViewSet(ScriptViewSet):
+            pass
+
+        actions = self.get_actions(MyScriptViewSet)
+
+        self.assertEqual(actions['dummy-detail'], {'get': 'retrieve', 'post': 'run'})
+        self.assertEqual(actions['dummy-list'], {'get': 'list'})
+
     def test_other_viewsets_unaffected(self):
         # Standard ViewSets keep the stock detail route mapping
         self.assertNotIn('post', self.get_actions(WebhookViewSet)['dummy-detail'])
