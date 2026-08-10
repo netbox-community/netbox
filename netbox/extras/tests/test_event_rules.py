@@ -599,9 +599,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def test_bulk_delete_abort_discards_events(self):
         """
-        Check that a bulk delete aborted by an exception (rather than by a per-object error) also
-        queues no background tasks. A protection rule raises AbortRequest from a signal receiver,
-        which propagates out of the per-object loop.
+        Check that a bulk delete blocked by a signal receiver raising AbortRequest (rather than by a
+        database constraint) also queues no background tasks for the objects that were provisionally
+        deleted before the failure.
         """
         sites = (
             Site(name='Site 1', slug='site-1', description='Has a description'),
@@ -617,8 +617,11 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         protection_rules = {'dcim.site': [{'description': {'required': True}}]}
         with override_settings(PROTECTION_RULES=protection_rules):
             response = self.client.delete(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertEqual(Site.objects.count(), 2)
+
+        # The failure is correlated to the blocked object only
+        self.assertEqual([e['id'] for e in response.data['errors']], [sites[1].pk])
 
         # No task may be queued for a deletion that was rolled back
         self.assertEqual(self.queue.count, 0)

@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -550,6 +550,73 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['errors'][0]['id'], site2.pk)
 
         # Neither site may have been deleted, including the one the user is permitted to delete
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_update_objects_abort_request(self):
+        """
+        PATCH a set of objects where a signal receiver raises AbortRequest for more than one of
+        them. Each failure must be correlated to its own object (proving the batch continues past
+        the first abort) and no object may be modified.
+        """
+        # This tag may only be assigned to Regions, so assigning it to a Site raises AbortRequest
+        # from extras.signals.validate_assigned_tags.
+        restricted_tag = Tag.objects.create(name='Regions Only', slug='regions-only')
+        restricted_tag.object_types.set([ObjectType.objects.get_for_model(Region)])
+
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+        self.add_permissions('extras.view_tag')
+
+        data = [
+            {'id': site1.pk, 'tags': [{'name': 'Regions Only'}]},
+            {'id': site2.pk, 'tags': [{'name': 'Regions Only'}]},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            # Reported as a non-field error, in the same list-of-messages form as field errors
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been tagged (whole batch rolled back)
+        self.assertFalse(site1.tags.exists(), 'Site 1 should not have been tagged')
+        self.assertFalse(site2.tags.exists(), 'Site 2 should not have been tagged')
+
+    def test_bulk_delete_objects_abort_request(self):
+        """
+        DELETE a set of objects where a protection rule blocks more than one of them. Each failure
+        must be correlated to its own object and no object may be deleted.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Neither site has a description, so the rule blocks both deletions via AbortRequest raised
+        # from core.signals.handle_deleted_object.
+        protection_rules = {'dcim.site': [{'description': {'required': True}}]}
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        with override_settings(PROTECTION_RULES=protection_rules):
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been deleted
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
         self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
 
@@ -2346,6 +2413,41 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         # Second item failed validation — first item succeeded so it's omitted
         self.assertEqual(response.data['errors'][0]['index'], 1)
         self.assertIn('errors', response.data['errors'][0])
+
+    def test_bulk_create_objects_abort_request(self):
+        """
+        POST a set of Device objects where a signal receiver raises AbortRequest for more than one
+        of them. Each failure must be correlated to its position in the request (proving the batch
+        continues past the first abort) and no object may be created.
+        """
+        # This tag may only be assigned to Regions, so assigning it to a Device raises AbortRequest
+        # from extras.signals.validate_assigned_tags.
+        restricted_tag = Tag.objects.create(name='Regions Only', slug='regions-only')
+        restricted_tag.object_types.set([ObjectType.objects.get_for_model(Region)])
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+        self.add_permissions('extras.view_tag')
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {**self.create_data[0], 'tags': [{'name': 'Regions Only'}]},
+            {**self.create_data[1], 'tags': [{'name': 'Regions Only'}]},
+        ]
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['index'] for e in response.data['errors']], [0, 1])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any sibling is aborted',
+        )
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):

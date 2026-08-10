@@ -16,7 +16,7 @@ from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 from netbox.api.serializers.bulk import get_bulk_update_serializer_class
 from netbox.jobs import AsyncAPIJob
-from utilities.exceptions import RQWorkerNotRunningException
+from utilities.exceptions import AbortRequest, RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
 
@@ -260,14 +260,18 @@ class SequentialBulkCreatesMixin:
             total = len(request.data)
             for i, data in enumerate(request.data):
                 serializer = self.get_serializer(data=data)
-                if serializer.is_valid():
+                if not serializer.is_valid():
+                    errors.append({'index': i, 'errors': serializer.errors})
+                    continue
+                try:
                     # Provisionally create even when a prior item failed, so subsequent
                     # cross-object validators (e.g. rack space checks) see a realistic state.
                     # All creates are rolled back together if any item in the batch fails.
                     self.perform_create(serializer)
-                    return_data.append(serializer.data)
+                except AbortRequest as e:
+                    errors.append({'index': i, 'errors': {'__all__': [str(e.message)]}})
                 else:
-                    errors.append({'index': i, 'errors': serializer.errors})
+                    return_data.append(serializer.data)
 
             if errors:
                 transaction.set_rollback(True)
@@ -370,11 +374,20 @@ class BulkUpdateModelMixin:
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()
                 serializer = self.get_serializer(obj, data=data, partial=partial)
-                if serializer.is_valid():
-                    self.perform_update(serializer)
-                    updated_pks.append(obj.pk)
-                else:
+                if not serializer.is_valid():
                     errors.append({'id': obj.pk, 'errors': serializer.errors})
+                    continue
+                try:
+                    self.perform_update(serializer)
+                except AbortRequest as e:
+                    # Raised by a signal receiver rather than by validation (e.g. assigning a tag
+                    # which is restricted to other object types). perform_update() wraps its write
+                    # in its own atomic block, so the connection is rolled back to that savepoint
+                    # and the remaining objects in the batch can still be evaluated. The message is
+                    # coerced to a string because a few receivers pass an exception rather than text.
+                    errors.append({'id': obj.pk, 'errors': {'__all__': [str(e.message)]}})
+                else:
+                    updated_pks.append(obj.pk)
             if errors:
                 transaction.set_rollback(True)
         return updated_pks, errors
@@ -479,11 +492,20 @@ class BulkDestroyModelMixin:
                     errors.append({
                         'id': pk,
                         'errors': {
-                            '__all__': _(
-                                'Unable to delete: {n} dependent object(s) prevent deletion.'
-                            ).format(n=len(protected)),
+                            '__all__': [
+                                _('Unable to delete: {n} dependent object(s) prevent deletion.').format(
+                                    n=len(protected)
+                                ),
+                            ],
                         },
                     })
+                except AbortRequest as e:
+                    # Raised by a signal receiver rather than by a database constraint (e.g. a
+                    # PROTECTION_RULES violation caught in core.signals.handle_deleted_object).
+                    # perform_destroy() wraps its delete in its own atomic block, so the connection
+                    # is rolled back to that savepoint and the remaining objects in the batch can
+                    # still be evaluated.
+                    errors.append({'id': pk, 'errors': {'__all__': [str(e.message)]}})
             if errors:
                 transaction.set_rollback(True)
         return errors, total
