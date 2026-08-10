@@ -3,15 +3,14 @@ import datetime
 import json
 from decimal import Decimal
 from io import StringIO
+from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.http import StreamingHttpResponse
-from django.template import Template
-from django.template.context import RequestContext
-from django.test import RequestFactory, override_settings, tag
+from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import EUI
@@ -21,7 +20,6 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from dcim.tables import MACAddressTable
 from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
@@ -5620,59 +5618,6 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(response['Location'], return_url)
 
-    def _render_set_primary_actions(self, embedded):
-        """
-        Render MACAddressTable's actions column for a non-primary, interface-assigned MAC and
-        return the HTML for its row. `embedded` selects the render context (True = an object's
-        embedded MAC panel, False = the standalone list view wrapped in the bulk-edit form).
-        """
-        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
-        self.assertIsNotNone(mac)
-        self.assertFalse(mac.is_primary)
-
-        request = RequestFactory().get('/')
-        request.user = self.user
-        table = MACAddressTable(MACAddress.objects.filter(pk=mac.pk))
-        table.embedded = embedded
-        # Render via the render_table template tag with a RequestContext, which is the path the
-        # app uses and which populates table.context (as_html() does not, so the actions column's
-        # request lookup would come up empty).
-        template = Template('{% load django_tables2 %}{% render_table table %}')
-        return template.render(RequestContext(request, {'table': table}))
-
-    @tag('regression')  # Issue #18821
-    def test_set_primary_action_list_view_rides_bulk_form(self):
-        """
-        On the standalone list view the table is wrapped in the bulk-edit <form>, so the
-        Set as primary action must ride it via formaction rather than nesting a <form>
-        (which HTML5 drops, producing a 405 for the first row).
-        """
-        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={
-            'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
-        })
-        html = self._render_set_primary_actions(embedded=False)
-        self.assertIn(f'formaction="{set_primary_url}?return_url=', html)
-        self.assertIn('formmethod="post"', html)
-        # No nested <form> may be injected in the list context (it would be dropped by the parser).
-        self.assertNotIn('<form method="post"', html)
-
-    @tag('regression')  # Issue #18821
-    def test_set_primary_action_embedded_uses_self_contained_form(self):
-        """
-        In an embedded panel there is no surrounding form, so the action must render a
-        self-contained POST <form> (a formaction button would have nothing to submit).
-        """
-        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={
-            'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
-        })
-        html = self._render_set_primary_actions(embedded=True)
-        # Embedded action posts to the bare set_primary URL with no return_url: the embedded request
-        # path is an HTMX partial, so the view must fall back to the interface page instead.
-        self.assertIn(f'<form method="post" action="{set_primary_url}"', html)
-        self.assertNotIn(f'{set_primary_url}?return_url=', html)
-        self.assertIn('csrfmiddlewaretoken', html)
-        self.assertNotIn('formaction=', html)
-
     @tag('regression')  # Issue #18821
     def test_set_primary_action_list_view_request(self):
         """
@@ -5683,40 +5628,58 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         """
         self.add_permissions('dcim.view_macaddress')
         mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        list_url = reverse('dcim:macaddress_list')
         set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(list_url)}'
 
-        response = self.client.get(reverse('dcim:macaddress_list'))
+        response = self.client.get(list_url)
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
-        self.assertIn(f'formaction="{set_primary_url}?return_url=', content)
-        self.assertNotIn('<form method="post" action=', content)
+
+        # The action rides the bulk form via a formaction button; it injects no nested <form> of its
+        # own (which the parser would drop, producing the original 405).
+        self.assertInHTML(
+            f'<button type="submit" formaction="{action_url}" formmethod="post" '
+            f'class="dropdown-item"><i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertNotIn(f'<form method="post" action="{set_primary_url}', content)
 
     @tag('regression')  # Issue #18821
     def test_set_primary_action_embedded_request(self):
         """
-        Request-level coverage of the embedded panel wiring: GET the MAC list as an embedded HTMX
-        partial (?embedded=True) and confirm the action renders a self-contained <form> posting to
-        the bare set_primary URL (no return_url). Appending return_url here would capture the HTMX
-        partial URL and dump the user on a chrome-less table fragment, so it must be omitted.
+        Request-level coverage of the embedded panel wiring: GET the MAC list as ObjectsTablePanel
+        does (?embedded=True with the parent object's return_url) and confirm the action renders a
+        self-contained <form> (no surrounding form to ride) that returns the user to that object.
         """
         self.add_permissions('dcim.view_macaddress')
         mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface_url = mac.assigned_object.get_absolute_url()
         set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(interface_url)}'
 
         response = self.client.get(
-            reverse('dcim:macaddress_list') + '?embedded=True', headers={'hx-request': 'true'}
+            reverse('dcim:macaddress_list') + f'?embedded=True&return_url={quote(interface_url)}',
+            headers={'hx-request': 'true'},
         )
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
-        self.assertIn(f'<form method="post" action="{set_primary_url}"', content)
-        self.assertNotIn(f'{set_primary_url}?return_url=', content)
+
+        # A self-contained POST <form> to the returning action URL (valid here, no surrounding form)
+        # wraps the submit button. Assert the button structurally; the form's action carries the
+        # return_url so the user lands back on the interface.
+        self.assertInHTML(
+            '<button type="submit" class="dropdown-item">'
+            '<i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertIn(f'<form method="post" action="{action_url}">', content)
 
     @tag('regression')  # Issue #18821
     def test_set_primary_from_embedded_redirects_to_interface(self):
         """
-        Setting a primary MAC from an interface's embedded panel must land on the interface, not on
-        the raw HTMX partial URL. The embedded action carries no return_url, so the view falls back
-        to the assigned object's detail page.
+        A set-primary POST with no return_url falls back to the assigned object's detail page, so
+        the action always lands the user on the interface even absent an explicit return target.
         """
         self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
         mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()

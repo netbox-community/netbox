@@ -1259,16 +1259,18 @@ class MACAddressActionsColumn(columns.ActionsColumn):
             request = getattr(table, 'context', {}).get('request')
             if request:
                 url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
-                # `embedded` distinguishes the two contexts this table renders in, which differ in
-                # whether a surrounding <form> exists. A standalone list view (generic/object_list.html)
-                # always wraps the table in the bulk-edit <form>; an embedded HTMX partial (htmx/table.html,
-                # embedded=True) has none. core templates gate their own form-dependent markup on this same
-                # flag, so it is the established signal for "is this table inside the bulk form".
+                # Return the user where they came from, the same way the parent's GET actions
+                # (edit/delete/changelog) do. In an embedded panel ObjectsTablePanel injects the parent
+                # object's URL as ?return_url=, so this lands on the interface; on the list view it falls
+                # back to the list path.
+                return_url = request.GET.get('return_url', request.get_full_path())
+                url = f'{url}?return_url={quote(return_url)}'
+                # `embedded` distinguishes the two render contexts, which differ in whether a surrounding
+                # <form> exists. A standalone list view (generic/object_list.html) always wraps the table in
+                # the bulk-edit <form>; an embedded HTMX partial (htmx/table.html, embedded=True) has none.
+                # core templates gate their own form-dependent markup on this same flag.
                 if getattr(table, 'embedded', False):
                     # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
-                    # No return_url is appended here: request.get_full_path() in this context is the HTMX
-                    # partial-fetch URL (?embedded=True&...), not a user-facing page. Omitting it lets the view
-                    # fall back to the assigned interface's detail page, which is where the user should land.
                     action_li = format_html(
                         '<li><form method="post" action="{}">'
                         '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
@@ -1280,9 +1282,7 @@ class MACAddressActionsColumn(columns.ActionsColumn):
                 else:
                     # Inside the bulk-edit <form>: a nested <form> is invalid HTML and gets dropped by the
                     # parser, so ride the surrounding form via formaction/formmethod instead (matching the
-                    # DataSource sync button in core/tables/template_code.py). Pass return_url so the user
-                    # stays on the list rather than being redirected to the interface.
-                    url = f'{url}?return_url={quote(request.get_full_path())}'
+                    # DataSource sync button in core/tables/template_code.py).
                     action_li = format_html(
                         '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
                         '<i class="mdi mdi-star-outline"></i> {}'
