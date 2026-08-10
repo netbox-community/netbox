@@ -2749,6 +2749,45 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_with_conflicting_cooling_component_fails(self):
+        """
+        A cooling component name collision must be reported as a validation error rather
+        than raising an IntegrityError from the replication insert. See netbox#15289.
+        """
+        self.add_permissions('dcim.add_module')
+        device = create_test_device('Cooling Conflict Device')
+        module_bay = ModuleBay.objects.create(device=device, name='Cooling Conflict Bay')
+        module_type = ModuleType.objects.create(
+            manufacturer=Manufacturer.objects.first(), model='Cooled API Type'
+        )
+        CoolingIntakeTemplate.objects.create(module_type=module_type, name='Intake 1')
+        CoolingIntake.objects.create(device=device, name='Intake 1')
+
+        response = self.client.post(reverse('dcim-api:module-list'), {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'status': 'active',
+        }, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('Intake 1', str(response.data))
+
+    def test_patch_cross_device_move_blocked_by_split_cooling_relation(self):
+        self.add_permissions('dcim.change_module')
+        module = Module.objects.order_by('pk').first()
+        intake = CoolingIntake.objects.create(
+            device=module.device, module=module, name='Move Test Intake 1'
+        )
+        CoolingOutflow.objects.create(
+            device=module.device, name='Move Test Chassis Outflow', cooling_intake=intake
+        )
+        device_b = create_test_device('Module Move Device B')
+        bay_b = ModuleBay.objects.create(device=device_b, name='Module Move Bay B1')
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.patch(url, {'module_bay': bay_b.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort

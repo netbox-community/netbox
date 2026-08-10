@@ -20,8 +20,11 @@ from utilities.exceptions import AbortRequest
 from utilities.querysets import chunked_update
 
 from .device_components import (
+    CabledObjectModel,
     ConsolePort,
     ConsoleServerPort,
+    CoolingIntake,
+    CoolingOutflow,
     FrontPort,
     Interface,
     ModuleBay,
@@ -44,6 +47,8 @@ BATCH_SIZE = 1000
 COMPONENT_TEMPLATE_ATTRS = {
     ConsolePort: 'consoleporttemplates',
     ConsoleServerPort: 'consoleserverporttemplates',
+    CoolingIntake: 'coolingintaketemplates',
+    CoolingOutflow: 'coolingoutflowtemplates',
     FrontPort: 'frontporttemplates',
     Interface: 'interfacetemplates',
     PowerOutlet: 'poweroutlettemplates',
@@ -412,8 +417,11 @@ class ModuleMovePlan:
         blockers = []
         moved_interface_pks = {obj.pk for obj in self.components[Interface]}
 
-        # Cabled or connection-marked components
+        # Cabled or connection-marked components. Cooling components are not cable terminations and
+        # have no cable/mark_connected columns, so the check is driven off the model class.
         for model, instances in self.components.items():
+            if not issubclass(model, CabledObjectModel):
+                continue
             pks = [obj.pk for obj in instances]
             if not pks:
                 continue
@@ -462,6 +470,23 @@ class ModuleMovePlan:
             blockers.append(_(
                 "{count} power outlet relations crossing the moved module's boundary"
             ).format(count=split_power))
+
+        # Cooling outflow to cooling intake relations crossing the boundary. Only this direction is
+        # device-scoped (CoolingOutflow.clean() requires an intake on the same device); an intake's
+        # upstream CoolingOutflow is routinely supplied by another device, such as a CDU, and so is
+        # deliberately left alone.
+        moved_intake_pks = {obj.pk for obj in self.components[CoolingIntake]}
+        moved_outflow_pks = {obj.pk for obj in self.components[CoolingOutflow]}
+        split_cooling = CoolingOutflow.objects.filter(
+            pk__in=moved_outflow_pks, cooling_intake__isnull=False
+        ).exclude(cooling_intake_id__in=moved_intake_pks).count()
+        split_cooling += CoolingOutflow.objects.exclude(pk__in=moved_outflow_pks).filter(
+            cooling_intake_id__in=moved_intake_pks
+        ).count()
+        if split_cooling:
+            blockers.append(_(
+                "{count} cooling outflow relations crossing the moved module's boundary"
+            ).format(count=split_cooling))
 
         # Front/rear port mappings crossing the boundary
         moved_front_port_pks = {obj.pk for obj in self.components[FrontPort]}
@@ -843,6 +868,8 @@ class ModuleMovePlan:
             'console_server_port_count': len(self.components[ConsoleServerPort]),
             'power_port_count': len(self.components[PowerPort]),
             'power_outlet_count': len(self.components[PowerOutlet]),
+            'cooling_intake_count': len(self.components[CoolingIntake]),
+            'cooling_outflow_count': len(self.components[CoolingOutflow]),
             'interface_count': len(self.components[Interface]),
             'front_port_count': len(self.components[FrontPort]),
             'rear_port_count': len(self.components[RearPort]),

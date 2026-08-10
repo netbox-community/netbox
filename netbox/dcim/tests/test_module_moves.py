@@ -1,16 +1,24 @@
 import signal
+import uuid
 from contextlib import contextmanager
 from unittest.mock import patch
 
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError, connection, router, transaction
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 
 from circuits.models import Provider, ProviderNetwork, VirtualCircuit, VirtualCircuitTermination, VirtualCircuitType
+from core.models import ObjectChange
 from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices, ModuleStatusChoices, PortTypeChoices
 from dcim.models import (
     Cable,
+    CoolingIntake,
+    CoolingIntakeTemplate,
+    CoolingOutflow,
+    CoolingOutflowTemplate,
     Device,
     DeviceRole,
     DeviceType,
@@ -36,10 +44,13 @@ from dcim.models import (
     Site,
     VirtualDeviceContext,
 )
-from dcim.models.module_moves import ModuleMovePlan
+from dcim.models.device_components import ModularComponentModel
+from dcim.models.module_moves import COMPONENT_TEMPLATE_ATTRS, ModuleMovePlan
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from ipam.choices import FHRPGroupProtocolChoices
 from ipam.models import VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress, VLANTranslationPolicy
+from netbox.context_managers import event_tracking
+from users.models import User
 from utilities.exceptions import AbortRequest
 from utilities.ordering import naturalize_interface
 from utilities.testing import create_test_device
@@ -1445,3 +1456,218 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         self.assertNotEqual(moved_bay.sort_path, old_sort_path)
         self.assertTrue(str(moved_bay.sort_path).startswith(str(dest_bay.sort_path)))
         self.assertIn('SFP bay 2/1', str(moved_bay.sort_path))
+
+
+class ModuleMoveComponentCoverageTestCase(TestCase):
+    """
+    Guard against a newly introduced modular component model being left out of the move
+    planner, which is how cooling intakes and outflows were initially missed.
+    """
+
+    def test_every_modular_component_model_is_planned(self):
+        concrete_models = {
+            model for model in apps.get_models()
+            if issubclass(model, ModularComponentModel) and not model._meta.abstract
+        }
+        # ModuleBay is planned separately (nested hierarchy, distinct uniqueness constraint).
+        planned = set(COMPONENT_TEMPLATE_ATTRS) | {ModuleBay}
+        self.assertEqual(
+            concrete_models - planned, set(),
+            'Modular component model(s) are not relocated by ModuleMovePlan. Add them to '
+            'COMPONENT_TEMPLATE_ATTRS (and to Device counter recomputation, if counted).'
+        )
+
+    def test_planned_template_attrs_exist_on_module_type(self):
+        for model, template_attr in COMPONENT_TEMPLATE_ATTRS.items():
+            with self.subTest(model=model._meta.label):
+                self.assertTrue(
+                    hasattr(ModuleType, template_attr),
+                    f'ModuleType has no relation {template_attr!r}'
+                )
+
+
+class ModuleMoveCoolingTestCase(TestCase):
+    """
+    Cooling intakes and outflows are modular components and must be relocated, renamed, and
+    counted like any other. See netbox#15289.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer M', slug='manufacturer-m')
+        role = DeviceRole.objects.create(name='Role 1', slug='role-1')
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Chassis', slug='chassis')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 1', position='1')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 2', position='2')
+
+        cls.card_type = ModuleType.objects.create(manufacturer=manufacturer, model='Cooled Card')
+        CoolingIntakeTemplate.objects.create(module_type=cls.card_type, name='Intake {module}/1')
+        CoolingOutflowTemplate.objects.create(module_type=cls.card_type, name='Outflow {module}/1')
+        ModuleBayTemplate.objects.create(
+            module_type=cls.card_type, name='Sub bay {module}/1', position='{module}/1'
+        )
+        cls.sub_type = ModuleType.objects.create(manufacturer=manufacturer, model='Cooled Sub')
+        CoolingIntakeTemplate.objects.create(module_type=cls.sub_type, name='Sub intake {module}')
+
+        cls.device_a = Device.objects.create(
+            name='Chassis A', device_type=device_type, role=role, site=cls.site_a
+        )
+        cls.device_b = Device.objects.create(
+            name='Chassis B', device_type=device_type, role=role, site=cls.site_b
+        )
+        cls.slot_1_a = cls.device_a.modulebays.get(name='Slot 1')
+        cls.slot_2_a = cls.device_a.modulebays.get(name='Slot 2')
+        cls.slot_2_b = cls.device_b.modulebays.get(name='Slot 2')
+
+    def setUp(self):
+        super().setUp()
+        self.card = Module.objects.create(
+            device=self.device_a, module_bay=self.slot_1_a, module_type=self.card_type
+        )
+        self.intake = self.card.coolingintakes.get()
+        self.outflow = self.card.coolingoutflows.get()
+
+    def _move_to_device_b(self):
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        self.card.full_clean()
+        self.card.save()
+
+    def test_same_device_move_renames_cooling_components(self):
+        self.card.module_bay = self.slot_2_a
+        self.card.full_clean()
+        self.card.save()
+        self.intake.refresh_from_db()
+        self.outflow.refresh_from_db()
+        self.assertEqual(self.intake.name, 'Intake 2/1')
+        self.assertEqual(self.outflow.name, 'Outflow 2/1')
+        self.assertEqual(self.intake.device, self.device_a)
+
+    def test_cross_device_move_relocates_cooling_components(self):
+        self._move_to_device_b()
+        self.intake.refresh_from_db()
+        self.outflow.refresh_from_db()
+        for component in (self.intake, self.outflow):
+            self.assertEqual(component.device, self.device_b)
+            self.assertEqual(component._site, self.site_b)
+            self.assertEqual(component._location, self.device_b.location)
+            self.assertEqual(component._rack, self.device_b.rack)
+        self.assertEqual(self.intake.name, 'Intake 2/1')
+        self.assertEqual(self.outflow.name, 'Outflow 2/1')
+
+    def test_cross_device_move_relocates_nested_cooling_components(self):
+        sub_bay = self.card.modulebays.get()
+        sub_module = Module.objects.create(
+            device=self.device_a, module_bay=sub_bay, module_type=self.sub_type
+        )
+        sub_intake = sub_module.coolingintakes.get()
+        self.assertEqual(sub_intake.name, 'Sub intake 1/1')
+        self._move_to_device_b()
+        sub_intake.refresh_from_db()
+        self.assertEqual(sub_intake.device, self.device_b)
+        self.assertEqual(sub_intake.name, 'Sub intake 2/1')
+
+    def test_cross_device_move_recomputes_cooling_counters(self):
+        self.device_a.refresh_from_db()
+        self.assertEqual(self.device_a.cooling_intake_count, 1)
+        self.assertEqual(self.device_a.cooling_outflow_count, 1)
+        self._move_to_device_b()
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        self.assertEqual(self.device_a.cooling_intake_count, 0)
+        self.assertEqual(self.device_a.cooling_outflow_count, 0)
+        self.assertEqual(self.device_b.cooling_intake_count, 1)
+        self.assertEqual(self.device_b.cooling_outflow_count, 1)
+
+    def test_reinstall_into_vacated_bay_after_move(self):
+        """
+        The vacated bay must be reusable: a stale cooling name left on the source device
+        would collide with the replacement module's replicated components.
+        """
+        self._move_to_device_b()
+        replacement = Module(
+            device=self.device_a, module_bay=self.slot_1_a, module_type=self.card_type
+        )
+        replacement.full_clean()
+        replacement.save()
+        self.assertEqual(replacement.coolingintakes.get().name, 'Intake 1/1')
+
+    def test_cooling_name_conflict_at_destination_is_rejected(self):
+        CoolingIntake.objects.create(device=self.device_b, name='Intake 2/1')
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('would conflict with', str(cm.exception))
+
+    def test_split_cooling_outflow_relation_blocks(self):
+        """An outflow's upstream intake must stay on the same device, so it cannot be split."""
+        device_intake = CoolingIntake.objects.create(device=self.device_a, name='Chassis Intake')
+        self.outflow.cooling_intake = device_intake
+        self.outflow.save()
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('cooling outflow relations crossing', str(cm.exception))
+
+    def test_inward_cooling_outflow_relation_blocks(self):
+        device_outflow = CoolingOutflow.objects.create(device=self.device_a, name='Chassis Outflow')
+        device_outflow.cooling_intake = self.intake
+        device_outflow.save()
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('cooling outflow relations crossing', str(cm.exception))
+
+    def test_intra_module_cooling_pair_is_allowed(self):
+        self.outflow.cooling_intake = self.intake
+        self.outflow.save()
+        self._move_to_device_b()
+        self.outflow.refresh_from_db()
+        self.assertEqual(self.outflow.device, self.device_b)
+        self.assertEqual(self.outflow.cooling_intake, self.intake)
+
+    def test_upstream_outflow_on_another_device_is_allowed(self):
+        """
+        CoolingIntake.cooling_outflow is not device-scoped: an intake is routinely supplied
+        by an outflow on another device, such as a CDU. It must not block a move.
+        """
+        cdu_outflow = CoolingOutflow.objects.create(device=self.device_a, name='CDU Outflow')
+        self.intake.cooling_outflow = cdu_outflow
+        self.intake.save()
+        self._move_to_device_b()
+        self.intake.refresh_from_db()
+        self.assertEqual(self.intake.device, self.device_b)
+        self.assertEqual(self.intake.cooling_outflow, cdu_outflow)
+
+    def test_cooling_components_are_changelogged(self):
+        with event_tracking(self._make_request()):
+            self.card.snapshot()
+            self._move_to_device_b()
+        intake_type = ContentType.objects.get_for_model(CoolingIntake)
+        change = ObjectChange.objects.get(
+            changed_object_type=intake_type, changed_object_id=self.intake.pk
+        )
+        self.assertEqual(change.prechange_data['name'], 'Intake 1/1')
+        self.assertEqual(change.postchange_data['name'], 'Intake 2/1')
+        self.assertEqual(change.postchange_data['device'], self.device_b.pk)
+
+    def _make_request(self):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='cooling-mover')
+        return request
+
+    def test_attached_inventory_item_on_cooling_component_blocks(self):
+        InventoryItem.objects.create(
+            device=self.device_a, name='Coolant Sensor', component=self.intake
+        )
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('attached inventory items', str(cm.exception))
