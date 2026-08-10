@@ -318,9 +318,6 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    # Running a script is a POST to the detail route; map it to the run() action (see NetBoxRouter)
-    detail_route_mapping = {'post': 'run'}
-
     def get_serializer_class(self):
         # A POST to the detail route runs the script, taking ScriptInputSerializer as its request body.
         # (This is keyed on the request method rather than on self.action, which is unset when generating
@@ -363,6 +360,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
+        # Bound to POST on the detail route by ScriptRouter
         # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
         # the QuerySet on 'run' before resolving the script.
         self.queryset = self.queryset.model.objects.restrict(request.user, 'run')
