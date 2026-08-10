@@ -399,11 +399,17 @@ class HTMXPartialSwapRenderingTestCase(TestCase):
 
 class MetaShadowingTestCase(TestCase):
     """Ensure declared fields do not shadow supported `ModelForm.Meta` configuration."""
-    # ConfigRevisionForm builds its parameter fields via a custom metaclass (ConfigFormMetaclass)
-    # that turns them into declared_fields while still sourcing widgets from Meta.widgets. Its
-    # overlap is a known consequence of that design, not the shadowing bug this guards; excluded
-    # here and left for a separate cleanup.
-    ALLOWED = {'ConfigRevisionForm'}
+    # Known overlaps whose cleanup is deferred, as specific (form, Meta attribute, field) triples so
+    # that any new overlap on the same form is still caught. ConfigRevisionForm builds these fields
+    # via ConfigFormMetaclass; restoring their monospace widget is tracked separately (see #8974).
+    ALLOWED = {
+        ('ConfigRevisionForm', 'widgets', 'BANNER_LOGIN'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_MAINTENANCE'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_TOP'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_BOTTOM'),
+        ('ConfigRevisionForm', 'widgets', 'CUSTOM_VALIDATORS'),
+        ('ConfigRevisionForm', 'widgets', 'PROTECTION_RULES'),
+    }
 
     @staticmethod
     def _all_model_forms():
@@ -434,14 +440,13 @@ class MetaShadowingTestCase(TestCase):
 
     def test_meta_config_does_not_shadow_declared_fields(self):
         for form_class in self._all_model_forms():
-            if form_class.__name__ in self.ALLOWED:
-                continue
             meta = getattr(form_class, 'Meta', None)
             declared = set(getattr(form_class, 'declared_fields', {}))
             if meta is None or not declared:
                 continue
             for attr in ('widgets', 'labels', 'help_texts'):
                 overlap = declared & set(getattr(meta, attr, None) or {})
+                overlap -= {f for f in overlap if (form_class.__name__, attr, f) in self.ALLOWED}
                 with self.subTest(form=form_class.__name__, meta=attr):
                     self.assertEqual(
                         overlap, set(),
