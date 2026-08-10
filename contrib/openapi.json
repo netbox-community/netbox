@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.6.8-rc2",
+        "version": "4.6.7",
         "license": {
             "name": "Apache v2 License"
         }
@@ -148505,6 +148505,33 @@
                         "description": ""
                     }
                 }
+            },
+            "post": {
+                "operationId": "extras_scripts_create",
+                "description": "Post a list of script objects.",
+                "tags": [
+                    "extras"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Script"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
             }
         },
         "/api/extras/scripts/{id}/": {
@@ -148570,9 +148597,9 @@
                     }
                 }
             },
-            "post": {
-                "operationId": "extras_scripts_run",
-                "description": "Run a Script identified by its numeric PK or module & name and return the pending Job as the result",
+            "put": {
+                "operationId": "extras_scripts_update",
+                "description": "Put a script object.",
                 "parameters": [
                     {
                         "in": "path",
@@ -148615,11 +148642,94 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ScriptDetail"
+                                    "$ref": "#/components/schemas/Script"
                                 }
                             }
                         },
-                        "description": "The script has been enqueued for execution."
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "extras_scripts_partial_update",
+                "description": "Patch a script object.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[^/]+$"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "extras"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedScriptInputRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedScriptInputRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Script"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "extras_scripts_destroy",
+                "description": "Delete a script object.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[^/]+$"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "extras"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
                     }
                 }
             }
@@ -241788,6 +241898,16 @@
                     "user"
                 ]
             },
+            "BriefJobRequest": {
+                "type": "object",
+                "properties": {
+                    "completed": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                }
+            },
             "BriefL2VPN": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -246823,13 +246943,11 @@
                         "enum": [
                             "IATA",
                             "ISO_3166",
-                            "UN_LOCODE",
-                            null
+                            "UN_LOCODE"
                         ],
                         "type": "string",
                         "description": "* `IATA` - IATA (Airport codes)\n* `ISO_3166` - ISO 3166 (Country codes)\n* `UN_LOCODE` - UN/LOCODE (Location codes)",
-                        "x-spec-enum-id": "cf0efb5195f85007",
-                        "nullable": true
+                        "x-spec-enum-id": "cf0efb5195f85007"
                     },
                     "extra_choices": {
                         "type": "array",
@@ -257416,7 +257534,7 @@
                         "type": "string",
                         "minLength": 1,
                         "title": "URL",
-                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Must be http:// or https://. Jinja2 template processing is supported (with the same context as the request body) for part or all of the URL.",
+                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
                         "maxLength": 500
                     },
                     "http_method": {
@@ -263196,8 +263314,7 @@
                                 "enum": [
                                     "IATA",
                                     "ISO_3166",
-                                    "UN_LOCODE",
-                                    null
+                                    "UN_LOCODE"
                                 ],
                                 "type": "string",
                                 "description": "* `IATA` - IATA (Airport codes)\n* `ISO_3166` - ISO 3166 (Country codes)\n* `UN_LOCODE` - UN/LOCODE (Location codes)",
@@ -263211,8 +263328,7 @@
                                     "UN/LOCODE (Location codes)"
                                 ]
                             }
-                        },
-                        "nullable": true
+                        }
                     },
                     "extra_choices": {
                         "type": "array",
@@ -263304,13 +263420,11 @@
                         "enum": [
                             "IATA",
                             "ISO_3166",
-                            "UN_LOCODE",
-                            null
+                            "UN_LOCODE"
                         ],
                         "type": "string",
                         "description": "* `IATA` - IATA (Airport codes)\n* `ISO_3166` - ISO 3166 (Country codes)\n* `UN_LOCODE` - UN/LOCODE (Location codes)",
-                        "x-spec-enum-id": "cf0efb5195f85007",
-                        "nullable": true
+                        "x-spec-enum-id": "cf0efb5195f85007"
                     },
                     "extra_choices": {
                         "type": "array",
@@ -284401,13 +284515,11 @@
                         "enum": [
                             "IATA",
                             "ISO_3166",
-                            "UN_LOCODE",
-                            null
+                            "UN_LOCODE"
                         ],
                         "type": "string",
                         "description": "* `IATA` - IATA (Airport codes)\n* `ISO_3166` - ISO 3166 (Country codes)\n* `UN_LOCODE` - UN/LOCODE (Location codes)",
-                        "x-spec-enum-id": "cf0efb5195f85007",
-                        "nullable": true
+                        "x-spec-enum-id": "cf0efb5195f85007"
                     },
                     "extra_choices": {
                         "type": "array",
@@ -294777,7 +294889,7 @@
                         "type": "string",
                         "minLength": 1,
                         "title": "URL",
-                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Must be http:// or https://. Jinja2 template processing is supported (with the same context as the request body) for part or all of the URL.",
+                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
                         "maxLength": 500
                     },
                     "http_method": {
@@ -297662,6 +297774,35 @@
                     }
                 }
             },
+            "PatchedScriptInputRequest": {
+                "type": "object",
+                "properties": {
+                    "data": {},
+                    "commit": {
+                        "type": "boolean"
+                    },
+                    "schedule_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "interval": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "notifications": {
+                        "enum": [
+                            "always",
+                            "on_failure",
+                            "never"
+                        ],
+                        "type": "string",
+                        "description": "* `always` - Always\n* `on_failure` - On failure\n* `never` - Never",
+                        "x-spec-enum-id": "57071f4400340a5c",
+                        "default": "always"
+                    }
+                }
+            },
             "PatchedScriptModuleRequest": {
                 "type": "object",
                 "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
@@ -298475,7 +298616,7 @@
                         "type": "string",
                         "minLength": 1,
                         "title": "URL",
-                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Must be http:// or https://. Jinja2 template processing is supported (with the same context as the request body) for part or all of the URL.",
+                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
                         "maxLength": 500
                     },
                     "http_method": {
@@ -314781,71 +314922,6 @@
                     "vars"
                 ]
             },
-            "ScriptDetail": {
-                "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "readOnly": true
-                    },
-                    "url": {
-                        "type": "string",
-                        "format": "uri",
-                        "readOnly": true
-                    },
-                    "display_url": {
-                        "type": "string",
-                        "format": "uri",
-                        "readOnly": true
-                    },
-                    "module": {
-                        "type": "integer",
-                        "readOnly": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "description": {
-                        "type": "string",
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "vars": {
-                        "nullable": true,
-                        "readOnly": true
-                    },
-                    "result": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/Job"
-                            }
-                        ],
-                        "readOnly": true
-                    },
-                    "display": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "is_executable": {
-                        "type": "boolean",
-                        "readOnly": true
-                    }
-                },
-                "required": [
-                    "description",
-                    "display",
-                    "display_url",
-                    "id",
-                    "is_executable",
-                    "module",
-                    "name",
-                    "result",
-                    "url",
-                    "vars"
-                ]
-            },
             "ScriptInputRequest": {
                 "type": "object",
                 "properties": {
@@ -320862,7 +320938,7 @@
                     "payload_url": {
                         "type": "string",
                         "title": "URL",
-                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Must be http:// or https://. Jinja2 template processing is supported (with the same context as the request body) for part or all of the URL.",
+                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
                         "maxLength": 500
                     },
                     "http_method": {
@@ -320964,7 +321040,7 @@
                         "type": "string",
                         "minLength": 1,
                         "title": "URL",
-                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Must be http:// or https://. Jinja2 template processing is supported (with the same context as the request body) for part or all of the URL.",
+                        "description": "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template processing is supported with the same context as the request body.",
                         "maxLength": 500
                     },
                     "http_method": {

@@ -325,7 +325,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         # A POST to the detail route runs the script, taking ScriptInputSerializer as its request body.
         # (This is keyed on the request method rather than on self.action, which is unset when generating
         # OPTIONS metadata.)
-        if self.request.method == 'POST':
+        if getattr(self.request, 'method', None) == 'POST':
             return serializers.ScriptInputSerializer
         return super().get_serializer_class()
 

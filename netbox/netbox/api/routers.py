@@ -23,18 +23,23 @@ class NetBoxRouter(DefaultRouter):
         # per-action permissions and schema generation.
         detail_mapping = getattr(viewset, 'detail_route_mapping', {})
 
-        routes = []
-        for route in super().get_routes(viewset):
-            # Route is a namedtuple, so _replace() is used to extend a mapping: assigning to it would
-            # mutate the Route instances shared by all SimpleRouter subclasses.
-            if not isinstance(route, Route):
-                routes.append(route)
-            elif route.detail:
-                routes.append(route._replace(mapping={**route.mapping, **detail_mapping}))
-            else:
-                routes.append(route._replace(mapping={**route.mapping, **BULK_OPERATION_MAPPING}))
+        # Extend the mappings of the standard list & detail routes. This is applied to the route templates
+        # (rather than to the routes returned by get_routes()) so that the routes generated for a ViewSet's
+        # @action methods are left untouched. Route is a namedtuple, so _replace() is used to avoid
+        # mutating the templates, which are shared by all SimpleRouter subclasses.
+        routes = self.routes
+        self.routes = [
+            route._replace(mapping={
+                **route.mapping,
+                **(detail_mapping if route.detail else BULK_OPERATION_MAPPING),
+            }) if isinstance(route, Route) else route
+            for route in routes
+        ]
 
-        return routes
+        try:
+            return super().get_routes(viewset)
+        finally:
+            self.routes = routes
 
     def get_api_root_view(self, api_urls=None):
         """
