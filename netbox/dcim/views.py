@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import router, transaction
@@ -41,6 +40,7 @@ from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.request import safe_for_redirect
 from utilities.views import (
+    ConditionalLoginRequiredMixin,
     GetRelatedModelsMixin,
     GetReturnURLMixin,
     ObjectPermissionRequiredMixin,
@@ -5855,7 +5855,7 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
 
 
 @register_model_view(MACAddress, 'set_primary')
-class MACAddressSetPrimaryView(GetReturnURLMixin, View):
+class MACAddressSetPrimaryView(ConditionalLoginRequiredMixin, GetReturnURLMixin, View):
     queryset = MACAddress.objects.all()
 
     def get(self, request, pk):
@@ -5865,9 +5865,6 @@ class MACAddressSetPrimaryView(GetReturnURLMixin, View):
         return redirect(mac.get_absolute_url())
 
     def post(self, request, pk):
-        if not request.user.is_authenticated:
-            return redirect_to_login(request.get_full_path())
-
         mac = get_object_or_404(self.queryset.restrict(request.user, 'view'), pk=pk)
         assigned_object = mac.assigned_object
 

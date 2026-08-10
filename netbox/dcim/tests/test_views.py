@@ -5603,6 +5603,21 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(response['Location'], mac.get_absolute_url())
 
+    def test_set_primary_anonymous_redirects_to_login(self):
+        """
+        With LOGIN_REQUIRED, an unauthenticated request is redirected to the login page (via
+        ConditionalLoginRequiredMixin) rather than 404ing or acting, for both GET and POST.
+        """
+        self.client.logout()
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+
+        with override_settings(LOGIN_REQUIRED=True):
+            for method in (self.client.get, self.client.post):
+                response = method(url)
+                self.assertHttpStatus(response, 302)
+                self.assertTrue(response['Location'].startswith(reverse('login')))
+
     def test_set_primary_honors_return_url(self):
         """
         With a safe return_url supplied (as the list-view action does), the view redirects there
