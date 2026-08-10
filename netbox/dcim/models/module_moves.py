@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import router
@@ -18,6 +19,7 @@ from dcim.utils import (
 )
 from utilities.counters import update_counter
 from utilities.exceptions import AbortRequest
+from utilities.fields import CounterCacheField
 from utilities.querysets import chunked_update
 
 from .device_components import (
@@ -409,7 +411,7 @@ class ModuleMovePlan:
         if errors:
             raise ValidationError(errors)
 
-    def _name_sample(self, description, *querysets, name_field='name'):
+    def _name_sample(self, description, *querysets):
         """
         Append a sample of the offending objects' names to a blocker description, so that a
         rejected move names the components to fix rather than only counting them. Each
@@ -421,13 +423,14 @@ class ModuleMovePlan:
         """
         names = []
         for queryset in querysets:
-            names.extend(
-                queryset.order_by(name_field).values_list(name_field, flat=True)[:self.SAMPLE_LIMIT]
-            )
+            names.extend(queryset.order_by('name').values_list('name', flat=True)[:self.SAMPLE_LIMIT])
             if len(names) >= self.SAMPLE_LIMIT:
                 break
-        # Dedupe without re-sorting: the name column carries a natural_sort collation, so the
-        # database has already ordered each group the way a user expects to read it.
+        # Dedupe while preserving order. The name column carries a natural_sort collation, so
+        # each queryset arrives in the order a reader expects; groups are then concatenated
+        # rather than merged, so the sample is ordered within a group but not across them, and
+        # equally named rows drawn from different models collapse into one entry. Both are
+        # acceptable in an illustrative sample and neither affects the reported count.
         if not (sample := list(dict.fromkeys(names))[:self.SAMPLE_LIMIT]):
             return description
         return _("{description} (e.g. {names})").format(description=description, names=', '.join(sample))
@@ -531,8 +534,7 @@ class ModuleMovePlan:
                 split_outflows, adopted_outflows,
             ))
 
-        # Front/rear port mappings crossing the boundary. PortMapping has no name of its own, so the
-        # sample names the front ports, which is what a user has to act on.
+        # Front/rear port mappings crossing the boundary
         moved_front_port_pks = {obj.pk for obj in self.components[FrontPort]}
         moved_rear_port_pks = {obj.pk for obj in self.components[RearPort]}
         split_fronts = PortMapping.objects.filter(
@@ -547,8 +549,12 @@ class ModuleMovePlan:
                 _(
                     "{count} front/rear port mappings crossing the moved module's boundary"
                 ).format(count=split_mappings),
+                # PortMapping has no name of its own, so name the moved port on each side of the
+                # boundary: the front port when its rear port stays behind, and the rear port when
+                # its front port does. Naming the non-moved end instead would point the user at a
+                # component they will not find on the module they are moving.
                 FrontPort.objects.filter(pk__in=split_fronts.values('front_port_id')),
-                FrontPort.objects.filter(pk__in=split_rears.values('front_port_id')),
+                RearPort.objects.filter(pk__in=split_rears.values('rear_port_id')),
             ))
 
         # Attached inventory items (blocked in v1)
@@ -916,24 +922,36 @@ class ModuleMovePlan:
                 device_id=self.new_device_id,
             )
 
+    @staticmethod
+    def device_counters_by_model(device_model):
+        """
+        Map each model counted by a device-scoped counter cache on Device to that counter's
+        field name. Derived from Device's own field declarations so that a modular component
+        model added to COMPONENT_TEMPLATE_ATTRS cannot silently skip counter recomputation -
+        a drift which raises nothing and only shows up as a wrong count on two devices.
+        """
+        return {
+            apps.get_model(field.to_model_name): field.name
+            for field in device_model._meta.get_fields()
+            if isinstance(field, CounterCacheField) and field.to_field_name == 'device'
+        }
+
+    def _moved_row_counts(self):
+        """
+        Moved row counts keyed by model, covering everything this plan relocates. ModuleBay is
+        tracked outside self.components (see _discover()), so it is added back here.
+        """
+        counts = {model: len(instances) for model, instances in self.components.items()}
+        counts[ModuleBay] = len(self.moved_bays)
+        return counts
+
     def _recompute_counters(self):
         # bulk updates bypass the signal-driven counters; apply exact deltas for both devices
         if not self.cross_device:
             return
-        counts = {
-            'console_port_count': len(self.components[ConsolePort]),
-            'console_server_port_count': len(self.components[ConsoleServerPort]),
-            'power_port_count': len(self.components[PowerPort]),
-            'power_outlet_count': len(self.components[PowerOutlet]),
-            'cooling_intake_count': len(self.components[CoolingIntake]),
-            'cooling_outflow_count': len(self.components[CoolingOutflow]),
-            'interface_count': len(self.components[Interface]),
-            'front_port_count': len(self.components[FrontPort]),
-            'rear_port_count': len(self.components[RearPort]),
-            'module_bay_count': len(self.moved_bays),
-        }
-        for counter, count in counts.items():
-            if count:
+        counts = self._moved_row_counts()
+        for model, counter in self.device_counters_by_model(self.device_model).items():
+            if count := counts.get(model, 0):
                 update_counter(self.device_model, self.old_device_id, counter, -count)
                 update_counter(self.device_model, self.new_device_id, counter, count)
 

@@ -17,11 +17,14 @@ from core.models import ObjectChange
 from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices, ModuleStatusChoices, PortTypeChoices
 from dcim.models import (
     Cable,
+    ConsolePortTemplate,
+    ConsoleServerPortTemplate,
     CoolingIntake,
     CoolingIntakeTemplate,
     CoolingOutflow,
     CoolingOutflowTemplate,
     Device,
+    DeviceBay,
     DeviceRole,
     DeviceType,
     FrontPort,
@@ -1313,6 +1316,25 @@ class ModuleCrossDeviceBlockerTestCase(TestCase):
         )
         self.assertEqual(self._samples(self._blocked_message()), [['Front 1']])
 
+    def test_split_port_mapping_blocker_names_moved_rear_port(self):
+        """
+        With the rear port moving and the front port staying behind, the sample must name the
+        rear port: a user told to look for the front port would not find it on this module.
+        """
+        rear_port = RearPort.objects.create(
+            device=self.device_a, module=self.module, name='Moved Rear 1',
+            type=PortTypeChoices.TYPE_LC, positions=1,
+        )
+        front_port = FrontPort.objects.create(
+            device=self.device_a, name='Chassis Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        message = self._blocked_message()
+        self.assertEqual(self._samples(message), [['Moved Rear 1']])
+        self.assertNotIn('Chassis Front 1', message)
+
     def test_inventory_item_blocker_names_component(self):
         InventoryItem.objects.create(device=self.device_a, name='Item 1', component=self.interface)
         self.assertEqual(self._samples(self._blocked_message()), [['eth0']])
@@ -1608,16 +1630,18 @@ class ModuleMoveComponentCoverageTestCase(TestCase):
     """
 
     def test_every_modular_component_model_is_planned(self):
-        concrete_models = {
+        # Scoped to dcim: a plugin may define its own ModularComponentModel subclass, which core
+        # cannot add to COMPONENT_TEMPLATE_ATTRS, so it must not fail this assertion.
+        core_models = {
             model for model in apps.get_models()
-            if issubclass(model, ModularComponentModel) and not model._meta.abstract
+            if issubclass(model, ModularComponentModel) and model._meta.app_label == 'dcim'
         }
         # ModuleBay is planned separately (nested hierarchy, distinct uniqueness constraint).
         planned = set(COMPONENT_TEMPLATE_ATTRS) | {ModuleBay}
         self.assertEqual(
-            concrete_models - planned, set(),
-            'Modular component model(s) are not relocated by ModuleMovePlan. Add them to '
-            'COMPONENT_TEMPLATE_ATTRS (and to Device counter recomputation, if counted).'
+            core_models - planned, set(),
+            'Modular component model(s) are not relocated by ModuleMovePlan. '
+            'Add them to COMPONENT_TEMPLATE_ATTRS.'
         )
 
     def test_planned_template_attrs_exist_on_module_type(self):
@@ -1626,6 +1650,114 @@ class ModuleMoveComponentCoverageTestCase(TestCase):
                 self.assertTrue(
                     hasattr(ModuleType, template_attr),
                     f'ModuleType has no relation {template_attr!r}'
+                )
+
+    def test_device_counters_are_derived_for_every_planned_model(self):
+        """
+        Counter recomputation is derived from Device's own CounterCacheField declarations, so
+        adding a modular component model cannot silently skip it. Assert the derivation still
+        resolves a counter for each planned model, and does not reach beyond device-scoped ones.
+        """
+        counters = ModuleMovePlan.device_counters_by_model(Device)
+        planned = set(COMPONENT_TEMPLATE_ATTRS) | {ModuleBay}
+        self.assertEqual(
+            planned - set(counters), set(),
+            'A planned model has no device-scoped Device counter. If that is intended, this '
+            'assertion needs to record the exception explicitly.'
+        )
+        self.assertEqual(counters[CoolingIntake], 'cooling_intake_count')
+        self.assertEqual(counters[ModuleBay], 'module_bay_count')
+        # Models counted by Device but never moved must not gain a delta
+        self.assertNotIn(DeviceBay, planned)
+        self.assertNotIn(InventoryItem, planned)
+
+
+class ModuleMoveCounterTestCase(TestCase):
+    """
+    A cross-device move must adjust the Device counter of every modular component model the
+    planner relocates. Exercises all of them at once, so a broken counter derivation cannot
+    pass by covering only the component types other tests happen to create.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer M', slug='manufacturer-m')
+        role = DeviceRole.objects.create(name='Role 1', slug='role-1')
+        site = Site.objects.create(name='Site A', slug='site-a')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Chassis', slug='chassis')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 1')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 2')
+
+        # One template of every modular component type, so each planned model contributes a row
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Full Card')
+        ConsolePortTemplate.objects.create(module_type=cls.module_type, name='Console 1')
+        ConsoleServerPortTemplate.objects.create(module_type=cls.module_type, name='Console Server 1')
+        CoolingIntakeTemplate.objects.create(module_type=cls.module_type, name='Intake 1')
+        CoolingOutflowTemplate.objects.create(module_type=cls.module_type, name='Outflow 1')
+        InterfaceTemplate.objects.create(
+            module_type=cls.module_type, name='Ethernet 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        power_port = PowerPortTemplate.objects.create(module_type=cls.module_type, name='PP 1')
+        PowerOutletTemplate.objects.create(
+            module_type=cls.module_type, name='Outlet 1', power_port=power_port
+        )
+        front_port = FrontPortTemplate.objects.create(
+            module_type=cls.module_type, name='Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPortTemplate.objects.create(
+            module_type=cls.module_type, name='Rear 1', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortTemplateMapping.objects.create(
+            module_type=cls.module_type,
+            front_port=front_port, front_port_position=1,
+            rear_port=rear_port, rear_port_position=1,
+        )
+        ModuleBayTemplate.objects.create(module_type=cls.module_type, name='Sub bay 1')
+
+        cls.device_a = Device.objects.create(
+            name='Chassis A', device_type=device_type, role=role, site=site
+        )
+        cls.device_b = Device.objects.create(
+            name='Chassis B', device_type=device_type, role=role, site=site
+        )
+
+    def test_cross_device_move_adjusts_every_planned_counter(self):
+        module = Module.objects.create(
+            device=self.device_a, module_bay=self.device_a.modulebays.get(name='Slot 1'),
+            module_type=self.module_type,
+        )
+
+        # Fail loudly rather than vacuously if the fixture stops covering every planned model
+        rows = {model: model.objects.filter(module=module).count() for model in COMPONENT_TEMPLATE_ATTRS}
+        rows[ModuleBay] = ModuleBay.objects.filter(module=module).count()
+        self.assertEqual(
+            set(rows.values()), {1},
+            f'the fixture must create exactly one row per planned model, got {rows}'
+        )
+
+        counters = ModuleMovePlan.device_counters_by_model(Device)
+        planned_counters = sorted(counters[model] for model in rows)
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        before_a = {counter: getattr(self.device_a, counter) for counter in planned_counters}
+        before_b = {counter: getattr(self.device_b, counter) for counter in planned_counters}
+
+        module.device = self.device_b
+        module.module_bay = self.device_b.modulebays.get(name='Slot 2')
+        module.full_clean()
+        module.save()
+
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        for counter in planned_counters:
+            with self.subTest(counter=counter):
+                self.assertEqual(
+                    getattr(self.device_a, counter), before_a[counter] - 1,
+                    f'{counter} was not decremented on the source device'
+                )
+                self.assertEqual(
+                    getattr(self.device_b, counter), before_b[counter] + 1,
+                    f'{counter} was not incremented on the destination device'
                 )
 
 
