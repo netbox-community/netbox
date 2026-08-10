@@ -87,9 +87,10 @@ class BaseViewSet(GenericViewSet):
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
-        # Restrict the view's QuerySet to allow only the permitted objects
+        # Restrict the view's QuerySet to allow only the permitted objects. Methods which map to no action
+        # (e.g. TRACE) are left alone; DRF rejects them with a 405 when resolving the handler.
         if request.user.is_authenticated:
-            if action := HTTP_ACTIONS[request.method]:
+            if action := HTTP_ACTIONS.get(request.method):
                 self.queryset = self.queryset.restrict(request.user, action)
 
     def initialize_request(self, request, *args, **kwargs):

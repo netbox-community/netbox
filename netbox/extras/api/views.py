@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
@@ -318,10 +318,14 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
     lookup_value_regex = '[^/]+'  # Allow dots
 
+    # Running a script is a POST to the detail route; map it to the run() action (see NetBoxRouter)
+    detail_route_mapping = {'post': 'run'}
+
     def _get_script(self, pk):
-        # If pk is numeric, retrieve script by ID
-        if pk.isnumeric():
-            return get_object_or_404(self.queryset, pk=pk)
+        # Retrieve the script by ID if the PK is all decimal digits. (isdecimal() rather than isnumeric(),
+        # as the latter also matches characters which cannot be cast to an integer.)
+        if pk.isdecimal():
+            return get_object_or_404(self.queryset, pk=int(pk))
 
         # Default to retrieval by module & name
         try:
@@ -337,18 +341,22 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
         return Response(serializer.data)
 
-    def post(self, request, pk=None):
+    @extend_schema(
+        request=serializers.ScriptInputSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=serializers.ScriptDetailSerializer,
+                description=_("The script has been enqueued for execution."),
+            ),
+        },
+    )
+    def run(self, request, pk):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
-        # This handler is bound only to the detail route (POST /scripts/<id>/); a POST to the list route
-        # carries no pk and is not a supported operation.
-        if pk is None:
-            raise MethodNotAllowed(request.method)
-
         # Running a script is a 'run' operation (not the 'add' that BaseViewSet maps to POST), so restrict
         # the QuerySet on 'run' before resolving the script.
-        self.queryset = Script.objects.restrict(request.user, 'run')
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'run')
         script = self._get_script(pk)
 
         # Running a script is a write operation; reject read-only tokens.

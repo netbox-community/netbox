@@ -1509,7 +1509,8 @@ class ScriptTestCase(APITestCase):
 
     def test_create_script_disabled(self):
         """
-        Scripts cannot be created via the API; a POST to the list route (without a PK) is not supported.
+        Scripts cannot be created via the API: POST is mapped only on the detail route (to run a script),
+        and must be neither permitted nor advertised on the list route.
         """
         self.add_permissions('extras.add_script')
         list_url = reverse('extras-api:script-list')
@@ -1517,6 +1518,29 @@ class ScriptTestCase(APITestCase):
         with disable_warnings('django.request'):
             response = self.client.post(list_url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        # OPTIONS must not advertise a create action for the list route
+        response = self.client.options(list_url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn('POST', response.data.get('actions', {}))
+
+    def test_unsupported_method(self):
+        """
+        A request using an HTTP method which maps to no action must be rejected with a 405.
+        """
+        with disable_warnings('django.request'):
+            response = self.client.trace(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_script_invalid_pk(self):
+        """
+        A PK comprising numeric (but non-decimal) characters must yield a 404, not a server error.
+        """
+        url = reverse('extras-api:script-detail', kwargs={'pk': '½'})
+
+        with disable_warnings('django.request'):
+            response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):
