@@ -452,7 +452,10 @@ class MetaShadowingTestCase(TestCase):
             declared = set(getattr(form_class, 'declared_fields', {}))
             if meta is None or not declared:
                 continue
-            for attr in ('widgets', 'labels', 'help_texts'):
+            # All Meta options Django keys by field name and discards for explicitly declared
+            # fields. localized_fields is a list of names rather than a dict, but set() of either a
+            # dict or a list yields the field names, so one comparison covers all six.
+            for attr in ('widgets', 'labels', 'help_texts', 'error_messages', 'field_classes', 'localized_fields'):
                 overlap = declared & set(getattr(meta, attr, None) or {})
                 overlap -= {f for f in overlap if (form_class.__name__, attr, f) in self.ALLOWED}
                 with self.subTest(form=form_class.__name__, meta=attr):
