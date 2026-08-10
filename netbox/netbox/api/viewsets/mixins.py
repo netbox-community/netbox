@@ -1,4 +1,5 @@
 import warnings
+from collections import Counter
 from contextlib import contextmanager
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,8 +33,51 @@ __all__ = (
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
     'discard_events_on_rollback',
+    'get_duplicate_objects_response',
     'get_missing_objects_response',
 )
+
+
+def get_duplicate_objects_response(object_ids):
+    """
+    Return a structured error Response naming each of the given object IDs which appears more than
+    once, or None if they are all distinct.
+
+    A bulk operation identifies its objects by ID, so listing one twice is ambiguous. For an update,
+    only one of the two sets of attributes can be applied, and the discarded entry is never even
+    validated: a request pairing an invalid entry with a valid one for the same object would
+    otherwise report success while silently ignoring the invalid data. For a delete, the repetition
+    is meaningless, but it likewise causes the response to report on fewer objects than were named.
+    Rather than guess at the intent, such a request is rejected.
+    """
+    errors = [
+        {
+            'id': object_id,
+            'errors': {
+                'id': [
+                    _("Each object may be specified only once; ID {id} is listed {count} times").format(
+                        id=object_id, count=count
+                    ),
+                ],
+            },
+        }
+        # Counter preserves the order in which each ID was first seen
+        for object_id, count in Counter(object_ids).items()
+        if count > 1
+    ]
+    if not errors:
+        return None
+
+    return Response(
+        {
+            'detail': _('{failed_count} of {total} objects are listed more than once.').format(
+                failed_count=len(errors),
+                total=len(object_ids),
+            ),
+            'errors': errors,
+        },
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
 
 def get_missing_objects_response(object_ids, queryset):
@@ -60,8 +104,10 @@ def get_missing_objects_response(object_ids, queryset):
                 'id': [_("Object with ID {id} does not exist").format(id=object_id)],
             },
         }
-        # dict.fromkeys() de-duplicates while preserving the order of first appearance, so an ID
-        # repeated in the request is reported once rather than once per occurrence.
+        # NetBox's bulk actions reject a repeated ID before reaching this point (see
+        # get_duplicate_objects_response), but de-duplicate anyway so that any other caller reports
+        # such an ID once rather than once per occurrence. dict.fromkeys() preserves the order of
+        # first appearance.
         for object_id in dict.fromkeys(object_ids)
         if object_id not in found_pks
     ]
@@ -376,6 +422,12 @@ class BulkUpdateModelMixin:
         serializer.is_valid(raise_exception=True)
 
         object_ids = [o['id'] for o in serializer.validated_data]
+
+        # Reject the batch if any object is named more than once, rather than applying only one of
+        # the entries given for it.
+        if (response := get_duplicate_objects_response(object_ids)) is not None:
+            return response
+
         qs = self.get_bulk_update_queryset().filter(pk__in=object_ids)
 
         # Reject the batch if any of the objects to be updated could not be found, rather than
@@ -485,6 +537,12 @@ class BulkDestroyModelMixin:
         serializer.is_valid(raise_exception=True)
 
         object_ids = [o['id'] for o in serializer.validated_data]
+
+        # Reject the batch if any object is named more than once, rather than ignoring the
+        # repetition (and any changelog message attached to it) and reporting success.
+        if (response := get_duplicate_objects_response(object_ids)) is not None:
+            return response
+
         qs = self.get_bulk_destroy_queryset().filter(pk__in=object_ids)
 
         # Reject the batch if any of the objects to be deleted could not be found, rather than

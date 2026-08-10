@@ -467,6 +467,51 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_update_objects_duplicate_id_invalid_entry(self):
+        """
+        PATCH a set of objects in which one object is named twice, once with invalid data and once
+        with valid data. The invalid entry must not be discarded in favor of the valid one.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [
+            {'id': site.pk, 'name': ''},  # Invalid: name is required
+            {'id': site.pk, 'name': 'Renamed Site'},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site.pk])
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.name, 'Site 1')
+
+    def test_bulk_delete_objects_duplicate_id_changelog_message(self):
+        """
+        DELETE a set of objects in which one object is named twice with differing changelog
+        messages. The request must be rejected rather than recording only one of the messages.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [
+            {'id': site.pk, 'changelog_message': 'First message'},
+            {'id': site.pk, 'changelog_message': 'Second message'},
+        ]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site.pk])
+        self.assertTrue(Site.objects.filter(pk=site.pk).exists())
+
     def test_bulk_create_objects_conflicting(self):
         """
         POST a set of objects in which two conflict with one another. Objects are created one at a

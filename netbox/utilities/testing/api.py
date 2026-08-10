@@ -661,6 +661,52 @@ class APIViewTestCases:
                         f'sibling ID',
                     )
 
+        def test_bulk_update_objects_duplicate_id(self):
+            """
+            PATCH a set of objects in which the same object is named twice. The request must be
+            rejected rather than applying only one of the entries given for that object.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update')
+
+            # Repeat the first ID at the end of the request
+            data = [{'id': id, **self.bulk_update_data} for id in (*id_list, id_list[0])]
+
+            # Snapshot the objects which would otherwise have been updated
+            instances_before = list(self._get_queryset().filter(pk__in=id_list))
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+
+            # The repeated ID must be reported once, not once per occurrence
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[0])
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # No object named in the request may have been updated, including the one named only once
+            for instance_before in instances_before:
+                instance_after = self._get_queryset().get(pk=instance_before.pk)
+                for field in self.bulk_update_data:
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                        continue
+                    self.assertEqual(
+                        getattr(instance_after, field, None),
+                        getattr(instance_before, field, None),
+                        f'Field {field!r} of object {instance_before.pk} was modified despite a duplicated '
+                        f'sibling ID',
+                    )
+
     class DeleteObjectViewTestCase(APITestCase):
 
         def test_delete_object_without_permission(self):
@@ -780,6 +826,41 @@ class APIViewTestCases:
             self.assertIn('id', response.data['errors'][0]['errors'])
 
             # The objects named alongside the missing one must not have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+        def test_bulk_delete_objects_duplicate_id(self):
+            """
+            DELETE a set of objects in which the same object is named twice. The request must be
+            rejected rather than reporting success for a batch it only partly acted on.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created objects to avoid triggering recursive deletions
+            id_list = list(self._get_queryset().order_by('-id').values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk deletion')
+
+            # Repeat the first ID at the end of the request
+            data = [{'id': id} for id in (*id_list, id_list[0])]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+
+            # The repeated ID must be reported once, not once per occurrence
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[0])
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # No object named in the request may have been deleted
             self.assertEqual(self._get_queryset().count(), initial_count)
 
     class GraphQLTestCase(APITestCase):
