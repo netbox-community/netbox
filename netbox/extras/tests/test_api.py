@@ -1543,6 +1543,21 @@ class ScriptTestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertNotIn('POST', response.data.get('actions', {}))
 
+    def test_options_detail_route(self):
+        """
+        POST on the detail route runs a script, so its OPTIONS metadata must describe the run input
+        rather than the Script model's own fields.
+        """
+        self.add_permissions('extras.run_script')
+
+        response = self.client.options(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        post_fields = response.data['actions']['POST']
+        self.assertIn('data', post_fields)
+        self.assertIn('commit', post_fields)
+        self.assertNotIn('module', post_fields)
+        self.assertNotIn('name', post_fields)
+
     def test_unsupported_method(self):
         """
         A request using an HTTP method which maps to no action must be rejected with a 405.

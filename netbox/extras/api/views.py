@@ -321,6 +321,14 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
     # Running a script is a POST to the detail route; map it to the run() action (see NetBoxRouter)
     detail_route_mapping = {'post': 'run'}
 
+    def get_serializer_class(self):
+        # A POST to the detail route runs the script, taking ScriptInputSerializer as its request body.
+        # (This is keyed on the request method rather than on self.action, which is unset when generating
+        # OPTIONS metadata.)
+        if self.request.method == 'POST':
+            return serializers.ScriptInputSerializer
+        return super().get_serializer_class()
+
     def _get_script(self, pk):
         # Retrieve the script by ID if the PK is all decimal digits. (isdecimal() rather than isnumeric(),
         # as the latter also matches characters which cannot be cast to an integer.)
@@ -342,6 +350,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         return Response(serializer.data)
 
     @extend_schema(
+        operation_id='extras_scripts_run',
         request=serializers.ScriptInputSerializer,
         responses={
             200: OpenApiResponse(
