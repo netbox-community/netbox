@@ -420,15 +420,23 @@ class MetaShadowingTestCase(TestCase):
             'circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'utilities',
             'virtualization', 'vpn', 'wireless', 'netbox',
         ):
+            # Only tolerate an app that has no forms package; a broken import inside a package that
+            # does exist must surface, or the invariant could pass having skipped part of the tree.
+            pkg_name = f'{app}.forms'
             try:
-                pkg = importlib.import_module(f'{app}.forms')
-            except ImportError:
-                continue
+                pkg = importlib.import_module(pkg_name)
+            except ModuleNotFoundError as e:
+                if e.name == pkg_name:
+                    continue
+                raise
             for module in getattr(pkg, '__path__', []) and pkgutil.iter_modules(pkg.__path__) or []:
+                submodule = f'{app}.forms.{module.name}'
                 try:
-                    importlib.import_module(f'{app}.forms.{module.name}')
-                except ImportError:
-                    pass
+                    importlib.import_module(submodule)
+                except ModuleNotFoundError as e:
+                    if e.name == submodule:
+                        continue
+                    raise
 
         seen, stack = set(), [forms.ModelForm]
         while stack:
