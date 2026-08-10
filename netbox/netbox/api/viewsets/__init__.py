@@ -284,8 +284,9 @@ class NetBoxModelViewSet(
         logger.info(f"Creating new {model._meta.verbose_name}")
 
         # Enforce object-level permissions on save()
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
@@ -323,8 +324,9 @@ class NetBoxModelViewSet(
         logger.info(f"Updating {model._meta.verbose_name} {serializer.instance} (PK: {serializer.instance.pk})")
 
         # Enforce object-level permissions on save()
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
                 # between the initial check in update() and the actual write.
                 if self._get_if_match(self.request):
@@ -357,8 +359,9 @@ class NetBoxModelViewSet(
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
                 # between the initial check in destroy() and the actual delete.
                 if self._get_if_match(self.request):
