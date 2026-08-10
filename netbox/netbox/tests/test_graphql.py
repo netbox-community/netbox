@@ -29,6 +29,7 @@ from dcim.models import (
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, TableConfig, Tag
 from ipam.models import RIR, Aggregate, IPAddress, Prefix
+from netbox.graphql.pagination import apply_distinct_window_pagination
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
 from users.models import Token, User
@@ -1001,6 +1002,39 @@ class GraphQLAPITestCase(APITestCase):
             [device['name'] for device in data['data']['site_list'][0]['devices']],
             ['Device 2', 'Device 3']
         )
+
+    def test_distinct_window_pagination_tied_ordering(self):
+        """
+        Two rows which represent *different* objects must never be assigned the same rank, even when they
+        compare equal under the queryset's ordering. `DENSE_RANK()` ties such rows by definition, so the
+        primary key is appended to the window ordering to separate them; without it every device below
+        would be assigned rank 1 and the limit of two would return all four of them.
+        """
+        site = Site.objects.get(slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Device {i}', site=site, device_type=device_type, role=role)
+            for i in range(1, 5)
+        ])
+        Interface.objects.bulk_create([
+            Interface(device=device, name=f'eth{i}', type='1000base-t')
+            for device in devices
+            for i in range(3)
+        ])
+
+        # Order by a column whose value is identical for every device, so that the ordering alone cannot
+        # distinguish them. Each device additionally matches three interfaces, so the join emits three
+        # duplicate rows per device which DISTINCT must still collapse.
+        queryset = Device.objects.filter(
+            site=site, interfaces__name__startswith='eth'
+        ).order_by('status').distinct()
+        queryset = apply_distinct_window_pagination(queryset, related_field_id='site_id', limit=2)
+
+        results = list(queryset)
+        self.assertEqual(sorted(device.name for device in results), ['Device 1', 'Device 2'])
+        self.assertEqual(sorted(device._strawberry_row_number for device in results), [1, 2])
 
     def test_pagination_conflict(self):
         url = reverse('graphql')
