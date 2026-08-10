@@ -1,10 +1,33 @@
 from django.urls import include, path
+from rest_framework.routers import Route
 
 from netbox.api.routers import NetBoxRouter
 
 from . import views
 
-router = NetBoxRouter()
+
+class ExtrasRouter(NetBoxRouter):
+    """
+    Extend NetBoxRouter to map additional HTTP methods on the detail route to named actions, as declared
+    by a ViewSet's `detail_route_mapping` (e.g. ScriptViewSet maps POST to its run() action). DRF's detail
+    route maps only the standard CRUD methods; absent this, such a handler must be declared as a raw HTTP
+    method (e.g. post()), which is bound to every route of the ViewSet and is invisible to both per-action
+    permissions and schema generation.
+    """
+    def get_routes(self, viewset):
+        routes = super().get_routes(viewset)
+
+        if mapping := getattr(viewset, 'detail_route_mapping', None):
+            routes = [
+                route._replace(mapping={**route.mapping, **mapping})
+                if isinstance(route, Route) and route.detail else route
+                for route in routes
+            ]
+
+        return routes
+
+
+router = ExtrasRouter()
 router.APIRootView = views.ExtrasRootView
 
 router.register('event-rules', views.EventRuleViewSet)
