@@ -401,7 +401,7 @@ class MetaShadowingTestCase(TestCase):
     """Ensure declared fields do not shadow supported `ModelForm.Meta` configuration."""
     # Known overlaps whose cleanup is deferred, as specific (form, Meta attribute, field) triples so
     # that any new overlap on the same form is still caught. ConfigRevisionForm builds these fields
-    # via ConfigFormMetaclass; restoring their monospace widget is tracked separately (see #8974).
+    # via ConfigFormMetaclass; restoring their monospace widget is tracked separately (see #22889).
     ALLOWED = {
         ('ConfigRevisionForm', 'widgets', 'BANNER_LOGIN'),
         ('ConfigRevisionForm', 'widgets', 'BANNER_MAINTENANCE'),
