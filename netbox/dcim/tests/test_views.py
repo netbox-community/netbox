@@ -9,7 +9,9 @@ import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.http import StreamingHttpResponse
-from django.test import override_settings, tag
+from django.template import Template
+from django.template.context import RequestContext
+from django.test import RequestFactory, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import EUI
@@ -19,6 +21,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.tables import MACAddressTable
 from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
@@ -5589,6 +5592,56 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(response['Location'], mac.get_absolute_url())
         mac.assigned_object.refresh_from_db()
         self.assertIsNone(mac.assigned_object.primary_mac_address)
+
+    def _render_set_primary_actions(self, embedded):
+        """
+        Render MACAddressTable's actions column for a non-primary, interface-assigned MAC and
+        return the HTML for its row. `embedded` selects the render context (True = an object's
+        embedded MAC panel, False = the standalone list view wrapped in the bulk-edit form).
+        """
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        self.assertIsNotNone(mac)
+        self.assertFalse(mac.is_primary)
+
+        request = RequestFactory().get('/')
+        request.user = self.user
+        table = MACAddressTable(MACAddress.objects.filter(pk=mac.pk))
+        table.embedded = embedded
+        # Render via the render_table template tag with a RequestContext, which is the path the
+        # app uses and which populates table.context (as_html() does not, so the actions column's
+        # request lookup would come up empty).
+        template = Template('{% load django_tables2 %}{% render_table table %}')
+        return template.render(RequestContext(request, {'table': table}))
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_list_view_rides_bulk_form(self):
+        """
+        On the standalone list view the table is wrapped in the bulk-edit <form>, so the
+        Set as primary action must ride it via formaction rather than nesting a <form>
+        (which HTML5 drops, producing a 405 for the first row).
+        """
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={
+            'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
+        })
+        html = self._render_set_primary_actions(embedded=False)
+        self.assertIn(f'formaction="{set_primary_url}"', html)
+        self.assertIn('formmethod="post"', html)
+        # No nested <form> may be injected in the list context (it would be dropped by the parser).
+        self.assertNotIn('<form method="post"', html)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_embedded_uses_self_contained_form(self):
+        """
+        In an embedded panel there is no surrounding form, so the action must render a
+        self-contained POST <form> (a formaction button would have nothing to submit).
+        """
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={
+            'pk': MACAddress.objects.filter(assigned_object_id__isnull=False).first().pk
+        })
+        html = self._render_set_primary_actions(embedded=True)
+        self.assertIn(f'<form method="post" action="{set_primary_url}"', html)
+        self.assertIn('csrfmiddlewaretoken', html)
+        self.assertNotIn('formaction=', html)
 
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):

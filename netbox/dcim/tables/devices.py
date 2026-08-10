@@ -1257,17 +1257,30 @@ class MACAddressActionsColumn(columns.ActionsColumn):
             request = getattr(table, 'context', {}).get('request')
             if request:
                 url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
-                form_li = format_html(
-                    '<li><form method="post" action="{}">'
-                    '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
-                    '<button type="submit" class="dropdown-item">'
-                    '<i class="mdi mdi-star-outline"></i> {}'
-                    '</button></form></li>',
-                    url, get_token(request), _('Set as primary'),
-                )
+                if getattr(table, 'embedded', False):
+                    # Embedded (e.g. an interface's MAC panel) renders the table outside any form,
+                    # so a self-contained POST form is valid here and carries its own CSRF token.
+                    action_li = format_html(
+                        '<li><form method="post" action="{}">'
+                        '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+                        '<button type="submit" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></form></li>',
+                        url, get_token(request), _('Set as primary'),
+                    )
+                else:
+                    # The standalone list view wraps the table in the bulk-edit <form>. A nested
+                    # <form> is invalid HTML and gets dropped by the parser, so ride the surrounding
+                    # form via formaction/formmethod instead (matching the DataSource sync button).
+                    action_li = format_html(
+                        '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></li>',
+                        url, _('Set as primary'),
+                    )
                 html_str = str(html)
                 if '</ul>' in html_str:
-                    html = mark_safe(html_str.replace('</ul>', str(form_li) + '</ul>', 1))
+                    html = mark_safe(html_str.replace('</ul>', str(action_li) + '</ul>', 1))
 
         return html
 
