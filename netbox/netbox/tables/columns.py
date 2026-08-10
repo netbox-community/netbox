@@ -660,7 +660,9 @@ class CustomLinkColumn(tables.Column):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
             error_text = _('Error')
-            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
+            return format_html(
+                '<span class="text-danger" title="{}"><i class="mdi mdi-alert"></i> {}</span>', e, error_text
+            )
         return ''
 
     def value(self, record, table, **kwargs):

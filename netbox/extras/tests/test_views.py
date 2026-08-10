@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import get_messages
 from django.test import tag
 from django.urls import reverse
+from django.utils.html import escape
 
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.events import *
@@ -244,6 +245,30 @@ class CustomLinkRenderingTestCase(TestCase):
         response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(f'FOO {site.name} BAR', str(response.content))
+
+    def test_list_view_custom_link_column_escapes_render_error(self):
+        # Jinja2 includes the invalid key verbatim in UndefinedError; this test intentionally depends on that format.
+        payload = '" ></span><script>alert(1)</script>'
+        customlink = CustomLink(
+            name='Test',
+            link_text=f"{{{{ ''['{payload}'] + 1 }}}}",
+            link_url='http://example.com/',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+
+        # The error element must be present, but the payload must appear only in escaped form
+        self.assertIn('<span class="text-danger" title="', content)
+        self.assertNotIn(payload, content)
+        self.assertIn(escape(payload), content)
 
 
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):

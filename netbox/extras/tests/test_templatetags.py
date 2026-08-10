@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.context_processors import PermWrapper
 from django.test import RequestFactory, TestCase
+from django.utils.html import escape
 
 from core.models import ObjectType
 from dcim.models import Site
@@ -84,6 +85,12 @@ class CustomLinkRenderErrorEscapingTest(TestCase):
     XSS_NAME = '<img src=x onerror=alert(1)>'
     ESCAPED_NAME = '&lt;img src=x onerror=alert(1)&gt;'
 
+    # Subscripting a string with a nonexistent attribute yields an Undefined, and operating on it raises
+    # UndefinedError. These tests depend on Jinja2 quoting the subscript verbatim in that message (currently
+    # "'str object' has no attribute '<payload>'"); a change to Jinja2's message format would break them.
+    XSS_PAYLOAD = '" ></span><script>alert(1)</script>'
+    FAILING_TEMPLATE = f"{{{{ ''['{XSS_PAYLOAD}'] + 1 }}}}"
+
     @classmethod
     def setUpTestData(cls):
         cls.site = Site.objects.create(name='Site 1', slug='site-1')
@@ -134,3 +141,33 @@ class CustomLinkRenderErrorEscapingTest(TestCase):
         rendered = self.render(self.make_user_with_view_permission('user2'))
         self.assertNotIn(self.XSS_NAME, rendered)
         self.assertIn(self.ESCAPED_NAME, rendered)
+
+    def test_render_error_escapes_exception_message(self):
+        # The exception message reproduces the (attacker-controlled) template code, so it must be escaped
+        # in the error fallback as well (NB-3311).
+        custom_link = CustomLink.objects.create(
+            name='Custom Link 1',
+            enabled=True,
+            link_text=self.FAILING_TEMPLATE,
+            link_url='http://example.com/',
+        )
+        custom_link.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        rendered = self.render(self.make_user_with_view_permission('user3'))
+        self.assertNotIn(self.XSS_PAYLOAD, rendered)
+        self.assertIn(escape(self.XSS_PAYLOAD), rendered)
+
+    def test_render_error_escapes_grouped_exception_message(self):
+        # The grouped-link error fallback must likewise escape the exception message (NB-3311).
+        custom_link = CustomLink.objects.create(
+            name='Custom Link 1',
+            enabled=True,
+            group_name='Group 1',
+            link_text=self.FAILING_TEMPLATE,
+            link_url='http://example.com/',
+        )
+        custom_link.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        rendered = self.render(self.make_user_with_view_permission('user4'))
+        self.assertNotIn(self.XSS_PAYLOAD, rendered)
+        self.assertIn(escape(self.XSS_PAYLOAD), rendered)
