@@ -344,7 +344,6 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             try:
                 pk = int(pk)
             except ValueError:
-                # CPython refuses to convert digit strings longer than sys.int_info.default_max_str_digits
                 raise Http404
             return get_object_or_404(self.queryset, pk=pk)
 
