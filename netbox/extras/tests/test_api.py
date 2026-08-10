@@ -1404,6 +1404,34 @@ class ScriptTestCase(APITestCase):
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
 
+    def test_list_scripts(self):
+        """
+        The list route is served by BaseViewSet, which resolves the QuerySet's prefetches & annotations (and
+        any fields/omit request parameters) from the serializer.
+        """
+        url = reverse('extras-api:script-list')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['name'], self.TestScriptClass.Meta.name)
+
+        response = self.client.get(f'{url}?fields=id,name', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(sorted(response.data['results'][0]), ['id', 'name'])
+
+    def test_get_script_by_module_and_name(self):
+        """
+        A script may also be identified by its module & name, e.g. /api/extras/scripts/example.MyReport/.
+        """
+        script = Script.objects.first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': f'script.{script.name}'})
+
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], script.pk)
+
     def test_schedule_script_past_time_rejected(self):
         """
         Scheduling with past schedule_at should fail.
@@ -1552,17 +1580,40 @@ class ScriptTestCase(APITestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Job.objects.exists())
 
-    def test_run_script_format_suffix(self):
+    def test_run_script_by_module_and_name(self):
         """
-        The format-suffix variant of the detail route (e.g. /1.json) must dispatch to run().
+        A script identified by its module & name (rather than by its PK) must also be runnable.
         """
         self.add_permissions('extras.run_script')
         payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
-        url = reverse('extras-api:script-detail', kwargs={'pk': Script.objects.first().pk, 'format': 'json'})
+        script = Script.objects.first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': f'script.{script.name}'})
 
         response = self.client.post(url, payload, format='json', **self.header)
+
         self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], script.pk)
         self.assertTrue(Job.objects.exists())
+
+    def test_run_script_format_suffix(self):
+        """
+        The format-suffix variants of the detail route (e.g. /1.json) must dispatch to run().
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+        script = Script.objects.first()
+        lookups = (script.pk, f'script.{script.name}')
+
+        for lookup in lookups:
+            with self.subTest(lookup=lookup):
+                url = reverse('extras-api:script-detail', kwargs={'pk': lookup, 'format': 'json'})
+
+                response = self.client.post(url, payload, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(response.data['id'], script.pk)
+
+        self.assertEqual(Job.objects.count(), len(lookups))
 
     def test_modify_script_methods_disabled(self):
         """

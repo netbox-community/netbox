@@ -7,6 +7,7 @@ from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -87,10 +88,16 @@ class BaseViewSet(GenericViewSet):
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
-        # Restrict the view's QuerySet to allow only the permitted objects. Methods which map to no action
-        # (e.g. TRACE) are left alone; DRF rejects them with a 405 when resolving the handler.
+        # Reject any method for which no action has been declared, rather than proceeding against an
+        # unrestricted QuerySet. (A method mapped to None, e.g. OPTIONS, is permitted: it needs no
+        # restriction.) This is the same 405 DRF would return when resolving the handler for an unmapped
+        # method, but it also covers a handler bound to such a method (e.g. @action(methods=['trace'])).
+        if request.method not in HTTP_ACTIONS:
+            raise MethodNotAllowed(request.method)
+
+        # Restrict the view's QuerySet to allow only the permitted objects
         if request.user.is_authenticated:
-            if action := HTTP_ACTIONS.get(request.method):
+            if action := HTTP_ACTIONS[request.method]:
                 self.queryset = self.queryset.restrict(request.user, action)
 
     def initialize_request(self, request, *args, **kwargs):
