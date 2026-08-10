@@ -16,17 +16,12 @@ class NetBoxRouter(DefaultRouter):
     3. Map additional HTTP methods on the detail route to named actions
     """
     def get_routes(self, viewset):
-        # A ViewSet may map additional HTTP methods on its detail route to named actions by declaring a
-        # `detail_route_mapping` (e.g. ScriptViewSet maps POST to its run() action). DRF's detail route
-        # maps only the standard CRUD methods; absent this, such a handler must be declared as a raw HTTP
-        # method (e.g. post()), which is bound to every route of the ViewSet and is invisible to both
-        # per-action permissions and schema generation.
+        # A ViewSet may map extra HTTP methods on its detail route to named actions (e.g. ScriptViewSet
+        # maps POST to run()), which DRF's standard CRUD mapping doesn't support
         detail_mapping = getattr(viewset, 'detail_route_mapping', {})
 
-        # Extend the mappings of the standard list & detail routes. This is applied to the route templates
-        # (rather than to the routes returned by get_routes()) so that the routes generated for a ViewSet's
-        # @action methods are left untouched. Route is a namedtuple, so _replace() is used to avoid
-        # mutating the templates, which are shared by all SimpleRouter subclasses.
+        # Extend the list & detail route templates. Applied before super() expands them so that @action
+        # routes are untouched; _replace() avoids mutating the templates shared by all SimpleRouters.
         routes = self.routes
         self.routes = [
             route._replace(mapping={
