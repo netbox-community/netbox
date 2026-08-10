@@ -34,8 +34,72 @@ __all__ = (
     'SequentialBulkCreatesMixin',
     'discard_events_on_rollback',
     'get_duplicate_objects_response',
+    'get_invalid_entries_response',
     'get_missing_objects_response',
+    'get_non_list_response',
 )
+
+
+def get_non_list_response(data):
+    """
+    Return an error Response if the given request body is not a list of objects, or None if it is.
+
+    A bulk operation always addresses a list. The body reaching one is not necessarily a list,
+    however, as the router maps every PUT, PATCH, and DELETE on a list endpoint to a bulk action
+    regardless of what was sent. Rejecting a non-list body here keeps the per-entry errors reported
+    by the bulk actions correlated by position: those come from a serializer bound to a list, so
+    they are only positional if the body was a list to begin with.
+
+    The response carries only a `detail`, with no `errors`, as there are no entries to report
+    against.
+    """
+    if isinstance(data, list):
+        return None
+
+    return Response(
+        {
+            'detail': _('Expected a list of objects, but got {datatype}.').format(
+                datatype=type(data).__name__
+            ),
+        },
+        status=status.HTTP_400_BAD_REQUEST,
+    )
+
+
+def get_invalid_entries_response(entry_errors):
+    """
+    Return a structured error Response for the entries of a bulk request which could not be
+    interpreted, or None if every entry was interpretable.
+
+    The bulk update and delete actions first check that each entry identifies an object, before any
+    entry has been matched to one. A failure at that stage -- a missing or non-numeric `id`, or an
+    entry which is not an object at all -- is reported against the entry's position in the request
+    rather than against an object ID, since no object has been identified yet. This is the same
+    correlation bulk create uses throughout, for the same reason.
+
+    Passing this stage is what allows every later error to be correlated by `id` instead.
+
+    :param entry_errors: The `errors` of a BulkOperationSerializer bound to a list, which holds one
+        entry per object in the request (an empty dict where that object was interpretable).
+    """
+    errors = [
+        {'index': i, 'errors': item_errors}
+        for i, item_errors in enumerate(entry_errors)
+        if item_errors
+    ]
+    if not errors:
+        return None
+
+    return Response(
+        {
+            'detail': _('{failed_count} of {total} objects failed validation.').format(
+                failed_count=len(errors),
+                total=len(entry_errors),
+            ),
+            'errors': errors,
+        },
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
 
 def get_duplicate_objects_response(object_ids):
@@ -418,8 +482,14 @@ class BulkUpdateModelMixin:
         if (response := handle_background(request, action)) is not None:
             return response
 
+        if (response := get_non_list_response(request.data)) is not None:
+            return response
+
+        # Check that every entry identifies an object before matching any of them to one, so that
+        # a malformed entry is reported in the same form as every other bulk error
         serializer = BulkOperationSerializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return get_invalid_entries_response(serializer.errors)
 
         object_ids = [o['id'] for o in serializer.validated_data]
 
@@ -533,8 +603,14 @@ class BulkDestroyModelMixin:
         if (response := handle_background(request, 'bulk_destroy')) is not None:
             return response
 
+        if (response := get_non_list_response(request.data)) is not None:
+            return response
+
+        # Check that every entry identifies an object before matching any of them to one, so that
+        # a malformed entry is reported in the same form as every other bulk error
         serializer = BulkOperationSerializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return get_invalid_entries_response(serializer.errors)
 
         object_ids = [o['id'] for o in serializer.validated_data]
 

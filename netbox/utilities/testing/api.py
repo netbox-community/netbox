@@ -661,6 +661,45 @@ class APIViewTestCases:
                         f'sibling ID',
                     )
 
+        def test_bulk_update_objects_malformed_entry(self):
+            """
+            PATCH a set of objects in which one entry does not identify an object. The failure must be
+            reported in the same structured form as a per-object failure, correlated by position.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            instance = self._get_queryset().first()
+
+            # The second entry omits the object ID, so it cannot be matched to an object
+            data = [{'id': instance.pk, **self.bulk_update_data}, {}]
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+
+            # Correlated by position, as no object was identified for this entry
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The valid entry must not have been applied
+            instance_after = self._get_queryset().get(pk=instance.pk)
+            for field in self.bulk_update_data:
+                if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                    continue
+                self.assertEqual(
+                    getattr(instance_after, field, None),
+                    getattr(instance, field, None),
+                    f'Field {field!r} of object {instance.pk} was modified despite a malformed sibling entry',
+                )
+
         def test_bulk_update_objects_duplicate_id(self):
             """
             PATCH a set of objects in which the same object is named twice. The request must be
@@ -826,6 +865,39 @@ class APIViewTestCases:
             self.assertIn('id', response.data['errors'][0]['errors'])
 
             # The objects named alongside the missing one must not have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+        def test_bulk_delete_objects_malformed_entry(self):
+            """
+            DELETE a set of objects in which one entry does not identify an object. The failure must be
+            reported in the same structured form as a per-object failure, correlated by position.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created object to avoid triggering recursive deletions
+            instance = self._get_queryset().order_by('-id').first()
+
+            # The second entry omits the object ID, so it cannot be matched to an object
+            data = [{'id': instance.pk}, {}]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+
+            # Correlated by position, as no object was identified for this entry
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # Nothing may have been deleted
             self.assertEqual(self._get_queryset().count(), initial_count)
 
         def test_bulk_delete_objects_duplicate_id(self):

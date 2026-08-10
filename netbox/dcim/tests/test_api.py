@@ -467,6 +467,51 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_update_objects_non_list_body(self):
+        """
+        PATCH a list endpoint with a body which is not a list. The response should identify the
+        problem with the request as a whole, as there are no entries to report against.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        response = self.client.patch(
+            self._get_list_url(), {'id': site.pk, 'description': 'x'}, format='json', **self.header
+        )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertNotIn('errors', response.data)
+
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
+    def test_bulk_update_objects_non_numeric_id(self):
+        """
+        PATCH a set of objects where one entry carries a non-numeric ID. The failure must be
+        correlated by position, in the same structured form as every other bulk error.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [{'id': site.pk, 'description': 'x'}, {'id': 'not-a-number', 'description': 'y'}]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['index'], 1)
+        self.assertIn('id', response.data['errors'][0]['errors'])
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
     def test_bulk_update_objects_duplicate_id_invalid_entry(self):
         """
         PATCH a set of objects in which one object is named twice, once with invalid data and once
