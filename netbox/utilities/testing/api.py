@@ -583,6 +583,50 @@ class APIViewTestCases:
                     f'Field {field!r} of object {id_list[0]} was modified — atomic rollback may be broken',
                 )
 
+        def test_bulk_update_objects_nonexistent_id(self):
+            """
+            PATCH a set of objects where one of the IDs does not identify an existing object. Verify
+            the structured per-object error response and that no objects are modified.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update')
+            missing_id = self._get_queryset().order_by('-id').first().id + 1
+
+            data = [{'id': id, **self.bulk_update_data} for id in (*id_list, missing_id)]
+
+            # Snapshot the objects which would otherwise have been updated
+            instances_before = list(self._get_queryset().filter(pk__in=id_list))
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], missing_id)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The objects named alongside the missing one must not have been updated
+            for instance_before in instances_before:
+                instance_after = self._get_queryset().get(pk=instance_before.pk)
+                for field in self.bulk_update_data:
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                        continue
+                    self.assertEqual(
+                        getattr(instance_after, field, None),
+                        getattr(instance_before, field, None),
+                        f'Field {field!r} of object {instance_before.pk} was modified despite an unresolvable '
+                        f'sibling ID',
+                    )
+
     class DeleteObjectViewTestCase(APITestCase):
 
         def test_delete_object_without_permission(self):
@@ -671,6 +715,38 @@ class APIViewTestCases:
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_DELETE,
                         message=changelog_message)
+
+        def test_bulk_delete_objects_nonexistent_id(self):
+            """
+            DELETE a set of objects where one of the IDs does not identify an existing object. Verify
+            the structured per-object error response and that no objects are deleted.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created objects to avoid triggering recursive deletions
+            id_list = list(self._get_queryset().order_by('-id').values_list('id', flat=True)[:3])
+            self.assertEqual(len(id_list), 3, 'Insufficient number of objects to test bulk deletion')
+            missing_id = max(id_list) + 1
+            data = [{'id': id} for id in (*id_list, missing_id)]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], missing_id)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The objects named alongside the missing one must not have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
 
     class GraphQLTestCase(APITestCase):
         graphql_auto_filter_tests = True

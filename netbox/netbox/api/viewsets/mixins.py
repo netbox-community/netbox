@@ -29,7 +29,52 @@ __all__ = (
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
     'discard_events_on_rollback',
+    'get_missing_objects_response',
 )
+
+
+def get_missing_objects_response(object_ids, queryset):
+    """
+    Return a structured error Response naming each of the given object IDs which the queryset does
+    not match, or None if it matches them all.
+
+    An ID goes unmatched either because no such object exists or because the requesting user's
+    object-level permissions exclude it. The two are deliberately not distinguished, consistent with
+    the single-object endpoints, which return a 404 in both cases.
+
+    Bulk operations call this before performing any work: an unresolvable ID means the request names
+    an object the client cannot act on, so there is nothing to be gained by attempting the batch (it
+    would only be rolled back). Note that the status is 400 rather than the 409 a bulk delete
+    returns for a dependency conflict, as this is a problem with the request itself rather than with
+    the current state of the database.
+    """
+    found_pks = set(queryset.values_list('pk', flat=True))
+
+    errors = [
+        {
+            'id': object_id,
+            'errors': {
+                'id': [_("Object with ID {id} does not exist").format(id=object_id)],
+            },
+        }
+        # dict.fromkeys() de-duplicates while preserving the order of first appearance, so an ID
+        # repeated in the request is reported once rather than once per occurrence.
+        for object_id in dict.fromkeys(object_ids)
+        if object_id not in found_pks
+    ]
+    if not errors:
+        return None
+
+    return Response(
+        {
+            'detail': _('{failed_count} of {total} objects could not be found.').format(
+                failed_count=len(errors),
+                total=len(object_ids),
+            ),
+            'errors': errors,
+        },
+        status=status.HTTP_400_BAD_REQUEST,
+    )
 
 
 @contextmanager
@@ -279,9 +324,13 @@ class BulkUpdateModelMixin:
         serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        qs = self.get_bulk_update_queryset().filter(
-            pk__in=[o['id'] for o in serializer.data]
-        )
+        object_ids = [o['id'] for o in serializer.validated_data]
+        qs = self.get_bulk_update_queryset().filter(pk__in=object_ids)
+
+        # Reject the batch if any of the objects to be updated could not be found, rather than
+        # silently omitting them from the response.
+        if (response := get_missing_objects_response(object_ids, qs)) is not None:
+            return response
 
         # Map update data by object ID
         update_data = {
@@ -375,9 +424,13 @@ class BulkDestroyModelMixin:
         serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        qs = self.get_bulk_destroy_queryset().filter(
-            pk__in=[o['id'] for o in serializer.validated_data]
-        )
+        object_ids = [o['id'] for o in serializer.validated_data]
+        qs = self.get_bulk_destroy_queryset().filter(pk__in=object_ids)
+
+        # Reject the batch if any of the objects to be deleted could not be found, rather than
+        # silently omitting them and reporting success.
+        if (response := get_missing_objects_response(object_ids, qs)) is not None:
+            return response
 
         # Compile any changelog messages to be recorded on the objects being deleted
         changelog_messages = {

@@ -154,8 +154,9 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
             self.assertEqual(r.description, 'put-bg')
 
     def test_background_bulk_update_object_permission_subset(self):
-        # Constrained to Region 1 only; bulk update of all three should update only the
-        # permitted subset and SUCCEED (matching synchronous behavior; no rollback).
+        # Constrained to Region 1 only; the other two regions cannot be resolved, so the whole
+        # batch is rejected rather than the permitted subset being updated silently (matching
+        # synchronous behavior).
         self.grant('change', 'view', constraints={'name': 'Region 1'})
         payload = [{'id': r.pk, 'description': 'subset'} for r in self.regions]
         response = self.client.patch(
@@ -163,11 +164,14 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         job = Job.objects.get(pk=response.data['job']['id'])
-        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
-        # DB side effect AND captured result reflect the permitted subset only.
-        self.assertEqual(Region.objects.filter(description='subset').count(), 1)
-        self.assertEqual(job.data['status_code'], status.HTTP_200_OK)
-        self.assertEqual(len(job.data['data']), 1)
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        # Nothing was updated, and the unresolvable IDs are named in the captured result.
+        self.assertEqual(Region.objects.filter(description='subset').count(), 0)
+        self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            [e['id'] for e in job.data['data']['errors']],
+            [self.regions[1].pk, self.regions[2].pk],
+        )
 
     def test_background_bulk_update_all_or_nothing(self):
         self.grant('change', 'view')

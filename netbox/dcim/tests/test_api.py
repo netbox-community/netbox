@@ -498,6 +498,61 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
         self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
 
+    def test_bulk_update_objects_unpermitted(self):
+        """
+        PATCH a set of objects where the requesting user's object-level permissions exclude one of
+        them. The excluded object must be reported rather than silently omitted from the response.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'], constraints={'slug': 'site-1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'description': 'Permitted'},
+            {'id': site2.pk, 'description': 'Not permitted'},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+
+        # Neither site may have been updated, including the one the user is permitted to change
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.description, '', 'Site 1 should not have been updated')
+        self.assertEqual(site2.description, '', 'Site 2 should not have been updated')
+
+    def test_bulk_delete_objects_unpermitted(self):
+        """
+        DELETE a set of objects where the requesting user's object-level permissions exclude one of
+        them. The excluded object must be reported rather than the request reporting success.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'], constraints={'slug': 'site-1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+
+        # Neither site may have been deleted, including the one the user is permitted to delete
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
 
 class LocationTestCase(APIViewTestCases.APIViewTestCase):
     model = Location
