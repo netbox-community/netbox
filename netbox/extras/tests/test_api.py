@@ -14,7 +14,7 @@ from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
-from core.models import DataFile, DataSource, ObjectType
+from core.models import DataFile, DataSource, Job, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.choices import *
 from extras.models import *
@@ -1472,6 +1472,25 @@ class ScriptTestCase(APITestCase):
         finally:
             # Restore the original setting for other tests
             self.TestScriptClass.Meta.scheduling_enabled = original
+
+    def test_run_script_without_permission(self):
+        """
+        A user permitted to view a script but not to run it must not be able to enqueue it. (The script is
+        excluded from the restricted QuerySet, so the request yields a 404.)
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # setUp() grants only extras.view_script
+        with disable_warnings('django.request'):
+            response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(Job.objects.exists())
+
+        # Granting the run permission permits the same request
+        self.add_permissions('extras.run_script')
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(Job.objects.exists())
 
     def test_run_script_read_only_token(self):
         """

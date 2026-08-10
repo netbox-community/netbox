@@ -359,12 +359,12 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         self.queryset = self.queryset.model.objects.restrict(request.user, 'run')
         script = self._get_script(pk)
 
-        # Running a script is a write operation; reject read-only tokens.
+        # Reject read-only tokens (not via TokenWritePermission, which permits token auth only)
         if isinstance(request.auth, Token) and not request.auth.write_enabled:
-            raise PermissionDenied("This token does not permit write operations (running a script).")
+            raise PermissionDenied(_("This token does not permit write operations (running a script)."))
 
         if not request.user.has_perm('extras.run_script', obj=script):
-            raise PermissionDenied("This user does not have permission to run this script.")
+            raise PermissionDenied(_("This user does not have permission to run this script."))
 
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
