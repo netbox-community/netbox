@@ -404,14 +404,46 @@ class SnapshotConditionTestCase(TestCase):
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
 
-    def test_changed_false_when_path_traverses_scalar(self):
-        # Snapshot choice fields are raw strings, not nested dicts. A path like
-        # 'status.value' hits a TypeError when traversing into the string; both
-        # sides resolve to _MISSING and the operator returns False (no change).
+    def test_changed_raises_when_path_traverses_scalar(self):
+        # Snapshot choice fields are raw strings, not nested dicts. A REST API-style path
+        # like 'status.value' cannot be walked at all, which is a malformed condition
+        # rather than an absent attribute: it must raise so that the mistake is logged,
+        # not silently evaluate False on every event.
         c = Condition('status.value', op='changed')
         snapshots = {
             'prechange': {'status': 'planned'},
             'postchange': {'status': 'active'},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
+    def test_unchanged_raises_when_path_traverses_scalar(self):
+        c = Condition('status.value', op='unchanged')
+        snapshots = {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
+    def test_changed_raises_when_path_traverses_scalar_in_list(self):
+        # Snapshot list fields hold raw values (e.g. tag names), so a path descending
+        # into a list element is equally unwalkable.
+        c = Condition('tags.name', op='changed')
+        snapshots = {
+            'prechange': {'tags': ['Alpha']},
+            'postchange': {'tags': ['Alpha', 'Beta']},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
+    def test_changed_missing_attr_still_resolves_to_missing(self):
+        # An attribute that is simply absent is an ordinary state difference, not a
+        # malformed path, and must not raise.
+        c = Condition('nonexistent', op='changed')
+        snapshots = {
+            'prechange': {'status': 'planned'},
+            'postchange': {'status': 'active', 'description': 'x'},
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
 
@@ -567,3 +599,23 @@ class SnapshotConditionTestCase(TestCase):
             'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
         })
         self.assertFalse(event_rule.eval_conditions(data))
+
+    def test_event_rule_changed_operator_rest_api_style_attr_is_logged(self):
+        """
+        The same REST API-style mistake made with a snapshot operator must also fail
+        closed *and* be logged. Silently evaluating False would leave the rule dead with
+        no indication of why, even though the watched attribute really did change.
+        """
+        event_rule = EventRule(
+            name='Activated (REST-style mistake)',
+            event_types=[OBJECT_UPDATED],
+            conditions={'attr': 'status.value', 'op': 'changed'}
+        )
+        site = Site.objects.create(name='Site 5', slug='site-5', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = self._make_condition_data(site, {
+            'prechange': {'status': SiteStatusChoices.STATUS_PLANNED},
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        with self.assertLogs('netbox.event_rules', level='ERROR') as cm:
+            self.assertFalse(event_rule.eval_conditions(data))
+        self.assertIn('status.value', cm.output[0])

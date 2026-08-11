@@ -120,7 +120,11 @@ class Condition:
 
     def _resolve_snapshot_attr(self, snapshot):
         """
-        Walk self.attr through a snapshot dict, returning _MISSING on any miss.
+        Walk self.attr through a snapshot dict. Returns _MISSING when the attribute is
+        simply absent from the snapshot, but raises InvalidCondition when the path cannot
+        be walked at all (e.g. a REST API-style 'status.value' applied to a snapshot,
+        where status is the raw string "active" rather than a nested dict).
+
         Snapshots use the model serializer format (raw field values), not the REST
         API format, so e.g. status is stored as "active" not {"value": "active"}.
         """
@@ -134,8 +138,13 @@ class Condition:
                 else:
                     obj = operator.getitem(obj or {}, key)
             return obj
-        except (KeyError, TypeError):
+        except KeyError:
             return _MISSING
+        except TypeError as e:
+            raise InvalidCondition(
+                f"Invalid key path for '{self.op}' operator: {self.attr} ({e}). Note that snapshots store "
+                f"raw field values, so choice fields have no '.value' suffix."
+            )
 
     def eval(self, data):
         """
@@ -204,6 +213,10 @@ class Condition:
     # Fail-closed semantics:
     #   changed:   False when attr is absent from both snapshots (field never existed)
     #   unchanged: False when attr is absent from both snapshots (avoids silent pass on typos)
+    #
+    # A path that cannot be walked at all (as opposed to one that resolves to nothing)
+    # raises InvalidCondition from _resolve_snapshot_attr(), so a malformed condition is
+    # logged by EventRule.eval_conditions() rather than quietly evaluating False forever.
 
     def eval_changed(self, snapshots):
         pre = self._resolve_snapshot_attr(snapshots.get('prechange'))

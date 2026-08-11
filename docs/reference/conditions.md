@@ -142,7 +142,7 @@ You can also read pre- or post-change values directly using the `snapshots.prech
 ```
 
 !!! warning "Snapshot serialization format"
-    Snapshot data uses the **model serializer format**, not the REST API format. Choice fields such as `status` are stored as raw strings (e.g. `"active"`) rather than nested objects (e.g. `{"value": "active", "label": "Active"}`). Use `attr: "snapshots.prechange.status"` — not `"snapshots.prechange.status.value"` — when referencing snapshot attributes. The `changed`/`unchanged` operators compare the same format on both sides, so they are not affected by this distinction.
+    Snapshot data uses the **model serializer format**, not the REST API format. Choice fields such as `status` are stored as raw strings (e.g. `"active"`) rather than nested objects (e.g. `{"value": "active", "label": "Active"}`). Use `status` — not `status.value` — when referencing a snapshot attribute, both in `snapshots.prechange.*`/`snapshots.postchange.*` paths and with the `changed`/`unchanged` operators. A `.value` suffix cannot be resolved against a snapshot: the condition fails closed (the rule does not fire) and an error is logged to `netbox.event_rules`.
 
 !!! note "Snapshot availability"
     Snapshots are only populated for update and delete events. For create events, `prechange` is `null` — conditions using the `changed` operator on a create event evaluate to `true` (the field transitioned from non-existent to its initial value), while conditions using `snapshots.prechange.*` paths evaluate to `false`. For delete events, `postchange` is `null` — the `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, and `unchanged` evaluates to `false`.
