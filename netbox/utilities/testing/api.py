@@ -572,6 +572,39 @@ class APIViewTestCases:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_UPDATE,
                         message=changelog_message)
 
+        def test_bulk_update_objects_string_id(self):
+            """
+            PATCH a set of objects whose IDs are given as strings rather than as numbers. The ID
+            field coerces such a value, so the object is identified and its attributes must be
+            applied -- rather than the entry being treated as though it carried no data.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest("Bulk update data not set")
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, "Insufficient number of objects to test bulk update")
+
+            # Quote only the second ID, so that a batch mixing the two forms is covered as well
+            data = [
+                {'id': id_list[0], **self.bulk_update_data},
+                {'id': str(id_list[1]), **self.bulk_update_data},
+            ]
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            # The attributes must have been applied to both objects. Note that the response body is
+            # deliberately not inspected: for a model whose viewset narrows its own queryset (e.g.
+            # SavedFilter, which is restricted to shared or owned objects), an update which moves an
+            # object outside that queryset succeeds but is not echoed back.
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            for instance in self._get_queryset().filter(pk__in=id_list):
+                self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
+
         def test_bulk_update_objects_validation_error(self):
             """
             PATCH a set of objects where one fails validation. Verify the structured per-object error

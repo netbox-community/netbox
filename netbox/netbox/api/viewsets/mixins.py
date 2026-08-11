@@ -505,9 +505,15 @@ class BulkUpdateModelMixin:
         if (response := get_missing_objects_response(object_ids, qs)) is not None:
             return response
 
-        # Map update data by object ID
+        # Map the attributes to be set for each object by its ID, taking the IDs from the validated
+        # data rather than from the request body: the body's values have not been coerced, so an ID
+        # submitted as a string ("123") would key this map by a value which never matches the
+        # integer PK it identifies, silently discarding that entry's attributes. Each `id` is
+        # excluded here rather than popped, leaving the request data as the client sent it. zip() is
+        # strict as the two sequences necessarily correspond, every entry having been validated.
         update_data = {
-            obj.pop('id'): obj for obj in request.data
+            object_id: {k: v for k, v in item.items() if k != 'id'}
+            for object_id, item in zip(object_ids, request.data, strict=True)
         }
 
         object_pks, errors = self.perform_bulk_update(qs, update_data, partial=partial)
