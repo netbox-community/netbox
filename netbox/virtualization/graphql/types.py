@@ -3,8 +3,10 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 
+from dcim.models import Location, Region, Site, SiteGroup
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
+from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType, register_type
 from users.graphql.mixins import OwnerMixin
@@ -59,7 +61,18 @@ class ClusterType(ContactsMixin, VLANGroupsMixin, PrimaryObjectType):
     virtual_machines: list[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field(prefetch_related='scope')
+    @strawberry_django.field(
+        prefetch_related=build_gfk_prefetch(
+            'scope',
+            [
+                Region,
+                SiteGroup,
+                Site,
+                Location,
+            ],
+        ),
+        only=['scope_type', 'scope_id'],
+    )
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]

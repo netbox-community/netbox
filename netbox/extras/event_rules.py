@@ -71,6 +71,8 @@ class ScriptAction(EventRuleAction):
             'name': script.name,
             'user': event_context['user'],
             'data': action_data,
+            'notifications': script.notifications_default,
+            'job_timeout': script.job_timeout,
         }
         if 'snapshots' in event_context:
             params['snapshots'] = event_context['snapshots']

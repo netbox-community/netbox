@@ -16,14 +16,14 @@ from PIL import Image
 from requests import Session
 from rest_framework import status
 
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
 from core.models import Job, ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
 from extras.events import enqueue_event, flush_events, process_event_rules, serialize_for_event
-from extras.models import EventRule, Script, ScriptModule, Tag, Webhook
+from extras.models import EventRule, Notification, Script, ScriptModule, Tag, Webhook
 from extras.scripts import Script as ScriptBase
 from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
@@ -903,6 +903,79 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         script_job.refresh_from_db()
         self.assertEqual(script_job.status, "completed")
         self.assertEqual(script_job.data.get('output', ''), "finished successfully")
+
+    @tag('regression')  # Issue #22852
+    def test_eventrule_script_action_honors_script_defaults(self):
+        """A script run from an event rule uses the notification policy and job timeout from its Meta class."""
+        class DummyScript(ScriptBase):
+            class Meta:
+                name = 'Dummy Defaults Script'
+                notifications_default = JobNotificationChoices.NOTIFICATION_ON_FAILURE
+                job_timeout = 600
+
+            def run(self, data, commit=True):
+                return 'finished successfully'
+
+        dummy_script = DummyScript()
+
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='dummy_defaults_script.py',
+            )
+        script = Script.objects.create(
+            module=module,
+            name=dummy_script.name,
+            is_executable=True,
+        )
+
+        event_rule = EventRule.objects.create(
+            name='Test Script Defaults Event Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=EventRuleActionChoices.SCRIPT,
+            action_object_type=ObjectType.objects.get_for_model(Script),
+            action_object_id=script.pk,
+        )
+        event_rule.object_types.set([ObjectType.objects.get_for_model(DeviceType)])
+
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer', slug='test-manufacturer')
+        self.add_permissions('dcim.add_devicetype')
+
+        with patch.object(Script, 'python_class') as mock:
+            mock.return_value = dummy_script
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse('dcim-api:devicetype-list'),
+                    {
+                        'manufacturer': manufacturer.pk,
+                        'model': 'Test DeviceType',
+                        'slug': 'test-devicetype',
+                    },
+                    format='json',
+                    **self.header,
+                )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+            self.assertEqual(self.queue.count, 1)
+            self.assertEqual(self.queue.jobs[0].timeout, 600)
+            script_job = Job.objects.get(name=dummy_script.name)
+            self.assertEqual(script_job.notifications, JobNotificationChoices.NOTIFICATION_ON_FAILURE)
+
+            # silence rqworker (cleaner output) and trigger job execution
+            rq_logger = logging.getLogger('rq.worker')
+            self.addCleanup(rq_logger.setLevel, rq_logger.level)
+            rq_logger.setLevel(logging.ERROR)
+            self.run_rq_jobs('default')
+
+        script_job.refresh_from_db()
+        self.assertEqual(script_job.status, "completed")
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.user,
+                object_type=ObjectType.objects.get_for_model(Job),
+                object_id=script_job.pk,
+            ).exists()
+        )
 
     @tag('regression')
     def test_eventrule_webhook_action_with_object_image_files(self):

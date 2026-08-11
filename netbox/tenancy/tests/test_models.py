@@ -1,6 +1,104 @@
-from django.test import TestCase
+from django.db.models import ProtectedError
+from django.test import TestCase, tag
 
-from tenancy.models import Contact, ContactGroup
+from tenancy.models import Contact, ContactGroup, Tenant, TenantGroup
+
+
+class TenantGroupTestCase(TestCase):
+
+    @tag('regression')  # Ref: #22821
+    def test_tenantgroup_deletion_blocked_by_duplicate_ungrouped_name(self):
+        """
+        Deleting a tenant group must raise ProtectedError when ungrouping its tenant would duplicate
+        the name of an already ungrouped tenant.
+        """
+        group = TenantGroup.objects.create(name='Tenant Group 1', slug='tenant-group-1')
+        tenant1 = Tenant.objects.create(name='Tenant 1', slug='tenant-1a', group=group)
+        tenant2 = Tenant.objects.create(name='Tenant 1', slug='tenant-1b')
+
+        with self.assertRaises(ProtectedError) as cm:
+            group.delete()
+
+        self.assertEqual(
+            cm.exception.args[0],
+            'Unable to delete tenant group Tenant Group 1. Ungrouping its tenants, including those of any nested '
+            'groups, would create duplicate tenant names or slugs.'
+        )
+        self.assertEqual(set(cm.exception.protected_objects), {tenant1, tenant2})
+
+        # The failed deletion must leave the group and its tenant assignment intact
+        self.assertTrue(TenantGroup.objects.filter(pk=group.pk).exists())
+        tenant1.refresh_from_db()
+        self.assertEqual(tenant1.group, group)
+
+    @tag('regression')  # Ref: #22821
+    def test_tenantgroup_deletion_blocked_by_duplicate_ungrouped_slug(self):
+        """
+        Deleting a tenant group must raise ProtectedError for a slug collision alone, when the
+        colliding tenants have differing names.
+        """
+        group = TenantGroup.objects.create(name='Tenant Group 2', slug='tenant-group-2')
+        tenant1 = Tenant.objects.create(name='Tenant 2', slug='duplicate-slug', group=group)
+        tenant2 = Tenant.objects.create(name='Tenant 3', slug='duplicate-slug')
+
+        with self.assertRaises(ProtectedError) as cm:
+            group.delete()
+
+        self.assertEqual(set(cm.exception.protected_objects), {tenant1, tenant2})
+        self.assertTrue(TenantGroup.objects.filter(pk=group.pk).exists())
+
+    @tag('regression')  # Ref: #22821
+    def test_tenantgroup_deletion_blocked_by_duplicate_name_in_descendants(self):
+        """
+        Deleting a parent tenant group must raise ProtectedError when ungrouping the tenants of its
+        descendant groups would duplicate a name.
+        """
+        parent = TenantGroup.objects.create(name='Parent Group', slug='parent-group')
+        child1 = TenantGroup.objects.create(name='Child Group 1', slug='child-group-1', parent=parent)
+        child2 = TenantGroup.objects.create(name='Child Group 2', slug='child-group-2', parent=parent)
+        tenant1 = Tenant.objects.create(name='Tenant 4', slug='tenant-4a', group=child1)
+        tenant2 = Tenant.objects.create(name='Tenant 4', slug='tenant-4b', group=child2)
+
+        with self.assertRaises(ProtectedError) as cm:
+            parent.delete()
+
+        self.assertEqual(set(cm.exception.protected_objects), {tenant1, tenant2})
+        self.assertTrue(TenantGroup.objects.filter(pk=parent.pk).exists())
+        self.assertEqual(TenantGroup.objects.filter(pk__in=(child1.pk, child2.pk)).count(), 2)
+
+    def test_tenantgroup_deletion_ungroups_tenants(self):
+        """
+        Deleting a tenant group whose tenants can be ungrouped safely must succeed and clear the group
+        assignment across the whole subtree.
+        """
+        parent = TenantGroup.objects.create(name='Parent Group', slug='parent-group')
+        child = TenantGroup.objects.create(name='Child Group', slug='child-group', parent=parent)
+        tenant1 = Tenant.objects.create(name='Tenant 5', slug='tenant-5', group=parent)
+        tenant2 = Tenant.objects.create(name='Tenant 6', slug='tenant-6', group=child)
+
+        parent.delete()
+
+        self.assertFalse(TenantGroup.objects.filter(pk__in=(parent.pk, child.pk)).exists())
+        tenant1.refresh_from_db()
+        tenant2.refresh_from_db()
+        self.assertIsNone(tenant1.group)
+        self.assertIsNone(tenant2.group)
+
+    def test_tenantgroup_deletion_ignores_tenants_in_unrelated_groups(self):
+        """
+        Deleting a tenant group must succeed when a tenant outside its subtree shares a name and slug
+        with one of its own tenants, as that tenant remains grouped.
+        """
+        group = TenantGroup.objects.create(name='Tenant Group 3', slug='tenant-group-3')
+        unrelated = TenantGroup.objects.create(name='Unrelated Group', slug='unrelated-group')
+        tenant = Tenant.objects.create(name='Tenant 7', slug='tenant-7', group=group)
+        Tenant.objects.create(name='Tenant 7', slug='tenant-7', group=unrelated)
+
+        group.delete()
+
+        self.assertFalse(TenantGroup.objects.filter(pk=group.pk).exists())
+        tenant.refresh_from_db()
+        self.assertIsNone(tenant.group)
 
 
 class ContactGroupTestCase(TestCase):

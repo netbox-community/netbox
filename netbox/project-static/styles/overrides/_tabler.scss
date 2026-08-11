@@ -160,6 +160,15 @@ html[data-bs-theme='dark'] {
     --tblr-table-hover-bg: inherit;
     --tblr-table-hover-color: inherit;
   }
+
+  // Tabler bakes a white glyph into the checked data URI, which reads at 1.4:1 against
+  // the teal dark-mode primary. A data URI is an isolated document, so the color cannot
+  // come from a custom property and has to be baked in at build time.
+  .form-check-input:checked[type='checkbox'] {
+    --tblr-form-check-bg-image: #{escape-svg(
+        url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='#{$rich-black}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/></svg>")
+      )};
+  }
 }
 
 // Do not apply padding to <code> elements inside a <pre>

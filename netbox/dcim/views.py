@@ -211,9 +211,15 @@ class PathTraceView(generic.ObjectView):
         # Get the total length of the cable and whether the length is definitive (fully defined)
         total_length, is_definitive = path.get_total_length() if path else (None, False)
 
-        # Determine the path to the SVG trace image
-        api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
-        svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
+        # Determine the path to the SVG trace image. The `-trace` API action (and the SVG renderer,
+        # which calls origin.trace()) exist only for PathEndpoint origins. Other valid origins such as
+        # CircuitTermination have no such action, so omit the SVG for them.
+        origin_model = path.origin_type.model_class()
+        if issubclass(origin_model, PathEndpoint):
+            api_viewname = f"{path.origin_type.app_label}-api:{path.origin_type.model}-trace"
+            svg_url = f"{reverse(api_viewname, kwargs={'pk': path.origins[0].pk})}?render=svg"
+        else:
+            svg_url = None
 
         return {
             'path': path,

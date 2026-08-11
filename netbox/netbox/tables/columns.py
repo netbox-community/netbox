@@ -6,7 +6,7 @@ import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import Case, DateField, DateTimeField, F, IntegerField, Value, When
+from django.db.models import Case, DateField, DateTimeField, IntegerField, Q, Value, When
 from django.db.models.fields.json import KeyTextTransform
 from django.template import Context, Template
 from django.urls import reverse
@@ -526,14 +526,80 @@ class CustomFieldColumn(tables.Column):
             CustomFieldTypeChoices.TYPE_MULTIOBJECT
         ):
             kwargs['orderable'] = False
+        else:
+            kwargs.setdefault('order_by', (
+                self.unset_alias,
+                f'custom_field_data__{customfield.name}',
+            ))
 
         super().__init__(*args, **kwargs)
 
+    @property
+    def unset_alias(self):
+        """
+        Return the name of the annotation which groups together the objects holding no value for
+        this field (see get_ordering_annotation()).
+
+        The annotation is named for the custom field so that ordering by two custom field columns
+        cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
+        and underscores, so the alias is always a legal identifier.
+        """
+        return f'_cf_{self.customfield.name}_unset'
+
+    def get_ordering_annotation(self):
+        """
+        Return the annotation by which objects holding no value for this field are sorted together,
+        as the leading sort key for the column. (BaseTable applies it to the queryset when ordering
+        by this column.)
+
+        An object can lack a value either by storing a JSON null or by carrying no key for the
+        field at all -- the latter being the normal state for objects which predate it, as data is
+        no longer provisioned onto existing objects (see CustomField.populate_initial_data()).
+        Postgres sorts those two apart: a JSON null is the lowest jsonb value, whereas a missing
+        key yields SQL NULL and sorts last, so the "empty" rows would otherwise land at both ends
+        of the same column. This key (the `empty` lookup covers both states) groups them at one
+        end, matching how SQL NULLs are ordered for an ordinary column: last when ascending, first
+        when descending. The column's second sort key then orders by the raw value, so that numeric
+        and date fields still sort by type rather than lexically.
+        """
+        return {
+            self.unset_alias: Q(**{f'custom_field_data__{self.customfield.name}__empty': True})
+        }
+
     def order(self, queryset, is_descending):
-        # Order by the underlying JSON value, honoring the custom field's null placement preference.
-        # A missing key or a JSON null value is extracted as SQL NULL via the ->> (text) operator,
-        # whereas the -> (JSONB) operator used for value ordering treats JSON null as a sortable value.
-        # We therefore annotate an explicit rank to control null placement independently of JSONB sorting.
+        """
+        Override get_ordering_annotation()'s default (SQL-standard, direction-coupled) null
+        placement to honor the custom field's nulls_first attribute instead: the empty group's
+        position is fixed by admin preference, independent of ascending/descending. Returning
+        (queryset, True) here signals django-tables2 to use this ordering as-is, bypassing the
+        generic annotation set up by get_ordering_annotation() (which still runs, but its result
+        goes unused for this column since only its alias name -- referenced by unset_alias --
+        needs to exist, not the SQL-standard placement it would otherwise apply).
+
+        A missing key or a JSON null value is extracted as SQL NULL via the ->> (text) operator,
+        whereas the -> (JSONB) operator used for value ordering treats JSON null as a sortable
+        value. We therefore annotate an explicit rank to control null placement independently of
+        JSONB sorting.
+
+        Ordering is expressed as plain string keys (not F()-based OrderBy expressions): NetBox's
+        BaseTable._apply_ordering_tie_breaker() inspects self.data.data.query.order_by afterward
+        and wraps each entry in django-tables2's own (string-only) OrderBy helper, which raises
+        TypeError on a raw expression object.
+
+        Trade-off: returning (queryset, True) here is django-tables2's signal that this column
+        has fully handled ordering itself, which takes priority over -- and discards -- any other
+        columns' sort keys requested in the same multi-column sort (see TableQuerysetData.order_by()
+        in django_tables2/data.py: the loop applies whichever column's order() last returns
+        modified=True and returns immediately, never combining it with sibling columns'
+        contributions). A CustomFieldColumn can therefore not currently be composed with other
+        columns in a single sort; it is always the sole and final sort key when included. Preserving
+        nulls_first (an existing, widely-integrated per-field admin setting) was judged to matter
+        more than gaining composability for this specific column, since django-tables2's per-key
+        ascending/descending toggle is applied uniformly across an entire order_by tuple and cannot
+        keep one key's effective placement constant while another flips -- so nulls_first and
+        multi-column composition cannot both be expressed through the generic annotation mechanism
+        for the same column.
+        """
         name = self.customfield.name
         text_value = f'_cf_{name}_text'
         null_rank = f'_cf_{name}_nullrank'
@@ -547,8 +613,8 @@ class CustomFieldColumn(tables.Column):
                 output_field=IntegerField(),
             ),
         })
-        value = F(f'custom_field_data__{name}')
-        ordering = (null_rank, value.desc() if is_descending else value.asc())
+        value_field = f'custom_field_data__{name}'
+        ordering = (null_rank, f'-{value_field}' if is_descending else value_field)
         return queryset.order_by(*ordering), True
 
     @staticmethod
@@ -654,7 +720,9 @@ class CustomLinkColumn(tables.Column):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
             error_text = _('Error')
-            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
+            return format_html(
+                '<span class="text-danger" title="{}"><i class="mdi mdi-alert"></i> {}</span>', e, error_text
+            )
         return ''
 
     def value(self, record, table, **kwargs):

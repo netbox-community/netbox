@@ -1,4 +1,5 @@
 import json
+import re
 import urllib.parse
 from pathlib import Path
 
@@ -38,7 +39,7 @@ from netbox.models.features import (
 from netbox.models.mixins import OwnerMixin
 from netbox.settings_utils import parse_job_timeout
 from utilities.html import clean_html
-from utilities.jinja2 import render_jinja2, sanitize_http_header
+from utilities.jinja2 import JINJA2_TEMPLATE_RE, render_jinja2, sanitize_http_header, validate_jinja2_syntax
 from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
 from utilities.tables import get_table_for_model
@@ -54,6 +55,11 @@ __all__ = (
     'TableConfig',
     'Webhook',
 )
+
+# Matches a literal URL scheme (RFC 3986), independent of urlsplit()'s netloc parsing -- which can
+# raise ValueError on a malformed host -- so a payload_url's scheme can always be read even when
+# its host is templated or malformed.
+LITERAL_SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
 
 
 class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, ChangeLoggedModel):
@@ -220,8 +226,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         max_length=500,
         verbose_name=_('URL'),
         help_text=_(
-            "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template "
-            "processing is supported with the same context as the request body."
+            "This URL will be called using the HTTP method defined when the webhook is called. Must be "
+            "http:// or https://. Jinja2 template processing is supported (with the same context as the "
+            "request body) for part or all of the URL."
         )
     )
     http_method = models.CharField(
@@ -322,11 +329,40 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
     def clean(self):
         super().clean()
 
+        errors = {}
+
         # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:
-            raise ValidationError({
-                'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
-            })
+            errors['ca_file_path'] = _('Do not specify a CA certificate file if SSL verification is disabled.')
+
+        # payload_url may be a literal URL or a Jinja2 template (see its help_text). Skipped when
+        # blank; clean_fields() already flags that.
+        if self.payload_url:
+            if JINJA2_TEMPLATE_RE.search(self.payload_url):
+                # A literal, disallowed scheme (e.g. "file://") can never resolve no matter what
+                # else in the value is templated; anything else is checked for template syntax
+                # only, since its rendered result isn't known here.
+                match = LITERAL_SCHEME_RE.match(self.payload_url)
+                if match and match.group(1).lower() not in ('http', 'https'):
+                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+                else:
+                    try:
+                        validate_jinja2_syntax(self.payload_url)
+                    except ValidationError as e:
+                        errors['payload_url'] = e
+            else:
+                # Fully literal -- validate directly rather than via URLValidator, which rejects
+                # single-label and underscore hosts that `requests` accepts fine. urlsplit() can
+                # raise ValueError for a malformed netloc (e.g. an unbalanced IPv6 bracket).
+                try:
+                    scheme, netloc = urllib.parse.urlsplit(self.payload_url)[:2]
+                except ValueError:
+                    scheme, netloc = '', ''
+                if scheme not in ('http', 'https') or not netloc:
+                    errors['payload_url'] = _("Enter a valid URL, beginning with http:// or https://.")
+
+        if errors:
+            raise ValidationError(errors)
 
         # A timeout which meets or exceeds the background job timeout leaves no room for the request's own timeout
         # to apply: the worker will terminate the job first. (Staying below the job timeout does not guarantee that

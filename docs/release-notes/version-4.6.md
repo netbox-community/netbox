@@ -1,5 +1,21 @@
 # NetBox v4.6
 
+## v4.6.7 (2026-07-30)
+
+### Performance Improvements
+
+* [#22810](https://github.com/netbox-community/netbox/issues/22810) - Skip cached scope rebuild for sites and locations when scope fields are unchanged
+* [#22813](https://github.com/netbox-community/netbox/issues/22813) - Avoid extraneous database queries when fetching custom field data via the GraphQL API
+* [#22822](https://github.com/netbox-community/netbox/issues/22822) - Avoid an extra database query when including rack reservation units via the GraphQL API
+* [#22823](https://github.com/netbox-community/netbox/issues/22823) - Avoid extraneous database queries when fetching the IP address or prefix family via the GraphQL API
+
+### Bug Fixes
+
+* [#22738](https://github.com/netbox-community/netbox/issues/22738) - Correctly evaluate IP availability for users whose permissions are constrained by a custom field on a related object
+* [#22800](https://github.com/netbox-community/netbox/issues/22800) - Filter circuit group assignments by member type to avoid displaying assignments belonging to a virtual circuit with the same ID
+
+---
+
 ## v4.6.6 (2026-07-28)
 
 ### Enhancements

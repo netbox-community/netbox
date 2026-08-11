@@ -52,11 +52,16 @@ class CustomFieldsMixin:
 
     @strawberry_django.field(only=['custom_field_data'])
     def custom_fields(self) -> strawberry.scalars.JSON:
-        data = dict(self.custom_field_data)
-        for cf in CustomField.objects.get_for_model(type(self)):
-            if cf.name in data:
-                data[cf.name] = cf.resolve_selection_value(data[cf.name])
-        return data
+        # Emit a key for every custom field assigned to the model, as the REST API does, rather than
+        # returning the stored data verbatim. A key is materialized only once a value is assigned
+        # (see CustomField.populate_initial_data()), so an object which predates a field carries no
+        # key for it; without this, such a field would be absent from the response instead of null.
+        # CustomFieldManager.get_for_model() is served from the per-request cache, so this costs one
+        # query per model rather than one per object.
+        return {
+            cf.name: cf.resolve_selection_value(self.custom_field_data.get(cf.name))
+            for cf in CustomField.objects.get_for_model(self)
+        }
 
 
 @strawberry.type

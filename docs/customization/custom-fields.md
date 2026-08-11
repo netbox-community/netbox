@@ -30,6 +30,15 @@ Marking a field as required will force the user to provide a value for the field
 
 A custom field must be assigned to one or more object types, or models, in NetBox. Once created, custom fields will automatically appear as part of these models in the web UI and REST API. Note that not all models support custom fields.
 
+!!! info "This behavior changed in NetBox v4.6.8."
+    To improve performance when creating custom fields, empty field values are no longer pre-provisioned.
+
+Unless the field has been assigned a default value, creating a custom field does not write a value to the objects which already exist. An object which has never been assigned a value simply stores nothing for the field, and reports the field as having no value in the web UI, REST API, GraphQL API, and exports, exactly as if it stored an explicit null.
+
+This matters only if you query the underlying `custom_field_data` JSON directly, for example in a custom script. The field's key is absent from an object's data until a value is assigned to it, so read it with `obj.cf['field_name']` or `obj.custom_field_data.get('field_name')` rather than by direct subscript.
+
+Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
+
 ### Filtering
 
 The filter logic controls how values are matched when filtering objects by the custom field. Loose filtering (the default) matches on a partial value, whereas exact matching requires a complete match of the given string to a field's value. For example, exact filtering with the string "red" will only match the exact value "red", whereas loose filtering will match on the values "red", "red-orange", or "bored". Setting the filter logic to "disabled" disables filtering by the field entirely.

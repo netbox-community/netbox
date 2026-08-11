@@ -3,7 +3,10 @@ import os
 import re
 
 from django.apps import apps
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from jinja2 import BaseLoader, TemplateNotFound
+from jinja2.exceptions import TemplateSyntaxError
 from jinja2.meta import find_referenced_templates
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -12,15 +15,22 @@ from netbox.registry import registry
 
 __all__ = (
     'DEFAULT_JINJA2_FILTERS',
+    'HTTP_HEADER_INVALID_CHARS_RE',
+    'JINJA2_TEMPLATE_RE',
     'DataFileLoader',
     'env_filter',
     'render_jinja2',
     'sanitize_http_header',
+    'validate_jinja2_syntax',
 )
 
 # Control characters (C0 range plus DEL) which are invalid in an HTTP header value. Notably, this includes the
 # carriage return and line feed characters used to smuggle additional headers (CR/LF injection).
 HTTP_HEADER_INVALID_CHARS_RE = re.compile(r'[\x00-\x1f\x7f]')
+
+# Matches the start of a Jinja2 expression, statement, or comment ({{, {%, {#), to detect whether a
+# template-capable field (e.g. Webhook.payload_url) is being used as a literal value or a template.
+JINJA2_TEMPLATE_RE = re.compile(r'\{[{%#]')
 
 
 def env_filter(name):
@@ -87,6 +97,23 @@ class DataFileLoader(BaseLoader):
 # Utility functions
 #
 
+def _jinja2_filters(filters=None):
+    """
+    Build the Jinja2 filter table: default < plugin-registered < instance JINJA_FILTERS < filters
+    passed for this call, in increasing precedence. Instance-level config wins over
+    plugin-registered filters so site admins can override anything. Filters passed for this call
+    take precedence over all of them, so that context-specific (e.g. sanitization) filters cannot
+    be shadowed. Shared by render_jinja2() and validate_jinja2_syntax() so both see an identical
+    filter table.
+    """
+    return {
+        **DEFAULT_JINJA2_FILTERS,
+        **registry['plugins'].get('jinja_filters', {}),
+        **get_config().JINJA_FILTERS,
+        **(filters or {}),
+    }
+
+
 def render_jinja2(template_code, context, environment_params=None, data_file=None, debug=False, filters=None):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
@@ -115,21 +142,25 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
         environment_params['loader'] = loader
 
     environment = SandboxedEnvironment(**environment_params)
-
-    # Build filter table: default < plugin-registered < instance JINJA_FILTERS < per-render filters.
-    # Instance-level config wins over plugin-registered filters so site admins can override anything.
-    # Filters passed for this render take precedence over all of them, so that context-specific
-    # (e.g. sanitization) filters cannot be shadowed.
-    all_filters = {
-        **DEFAULT_JINJA2_FILTERS,
-        **registry['plugins'].get('jinja_filters', {}),
-        **get_config().JINJA_FILTERS,
-        **(filters or {}),
-    }
-    environment.filters.update(all_filters)
+    environment.filters.update(_jinja2_filters(filters))
 
     if data_file:
         template = environment.get_template(data_file.path)
     else:
         template = environment.from_string(source=template_code)
     return template.render(**context)
+
+
+def validate_jinja2_syntax(template_code, filters=None):
+    """
+    Validate that template_code is syntactically well-formed Jinja2 -- including that any filters
+    it references are registered -- without rendering it, so no context data is required. Pass the
+    same `filters` used at render time (see render_jinja2()) for an identical filter table. Raises
+    django.core.exceptions.ValidationError on failure.
+    """
+    environment = SandboxedEnvironment(loader=BaseLoader())
+    environment.filters.update(_jinja2_filters(filters))
+    try:
+        environment.compile(template_code)
+    except TemplateSyntaxError as e:
+        raise ValidationError(_("Invalid template: {error}").format(error=e))

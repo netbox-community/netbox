@@ -425,6 +425,36 @@ class CustomFieldChoiceSetTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(response.status_code, 400)
 
+    def test_null_base_choices(self):
+        """
+        A null value for base_choices should be accepted, as returned by the API for a choice set which defines
+        only extra choices.
+        """
+        self.add_permissions('extras.add_customfieldchoiceset', 'extras.change_customfieldchoiceset')
+        data = {
+            'name': 'test',
+            'base_choices': None,
+            'extra_choices': [
+                ['choice1', 'Choice 1'],
+            ],
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertIsNone(response.data['base_choices'])
+        choice_set = CustomFieldChoiceSet.objects.get(pk=response.data['id'])
+        self.assertIsNone(choice_set.base_choices)
+
+        # A choice set with base choices assigned can be reverted to null
+        choice_set.base_choices = CustomFieldChoiceSetBaseChoices.IATA
+        choice_set.save()
+        response = self.client.patch(
+            self._get_detail_url(choice_set), {'base_choices': None}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        choice_set.refresh_from_db()
+        self.assertIsNone(choice_set.base_choices)
+
     def test_invalid_choice_color(self):
         self.add_permissions('extras.add_customfieldchoiceset')
         data = {

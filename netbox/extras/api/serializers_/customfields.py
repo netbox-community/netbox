@@ -19,7 +19,8 @@ __all__ = (
 class CustomFieldChoiceSetSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
-        required=False
+        required=False,
+        allow_null=True,
     )
     extra_choices = serializers.ListField(
         child=serializers.ListField(

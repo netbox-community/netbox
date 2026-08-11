@@ -1,10 +1,11 @@
+import django_filters
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import EmptyResultSet
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django_filters.constants import EMPTY_VALUES
 
 from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
@@ -564,62 +565,63 @@ class AggregateView(generic.ObjectView):
 class ChildAvailabilityMixin:
     """
     Mixin for ObjectChildrenView subclasses that render synthetic "available" rows
-    (available IP space, prefixes, or VLANs) and must suppress them when the child
-    queryset has been narrowed by a direct or saved filter.
+    (available IP space, prefixes, or VLANs) and must suppress them when the request
+    activates a child object filter, so objects excluded by the filter are not
+    misrepresented as available space.
     """
 
-    @staticmethod
-    def _where_signature(queryset):
-        # Compare compiled SQL rather than str(query.where): the WHERE tree embeds default
-        # object reprs (memory addresses) for permission-constraint subqueries, so two
-        # otherwise identical querysets built via restrict() never match (#22539).
-        try:
-            return queryset.query.get_compiler(using=queryset.db).as_sql()
-        except EmptyResultSet:
+    def _get_detection_filterset(self, request):
+        """
+        Return the bound FilterSet used to evaluate the request, or None if the view declares no
+        filterset. ObjectChildrenView.get() has already built one and validated its form while
+        resolving the child queryset, so reuse it rather than paying for a second FilterSet:
+        get_filters() regenerates every dynamic lookup variant and NetBoxModelFilterSet.__init__
+        queries the custom fields for the model. Build one only for direct calls where get() has
+        not run.
+        """
+        if self.filterset_instance is not None:
+            return self.filterset_instance
+        if self.filterset is None:
             return None
 
-    def _set_children_filtered(self, is_filtered):
-        self._child_queryset_is_filtered = is_filtered
-        return is_filtered
+        return self.filterset(request.GET, request=request)
 
-    def _queryset_is_filtered(self, request, queryset, parent):
+    def _has_active_child_filters(self, request):
         """
-        Return True if the filtered child queryset differs from the unfiltered one.
-
-        Compares WHERE clauses rather than testing queryset.query.where for truthiness,
-        because child querysets are already scoped to their parent object and carry WHERE
-        clauses before any user filter is applied. The result is cached on the view instance
-        so get_extra_context() can reuse it without rebuilding the queryset.
+        Return True if the request supplies a valid, non-empty value for any filter declared by
+        the view's filterset. Saved filters are expanded during filterset instantiation and
+        dynamic custom field filters are registered on the instance, so both are detected.
+        Permission constraints and parent scoping never appear in the request, so they cannot
+        affect the result. The result is memoized because a single request evaluates it from
+        both prep_table_data and get_extra_context.
         """
-        if self.filterset is None:
-            return self._set_children_filtered(False)
+        if hasattr(self, '_active_child_filters'):
+            return self._active_child_filters
 
-        unfiltered = self.get_children(request, parent)
+        self._active_child_filters = False
 
-        return self._set_children_filtered(
-            self._where_signature(queryset) != self._where_signature(unfiltered)
-        )
+        # An empty request cannot activate a filter, so skip validating a form for nothing.
+        if not request.GET:
+            return False
 
-    def _children_are_filtered(self, request, parent):
-        """
-        Return whether child objects are filtered.
+        filterset = self._get_detection_filterset(request)
+        if filterset is None:
+            return False
 
-        In the normal ObjectChildrenView flow prep_table_data() runs first and caches the
-        result, so this returns the cached value. Fall back to rebuilding the queryset for
-        direct calls where prep_table_data() has not run.
-        """
-        if hasattr(self, '_child_queryset_is_filtered'):
-            return self._child_queryset_is_filtered
+        # A non-empty cleaned value means the request activated a declared filter. Emptiness
+        # follows each filter's own semantics, so absent multi-value fields stay inactive.
+        # This is a no-op for a reused FilterSet: .qs validated the form to build the queryset.
+        filterset.form.is_valid()
+        for name, value in filterset.form.cleaned_data.items():
+            if isinstance(filterset.filters[name], django_filters.MultipleChoiceFilter):
+                if value:  # mirrors MultipleChoiceFilter.filter()
+                    self._active_child_filters = True
+                    break
+            elif value not in EMPTY_VALUES:  # mirrors Filter.filter()
+                self._active_child_filters = True
+                break
 
-        if self.filterset is None:
-            return self._set_children_filtered(False)
-
-        unfiltered = self.get_children(request, parent)
-        filtered = self.filterset(request.GET, unfiltered, request=request).qs
-
-        return self._set_children_filtered(
-            self._where_signature(filtered) != self._where_signature(unfiltered)
-        )
+        return self._active_child_filters
 
 
 @register_model_view(Aggregate, 'prefixes')
@@ -647,7 +649,7 @@ class AggregatePrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
-        if self._queryset_is_filtered(request, queryset, parent):
+        if show_available and self._has_active_child_filters(request):
             show_available = False
 
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
@@ -655,7 +657,7 @@ class AggregatePrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         show_available = (
             bool(request.GET.get('show_available', 'true') == 'true') and
-            not self._children_are_filtered(request, instance)
+            not self._has_active_child_filters(request)
         )
 
         return {
@@ -880,7 +882,7 @@ class PrefixPrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
-        if self._queryset_is_filtered(request, queryset, parent):
+        if show_available and self._has_active_child_filters(request):
             show_available = False
 
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
@@ -888,7 +890,7 @@ class PrefixPrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     def get_extra_context(self, request, instance):
         show_available = (
             bool(request.GET.get('show_available', 'true') == 'true') and
-            not self._children_are_filtered(request, instance)
+            not self._has_active_child_filters(request)
         )
 
         return {
@@ -945,8 +947,11 @@ class PrefixIPAddressesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not self._queryset_is_filtered(request, queryset, parent) and not get_table_ordering(request, self.table):
-            return annotate_ip_space(parent)
+        # Ordering is checked first: it reads request.GET directly, so a sorted request never
+        # builds the detection filterset.
+        if not get_table_ordering(request, self.table) and not self._has_active_child_filters(request):
+            ip_ranges = parent.get_child_ranges(mark_populated=True).restrict(request.user, 'view')
+            return annotate_ip_space(parent, ip_addresses=queryset, ip_ranges=ip_ranges)
 
         return super().prep_table_data(request, queryset, parent)
 
@@ -1419,7 +1424,7 @@ class VLANGroupVLANsView(ChildAvailabilityMixin, generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         # Skip synthetic available rows under active filters: filtered-out VLANs would otherwise look available.
-        if not self._queryset_is_filtered(request, queryset, parent) and not get_table_ordering(request, self.table):
+        if not get_table_ordering(request, self.table) and not self._has_active_child_filters(request):
             return add_available_vlans(queryset, parent)
 
         return super().prep_table_data(request, queryset, parent)

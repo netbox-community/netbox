@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.db.models import F, Func, Value
-from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -70,10 +69,12 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         """
         Return all CustomFields assigned to the given model.
         """
-        # Check the request cache before hitting the database
+        # Check the request cache before hitting the database. Test the cached value against None
+        # rather than for truthiness: a model with no custom fields caches an empty QuerySet, which
+        # would otherwise be treated as a miss and re-queried on every call.
         cache = query_cache.get()
         if cache is not None:
-            if custom_fields := cache['custom_fields'].get(model._meta.model):
+            if (custom_fields := cache['custom_fields'].get(model._meta.model)) is not None:
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
@@ -348,12 +349,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
         b) the assignment of an existing CustomField to new object types.
+
+        Only a non-null default is written. A field with no default has no value to record, and an
+        absent key is equivalent to a null one everywhere the data is read (see CustomFieldsMixin),
+        so materializing a JSON null on every object would be a very expensive no-op: on a large
+        table it can outlast the request. Objects without the key simply report no value until one
+        is assigned.
         """
         if self.default is None:
-            # We have to convert None to a JSON null for jsonb_set()
-            value = RawSQL("'null'::jsonb", [])
-        else:
-            value = Value(self.default, models.JSONField())
+            return
+        value = Value(self.default, models.JSONField())
         for ct in content_types:
             if model := ct.model_class():
                 chunked_update(
@@ -370,11 +375,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         Delete custom field data which is no longer relevant (either because the CustomField is
         no longer assigned to a model, or because it has been deleted).
+
+        Only objects which actually hold a value for the field are rewritten. Because keys are
+        materialized only when a value is set (see populate_initial_data()), this typically
+        excludes the bulk of the table.
         """
         for ct in content_types:
             if model := ct.model_class():
                 chunked_update(
-                    model.objects.all(),
+                    model.objects.filter(custom_field_data__has_key=self.name),
                     custom_field_data=F('custom_field_data') - self.name
                 )
 
@@ -386,14 +395,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         for ct in self.object_types.all():
             if model := ct.model_class():
                 chunked_update(
-                    model.objects.all(),
+                    model.objects.filter(custom_field_data__has_key=old_name),
                     custom_field_data=Func(
                         F('custom_field_data') - old_name,
                         Value([new_name]),
                         Func(
                             F('custom_field_data'),
-                            function='jsonb_extract_path_text',
-                            template=f"to_jsonb(%(expressions)s -> '{old_name}')"
+                            Value(old_name),
+                            function='jsonb_extract_path',
+                            output_field=models.JSONField()
                         ),
                         function='jsonb_set')
                 )
@@ -698,6 +708,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
         :param lookup_expr: Custom lookup expression (optional)
         """
+        # Imported locally as extras.filters imports extras.models
+        from extras.filters import missing_key_aware_filter_factory
+
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
@@ -762,6 +775,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         # Unsupported custom field type
         else:
             return None
+
+        # A negated lookup must match objects which carry no key for this field at all; see
+        # MissingKeyAwareFilterMixin. BooleanFilter is never negated, so it is left alone.
+        if not issubclass(filter_class, django_filters.BooleanFilter):
+            filter_class = missing_key_aware_filter_factory(filter_class)
 
         filter_instance = filter_class(**kwargs)
         filter_instance.custom_field = self

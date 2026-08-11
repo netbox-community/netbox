@@ -79,14 +79,26 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
     return child_prefixes
 
 
-def annotate_ip_space(prefix):
+def annotate_ip_space(prefix, *, ip_addresses=None, ip_ranges=None):
+    """
+    Return a prefix's child ranges and IPs interleaved with available space records.
+
+    :param prefix: Parent Prefix instance
+    :param ip_addresses: Child IP addresses queryset (defaults to all child IPs)
+    :param ip_ranges: Child IP ranges queryset (defaults to all populated child ranges)
+    """
+    if ip_addresses is None:
+        ip_addresses = prefix.get_child_ips()
+    if ip_ranges is None:
+        ip_ranges = prefix.get_child_ranges(mark_populated=True)
+
     # Compile child objects
     records = []
     records.extend([
-        (iprange.start_address.ip, iprange) for iprange in prefix.get_child_ranges(mark_populated=True)
+        (iprange.start_address.ip, iprange) for iprange in ip_ranges
     ])
     records.extend([
-        (ip.address.ip, ip) for ip in prefix.get_child_ips()
+        (ip.address.ip, ip) for ip in ip_addresses
     ])
     records = sorted(records, key=lambda x: x[0])
 

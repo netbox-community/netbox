@@ -405,6 +405,11 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         label=_('Search'),
     )
     member_type = MultiValueContentTypeFilter()
+    member_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='member_type',
+        queryset=ContentType.objects.all(),
+        distinct=False,
+    )
     circuit = MultiValueCharFilter(
         method='filter_circuit',
         field_name='cid',
@@ -450,7 +455,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = CircuitGroupAssignment
-        fields = ('id', 'member_id', 'priority')
+        fields = ('id', 'member_type_id', 'member_id', 'priority')
 
     def search(self, queryset, name, value):
         if not value.strip():

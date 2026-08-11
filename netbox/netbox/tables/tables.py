@@ -12,6 +12,7 @@ from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
+from django_tables2.utils import OrderBy
 
 from core.models import ObjectType
 from extras.choices import *
@@ -157,6 +158,68 @@ class BaseTable(tables.Table):
             if prefetch_path:
                 prefetch_fields.append('__'.join(prefetch_path))
         self.data.data = self.data.data.prefetch_related(*prefetch_fields)
+
+    def _get_custom_field_ordering_columns(self, order_by):
+        """
+        Return the custom field columns among those named by the given ordering.
+
+        Args:
+            order_by: An iterable (or comma-separated string) of order by aliases.
+        """
+        order_by = order_by.split(',') if isinstance(order_by, str) else order_by or ()
+        ordering_columns = []
+        for alias in order_by:
+            name = OrderBy(alias).bare
+            # Ignore any aliases which django-tables2 will itself discard
+            if name not in self.columns or not self.columns[name].orderable:
+                continue
+            if isinstance(column := self.columns[name].column, columns.CustomFieldColumn):
+                ordering_columns.append(column)
+        return ordering_columns
+
+    def _apply_ordering_annotations(self, ordering_columns):
+        """
+        Dynamically annotate the table's QuerySet with the expressions needed to sort by the given
+        custom field columns. These are applied only for the columns actually being ordered by, to
+        avoid burdening every query with expressions it has no use for.
+        """
+        annotations = {}
+        for column in ordering_columns:
+            annotations.update(column.get_ordering_annotation())
+
+        # Skip any annotations already applied, as when the ordering is set more than once
+        if annotations := {
+            name: expr for name, expr in annotations.items()
+            if name not in self.data.data.query.annotations
+        }:
+            self.data.data = self.data.data.annotate(**annotations)
+
+    def _apply_ordering_tie_breaker(self):
+        """
+        Append the primary key to the table's ordering as a final sort key, so that the ordering is
+        total. Rows tying on every preceding key -- and every object holding no value for a custom
+        field ties on both of that column's keys -- are otherwise free to come back in a different
+        order for each query, which would cause paginated results to skip or repeat rows from one
+        page to the next.
+        """
+        ordering = self.data.data.query.order_by
+        if ordering and not any(OrderBy(o).bare in ('pk', 'id') for o in ordering):
+            self.data.data = self.data.data.order_by(*ordering, 'pk')
+
+    @tables.Table.order_by.setter
+    def order_by(self, value):
+        """
+        Extend the ordering of the table's data with the support needed by custom field columns.
+        """
+        if not isinstance(self.data, TableQuerysetData):
+            tables.Table.order_by.fset(self, value)
+            return
+
+        if ordering_columns := self._get_custom_field_ordering_columns(value):
+            self._apply_ordering_annotations(ordering_columns)
+        tables.Table.order_by.fset(self, value)
+        if ordering_columns:
+            self._apply_ordering_tie_breaker()
 
     def configure(self, request):
         """

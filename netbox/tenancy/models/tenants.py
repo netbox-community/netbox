@@ -1,5 +1,6 @@
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
+from django.db.models import Count, ProtectedError, Q
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
@@ -36,6 +37,24 @@ class TenantGroup(NestedLtreeGroupModel):
         )
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')
+
+    def delete(self, *args, **kwargs):
+        # Ungrouping the tenants of this group and its descendants can violate tenant name and slug uniqueness.
+        ungrouped = Tenant.objects.filter(
+            Q(group__isnull=True) | Q(group__in=self.get_descendants(include_self=True))
+        )
+        duplicate_names = ungrouped.values('name').annotate(count=Count('pk')).filter(count__gt=1).values('name')
+        duplicate_slugs = ungrouped.values('slug').annotate(count=Count('pk')).filter(count__gt=1).values('slug')
+        if conflicts := set(ungrouped.filter(Q(name__in=duplicate_names) | Q(slug__in=duplicate_slugs))):
+            raise ProtectedError(
+                _(
+                    "Unable to delete tenant group {tenant_group}. Ungrouping its tenants, including those of any "
+                    "nested groups, would create duplicate tenant names or slugs."
+                ).format(tenant_group=self),
+                conflicts,
+            )
+
+        return super().delete(*args, **kwargs)
 
 
 class Tenant(ContactsMixin, PrimaryModel):

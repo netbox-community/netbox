@@ -23,6 +23,9 @@ Custom scripts are Python code which exists outside the NetBox code base, so the
 
 ## Writing Custom Scripts
 
+!!! warning "Choose a unique file name"
+    A script file's name (without the `.py` extension) becomes its Python module name when the script is loaded. A script file must not share its name with a NetBox application (e.g. `circuits.py` or `dcim.py`) or any other installed Python module: the script will shadow that module in Python's import system and can break unrelated functionality. Choose a unique, descriptive file name, such as `circuit_maintenance.py`.
+
 All custom scripts must inherit from the `extras.scripts.Script` base class. This class provides the functionality necessary to generate forms and log activity.
 
 ```python
@@ -105,7 +108,7 @@ class MyScript(Script):
 
 ### `commit_default`
 
-The checkbox to commit database changes when executing a script is checked by default. Set `commit_default` to False under the script's Meta class to leave this option unchecked by default.
+The checkbox to commit database changes when executing a script is checked by default. Set `commit_default` to False under the script's Meta class to leave this option unchecked by default. This setting controls only the initial state of the execution form.
 
 ```python
 commit_default = False
@@ -117,7 +120,9 @@ By default, a script can be scheduled for execution at a later time. Setting `sc
 
 ### `notifications_default`
 
-By default, a notification is generated for the requesting user each time a script finishes running. This attribute sets the initial value for the notifications field when running a script. Valid values are `always` (default), `on_failure`, and `never`.
+By default, a notification is generated for the user associated with the script's job each time the script finishes running. This attribute sets the initial value for the notifications field when running a script. Valid values are `always` (default), `on_failure`, and `never`.
+
+Scripts run from an event rule or the `runscript` management command use this value as their notification policy. For an event rule, the notification goes to the user associated with the triggering event, if there is one.
 
 ```python
 notifications_default = 'on_failure'
@@ -131,7 +136,7 @@ notifications_default = 'on_failure'
 
 ### `job_timeout`
 
-Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
+Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used. Scripts run from an event rule use this value as their execution timeout.
 
 ## Accessing Request Data
 
