@@ -773,6 +773,30 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             self.assertEqual(prefix.scope_id, site.pk)
             self.assertEqual(prefix.scope, site)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_edit_nullifies_scope(self):
+        """Nullifying the scope in a bulk edit clears both concrete GFK columns on every object."""
+        # The prefixes created in setUpTestData are already scoped to a Site.
+        prefixes = Prefix.objects.filter(scope_id__isnull=False)
+        self.assertTrue(prefixes.exists())
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [p.pk for p in prefixes],
+            '_apply': '1',
+            '_nullify': ['scope'],
+            # An empty scope alongside _nullify must not trigger the incomplete-scope validation error.
+            'scope_content_type': '',
+            'scope_object_id': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        for prefix in prefixes:
+            prefix.refresh_from_db()
+            self.assertIsNone(prefix.scope_type_id)
+            self.assertIsNone(prefix.scope_id)
+
     def test_scope_object_selector_restricted_by_permissions(self):
         """A constrained user cannot assign a scope object outside their permitted object set."""
         sites = Site.objects.all()[:2]
@@ -813,13 +837,14 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_scope_rejects_object_id_from_other_content_type(self):
         """A submitted object ID belonging to a different content type is rejected, not silently accepted."""
-        site = Site.objects.first()
         region = Region.objects.create(name='Region 1', slug='region-1')
         self.add_permissions('ipam.add_prefix')
 
-        # The test relies on the Site pk NOT also being a valid Region pk (per-table sequences make
-        # a collision possible under parallel test DBs, which would make the "forbidden" pk legitimate).
-        self.assertFalse(Region.objects.filter(pk=site.pk).exists())
+        # Choose a Site pk which is not also a valid Region pk. The two tables' sequences are
+        # independent and are not rolled back between test classes, so a collision would otherwise
+        # make the "forbidden" pk a legitimate Region and depend on test ordering.
+        site = Site.objects.exclude(pk__in=Region.objects.values_list('pk', flat=True)).first()
+        self.assertIsNotNone(site)
 
         # Region content type paired with a Site's pk: the object must be validated against the
         # selected type, so a Site pk cannot resurface as a Region.
@@ -851,7 +876,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             {'scope_content_type': 'not-a-number', 'scope_object_id': site.pk},
             {'scope_content_type': '-1', 'scope_object_id': site.pk},
             {'scope_content_type': site_ct, 'scope_object_id': 'not-a-number'},
-            {'scope_content_type': site_ct, 'scope_object_id': '99999999999999'},
+            # An object ID which overflows PositiveBigIntegerField: it reaches the DB as a filter
+            # argument, so a missing guard would surface a driver error (500) rather than a clean rejection.
+            {'scope_content_type': site_ct, 'scope_object_id': '9' * 30},
         )
         for i, scope in enumerate(malformed):
             with self.subTest(scope=scope):
@@ -860,6 +887,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 # Rejected with a re-rendered form (200), never a 500, and no object created.
                 self.assertHttpStatus(response, 200)
                 self.assertFalse(Prefix.objects.filter(prefix=f'10.95.{i}.0/24').exists())
+                # The rejection lands on the scope field, not on some unrelated field.
+                self.assertIn('scope', response.context['form'].errors)
 
     def test_bulk_add_ipv4_prefixes(self):
         """Test bulk creating IPv4 prefixes using a pattern."""
