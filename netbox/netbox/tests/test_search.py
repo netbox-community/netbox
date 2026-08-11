@@ -476,10 +476,12 @@ class DeferredCachingTestCase(TestCase):
         _apply_deferred_updates tolerates the model being indexed having lost a column the ORM
         still expects (e.g. a plugin's dynamically-generated model whose field was renamed or
         removed within an unmerged branch since the update was enqueued): it must not error, and
-        a cache entry already written by an earlier, successful index must survive untouched --
-        the atomic block's rollback-on-failure is what guarantees that, and is the property
-        actually worth protecting here, not just "no exception" (netboxlabs/netbox-custom-
-        objects#651; netbox-community/netbox#22909).
+        a cache entry already written by an earlier, successful index must survive untouched.
+        The read of the model being indexed happens before any write to CachedValue, so a
+        tolerated failure there means the removal and re-insert are never even attempted for
+        this object -- that ordering, not a rollback, is what leaves the earlier entry
+        untouched, and is the property actually worth protecting here, not just "no exception"
+        (netboxlabs/netbox-custom-objects#651; netbox-community/netbox#22909).
 
         Manufacturer (rather than Site, used elsewhere in this file) is used here because it
         carries no denormalization triggers of its own -- but every FK constraint Django creates
@@ -535,12 +537,16 @@ class DeferredCachingTestCase(TestCase):
             cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
             cursor.execute(f'ALTER TABLE {CachedValue._meta.db_table} DROP COLUMN {column}')
 
-        with self.assertRaises(ProgrammingError):
+        # Pin down that this specifically is the write to CachedValue failing, not some
+        # unrelated ProgrammingError -- otherwise a future change that broke the read side
+        # instead could still satisfy this assertion.
+        with self.assertRaises(ProgrammingError) as ctx:
             search_backend._apply_deferred_updates(
                 using=None,
                 cache_groups={manufacturer_ct.pk: [manufacturer.pk]},
                 remove_groups={},
             )
+        self.assertIn(column, str(ctx.exception))
 
 
 class AutocommitCachingTestCase(TransactionTestCase):
