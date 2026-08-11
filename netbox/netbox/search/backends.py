@@ -418,13 +418,19 @@ class CachedValueSearchBackend(SearchBackend):
         regardless of any routing context that is no longer active by the time this runs.
         """
         for object_type_id, pks in (remove_groups or {}).items():
+            # Resolved once and reused for both the atomic() block and the delete below: passing
+            # `using` straight through when it's falsy would let transaction.atomic() default to
+            # DEFAULT_DB_ALIAS while _remove_by_id() defers to the router (see cache()'s own comment
+            # on this) -- the savepoint would then belong to a different connection than the one the
+            # DELETE actually runs on, on any deployment where CachedValue is routed elsewhere.
+            db = using or CachedValue.objects.db
             try:
                 # A tolerated DatabaseError still needs a savepoint to roll back to: without one,
                 # Postgres leaves the connection's enclosing transaction aborted (refusing every
                 # further statement in it until a rollback) even though the Python exception was
                 # caught, breaking every later iteration of this loop -- not just this one.
-                with transaction.atomic(using=using):
-                    self._remove_by_id(object_type_id, pks, using=using)
+                with transaction.atomic(using=db):
+                    self._remove_by_id(object_type_id, pks, using=db)
             except DatabaseError as e:
                 if not self._is_missing_cache_table(e):
                     raise
@@ -442,19 +448,32 @@ class CachedValueSearchBackend(SearchBackend):
             if model is None:
                 continue
 
+            # Resolved once per group, for the same reason as the removal loop above -- and kept
+            # separate for the read vs. the write, since a router could place the indexed model and
+            # CachedValue on different aliases (in which case no single atomic() spans both anyway;
+            # see the outer/inner split below).
+            read_db = using or model._default_manager.db
+            write_db = using or CachedValue.objects.db
+
             try:
-                # One atomic block for both the read and the write below, so a concurrent update
-                # can't land between them and leave CachedValue holding a snapshot older than what
-                # `instances` was read from. Nested inside it, the read gets its own savepoint so a
-                # tolerated failure there rolls back only the read (see _is_stale_index_target(),
-                # which tolerates a wider set of SQLSTATES than a write to CachedValue does) without
-                # ever reaching -- or needing to roll back -- the write.
-                with transaction.atomic(using=using):
+                # The outer atomic() makes the delete+insert pair below a single write. It does
+                # *not* give the read a consistent snapshot with that write -- PostgreSQL's default
+                # (and NetBox's) READ COMMITTED isolation takes a fresh snapshot per statement
+                # regardless of transaction boundaries, so a concurrent update can still land
+                # between the read and the write either way. That race is pre-existing and benign:
+                # the concurrent save schedules its own deferred update, so the object is reindexed
+                # again regardless of which value this pass happened to write.
+                #
+                # Nested inside it, the read gets its own savepoint so a tolerated failure there
+                # (see _is_stale_index_target(), which tolerates a wider set of SQLSTATES than a
+                # write to CachedValue does) rolls back only the read, without ever reaching -- or
+                # needing to roll back -- the write.
+                with transaction.atomic(using=write_db):
                     try:
-                        with transaction.atomic(using=using):
-                            # Reading on `using` is required: a branch object's PK may be absent
+                        with transaction.atomic(using=read_db):
+                            # Reading on `read_db` is required: a branch object's PK may be absent
                             # (or refer to a different object) on the default connection.
-                            instances = list(model.objects.using(using).filter(pk__in=pks))
+                            instances = list(model.objects.using(read_db).filter(pk__in=pks))
                     except DatabaseError as e:
                         if not self._is_stale_index_target(e):
                             raise
@@ -465,11 +484,11 @@ class CachedValueSearchBackend(SearchBackend):
                         )
                         continue
 
-                    # Clear any stale entries for these objects, then re-insert. Doing both in the
-                    # same transaction as the read above avoids leaving an object with no cache rows
-                    # if execution fails between the delete and the insert.
-                    self._remove_by_id(object_type_id, pks, using=using)
-                    self.cache(instances, remove_existing=False, using=using)
+                    # Clear any stale entries for these objects, then re-insert. Wrapping both in
+                    # one transaction avoids leaving an object with no cache rows if execution fails
+                    # between the delete and the insert.
+                    self._remove_by_id(object_type_id, pks, using=write_db)
+                    self.cache(instances, remove_existing=False, using=write_db)
             except DatabaseError as e:
                 if not self._is_missing_cache_table(e):
                     raise

@@ -471,6 +471,26 @@ class DeferredCachingTestCase(TestCase):
             CachedValue.objects.filter(object_type=site_ct, object_id=pk).exists()
         )
 
+    def test_remove_groups_skips_missing_cache_table(self):
+        """
+        Regression test for the per-iteration transaction.atomic() in the remove_groups loop:
+        without a savepoint to roll back to, a tolerated failure on the first group's DELETE
+        leaves the connection's transaction aborted, and a second group's DELETE in the same call
+        then dies with 25P02 (in_failed_sql_transaction) -- a SQLSTATE in neither tolerated set --
+        instead of being tolerated like the first. Two remove_groups entries are required to
+        observe this: a single entry never reaches a second DELETE to fail.
+        """
+        table = CachedValue._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(f'ALTER TABLE {table} RENAME TO {table}_missing')
+
+        # Neither group's object type/pk needs to correspond to a real object: _remove_by_id()
+        # only uses them to filter CachedValue, which is what no longer exists here.
+        search_backend._apply_deferred_updates(
+            using=None, cache_groups={}, remove_groups={1: [1], 2: [2]},
+        )
+
     def test_cache_update_skips_dropped_column(self):
         """
         _apply_deferred_updates tolerates the model being indexed having lost a column the ORM
