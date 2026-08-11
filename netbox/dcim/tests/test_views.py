@@ -3465,11 +3465,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_import_omitted_field_validation_error(self):
-        """
-        Regression test for #22683: when bulk-importing a CSV update that omits a
-        field referenced by model-level validation, the response must be 200 with a
-        descriptive validation error rather than a 500 ValueError.
-        """
+        """Surface omitted-field validation errors during bulk updates."""
         device = Device.objects.first()
         wireless_interface = Interface.objects.create(
             device=device,
@@ -3493,6 +3489,10 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 200)
         self.assertContains(response, 'rf_channel_width')
         self.assertContains(response, 'Channel width may be set only on wireless interfaces.')
+        self.assertContains(
+            response,
+            'rf_channel_width: Channel width may be set only on wireless interfaces.',
+        )
         wireless_interface.refresh_from_db()
         self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
         self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))

@@ -307,11 +307,7 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         self.assertIsNone(form.cleaned_data['wwn'])
 
     def test_missing_field_validation_error_becomes_non_field_error(self):
-        """
-        Integration test: when model.full_clean() raises a ValidationError keyed to
-        a field absent from the import form, is_valid() should return False with a
-        non-field error rather than raising ValueError. Regression test for #22683.
-        """
+        """Convert validation errors for absent fields to non-field errors."""
         form = InterfaceImportForm(
             data={
                 'device': self.device,
@@ -330,11 +326,7 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         self.assertIn('absent_field: Field error.', form.non_field_errors())
 
     def test_non_field_error_not_overwritten_by_remapped_missing_field_error(self):
-        """
-        When ValidationError contains both a missing-field error and a genuine
-        non-field error, both should appear in non_field_errors() after remapping.
-        Regression test for #22683.
-        """
+        """Preserve remapped and existing non-field errors."""
         form = InterfaceImportForm(
             data={
                 'device': self.device,
@@ -342,7 +334,7 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
                 'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             }
         )
-        form.is_valid()  # Initialize form._errors
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
         # absent_field appears first to expose the former overwrite bug
         form._update_errors(DjangoValidationError({
             'absent_field': ['Field error.'],
@@ -351,3 +343,29 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         non_field_errors = form.non_field_errors()
         self.assertIn('A general error.', non_field_errors)
         self.assertIn('absent_field: Field error.', non_field_errors)
+
+    def test_remapped_error_preserves_code_and_params(self):
+        """Preserve the original ValidationError code and params when remapping."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Params',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
+        form._update_errors(DjangoValidationError({
+            'absent_field': [
+                DjangoValidationError(
+                    '%(value)s is not a valid value.',
+                    code='invalid_value',
+                    params={'value': 'foo'},
+                ),
+            ],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn('absent_field: foo is not a valid value.', non_field_errors)
+        error_data = form.errors[NON_FIELD_ERRORS].as_data()
+        matching = [error for error in error_data if error.code == 'invalid_value']
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0].params, {'value': 'foo'})

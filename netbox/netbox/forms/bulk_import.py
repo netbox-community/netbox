@@ -72,16 +72,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
         return cleaned
 
     def _update_errors(self, errors):
-        """
-        Override to handle ValidationErrors from model.full_clean() that reference
-        fields not present on this import form. Rather than crashing with a ValueError,
-        remap those errors to non-field errors so bulk import surfaces a readable
-        validation message instead of a 500. The originating field name is prepended
-        to each remapped message so users can identify which omitted column or existing
-        value caused the failure. Remapped errors are added after calling Django's
-        _update_errors() to avoid triggering Meta.error_messages[NON_FIELD_ERRORS]
-        overrides intended for genuine non-field errors.
-        """
+        """Convert errors for fields absent from the form to prefixed non-field errors."""
         if hasattr(errors, 'error_dict'):
             remapped = []
             passthrough = {}
@@ -90,8 +81,11 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
                     passthrough[field] = error_list
                 else:
                     for error in error_list:
-                        for message in error.messages:
-                            remapped.append(ValidationError(f"{field}: {message}"))
+                        remapped.append(ValidationError(
+                            f'{field}: {error.message}',
+                            code=error.code,
+                            params=error.params,
+                        ))
             if passthrough:
                 super()._update_errors(ValidationError(passthrough))
             for error in remapped:
