@@ -1940,7 +1940,7 @@ class CoolingOutflowFilterForm(DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'name', 'label', 'type', 'diameter', 'diameter_unit', name=_('Attributes')
+            'name', 'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake_id', name=_('Attributes')
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
@@ -1963,6 +1963,11 @@ class CoolingOutflowFilterForm(DeviceComponentFilterForm):
         choices=DiameterUnitChoices,
         required=False
     )
+    cooling_intake_id = DynamicModelMultipleChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntake.objects.all(),
+        required=False
+    )
     tag = TagFilterField(model)
 
 
@@ -1970,7 +1975,7 @@ class CoolingOutflowTemplateFilterForm(ModularDeviceComponentTemplateFilterForm)
     model = CoolingOutflowTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'type', 'diameter', 'diameter_unit', name=_('Attributes')),
+        FieldSet('name', 'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake_id', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
@@ -1985,6 +1990,11 @@ class CoolingOutflowTemplateFilterForm(ModularDeviceComponentTemplateFilterForm)
     diameter_unit = forms.MultipleChoiceField(
         label=_('Diameter unit'),
         choices=DiameterUnitChoices,
+        required=False
+    )
+    cooling_intake_id = DynamicModelMultipleChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntakeTemplate.objects.all(),
         required=False
     )
 

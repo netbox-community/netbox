@@ -166,7 +166,7 @@ class CoolingIntakeTable(ModularDeviceComponentTable):
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'type', 'diameter', 'max_flow',
-            'description',
+            'cooling_outflow', 'description',
         )
 
 
@@ -281,7 +281,7 @@ class DeviceCoolingIntakeTable(CoolingIntakeTable):
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'diameter', 'max_flow',
-            'description',
+            'cooling_outflow', 'description',
         )
 
 
