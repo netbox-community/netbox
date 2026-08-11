@@ -3487,8 +3487,6 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
             },
         )
         self.assertHttpStatus(response, 200)
-        self.assertContains(response, 'rf_channel_width')
-        self.assertContains(response, 'Channel width may be set only on wireless interfaces.')
         self.assertContains(
             response,
             'rf_channel_width: Channel width may be set only on wireless interfaces.',

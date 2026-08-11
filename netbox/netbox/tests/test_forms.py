@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import MaxLengthValidator
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -369,3 +370,32 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         matching = [error for error in error_data if error.code == 'invalid_value']
         self.assertEqual(len(matching), 1)
         self.assertEqual(matching[0].params, {'value': 'foo'})
+
+    def test_remapped_error_preserves_pluralized_message(self):
+        """Preserve pluralization order when remapping an ngettext_lazy message."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Plural',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
+        form._update_errors(DjangoValidationError({
+            'absent_field': [
+                DjangoValidationError(
+                    MaxLengthValidator.message,
+                    code=MaxLengthValidator.code,
+                    params={'limit_value': 20, 'show_value': 25},
+                ),
+            ],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn(
+            'absent_field: Ensure this value has at most 20 characters (it has 25).',
+            non_field_errors,
+        )
+        error_data = form.errors[NON_FIELD_ERRORS].as_data()
+        matching = [error for error in error_data if error.code == MaxLengthValidator.code]
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0].params, {'limit_value': 20, 'show_value': 25})
