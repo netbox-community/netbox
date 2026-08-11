@@ -13,6 +13,10 @@ __all__ = (
 AND = 'and'
 OR = 'or'
 
+# Prefix identifying a condition attribute that reads an event's pre- or post-change
+# snapshot directly, e.g. 'snapshots.prechange.status'.
+SNAPSHOT_PREFIX = 'snapshots.'
+
 # Sentinel for a snapshot attribute that could not be resolved (missing key or
 # null snapshot).  Using a unique object ensures that two independently
 # unresolvable values compare equal to each other, which is the correct
@@ -78,7 +82,7 @@ class Condition:
                 raise ValueError(_(
                     "The '{op}' operator compares snapshots and does not accept a value."
                 ).format(op=op))
-            if attr.startswith('snapshots.'):
+            if attr.startswith(SNAPSHOT_PREFIX):
                 raise ValueError(_(
                     "The '{op}' operator resolves '{attr}' within each snapshot dict, not the "
                     "top-level condition context. Use the bare attribute name (e.g. 'status') "
@@ -117,6 +121,30 @@ class Condition:
             raise InvalidCondition(f"Invalid key path: {self.attr}")
         except TypeError as e:
             raise InvalidCondition(f"Invalid key path: {self.attr} ({e})")
+
+    def _references_absent_snapshot(self, data):
+        """
+        Return True if self.attr is a direct snapshot path (snapshots.prechange.* or
+        snapshots.postchange.*) whose referenced snapshot is null.
+
+        Create events have no prechange snapshot and delete events have no postchange
+        snapshot. That is a normal property of the event, not a malformed condition, so
+        such a path resolves to None instead of raising: raising would abort evaluation of
+        the entire condition set, suppressing sibling conditions that do match and logging
+        an error on every create (or delete) of the object type.
+
+        A path naming a snapshot that exists but lacks the attribute is left alone, so a
+        genuine typo still fails closed and is logged.
+        """
+        if not self.attr.startswith(SNAPSHOT_PREFIX):
+            return False
+        snapshots = data.get('snapshots') if isinstance(data, dict) else None
+        if type(snapshots) is not dict:
+            # No snapshot context at all (e.g. a job event). Treat as a mismatched rule
+            # and let the normal path resolution fail closed.
+            return False
+        which = self.attr.split('.')[1]
+        return which in snapshots and snapshots[which] is None
 
     def _resolve_snapshot_attr(self, snapshot):
         """
@@ -160,7 +188,7 @@ class Condition:
             result = self.eval_func(snapshots)
             return not result if self.negate else result
 
-        value = self._resolve_attr(data)
+        value = None if self._references_absent_snapshot(data) else self._resolve_attr(data)
         try:
             result = self.eval_func(value)
         except TypeError as e:

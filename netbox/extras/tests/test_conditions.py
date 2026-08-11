@@ -524,6 +524,57 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             c.eval({'snapshots': snapshots})
 
+    def test_snapshot_path_resolves_to_none_when_prechange_absent(self):
+        """
+        On a create event there is no prechange snapshot. That is a property of the event,
+        not a malformed condition, so the path resolves to None rather than raising.
+        """
+        snapshots = {'prechange': None, 'postchange': {'status': 'active'}}
+        self.assertFalse(Condition('snapshots.prechange.status', value='planned').eval({'snapshots': snapshots}))
+        self.assertTrue(Condition('snapshots.prechange.status', value=None).eval({'snapshots': snapshots}))
+        self.assertTrue(
+            Condition('snapshots.prechange.status', value='planned', negate=True).eval({'snapshots': snapshots})
+        )
+
+    def test_snapshot_path_resolves_to_none_when_postchange_absent(self):
+        """As above, for the postchange snapshot on a delete event."""
+        snapshots = {'prechange': {'status': 'active'}, 'postchange': None}
+        self.assertFalse(Condition('snapshots.postchange.status', value='active').eval({'snapshots': snapshots}))
+        self.assertTrue(Condition('snapshots.postchange.status', value=None).eval({'snapshots': snapshots}))
+
+    def test_absent_snapshot_does_not_veto_sibling_conditions(self):
+        """
+        Regression: an absent prechange snapshot must not abort evaluation of the whole
+        condition set, which would suppress a sibling condition that does match. The
+        result must also not depend on the order of the conditions.
+        """
+        data = {'name': 'Site 1', 'snapshots': {'prechange': None, 'postchange': {'status': 'active'}}}
+        snapshot_rule = {'attr': 'snapshots.prechange.status', 'value': 'planned'}
+        name_rule = {'attr': 'name', 'value': 'Site 1'}
+        self.assertTrue(ConditionSet({'or': [snapshot_rule, name_rule]}).eval(data))
+        self.assertTrue(ConditionSet({'or': [name_rule, snapshot_rule]}).eval(data))
+
+    def test_snapshot_path_typo_still_fails_closed(self):
+        """
+        A path naming a snapshot that exists but lacks the attribute is a genuine typo and
+        must still raise, so that it is logged rather than silently evaluating.
+        """
+        snapshots = {'prechange': {'status': 'planned'}, 'postchange': {'status': 'active'}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.stauts', value='planned').eval({'snapshots': snapshots})
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.bogus.status', value='planned').eval({'snapshots': snapshots})
+
+    def test_snapshot_path_without_snapshot_context_fails_closed(self):
+        """
+        A snapshot path used where there is no snapshot context at all (e.g. a job event)
+        is a mismatched rule and must fail closed rather than resolving to None.
+        """
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.status', value='planned').eval({'snapshots': None})
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.status', value='planned').eval({'name': 'Site 1'})
+
     #
     # EventRule.eval_conditions integration
     #
