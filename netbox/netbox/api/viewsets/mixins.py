@@ -93,14 +93,18 @@ def get_non_list_response(data):
     if isinstance(data, list):
         return None
 
-    return Response(
-        {
-            'detail': _('Expected a list of objects, but got {datatype}.').format(
-                datatype=type(data).__name__
-            ),
-        },
-        status=status.HTTP_400_BAD_REQUEST,
-    )
+    # A request with no body at all arrives here as an empty dict, so reporting its type would tell
+    # the client only that it "got dict" -- unhelpful for what is the likeliest way to reach this
+    # point: a DELETE addressed to a list endpoint with nothing in the body. An explicitly submitted
+    # empty object is indistinguishable at this stage, and wants the same message anyway.
+    if data is None or data == {} or data == '':
+        detail = _('Expected a list of objects, but no data was submitted.')
+    else:
+        detail = _('Expected a list of objects, but got {datatype}.').format(
+            datatype=type(data).__name__
+        )
+
+    return Response({'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_invalid_entries_response(entry_errors):

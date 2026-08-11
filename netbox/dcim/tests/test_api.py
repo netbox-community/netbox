@@ -490,6 +490,40 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         site.refresh_from_db()
         self.assertEqual(site.description, '')
 
+        # A non-list body is described by its type, so that the client can see what was sent
+        self.assertEqual(response.data['detail'], 'Expected a list of objects, but got dict.')
+
+    def test_bulk_write_objects_empty_body(self):
+        """
+        Address a list endpoint with no body at all. An absent body reaches the bulk actions as an
+        empty dict, so it must not be reported as having "got dict" -- there is no object to describe.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change', 'delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = Site.objects.count()
+
+        for method in ('patch', 'put', 'delete'):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(self._get_list_url(), **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    response.data['detail'], 'Expected a list of objects, but no data was submitted.'
+                )
+                self.assertNotIn('errors', response.data)
+
+        # An explicitly submitted empty object is indistinguishable, and reads the same way
+        response = self.client.patch(self._get_list_url(), {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data['detail'], 'Expected a list of objects, but no data was submitted.'
+        )
+
+        self.assertEqual(Site.objects.count(), initial_count, 'No objects should have been deleted')
+
     def test_bulk_update_objects_non_numeric_id(self):
         """
         PATCH a set of objects where one entry carries a non-numeric ID. The failure must be

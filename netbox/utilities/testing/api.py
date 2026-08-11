@@ -968,6 +968,33 @@ class APIViewTestCases:
             # No object named in the request may have been deleted
             self.assertEqual(self._get_queryset().count(), initial_count)
 
+        def test_bulk_delete_objects_no_body(self):
+            """
+            DELETE a list endpoint with no body at all. Nothing may be deleted -- the request names no
+            objects, so it cannot mean "all of them" -- and the response must say so intelligibly.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            initial_count = self._get_queryset().count()
+            self.assertNotEqual(initial_count, 0, 'No objects exist against which to test bulk deletion')
+
+            response = self.client.delete(self._get_list_url(), **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            # There are no entries to report against, so no per-object errors are returned
+            self.assertNotIn('errors', response.data)
+            self.assertEqual(
+                self._get_queryset().count(), initial_count,
+                'A bulk delete naming no objects must not delete anything'
+            )
+
     class GraphQLTestCase(APITestCase):
         graphql_auto_filter_tests = True
         graphql_auto_filter_exclude = ()
