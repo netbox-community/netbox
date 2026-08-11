@@ -4,17 +4,17 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# horsitis, 2026
 # Jeremy Stretch, 2026
+# horsitis, 2026
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-30 05:52+0000\n"
+"POT-Creation-Date: 2026-08-11 05:22+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2026\n"
+"Last-Translator: horsitis, 2026\n"
 "Language-Team: Latvian (https://app.transifex.com/netbox-community/teams/178115/lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -235,30 +235,30 @@ msgstr "ASN"
 
 #: netbox/circuits/filtersets.py:107 netbox/circuits/filtersets.py:137
 #: netbox/circuits/filtersets.py:175 netbox/circuits/filtersets.py:365
-#: netbox/circuits/filtersets.py:436 netbox/circuits/filtersets.py:517
-#: netbox/circuits/filtersets.py:596 netbox/ipam/filtersets.py:284
+#: netbox/circuits/filtersets.py:441 netbox/circuits/filtersets.py:522
+#: netbox/circuits/filtersets.py:601 netbox/ipam/filtersets.py:284
 msgid "Provider (ID)"
 msgstr "Pakalpojuma sniedzējs (ID)"
 
 #: netbox/circuits/filtersets.py:114 netbox/circuits/filtersets.py:144
 #: netbox/circuits/filtersets.py:182 netbox/circuits/filtersets.py:372
-#: netbox/circuits/filtersets.py:524 netbox/circuits/filtersets.py:603
+#: netbox/circuits/filtersets.py:529 netbox/circuits/filtersets.py:608
 #: netbox/ipam/filtersets.py:290
 msgid "Provider (slug)"
 msgstr "Pakalpojuma sniedzējs (URL identifikators)"
 
-#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:530
-#: netbox/circuits/filtersets.py:609
+#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:535
+#: netbox/circuits/filtersets.py:614
 msgid "Provider account (ID)"
 msgstr "Pakalpojuma sniedzēja konts (ID)"
 
-#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:537
-#: netbox/circuits/filtersets.py:616
+#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:542
+#: netbox/circuits/filtersets.py:621
 msgid "Provider account (account)"
 msgstr "Pakalpojuma sniedzēja konts (konts)"
 
-#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:542
-#: netbox/circuits/filtersets.py:622
+#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:547
+#: netbox/circuits/filtersets.py:627
 msgid "Provider network (ID)"
 msgstr "Pakalpojuma sniedzēja tīkls (ID)"
 
@@ -294,7 +294,7 @@ msgid "Termination A (ID)"
 msgstr "Savienojums A (ID)"
 
 #: netbox/circuits/filtersets.py:295 netbox/circuits/filtersets.py:405
-#: netbox/circuits/filtersets.py:580 netbox/core/filtersets.py:91
+#: netbox/circuits/filtersets.py:585 netbox/core/filtersets.py:91
 #: netbox/core/filtersets.py:179 netbox/core/filtersets.py:205
 #: netbox/core/filtersets.py:248 netbox/dcim/filtersets.py:926
 #: netbox/dcim/filtersets.py:1760 netbox/dcim/filtersets.py:3041
@@ -348,43 +348,43 @@ msgstr "Telpa (URL identifikators)"
 msgid "ProviderNetwork (ID)"
 msgstr "pakalpojumu sniedzēja tīkls (ID)"
 
-#: netbox/circuits/filtersets.py:411
+#: netbox/circuits/filtersets.py:416
 msgid "Circuit (CID)"
 msgstr "Pieslēgums (CID)"
 
-#: netbox/circuits/filtersets.py:416
+#: netbox/circuits/filtersets.py:421
 msgid "Circuit (ID)"
 msgstr "Pieslēguma (ID)"
 
-#: netbox/circuits/filtersets.py:421
+#: netbox/circuits/filtersets.py:426
 msgid "Virtual circuit (CID)"
 msgstr "Virtuāls pieslēgums (CID)"
 
-#: netbox/circuits/filtersets.py:426 netbox/dcim/filtersets.py:2336
+#: netbox/circuits/filtersets.py:431 netbox/dcim/filtersets.py:2336
 msgid "Virtual circuit (ID)"
 msgstr "Virtuāls pieslēgums (ID)"
 
-#: netbox/circuits/filtersets.py:431
+#: netbox/circuits/filtersets.py:436
 msgid "Provider (name)"
 msgstr "Pakalpojuma sniedzējs (nosaukums)"
 
-#: netbox/circuits/filtersets.py:441
+#: netbox/circuits/filtersets.py:446
 msgid "Circuit group (ID)"
 msgstr "Pieslēgumu grupa (ID)"
 
-#: netbox/circuits/filtersets.py:448
+#: netbox/circuits/filtersets.py:453
 msgid "Circuit group (slug)"
 msgstr "Pieslēgumu grupa (URL identifikators)"
 
-#: netbox/circuits/filtersets.py:547
+#: netbox/circuits/filtersets.py:552
 msgid "Virtual circuit type (ID)"
 msgstr "Virtuālās pieslēguma tips (ID)"
 
-#: netbox/circuits/filtersets.py:554
+#: netbox/circuits/filtersets.py:559
 msgid "Virtual circuit type (slug)"
 msgstr "Virtuālās pieslēguma tips (URL identifikators)"
 
-#: netbox/circuits/filtersets.py:585 netbox/circuits/forms/bulk_edit.py:316
+#: netbox/circuits/filtersets.py:590 netbox/circuits/forms/bulk_edit.py:316
 #: netbox/circuits/forms/bulk_import.py:248
 #: netbox/circuits/forms/filtersets.py:384
 #: netbox/circuits/forms/filtersets.py:390
@@ -394,7 +394,7 @@ msgstr "Virtuālās pieslēguma tips (URL identifikators)"
 msgid "Virtual circuit"
 msgstr "Virtuāls pieslēgums"
 
-#: netbox/circuits/filtersets.py:628 netbox/dcim/filtersets.py:1572
+#: netbox/circuits/filtersets.py:633 netbox/dcim/filtersets.py:1572
 #: netbox/dcim/filtersets.py:2061 netbox/ipam/filtersets.py:680
 #: netbox/vpn/filtersets.py:117 netbox/vpn/filtersets.py:445
 msgid "Interface (ID)"
@@ -506,7 +506,7 @@ msgstr "Krāsa"
 #: netbox/extras/forms/bulk_import.py:48 netbox/extras/tables/tables.py:427
 #: netbox/extras/tables/tables.py:515 netbox/extras/tables/tables.py:584
 #: netbox/extras/ui/panels.py:128 netbox/extras/ui/panels.py:377
-#: netbox/netbox/tables/tables.py:390
+#: netbox/netbox/tables/tables.py:453
 #: netbox/templates/core/htmx/system_db_schema.html:70
 #: netbox/templates/dcim/panels/interface_connection.html:68
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:16
@@ -719,7 +719,7 @@ msgstr "Pakalpojuma parametri"
 #: netbox/dcim/forms/filtersets.py:1924 netbox/dcim/forms/filtersets.py:1942
 #: netbox/dcim/forms/filtersets.py:1962 netbox/dcim/forms/filtersets.py:1978
 #: netbox/dcim/forms/filtersets.py:2024 netbox/dcim/forms/filtersets.py:2060
-#: netbox/dcim/tables/modules.py:25 netbox/dcim/views.py:1774
+#: netbox/dcim/tables/modules.py:25 netbox/dcim/views.py:1780
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/filtersets.py:48
 #: netbox/extras/forms/filtersets.py:152 netbox/extras/forms/filtersets.py:231
 #: netbox/extras/forms/filtersets.py:248 netbox/extras/forms/filtersets.py:280
@@ -729,7 +729,7 @@ msgstr "Pakalpojuma parametri"
 #: netbox/ipam/forms/filtersets.py:351 netbox/ipam/forms/filtersets.py:434
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/forms/filtersets.py:546
 #: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:643
-#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:406
+#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:469
 #: netbox/virtualization/forms/filtersets.py:56
 #: netbox/virtualization/forms/filtersets.py:114
 #: netbox/virtualization/forms/filtersets.py:166
@@ -833,7 +833,7 @@ msgstr "Atzīmēt pievienotu"
 
 #: netbox/circuits/forms/bulk_edit.py:220
 #: netbox/circuits/forms/model_forms.py:211 netbox/circuits/ui/panels.py:85
-#: netbox/dcim/views.py:3579 netbox/dcim/views.py:3681
+#: netbox/dcim/views.py:3585 netbox/dcim/views.py:3687
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:43
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:59
 #: netbox/templates/dcim/panels/interface_connection.html:92
@@ -1001,8 +1001,8 @@ msgstr "Darbības loma"
 #: netbox/dcim/forms/model_forms.py:1372 netbox/dcim/forms/model_forms.py:1641
 #: netbox/dcim/forms/model_forms.py:1822 netbox/dcim/forms/model_forms.py:1857
 #: netbox/dcim/forms/model_forms.py:1982 netbox/dcim/tables/connections.py:66
-#: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3571
-#: netbox/dcim/views.py:3675 netbox/ipam/forms/bulk_import.py:330
+#: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3577
+#: netbox/dcim/views.py:3681 netbox/ipam/forms/bulk_import.py:330
 #: netbox/ipam/forms/model_forms.py:316 netbox/ipam/forms/model_forms.py:325
 #: netbox/ipam/tables/fhrp.py:61 netbox/ipam/tables/ip.py:328
 #: netbox/ipam/tables/vlans.py:149
@@ -1422,10 +1422,10 @@ msgstr "Patch paneļa ID un porta numurs (-i)"
 #: netbox/dcim/models/device_components.py:68 netbox/dcim/models/racks.py:730
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:98
 #: netbox/extras/models/configs.py:289
-#: netbox/extras/models/customfields.py:153 netbox/extras/models/models.py:73
-#: netbox/extras/models/models.py:182 netbox/extras/models/models.py:435
-#: netbox/extras/models/models.py:503 netbox/extras/models/models.py:587
-#: netbox/extras/models/models.py:730
+#: netbox/extras/models/customfields.py:154 netbox/extras/models/models.py:79
+#: netbox/extras/models/models.py:188 netbox/extras/models/models.py:471
+#: netbox/extras/models/models.py:539 netbox/extras/models/models.py:623
+#: netbox/extras/models/models.py:766
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
 #: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
@@ -1459,10 +1459,10 @@ msgstr "Pieslēguma savienojums jāpievieno savienojošam objektam."
 #: netbox/dcim/models/racks.py:290 netbox/dcim/models/sites.py:175
 #: netbox/extras/models/configs.py:40 netbox/extras/models/configs.py:82
 #: netbox/extras/models/configs.py:285
-#: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:68
-#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:325
-#: netbox/extras/models/models.py:431 netbox/extras/models/models.py:493
-#: netbox/extras/models/models.py:583 netbox/extras/models/models.py:725
+#: netbox/extras/models/customfields.py:121 netbox/extras/models/models.py:74
+#: netbox/extras/models/models.py:183 netbox/extras/models/models.py:361
+#: netbox/extras/models/models.py:467 netbox/extras/models/models.py:529
+#: netbox/extras/models/models.py:619 netbox/extras/models/models.py:761
 #: netbox/extras/models/notifications.py:127
 #: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:63
@@ -1471,7 +1471,7 @@ msgstr "Pieslēguma savienojums jāpievieno savienojošam objektam."
 #: netbox/ipam/models/vrfs.py:20 netbox/ipam/models/vrfs.py:78
 #: netbox/netbox/models/__init__.py:180 netbox/netbox/models/__init__.py:228
 #: netbox/tenancy/models/contacts.py:85 netbox/tenancy/models/tenants.py:19
-#: netbox/tenancy/models/tenants.py:45 netbox/users/models/owners.py:19
+#: netbox/tenancy/models/tenants.py:63 netbox/users/models/owners.py:19
 #: netbox/users/models/owners.py:38 netbox/users/models/permissions.py:23
 #: netbox/users/models/users.py:36 netbox/virtualization/models/clusters.py:52
 #: netbox/virtualization/models/virtualmachines.py:40
@@ -1491,10 +1491,10 @@ msgstr "Pakalpojuma sniedzēja pilnais nosaukums"
 
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
 #: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:182
-#: netbox/extras/models/models.py:498 netbox/ipam/models/asns.py:24
+#: netbox/extras/models/models.py:534 netbox/ipam/models/asns.py:24
 #: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
-#: netbox/tenancy/models/tenants.py:50
+#: netbox/tenancy/models/tenants.py:68
 #: netbox/virtualization/models/virtualmachines.py:44
 #: netbox/vpn/models/l2vpn.py:26 netbox/wireless/models.py:60
 msgid "slug"
@@ -1598,7 +1598,7 @@ msgstr "virtuāla pieslēguma savienojumi"
 #: netbox/ipam/tables/services.py:16 netbox/ipam/tables/services.py:38
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
-#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:376
+#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:439
 #: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54
@@ -1989,7 +1989,7 @@ msgstr "Informācija"
 msgid "Warning"
 msgstr "Brīdinājums"
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:625
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:662
 msgid "Error"
 msgstr "Kļūda"
 
@@ -2358,7 +2358,7 @@ msgstr "Šim objektu tipam izmaiņu reģistrēšana netiek atbalstīta ({type}).
 
 #: netbox/core/models/config.py:22 netbox/core/models/data.py:290
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:938 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:974 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
 #: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
 msgid "created"
@@ -2408,7 +2408,7 @@ msgstr "Konfigurācijas pārskatīšana #{id}"
 #: netbox/dcim/models/device_components.py:859
 #: netbox/dcim/models/device_components.py:1246
 #: netbox/dcim/models/device_components.py:1294
-#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:106
+#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:107
 #: netbox/extras/models/search.py:42
 #: netbox/virtualization/models/clusters.py:57
 #: netbox/virtualization/models/virtualmachines.py:121
@@ -2417,7 +2417,7 @@ msgid "type"
 msgstr "tips"
 
 #: netbox/core/models/data.py:50 netbox/core/ui/panels.py:17
-#: netbox/extras/choices.py:37 netbox/extras/models/models.py:188
+#: netbox/extras/choices.py:37 netbox/extras/models/models.py:194
 #: netbox/extras/tables/tables.py:860 netbox/templates/core/plugin.html:66
 msgid "URL"
 msgstr "URL"
@@ -2429,8 +2429,8 @@ msgstr "URL"
 #: netbox/dcim/models/device_components.py:696
 #: netbox/dcim/models/device_components.py:1379
 #: netbox/dcim/models/device_components.py:1480
-#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:330
-#: netbox/extras/models/models.py:518 netbox/extras/models/models.py:602
+#: netbox/extras/models/models.py:88 netbox/extras/models/models.py:366
+#: netbox/extras/models/models.py:554 netbox/extras/models/models.py:638
 #: netbox/users/models/permissions.py:32 netbox/users/models/tokens.py:65
 msgid "enabled"
 msgstr "iespējots"
@@ -2449,7 +2449,7 @@ msgstr ""
 "Šabloni (pa vienam rindā), kas atbilst failiem vai ceļiem, kurus "
 "sinhronizējot ignorēt"
 
-#: netbox/core/models/data.py:75 netbox/extras/models/models.py:526
+#: netbox/core/models/data.py:75 netbox/extras/models/models.py:562
 msgid "parameters"
 msgstr "parametri"
 
@@ -2577,7 +2577,7 @@ msgstr "sākās"
 msgid "completed"
 msgstr "pabeigts"
 
-#: netbox/core/models/jobs.py:101 netbox/extras/models/models.py:113
+#: netbox/core/models/jobs.py:101 netbox/extras/models/models.py:119
 msgid "data"
 msgstr "dati"
 
@@ -2632,7 +2632,7 @@ msgstr "enqueue () nevar izsaukt ar vērtībām gan schedule_at, gan instant."
 msgid "object type"
 msgstr "objekta tips"
 
-#: netbox/core/models/object_types.py:205 netbox/extras/models/models.py:64
+#: netbox/core/models/object_types.py:205 netbox/extras/models/models.py:70
 msgid "object types"
 msgstr "objektu veidi"
 
@@ -2657,7 +2657,7 @@ msgstr "Pilns vārds"
 #: netbox/extras/tables/tables.py:518 netbox/extras/tables/tables.py:589
 #: netbox/extras/tables/tables.py:762 netbox/extras/tables/tables.py:803
 #: netbox/extras/tables/tables.py:857 netbox/extras/ui/panels.py:378
-#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:394
+#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:457
 #: netbox/tenancy/tables/contacts.py:87 netbox/vpn/tables/l2vpn.py:64
 msgid "Object"
 msgstr "Objekts"
@@ -2697,7 +2697,7 @@ msgstr "Pēdējo reizi atjaunināts"
 #: netbox/core/tables/jobs.py:14 netbox/core/tables/tasks.py:77
 #: netbox/dcim/tables/devicetypes.py:168 netbox/extras/tables/tables.py:264
 #: netbox/extras/tables/tables.py:579 netbox/extras/tables/tables.py:828
-#: netbox/netbox/tables/tables.py:252
+#: netbox/netbox/tables/tables.py:315
 #: netbox/templates/dcim/virtualchassis_edit.html:64
 #: netbox/utilities/forms/forms.py:119
 #: netbox/wireless/tables/wirelesslink.py:16
@@ -3134,7 +3134,7 @@ msgstr "Novecojis"
 #: netbox/dcim/tables/devices.py:1082 netbox/dcim/tables/devices.py:1235
 #: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:817
 #: netbox/ipam/tables/fhrp.py:56 netbox/ipam/tables/ip.py:334
-#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:380
+#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:443
 #: netbox/netbox/ui/panels.py:230 netbox/tenancy/forms/bulk_edit.py:33
 #: netbox/tenancy/forms/bulk_edit.py:62 netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -3561,7 +3561,7 @@ msgid "Kilometers"
 msgstr "Kilometri"
 
 #: netbox/dcim/choices.py:1992 netbox/netbox/choices.py:178
-#: netbox/templates/dcim/cable_trace.html:65
+#: netbox/templates/dcim/cable_trace.html:67
 msgid "Meters"
 msgstr "Metri"
 
@@ -3574,7 +3574,7 @@ msgid "Miles"
 msgstr "Jūdzes"
 
 #: netbox/dcim/choices.py:1995 netbox/netbox/choices.py:180
-#: netbox/templates/dcim/cable_trace.html:66
+#: netbox/templates/dcim/cable_trace.html:68
 msgid "Feet"
 msgstr "Pēdas"
 
@@ -4368,7 +4368,7 @@ msgstr "Montāžas dziļums"
 #: netbox/dcim/forms/model_forms.py:277 netbox/dcim/forms/model_forms.py:363
 #: netbox/dcim/tables/devicetypes.py:110 netbox/dcim/tables/modules.py:55
 #: netbox/dcim/tables/racks.py:95 netbox/dcim/tables/racks.py:190
-#: netbox/dcim/views.py:977 netbox/dcim/views.py:1105
+#: netbox/dcim/views.py:983 netbox/dcim/views.py:1111
 #: netbox/extras/forms/bulk_edit.py:57 netbox/extras/forms/bulk_edit.py:144
 #: netbox/extras/forms/bulk_edit.py:198 netbox/extras/forms/bulk_edit.py:226
 #: netbox/extras/forms/bulk_edit.py:322 netbox/extras/forms/bulk_edit.py:348
@@ -4404,7 +4404,7 @@ msgstr "Ārējie izmēri"
 
 #: netbox/dcim/forms/bulk_edit.py:311 netbox/dcim/forms/model_forms.py:278
 #: netbox/dcim/forms/model_forms.py:364 netbox/dcim/ui/panels.py:138
-#: netbox/dcim/views.py:971 netbox/dcim/views.py:1103
+#: netbox/dcim/views.py:977 netbox/dcim/views.py:1109
 #: netbox/extras/tables/tables.py:282
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:3
 #: netbox/templates/extras/panels/imageattachment_file.html:14
@@ -4413,7 +4413,7 @@ msgstr "Izmēri"
 
 #: netbox/dcim/forms/bulk_edit.py:313 netbox/dcim/forms/filtersets.py:347
 #: netbox/dcim/forms/filtersets.py:372 netbox/dcim/forms/model_forms.py:280
-#: netbox/dcim/views.py:976 netbox/dcim/views.py:1104
+#: netbox/dcim/views.py:982 netbox/dcim/views.py:1110
 #: netbox/templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "Numerācija"
@@ -4506,7 +4506,7 @@ msgid "Device Type"
 msgstr "iekārtas tips"
 
 #: netbox/dcim/forms/bulk_edit.py:566 netbox/dcim/forms/model_forms.py:457
-#: netbox/dcim/views.py:1684 netbox/extras/forms/model_forms.py:689
+#: netbox/dcim/views.py:1690 netbox/extras/forms/model_forms.py:689
 msgid "Schema"
 msgstr "Struktūra"
 
@@ -4531,7 +4531,7 @@ msgstr "Profils"
 #: netbox/dcim/forms/model_forms.py:1184 netbox/dcim/forms/model_forms.py:1205
 #: netbox/dcim/forms/model_forms.py:1245 netbox/dcim/forms/model_forms.py:1263
 #: netbox/dcim/forms/object_create.py:120 netbox/dcim/tables/modules.py:52
-#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2958
+#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2964
 msgid "Module Type"
 msgstr "Moduļa tips"
 
@@ -5528,7 +5528,7 @@ msgid "Power Panel"
 msgstr "Barošanas panelis"
 
 #: netbox/dcim/forms/connections.py:68 netbox/dcim/forms/model_forms.py:942
-#: netbox/dcim/views.py:3215
+#: netbox/dcim/views.py:3221
 msgid "Power Feed"
 msgstr "Strāvas padeve"
 
@@ -5557,7 +5557,7 @@ msgid "Function"
 msgstr "Funkcija"
 
 #: netbox/dcim/forms/filtersets.py:478 netbox/dcim/forms/model_forms.py:386
-#: netbox/dcim/tables/racks.py:217 netbox/dcim/views.py:1254
+#: netbox/dcim/tables/racks.py:217 netbox/dcim/views.py:1260
 msgid "Reservation"
 msgstr "Rezervācija"
 
@@ -5665,7 +5665,7 @@ msgid "Transmit power (dBm)"
 msgstr "Pārraides jauda (dBm)"
 
 #: netbox/dcim/forms/filtersets.py:1819 netbox/dcim/forms/filtersets.py:1863
-#: netbox/dcim/tables/devices.py:344 netbox/templates/dcim/cable_trace.html:46
+#: netbox/dcim/tables/devices.py:344 netbox/templates/dcim/cable_trace.html:48
 #: netbox/templates/dcim/htmx/cable_edit.html:53
 #: netbox/templates/dcim/inc/connection_endpoints.html:4
 #: netbox/templates/dcim/panels/connection.html:14
@@ -5901,19 +5901,19 @@ msgid "Rear port template"
 msgstr "Aizmugurējā porta veidne"
 
 #: netbox/dcim/forms/model_forms.py:1373 netbox/dcim/forms/model_forms.py:1858
-#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3124
-#: netbox/dcim/views.py:3573
+#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3130
+#: netbox/dcim/views.py:3579
 msgid "Console Port"
 msgstr "Konsoles ports"
 
 #: netbox/dcim/forms/model_forms.py:1374 netbox/dcim/forms/model_forms.py:1859
-#: netbox/dcim/views.py:3033 netbox/dcim/views.py:3572
+#: netbox/dcim/views.py:3039 netbox/dcim/views.py:3578
 msgid "Console Server Port"
 msgstr "Konsoles servera ports"
 
 #: netbox/dcim/forms/model_forms.py:1375 netbox/dcim/forms/model_forms.py:1860
-#: netbox/dcim/views.py:3035 netbox/dcim/views.py:3125
-#: netbox/dcim/views.py:3574 netbox/dcim/views.py:3676
+#: netbox/dcim/views.py:3041 netbox/dcim/views.py:3131
+#: netbox/dcim/views.py:3580 netbox/dcim/views.py:3682
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:41
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:57
 #: netbox/templates/dcim/panels/interface_connection.html:86
@@ -5922,8 +5922,8 @@ msgid "Front Port"
 msgstr "Priekšējais ports"
 
 #: netbox/dcim/forms/model_forms.py:1376 netbox/dcim/forms/model_forms.py:1861
-#: netbox/dcim/views.py:3036 netbox/dcim/views.py:3126
-#: netbox/dcim/views.py:3575 netbox/dcim/views.py:3677
+#: netbox/dcim/views.py:3042 netbox/dcim/views.py:3132
+#: netbox/dcim/views.py:3581 netbox/dcim/views.py:3683
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:42
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:58
 #: netbox/templates/dcim/panels/front_port_mappings.html:10
@@ -5933,12 +5933,12 @@ msgstr "Aizmugurējais ports"
 
 #: netbox/dcim/forms/model_forms.py:1377 netbox/dcim/forms/model_forms.py:1862
 #: netbox/dcim/tables/connections.py:47 netbox/dcim/tables/devices.py:539
-#: netbox/dcim/views.py:3303 netbox/dcim/views.py:4835
+#: netbox/dcim/views.py:3309 netbox/dcim/views.py:4841
 msgid "Power Port"
 msgstr "Strāvas ports"
 
 #: netbox/dcim/forms/model_forms.py:1378 netbox/dcim/forms/model_forms.py:1863
-#: netbox/dcim/views.py:3214
+#: netbox/dcim/views.py:3220
 msgid "Power Outlet"
 msgstr "Strāvas kontaktligzda"
 
@@ -6077,7 +6077,7 @@ msgstr "profils"
 #: netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/device_component_templates.py:64
 #: netbox/dcim/models/device_components.py:62
-#: netbox/extras/models/customfields.py:139
+#: netbox/extras/models/customfields.py:140
 msgid "label"
 msgstr "etiķete"
 
@@ -6189,24 +6189,24 @@ msgstr "kabeļa ceļš"
 msgid "cable paths"
 msgstr "kabeļu ceļi"
 
-#: netbox/dcim/models/cables.py:858
+#: netbox/dcim/models/cables.py:862
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 "Visiem izcelsmes izbeigumiem jābūt pievienotiem vienai un tai pašai saitei"
 
-#: netbox/dcim/models/cables.py:876
+#: netbox/dcim/models/cables.py:880
 msgid "All mid-span terminations must have the same termination type"
 msgstr "Visiem vidēja termiņa beigām jābūt vienādam izbeigšanas veidam"
 
-#: netbox/dcim/models/cables.py:884
+#: netbox/dcim/models/cables.py:888
 msgid "All mid-span terminations must have the same parent object"
 msgstr "Visiem vidēja termiņa beigām jābūt vienam un tam pašam mātesobjektam"
 
-#: netbox/dcim/models/cables.py:914
+#: netbox/dcim/models/cables.py:918
 msgid "All links must be cable or wireless"
 msgstr "Visiem savienojumiem jābūt kabeļiem vai bezvadu"
 
-#: netbox/dcim/models/cables.py:916
+#: netbox/dcim/models/cables.py:920
 msgid "All links must match first link type"
 msgstr "Visiem savienojumiem jāatbilst pirmajam savienojuma veidam"
 
@@ -7268,8 +7268,8 @@ msgstr "identifikators"
 msgid "Numeric identifier unique to the parent device"
 msgstr "Ciparu identifikators, kas ir unikāls vecāk-iekārtaI"
 
-#: netbox/dcim/models/devices.py:1298 netbox/extras/models/customfields.py:264
-#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:898
+#: netbox/dcim/models/devices.py:1298 netbox/extras/models/customfields.py:265
+#: netbox/extras/models/models.py:125 netbox/extras/models/models.py:934
 #: netbox/netbox/models/__init__.py:154 netbox/netbox/models/__init__.py:193
 #: netbox/netbox/models/__init__.py:243
 msgid "comments"
@@ -7740,11 +7740,11 @@ msgstr "Pievienot komponentus"
 msgid "Disconnect Selected"
 msgstr "Atvienot atlasīto"
 
-#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4342
+#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4348
 msgid "Termination A"
 msgstr "Savienojums A"
 
-#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4346
+#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4352
 msgid "Termination B"
 msgstr "Savienojums B"
 
@@ -7880,8 +7880,8 @@ msgid "Power outlets"
 msgstr "Strāvas kontaktligzdas"
 
 #: netbox/dcim/tables/devices.py:254 netbox/dcim/tables/devices.py:1204
-#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1518
-#: netbox/dcim/views.py:1872 netbox/dcim/views.py:2759
+#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1524
+#: netbox/dcim/views.py:1878 netbox/dcim/views.py:2765
 #: netbox/netbox/navigation/menu.py:104 netbox/netbox/navigation/menu.py:269
 #: netbox/templates/dcim/buttons/bulk_add_components.html:38
 #: netbox/templates/dcim/device/base.html:37
@@ -7925,7 +7925,7 @@ msgstr "Moduļa nodalījums"
 
 #: netbox/dcim/tables/devices.py:335 netbox/dcim/tables/devicetypes.py:53
 #: netbox/dcim/tables/devicetypes.py:147 netbox/dcim/ui/panels.py:416
-#: netbox/dcim/views.py:1593 netbox/dcim/views.py:2845
+#: netbox/dcim/views.py:1599 netbox/dcim/views.py:2851
 #: netbox/netbox/navigation/menu.py:113
 #: netbox/templates/dcim/buttons/bulk_add_components.html:66
 #: netbox/templates/dcim/device/base.html:52
@@ -7954,7 +7954,7 @@ msgstr "Maksimālā jauda (W)"
 msgid "Allocated draw (W)"
 msgstr "Piešķirtā jauda (W)"
 
-#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3402
+#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3408
 #: netbox/ipam/forms/model_forms.py:834 netbox/ipam/tables/fhrp.py:28
 #: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:924
 #: netbox/ipam/views.py:1052 netbox/netbox/navigation/menu.py:175
@@ -7966,7 +7966,7 @@ msgstr "IP adreses"
 msgid "Primary MAC"
 msgstr "Primārā MAC"
 
-#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3408
+#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3414
 #: netbox/netbox/navigation/menu.py:120
 msgid "MAC Addresses"
 msgstr "MAC adreses"
@@ -8060,7 +8060,7 @@ msgstr "Statņu veidi"
 msgid "Device Types"
 msgstr "Iekārtu veidi"
 
-#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1690
+#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1696
 #: netbox/netbox/navigation/menu.py:96
 msgid "Module Types"
 msgstr "Moduļu veidi"
@@ -8083,8 +8083,8 @@ msgstr "Pilna dziļuma"
 msgid "Device Count"
 msgstr "Iekārtu skaits"
 
-#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1458
-#: netbox/dcim/views.py:1812 netbox/dcim/views.py:2694
+#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1464
+#: netbox/dcim/views.py:1818 netbox/dcim/views.py:2700
 #: netbox/netbox/navigation/menu.py:107
 #: netbox/templates/dcim/buttons/bulk_add_components.html:10
 #: netbox/templates/dcim/device/base.html:25
@@ -8094,8 +8094,8 @@ msgstr "Iekārtu skaits"
 msgid "Console Ports"
 msgstr "Konsoles porti"
 
-#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1473
-#: netbox/dcim/views.py:1827 netbox/dcim/views.py:2710
+#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1479
+#: netbox/dcim/views.py:1833 netbox/dcim/views.py:2716
 #: netbox/netbox/navigation/menu.py:108
 #: netbox/templates/dcim/buttons/bulk_add_components.html:17
 #: netbox/templates/dcim/device/base.html:28
@@ -8105,8 +8105,8 @@ msgstr "Konsoles porti"
 msgid "Console Server Ports"
 msgstr "Konsoles servera porti"
 
-#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1488
-#: netbox/dcim/views.py:1842 netbox/dcim/views.py:2726
+#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1494
+#: netbox/dcim/views.py:1848 netbox/dcim/views.py:2732
 #: netbox/netbox/navigation/menu.py:109
 #: netbox/templates/dcim/buttons/bulk_add_components.html:24
 #: netbox/templates/dcim/device/base.html:31
@@ -8116,8 +8116,8 @@ msgstr "Konsoles servera porti"
 msgid "Power Ports"
 msgstr "Strāvas porti"
 
-#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1503
-#: netbox/dcim/views.py:1857 netbox/dcim/views.py:2742
+#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1509
+#: netbox/dcim/views.py:1863 netbox/dcim/views.py:2748
 #: netbox/netbox/navigation/menu.py:110
 #: netbox/templates/dcim/buttons/bulk_add_components.html:31
 #: netbox/templates/dcim/device/base.html:34
@@ -8127,8 +8127,8 @@ msgstr "Strāvas porti"
 msgid "Power Outlets"
 msgstr "Strāvas kontaktligzdas"
 
-#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1533
-#: netbox/dcim/views.py:1887 netbox/dcim/views.py:2781
+#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1539
+#: netbox/dcim/views.py:1893 netbox/dcim/views.py:2787
 #: netbox/netbox/navigation/menu.py:105
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -8137,8 +8137,8 @@ msgstr "Strāvas kontaktligzdas"
 msgid "Front Ports"
 msgstr "Priekšējie porti"
 
-#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1548
-#: netbox/dcim/views.py:1902 netbox/dcim/views.py:2797
+#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1554
+#: netbox/dcim/views.py:1908 netbox/dcim/views.py:2803
 #: netbox/netbox/navigation/menu.py:106
 #: netbox/templates/dcim/buttons/bulk_add_components.html:45
 #: netbox/templates/dcim/device/base.html:43
@@ -8148,16 +8148,16 @@ msgstr "Priekšējie porti"
 msgid "Rear Ports"
 msgstr "Aizmugurējie porti"
 
-#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1578
-#: netbox/dcim/views.py:2829 netbox/netbox/navigation/menu.py:112
+#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1584
+#: netbox/dcim/views.py:2835 netbox/netbox/navigation/menu.py:112
 #: netbox/templates/dcim/buttons/bulk_add_components.html:52
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
 msgstr "Iekārtas nodalījumi"
 
-#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1563
-#: netbox/dcim/views.py:1917 netbox/dcim/views.py:2813
+#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1569
+#: netbox/dcim/views.py:1923 netbox/dcim/views.py:2819
 #: netbox/netbox/navigation/menu.py:111
 #: netbox/templates/dcim/buttons/bulk_add_components.html:59
 #: netbox/templates/dcim/device/base.html:46
@@ -8329,110 +8329,110 @@ msgstr ""
 msgid "Disconnected {count} {type}"
 msgstr "Atvienots {count} {type}"
 
-#: netbox/dcim/views.py:258
+#: netbox/dcim/views.py:264
 msgid "Child Regions"
 msgstr "Apakšreģioni"
 
-#: netbox/dcim/views.py:391 netbox/tenancy/views.py:59
+#: netbox/dcim/views.py:397 netbox/tenancy/views.py:59
 #: netbox/tenancy/views.py:232 netbox/wireless/views.py:54
 msgid "Child Groups"
 msgstr "Apakšgrupas"
 
-#: netbox/dcim/views.py:551 netbox/dcim/views.py:693 netbox/dcim/views.py:1180
+#: netbox/dcim/views.py:557 netbox/dcim/views.py:699 netbox/dcim/views.py:1186
 msgid "Non-Racked Devices"
 msgstr "Statnē neievietotas iekārtas"
 
-#: netbox/dcim/views.py:678
+#: netbox/dcim/views.py:684
 msgid "Child Locations"
 msgstr "Apakštelpas"
 
-#: netbox/dcim/views.py:1161 netbox/netbox/navigation/menu.py:53
+#: netbox/dcim/views.py:1167 netbox/netbox/navigation/menu.py:53
 msgid "Reservations"
 msgstr "Rezervācijas"
 
-#: netbox/dcim/views.py:2444
+#: netbox/dcim/views.py:2450
 msgid "Child Device Roles"
 msgstr "Iekārtu apakšlomas"
 
-#: netbox/dcim/views.py:2545
+#: netbox/dcim/views.py:2551
 msgid "Child Platforms"
 msgstr "Apakšplatformas"
 
-#: netbox/dcim/views.py:2637 netbox/netbox/navigation/menu.py:223
+#: netbox/dcim/views.py:2643 netbox/netbox/navigation/menu.py:223
 #: netbox/virtualization/views.py:493
 msgid "Application Services"
 msgstr "Lietotnes servisi"
 
-#: netbox/dcim/views.py:2858 netbox/extras/forms/filtersets.py:407
+#: netbox/dcim/views.py:2864 netbox/extras/forms/filtersets.py:407
 #: netbox/extras/forms/model_forms.py:789 netbox/extras/ui/panels.py:435
 #: netbox/virtualization/forms/model_forms.py:278
 #: netbox/virtualization/views.py:569
 msgid "Config Context"
 msgstr "Konfigurācijas konteksts"
 
-#: netbox/dcim/views.py:2869 netbox/virtualization/views.py:580
+#: netbox/dcim/views.py:2875 netbox/virtualization/views.py:580
 msgid "Render Config"
 msgstr "Renderēšanas konfigurācija"
 
-#: netbox/dcim/views.py:2882 netbox/extras/tables/tables.py:735
+#: netbox/dcim/views.py:2888 netbox/extras/tables/tables.py:735
 #: netbox/netbox/navigation/menu.py:266 netbox/netbox/navigation/menu.py:268
 #: netbox/virtualization/views.py:278
 msgid "Virtual Machines"
 msgstr "Virtuālās mašīnas"
 
-#: netbox/dcim/views.py:3389 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/views.py:3395 netbox/netbox/navigation/menu.py:89
 msgid "Virtual Device Contexts"
 msgstr "Virtuālo iekārtu konteksti"
 
-#: netbox/dcim/views.py:3414 netbox/ipam/forms/filtersets.py:469
+#: netbox/dcim/views.py:3420 netbox/ipam/forms/filtersets.py:469
 #: netbox/ipam/models/vlans.py:308 netbox/ipam/tables/ip.py:121
 #: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1386
 #: netbox/netbox/navigation/menu.py:210 netbox/netbox/navigation/menu.py:212
 msgid "VLANs"
 msgstr "VLAN"
 
-#: netbox/dcim/views.py:3416
+#: netbox/dcim/views.py:3422
 msgid "LAG Members"
 msgstr "LAG Members"
 
-#: netbox/dcim/views.py:3417 netbox/virtualization/ui/panels.py:112
+#: netbox/dcim/views.py:3423 netbox/virtualization/ui/panels.py:112
 #: netbox/virtualization/views.py:680
 msgid "VLAN Translation"
 msgstr "VLAN pārveide"
 
-#: netbox/dcim/views.py:3418
+#: netbox/dcim/views.py:3424
 msgid "Bridged Interfaces"
 msgstr "Tilta interfeisi"
 
-#: netbox/dcim/views.py:3419 netbox/virtualization/views.py:681
+#: netbox/dcim/views.py:3425 netbox/virtualization/views.py:681
 msgid "Child Interfaces"
 msgstr "Apakšinterfeisi"
 
-#: netbox/dcim/views.py:3892
+#: netbox/dcim/views.py:3898
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Uzstādīta iekārta {device} nodalījumā {device_bay}."
 
-#: netbox/dcim/views.py:3933
+#: netbox/dcim/views.py:3939
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Demontēta iekārta {device} no nodalījuma {device_bay}."
 
-#: netbox/dcim/views.py:4055 netbox/ipam/tables/ip.py:184
+#: netbox/dcim/views.py:4061 netbox/ipam/tables/ip.py:184
 msgid "Children"
 msgstr "Bērni"
 
-#: netbox/dcim/views.py:4625
+#: netbox/dcim/views.py:4631
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "Pievienots dalībnieks <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:4670
+#: netbox/dcim/views.py:4676
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Nevar noņemt galveno iekārtu{device} no virtuālās šasijas."
 
-#: netbox/dcim/views.py:4681
+#: netbox/dcim/views.py:4687
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Noņemts {device} no virtuālās šasijas {chassis}"
@@ -8485,7 +8485,7 @@ msgstr ""
 msgid "The rendered template output."
 msgstr "Renderētās veidnes izvade."
 
-#: netbox/extras/api/serializers_/customfields.py:79
+#: netbox/extras/api/serializers_/customfields.py:80
 msgid "Changing the type of custom fields is not supported."
 msgstr "Pielāgoto lauku veida maiņa netiek atbalstīta."
 
@@ -8852,12 +8852,12 @@ msgid "Ignoring invalid action_data on event rule \"{rule}\" (got {data_type})"
 msgstr ""
 "Nederīgu action_data ignorēšana notikuma kārtulā”{rule}“(saņēma {data_type})"
 
-#: netbox/extras/events.py:276
+#: netbox/extras/events.py:278
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "Nezināms darbības veids notikuma kārtulai: {action_type}"
 
-#: netbox/extras/events.py:319
+#: netbox/extras/events.py:321
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "Nevar importēt notikumu cauruļvadu {name} kļūda: {error}"
@@ -8931,13 +8931,13 @@ msgstr "Jābūt unikālam"
 
 #: netbox/extras/forms/bulk_edit.py:65 netbox/extras/forms/bulk_import.py:66
 #: netbox/extras/forms/filtersets.py:99
-#: netbox/extras/models/customfields.py:248 netbox/extras/ui/panels.py:155
+#: netbox/extras/models/customfields.py:249 netbox/extras/ui/panels.py:155
 msgid "UI visible"
 msgstr "Saskarne redzama"
 
 #: netbox/extras/forms/bulk_edit.py:70 netbox/extras/forms/bulk_import.py:72
 #: netbox/extras/forms/filtersets.py:104
-#: netbox/extras/models/customfields.py:255 netbox/extras/ui/panels.py:156
+#: netbox/extras/models/customfields.py:256 netbox/extras/ui/panels.py:156
 msgid "UI editable"
 msgstr "Interfesā rediģējams"
 
@@ -9005,7 +9005,7 @@ msgid "Shared"
 msgstr "Kopīgots"
 
 #: netbox/extras/forms/bulk_edit.py:258 netbox/extras/forms/filtersets.py:325
-#: netbox/extras/models/models.py:198 netbox/extras/ui/panels.py:338
+#: netbox/extras/models/models.py:205 netbox/extras/ui/panels.py:338
 msgid "HTTP method"
 msgstr "HTTP metode"
 
@@ -9014,7 +9014,7 @@ msgstr "HTTP metode"
 msgid "Payload URL"
 msgstr "Lietderīgās slodzes URL"
 
-#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:240
+#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:247
 #: netbox/extras/ui/panels.py:347
 msgid "SSL verification"
 msgstr "SSL verifikācija"
@@ -9125,11 +9125,11 @@ msgstr "Nederīga krāsu kartēšana”{line}”. Izmantojiet formātu vērtība
 msgid "Duplicate color mapping defined for choice '{value}'."
 msgstr "Izvēlei definēta dublēta krāsu kartēšana '{value}”."
 
-#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:352
+#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:388
 msgid "button class"
 msgstr "pogu klase"
 
-#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:356
+#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:392
 msgid ""
 "The class of the first link in a group will be used for the dropdown button"
 msgstr ""
@@ -9195,8 +9195,8 @@ msgid "The classification of entry"
 msgstr "Ierakstu klasifikācija"
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
-#: netbox/netbox/tables/tables.py:346 netbox/netbox/tables/tables.py:361
-#: netbox/netbox/tables/tables.py:384 netbox/netbox/ui/panels.py:243
+#: netbox/netbox/tables/tables.py:409 netbox/netbox/tables/tables.py:424
+#: netbox/netbox/tables/tables.py:447 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:110
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -9265,7 +9265,7 @@ msgstr "Renderēšana"
 msgid "Content types"
 msgstr "Satura veidi"
 
-#: netbox/extras/forms/filtersets.py:315 netbox/extras/models/models.py:203
+#: netbox/extras/forms/filtersets.py:315 netbox/extras/models/models.py:210
 #: netbox/extras/ui/panels.py:340
 msgid "HTTP content type"
 msgstr "HTTP satura veids"
@@ -9355,7 +9355,7 @@ msgid "Specify query parameters as a JSON object."
 msgstr "Norādiet vaicājuma parametrus kā JSON objektu."
 
 #: netbox/extras/forms/model_forms.py:82
-#: netbox/extras/models/customfields.py:234
+#: netbox/extras/models/customfields.py:235
 msgid "A JSON schema definition for validating the custom field value"
 msgstr "JSON shēmas definīcija pielāgotā lauka vērtības pārbaudei"
 
@@ -9608,8 +9608,8 @@ msgstr "config konteksta profils"
 msgid "config context profiles"
 msgstr "konfigurēt konteksta profilus"
 
-#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:342
-#: netbox/extras/models/models.py:514 netbox/extras/models/models.py:598
+#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:378
+#: netbox/extras/models/models.py:550 netbox/extras/models/models.py:634
 #: netbox/extras/models/search.py:49 netbox/extras/models/tags.py:45
 #: netbox/ipam/models/ip.py:200 netbox/netbox/models/mixins.py:32
 msgid "weight"
@@ -9670,31 +9670,31 @@ msgstr "Veidne: {name}"
 msgid "Line: {lineno}"
 msgstr "Līnija: {lineno}"
 
-#: netbox/extras/models/customfields.py:103
+#: netbox/extras/models/customfields.py:104
 msgid "The object(s) to which this field applies."
 msgstr "Objekts (-i), uz kuru attiecas šis lauks."
 
-#: netbox/extras/models/customfields.py:110
+#: netbox/extras/models/customfields.py:111
 msgid "The type of data this custom field holds"
 msgstr "Datu veids, kāds ir šajā pielāgotajā laukā"
 
-#: netbox/extras/models/customfields.py:117
+#: netbox/extras/models/customfields.py:118
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr "NetBox objekta tips, uz kuru šis lauks tiek kartēts (objektu laukiem)"
 
-#: netbox/extras/models/customfields.py:123
+#: netbox/extras/models/customfields.py:124
 msgid "Internal field name"
 msgstr "Iekšējā lauka nosaukums"
 
-#: netbox/extras/models/customfields.py:127
+#: netbox/extras/models/customfields.py:128
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr "Ir atļautas tikai burtciparu rakstzīmes un pasvītrojumi."
 
-#: netbox/extras/models/customfields.py:132
+#: netbox/extras/models/customfields.py:133
 msgid "Double underscores are not permitted in custom field names."
 msgstr "Pielāgotos lauku nosaukumos nav atļautas divkāršas pasvītrojumi."
 
-#: netbox/extras/models/customfields.py:143
+#: netbox/extras/models/customfields.py:144
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
@@ -9702,19 +9702,19 @@ msgstr ""
 "Lietotājiem parādītā lauka nosaukums (ja tas nav norādīts, tiks izmantots "
 "lauka nosaukums)"
 
-#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:346
+#: netbox/extras/models/customfields.py:148 netbox/extras/models/models.py:382
 msgid "group name"
 msgstr "grupas nosaukums"
 
-#: netbox/extras/models/customfields.py:150
+#: netbox/extras/models/customfields.py:151
 msgid "Custom fields within the same group will be displayed together"
 msgstr "Pielāgotie lauki vienā grupā tiks parādīti kopā"
 
-#: netbox/extras/models/customfields.py:158
+#: netbox/extras/models/customfields.py:159
 msgid "required"
 msgstr "nepieciešams"
 
-#: netbox/extras/models/customfields.py:160
+#: netbox/extras/models/customfields.py:161
 msgid ""
 "This field is required when creating new objects or editing an existing "
 "object."
@@ -9722,19 +9722,19 @@ msgstr ""
 "Šis lauks ir nepieciešams, veidojot jaunus objektus vai rediģējot esošu "
 "objektu."
 
-#: netbox/extras/models/customfields.py:163
+#: netbox/extras/models/customfields.py:164
 msgid "must be unique"
 msgstr "jābūt unikālam"
 
-#: netbox/extras/models/customfields.py:165
+#: netbox/extras/models/customfields.py:166
 msgid "The value of this field must be unique for the assigned object"
 msgstr "Šī lauka vērtībai jābūt unikālai piešķirtajam objektam"
 
-#: netbox/extras/models/customfields.py:168
+#: netbox/extras/models/customfields.py:169
 msgid "search weight"
 msgstr "meklēšanas svars"
 
-#: netbox/extras/models/customfields.py:171
+#: netbox/extras/models/customfields.py:172
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
@@ -9742,11 +9742,11 @@ msgstr ""
 "Svērums meklēšanai. Zemākas vērtības tiek uzskatītas par svarīgākām. Lauki, "
 "kuru meklēšanas svars ir nulle, tiks ignorēti."
 
-#: netbox/extras/models/customfields.py:176
+#: netbox/extras/models/customfields.py:177
 msgid "filter logic"
 msgstr "filtru loģika"
 
-#: netbox/extras/models/customfields.py:180
+#: netbox/extras/models/customfields.py:181
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire "
 "field."
@@ -9754,11 +9754,11 @@ msgstr ""
 "Vaļīgi atbilst jebkuram dotās virknes eksemplāram; precīzi atbilst visam "
 "laukam."
 
-#: netbox/extras/models/customfields.py:183
+#: netbox/extras/models/customfields.py:184
 msgid "default"
 msgstr "noklusējuma"
 
-#: netbox/extras/models/customfields.py:187
+#: netbox/extras/models/customfields.py:188
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with"
 " double quotes (e.g. \"Foo\")."
@@ -9766,7 +9766,7 @@ msgstr ""
 "Lauka noklusējuma vērtība (jābūt JSON vērtībai). Iekapsulējiet virknes ar "
 "dubultām pēdiņām (piemēram, “Foo”)."
 
-#: netbox/extras/models/customfields.py:194
+#: netbox/extras/models/customfields.py:195
 msgid ""
 "Filter the object selection choices using a query_params dict (must be a "
 "JSON value).Encapsulate strings with double quotes (e.g. \"Foo\")."
@@ -9774,35 +9774,35 @@ msgstr ""
 "Filtrējiet objektu atlases izvēles, izmantojot Query_params dict (jābūt JSON"
 " vērtībai). Iekapsulējiet virknes ar dubultām pēdiņām (piemēram, “Foo”)."
 
-#: netbox/extras/models/customfields.py:200
+#: netbox/extras/models/customfields.py:201
 msgid "display weight"
 msgstr "displeja svars"
 
-#: netbox/extras/models/customfields.py:201
+#: netbox/extras/models/customfields.py:202
 msgid "Fields with higher weights appear lower in a form."
 msgstr "Lauki ar lielāku svaru formā parādās zemāki."
 
-#: netbox/extras/models/customfields.py:208
+#: netbox/extras/models/customfields.py:209
 msgid "minimum value"
 msgstr "minimālā vērtība"
 
-#: netbox/extras/models/customfields.py:209
+#: netbox/extras/models/customfields.py:210
 msgid "Minimum allowed value (for numeric fields)"
 msgstr "Minimālā atļautā vērtība (skaitliskajiem laukiem)"
 
-#: netbox/extras/models/customfields.py:216
+#: netbox/extras/models/customfields.py:217
 msgid "maximum value"
 msgstr "maksimālā vērtība"
 
-#: netbox/extras/models/customfields.py:217
+#: netbox/extras/models/customfields.py:218
 msgid "Maximum allowed value (for numeric fields)"
 msgstr "Maksimālā pieļaujamā vērtība (skaitliskajiem laukiem)"
 
-#: netbox/extras/models/customfields.py:223
+#: netbox/extras/models/customfields.py:224
 msgid "validation regex"
 msgstr "pārbaudes regex"
 
-#: netbox/extras/models/customfields.py:225
+#: netbox/extras/models/customfields.py:226
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -9813,212 +9813,212 @@ msgstr ""
 "lai piespiestu visas virknes saskaņošanu. Piemēram, <code>^ [A-Z]{3}$</code>"
 " ierobežos vērtības tieši līdz trim lielajiem burtiem."
 
-#: netbox/extras/models/customfields.py:233
+#: netbox/extras/models/customfields.py:234
 msgid "validation schema"
 msgstr "validācijas shēma"
 
-#: netbox/extras/models/customfields.py:240
+#: netbox/extras/models/customfields.py:241
 msgid "choice set"
 msgstr "izvēles komplekts"
 
-#: netbox/extras/models/customfields.py:249
+#: netbox/extras/models/customfields.py:250
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr "Norāda, vai lietotāja saskarnē tiek parādīts pielāgotais lauks"
 
-#: netbox/extras/models/customfields.py:256
+#: netbox/extras/models/customfields.py:257
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr "Norāda, vai lietotāja saskarnē var rediģēt pielāgotā lauka vērtību"
 
-#: netbox/extras/models/customfields.py:260
+#: netbox/extras/models/customfields.py:261
 msgid "is cloneable"
 msgstr "ir klonējams"
 
-#: netbox/extras/models/customfields.py:261
+#: netbox/extras/models/customfields.py:262
 msgid "Replicate this value when cloning objects"
 msgstr "Atkārtojiet šo vērtību, klonējot objektus"
 
-#: netbox/extras/models/customfields.py:281
+#: netbox/extras/models/customfields.py:282
 msgid "custom field"
 msgstr "pielāgots lauks"
 
-#: netbox/extras/models/customfields.py:282
+#: netbox/extras/models/customfields.py:283
 msgid "custom fields"
 msgstr "pielāgoti lauki"
 
-#: netbox/extras/models/customfields.py:420
+#: netbox/extras/models/customfields.py:440
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr "Nederīga noklusējuma vērtība”{value}“: {error}"
 
-#: netbox/extras/models/customfields.py:427
+#: netbox/extras/models/customfields.py:447
 msgid "A minimum value may be set only for numeric fields"
 msgstr "Minimālo vērtību var iestatīt tikai skaitliskiem laukiem"
 
-#: netbox/extras/models/customfields.py:429
+#: netbox/extras/models/customfields.py:449
 msgid "A maximum value may be set only for numeric fields"
 msgstr "Maksimālo vērtību var iestatīt tikai skaitliskiem laukiem"
 
-#: netbox/extras/models/customfields.py:439
+#: netbox/extras/models/customfields.py:459
 msgid ""
 "Regular expression validation is supported only for text and URL fields"
 msgstr ""
 "Regulārā izteiksmes pārbaudes tiek atbalstīta tikai teksta un URL laukiem"
 
-#: netbox/extras/models/customfields.py:445
+#: netbox/extras/models/customfields.py:465
 msgid "JSON schema validation is supported only for JSON fields"
 msgstr "JSON shēmas validācija tiek atbalstīta tikai JSON laukiem"
 
-#: netbox/extras/models/customfields.py:451
+#: netbox/extras/models/customfields.py:471
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr "Unikālumu nevar piemērot logiskiem laukiem"
 
-#: netbox/extras/models/customfields.py:461
+#: netbox/extras/models/customfields.py:481
 msgid "Selection fields must specify a set of choices."
 msgstr "Atlases laukos jānorāda izvēles kopums."
 
-#: netbox/extras/models/customfields.py:465
+#: netbox/extras/models/customfields.py:485
 msgid "Choices may be set only on selection fields."
 msgstr "Izvēles var iestatīt tikai atlases laukos."
 
-#: netbox/extras/models/customfields.py:472
+#: netbox/extras/models/customfields.py:492
 msgid "Object fields must define an object type."
 msgstr "Objekta laukiem jādefinē objekta tips."
 
-#: netbox/extras/models/customfields.py:476
+#: netbox/extras/models/customfields.py:496
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr "{type} lauki nedrīkst definēt objekta tipu."
 
-#: netbox/extras/models/customfields.py:483
+#: netbox/extras/models/customfields.py:503
 msgid "A related object filter can be defined only for object fields."
 msgstr "Saistīto objektu filtru var definēt tikai objektu laukiem."
 
-#: netbox/extras/models/customfields.py:487
+#: netbox/extras/models/customfields.py:507
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr "Filtrs jādefinē kā vārdnīcas atribūtu kartēšana vērtībām."
 
-#: netbox/extras/models/customfields.py:576
+#: netbox/extras/models/customfields.py:596
 msgid "True"
 msgstr "Patiesība"
 
-#: netbox/extras/models/customfields.py:577
+#: netbox/extras/models/customfields.py:597
 msgid "False"
 msgstr "Viltus"
 
-#: netbox/extras/models/customfields.py:630
-#: netbox/extras/models/customfields.py:683
+#: netbox/extras/models/customfields.py:650
+#: netbox/extras/models/customfields.py:703
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr "Vērtībām jāatbilst šim regex: <code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:785
-#: netbox/extras/models/customfields.py:792
+#: netbox/extras/models/customfields.py:813
+#: netbox/extras/models/customfields.py:820
 msgid "Value must be a string."
 msgstr "Vērtībai jābūt virknei."
 
-#: netbox/extras/models/customfields.py:787
-#: netbox/extras/models/customfields.py:794
+#: netbox/extras/models/customfields.py:815
+#: netbox/extras/models/customfields.py:822
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "Vērtībai jāatbilst regex '{regex}”"
 
-#: netbox/extras/models/customfields.py:799
+#: netbox/extras/models/customfields.py:827
 msgid "Value must be an integer."
 msgstr "Vērtībai jābūt veselim skaitlim."
 
-#: netbox/extras/models/customfields.py:802
-#: netbox/extras/models/customfields.py:817
+#: netbox/extras/models/customfields.py:830
+#: netbox/extras/models/customfields.py:845
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "Vērtībai jābūt vismaz {minimum}"
 
-#: netbox/extras/models/customfields.py:806
-#: netbox/extras/models/customfields.py:821
+#: netbox/extras/models/customfields.py:834
+#: netbox/extras/models/customfields.py:849
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "Vērtība nedrīkst pārsniegt {maximum}"
 
-#: netbox/extras/models/customfields.py:814
+#: netbox/extras/models/customfields.py:842
 msgid "Value must be a decimal."
 msgstr "Vērtībai jābūt decimāldaļai."
 
-#: netbox/extras/models/customfields.py:826
+#: netbox/extras/models/customfields.py:854
 msgid "Value must be true or false."
 msgstr "Vērtībai jābūt patiesai vai nepatiesai."
 
-#: netbox/extras/models/customfields.py:834
+#: netbox/extras/models/customfields.py:862
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "Datuma vērtībām jābūt ISO 8601 formātā (GGGG-MM-DD)."
 
-#: netbox/extras/models/customfields.py:843
+#: netbox/extras/models/customfields.py:871
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 "Datuma un laika vērtībām jābūt ISO 8601 formātā (GGGG-MM-DD HH:MM:SS)."
 
-#: netbox/extras/models/customfields.py:850
+#: netbox/extras/models/customfields.py:878
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "Nederīga izvēle ({value}) izvēles komplektam {choiceset}."
 
-#: netbox/extras/models/customfields.py:860
+#: netbox/extras/models/customfields.py:888
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "Nederīga izvēle (-as) ({value}) izvēles komplektam {choiceset}."
 
-#: netbox/extras/models/customfields.py:869
+#: netbox/extras/models/customfields.py:897
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "Vērtībai jābūt objekta ID, nevis {type}"
 
-#: netbox/extras/models/customfields.py:875
+#: netbox/extras/models/customfields.py:903
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "Vērtībai jābūt objektu ID sarakstam, nevis {type}"
 
-#: netbox/extras/models/customfields.py:879
+#: netbox/extras/models/customfields.py:907
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "Atrasts nederīgs objekta ID: {id}"
 
-#: netbox/extras/models/customfields.py:888
+#: netbox/extras/models/customfields.py:916
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr "Vērtība neatbilst piešķirtajai shēmai: {error}"
 
-#: netbox/extras/models/customfields.py:892
+#: netbox/extras/models/customfields.py:920
 msgid "Required field cannot be empty."
 msgstr "Obligātais lauks nevar būt tukšs."
 
-#: netbox/extras/models/customfields.py:912
+#: netbox/extras/models/customfields.py:940
 msgid "Base set of predefined choices (optional)"
 msgstr "Iepriekš definētu izvēļu bāzes komplekts (pēc izvēles)"
 
-#: netbox/extras/models/customfields.py:924
+#: netbox/extras/models/customfields.py:952
 msgid "Choices are automatically ordered alphabetically"
 msgstr "Izvēles tiek automātiski sakārtotas alfabētiskā secībā"
 
-#: netbox/extras/models/customfields.py:931
+#: netbox/extras/models/customfields.py:959
 msgid "custom field choice set"
 msgstr "pielāgots lauka izvēles komplekts"
 
-#: netbox/extras/models/customfields.py:932
+#: netbox/extras/models/customfields.py:960
 msgid "custom field choice sets"
 msgstr "pielāgotas lauka izvēles komplekti"
 
-#: netbox/extras/models/customfields.py:992
+#: netbox/extras/models/customfields.py:1020
 msgid "Must define base or extra choices."
 msgstr "Jādefinē bāzes vai papildu izvēle."
 
-#: netbox/extras/models/customfields.py:998
+#: netbox/extras/models/customfields.py:1026
 msgid "Color mappings must be defined as a JSON object."
 msgstr "Krāsu kartēšana jādefinē kā JSON objekts."
 
-#: netbox/extras/models/customfields.py:1010
+#: netbox/extras/models/customfields.py:1038
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr "Dublēta vērtība '{value}'atrodams papildu izvēlēs."
 
-#: netbox/extras/models/customfields.py:1027
+#: netbox/extras/models/customfields.py:1055
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
@@ -10027,14 +10027,14 @@ msgstr ""
 "Krāsu kartējumos jānorāda uz esošas izvēles vērtību. Nederīga vērtība (-as):"
 " {values}."
 
-#: netbox/extras/models/customfields.py:1034
+#: netbox/extras/models/customfields.py:1062
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr ""
 "Nederīga krāsu vērtība (-as): {colors}. Izmantojiet atbalstītu vārdisku "
 "krāsu."
 
-#: netbox/extras/models/customfields.py:1057
+#: netbox/extras/models/customfields.py:1085
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -10126,54 +10126,55 @@ msgid ""
 msgstr ""
 "Nederīga vērtība”{value}“parametram”{key}“. Atļautās vērtības ir: {allowed}"
 
-#: netbox/extras/models/models.py:65
+#: netbox/extras/models/models.py:71
 msgid "The object(s) to which this rule applies."
 msgstr "Objekts (-i), uz kuru attiecas šī kārtula."
 
-#: netbox/extras/models/models.py:79
+#: netbox/extras/models/models.py:85
 msgid "The types of event which will trigger this rule."
 msgstr "Notikumu veidi, kas izraisīs šo kārtulu."
 
-#: netbox/extras/models/models.py:86
+#: netbox/extras/models/models.py:92
 msgid "conditions"
 msgstr "nosacījumi"
 
-#: netbox/extras/models/models.py:89
+#: netbox/extras/models/models.py:95
 msgid ""
 "A set of conditions which determine whether the event will be generated."
 msgstr "Nosacījumu kopums, kas nosaka, vai notikums tiks ģenerēts."
 
-#: netbox/extras/models/models.py:97
+#: netbox/extras/models/models.py:103
 msgid "action type"
 msgstr "darbības veids"
 
-#: netbox/extras/models/models.py:116
+#: netbox/extras/models/models.py:122
 msgid "Additional data to pass to the action object"
 msgstr "Papildu dati, kas jānodod darbības objektam"
 
-#: netbox/extras/models/models.py:128
+#: netbox/extras/models/models.py:134
 msgid "event rule"
 msgstr "notikuma kārtula"
 
-#: netbox/extras/models/models.py:129
+#: netbox/extras/models/models.py:135
 msgid "event rules"
 msgstr "notikumu kārtulas"
 
-#: netbox/extras/models/models.py:149
+#: netbox/extras/models/models.py:155
 msgid "Action data must be a JSON object or null."
 msgstr "Darbības datiem jābūt JSON objektam vai null."
 
-#: netbox/extras/models/models.py:190
+#: netbox/extras/models/models.py:196
 msgid ""
 "This URL will be called using the HTTP method defined when the webhook is "
-"called. Jinja2 template processing is supported with the same context as the"
-" request body."
+"called. Must be http:// or https://. Jinja2 template processing is supported"
+" (with the same context as the request body) for part or all of the URL."
 msgstr ""
 "Šis URL tiks izsaukts, izmantojot HTTP metodi, kas definēta, kad tiek "
-"izsaukts webhook. Jinja2 veidnes apstrāde tiek atbalstīta tādā pašā "
-"kontekstā kā pieprasījuma struktūra."
+"izsaukts tīmekļa āķis. Jābūt http://vai https://. Jinja2 veidnes apstrāde "
+"tiek atbalstīta (ar tādu pašu kontekstu kā pieprasījuma pamatnostādnes) "
+"daļai vai visam URL."
 
-#: netbox/extras/models/models.py:205
+#: netbox/extras/models/models.py:212
 msgid ""
 "The complete list of official content types is available <a "
 "href=\"https://www.iana.org/assignments/media-types/media-"
@@ -10183,11 +10184,11 @@ msgstr ""
 "href=\"https://www.iana.org/assignments/media-types/media-"
 "types.xhtml\">šeit</a>."
 
-#: netbox/extras/models/models.py:210
+#: netbox/extras/models/models.py:217
 msgid "additional headers"
 msgstr "papildu galvenes"
 
-#: netbox/extras/models/models.py:213
+#: netbox/extras/models/models.py:220
 msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
 "HTTP content type. Headers should be defined in the format <code>Name: "
@@ -10205,11 +10206,11 @@ msgstr ""
 "filtrs, lai aizsargātu pret HTTP galvenes iesmidzināšanu, piem. "
 "<code>X-objekts: {{data.name | header_safe}}</code>."
 
-#: netbox/extras/models/models.py:221
+#: netbox/extras/models/models.py:228
 msgid "body template"
 msgstr "ķermeņa veidne"
 
-#: netbox/extras/models/models.py:224
+#: netbox/extras/models/models.py:231
 msgid ""
 "Jinja2 template for a custom request body. If blank, a JSON object "
 "representing the change will be included. Available context data includes: "
@@ -10222,11 +10223,11 @@ msgstr ""
 "<code>lietotājvārds</code>, <code>pieprasījuma ID</code>, un "
 "<code>dati</code>."
 
-#: netbox/extras/models/models.py:230
+#: netbox/extras/models/models.py:237
 msgid "secret"
 msgstr "slepeni"
 
-#: netbox/extras/models/models.py:234
+#: netbox/extras/models/models.py:241
 msgid ""
 "When provided, the request will include a <code>X-Hook-Signature</code> "
 "header containing a HMAC hex digest of the payload body using the secret as "
@@ -10236,15 +10237,15 @@ msgstr ""
 " galvene, kurā ir lietderīgās kravas korpusa HMAC sešstūra kopsavilkums, "
 "izmantojot noslēpumu kā atslēgu. Noslēpums netiek nosūtīts pieprasījumā."
 
-#: netbox/extras/models/models.py:241
+#: netbox/extras/models/models.py:248
 msgid "Enable SSL certificate verification. Disable with caution!"
 msgstr "Iespējot SSL sertifikāta verifikāciju. Atspējojiet piesardzīgi!"
 
-#: netbox/extras/models/models.py:247
+#: netbox/extras/models/models.py:254
 msgid "CA File Path"
 msgstr "CA faila ceļš"
 
-#: netbox/extras/models/models.py:249
+#: netbox/extras/models/models.py:256
 msgid ""
 "The specific CA certificate file to use for SSL verification. Leave blank to"
 " use the system defaults."
@@ -10252,172 +10253,176 @@ msgstr ""
 "Konkrētais CA sertifikāta fails, ko izmantot SSL verifikācijai. Atstājiet "
 "tukšu, lai izmantotu sistēmas noklusējuma iestatījumus."
 
-#: netbox/extras/models/models.py:260
+#: netbox/extras/models/models.py:267
 msgid "webhook"
 msgstr "webhook"
 
-#: netbox/extras/models/models.py:261
+#: netbox/extras/models/models.py:268
 msgid "webhooks"
 msgstr "webhooki"
 
-#: netbox/extras/models/models.py:279
+#: netbox/extras/models/models.py:287
 msgid "Do not specify a CA certificate file if SSL verification is disabled."
 msgstr "Ja SSL verifikācija ir atspējota, nenorādiet CA sertifikāta failu."
 
-#: netbox/extras/models/models.py:322
+#: netbox/extras/models/models.py:298 netbox/extras/models/models.py:313
+msgid "Enter a valid URL, beginning with http:// or https://."
+msgstr "Ievadiet derīgu URL, sākot ar http://vai https://."
+
+#: netbox/extras/models/models.py:358
 msgid "The object type(s) to which this link applies."
 msgstr "Objekta tips (-i), uz kuru attiecas šī saite."
 
-#: netbox/extras/models/models.py:334
+#: netbox/extras/models/models.py:370
 msgid "link text"
 msgstr "saites teksts"
 
-#: netbox/extras/models/models.py:335
+#: netbox/extras/models/models.py:371
 msgid "Jinja2 template code for link text"
 msgstr "Jinja2 veidnes kods saites tekstam"
 
-#: netbox/extras/models/models.py:338
+#: netbox/extras/models/models.py:374
 msgid "link URL"
 msgstr "saites URL"
 
-#: netbox/extras/models/models.py:339
+#: netbox/extras/models/models.py:375
 msgid "Jinja2 template code for link URL"
 msgstr "Jinja2 veidnes kods saites URL"
 
-#: netbox/extras/models/models.py:349
+#: netbox/extras/models/models.py:385
 msgid "Links with the same group will appear as a dropdown menu"
 msgstr "Saites ar to pašu grupu parādīsies kā nolaižamā izvēlne"
 
-#: netbox/extras/models/models.py:359
+#: netbox/extras/models/models.py:395
 msgid "new window"
 msgstr "jauns logs"
 
-#: netbox/extras/models/models.py:361
+#: netbox/extras/models/models.py:397
 msgid "Force link to open in a new window"
 msgstr "Piespiest saiti, lai atvērtu jaunā logā"
 
-#: netbox/extras/models/models.py:373
+#: netbox/extras/models/models.py:409
 msgid "custom link"
 msgstr "pielāgota saite"
 
-#: netbox/extras/models/models.py:374
+#: netbox/extras/models/models.py:410
 msgid "custom links"
 msgstr "pielāgotas saites"
 
-#: netbox/extras/models/models.py:428
+#: netbox/extras/models/models.py:464
 msgid "The object type(s) to which this template applies."
 msgstr "Objekta tips (-i), uz kuru attiecas šī veidne."
 
-#: netbox/extras/models/models.py:449
+#: netbox/extras/models/models.py:485
 msgid "export template"
 msgstr "eksportēšanas veidne"
 
-#: netbox/extras/models/models.py:450
+#: netbox/extras/models/models.py:486
 msgid "export templates"
 msgstr "eksportēšanas veidnes"
 
-#: netbox/extras/models/models.py:467
+#: netbox/extras/models/models.py:503
 #, python-brace-format
 msgid "\"{name}\" is a reserved name. Please choose a different name."
 msgstr "“{name}“ir rezervēts vārds. Lūdzu, izvēlieties citu nosaukumu."
 
-#: netbox/extras/models/models.py:490
+#: netbox/extras/models/models.py:526
 msgid "The object type(s) to which this filter applies."
 msgstr "Objekta tips (-i), uz kuru attiecas šis filtrs."
 
-#: netbox/extras/models/models.py:522 netbox/extras/models/models.py:606
+#: netbox/extras/models/models.py:558 netbox/extras/models/models.py:642
 msgid "shared"
 msgstr "koplietots"
 
-#: netbox/extras/models/models.py:540
+#: netbox/extras/models/models.py:576
 msgid "saved filter"
 msgstr "saglabāts filtrs"
 
-#: netbox/extras/models/models.py:541
+#: netbox/extras/models/models.py:577
 msgid "saved filters"
 msgstr "saglabātie filtri"
 
-#: netbox/extras/models/models.py:559
+#: netbox/extras/models/models.py:595
 msgid "Filter parameters must be stored as a dictionary of keyword arguments."
 msgstr "Filtra parametri jāsaglabā kā atslēgvārdu argumentu vārdnīca."
 
-#: netbox/extras/models/models.py:576
+#: netbox/extras/models/models.py:612
 msgid "The table's object type"
 msgstr "Tabulas objekta tips"
 
-#: netbox/extras/models/models.py:579
+#: netbox/extras/models/models.py:615
 msgid "table"
 msgstr "tabula"
 
-#: netbox/extras/models/models.py:627
+#: netbox/extras/models/models.py:663
 msgid "table config"
 msgstr "tabulas konfigurācija"
 
-#: netbox/extras/models/models.py:628
+#: netbox/extras/models/models.py:664
 msgid "table configs"
 msgstr "tabulas konfigurācijas"
 
-#: netbox/extras/models/models.py:670
+#: netbox/extras/models/models.py:706
 #, python-brace-format
 msgid "Unknown table: {name}"
 msgstr "Nezināma tabula: {name}"
 
-#: netbox/extras/models/models.py:681 netbox/extras/models/models.py:688
+#: netbox/extras/models/models.py:717 netbox/extras/models/models.py:724
 #, python-brace-format
 msgid "Unknown column: {name}"
 msgstr "Nezināma sleja: {name}"
 
-#: netbox/extras/models/models.py:711
+#: netbox/extras/models/models.py:747
 msgid "image height"
 msgstr "attēla augstums"
 
-#: netbox/extras/models/models.py:714
+#: netbox/extras/models/models.py:750
 msgid "image width"
 msgstr "attēla platums"
 
-#: netbox/extras/models/models.py:720
+#: netbox/extras/models/models.py:756
 msgid "image size"
 msgstr "attēla izmērs"
 
-#: netbox/extras/models/models.py:766
+#: netbox/extras/models/models.py:802
 msgid "image attachment"
 msgstr "attēla pielikums"
 
-#: netbox/extras/models/models.py:767
+#: netbox/extras/models/models.py:803
 msgid "image attachments"
 msgstr "attēla pielikumi"
 
-#: netbox/extras/models/models.py:781
+#: netbox/extras/models/models.py:817
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr "Attēla pielikumus nevar piešķirt šim objekta tipam ({type})."
 
-#: netbox/extras/models/models.py:892
+#: netbox/extras/models/models.py:928
 msgid "kind"
 msgstr "veids"
 
-#: netbox/extras/models/models.py:907
+#: netbox/extras/models/models.py:943
 msgid "journal entry"
 msgstr "žurnāla ieraksts"
 
-#: netbox/extras/models/models.py:908
+#: netbox/extras/models/models.py:944
 msgid "journal entries"
 msgstr "žurnāla ieraksti"
 
-#: netbox/extras/models/models.py:926
+#: netbox/extras/models/models.py:962
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr "Šim objektu tipam žurnāls netiek atbalstīts ({type})."
 
-#: netbox/extras/models/models.py:969
+#: netbox/extras/models/models.py:1005
 msgid "bookmark"
 msgstr "grāmatzīme"
 
-#: netbox/extras/models/models.py:970
+#: netbox/extras/models/models.py:1006
 msgid "bookmarks"
 msgstr "grāmatzīmes"
 
-#: netbox/extras/models/models.py:986
+#: netbox/extras/models/models.py:1022
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr "Grāmatzīmes nevar piešķirt šim objekta tipam ({type})."
@@ -10594,8 +10599,8 @@ msgstr "Validācijas shēma"
 #: netbox/extras/tables/tables.py:535 netbox/extras/tables/tables.py:565
 #: netbox/extras/tables/tables.py:656 netbox/extras/tables/tables.py:712
 #: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
-#: netbox/netbox/tables/tables.py:343 netbox/netbox/tables/tables.py:358
-#: netbox/netbox/tables/tables.py:373 netbox/templates/generic/object.html:61
+#: netbox/netbox/tables/tables.py:406 netbox/netbox/tables/tables.py:421
+#: netbox/netbox/tables/tables.py:436 netbox/templates/generic/object.html:61
 #: netbox/users/forms/model_forms.py:556
 msgid "Owner"
 msgstr "Īpašnieks"
@@ -11111,7 +11116,7 @@ msgstr "FHRP grupa (ID)"
 msgid "IP address (ID)"
 msgstr "IP adrese (ID)"
 
-#: netbox/ipam/filtersets.py:1280 netbox/ipam/models/ip.py:1030
+#: netbox/ipam/filtersets.py:1280 netbox/ipam/models/ip.py:1035
 msgid "IP address"
 msgstr "IP adrese"
 
@@ -11825,12 +11830,12 @@ msgstr "prefiksi"
 msgid "Cannot create prefix with /0 mask."
 msgstr "Nevar izveidot prefiksu ar /0 masku."
 
-#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1120
+#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1125
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr "VRF {vrf}"
 
-#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1120
+#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1125
 msgid "global table"
 msgstr "globālā tabula"
 
@@ -11933,49 +11938,49 @@ msgstr "IP, kuram šī adrese ir “ārējais” IP"
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr "Resursdatora nosaukums vai FQDN (nav reģistrjūtīgs)"
 
-#: netbox/ipam/models/ip.py:1031 netbox/ipam/models/services.py:97
+#: netbox/ipam/models/ip.py:1036 netbox/ipam/models/services.py:97
 msgid "IP addresses"
 msgstr "IP adreses"
 
-#: netbox/ipam/models/ip.py:1091
+#: netbox/ipam/models/ip.py:1096
 msgid "Cannot create IP address with /0 mask."
 msgstr "Nevar izveidot IP adresi ar /0 masku."
 
-#: netbox/ipam/models/ip.py:1097
+#: netbox/ipam/models/ip.py:1102
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr "{ip} ir tīkla ID, kas var netikt piešķirts saskarnei."
 
-#: netbox/ipam/models/ip.py:1108
+#: netbox/ipam/models/ip.py:1113
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
 msgstr "{ip} ir apraides adrese, kuru nedrīkst piešķirt interfeisam."
 
-#: netbox/ipam/models/ip.py:1122
+#: netbox/ipam/models/ip.py:1127
 #, python-brace-format
 msgid "Duplicate IP address found in {table}: {ipaddress}"
 msgstr "Atrastas IP adreses dublikāts {table}: {ipaddress}"
 
-#: netbox/ipam/models/ip.py:1138
+#: netbox/ipam/models/ip.py:1143
 #, python-brace-format
 msgid "Cannot create IP address {ip} inside range {range}."
 msgstr "Nevar izveidot IP adresi {ip} iekšējais diapazons {range}."
 
-#: netbox/ipam/models/ip.py:1159
+#: netbox/ipam/models/ip.py:1164
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
 msgstr ""
 "Nevar mainīt IP adresi, kamēr tā ir apzīmēta kā mātes objekta primārā IP"
 
-#: netbox/ipam/models/ip.py:1166
+#: netbox/ipam/models/ip.py:1171
 msgid ""
 "Cannot reassign IP address while it is designated as the OOB IP for the "
 "parent object"
 msgstr "Nevar mainīt IP adresi, kamēr tā ir norādīta kā vecāk-objekta OOB IP"
 
-#: netbox/ipam/models/ip.py:1172
+#: netbox/ipam/models/ip.py:1177
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr "SLAAC statusu var piešķirt tikai IPv6 adresēm"
 
@@ -12872,8 +12877,8 @@ msgstr "Saglabātais filtrs"
 msgid "Owner group"
 msgstr "Īpašnieku grupa"
 
-#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:339
-#: netbox/netbox/tables/tables.py:354 netbox/netbox/tables/tables.py:369
+#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:402
+#: netbox/netbox/tables/tables.py:417 netbox/netbox/tables/tables.py:432
 #: netbox/users/forms/model_forms.py:544
 msgid "Owner Group"
 msgstr "Īpašnieku Grupa"
@@ -13570,71 +13575,71 @@ msgstr "Pēc inicializācijas nevar pievienot veikalus reģistram"
 msgid "Cannot delete stores from registry"
 msgstr "Nevar izdzēst veikalus no reģistra"
 
-#: netbox/netbox/settings.py:893
+#: netbox/netbox/settings.py:897
 msgid "Czech"
 msgstr "Čehu valoda"
 
-#: netbox/netbox/settings.py:894
+#: netbox/netbox/settings.py:898
 msgid "Danish"
 msgstr "Dāņu valoda"
 
-#: netbox/netbox/settings.py:895
+#: netbox/netbox/settings.py:899
 msgid "German"
 msgstr "Vācu valoda"
 
-#: netbox/netbox/settings.py:896
+#: netbox/netbox/settings.py:900
 msgid "English"
 msgstr "Angļu valoda"
 
-#: netbox/netbox/settings.py:897
+#: netbox/netbox/settings.py:901
 msgid "Spanish"
 msgstr "Spāņu valoda"
 
-#: netbox/netbox/settings.py:898
+#: netbox/netbox/settings.py:902
 msgid "French"
 msgstr "Franču valoda"
 
-#: netbox/netbox/settings.py:899
+#: netbox/netbox/settings.py:903
 msgid "Italian"
 msgstr "Itāļu valoda"
 
-#: netbox/netbox/settings.py:900
+#: netbox/netbox/settings.py:904
 msgid "Japanese"
 msgstr "Japāņu valoda"
 
-#: netbox/netbox/settings.py:901
+#: netbox/netbox/settings.py:905
 msgid "Korean"
 msgstr "Korejiešu"
 
-#: netbox/netbox/settings.py:902
+#: netbox/netbox/settings.py:906
 msgid "Latvian"
 msgstr "Latviešu valoda"
 
-#: netbox/netbox/settings.py:903
+#: netbox/netbox/settings.py:907
 msgid "Dutch"
 msgstr "Holandiešu valoda"
 
-#: netbox/netbox/settings.py:904
+#: netbox/netbox/settings.py:908
 msgid "Polish"
 msgstr "Poļu valoda"
 
-#: netbox/netbox/settings.py:905
+#: netbox/netbox/settings.py:909
 msgid "Portuguese"
 msgstr "Portugāļu valoda"
 
-#: netbox/netbox/settings.py:906
+#: netbox/netbox/settings.py:910
 msgid "Russian"
 msgstr "Krievu valoda"
 
-#: netbox/netbox/settings.py:907
+#: netbox/netbox/settings.py:911
 msgid "Turkish"
 msgstr "Turku valoda"
 
-#: netbox/netbox/settings.py:908
+#: netbox/netbox/settings.py:912
 msgid "Ukrainian"
 msgstr "Ukraiņu valoda"
 
-#: netbox/netbox/settings.py:909
+#: netbox/netbox/settings.py:913
 msgid "Chinese"
 msgstr "Ķīniešu valoda"
 
@@ -13670,17 +13675,17 @@ msgstr "Darbības"
 msgid "Toggle Dropdown"
 msgstr "Pārslēgt nolaižamo izvēlni"
 
-#: netbox/netbox/tables/tables.py:62
+#: netbox/netbox/tables/tables.py:63
 #, python-brace-format
 msgid "No {model_name} found"
 msgstr "Nav {model_name}"
 
-#: netbox/netbox/tables/tables.py:399
+#: netbox/netbox/tables/tables.py:462
 #: netbox/templates/generic/bulk_import.html:148
 msgid "Field"
 msgstr "Lauks"
 
-#: netbox/netbox/tables/tables.py:402
+#: netbox/netbox/tables/tables.py:465
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:9
 msgid "Value"
 msgstr "Vērtība"
@@ -14017,7 +14022,7 @@ msgstr "Izvēlēties %(name)s"
 
 #: netbox/templates/account/preferences.html:71
 #: netbox/templates/core/system.html:118
-#: netbox/templates/dcim/cable_trace.html:113
+#: netbox/templates/dcim/cable_trace.html:115
 #: netbox/templates/extras/object_configcontext.html:43
 msgid "None found"
 msgstr "Neviens nav atrasts"
@@ -14693,60 +14698,60 @@ msgstr ""
 msgid "Cable Trace for %(object_type)s %(object)s"
 msgstr "Kabeļu izsekošana %(object_type)s %(object)s"
 
-#: netbox/templates/dcim/cable_trace.html:24
+#: netbox/templates/dcim/cable_trace.html:25
 #: netbox/templates/dcim/inc/rack_elevation.html:18
 msgid "Download SVG"
 msgstr "Lejupielādēt SVG"
 
-#: netbox/templates/dcim/cable_trace.html:30
+#: netbox/templates/dcim/cable_trace.html:32
 msgid "Asymmetric Path"
 msgstr "Asimetrisks ceļš"
 
-#: netbox/templates/dcim/cable_trace.html:31
+#: netbox/templates/dcim/cable_trace.html:33
 msgid "The nodes below have no links and result in an asymmetric path"
 msgstr "Zemāk esošajiem mezgliem nav saites, un tie rada asimetrisku ceļu"
 
-#: netbox/templates/dcim/cable_trace.html:38
+#: netbox/templates/dcim/cable_trace.html:40
 msgid "Path split"
 msgstr "Ceļa sadalījums"
 
-#: netbox/templates/dcim/cable_trace.html:39
+#: netbox/templates/dcim/cable_trace.html:41
 msgid "Select a node below to continue"
 msgstr "Lai turpinātu, atlasiet zemāk esošo mezglu"
 
-#: netbox/templates/dcim/cable_trace.html:55
+#: netbox/templates/dcim/cable_trace.html:57
 msgid "Trace Completed"
 msgstr "Izsekošana pabeigta"
 
-#: netbox/templates/dcim/cable_trace.html:58
+#: netbox/templates/dcim/cable_trace.html:60
 msgid "Total segments"
 msgstr "Kopējie segmenti"
 
-#: netbox/templates/dcim/cable_trace.html:62
+#: netbox/templates/dcim/cable_trace.html:64
 msgid "Total length"
 msgstr "Kopējais garums"
 
-#: netbox/templates/dcim/cable_trace.html:77
+#: netbox/templates/dcim/cable_trace.html:79
 msgid "No paths found"
 msgstr "Ceļi nav atrasti"
 
-#: netbox/templates/dcim/cable_trace.html:85
+#: netbox/templates/dcim/cable_trace.html:87
 msgid "Related Paths"
 msgstr "Saistītie ceļi"
 
-#: netbox/templates/dcim/cable_trace.html:89
+#: netbox/templates/dcim/cable_trace.html:91
 msgid "Origin"
 msgstr "Izcelsme"
 
-#: netbox/templates/dcim/cable_trace.html:90
+#: netbox/templates/dcim/cable_trace.html:92
 msgid "Destination"
 msgstr "Galamērķis"
 
-#: netbox/templates/dcim/cable_trace.html:91
+#: netbox/templates/dcim/cable_trace.html:93
 msgid "Segments"
 msgstr "Segmenti"
 
-#: netbox/templates/dcim/cable_trace.html:104
+#: netbox/templates/dcim/cable_trace.html:106
 msgid "Incomplete"
 msgstr "Nepilnīgs"
 
@@ -16363,19 +16368,30 @@ msgstr "īrnieku grupa"
 msgid "tenant groups"
 msgstr "īrnieku grupas"
 
-#: netbox/tenancy/models/tenants.py:71
+#: netbox/tenancy/models/tenants.py:48
+#, python-brace-format
+msgid ""
+"Unable to delete tenant group {tenant_group}. Ungrouping its tenants, "
+"including those of any nested groups, would create duplicate tenant names or"
+" slugs."
+msgstr ""
+"Nevar izdzēst īrnieku grupu {tenant_group}. Atvienojot tās īrniekus, "
+"ieskaitot jebkuru ligzdoto grupu īrniekus, tiktu izveidoti nomnieku vārdu "
+"vai URL identifikatoru dublikāti."
+
+#: netbox/tenancy/models/tenants.py:89
 msgid "Tenant name must be unique per group."
 msgstr "Īrnieka vārdam jābūt unikālam katrai grupai."
 
-#: netbox/tenancy/models/tenants.py:81
+#: netbox/tenancy/models/tenants.py:99
 msgid "Tenant slug must be unique per group."
 msgstr "Nomnieka URL identifikatoram jābūt unikālam katrai grupai."
 
-#: netbox/tenancy/models/tenants.py:89
+#: netbox/tenancy/models/tenants.py:107
 msgid "tenant"
 msgstr "īrnieks"
 
-#: netbox/tenancy/models/tenants.py:90
+#: netbox/tenancy/models/tenants.py:108
 msgid "tenants"
 msgstr "īrnieki"
 
@@ -17255,6 +17271,11 @@ msgstr ""
 #: netbox/utilities/forms/widgets/modifiers.py:155
 msgid "(automatically set)"
 msgstr "(automātiski iestatīts)"
+
+#: netbox/utilities/jinja2.py:157
+#, python-brace-format
+msgid "Invalid template: {error}"
+msgstr "Nederīga veidne: {error}"
 
 #: netbox/utilities/jobs.py:42
 #, python-brace-format

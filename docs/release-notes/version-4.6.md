@@ -1,5 +1,32 @@
 # NetBox v4.6
 
+## v4.6.8 (2026-08-11)
+
+### Performance Improvements
+
+* [#22787](https://github.com/netbox-community/netbox/issues/22787) - Avoid N+1 queries when resolving generic relations (e.g. assigned objects) via the GraphQL API
+* [#22835](https://github.com/netbox-community/netbox/issues/22835) - Improve performance when provisioning new custom fields
+* [#22837](https://github.com/netbox-community/netbox/issues/22837) - Omit implicit pagination when prefetching to-one relations via the GraphQL API
+* [#22877](https://github.com/netbox-community/netbox/issues/22877) - Improve caching logic when retrieving custom fields via `get_for_model()`
+
+### Bug Fixes
+
+* [#22694](https://github.com/netbox-community/netbox/issues/22694) - Clear a device's stale rack assignment when changing its site
+* [#22745](https://github.com/netbox-community/netbox/issues/22745) - Enforce object permissions on custom script write operations via the REST API
+* [#22805](https://github.com/netbox-community/netbox/issues/22805) - Avoid re-executing the LDAP configuration file on every permission check
+* [#22821](https://github.com/netbox-community/netbox/issues/22821) - Prevent the deletion of a tenant group from creating duplicate tenant names or slugs
+* [#22825](https://github.com/netbox-community/netbox/issues/22825) - Fix cable path tracing for paths which originate from a circuit termination and traverse only pass-through ports
+* [#22828](https://github.com/netbox-community/netbox/issues/22828) - Validate that a webhook's payload URL is a valid URL or Jinja2 template when saving
+* [#22844](https://github.com/netbox-community/netbox/issues/22844) - Allow a null value for `base_choices` when creating a custom field choice set via the REST API
+* [#22848](https://github.com/netbox-community/netbox/issues/22848) - Ensure deterministic ordering of duplicate IP addresses to avoid repeating an object across paginated REST API results
+* [#22852](https://github.com/netbox-community/netbox/issues/22852) - Honor a custom script's `notifications_default` setting when the script is run from an event rule
+* [#22865](https://github.com/netbox-community/netbox/issues/22865) - Reference the appropriate component template types on the GraphQL type for inventory item templates
+* [#22879](https://github.com/netbox-community/netbox/issues/22879) - Improve the contrast of unselected radio buttons and checkboxes in dark mode
+* [#22882](https://github.com/netbox-community/netbox/issues/22882) - Fix support for the `DISTINCT` filter on nested GraphQL list fields
+* [#22894](https://github.com/netbox-community/netbox/issues/22894) - Sanitize the error message rendered when an exception occurs in `CustomLinkColumn`
+
+---
+
 ## v4.6.7 (2026-07-30)
 
 ### Performance Improvements
