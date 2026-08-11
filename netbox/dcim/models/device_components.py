@@ -13,9 +13,9 @@ from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import (
-    ChannelRenameMixin,
     CoolingLoopValidationMixin,
     DiameterMixin,
+    InterfaceChannelRenameMixin,
     InterfaceValidationMixin,
     MaxFlowMixin,
 )
@@ -924,7 +924,7 @@ class BaseInterface(models.Model):
 
 
 class Interface(
-    ChannelRenameMixin,
+    InterfaceChannelRenameMixin,
     InterfaceValidationMixin,
     ModularComponentModel,
     BaseInterface,
@@ -1126,7 +1126,7 @@ class Interface(
         )
 
     def __init__(self, *args, **kwargs):
-        # ChannelRenameMixin.__init__() (reached via super(), first in the MRO) sets _original_channels, used
+        # InterfaceChannelRenameMixin.__init__() (reached via super(), first in the MRO) sets _original_channels, used
         # below by InterfaceValidationMixin.clean() and by post_save signal handlers.
         super().__init__(*args, **kwargs)
 
@@ -1268,7 +1268,7 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
-        # ChannelRenameMixin.save() (reached via super(), first in the MRO) detects and cascades a channelized
+        # InterfaceChannelRenameMixin.save() (reached via super(), first in the MRO) detects and cascades a channelized
         # parent rename around this call.
         super().save(*args, **kwargs)
 

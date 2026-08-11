@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import ChannelRenameMixin, DiameterMixin, InterfaceValidationMixin, MaxFlowMixin
+from dcim.models.mixins import DiameterMixin, InterfaceChannelRenameMixin, InterfaceValidationMixin, MaxFlowMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
@@ -568,7 +568,7 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
         }
 
 
-class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularComponentTemplateModel):
+class InterfaceTemplate(InterfaceChannelRenameMixin, InterfaceValidationMixin, ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -662,9 +662,6 @@ class InterfaceTemplate(ChannelRenameMixin, InterfaceValidationMixin, ModularCom
         )
         verbose_name = _('interface template')
         verbose_name_plural = _('interface templates')
-
-    # __init__() and save() are entirely handled by ChannelRenameMixin (first in the MRO above); no override
-    # needed here. _original_channels, set there, is also used below by InterfaceValidationMixin.clean().
 
     def clean(self):
         super().clean()

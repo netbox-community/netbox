@@ -17,9 +17,9 @@ from utilities.conversion import (
 
 __all__ = (
     'CachedScopeMixin',
-    'ChannelRenameMixin',
     'CoolingLoopValidationMixin',
     'DiameterMixin',
+    'InterfaceChannelRenameMixin',
     'InterfaceValidationMixin',
     'MaxFlowMixin',
     'RenderConfigMixin',
@@ -257,7 +257,7 @@ class InterfaceValidationMixin:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
 
 
-class ChannelRenameMixin:
+class InterfaceChannelRenameMixin:
     """
     Cooperative __init__()/save() mixin for Interface and InterfaceTemplate: detects a rename of a channelized
     parent and cascades it to any channel subinterface which follows the "<parent name>:<channel ID>" naming
@@ -308,33 +308,40 @@ class ChannelRenameMixin:
         would exceed the name field's max length or collide with an existing sibling.
         """
         max_name_length = self._meta.get_field('name').max_length
-        for child in self.child_interfaces.filter(channel_id__isnull=False):
-            if child.name != f'{old_name}:{child.channel_id}':
-                continue
-            candidate_name = f'{new_name}:{child.channel_id}'
-            if len(candidate_name) > max_name_length:
-                continue
-            # A full save() (not a queryset update()) so _name, last_updated, and the changelog get updated too;
-            # a channel subinterface can never itself be channelized, so this can't recurse into the cascade.
-            # update_fields is restricted to what actually changed so unrelated receivers (e.g. Interface's own
-            # cable-path rebuild) can skip redundant work.
-            if hasattr(child, 'snapshot'):
-                child.snapshot()
-            child.name = candidate_name
-            # Renamed in its own savepoint: the DB's unique constraint is the sole arbiter of a collision, and a
-            # collision on one child can't abort the rename of the others.
-            try:
-                with transaction.atomic(using=router.db_for_write(type(self))):
-                    child.save(update_fields=['name', '_name', 'last_updated'])
-            except IntegrityError:
-                # Confirm this was really the expected name collision (not some other constraint) before
-                # treating it as safe to skip. The (device, name) constraint is declared via Meta.constraints,
-                # which validate_unique() does not check -- only validate_constraints() does.
-                try:
-                    child.validate_constraints()
-                except ValidationError:
+        db_alias = router.db_for_write(type(self))
+        # This runs from an on_commit callback, after the triggering save()'s own transaction has already
+        # committed -- so without this outer atomic(), each child below would run in its own independent,
+        # auto-committing transaction rather than a savepoint, and an unexpected failure partway through
+        # could leave only some of the child set renamed.
+        with transaction.atomic(using=db_alias):
+            for child in self.child_interfaces.filter(channel_id__isnull=False):
+                if child.name != f'{old_name}:{child.channel_id}':
                     continue
-                raise
+                candidate_name = f'{new_name}:{child.channel_id}'
+                if len(candidate_name) > max_name_length:
+                    continue
+                # A full save() (not a queryset update()) so _name, last_updated, and the changelog get updated
+                # too; a channel subinterface can never itself be channelized, so this can't recurse into the
+                # cascade. update_fields is restricted to what actually changed so unrelated receivers (e.g.
+                # Interface's own cable-path rebuild) can skip redundant work.
+                if hasattr(child, 'snapshot'):
+                    child.snapshot()
+                child.name = candidate_name
+                # Renamed in its own savepoint: the DB's unique constraint is the sole arbiter of a collision,
+                # and a collision on one child can't abort the rename of the others.
+                try:
+                    with transaction.atomic(using=db_alias):
+                        child.save(update_fields=['name', '_name', 'last_updated'])
+                except IntegrityError:
+                    # Confirm this was really the expected name collision (not some other constraint) before
+                    # treating it as safe to skip. The (device, name) constraint is declared via
+                    # Meta.constraints, which validate_unique() does not check -- only validate_constraints()
+                    # does.
+                    try:
+                        child.validate_constraints()
+                    except ValidationError:
+                        continue
+                    raise
 
 
 class CoolingLoopValidationMixin:

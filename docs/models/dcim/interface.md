@@ -87,7 +87,7 @@ If selected, this component will be treated as if a cable has been connected.
 Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. A channel subinterface is likewise bound to its [channelized](#channels) parent interface, whether it uses the generic **channel** type or its own specific physical type.
 
 !!! note
-    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent, unless the resulting name is already in use by another interface on the device (in which case that subinterface's name is left unchanged).
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent, unless the resulting name is already in use by another interface on the device or would exceed the maximum length of the name field (in either case, that subinterface's name is left unchanged).
 
 ### Channel ID
 
