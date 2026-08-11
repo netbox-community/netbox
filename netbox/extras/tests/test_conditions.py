@@ -4,7 +4,7 @@ from django.test import TestCase
 from core.events import *
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
-from extras.conditions import Condition, ConditionSet, InvalidCondition
+from extras.conditions import AbsentData, Condition, ConditionSet, InvalidCondition
 from extras.events import serialize_for_event
 from extras.forms import EventRuleForm
 from extras.models import EventRule, Webhook
@@ -323,6 +323,63 @@ class ConditionSetTestCase(TestCase):
         self.assertFalse(form.is_valid())
 
 
+class AbsentDataTestCase(TestCase):
+    """
+    Tests for conditions evaluated against an AbsentData payload, i.e. event data which is
+    absent altogether (a job which recorded no data) rather than merely lacking the
+    referenced attribute.
+    """
+
+    def _absent_data(self, **kwargs):
+        """Return an absent payload as produced by process_event_rules()."""
+        data = AbsentData()
+        data['snapshots'] = kwargs.get('snapshots')
+        return data
+
+    def test_absent_data_resolves_to_none(self):
+        data = self._absent_data()
+        self.assertTrue(Condition('status', value=None).eval(data))
+        self.assertFalse(Condition('status', value='completed').eval(data))
+        self.assertTrue(Condition('status', value='completed', negate=True).eval(data))
+        # A nested path is equally unresolvable, and equally not an error
+        self.assertFalse(Condition('output.result', value='x').eval(data))
+
+    def test_absent_data_is_a_non_match_for_every_operator(self):
+        data = self._absent_data()
+        for op, value in (('contains', 'foo'), ('regex', '^foo'), ('gt', 1), ('gte', 1), ('lt', 1), ('lte', 1)):
+            with self.subTest(op=op):
+                self.assertFalse(Condition('status', value=value, op=op).eval(data))
+
+    def test_absent_data_does_not_veto_sibling_conditions(self):
+        """
+        As with an absent snapshot, an absent payload must not abort evaluation of the whole
+        condition set.
+        """
+        data = self._absent_data()
+        ruleset = {'or': [
+            {'attr': 'status', 'value': 'foo', 'op': 'regex'},
+            {'attr': 'status', 'value': None},
+        ]}
+        self.assertTrue(ConditionSet(ruleset).eval(data))
+
+    def test_present_data_missing_attr_still_fails_closed(self):
+        """
+        Only data which is absent altogether resolves to None; a payload which is present
+        but lacks the attribute remains a fail-closed error, so that a typo is logged.
+        """
+        with self.assertRaises(InvalidCondition):
+            Condition('status', value='completed').eval({'other': 1})
+
+    def test_snapshot_path_against_absent_data(self):
+        """
+        The absent-payload marker must not short-circuit a snapshot path: the snapshots key
+        is part of the evaluation context, not of the payload.
+        """
+        data = self._absent_data(snapshots={'prechange': {'status': 'planned'}, 'postchange': None})
+        self.assertTrue(Condition('snapshots.prechange.status', value='planned').eval(data))
+        self.assertTrue(Condition('snapshots.postchange.status', value=None).eval(data))
+
+
 class SnapshotConditionTestCase(TestCase):
     """
     Tests for snapshot-aware conditions: the 'changed'/'unchanged' operators and
@@ -542,17 +599,37 @@ class SnapshotConditionTestCase(TestCase):
         self.assertFalse(Condition('snapshots.postchange.status', value='active').eval({'snapshots': snapshots}))
         self.assertTrue(Condition('snapshots.postchange.status', value=None).eval({'snapshots': snapshots}))
 
+    def test_absent_snapshot_is_a_non_match_for_every_operator(self):
+        """
+        An absent snapshot resolves to None, which satisfies only a comparison against null.
+        Operators which raise a TypeError on None must report a plain non-match rather than
+        aborting evaluation, so that the guarantee holds for all operators and not just
+        those which happen to tolerate None.
+        """
+        data = {'snapshots': {'prechange': None, 'postchange': {'description': 'foo'}}}
+        attr = 'snapshots.prechange.description'
+        for op, value in (('contains', 'foo'), ('regex', '^foo'), ('gt', 1), ('gte', 1), ('lt', 1), ('lte', 1)):
+            with self.subTest(op=op):
+                self.assertFalse(Condition(attr, value=value, op=op).eval(data))
+                self.assertTrue(Condition(attr, value=value, op=op, negate=True).eval(data))
+
     def test_absent_snapshot_does_not_veto_sibling_conditions(self):
         """
         Regression: an absent prechange snapshot must not abort evaluation of the whole
         condition set, which would suppress a sibling condition that does match. The
-        result must also not depend on the order of the conditions.
+        result must also not depend on the order of the conditions, nor on which operator
+        the snapshot condition uses.
         """
         data = {'name': 'Site 1', 'snapshots': {'prechange': None, 'postchange': {'status': 'active'}}}
-        snapshot_rule = {'attr': 'snapshots.prechange.status', 'value': 'planned'}
         name_rule = {'attr': 'name', 'value': 'Site 1'}
-        self.assertTrue(ConditionSet({'or': [snapshot_rule, name_rule]}).eval(data))
-        self.assertTrue(ConditionSet({'or': [name_rule, snapshot_rule]}).eval(data))
+        for snapshot_rule in (
+            {'attr': 'snapshots.prechange.status', 'value': 'planned'},
+            {'attr': 'snapshots.prechange.status', 'value': 'plan', 'op': 'contains'},
+            {'attr': 'snapshots.prechange.status', 'value': '^plan', 'op': 'regex'},
+        ):
+            with self.subTest(op=snapshot_rule.get('op', 'eq')):
+                self.assertTrue(ConditionSet({'or': [snapshot_rule, name_rule]}).eval(data))
+                self.assertTrue(ConditionSet({'or': [name_rule, snapshot_rule]}).eval(data))
 
     def test_snapshot_path_typo_still_fails_closed(self):
         """

@@ -49,6 +49,11 @@ The following condition will evaluate as true:
 }
 ```
 
+!!! note "Missing keys and absent data"
+    A condition which references a key that does not exist in the data being evaluated fails closed: the condition set evaluates as false, and (for an [event rule](../features/event-rules.md)) an error is logged to `netbox.event_rules` so that a typo does not silently disable the rule.
+
+    Where the data is absent altogether rather than merely missing the referenced key, the reference instead resolves to `null`. This applies to an event rule evaluating a job which recorded no data, and to a snapshot which does not exist for the event type (see [below](#snapshot-conditions-event-rules)). Such an absence is a normal property of the event rather than a mistake, so it is not treated as an error: the reference matches a condition testing for `null`, fails any other comparison, and does not affect the evaluation of the other conditions in the set.
+
 ### Examples
 
 `name` equals "foo":
@@ -149,7 +154,7 @@ You can also read pre- or post-change values directly using the `snapshots.prech
 
     For delete events, `postchange` is `null`. The `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, `unchanged` evaluates to `false`, and any `snapshots.postchange.*` path resolves to `null`.
 
-Because an absent snapshot resolves to `null` rather than raising an error, a snapshot path can be combined safely with other conditions in a rule that also fires on create or delete. For example, this rule fires when a site is created, or when an existing site moves out of the `planned` status:
+Because an absent snapshot resolves to `null` rather than raising an error — matching a condition testing for `null` and failing any other comparison, whichever operator is used — a snapshot path can be combined safely with other conditions in a rule that also fires on create or delete. For example, this rule fires when a site is created, or when a site whose status was previously `planned` is updated:
 
 ```json
 {

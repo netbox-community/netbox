@@ -11,6 +11,7 @@ from netbox.models.features import has_feature
 from utilities.api import get_serializer_for_model
 from utilities.serialization import serialize_object
 
+from .conditions import AbsentData
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -178,6 +179,9 @@ def process_event_rules(event_rules, object_type, event):
     # Normalize the event payload to a dict once for all rules. A null payload is routine
     # for job events (the job simply recorded no data); any other non-dict is unexpected
     # and worth surfacing, but must not take down event processing for the whole batch.
+    # Either way no attributes can be resolved from it, so substitute an AbsentData rather
+    # than a plain empty dict: a condition referencing the payload then resolves to null
+    # instead of raising (and logging an error) once per rule on every such event.
     data = event['data']
     if not isinstance(data, dict):
         if data is not None:
@@ -187,7 +191,7 @@ def process_event_rules(event_rules, object_type, event):
                     data_type=type(data).__name__,
                 )
             )
-        data = {}
+        data = AbsentData()
 
     for event_rule in event_rules:
 
@@ -196,7 +200,11 @@ def process_event_rules(event_rules, object_type, event):
         # reference snapshots.prechange.<attr> and snapshots.postchange.<attr>
         # using the standard dot-path syntax, and so the 'changed'/'unchanged'
         # operators can access pre/post values.
-        condition_data = {**data, 'snapshots': event.get('snapshots')}
+        # data.copy() preserves an AbsentData payload (which unpacking into a new dict would
+        # not), so that conditions can distinguish absent data from data which is merely
+        # missing the referenced attribute.
+        condition_data = data.copy()
+        condition_data['snapshots'] = event.get('snapshots')
         if not event_rule.eval_conditions(condition_data):
             continue
 

@@ -5,6 +5,7 @@ import re
 from django.utils.translation import gettext as _
 
 __all__ = (
+    'AbsentData',
     'Condition',
     'ConditionSet',
     'InvalidCondition',
@@ -22,6 +23,21 @@ SNAPSHOT_PREFIX = 'snapshots.'
 # unresolvable values compare equal to each other, which is the correct
 # semantics for the 'unchanged' operator when neither snapshot has the field.
 _MISSING = object()
+
+
+class AbsentData(dict):
+    """
+    An empty dict standing in for event data which is absent altogether, as opposed to data
+    which is present but does not contain a referenced attribute.
+
+    A condition referencing an attribute of absent data resolves to null instead of raising
+    InvalidCondition: the absence is a normal property of the event (e.g. a job which
+    recorded no data), not a malformed condition, so it must not abort evaluation of the
+    condition set or log an error for every rule on every such event.
+    """
+    def copy(self):
+        # dict.copy() would return a plain dict, silently discarding the marker.
+        return AbsentData(self)
 
 
 def is_ruleset(data):
@@ -122,20 +138,27 @@ class Condition:
         except TypeError as e:
             raise InvalidCondition(f"Invalid key path: {self.attr} ({e})")
 
-    def _references_absent_snapshot(self, data):
+    def _references_absent_data(self, data):
         """
-        Return True if self.attr is a direct snapshot path (snapshots.prechange.* or
-        snapshots.postchange.*) whose referenced snapshot is null.
+        Return True if self.attr references data which is absent altogether, as opposed to
+        data which is present but does not contain the attribute. Two cases qualify:
 
-        Create events have no prechange snapshot and delete events have no postchange
-        snapshot. That is a normal property of the event, not a malformed condition, so
-        such a path resolves to None instead of raising: raising would abort evaluation of
-        the entire condition set, suppressing sibling conditions that do match and logging
-        an error on every create (or delete) of the object type.
+        * The data itself is absent (an AbsentData payload), e.g. a job event for a job
+          which recorded no data.
+        * self.attr is a direct snapshot path (snapshots.prechange.* or
+          snapshots.postchange.*) whose referenced snapshot is null. Create events have no
+          prechange snapshot and delete events have no postchange snapshot.
 
-        A path naming a snapshot that exists but lacks the attribute is left alone, so a
-        genuine typo still fails closed and is logged.
+        In both cases the absence is a normal property of the event, not a malformed
+        condition, so such a reference resolves to None instead of raising: raising would
+        abort evaluation of the entire condition set, suppressing sibling conditions that do
+        match and logging an error on every such event.
+
+        Data which is present but lacks the attribute is left alone, so a genuine typo still
+        fails closed and is logged.
         """
+        if isinstance(data, AbsentData) and self.attr.split('.')[0] not in data:
+            return True
         if not self.attr.startswith(SNAPSHOT_PREFIX):
             return False
         snapshots = data.get('snapshots') if isinstance(data, dict) else None
@@ -188,11 +211,18 @@ class Condition:
             result = self.eval_func(snapshots)
             return not result if self.negate else result
 
-        value = None if self._references_absent_snapshot(data) else self._resolve_attr(data)
+        absent = self._references_absent_data(data)
+        value = None if absent else self._resolve_attr(data)
         try:
             result = self.eval_func(value)
         except TypeError as e:
-            raise InvalidCondition(f"Invalid data type at '{self.attr}' for '{self.op}' evaluation: {e}")
+            if not absent:
+                raise InvalidCondition(f"Invalid data type at '{self.attr}' for '{self.op}' evaluation: {e}")
+            # Absent data resolves to null, which satisfies only a comparison against null:
+            # operators such as contains, regex, and the numeric comparisons raise a
+            # TypeError on None. That is a non-match, not a malformed condition, so report
+            # False (subject to negation below) rather than aborting the condition set.
+            result = False
 
         if self.negate:
             return not result
