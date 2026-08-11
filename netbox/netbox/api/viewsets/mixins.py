@@ -631,9 +631,14 @@ class BulkDestroyModelMixin:
             o['id']: o.get('changelog_message') for o in serializer.validated_data
         }
 
-        errors, total = self.perform_bulk_destroy(qs, changelog_messages)
+        errors, total, has_conflict = self.perform_bulk_destroy(qs, changelog_messages)
 
         if errors:
+            # A dependency conflict reports 409, as it is a conflict with the current state of the
+            # database; every other failure reports 400, as it is a rejection of the request. This
+            # matches the single-object endpoint, where dispatch() maps the same two exception
+            # classes to the same two status codes. Where a batch hit both, the conflict takes
+            # precedence: it is the failure which would remain were the request itself corrected.
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects could not be deleted.').format(
@@ -642,15 +647,25 @@ class BulkDestroyModelMixin:
                     ),
                     'errors': errors,
                 },
-                status=status.HTTP_409_CONFLICT,
+                status=status.HTTP_409_CONFLICT if has_conflict else status.HTTP_400_BAD_REQUEST,
             )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_bulk_destroy(self, objects, changelog_messages=None):
+        """
+        Attempt to delete each of the given objects, rolling the entire batch back if any one of
+        them could not be deleted.
+
+        Returns the per-object errors, the number of objects processed, and whether any of the
+        failures was a conflict with the current state of the database (a dependent object) rather
+        than a rejection of the request (a protection rule, or any other signal receiver raising
+        AbortRequest). The caller uses the last of these to select a status code.
+        """
         changelog_messages = changelog_messages or {}
         errors = []
         total = 0
+        has_conflict = False
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             for obj in objects:
@@ -662,6 +677,7 @@ class BulkDestroyModelMixin:
                 try:
                     self.perform_destroy(obj)
                 except (ProtectedError, RestrictedError) as e:
+                    has_conflict = True
                     protected = list(
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
                     )
@@ -689,7 +705,7 @@ class BulkDestroyModelMixin:
                     errors.append({'id': pk, 'errors': {'__all__': [str(e.message)]}})
             if errors:
                 transaction.set_rollback(True)
-        return errors, total
+        return errors, total, has_conflict
 
 
 class ObjectValidationMixin:

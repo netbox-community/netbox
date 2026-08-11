@@ -710,7 +710,9 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
     def test_bulk_delete_objects_abort_request(self):
         """
         DELETE a set of objects where a protection rule blocks more than one of them. Each failure
-        must be correlated to its own object and no object may be deleted.
+        must be correlated to its own object and no object may be deleted. A protection rule is a
+        rejection of the request rather than a conflict with the state of the database, so this
+        reports 400 -- as the single-object endpoint does for the same rule.
         """
         site1 = Site.objects.get(slug='site-1')
         site2 = Site.objects.get(slug='site-2')
@@ -727,8 +729,43 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         with override_settings(PROTECTION_RULES=protection_rules):
             response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
 
-        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been deleted
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_delete_objects_conflict_and_abort_request(self):
+        """
+        DELETE a set of objects where one is blocked by a dependent object and another by a
+        protection rule. Both failures must be reported, and the dependency conflict must determine
+        the status code: it is the failure which would remain were the request itself corrected.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Site 1 is blocked by a dependent Device (ProtectedError); Site 2 is blocked by the
+        # protection rule below, as it has no description (AbortRequest). Site 1 is given a
+        # description so that only one of the two failure modes applies to it.
+        create_test_device('Protected Device', site=site1)
+        site1.description = 'Has a description'
+        site1.save()
+
+        protection_rules = {'dcim.site': [{'description': {'required': True}}]}
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        with override_settings(PROTECTION_RULES=protection_rules):
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
         self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
         for error in response.data['errors']:
             self.assertIsInstance(error['errors']['__all__'], list)

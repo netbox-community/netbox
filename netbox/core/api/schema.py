@@ -211,16 +211,17 @@ class NetBoxAutoSchema(AutoSchema):
                 '400': OpenApiResponse(
                     response=BulkOperationErrorSerializer,
                     description=_(
-                        "The request was malformed, or one or more of the objects specified could "
-                        "not be found. No objects were deleted."
+                        "The request was malformed, one or more of the objects specified could not "
+                        "be found, or the deletion of one of them was prevented by a protection "
+                        "rule. No objects were deleted."
                     ),
                 ),
                 '409': OpenApiResponse(
                     response=BulkOperationErrorSerializer,
                     description=_(
                         "One or more of the objects specified could not be deleted, because a "
-                        "dependent object or a protection rule prevents it. No objects were "
-                        "deleted: a bulk deletion is an all-or-none operation."
+                        "dependent object prevents it. No objects were deleted: a bulk deletion is "
+                        "an all-or-none operation."
                     ),
                 ),
             }

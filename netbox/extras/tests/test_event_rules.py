@@ -617,7 +617,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         protection_rules = {'dcim.site': [{'description': {'required': True}}]}
         with override_settings(PROTECTION_RULES=protection_rules):
             response = self.client.delete(url, data, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        # 400 rather than 409: a protection rule rejects the request, it is not a conflict with a
+        # dependent object (see BulkDestroyModelMixin.bulk_destroy)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Site.objects.count(), 2)
 
         # The failure is correlated to the blocked object only
