@@ -2,7 +2,7 @@ import warnings
 from collections import Counter
 from contextlib import contextmanager
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django.http import Http404
@@ -24,6 +24,7 @@ from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
 
 __all__ = (
+    'BULK_ERROR_STATUSES',
     'BackgroundOperationMixin',
     'BulkCreateModelMixin',
     'BulkDestroyModelMixin',
@@ -37,7 +38,43 @@ __all__ = (
     'get_invalid_entries_response',
     'get_missing_objects_response',
     'get_non_list_response',
+    'resolve_bulk_error_status',
 )
+
+# The status codes with which a failed bulk operation may be reported, in order of precedence: where
+# the per-object failures within one batch imply more than one of these, the earliest applies, being
+# the one which would still stand were the others corrected. An authorization failure thus outranks a
+# conflict with the current state of the database, which in turn outranks a rejection of the request.
+BULK_ERROR_STATUSES = (
+    status.HTTP_403_FORBIDDEN,
+    status.HTTP_409_CONFLICT,
+    status.HTTP_400_BAD_REQUEST,
+)
+
+# Reported for an object whose write was undone because the object it produced falls outside the
+# queryset permitted to the requesting user (see ObjectValidationMixin._validate_objects). Which
+# constraint was violated is deliberately not disclosed, consistent with the single-object endpoints.
+PERMISSION_DENIED_MESSAGE = _("You do not have permission to perform this action on this object.")
+
+
+def resolve_bulk_error_status(error_statuses):
+    """
+    Return the single status code with which to report a bulk operation whose per-object failures
+    imply the given ones, or None if there were no failures.
+
+    :param error_statuses: The set of status codes implied by the failures within one batch, each
+        drawn from BULK_ERROR_STATUSES (which documents how they are ranked).
+    """
+    if not error_statuses:
+        return None
+
+    for error_status in BULK_ERROR_STATUSES:
+        if error_status in error_statuses:
+            return error_status
+
+    # A code with no defined precedence (a subclass may report its own) is not silently ranked;
+    # fall back to the generic client error.
+    return status.HTTP_400_BAD_REQUEST
 
 
 def get_non_list_response(data):
@@ -357,18 +394,18 @@ class BulkCreateModelMixin:
     ]
     """
     def bulk_create(self, request, *args, **kwargs):
-        created_pks, errors = self.perform_bulk_create(request.data)
+        created_pks, errors, error_status = self.perform_bulk_create(request.data)
 
         if errors:
             return Response(
                 {
-                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                    'detail': _('{failed_count} of {total} objects could not be created.').format(
                         failed_count=len(errors),
                         total=len(request.data),
                     ),
                     'errors': errors,
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=error_status,
             )
 
         # Re-fetch the new objects to serialize them with their related objects prefetched. Order by PK
@@ -380,8 +417,16 @@ class BulkCreateModelMixin:
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_bulk_create(self, data):
+        """
+        Validate and create each of the given objects, rolling the entire batch back if any one of
+        them could not be created.
+
+        Returns the PKs of the objects created, the per-object errors, and the status code with
+        which to report them (None if there were none). See resolve_bulk_error_status().
+        """
         created_pks = []
         errors = []
+        error_statuses = set()
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             # Validate and save each object in turn, rather than validating the entire batch up front,
@@ -404,10 +449,12 @@ class BulkCreateModelMixin:
                             ],
                         },
                     })
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
                     continue
                 serializer = self.get_serializer(data=item)
                 if not serializer.is_valid():
                     errors.append({'index': i, 'errors': serializer.errors})
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
                     continue
                 try:
                     # Provisionally create even when a prior item failed, so subsequent
@@ -421,11 +468,19 @@ class BulkCreateModelMixin:
                     # and the remaining objects in the batch can still be evaluated. The message is
                     # coerced to a string because a few receivers pass an exception rather than text.
                     errors.append({'index': i, 'errors': {'__all__': [str(e.message)]}})
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
+                except PermissionDenied:
+                    # Raised by perform_create() when the object it saved falls outside the queryset
+                    # permitted to the requesting user. Reported per object so that the offending
+                    # entry is named, but still as a 403, which is what the single-object endpoint
+                    # returns for the same rejection.
+                    errors.append({'index': i, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
+                    error_statuses.add(status.HTTP_403_FORBIDDEN)
                 else:
                     created_pks.append(serializer.instance.pk)
             if errors:
                 transaction.set_rollback(True)
-        return created_pks, errors
+        return created_pks, errors, resolve_bulk_error_status(error_statuses)
 
 
 # TODO: Remove this in NetBox v5.0
@@ -516,18 +571,21 @@ class BulkUpdateModelMixin:
             for object_id, item in zip(object_ids, request.data, strict=True)
         }
 
-        object_pks, errors = self.perform_bulk_update(qs, update_data, partial=partial)
+        object_pks, errors, error_status = self.perform_bulk_update(qs, update_data, partial=partial)
 
         if errors:
             return Response(
                 {
-                    'detail': _('{failed_count} of {total} objects failed validation.').format(
+                    'detail': _('{failed_count} of {total} objects could not be updated.').format(
                         failed_count=len(errors),
+                        # Every object named was matched and attempted, the duplicate and missing-ID
+                        # checks above having rejected the batch otherwise, so this equals the number
+                        # of objects submitted.
                         total=len(object_pks) + len(errors),
                     ),
                     'errors': errors,
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=error_status,
             )
 
         # Prefetch related objects for all updated instances
@@ -537,8 +595,16 @@ class BulkUpdateModelMixin:
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_bulk_update(self, objects, update_data, partial):
+        """
+        Validate and apply the given attributes to each of the given objects, rolling the entire
+        batch back if any one of them could not be updated.
+
+        Returns the PKs of the objects updated, the per-object errors, and the status code with
+        which to report them (None if there were none). See resolve_bulk_error_status().
+        """
         updated_pks = []
         errors = []
+        error_statuses = set()
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             # Validate and save each object in turn so subsequent validations see the DB
@@ -551,6 +617,7 @@ class BulkUpdateModelMixin:
                 serializer = self.get_serializer(obj, data=data, partial=partial)
                 if not serializer.is_valid():
                     errors.append({'id': obj.pk, 'errors': serializer.errors})
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
                     continue
                 try:
                     self.perform_update(serializer)
@@ -561,11 +628,20 @@ class BulkUpdateModelMixin:
                     # and the remaining objects in the batch can still be evaluated. The message is
                     # coerced to a string because a few receivers pass an exception rather than text.
                     errors.append({'id': obj.pk, 'errors': {'__all__': [str(e.message)]}})
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
+                except PermissionDenied:
+                    # Raised by perform_update() when the object, as modified, falls outside the
+                    # queryset permitted to the requesting user -- so unlike the check made before
+                    # the batch begins (see get_missing_objects_response), this depends on the
+                    # attributes submitted. Reported per object so that the offending entry is
+                    # named, but still as a 403, as the single-object endpoint returns.
+                    errors.append({'id': obj.pk, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
+                    error_statuses.add(status.HTTP_403_FORBIDDEN)
                 else:
                     updated_pks.append(obj.pk)
             if errors:
                 transaction.set_rollback(True)
-        return updated_pks, errors
+        return updated_pks, errors, resolve_bulk_error_status(error_statuses)
 
     def get_bulk_update_serializer_class(self, *, partial=False):
         return get_bulk_update_serializer_class(
@@ -637,14 +713,9 @@ class BulkDestroyModelMixin:
             o['id']: o.get('changelog_message') for o in serializer.validated_data
         }
 
-        errors, total, has_conflict = self.perform_bulk_destroy(qs, changelog_messages)
+        errors, total, error_status = self.perform_bulk_destroy(qs, changelog_messages)
 
         if errors:
-            # A dependency conflict reports 409, as it is a conflict with the current state of the
-            # database; every other failure reports 400, as it is a rejection of the request. This
-            # matches the single-object endpoint, where dispatch() maps the same two exception
-            # classes to the same two status codes. Where a batch hit both, the conflict takes
-            # precedence: it is the failure which would remain were the request itself corrected.
             return Response(
                 {
                     'detail': _('{failed_count} of {total} objects could not be deleted.').format(
@@ -653,7 +724,7 @@ class BulkDestroyModelMixin:
                     ),
                     'errors': errors,
                 },
-                status=status.HTTP_409_CONFLICT if has_conflict else status.HTTP_400_BAD_REQUEST,
+                status=error_status,
             )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -663,15 +734,18 @@ class BulkDestroyModelMixin:
         Attempt to delete each of the given objects, rolling the entire batch back if any one of
         them could not be deleted.
 
-        Returns the per-object errors, the number of objects processed, and whether any of the
-        failures was a conflict with the current state of the database (a dependent object) rather
-        than a rejection of the request (a protection rule, or any other signal receiver raising
-        AbortRequest). The caller uses the last of these to select a status code.
+        Returns the per-object errors, the number of objects processed, and the status code with
+        which to report the errors (None if there were none). A dependency conflict yields a 409, as
+        it is a conflict with the current state of the database, whereas a protection rule (or any
+        other signal receiver raising AbortRequest) yields a 400, being a rejection of the request:
+        this matches the single-object endpoint, where dispatch() maps the same exception classes to
+        the same status codes. See resolve_bulk_error_status() for how a batch hitting more than one
+        of these is resolved.
         """
         changelog_messages = changelog_messages or {}
         errors = []
         total = 0
-        has_conflict = False
+        error_statuses = set()
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             for obj in objects:
@@ -683,7 +757,7 @@ class BulkDestroyModelMixin:
                 try:
                     self.perform_destroy(obj)
                 except (ProtectedError, RestrictedError) as e:
-                    has_conflict = True
+                    error_statuses.add(status.HTTP_409_CONFLICT)
                     protected = list(
                         e.protected_objects if isinstance(e, ProtectedError) else e.restricted_objects
                     )
@@ -709,9 +783,15 @@ class BulkDestroyModelMixin:
                     # is rolled back to that savepoint and the remaining objects in the batch can
                     # still be evaluated.
                     errors.append({'id': pk, 'errors': {'__all__': [str(e.message)]}})
+                    error_statuses.add(status.HTTP_400_BAD_REQUEST)
+                except PermissionDenied:
+                    # Raised by perform_destroy() when the object falls outside the queryset
+                    # permitted to the requesting user (reachable via the If-Match re-check).
+                    errors.append({'id': pk, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
+                    error_statuses.add(status.HTTP_403_FORBIDDEN)
             if errors:
                 transaction.set_rollback(True)
-        return errors, total, has_conflict
+        return errors, total, resolve_bulk_error_status(error_statuses)
 
 
 class ObjectValidationMixin:

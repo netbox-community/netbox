@@ -61,7 +61,7 @@ class BulkOperationErrorSerializer(serializers.Serializer):
     responsible for it.
     """
     detail = serializers.CharField(
-        help_text=_('A summary of the failure, e.g. "1 of 3 objects failed validation."')
+        help_text=_('A summary of the failure, e.g. "1 of 3 objects could not be updated."')
     )
     errors = BulkOperationEntryErrorSerializer(
         many=True,

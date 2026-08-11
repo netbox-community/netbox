@@ -154,8 +154,8 @@ class OpenAPISchemaTestCase(TestCase):
 
     def test_bulk_delete_documents_error_responses(self):
         """
-        Bulk delete operations should document both the 400 (unresolvable request) and the 409
-        (dependency or protection rule) responses.
+        Bulk delete operations should document the 400 (unresolvable request or protection rule), the
+        403 (not permitted) and the 409 (dependent object) responses.
 
         Refs: #20054
         """
@@ -164,7 +164,22 @@ class OpenAPISchemaTestCase(TestCase):
         for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
             with self.subTest(path=path):
                 self.assertEqual(self._get_response_schema(path, 'delete', '400'), ref)
+                self.assertEqual(self._get_response_schema(path, 'delete', '403'), ref)
                 self.assertEqual(self._get_response_schema(path, 'delete', '409'), ref)
+
+    def test_bulk_write_operations_document_forbidden_response(self):
+        """
+        Every bulk write should document the 403 returned when an object-level permission refuses one
+        of the objects specified.
+
+        Refs: #20054
+        """
+        ref = {'$ref': '#/components/schemas/BulkOperationError'}
+
+        for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
+            for method in ('post', 'put', 'patch', 'delete'):
+                with self.subTest(path=path, method=method):
+                    self.assertEqual(self._get_response_schema(path, method, '403'), ref)
 
     def test_create_documents_error_response_for_either_shape(self):
         """
@@ -196,6 +211,7 @@ class OpenAPISchemaTestCase(TestCase):
             with self.subTest(method=method):
                 responses = self.schema['paths'][path][method]['responses']
                 self.assertNotIn('409', responses)
+                self.assertNotIn('403', responses)
                 for code, response in responses.items():
                     schema = response.get('content', {}).get('application/json', {}).get('schema', {})
                     self.assertNotEqual(

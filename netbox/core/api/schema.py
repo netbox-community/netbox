@@ -204,6 +204,13 @@ class NetBoxAutoSchema(AutoSchema):
                         "modified: a bulk update is an all-or-none operation."
                     ),
                 ),
+                '403': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "The requesting user is not permitted to apply one or more of the "
+                        "modifications specified. No objects were modified."
+                    ),
+                ),
             }
 
         if action == 'bulk_destroy':
@@ -214,6 +221,13 @@ class NetBoxAutoSchema(AutoSchema):
                         "The request was malformed, one or more of the objects specified could not "
                         "be found, or the deletion of one of them was prevented by a protection "
                         "rule. No objects were deleted."
+                    ),
+                ),
+                '403': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "The requesting user is not permitted to delete one or more of the objects "
+                        "specified. No objects were deleted."
                     ),
                 ),
                 '409': OpenApiResponse(
@@ -242,6 +256,15 @@ class NetBoxAutoSchema(AutoSchema):
                     description=_(
                         "The object could not be created. Where a list was submitted, no objects "
                         "were created: a bulk creation is an all-or-none operation."
+                    ),
+                ),
+                # A 403 always carries a `detail`, and BulkOperationError's `errors` is optional, so
+                # the one component covers both the single-object and the bulk shape here.
+                '403': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "The requesting user is not permitted to create one or more of the objects "
+                        "specified. No objects were created."
                     ),
                 ),
             }

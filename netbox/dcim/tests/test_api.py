@@ -25,6 +25,7 @@ from utilities.testing import (
     create_test_device,
     create_test_nat_ip_pair,
     disable_logging,
+    disable_warnings,
 )
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -738,6 +739,111 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         # Neither site may have been deleted
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
         self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_update_objects_permission_constraint(self):
+        """
+        PATCH a set of objects where the update would move one of them outside the requesting user's
+        object-level permissions. The offending object must be named, rather than the whole batch
+        failing with an opaque 403, and nothing may be modified.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        Site.objects.filter(pk__in=(site1.pk, site2.pk)).update(status=SiteStatusChoices.STATUS_ACTIVE)
+
+        # Only active sites may be changed, so setting Site 2's status to "planned" saves the object
+        # and then fails _validate_objects(), which perform_update() reports as PermissionDenied.
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'description': 'Permitted'},
+            {'id': site2.pk, 'status': SiteStatusChoices.STATUS_PLANNED},
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        # Still a 403, as the single-object endpoint returns, but now correlated
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site2.pk])
+        self.assertIsInstance(response.data['errors'][0]['errors']['__all__'], list)
+
+        # Neither site may have been modified, including the permitted one
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.description, '', 'Site 1 should not have been updated')
+        self.assertEqual(site2.status, SiteStatusChoices.STATUS_ACTIVE, 'Site 2 should not have been updated')
+
+    def test_bulk_update_objects_permission_constraint_and_validation_error(self):
+        """
+        PATCH a set of objects where one entry is invalid and another is refused by object-level
+        permissions. Both must be reported, and the authorization failure must determine the status
+        code: it is the failure which would remain were the invalid entry corrected.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        Site.objects.filter(pk__in=(site1.pk, site2.pk)).update(status=SiteStatusChoices.STATUS_ACTIVE)
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'status': 'not-a-valid-status'},  # Fails validation (400)
+            {'id': site2.pk, 'status': SiteStatusChoices.STATUS_PLANNED},  # Not permitted (403)
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.status, SiteStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(site2.status, SiteStatusChoices.STATUS_ACTIVE)
+
+    def test_bulk_create_objects_permission_constraint(self):
+        """
+        POST a set of objects where one falls outside the requesting user's object-level permissions.
+        The offending object must be correlated by its position, and nothing may be created.
+        """
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {'name': 'Site 20', 'slug': 'site-20', 'status': SiteStatusChoices.STATUS_ACTIVE},
+            {'name': 'Site 21', 'slug': 'site-21', 'status': SiteStatusChoices.STATUS_PLANNED},
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual([e['index'] for e in response.data['errors']], [1])
+        self.assertIsInstance(response.data['errors'][0]['errors']['__all__'], list)
+
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any sibling is not permitted',
+        )
 
     def test_bulk_delete_objects_conflict_and_abort_request(self):
         """
