@@ -2,6 +2,7 @@ import re
 import typing
 from collections import OrderedDict
 
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
 from drf_spectacular.openapi import AutoSchema
@@ -14,10 +15,10 @@ from drf_spectacular.plumbing import (
     get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import Direction, OpenApiParameter
+from drf_spectacular.utils import Direction, OpenApiParameter, OpenApiResponse
 
 from netbox.api.fields import ChoiceField
-from netbox.api.serializers import WritableNestedSerializer
+from netbox.api.serializers import BulkOperationErrorSerializer, WritableNestedSerializer
 from netbox.api.viewsets import NetBoxModelViewSet
 
 # see netbox.api.routers.NetBoxRouter
@@ -181,6 +182,82 @@ class NetBoxAutoSchema(AutoSchema):
             return type(response_serializers)(many=True)
 
         return response_serializers
+
+    def _get_bulk_error_responses(self, direction) -> typing.Any:
+        """
+        Return the error responses of the current bulk write action, keyed by status code, or an
+        empty dict if this action is not a bulk write.
+
+        A failed bulk write returns a structured body correlating each failure with the object (or,
+        where no object could be identified, the request position) responsible for it. This is a
+        documented part of the API contract, but drf-spectacular cannot infer it: responses are
+        derived from the request/response serializer alone, which describes only the success case.
+        """
+        action = getattr(self.view, 'action', None)
+
+        if action in ('bulk_update', 'bulk_partial_update'):
+            return {
+                '400': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "One or more of the objects specified could not be updated. No objects were "
+                        "modified: a bulk update is an all-or-none operation."
+                    ),
+                ),
+            }
+
+        if action == 'bulk_destroy':
+            return {
+                '400': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "The request was malformed, or one or more of the objects specified could "
+                        "not be found. No objects were deleted."
+                    ),
+                ),
+                '409': OpenApiResponse(
+                    response=BulkOperationErrorSerializer,
+                    description=_(
+                        "One or more of the objects specified could not be deleted, because a "
+                        "dependent object or a protection rule prevents it. No objects were "
+                        "deleted: a bulk deletion is an all-or-none operation."
+                    ),
+                ),
+            }
+
+        if action == 'create' and viewset_handles_bulk_create(self.view):
+            # A POST to a list endpoint accepts either a single object or a list of them (see
+            # _get_request_for_media_type()), so its error body takes one of two shapes
+            # accordingly: field-keyed errors for a single object, or the bulk envelope for a list.
+            component = self.resolve_serializer(BulkOperationErrorSerializer, direction)
+            return {
+                '400': OpenApiResponse(
+                    response={
+                        'oneOf': [
+                            build_basic_type(OpenApiTypes.OBJECT),
+                            component.ref if component else build_basic_type(OpenApiTypes.OBJECT),
+                        ],
+                    },
+                    description=_(
+                        "The object could not be created. Where a list was submitted, no objects "
+                        "were created: a bulk creation is an all-or-none operation."
+                    ),
+                ),
+            }
+
+        return {}
+
+    def _get_response_bodies(self, direction='response') -> typing.Any:
+        responses = super()._get_response_bodies(direction=direction)
+
+        # Document the error responses of the bulk write actions, which cannot be inferred (see
+        # _get_bulk_error_responses). A status code already present -- for instance one declared
+        # via @extend_schema on a custom action -- is left as it is.
+        for code, response in self._get_bulk_error_responses(direction).items():
+            if code not in responses:
+                responses[code] = self._get_response_for_code(response, code, direction=direction)
+
+        return responses
 
     def _get_request_for_media_type(self, serializer, direction='request'):
         """
