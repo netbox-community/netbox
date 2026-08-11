@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.models import ALL_FIELDS
 from django.test import TestCase
 
 from circuits.forms import CircuitGroupAssignmentForm, CircuitTerminationForm
@@ -446,17 +447,24 @@ class MetaShadowingTestCase(TestCase):
                     stack.append(sub)
         return seen
 
+    @staticmethod
+    def _configured_field_names(configured, declared):
+        # Field names a Meta option targets. localized_fields may be the ALL_FIELDS sentinel
+        # ('__all__') meaning every field; set() of that string would yield its characters, so map
+        # the sentinel to the full declared set instead.
+        if configured == ALL_FIELDS:
+            return set(declared)
+        return set(configured or ())
+
     def test_meta_config_does_not_shadow_declared_fields(self):
         for form_class in self._all_model_forms():
             meta = getattr(form_class, 'Meta', None)
             declared = set(getattr(form_class, 'declared_fields', {}))
             if meta is None or not declared:
                 continue
-            # All Meta options Django keys by field name and discards for explicitly declared
-            # fields. localized_fields is a list of names rather than a dict, but set() of either a
-            # dict or a list yields the field names, so one comparison covers all six.
             for attr in ('widgets', 'labels', 'help_texts', 'error_messages', 'field_classes', 'localized_fields'):
-                overlap = declared & set(getattr(meta, attr, None) or {})
+                configured = self._configured_field_names(getattr(meta, attr, None), declared)
+                overlap = declared & configured
                 overlap -= {f for f in overlap if (form_class.__name__, attr, f) in self.ALLOWED}
                 with self.subTest(form=form_class.__name__, meta=attr):
                     self.assertEqual(
@@ -465,3 +473,7 @@ class MetaShadowingTestCase(TestCase):
                         f"explicitly declared field(s) {sorted(overlap)}; Django discards these. "
                         f"Move the config onto the declared field or drop the Meta entry."
                     )
+
+    def test_localized_fields_all_sentinel_expands_to_declared(self):
+        # The ALL_FIELDS sentinel must expand to the declared fields, not char-split into letters.
+        self.assertEqual(self._configured_field_names(ALL_FIELDS, {'name', 'status'}), {'name', 'status'})
