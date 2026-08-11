@@ -1,7 +1,7 @@
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS, connection, transaction
+from django.db import DEFAULT_DB_ALIAS, ProgrammingError, connection, transaction
 from django.db.models.signals import post_delete, post_save
 from django.test import TestCase, TransactionTestCase
 from redis.exceptions import ConnectionError as RedisConnectionError
@@ -473,35 +473,74 @@ class DeferredCachingTestCase(TestCase):
 
     def test_cache_update_skips_dropped_column(self):
         """
-        _apply_deferred_updates tolerates the model's table having lost a column the ORM still
-        expects (e.g. a plugin's dynamically-generated model whose field was renamed or removed
-        within an unmerged branch since the update was enqueued): it must not error or create
-        cache rows for the object (#651).
+        _apply_deferred_updates tolerates the model being indexed having lost a column the ORM
+        still expects (e.g. a plugin's dynamically-generated model whose field was renamed or
+        removed within an unmerged branch since the update was enqueued): it must not error, and
+        a cache entry already written by an earlier, successful index must survive untouched --
+        the atomic block's rollback-on-failure is what guarantees that, and is the property
+        actually worth protecting here, not just "no exception" (netboxlabs/netbox-custom-
+        objects#651; netbox-community/netbox#22909).
 
         Manufacturer (rather than Site, used elsewhere in this file) is used here because it
-        carries no denormalization triggers of its own -- but every model's owner_id FK is
-        DEFERRABLE INITIALLY DEFERRED, so its RI constraint trigger from this test's own INSERT
-        is still pending within the same transaction; Postgres refuses to ALTER TABLE until that
-        settles, hence the explicit SET CONSTRAINTS below.
+        carries no denormalization triggers of its own -- but every FK constraint Django creates
+        on PostgreSQL is DEFERRABLE INITIALLY DEFERRED by default, so this test's own INSERT
+        (via its object_type FK) leaves a pending RI trigger event within the same transaction;
+        Postgres refuses to ALTER TABLE until that settles, hence the explicit SET CONSTRAINTS
+        below.
         """
         manufacturer = Manufacturer.objects.create(
             name='Column Dropped', slug='column-dropped', description='doomed',
         )
         manufacturer_ct = ContentType.objects.get_for_model(Manufacturer)
         pk = manufacturer.pk
-        CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk).delete()
 
+        # Seed a real, successful index entry -- the thing that must survive intact below.
+        search_backend.cache(manufacturer)
+        cached_before = set(
+            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk)
+            .values_list('field', 'value')
+        )
+        self.assertTrue(cached_before, 'setup failed to index the object at all')
+
+        column = Manufacturer._meta.get_field('description').column
         with connection.cursor() as cursor:
             cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
-            cursor.execute('ALTER TABLE dcim_manufacturer DROP COLUMN description')
+            cursor.execute(f'ALTER TABLE {Manufacturer._meta.db_table} DROP COLUMN {column}')
 
-        # No exception, and no cache rows written for an object the ORM can no longer fully load.
+        # No exception, and the prior index entry is left exactly as it was: a tolerated failure
+        # must not wipe out previously-good data.
         search_backend._apply_deferred_updates(
             using=None, cache_groups={manufacturer_ct.pk: [pk]}, remove_groups={},
         )
-        self.assertFalse(
-            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk).exists()
+        cached_after = set(
+            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk)
+            .values_list('field', 'value')
         )
+        self.assertEqual(cached_before, cached_after)
+
+    def test_cache_update_propagates_unrelated_database_error(self):
+        """
+        The tolerance added for a stale target column (test_cache_update_skips_dropped_column) is
+        scoped to reading the model being indexed. A DatabaseError raised while writing to this
+        backend's own CachedValue table -- e.g. an undefined_column there too, which would
+        indicate a genuine defect (such as code deployed against a database that has not yet
+        been migrated) rather than a plugin's branch-diverged schema -- must still propagate
+        rather than being swallowed by the widened tolerance.
+        """
+        manufacturer = Manufacturer.objects.create(name='Propagates', slug='propagates')
+        manufacturer_ct = ContentType.objects.get_for_model(Manufacturer)
+
+        column = CachedValue._meta.get_field('weight').column
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(f'ALTER TABLE {CachedValue._meta.db_table} DROP COLUMN {column}')
+
+        with self.assertRaises(ProgrammingError):
+            search_backend._apply_deferred_updates(
+                using=None,
+                cache_groups={manufacturer_ct.pk: [manufacturer.pk]},
+                remove_groups={},
+            )
 
 
 class AutocommitCachingTestCase(TransactionTestCase):
