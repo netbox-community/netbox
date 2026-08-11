@@ -349,20 +349,24 @@ class CachedValueSearchBackend(SearchBackend):
 
         return self._remove_by_id(object_type.pk, [instance.pk], using=using)
 
-    # Postgres SQLSTATEs indicating the target schema/table no longer exists. This happens when a
-    # branch is merged or deprovisioned (its schema dropped) between the time an update was enqueued
-    # and when it is applied. Such errors are expected and safe to skip; the index is rebuilt on the
-    # next reindex. Any other DatabaseError (e.g. a deadlock or lost connection) is transient and must
-    # propagate so the work fails visibly, rather than silently dropping index updates.
+    # Postgres SQLSTATEs indicating the target schema/table/column no longer matches what was expected
+    # when the update was enqueued. This happens when a branch is merged or deprovisioned (its schema
+    # dropped) between that time and when the deferred update is applied -- and, for a plugin whose
+    # models' columns can themselves change (e.g. a Custom Object field renamed or removed within an
+    # unmerged branch), the same staleness can surface as a missing column rather than a missing
+    # table. Such errors are expected and safe to skip; the index is rebuilt on the next reindex. Any
+    # other DatabaseError (e.g. a deadlock or lost connection) is transient and must propagate so the
+    # work fails visibly, rather than silently dropping index updates.
     _MISSING_SCHEMA_SQLSTATES = frozenset((
         '3F000',  # invalid_schema_name
         '42P01',  # undefined_table
+        '42703',  # undefined_column
     ))
 
     def _is_missing_schema(self, exc):
         """
-        Return True if the given DatabaseError was caused by the target schema/table no longer existing
-        (vs. a transient error that should propagate).
+        Return True if the given DatabaseError was caused by the target schema/table/column no longer
+        existing (vs. a transient error that should propagate).
         """
         sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
         return sqlstate in self._MISSING_SCHEMA_SQLSTATES

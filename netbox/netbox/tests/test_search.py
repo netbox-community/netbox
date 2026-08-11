@@ -6,7 +6,7 @@ from django.db.models.signals import post_delete, post_save
 from django.test import TestCase, TransactionTestCase
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from dcim.models import Site
+from dcim.models import Manufacturer, Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
@@ -469,6 +469,38 @@ class DeferredCachingTestCase(TestCase):
         search_backend._apply_deferred_updates(using=None, cache_groups={site_ct.pk: [pk]}, remove_groups={})
         self.assertFalse(
             CachedValue.objects.filter(object_type=site_ct, object_id=pk).exists()
+        )
+
+    def test_cache_update_skips_dropped_column(self):
+        """
+        _apply_deferred_updates tolerates the model's table having lost a column the ORM still
+        expects (e.g. a plugin's dynamically-generated model whose field was renamed or removed
+        within an unmerged branch since the update was enqueued): it must not error or create
+        cache rows for the object (#651).
+
+        Manufacturer (rather than Site, used elsewhere in this file) is used here because it
+        carries no denormalization triggers of its own -- but every model's owner_id FK is
+        DEFERRABLE INITIALLY DEFERRED, so its RI constraint trigger from this test's own INSERT
+        is still pending within the same transaction; Postgres refuses to ALTER TABLE until that
+        settles, hence the explicit SET CONSTRAINTS below.
+        """
+        manufacturer = Manufacturer.objects.create(
+            name='Column Dropped', slug='column-dropped', description='doomed',
+        )
+        manufacturer_ct = ContentType.objects.get_for_model(Manufacturer)
+        pk = manufacturer.pk
+        CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk).delete()
+
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute('ALTER TABLE dcim_manufacturer DROP COLUMN description')
+
+        # No exception, and no cache rows written for an object the ORM can no longer fully load.
+        search_backend._apply_deferred_updates(
+            using=None, cache_groups={manufacturer_ct.pk: [pk]}, remove_groups={},
+        )
+        self.assertFalse(
+            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk).exists()
         )
 
 
