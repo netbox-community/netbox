@@ -438,7 +438,10 @@ class BulkCreateModelMixin:
             for i, item in enumerate(data):
                 if not isinstance(item, dict):
                     # Checked explicitly because get_serializer() infers many=True from a list, so a
-                    # nested list would otherwise be validated as a batch of its own
+                    # nested list would otherwise be validated as a batch of its own. This mirrors
+                    # the message REST framework itself reports for a non-dictionary item, hence its
+                    # key rather than a literal -- which NON_FIELD_ERRORS_KEY is configured to match
+                    # anyway, so that the API has a single key for non-field errors (see settings).
                     errors.append({
                         'index': i,
                         'errors': {

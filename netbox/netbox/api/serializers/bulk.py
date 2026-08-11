@@ -48,9 +48,9 @@ class BulkOperationEntryErrorSerializer(serializers.Serializer):
     errors = serializers.DictField(
         help_text=_(
             "The errors for this entry, keyed by field name. Values are ordinarily arrays of "
-            "messages. Errors which do not pertain to a specific field appear under `__all__` "
-            "(model validation, protection rules, restricted tags) or `non_field_errors` (errors "
-            "concerning the shape of the entry itself)."
+            "messages. Errors which pertain to no particular field -- model validation, protection "
+            "rules, restricted tags, object-level permissions, or the shape of the entry itself -- "
+            "all appear under the single key `__all__`."
         )
     )
 
