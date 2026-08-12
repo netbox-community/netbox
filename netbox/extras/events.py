@@ -179,9 +179,6 @@ def process_event_rules(event_rules, object_type, event):
     # Normalize the event payload to a dict once for all rules. A null payload is routine
     # for job events (the job simply recorded no data); any other non-dict is unexpected
     # and worth surfacing, but must not take down event processing for the whole batch.
-    # Either way no attributes can be resolved from it, so substitute an AbsentData rather
-    # than a plain empty dict: a condition referencing the payload then resolves to null
-    # instead of raising (and logging an error) once per rule on every such event.
     data = event['data']
     if not isinstance(data, dict):
         if data is not None:
@@ -195,14 +192,7 @@ def process_event_rules(event_rules, object_type, event):
 
     for event_rule in event_rules:
 
-        # Evaluate event rule conditions (if any).
-        # Snapshots are merged into the condition context so conditions can
-        # reference snapshots.prechange.<attr> and snapshots.postchange.<attr>
-        # using the standard dot-path syntax, and so the 'changed'/'unchanged'
-        # operators can access pre/post values.
-        # data.copy() preserves an AbsentData payload (which unpacking into a new dict would
-        # not), so that conditions can distinguish absent data from data which is merely
-        # missing the referenced attribute.
+        # Merge snapshots and evaluate event rule conditions (if any).
         condition_data = data.copy()
         condition_data['snapshots'] = event.get('snapshots')
         if not event_rule.eval_conditions(condition_data):

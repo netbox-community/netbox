@@ -12,21 +12,19 @@ __all__ = (
 AND = 'and'
 OR = 'or'
 
-# Prefix identifying a condition attribute that reads an event's pre- or post-change
-# snapshot directly, e.g. 'snapshots.prechange.status'.
+# Prefix identifying a condition attribute that reads an event's pre- or post-change snapshot directly, e.g.
+# 'snapshots.prechange.status'.
 SNAPSHOT_PREFIX = 'snapshots.'
 
-# Maps each snapshot to its counterpart, which is consulted to validate the shape of a path
-# referencing a snapshot that does not exist for the event type.
+# Maps each snapshot to its counterpart
 OPPOSITE_SNAPSHOT = {
     'prechange': 'postchange',
     'postchange': 'prechange',
 }
 
-# Sentinel for a snapshot attribute that could not be resolved (missing key or
-# null snapshot).  Using a unique object ensures that two independently
-# unresolvable values compare equal to each other, which is the correct
-# semantics for the 'unchanged' operator when neither snapshot has the field.
+# Sentinel for a snapshot attribute that could not be resolved (missing key or null snapshot). Using a unique object
+# ensures that two independently unresolvable values compare equal to each other, which is the correct semantics for the
+# 'unchanged' operator when neither snapshot has the field.
 _MISSING = object()
 
 
@@ -191,16 +189,6 @@ class Condition:
         * self.attr is a direct snapshot path (snapshots.prechange.* or
           snapshots.postchange.*) whose referenced snapshot is null. Create events have no
           prechange snapshot and delete events have no postchange snapshot.
-
-        In both cases the absence is a normal property of the event, not a malformed
-        condition, so such a reference resolves to None instead of raising: raising would
-        abort evaluation of the entire condition set, suppressing sibling conditions that do
-        match and logging an error on every such event.
-
-        Data which is present but lacks the attribute is left alone, so a genuine typo still
-        fails closed and is logged. So is a snapshot path which cannot be walked at all, as
-        determined from the opposite snapshot: the absence of a snapshot excuses the absence
-        of the data, not a malformed path.
         """
         if isinstance(data, AbsentData) and self.attr.split('.')[0] not in data:
             return True
@@ -208,8 +196,6 @@ class Condition:
             return False
         snapshots = data.get('snapshots') if isinstance(data, dict) else None
         if type(snapshots) is not dict:
-            # No snapshot context at all (e.g. a job event). Treat as a mismatched rule
-            # and let the normal path resolution fail closed.
             return False
         which, _sep, remainder = self.attr[len(SNAPSHOT_PREFIX):].partition('.')
         if which not in snapshots or snapshots[which] is not None:
