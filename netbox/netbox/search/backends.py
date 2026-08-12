@@ -349,23 +349,63 @@ class CachedValueSearchBackend(SearchBackend):
 
         return self._remove_by_id(object_type.pk, [instance.pk], using=using)
 
-    # Postgres SQLSTATEs indicating the target schema/table no longer exists. This happens when a
-    # branch is merged or deprovisioned (its schema dropped) between the time an update was enqueued
-    # and when it is applied. Such errors are expected and safe to skip; the index is rebuilt on the
-    # next reindex. Any other DatabaseError (e.g. a deadlock or lost connection) is transient and must
-    # propagate so the work fails visibly, rather than silently dropping index updates.
-    _MISSING_SCHEMA_SQLSTATES = frozenset((
+    # Postgres SQLSTATEs indicating this backend's own CachedValue table (or the schema it lives in)
+    # no longer exists. This happens when a branch is merged or deprovisioned (its schema, and every
+    # table in it including its copy of CachedValue, dropped) between the time an update was enqueued
+    # and when it is applied. There is nothing to write to and nothing worth retrying -- a later write
+    # for a surviving branch's CachedValue table is unaffected -- so this is expected and safe to
+    # skip. Any other DatabaseError (e.g. a deadlock, lost connection, or CachedValue itself being out
+    # of sync with a not-yet-migrated deployment) is not expected and must propagate so the work fails
+    # visibly, rather than silently dropping index updates. This set applies to every write this
+    # backend makes to CachedValue (removals below, and the remove+insert inside the cache loop) --
+    # deliberately not to reads of the model being indexed; see _STALE_INDEX_TARGET_SQLSTATES for
+    # that.
+    _MISSING_CACHE_TABLE_SQLSTATES = frozenset((
         '3F000',  # invalid_schema_name
         '42P01',  # undefined_table
     ))
 
-    def _is_missing_schema(self, exc):
+    # Additionally tolerated when reading the model being (re)indexed -- not when writing to
+    # CachedValue (see _MISSING_CACHE_TABLE_SQLSTATES above, which this extends). A plugin whose
+    # models are dynamically regenerated per branch (e.g. netbox-custom-objects) resolves
+    # ObjectType.model_class() to a branch-unaware class pinned to main; if a branch has renamed or
+    # removed a column since an update was enqueued, that stale class's column no longer matches the
+    # branch's live table, and reading it raises undefined_column rather than undefined_table.
+    # Unlike a dropped schema, this is *not* self-healing on "the next reindex": model_class()
+    # resolves the same stale, main-pinned class every time, so the object stays unindexed until the
+    # branch is merged or reverted. Scoping this to the read only -- rather than folding it into
+    # _MISSING_CACHE_TABLE_SQLSTATES broadly -- keeps a genuine defect in the write path (e.g. code
+    # deployed against a database that has not yet been migrated, which would also raise
+    # undefined_column) from being silently downgraded to a warning.
+    #
+    # This covers only the top-level read of the model's own columns, not a related object a search
+    # index's to_cache() might lazily traverse into (e.g. a relational field indexed with a positive
+    # search_weight): such a traversal issues its own query inside the write step below, which does
+    # not tolerate undefined_column. A plugin whose indexed fields never reference another of its own
+    # dynamically-regenerated models is unaffected; one that does would need a plugin-side fix (making
+    # ObjectType.model_class() branch-aware) rather than a wider exemption here.
+    _STALE_INDEX_TARGET_SQLSTATES = _MISSING_CACHE_TABLE_SQLSTATES | frozenset((
+        '42703',  # undefined_column
+    ))
+
+    def _is_missing_cache_table(self, exc):
         """
-        Return True if the given DatabaseError was caused by the target schema/table no longer existing
-        (vs. a transient error that should propagate).
+        Return True if the given DatabaseError was caused by CachedValue's own schema/table no longer
+        existing (vs. a transient error that should propagate). Covers writes to CachedValue; see
+        _is_stale_index_target() for the read side of a deferred update.
         """
         sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
-        return sqlstate in self._MISSING_SCHEMA_SQLSTATES
+        return sqlstate in self._MISSING_CACHE_TABLE_SQLSTATES
+
+    def _is_stale_index_target(self, exc):
+        """
+        Return True if the given DatabaseError was caused by the model being (re)indexed no longer
+        matching what was expected when the update was enqueued -- its schema or table (as for
+        _is_missing_cache_table()), or, for a model whose columns can themselves diverge per branch,
+        an individual column.
+        """
+        sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
+        return sqlstate in self._STALE_INDEX_TARGET_SQLSTATES
 
     def _apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=logger):
         """
@@ -377,17 +417,27 @@ class CachedValueSearchBackend(SearchBackend):
         written to the originating database/schema (e.g. a branch schema under netbox-branching),
         regardless of any routing context that is no longer active by the time this runs.
         """
-        # Removals are a single DELETE per content type, so (unlike the cache loop below) there is no
-        # multi-step state to wrap in a transaction. A transient error here propagates and errors the
-        # caller; the remaining work is dropped rather than retried (NetBox does not retry these jobs
-        # by default) and is recovered by the next reindex.
         for object_type_id, pks in (remove_groups or {}).items():
+            # Resolved once and reused for both the atomic() block and the delete below: passing
+            # `using` straight through when it's falsy would let transaction.atomic() default to
+            # DEFAULT_DB_ALIAS while _remove_by_id() defers to the router (see cache()'s own comment
+            # on this) -- the savepoint would then belong to a different connection than the one the
+            # DELETE actually runs on, on any deployment where CachedValue is routed elsewhere.
+            db = using or CachedValue.objects.db
             try:
-                self._remove_by_id(object_type_id, pks, using=using)
+                # A tolerated DatabaseError still needs a savepoint to roll back to: without one,
+                # Postgres leaves the connection's enclosing transaction aborted (refusing every
+                # further statement in it until a rollback) even though the Python exception was
+                # caught, breaking every later iteration of this loop -- not just this one.
+                with transaction.atomic(using=db):
+                    self._remove_by_id(object_type_id, pks, using=db)
             except DatabaseError as e:
-                if not self._is_missing_schema(e):
+                if not self._is_missing_cache_table(e):
                     raise
-                log.warning(f"Skipping search cache removal for object type {object_type_id}: {e}")
+                log.warning(
+                    f"Skipping search cache removal for object type {object_type_id}: "
+                    f"CachedValue's own table or schema no longer exists ({e})"
+                )
 
         for object_type_id, pks in (cache_groups or {}).items():
             try:
@@ -398,22 +448,54 @@ class CachedValueSearchBackend(SearchBackend):
             if model is None:
                 continue
 
-            try:
-                # Re-fetch live instances from the originating database. Reading on `using` is
-                # required: a branch object's PK may be absent (or refer to a different object) on the
-                # default connection.
-                queryset = model.objects.using(using).filter(pk__in=pks)
+            # Resolved once per group, for the same reason as the removal loop above -- and kept
+            # separate for the read vs. the write, since a router could place the indexed model and
+            # CachedValue on different aliases (in which case no single atomic() spans both anyway;
+            # see the outer/inner split below).
+            read_db = using or model._default_manager.db
+            write_db = using or CachedValue.objects.db
 
-                # Clear any stale entries for these objects, then re-insert. Wrapping both in one
-                # transaction avoids leaving an object with no cache rows if execution fails between
-                # the delete and the insert.
-                with transaction.atomic(using=using):
-                    self._remove_by_id(object_type_id, pks, using=using)
-                    self.cache(queryset, remove_existing=False, using=using)
+            try:
+                # The outer atomic() makes the delete+insert pair below a single write. It does
+                # *not* give the read a consistent snapshot with that write -- PostgreSQL's default
+                # (and NetBox's) READ COMMITTED isolation takes a fresh snapshot per statement
+                # regardless of transaction boundaries, so a concurrent update can still land
+                # between the read and the write either way. That race is pre-existing and benign:
+                # the concurrent save schedules its own deferred update, so the object is reindexed
+                # again regardless of which value this pass happened to write.
+                #
+                # Nested inside it, the read gets its own savepoint so a tolerated failure there
+                # (see _is_stale_index_target(), which tolerates a wider set of SQLSTATES than a
+                # write to CachedValue does) rolls back only the read, without ever reaching -- or
+                # needing to roll back -- the write.
+                with transaction.atomic(using=write_db):
+                    try:
+                        with transaction.atomic(using=read_db):
+                            # Reading on `read_db` is required: a branch object's PK may be absent
+                            # (or refer to a different object) on the default connection.
+                            instances = list(model.objects.using(read_db).filter(pk__in=pks))
+                    except DatabaseError as e:
+                        if not self._is_stale_index_target(e):
+                            raise
+                        log.warning(
+                            f"Skipping search cache update for object type {object_type_id}: the "
+                            f"indexed model no longer matches its table, e.g. a branch-diverged "
+                            f"column ({e})"
+                        )
+                        continue
+
+                    # Clear any stale entries for these objects, then re-insert. Wrapping both in
+                    # one transaction avoids leaving an object with no cache rows if execution fails
+                    # between the delete and the insert.
+                    self._remove_by_id(object_type_id, pks, using=write_db)
+                    self.cache(instances, remove_existing=False, using=write_db)
             except DatabaseError as e:
-                if not self._is_missing_schema(e):
+                if not self._is_missing_cache_table(e):
                     raise
-                log.warning(f"Skipping search cache update for object type {object_type_id}: {e}")
+                log.warning(
+                    f"Skipping search cache update for object type {object_type_id}: "
+                    f"CachedValue's own table or schema no longer exists ({e})"
+                )
 
     def clear(self, object_types=None):
         qs = CachedValue.objects.all()

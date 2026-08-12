@@ -1,12 +1,12 @@
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import DEFAULT_DB_ALIAS, connection, transaction
+from django.db import DEFAULT_DB_ALIAS, ProgrammingError, connection, transaction
 from django.db.models.signals import post_delete, post_save
 from django.test import TestCase, TransactionTestCase
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from dcim.models import Site
+from dcim.models import Manufacturer, Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
@@ -470,6 +470,103 @@ class DeferredCachingTestCase(TestCase):
         self.assertFalse(
             CachedValue.objects.filter(object_type=site_ct, object_id=pk).exists()
         )
+
+    def test_remove_groups_skips_missing_cache_table(self):
+        """
+        Regression test for the per-iteration transaction.atomic() in the remove_groups loop:
+        without a savepoint to roll back to, a tolerated failure on the first group's DELETE
+        leaves the connection's transaction aborted, and a second group's DELETE in the same call
+        then dies with 25P02 (in_failed_sql_transaction) -- a SQLSTATE in neither tolerated set --
+        instead of being tolerated like the first. Two remove_groups entries are required to
+        observe this: a single entry never reaches a second DELETE to fail.
+        """
+        table = CachedValue._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(f'ALTER TABLE {table} RENAME TO {table}_missing')
+
+        # Neither group's object type/pk needs to correspond to a real object: _remove_by_id()
+        # only uses them to filter CachedValue, which is what no longer exists here.
+        search_backend._apply_deferred_updates(
+            using=None, cache_groups={}, remove_groups={1: [1], 2: [2]},
+        )
+
+    def test_cache_update_skips_dropped_column(self):
+        """
+        _apply_deferred_updates tolerates the model being indexed having lost a column the ORM
+        still expects (e.g. a plugin's dynamically-generated model whose field was renamed or
+        removed within an unmerged branch since the update was enqueued): it must not error, and
+        a cache entry already written by an earlier, successful index must survive untouched.
+        The read of the model being indexed happens before any write to CachedValue, so a
+        tolerated failure there means the removal and re-insert are never even attempted for
+        this object -- that ordering, not a rollback, is what leaves the earlier entry
+        untouched, and is the property actually worth protecting here, not just "no exception"
+        (netboxlabs/netbox-custom-objects#651; netbox-community/netbox#22909).
+
+        Manufacturer (rather than Site, used elsewhere in this file) is used here because it
+        carries no denormalization triggers of its own -- but every FK constraint Django creates
+        on PostgreSQL is DEFERRABLE INITIALLY DEFERRED by default, so this test's own INSERT
+        (via its object_type FK) leaves a pending RI trigger event within the same transaction;
+        Postgres refuses to ALTER TABLE until that settles, hence the explicit SET CONSTRAINTS
+        below.
+        """
+        manufacturer = Manufacturer.objects.create(
+            name='Column Dropped', slug='column-dropped', description='doomed',
+        )
+        manufacturer_ct = ContentType.objects.get_for_model(Manufacturer)
+        pk = manufacturer.pk
+
+        # Seed a real, successful index entry -- the thing that must survive intact below.
+        search_backend.cache(manufacturer)
+        cached_before = set(
+            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk)
+            .values_list('field', 'value')
+        )
+        self.assertTrue(cached_before, 'setup failed to index the object at all')
+
+        column = Manufacturer._meta.get_field('description').column
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(f'ALTER TABLE {Manufacturer._meta.db_table} DROP COLUMN {column}')
+
+        # No exception, and the prior index entry is left exactly as it was: a tolerated failure
+        # must not wipe out previously-good data.
+        search_backend._apply_deferred_updates(
+            using=None, cache_groups={manufacturer_ct.pk: [pk]}, remove_groups={},
+        )
+        cached_after = set(
+            CachedValue.objects.filter(object_type=manufacturer_ct, object_id=pk)
+            .values_list('field', 'value')
+        )
+        self.assertEqual(cached_before, cached_after)
+
+    def test_cache_update_propagates_unrelated_database_error(self):
+        """
+        The tolerance added for a stale target column (test_cache_update_skips_dropped_column) is
+        scoped to reading the model being indexed. A DatabaseError raised while writing to this
+        backend's own CachedValue table -- e.g. an undefined_column there too, which would
+        indicate a genuine defect (such as code deployed against a database that has not yet
+        been migrated) rather than a plugin's branch-diverged schema -- must still propagate
+        rather than being swallowed by the widened tolerance.
+        """
+        manufacturer = Manufacturer.objects.create(name='Propagates', slug='propagates')
+        manufacturer_ct = ContentType.objects.get_for_model(Manufacturer)
+
+        column = CachedValue._meta.get_field('weight').column
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(f'ALTER TABLE {CachedValue._meta.db_table} DROP COLUMN {column}')
+
+        # Pin down that this specifically is the write to CachedValue failing, not some
+        # unrelated ProgrammingError -- otherwise a future change that broke the read side
+        # instead could still satisfy this assertion.
+        with self.assertRaises(ProgrammingError) as ctx:
+            search_backend._apply_deferred_updates(
+                using=None,
+                cache_groups={manufacturer_ct.pk: [manufacturer.pk]},
+                remove_groups={},
+            )
+        self.assertIn(column, str(ctx.exception))
 
 
 class AutocommitCachingTestCase(TransactionTestCase):
