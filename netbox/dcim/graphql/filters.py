@@ -1068,6 +1068,10 @@ class CoolingIntakeFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     max_flow_unit: BaseFilterLookup[
         Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
+    cooling_outflow: Annotated['CoolingOutflowFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    cooling_outflow_id: ID | None = strawberry_django.filter_field()
 
 
 @register_filter(models.CoolingIntakeTemplate, lookups=True)

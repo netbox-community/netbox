@@ -700,7 +700,12 @@ class CoolingIntake(
 ):
     """
     A coolant intake port within a Device (e.g. a server cold-plate inlet or CDU intake). A
-    CoolingIntake is supplied by an upstream CoolingOutflow or CoolingFeed.
+    CoolingIntake is supplied by an upstream CoolingOutflow. The serving CoolingFeed is
+    derived from the Device's Rack rather than referenced directly.
+
+    Unlike CoolingOutflow (whose parent intake is on the same Device and can therefore be
+    templated), an intake's upstream outflow typically lives on a different Device (e.g. a
+    CDU), so there is deliberately no upstream-outflow field on CoolingIntakeTemplate.
     """
     type = models.CharField(
         verbose_name=_('type'),
