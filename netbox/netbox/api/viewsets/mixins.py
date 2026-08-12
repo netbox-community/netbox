@@ -107,6 +107,17 @@ def get_non_list_response(data):
     return Response({'detail': detail}, status=status.HTTP_400_BAD_REQUEST)
 
 
+def _as_field_errors(item_errors):
+    """
+    Return the errors reported for one entry of a bulk request as a mapping of field name to
+    messages.
+    """
+    if isinstance(item_errors, dict):
+        return item_errors
+
+    return {api_settings.NON_FIELD_ERRORS_KEY: item_errors}
+
+
 def get_invalid_entries_response(entry_errors):
     """
     Return a structured error Response for the entries of a bulk request which could not be
@@ -124,7 +135,7 @@ def get_invalid_entries_response(entry_errors):
         entry per object in the request (an empty dict where that object was interpretable).
     """
     errors = [
-        {'index': i, 'errors': item_errors}
+        {'index': i, 'errors': _as_field_errors(item_errors)}
         for i, item_errors in enumerate(entry_errors)
         if item_errors
     ]

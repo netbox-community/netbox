@@ -547,6 +547,41 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         site.refresh_from_db()
         self.assertEqual(site.description, '')
 
+    def test_bulk_write_objects_null_entry(self):
+        """
+        Address a list endpoint with a list containing a null entry. A null fails before any field
+        is considered, so its error arrives as a bare list of messages; it must still be reported
+        as a mapping keyed by field name, as the schema declares.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change', 'delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        initial_count = Site.objects.count()
+
+        for method in ('patch', 'put', 'delete'):
+            with self.subTest(method=method):
+                data = [{'id': site.pk, 'description': 'x'}, None]
+                response = getattr(self.client, method)(
+                    self._get_list_url(), data, format='json', **self.header
+                )
+
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(len(response.data['errors']), 1)
+                self.assertEqual(response.data['errors'][0]['index'], 1)
+
+                # Reported under the key which every other non-field error uses
+                entry_errors = response.data['errors'][0]['errors']
+                self.assertIsInstance(entry_errors, dict)
+                self.assertIn('__all__', entry_errors)
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+        self.assertEqual(Site.objects.count(), initial_count, 'No objects should have been deleted')
+
     def test_bulk_update_objects_duplicate_id_invalid_entry(self):
         """
         PATCH a set of objects in which one object is named twice, once with invalid data and once
