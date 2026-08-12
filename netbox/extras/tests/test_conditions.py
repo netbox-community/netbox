@@ -474,6 +474,19 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             c.eval({'snapshots': snapshots})
 
+    def test_changed_raises_when_path_traverses_falsy_scalar(self):
+        # Walkability is a property of the value's type, not its truthiness: an empty string
+        # is exactly as unwalkable as a populated one, and must not be mistaken for an absent
+        # attribute. (description and comments default to an empty string on most models, so
+        # this is the common case rather than an edge case.)
+        c = Condition('description.value', op='changed')
+        snapshots = {
+            'prechange': {'description': ''},
+            'postchange': {'description': 'foo'},
+        }
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
+
     def test_unchanged_raises_when_path_traverses_scalar(self):
         c = Condition('status.value', op='unchanged')
         snapshots = {
@@ -493,6 +506,27 @@ class SnapshotConditionTestCase(TestCase):
         }
         with self.assertRaises(InvalidCondition):
             c.eval({'snapshots': snapshots})
+
+    def test_changed_raises_when_counterpart_snapshot_resolves_to_nothing(self):
+        """
+        Only a snapshot which actually yields a value excuses an unwalkable path in the
+        other. A snapshot which merely resolves to nothing - an empty list, an absent key -
+        is no evidence that the path is well-formed, so the malformed condition must still
+        be reported rather than evaluating (and possibly firing) until the data fills in.
+        """
+        for snapshots in (
+            # Tagging a previously untagged object: the likely first evaluation of the rule
+            {'prechange': {'tags': []}, 'postchange': {'tags': ['Alpha']}},
+            {'prechange': {'tags': ['Alpha']}, 'postchange': {'tags': []}},
+        ):
+            with self.subTest(snapshots=snapshots):
+                with self.assertRaises(InvalidCondition):
+                    Condition('tags.name', op='changed').eval({'snapshots': snapshots})
+
+        with self.assertRaises(InvalidCondition):
+            Condition('status.value', op='changed').eval({
+                'snapshots': {'prechange': {}, 'postchange': {'status': 'active'}}
+            })
 
     def test_changed_when_path_is_walkable_in_only_one_snapshot(self):
         """
@@ -703,16 +737,25 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             Condition('snapshots.postchange.status.value', value='active').eval(delete)
 
+        # An empty string is exactly as unwalkable as a populated one, so the check must not
+        # turn on the truthiness of the value in the opposite snapshot
+        blank = {'snapshots': {'prechange': None, 'postchange': {'description': ''}}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.description.value', value=None).eval(blank)
+
     def test_absent_snapshot_path_resolves_to_none_when_shape_is_valid(self):
         """
         A nested path which the opposite snapshot shows to be walkable is a genuine absence,
         so it resolves to null. So is a path which cannot be checked at all, because the
         opposite snapshot does not contain it either or is itself null.
         """
-        create = {'snapshots': {'prechange': None, 'postchange': {'custom_fields': {'cf1': 'x'}}}}
+        create = {'snapshots': {'prechange': None, 'postchange': {'custom_fields': {'cf1': 'x'}, 'tags': []}}}
         self.assertTrue(Condition('snapshots.prechange.custom_fields.cf1', value=None).eval(create))
         self.assertTrue(Condition('snapshots.prechange.nonexistent.attr', value=None).eval(create))
         self.assertTrue(Condition('snapshots.prechange', value=None).eval(create))
+        # An empty list contains nothing to walk, so like an absent key it cannot show the
+        # path to be malformed either
+        self.assertTrue(Condition('snapshots.prechange.tags.name', value=None).eval(create))
 
         both_absent = {'snapshots': {'prechange': None, 'postchange': None}}
         self.assertTrue(Condition('snapshots.prechange.status.value', value=None).eval(both_absent))

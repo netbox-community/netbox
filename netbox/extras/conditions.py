@@ -1,4 +1,3 @@
-import operator
 import re
 
 from django.utils.translation import gettext as _
@@ -53,15 +52,38 @@ def walk_path(obj, keys):
     Raises TypeError if the path cannot be walked at all, i.e. if it descends into a value
     which cannot be indexed by key (e.g. a REST API-style 'status.value' applied to a
     snapshot, where status is the raw string "active" rather than a nested dict).
+
+    Walkability is determined from the type of the value being descended into, never from
+    its truthiness: an empty string or a zero is just as unwalkable as any other scalar, and
+    must be reported as such rather than being mistaken for an absent key.
+
+    Null values and empty lists are the exception. Neither is evidence of a malformed path,
+    since there is nothing there to walk either way, so both resolve to _MISSING exactly as
+    an absent key does.
     """
     for key in keys:
-        try:
-            if isinstance(obj, list):
-                obj = [operator.getitem(item or {}, key) for item in obj]
-            else:
-                obj = operator.getitem(obj or {}, key)
-        except KeyError:
+        if obj is None:
             return _MISSING
+        if isinstance(obj, list):
+            values = []
+            for item in obj:
+                if item is None:
+                    return _MISSING
+                if not isinstance(item, dict):
+                    raise TypeError(f"cannot resolve '{key}' within {type(item).__name__}")
+                if key not in item:
+                    return _MISSING
+                values.append(item[key])
+            if not values:
+                # An empty list yields no evidence either way
+                return _MISSING
+            obj = values
+        elif isinstance(obj, dict):
+            if key not in obj:
+                return _MISSING
+            obj = obj[key]
+        else:
+            raise TypeError(f"cannot resolve '{key}' within {type(obj).__name__}")
     return obj
 
 
@@ -219,17 +241,19 @@ class Condition:
         Snapshots use the model serializer format (raw field values), not the REST
         API format, so e.g. status is stored as "active" not {"value": "active"}.
 
-        Raises InvalidCondition only if the path cannot be walked in *any* of the snapshots
-        available for the event, which is the case for a genuinely malformed path. A path
+        Raises InvalidCondition if the path cannot be walked in any snapshot and resolves to
+        a value in none of them, which is the case for a genuinely malformed path. A path
         which resolves in one snapshot but not the other describes a real difference between
         them (a JSON attribute whose value changed shape, say), so the unwalkable side is
         treated as missing and the comparison proceeds: raising would report the attribute as
-        unchanged even though it demonstrably changed.
+        unchanged even though it demonstrably changed. Only a snapshot which actually yields
+        a value excuses the unwalkable side; one which merely resolves to nothing (an absent
+        key, a null, an empty list) offers no evidence that the path is well-formed.
         """
         keys = self.attr.split('.')
         values = []
         errors = []
-        available = 0
+        resolved = False
 
         for which in ('prechange', 'postchange'):
             snapshot = snapshots.get(which)
@@ -237,14 +261,16 @@ class Condition:
                 # Absent snapshot (normal for create and delete events): nothing to resolve
                 values.append(_MISSING)
                 continue
-            available += 1
             try:
-                values.append(walk_path(snapshot, keys))
+                value = walk_path(snapshot, keys)
             except TypeError as e:
                 values.append(_MISSING)
                 errors.append(e)
+            else:
+                values.append(value)
+                resolved = resolved or value is not _MISSING
 
-        if available and len(errors) == available:
+        if errors and not resolved:
             raise InvalidCondition(
                 f"Invalid key path for '{self.op}' operator: {self.attr} ({errors[0]}). Note that snapshots store "
                 f"raw field values, so choice fields have no '.value' suffix."
