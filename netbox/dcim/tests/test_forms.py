@@ -324,6 +324,50 @@ class ModuleFormTestCase(TestCase):
             self.assertFalse(form.is_valid())
         self.assertIn('contains a cycle', str(form.errors))
 
+    def test_module_form_reports_conflicting_cooling_component(self):
+        """
+        A cooling component name collision must surface as a form error rather than an
+        IntegrityError raised from the replication insert. See netbox#15289.
+        """
+        cooled_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Cooled Form Type'
+        )
+        CoolingIntakeTemplate.objects.create(module_type=cooled_type, name='Intake 1')
+        CoolingOutflowTemplate.objects.create(module_type=cooled_type, name='Outflow 1')
+        CoolingIntake.objects.create(device=self.device, name='Intake 1')
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': cooled_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('Intake 1', str(form.errors))
+
+    def test_module_form_adopts_existing_cooling_component(self):
+        cooled_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Adoptable Cooled Type'
+        )
+        CoolingIntakeTemplate.objects.create(module_type=cooled_type, name='Intake 1')
+        intake = CoolingIntake.objects.create(device=self.device, name='Intake 1')
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': cooled_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+                'adopt_components': True,
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        module = form.save()
+        intake.refresh_from_db()
+        self.assertEqual(intake.module, module)
+
 
 class VCPositionTokenFormTestCase(TestCase):
 

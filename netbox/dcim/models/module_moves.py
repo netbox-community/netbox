@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import router
 from django.db.models import Q
@@ -17,11 +19,15 @@ from dcim.utils import (
 )
 from utilities.counters import update_counter
 from utilities.exceptions import AbortRequest
+from utilities.fields import CounterCacheField
 from utilities.querysets import chunked_update
 
 from .device_components import (
+    CabledObjectModel,
     ConsolePort,
     ConsoleServerPort,
+    CoolingIntake,
+    CoolingOutflow,
     FrontPort,
     Interface,
     ModuleBay,
@@ -36,14 +42,14 @@ __all__ = (
     'ModuleMovePlan',
 )
 
-BATCH_SIZE = 1000
-
 # Modular component models relocated during a move, mapped to the ModuleType template
 # accessor used for conservative template-derived renaming. ModuleBay is handled
 # separately (nested hierarchy, distinct uniqueness constraint).
 COMPONENT_TEMPLATE_ATTRS = {
     ConsolePort: 'consoleporttemplates',
     ConsoleServerPort: 'consoleserverporttemplates',
+    CoolingIntake: 'coolingintaketemplates',
+    CoolingOutflow: 'coolingoutflowtemplates',
     FrontPort: 'frontporttemplates',
     Interface: 'interfacetemplates',
     PowerOutlet: 'poweroutlettemplates',
@@ -361,6 +367,9 @@ class ModuleMovePlan:
             if pks:
                 list(model.objects.select_for_update().filter(pk__in=pks).order_by('pk'))
 
+    # Maximum number of object names quoted when a validation error names its offenders
+    SAMPLE_LIMIT = 5
+
     # Interface relations carrying topology or device-scoped configuration state which
     # block a cross-device move
     INTERFACE_BLOCKERS = (
@@ -402,95 +411,168 @@ class ModuleMovePlan:
         if errors:
             raise ValidationError(errors)
 
+    def _name_sample(self, description, *querysets):
+        """
+        Append a sample of the offending objects' names to a blocker description, so that a
+        rejected move names the components to fix rather than only counting them. Each
+        queryset is fetched with its own LIMIT and the walk stops as soon as the sample is
+        full, so the cost stays fixed no matter how many rows offend.
+
+        Called only from branches that have already found offenders, so a permitted move
+        pays nothing for this.
+        """
+        names = []
+        for queryset in querysets:
+            names.extend(queryset.order_by('name').values_list('name', flat=True)[:self.SAMPLE_LIMIT])
+            if len(names) >= self.SAMPLE_LIMIT:
+                break
+        # Dedupe while preserving order. The name column carries a natural_sort collation, so
+        # each queryset arrives in the order a reader expects; groups are then concatenated
+        # rather than merged, so the sample is ordered within a group but not across them, and
+        # equally named rows drawn from different models collapse into one entry. Both are
+        # acceptable in an illustrative sample and neither affects the reported count.
+        if not (sample := list(dict.fromkeys(names))[:self.SAMPLE_LIMIT]):
+            return description
+        return _("{description} (e.g. {names})").format(description=description, names=', '.join(sample))
+
     def _check_cross_device_blockers(self):
         """
         Reject a cross-device move when any moved component carries topology or
         device-scoped configuration state, or when a parent/bridge/LAG, power outlet,
         or port mapping relation would cross the moved subtree's boundary in either
         direction. Inventory items attached to a moved component also block (v1).
+
+        Each blocker names a sample of the offending components; see _name_sample().
         """
         blockers = []
         moved_interface_pks = {obj.pk for obj in self.components[Interface]}
 
-        # Cabled or connection-marked components
+        # Cabled or connection-marked components. Cooling components are not cable terminations and
+        # have no cable/mark_connected columns, so the check is driven off the model class.
         for model, instances in self.components.items():
+            if not issubclass(model, CabledObjectModel):
+                continue
             pks = [obj.pk for obj in instances]
             if not pks:
                 continue
-            count = model.objects.filter(pk__in=pks).filter(
+            offenders = model.objects.filter(pk__in=pks).filter(
                 Q(cable__isnull=False) | Q(mark_connected=True)
-            ).count()
-            if count:
-                blockers.append(_("{count} cabled or connection-marked {type}").format(
-                    count=count, type=model._meta.verbose_name_plural
+            )
+            if count := offenders.count():
+                blockers.append(self._name_sample(
+                    _("{count} cabled or connection-marked {type}").format(
+                        count=count, type=model._meta.verbose_name_plural
+                    ),
+                    offenders,
                 ))
 
         # Interface topology/configuration state
         for label, condition in self.INTERFACE_BLOCKERS:
-            count = Interface.objects.filter(pk__in=moved_interface_pks).filter(
-                condition
-            ).distinct().count()
-            if count:
-                blockers.append(_("{count} interfaces with {label}").format(count=count, label=label))
+            offenders = Interface.objects.filter(pk__in=moved_interface_pks).filter(condition).distinct()
+            if count := offenders.count():
+                blockers.append(self._name_sample(
+                    _("{count} interfaces with {label}").format(count=count, label=label),
+                    offenders,
+                ))
 
         # Parent/bridge/LAG relations crossing the moved-set boundary (either direction)
         outward = Interface.objects.filter(pk__in=moved_interface_pks).filter(
             Q(parent__isnull=False) & ~Q(parent_id__in=moved_interface_pks) |
             Q(bridge__isnull=False) & ~Q(bridge_id__in=moved_interface_pks) |
             Q(lag__isnull=False) & ~Q(lag_id__in=moved_interface_pks)
-        ).count()
+        )
         inward = Interface.objects.exclude(pk__in=moved_interface_pks).filter(
             Q(parent_id__in=moved_interface_pks) |
             Q(bridge_id__in=moved_interface_pks) |
             Q(lag_id__in=moved_interface_pks)
-        ).count()
-        if outward or inward:
-            blockers.append(_(
-                "{count} parent, bridge, or LAG interface relations crossing the moved module's boundary"
-            ).format(count=outward + inward))
+        )
+        outward_count, inward_count = outward.count(), inward.count()
+        if outward_count or inward_count:
+            blockers.append(self._name_sample(
+                _(
+                    "{count} parent, bridge, or LAG interface relations crossing the moved module's boundary"
+                ).format(count=outward_count + inward_count),
+                outward, inward,
+            ))
 
         # Power outlet to power port relations crossing the boundary
         moved_outlet_pks = {obj.pk for obj in self.components[PowerOutlet]}
         moved_power_port_pks = {obj.pk for obj in self.components[PowerPort]}
-        split_power = PowerOutlet.objects.filter(
+        split_outlets = PowerOutlet.objects.filter(
             pk__in=moved_outlet_pks, power_port__isnull=False
-        ).exclude(power_port_id__in=moved_power_port_pks).count()
-        split_power += PowerOutlet.objects.exclude(pk__in=moved_outlet_pks).filter(
+        ).exclude(power_port_id__in=moved_power_port_pks)
+        adopted_outlets = PowerOutlet.objects.exclude(pk__in=moved_outlet_pks).filter(
             power_port_id__in=moved_power_port_pks
-        ).count()
+        )
+        split_power = split_outlets.count() + adopted_outlets.count()
         if split_power:
-            blockers.append(_(
-                "{count} power outlet relations crossing the moved module's boundary"
-            ).format(count=split_power))
+            blockers.append(self._name_sample(
+                _(
+                    "{count} power outlet relations crossing the moved module's boundary"
+                ).format(count=split_power),
+                split_outlets, adopted_outlets,
+            ))
+
+        # Cooling outflow to cooling intake relations crossing the boundary. Only this direction is
+        # device-scoped (CoolingOutflow.clean() requires an intake on the same device); an intake's
+        # upstream CoolingOutflow is routinely supplied by another device, such as a CDU, and so is
+        # deliberately left alone.
+        moved_intake_pks = {obj.pk for obj in self.components[CoolingIntake]}
+        moved_outflow_pks = {obj.pk for obj in self.components[CoolingOutflow]}
+        split_outflows = CoolingOutflow.objects.filter(
+            pk__in=moved_outflow_pks, cooling_intake__isnull=False
+        ).exclude(cooling_intake_id__in=moved_intake_pks)
+        adopted_outflows = CoolingOutflow.objects.exclude(pk__in=moved_outflow_pks).filter(
+            cooling_intake_id__in=moved_intake_pks
+        )
+        split_cooling = split_outflows.count() + adopted_outflows.count()
+        if split_cooling:
+            blockers.append(self._name_sample(
+                _(
+                    "{count} cooling outflow relations crossing the moved module's boundary"
+                ).format(count=split_cooling),
+                split_outflows, adopted_outflows,
+            ))
 
         # Front/rear port mappings crossing the boundary
         moved_front_port_pks = {obj.pk for obj in self.components[FrontPort]}
         moved_rear_port_pks = {obj.pk for obj in self.components[RearPort]}
-        split_mappings = PortMapping.objects.filter(
+        split_fronts = PortMapping.objects.filter(
             front_port_id__in=moved_front_port_pks
-        ).exclude(rear_port_id__in=moved_rear_port_pks).count()
-        split_mappings += PortMapping.objects.filter(
+        ).exclude(rear_port_id__in=moved_rear_port_pks)
+        split_rears = PortMapping.objects.filter(
             rear_port_id__in=moved_rear_port_pks
-        ).exclude(front_port_id__in=moved_front_port_pks).count()
+        ).exclude(front_port_id__in=moved_front_port_pks)
+        split_mappings = split_fronts.count() + split_rears.count()
         if split_mappings:
-            blockers.append(_(
-                "{count} front/rear port mappings crossing the moved module's boundary"
-            ).format(count=split_mappings))
+            blockers.append(self._name_sample(
+                _(
+                    "{count} front/rear port mappings crossing the moved module's boundary"
+                ).format(count=split_mappings),
+                # PortMapping has no name of its own, so name the moved port on each side of the
+                # boundary: the front port when its rear port stays behind, and the rear port when
+                # its front port does. Naming the non-moved end instead would point the user at a
+                # component they will not find on the module they are moving.
+                FrontPort.objects.filter(pk__in=split_fronts.values('front_port_id')),
+                RearPort.objects.filter(pk__in=split_rears.values('rear_port_id')),
+            ))
 
         # Attached inventory items (blocked in v1)
-        item_count = 0
+        item_querysets = []
         for model, instances in self.components.items():
-            pks = [obj.pk for obj in instances]
-            if pks:
-                item_count += model.objects.filter(
-                    pk__in=pks, inventory_items__isnull=False
-                ).distinct().count()
+            if pks := [obj.pk for obj in instances]:
+                item_querysets.append(
+                    model.objects.filter(pk__in=pks, inventory_items__isnull=False).distinct()
+                )
         if bay_pks := [bay.pk for bay in self.moved_bays]:
-            item_count += ModuleBay.objects.filter(
-                pk__in=bay_pks, inventory_items__isnull=False
-            ).distinct().count()
-        if item_count:
-            blockers.append(_("{count} components with attached inventory items").format(count=item_count))
+            item_querysets.append(
+                ModuleBay.objects.filter(pk__in=bay_pks, inventory_items__isnull=False).distinct()
+            )
+        if item_count := sum(queryset.count() for queryset in item_querysets):
+            blockers.append(self._name_sample(
+                _("{count} components with attached inventory items").format(count=item_count),
+                *item_querysets,
+            ))
 
         if not blockers:
             return []
@@ -519,7 +601,9 @@ class ModuleMovePlan:
                 device_id=self.new_device_id, name__in=seen
             ).exclude(pk__in=[move.instance.pk for move in moves])
             if count := conflict_qs.count():
-                sample = ', '.join(conflict_qs.order_by('name').values_list('name', flat=True)[:5])
+                sample = ', '.join(
+                    conflict_qs.order_by('name').values_list('name', flat=True)[:self.SAMPLE_LIMIT]
+                )
                 errors.append(
                     _(
                         "Moving this module would conflict with {count} existing {type} on device "
@@ -694,7 +778,9 @@ class ModuleMovePlan:
             module.snapshot()
             module.device_id = self.new_device_id
             module.last_updated = self._now
-        self.module_model.objects.bulk_update(descendants, ['device', 'last_updated'], batch_size=BATCH_SIZE)
+        self.module_model.objects.bulk_update(
+            descendants, ['device', 'last_updated'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+        )
         self._send_post_saves(self.module_model, descendants, ['device', 'last_updated'])
 
     def _apply_bays(self):
@@ -744,7 +830,7 @@ class ModuleMovePlan:
         # Stage 1: parent-only, for the root's direct child bays being reparented.
         reparented = [bay for bay, changed in bay_changes if 'parent' in changed]
         if reparented:
-            ModuleBay.objects.bulk_update(reparented, ['parent'], batch_size=BATCH_SIZE)
+            ModuleBay.objects.bulk_update(reparented, ['parent'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
 
         # Stage 2: renames, level-by-level top-down. Same-level bays are disjoint
         # subtrees, so per-level statements cannot overlap, and level N's AFTER-trigger
@@ -768,11 +854,13 @@ class ModuleMovePlan:
         for level_index in sorted(renames_by_level):
             level_bays = renames_by_level[level_index]
             fields = sorted({field for _bay, bay_fields in level_bays for field in bay_fields})
-            ModuleBay.objects.bulk_update([bay for bay, _field in level_bays], fields, batch_size=BATCH_SIZE)
+            ModuleBay.objects.bulk_update(
+                [bay for bay, _field in level_bays], fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+            )
 
         # Stage 3: one scalar statement for every changed bay; never parent/name here.
         updated = [bay for bay, _ in bay_changes]
-        ModuleBay.objects.bulk_update(updated, ['last_updated'], batch_size=BATCH_SIZE)
+        ModuleBay.objects.bulk_update(updated, ['last_updated'], batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
 
         # Stage 4: sync in-memory ltree columns, then emit post_save per bay with the
         # union of its own changed fields (fields differ per bay, so one call each).
@@ -816,7 +904,7 @@ class ModuleMovePlan:
                 fields.add('_name')
             fields.add('last_updated')
             fields = sorted(fields)
-            model.objects.bulk_update(updated, fields, batch_size=BATCH_SIZE)
+            model.objects.bulk_update(updated, fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE)
             self._send_post_saves(model, updated, fields)
 
     def _apply_port_mappings(self):
@@ -834,22 +922,36 @@ class ModuleMovePlan:
                 device_id=self.new_device_id,
             )
 
+    @staticmethod
+    def device_counters_by_model(device_model):
+        """
+        Map each model counted by a device-scoped counter cache on Device to that counter's
+        field name. Derived from Device's own field declarations so that a modular component
+        model added to COMPONENT_TEMPLATE_ATTRS cannot silently skip counter recomputation -
+        a drift which raises nothing and only shows up as a wrong count on two devices.
+        """
+        return {
+            apps.get_model(field.to_model_name): field.name
+            for field in device_model._meta.get_fields()
+            if isinstance(field, CounterCacheField) and field.to_field_name == 'device'
+        }
+
+    def _moved_row_counts(self):
+        """
+        Moved row counts keyed by model, covering everything this plan relocates. ModuleBay is
+        tracked outside self.components (see _discover()), so it is added back here.
+        """
+        counts = {model: len(instances) for model, instances in self.components.items()}
+        counts[ModuleBay] = len(self.moved_bays)
+        return counts
+
     def _recompute_counters(self):
         # bulk updates bypass the signal-driven counters; apply exact deltas for both devices
         if not self.cross_device:
             return
-        counts = {
-            'console_port_count': len(self.components[ConsolePort]),
-            'console_server_port_count': len(self.components[ConsoleServerPort]),
-            'power_port_count': len(self.components[PowerPort]),
-            'power_outlet_count': len(self.components[PowerOutlet]),
-            'interface_count': len(self.components[Interface]),
-            'front_port_count': len(self.components[FrontPort]),
-            'rear_port_count': len(self.components[RearPort]),
-            'module_bay_count': len(self.moved_bays),
-        }
-        for counter, count in counts.items():
-            if count:
+        counts = self._moved_row_counts()
+        for model, counter in self.device_counters_by_model(self.device_model).items():
+            if count := counts.get(model, 0):
                 update_counter(self.device_model, self.old_device_id, counter, -count)
                 update_counter(self.device_model, self.new_device_id, counter, count)
 

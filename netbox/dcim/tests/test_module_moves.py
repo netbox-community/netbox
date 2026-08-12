@@ -1,17 +1,30 @@
+import re
 import signal
+import uuid
 from contextlib import contextmanager
 from unittest.mock import patch
 
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, OperationalError, connection, router, transaction
-from django.test import TestCase
+from django.db.models import QuerySet
+from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
 from circuits.models import Provider, ProviderNetwork, VirtualCircuit, VirtualCircuitTermination, VirtualCircuitType
+from core.models import ObjectChange
 from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices, ModuleStatusChoices, PortTypeChoices
 from dcim.models import (
     Cable,
+    ConsolePortTemplate,
+    ConsoleServerPortTemplate,
+    CoolingIntake,
+    CoolingIntakeTemplate,
+    CoolingOutflow,
+    CoolingOutflowTemplate,
     Device,
+    DeviceBay,
     DeviceRole,
     DeviceType,
     FrontPort,
@@ -36,10 +49,13 @@ from dcim.models import (
     Site,
     VirtualDeviceContext,
 )
-from dcim.models.module_moves import ModuleMovePlan
+from dcim.models.device_components import ModularComponentModel
+from dcim.models.module_moves import COMPONENT_TEMPLATE_ATTRS, ModuleMovePlan
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from ipam.choices import FHRPGroupProtocolChoices
 from ipam.models import VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress, VLANTranslationPolicy
+from netbox.context_managers import event_tracking
+from users.models import User
 from utilities.exceptions import AbortRequest
 from utilities.ordering import naturalize_interface
 from utilities.testing import create_test_device
@@ -1228,6 +1244,119 @@ class ModuleCrossDeviceBlockerTestCase(TestCase):
         )
         self._assert_move_allowed()
 
+    #
+    # Blockers name the offending components, not just how many there are
+    #
+
+    def _blocked_message(self):
+        self.module.device = self.device_b
+        self.module.module_bay = self.bay_b
+        with self.assertRaises(ValidationError) as cm:
+            self.module.full_clean()
+        return str(cm.exception)
+
+    @staticmethod
+    def _samples(message):
+        """Every parenthesized "e.g." list in a blocker message, as a list of name lists."""
+        return [
+            [name.strip() for name in group.split(',')]
+            for group in re.findall(r'\(e\.g\. ([^)]*)\)', message)
+        ]
+
+    def test_cable_blocker_names_offending_component(self):
+        peer = Interface.objects.create(
+            device=self.device_a, name='peer0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        Cable(a_terminations=[self.interface], b_terminations=[peer]).save()
+        # A second moved interface with no cable must not be named
+        Interface.objects.create(
+            device=self.device_a, module=self.module, name='quiet0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        message = self._blocked_message()
+        self.assertIn('eth0', message)
+        self.assertNotIn('quiet0', message)
+
+    def test_interface_state_blocker_names_offending_interface(self):
+        IPAddress.objects.create(address='192.0.2.1/24', assigned_object=self.interface)
+        self.assertEqual(self._samples(self._blocked_message()), [['eth0']])
+
+    def test_boundary_blocker_names_both_directions(self):
+        outsider = Interface.objects.create(
+            device=self.device_a, name='outsider0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        self.interface.bridge = outsider
+        self.interface.save()
+        lag = Interface.objects.create(
+            device=self.device_a, module=self.module, name='lag0', type=InterfaceTypeChoices.TYPE_LAG
+        )
+        Interface.objects.create(
+            device=self.device_a, name='member0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+        message = self._blocked_message()
+        self.assertIn('2 parent, bridge, or LAG interface relations', message)
+        self.assertEqual(self._samples(message), [['eth0', 'member0']])
+
+    def test_split_power_outlet_blocker_names_outlet(self):
+        power_port = PowerPort.objects.create(device=self.device_a, name='PP 1')
+        PowerOutlet.objects.create(
+            device=self.device_a, module=self.module, name='Outlet 1', power_port=power_port
+        )
+        self.assertEqual(self._samples(self._blocked_message()), [['Outlet 1']])
+
+    def test_split_port_mapping_blocker_names_front_port(self):
+        front_port = FrontPort.objects.create(
+            device=self.device_a, module=self.module, name='Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPort.objects.create(
+            device=self.device_a, name='Rear 1', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        self.assertEqual(self._samples(self._blocked_message()), [['Front 1']])
+
+    def test_split_port_mapping_blocker_names_moved_rear_port(self):
+        """
+        With the rear port moving and the front port staying behind, the sample must name the
+        rear port: a user told to look for the front port would not find it on this module.
+        """
+        rear_port = RearPort.objects.create(
+            device=self.device_a, module=self.module, name='Moved Rear 1',
+            type=PortTypeChoices.TYPE_LC, positions=1,
+        )
+        front_port = FrontPort.objects.create(
+            device=self.device_a, name='Chassis Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        PortMapping.objects.create(
+            front_port=front_port, front_port_position=1, rear_port=rear_port, rear_port_position=1
+        )
+        message = self._blocked_message()
+        self.assertEqual(self._samples(message), [['Moved Rear 1']])
+        self.assertNotIn('Chassis Front 1', message)
+
+    def test_inventory_item_blocker_names_component(self):
+        InventoryItem.objects.create(device=self.device_a, name='Item 1', component=self.interface)
+        self.assertEqual(self._samples(self._blocked_message()), [['eth0']])
+
+    def test_blocker_sample_is_capped_but_count_is_complete(self):
+        peer = Interface.objects.create(
+            device=self.device_a, name='peer0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        Cable(a_terminations=[self.interface], b_terminations=[peer]).save()
+        for i in range(1, 8):
+            marked = Interface.objects.create(
+                device=self.device_a, module=self.module, name=f'eth{i}',
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            )
+            marked.mark_connected = True
+            marked.save()
+        message = self._blocked_message()
+        self.assertIn('8 cabled or connection-marked interfaces', message)
+        sample, = self._samples(message)
+        self.assertEqual(len(sample), ModuleMovePlan.SAMPLE_LIMIT)
+        self.assertEqual(sample, ['eth0', 'eth1', 'eth2', 'eth3', 'eth4'])
+
     def test_mac_address_is_allowed(self):
         mac = MACAddress.objects.create(mac_address='00:11:22:33:44:55', assigned_object=self.interface)
         self.interface.primary_mac_address = mac
@@ -1431,6 +1560,53 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         three_children_queries = build_and_move(3)
         self.assertEqual(one_child_queries, three_children_queries)
 
+    def test_bulk_updates_use_configured_chunk_size(self):
+        """
+        The move path must honour BULK_UPDATE_CHUNK_SIZE rather than a private constant, so
+        that an operator bounding rows-per-statement bounds this operation too.
+        """
+        original_bulk_update = QuerySet.bulk_update
+        batch_sizes = []
+
+        def recording_bulk_update(self, objs, fields, batch_size=None, **kwargs):
+            batch_sizes.append(batch_size)
+            return original_bulk_update(self, objs, fields, batch_size=batch_size, **kwargs)
+
+        with override_settings(BULK_UPDATE_CHUNK_SIZE=7):
+            with patch.object(QuerySet, 'bulk_update', recording_bulk_update):
+                self._move_to_device_b()
+
+        self.assertTrue(batch_sizes, 'the move issued no bulk_update calls')
+        self.assertEqual(set(batch_sizes), {7})
+
+    @override_settings(BULK_UPDATE_CHUNK_SIZE=1)
+    def test_move_is_correct_when_updates_are_chunked(self):
+        """
+        A chunk size small enough to split every statement must not disturb the staged bay
+        writes, whose correctness depends on the ltree triggers settling per level.
+        """
+        sfp_interface = self.sfp_module.interfaces.get(name='SFP 1/1')
+        self._move_to_device_b()
+
+        self.line_card.refresh_from_db()
+        self.sfp_module.refresh_from_db()
+        self.assertEqual(self.line_card.device, self.device_b)
+        self.assertEqual(self.sfp_module.device, self.device_b)
+
+        moved_bay = ModuleBay.objects.get(pk=self.sfp_bay.pk)
+        dest_bay = ModuleBay.objects.get(pk=self.slot_2_b.pk)
+        self.assertEqual(moved_bay.name, 'SFP bay 2/1')
+        self.assertEqual(moved_bay.device, self.device_b)
+        self.assertTrue(str(moved_bay.path).startswith(f'{dest_bay.path}.'))
+
+        sfp_interface.refresh_from_db()
+        self.assertEqual(sfp_interface.name, 'SFP 2/1')
+        self.assertEqual(sfp_interface.device, self.device_b)
+        self.assertEqual(sfp_interface._site, self.site_b)
+        self.assertEqual(
+            self.line_card.interfaces.get().name, 'Ethernet2/1'
+        )
+
     def test_cross_device_move_refreshes_bay_sort_path(self):
         """
         The trigger-maintained sort_path of a moved nested bay reflects the
@@ -1445,3 +1621,330 @@ class ModuleCrossDeviceMoveTestCase(TestCase):
         self.assertNotEqual(moved_bay.sort_path, old_sort_path)
         self.assertTrue(str(moved_bay.sort_path).startswith(str(dest_bay.sort_path)))
         self.assertIn('SFP bay 2/1', str(moved_bay.sort_path))
+
+
+class ModuleMoveComponentCoverageTestCase(TestCase):
+    """
+    Guard against a newly introduced modular component model being left out of the move
+    planner, which is how cooling intakes and outflows were initially missed.
+    """
+
+    def test_every_modular_component_model_is_planned(self):
+        # Scoped to dcim: a plugin may define its own ModularComponentModel subclass, which core
+        # cannot add to COMPONENT_TEMPLATE_ATTRS, so it must not fail this assertion.
+        core_models = {
+            model for model in apps.get_models()
+            if issubclass(model, ModularComponentModel) and model._meta.app_label == 'dcim'
+        }
+        # ModuleBay is planned separately (nested hierarchy, distinct uniqueness constraint).
+        planned = set(COMPONENT_TEMPLATE_ATTRS) | {ModuleBay}
+        self.assertEqual(
+            core_models - planned, set(),
+            'Modular component model(s) are not relocated by ModuleMovePlan. '
+            'Add them to COMPONENT_TEMPLATE_ATTRS.'
+        )
+
+    def test_planned_template_attrs_exist_on_module_type(self):
+        for model, template_attr in COMPONENT_TEMPLATE_ATTRS.items():
+            with self.subTest(model=model._meta.label):
+                self.assertTrue(
+                    hasattr(ModuleType, template_attr),
+                    f'ModuleType has no relation {template_attr!r}'
+                )
+
+    def test_device_counters_are_derived_for_every_planned_model(self):
+        """
+        Counter recomputation is derived from Device's own CounterCacheField declarations, so
+        adding a modular component model cannot silently skip it. Assert the derivation still
+        resolves a counter for each planned model, and does not reach beyond device-scoped ones.
+        """
+        counters = ModuleMovePlan.device_counters_by_model(Device)
+        planned = set(COMPONENT_TEMPLATE_ATTRS) | {ModuleBay}
+        self.assertEqual(
+            planned - set(counters), set(),
+            'A planned model has no device-scoped Device counter. If that is intended, this '
+            'assertion needs to record the exception explicitly.'
+        )
+        self.assertEqual(counters[CoolingIntake], 'cooling_intake_count')
+        self.assertEqual(counters[ModuleBay], 'module_bay_count')
+        # Models counted by Device but never moved must not gain a delta
+        self.assertNotIn(DeviceBay, planned)
+        self.assertNotIn(InventoryItem, planned)
+
+
+class ModuleMoveCounterTestCase(TestCase):
+    """
+    A cross-device move must adjust the Device counter of every modular component model the
+    planner relocates. Exercises all of them at once, so a broken counter derivation cannot
+    pass by covering only the component types other tests happen to create.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer M', slug='manufacturer-m')
+        role = DeviceRole.objects.create(name='Role 1', slug='role-1')
+        site = Site.objects.create(name='Site A', slug='site-a')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Chassis', slug='chassis')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 1')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 2')
+
+        # One template of every modular component type, so each planned model contributes a row
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Full Card')
+        ConsolePortTemplate.objects.create(module_type=cls.module_type, name='Console 1')
+        ConsoleServerPortTemplate.objects.create(module_type=cls.module_type, name='Console Server 1')
+        CoolingIntakeTemplate.objects.create(module_type=cls.module_type, name='Intake 1')
+        CoolingOutflowTemplate.objects.create(module_type=cls.module_type, name='Outflow 1')
+        InterfaceTemplate.objects.create(
+            module_type=cls.module_type, name='Ethernet 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        power_port = PowerPortTemplate.objects.create(module_type=cls.module_type, name='PP 1')
+        PowerOutletTemplate.objects.create(
+            module_type=cls.module_type, name='Outlet 1', power_port=power_port
+        )
+        front_port = FrontPortTemplate.objects.create(
+            module_type=cls.module_type, name='Front 1', type=PortTypeChoices.TYPE_LC
+        )
+        rear_port = RearPortTemplate.objects.create(
+            module_type=cls.module_type, name='Rear 1', type=PortTypeChoices.TYPE_LC, positions=1
+        )
+        PortTemplateMapping.objects.create(
+            module_type=cls.module_type,
+            front_port=front_port, front_port_position=1,
+            rear_port=rear_port, rear_port_position=1,
+        )
+        ModuleBayTemplate.objects.create(module_type=cls.module_type, name='Sub bay 1')
+
+        cls.device_a = Device.objects.create(
+            name='Chassis A', device_type=device_type, role=role, site=site
+        )
+        cls.device_b = Device.objects.create(
+            name='Chassis B', device_type=device_type, role=role, site=site
+        )
+
+    def test_cross_device_move_adjusts_every_planned_counter(self):
+        module = Module.objects.create(
+            device=self.device_a, module_bay=self.device_a.modulebays.get(name='Slot 1'),
+            module_type=self.module_type,
+        )
+
+        # Fail loudly rather than vacuously if the fixture stops covering every planned model
+        rows = {model: model.objects.filter(module=module).count() for model in COMPONENT_TEMPLATE_ATTRS}
+        rows[ModuleBay] = ModuleBay.objects.filter(module=module).count()
+        self.assertEqual(
+            set(rows.values()), {1},
+            f'the fixture must create exactly one row per planned model, got {rows}'
+        )
+
+        counters = ModuleMovePlan.device_counters_by_model(Device)
+        planned_counters = sorted(counters[model] for model in rows)
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        before_a = {counter: getattr(self.device_a, counter) for counter in planned_counters}
+        before_b = {counter: getattr(self.device_b, counter) for counter in planned_counters}
+
+        module.device = self.device_b
+        module.module_bay = self.device_b.modulebays.get(name='Slot 2')
+        module.full_clean()
+        module.save()
+
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        for counter in planned_counters:
+            with self.subTest(counter=counter):
+                self.assertEqual(
+                    getattr(self.device_a, counter), before_a[counter] - 1,
+                    f'{counter} was not decremented on the source device'
+                )
+                self.assertEqual(
+                    getattr(self.device_b, counter), before_b[counter] + 1,
+                    f'{counter} was not incremented on the destination device'
+                )
+
+
+class ModuleMoveCoolingTestCase(TestCase):
+    """
+    Cooling intakes and outflows are modular components and must be relocated, renamed, and
+    counted like any other. See netbox#15289.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer M', slug='manufacturer-m')
+        role = DeviceRole.objects.create(name='Role 1', slug='role-1')
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Chassis', slug='chassis')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 1', position='1')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Slot 2', position='2')
+
+        cls.card_type = ModuleType.objects.create(manufacturer=manufacturer, model='Cooled Card')
+        CoolingIntakeTemplate.objects.create(module_type=cls.card_type, name='Intake {module}/1')
+        CoolingOutflowTemplate.objects.create(module_type=cls.card_type, name='Outflow {module}/1')
+        ModuleBayTemplate.objects.create(
+            module_type=cls.card_type, name='Sub bay {module}/1', position='{module}/1'
+        )
+        cls.sub_type = ModuleType.objects.create(manufacturer=manufacturer, model='Cooled Sub')
+        CoolingIntakeTemplate.objects.create(module_type=cls.sub_type, name='Sub intake {module}')
+
+        cls.device_a = Device.objects.create(
+            name='Chassis A', device_type=device_type, role=role, site=cls.site_a
+        )
+        cls.device_b = Device.objects.create(
+            name='Chassis B', device_type=device_type, role=role, site=cls.site_b
+        )
+        cls.slot_1_a = cls.device_a.modulebays.get(name='Slot 1')
+        cls.slot_2_a = cls.device_a.modulebays.get(name='Slot 2')
+        cls.slot_2_b = cls.device_b.modulebays.get(name='Slot 2')
+
+    def setUp(self):
+        super().setUp()
+        self.card = Module.objects.create(
+            device=self.device_a, module_bay=self.slot_1_a, module_type=self.card_type
+        )
+        self.intake = self.card.coolingintakes.get()
+        self.outflow = self.card.coolingoutflows.get()
+
+    def _move_to_device_b(self):
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        self.card.full_clean()
+        self.card.save()
+
+    def test_same_device_move_renames_cooling_components(self):
+        self.card.module_bay = self.slot_2_a
+        self.card.full_clean()
+        self.card.save()
+        self.intake.refresh_from_db()
+        self.outflow.refresh_from_db()
+        self.assertEqual(self.intake.name, 'Intake 2/1')
+        self.assertEqual(self.outflow.name, 'Outflow 2/1')
+        self.assertEqual(self.intake.device, self.device_a)
+
+    def test_cross_device_move_relocates_cooling_components(self):
+        self._move_to_device_b()
+        self.intake.refresh_from_db()
+        self.outflow.refresh_from_db()
+        for component in (self.intake, self.outflow):
+            self.assertEqual(component.device, self.device_b)
+            self.assertEqual(component._site, self.site_b)
+            self.assertEqual(component._location, self.device_b.location)
+            self.assertEqual(component._rack, self.device_b.rack)
+        self.assertEqual(self.intake.name, 'Intake 2/1')
+        self.assertEqual(self.outflow.name, 'Outflow 2/1')
+
+    def test_cross_device_move_relocates_nested_cooling_components(self):
+        sub_bay = self.card.modulebays.get()
+        sub_module = Module.objects.create(
+            device=self.device_a, module_bay=sub_bay, module_type=self.sub_type
+        )
+        sub_intake = sub_module.coolingintakes.get()
+        self.assertEqual(sub_intake.name, 'Sub intake 1/1')
+        self._move_to_device_b()
+        sub_intake.refresh_from_db()
+        self.assertEqual(sub_intake.device, self.device_b)
+        self.assertEqual(sub_intake.name, 'Sub intake 2/1')
+
+    def test_cross_device_move_recomputes_cooling_counters(self):
+        self.device_a.refresh_from_db()
+        self.assertEqual(self.device_a.cooling_intake_count, 1)
+        self.assertEqual(self.device_a.cooling_outflow_count, 1)
+        self._move_to_device_b()
+        self.device_a.refresh_from_db()
+        self.device_b.refresh_from_db()
+        self.assertEqual(self.device_a.cooling_intake_count, 0)
+        self.assertEqual(self.device_a.cooling_outflow_count, 0)
+        self.assertEqual(self.device_b.cooling_intake_count, 1)
+        self.assertEqual(self.device_b.cooling_outflow_count, 1)
+
+    def test_reinstall_into_vacated_bay_after_move(self):
+        """
+        The vacated bay must be reusable: a stale cooling name left on the source device
+        would collide with the replacement module's replicated components.
+        """
+        self._move_to_device_b()
+        replacement = Module(
+            device=self.device_a, module_bay=self.slot_1_a, module_type=self.card_type
+        )
+        replacement.full_clean()
+        replacement.save()
+        self.assertEqual(replacement.coolingintakes.get().name, 'Intake 1/1')
+
+    def test_cooling_name_conflict_at_destination_is_rejected(self):
+        CoolingIntake.objects.create(device=self.device_b, name='Intake 2/1')
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('would conflict with', str(cm.exception))
+
+    def test_split_cooling_outflow_relation_blocks(self):
+        """An outflow's upstream intake must stay on the same device, so it cannot be split."""
+        device_intake = CoolingIntake.objects.create(device=self.device_a, name='Chassis Intake')
+        self.outflow.cooling_intake = device_intake
+        self.outflow.save()
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('cooling outflow relations crossing', str(cm.exception))
+        self.assertIn('Outflow 1/1', str(cm.exception))
+
+    def test_inward_cooling_outflow_relation_blocks(self):
+        device_outflow = CoolingOutflow.objects.create(device=self.device_a, name='Chassis Outflow')
+        device_outflow.cooling_intake = self.intake
+        device_outflow.save()
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('cooling outflow relations crossing', str(cm.exception))
+        self.assertIn('Chassis Outflow', str(cm.exception))
+
+    def test_intra_module_cooling_pair_is_allowed(self):
+        self.outflow.cooling_intake = self.intake
+        self.outflow.save()
+        self._move_to_device_b()
+        self.outflow.refresh_from_db()
+        self.assertEqual(self.outflow.device, self.device_b)
+        self.assertEqual(self.outflow.cooling_intake, self.intake)
+
+    def test_upstream_outflow_on_another_device_is_allowed(self):
+        """
+        CoolingIntake.cooling_outflow is not device-scoped: an intake is routinely supplied
+        by an outflow on another device, such as a CDU. It must not block a move.
+        """
+        cdu_outflow = CoolingOutflow.objects.create(device=self.device_a, name='CDU Outflow')
+        self.intake.cooling_outflow = cdu_outflow
+        self.intake.save()
+        self._move_to_device_b()
+        self.intake.refresh_from_db()
+        self.assertEqual(self.intake.device, self.device_b)
+        self.assertEqual(self.intake.cooling_outflow, cdu_outflow)
+
+    def test_cooling_components_are_changelogged(self):
+        with event_tracking(self._make_request()):
+            self.card.snapshot()
+            self._move_to_device_b()
+        intake_type = ContentType.objects.get_for_model(CoolingIntake)
+        change = ObjectChange.objects.get(
+            changed_object_type=intake_type, changed_object_id=self.intake.pk
+        )
+        self.assertEqual(change.prechange_data['name'], 'Intake 1/1')
+        self.assertEqual(change.postchange_data['name'], 'Intake 2/1')
+        self.assertEqual(change.postchange_data['device'], self.device_b.pk)
+
+    def _make_request(self):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = User.objects.create_user(username='cooling-mover')
+        return request
+
+    def test_attached_inventory_item_on_cooling_component_blocks(self):
+        InventoryItem.objects.create(
+            device=self.device_a, name='Coolant Sensor', component=self.intake
+        )
+        self.card.device = self.device_b
+        self.card.module_bay = self.slot_2_b
+        with self.assertRaises(ValidationError) as cm:
+            self.card.full_clean()
+        self.assertIn('attached inventory items', str(cm.exception))

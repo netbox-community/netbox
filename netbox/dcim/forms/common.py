@@ -154,6 +154,8 @@ class ModuleCommonForm(forms.Form):
                 ("interfacetemplates", "interfaces"),
                 ("powerporttemplates", "powerports"),
                 ("poweroutlettemplates", "poweroutlets"),
+                ("coolingintaketemplates", "coolingintakes"),
+                ("coolingoutflowtemplates", "coolingoutflows"),
                 ("rearporttemplates", "rearports"),
                 ("frontporttemplates", "frontports")
         ]:
