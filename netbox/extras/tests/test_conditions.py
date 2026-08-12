@@ -494,6 +494,45 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             c.eval({'snapshots': snapshots})
 
+    def test_changed_when_path_is_walkable_in_only_one_snapshot(self):
+        """
+        A path which resolves in one snapshot but not the other is not malformed: it
+        describes a real difference between them, such as a JSON attribute whose value
+        changed shape. The unwalkable side counts as missing and the comparison proceeds,
+        rather than raising and reporting the attribute as unchanged.
+        """
+        snapshots = {
+            'prechange': {'custom_fields': {'blob': 'legacy'}},
+            'postchange': {'custom_fields': {'blob': {'key': 1}}},
+        }
+        reversed_snapshots = {'prechange': snapshots['postchange'], 'postchange': snapshots['prechange']}
+        self.assertTrue(Condition('custom_fields.blob.key', op='changed').eval({'snapshots': snapshots}))
+        self.assertTrue(Condition('custom_fields.blob.key', op='changed').eval({'snapshots': reversed_snapshots}))
+        self.assertFalse(Condition('custom_fields.blob.key', op='unchanged').eval({'snapshots': snapshots}))
+
+    def test_changed_raises_when_only_available_snapshot_traverses_scalar(self):
+        """
+        On create and delete events only one snapshot is available, so an unwalkable path is
+        unwalkable everywhere it can be evaluated: still malformed, and still raises.
+        """
+        with self.assertRaises(InvalidCondition):
+            Condition('status.value', op='changed').eval({
+                'snapshots': {'prechange': None, 'postchange': {'status': 'active'}}
+            })
+        with self.assertRaises(InvalidCondition):
+            Condition('status.value', op='changed').eval({
+                'snapshots': {'prechange': {'status': 'active'}, 'postchange': None}
+            })
+
+    def test_changed_does_not_raise_when_no_snapshot_is_available(self):
+        """
+        With neither snapshot available there is nothing to walk, so even a malformed path
+        cannot be identified as such; both sides are missing and the operators fail closed.
+        """
+        snapshots = {'prechange': None, 'postchange': None}
+        self.assertFalse(Condition('status.value', op='changed').eval({'snapshots': snapshots}))
+        self.assertFalse(Condition('status.value', op='unchanged').eval({'snapshots': snapshots}))
+
     def test_changed_missing_attr_still_resolves_to_missing(self):
         # An attribute that is simply absent is an ordinary state difference, not a
         # malformed path, and must not raise.

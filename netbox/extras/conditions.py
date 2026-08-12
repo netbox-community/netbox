@@ -208,25 +208,49 @@ class Condition:
 
         return True
 
-    def _resolve_snapshot_attr(self, snapshot):
+    def _resolve_snapshot_attrs(self, snapshots):
         """
-        Walk self.attr through a snapshot dict. Returns _MISSING when the attribute is
-        simply absent from the snapshot, but raises InvalidCondition when the path cannot
-        be walked at all (e.g. a REST API-style 'status.value' applied to a snapshot,
-        where status is the raw string "active" rather than a nested dict).
+        Walk self.attr through both the prechange and postchange snapshots, returning the
+        two resolved values. _MISSING is returned for a snapshot which is absent, which does
+        not contain the attribute, or in which the path cannot be walked at all (e.g. a REST
+        API-style 'status.value', where status is the raw string "active" rather than a
+        nested dict).
 
         Snapshots use the model serializer format (raw field values), not the REST
         API format, so e.g. status is stored as "active" not {"value": "active"}.
+
+        Raises InvalidCondition only if the path cannot be walked in *any* of the snapshots
+        available for the event, which is the case for a genuinely malformed path. A path
+        which resolves in one snapshot but not the other describes a real difference between
+        them (a JSON attribute whose value changed shape, say), so the unwalkable side is
+        treated as missing and the comparison proceeds: raising would report the attribute as
+        unchanged even though it demonstrably changed.
         """
-        if snapshot is None:
-            return _MISSING
-        try:
-            return walk_path(snapshot, self.attr.split('.'))
-        except TypeError as e:
+        keys = self.attr.split('.')
+        values = []
+        errors = []
+        available = 0
+
+        for which in ('prechange', 'postchange'):
+            snapshot = snapshots.get(which)
+            if snapshot is None:
+                # Absent snapshot (normal for create and delete events): nothing to resolve
+                values.append(_MISSING)
+                continue
+            available += 1
+            try:
+                values.append(walk_path(snapshot, keys))
+            except TypeError as e:
+                values.append(_MISSING)
+                errors.append(e)
+
+        if available and len(errors) == available:
             raise InvalidCondition(
-                f"Invalid key path for '{self.op}' operator: {self.attr} ({e}). Note that snapshots store "
+                f"Invalid key path for '{self.op}' operator: {self.attr} ({errors[0]}). Note that snapshots store "
                 f"raw field values, so choice fields have no '.value' suffix."
             )
+
+        return values
 
     def eval(self, data):
         """
@@ -296,25 +320,24 @@ class Condition:
 
     # Snapshot comparison operators
     # These resolve self.attr in both the prechange and postchange snapshots and
-    # compare the resulting values.  _MISSING is used when a snapshot is absent
-    # or does not contain the attribute.
+    # compare the resulting values.  _MISSING is used when a snapshot is absent,
+    # does not contain the attribute, or cannot be walked by the path.
     #
     # Fail-closed semantics:
     #   changed:   False when attr is absent from both snapshots (field never existed)
     #   unchanged: False when attr is absent from both snapshots (avoids silent pass on typos)
     #
-    # A path that cannot be walked at all (as opposed to one that resolves to nothing)
-    # raises InvalidCondition from _resolve_snapshot_attr(), so a malformed condition is
-    # logged by EventRule.eval_conditions() rather than quietly evaluating False forever.
+    # A path that cannot be walked in any of the snapshots available for the event (as
+    # opposed to one that resolves to nothing) raises InvalidCondition from
+    # _resolve_snapshot_attrs(), so a malformed condition is logged by
+    # EventRule.eval_conditions() rather than quietly evaluating False forever.
 
     def eval_changed(self, snapshots):
-        pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
-        post = self._resolve_snapshot_attr(snapshots.get('postchange'))
+        pre, post = self._resolve_snapshot_attrs(snapshots)
         return pre != post
 
     def eval_unchanged(self, snapshots):
-        pre = self._resolve_snapshot_attr(snapshots.get('prechange'))
-        post = self._resolve_snapshot_attr(snapshots.get('postchange'))
+        pre, post = self._resolve_snapshot_attrs(snapshots)
         if pre is _MISSING and post is _MISSING:
             return False
         return pre == post
