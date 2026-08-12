@@ -154,6 +154,8 @@ You can also read pre- or post-change values directly using the `snapshots.prech
 
     For delete events, `postchange` is `null`. The `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, `unchanged` evaluates to `false`, and any `snapshots.postchange.*` path resolves to `null`.
 
+    An absent snapshot excuses only the absence of the data, not a malformed path: a path which cannot be resolved against a snapshot at all (such as the `.value` suffix above) fails closed and is logged regardless of the event type.
+
 Because an absent snapshot resolves to `null` rather than raising an error — matching a condition testing for `null` and failing any other comparison, whichever operator is used — a snapshot path can be combined safely with other conditions in a rule that also fires on create or delete. For example, this rule fires when a site is created, or when a site whose status was previously `planned` is updated:
 
 ```json

@@ -1,4 +1,3 @@
-import functools
 import operator
 import re
 
@@ -17,6 +16,13 @@ OR = 'or'
 # Prefix identifying a condition attribute that reads an event's pre- or post-change
 # snapshot directly, e.g. 'snapshots.prechange.status'.
 SNAPSHOT_PREFIX = 'snapshots.'
+
+# Maps each snapshot to its counterpart, which is consulted to validate the shape of a path
+# referencing a snapshot that does not exist for the event type.
+OPPOSITE_SNAPSHOT = {
+    'prechange': 'postchange',
+    'postchange': 'prechange',
+}
 
 # Sentinel for a snapshot attribute that could not be resolved (missing key or
 # null snapshot).  Using a unique object ensures that two independently
@@ -38,6 +44,25 @@ class AbsentData(dict):
     def copy(self):
         # dict.copy() would return a plain dict, silently discarding the marker.
         return AbsentData(self)
+
+
+def walk_path(obj, keys):
+    """
+    Walk a sequence of keys through obj, returning _MISSING if a key is absent along the way.
+
+    Raises TypeError if the path cannot be walked at all, i.e. if it descends into a value
+    which cannot be indexed by key (e.g. a REST API-style 'status.value' applied to a
+    snapshot, where status is the raw string "active" rather than a nested dict).
+    """
+    for key in keys:
+        try:
+            if isinstance(obj, list):
+                obj = [operator.getitem(item or {}, key) for item in obj]
+            else:
+                obj = operator.getitem(obj or {}, key)
+        except KeyError:
+            return _MISSING
+    return obj
 
 
 def is_ruleset(data):
@@ -126,17 +151,13 @@ class Condition:
         missing keys, or when an intermediate value can't be indexed by key (e.g. a
         REST API-style path like 'status.value' applied to a raw snapshot value).
         """
-        def _get(obj, key):
-            if isinstance(obj, list):
-                return [operator.getitem(item or {}, key) for item in obj]
-            return operator.getitem(obj or {}, key)
-
         try:
-            return functools.reduce(_get, self.attr.split('.'), data)
-        except KeyError:
-            raise InvalidCondition(f"Invalid key path: {self.attr}")
+            value = walk_path(data, self.attr.split('.'))
         except TypeError as e:
             raise InvalidCondition(f"Invalid key path: {self.attr} ({e})")
+        if value is _MISSING:
+            raise InvalidCondition(f"Invalid key path: {self.attr}")
+        return value
 
     def _references_absent_data(self, data):
         """
@@ -155,7 +176,9 @@ class Condition:
         match and logging an error on every such event.
 
         Data which is present but lacks the attribute is left alone, so a genuine typo still
-        fails closed and is logged.
+        fails closed and is logged. So is a snapshot path which cannot be walked at all, as
+        determined from the opposite snapshot: the absence of a snapshot excuses the absence
+        of the data, not a malformed path.
         """
         if isinstance(data, AbsentData) and self.attr.split('.')[0] not in data:
             return True
@@ -166,8 +189,24 @@ class Condition:
             # No snapshot context at all (e.g. a job event). Treat as a mismatched rule
             # and let the normal path resolution fail closed.
             return False
-        which = self.attr.split('.')[1]
-        return which in snapshots and snapshots[which] is None
+        which, _sep, remainder = self.attr[len(SNAPSHOT_PREFIX):].partition('.')
+        if which not in snapshots or snapshots[which] is not None:
+            return False
+
+        # The referenced snapshot is null. Validate the remainder of the path against the
+        # opposite snapshot, so that a path which cannot be walked at all (e.g. the REST
+        # API-style 'status.value') fails closed here exactly as it does when both snapshots
+        # are present, rather than resolving to None and firing the rule on every create or
+        # delete. A path which is merely absent from the opposite snapshot is indeterminate
+        # and treated as absent, since it resolves to nothing either way.
+        other = snapshots.get(OPPOSITE_SNAPSHOT.get(which))
+        if remainder and other is not None:
+            try:
+                walk_path(other, remainder.split('.'))
+            except TypeError:
+                return False
+
+        return True
 
     def _resolve_snapshot_attr(self, snapshot):
         """
@@ -182,15 +221,7 @@ class Condition:
         if snapshot is None:
             return _MISSING
         try:
-            obj = snapshot
-            for key in self.attr.split('.'):
-                if isinstance(obj, list):
-                    obj = [operator.getitem(item or {}, key) for item in obj]
-                else:
-                    obj = operator.getitem(obj or {}, key)
-            return obj
-        except KeyError:
-            return _MISSING
+            return walk_path(snapshot, self.attr.split('.'))
         except TypeError as e:
             raise InvalidCondition(
                 f"Invalid key path for '{self.op}' operator: {self.attr} ({e}). Note that snapshots store "

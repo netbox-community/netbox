@@ -642,6 +642,42 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             Condition('snapshots.bogus.status', value='planned').eval({'snapshots': snapshots})
 
+    def test_absent_snapshot_path_traversing_scalar_still_fails_closed(self):
+        """
+        An absent snapshot excuses only the absence of the data, not a path which cannot be
+        walked at all. A REST API-style 'status.value' must fail closed on create and delete
+        events exactly as it does on updates, rather than resolving to null (which would fire
+        the rule on every create) with nothing logged.
+        """
+        create = {'snapshots': {'prechange': None, 'postchange': {'status': 'active', 'tags': ['Alpha']}}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.status.value', value='active').eval(create)
+        with self.assertRaises(InvalidCondition):
+            # A test for null must not escape the check either
+            Condition('snapshots.prechange.status.value', value=None).eval(create)
+        with self.assertRaises(InvalidCondition):
+            # Snapshot list fields hold raw values, so descending into an element is
+            # equally unwalkable
+            Condition('snapshots.prechange.tags.name', value='Alpha').eval(create)
+
+        delete = {'snapshots': {'prechange': {'status': 'active'}, 'postchange': None}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.postchange.status.value', value='active').eval(delete)
+
+    def test_absent_snapshot_path_resolves_to_none_when_shape_is_valid(self):
+        """
+        A nested path which the opposite snapshot shows to be walkable is a genuine absence,
+        so it resolves to null. So is a path which cannot be checked at all, because the
+        opposite snapshot does not contain it either or is itself null.
+        """
+        create = {'snapshots': {'prechange': None, 'postchange': {'custom_fields': {'cf1': 'x'}}}}
+        self.assertTrue(Condition('snapshots.prechange.custom_fields.cf1', value=None).eval(create))
+        self.assertTrue(Condition('snapshots.prechange.nonexistent.attr', value=None).eval(create))
+        self.assertTrue(Condition('snapshots.prechange', value=None).eval(create))
+
+        both_absent = {'snapshots': {'prechange': None, 'postchange': None}}
+        self.assertTrue(Condition('snapshots.prechange.status.value', value=None).eval(both_absent))
+
     def test_snapshot_path_without_snapshot_context_fails_closed(self):
         """
         A snapshot path used where there is no snapshot context at all (e.g. a job event)
@@ -727,6 +763,29 @@ class SnapshotConditionTestCase(TestCase):
             'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
         })
         self.assertFalse(event_rule.eval_conditions(data))
+
+    def test_event_rule_snapshot_path_rest_api_style_attr_on_create_is_logged(self):
+        """
+        The same mistake must behave identically on a create event, where the prechange
+        snapshot is absent: fail closed and log, rather than resolving to null and firing
+        the rule for every object created.
+        """
+        event_rule = EventRule(
+            name='Was planned (REST-style mistake)',
+            event_types=[OBJECT_CREATED, OBJECT_UPDATED],
+            conditions={
+                'attr': 'snapshots.prechange.status.value',
+                'value': None,
+            }
+        )
+        site = Site.objects.create(name='Site 6', slug='site-6', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = self._make_condition_data(site, {
+            'prechange': None,
+            'postchange': {'status': SiteStatusChoices.STATUS_ACTIVE},
+        })
+        with self.assertLogs('netbox.event_rules', level='ERROR') as cm:
+            self.assertFalse(event_rule.eval_conditions(data))
+        self.assertIn('snapshots.prechange.status.value', cm.output[0])
 
     def test_event_rule_changed_operator_rest_api_style_attr_is_logged(self):
         """
