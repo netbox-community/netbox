@@ -81,11 +81,11 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
                     passthrough[field] = error_list
                 else:
                     for error in error_list:
-                        message = error.message
+                        message = next(iter(error))
                         if error.params:
-                            message = message % error.params
+                            message = message.replace('%', '%%')
                         remapped.append(ValidationError(
-                            f'{field}: {message}',
+                            '{field}: {message}'.format(field=field, message=message),
                             code=error.code,
                             params=error.params,
                         ))

@@ -10,12 +10,8 @@ from dcim.forms import InterfaceImportForm
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 
 
-class NetBoxModelImportFormCleanTestCase(TestCase):
-    """
-    Test the clean() method of NetBoxModelImportForm to ensure it properly converts
-    empty strings to None for nullable fields during CSV import.
-    Uses InterfaceImportForm as the concrete implementation to test.
-    """
+class NetBoxModelImportFormTestCase(TestCase):
+    """Test NetBoxModelImportForm."""
 
     @classmethod
     def setUpTestData(cls):
@@ -360,16 +356,19 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
                 DjangoValidationError(
                     '%(value)s is not a valid value.',
                     code='invalid_value',
-                    params={'value': 'foo'},
+                    params={'value': '100%'},
                 ),
             ],
         }))
         non_field_errors = form.non_field_errors()
-        self.assertIn('absent_field: foo is not a valid value.', non_field_errors)
+        self.assertIn(
+            'absent_field: 100% is not a valid value.',
+            non_field_errors,
+        )
         error_data = form.errors[NON_FIELD_ERRORS].as_data()
         matching = [error for error in error_data if error.code == 'invalid_value']
         self.assertEqual(len(matching), 1)
-        self.assertEqual(matching[0].params, {'value': 'foo'})
+        self.assertEqual(matching[0].params, {'value': '100%'})
 
     def test_remapped_error_preserves_pluralized_message(self):
         """Preserve pluralization order when remapping an ngettext_lazy message."""
