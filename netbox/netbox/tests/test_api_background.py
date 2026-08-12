@@ -14,10 +14,12 @@ from unittest.mock import patch
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import Job, ObjectChange
+from dcim.api.views import RegionViewSet
 from dcim.models import DeviceType, Manufacturer, Region
 from users.models import ObjectPermission
 from utilities.request import copy_safe_request
@@ -119,6 +121,41 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
         self.assertTrue(job.error)
         self.assertFalse(Region.objects.filter(slug='region-a').exists())
+
+    def test_background_bulk_create_direct_invocation(self):
+        """
+        bulk_create() honors ?background=true itself, as bulk_update() and bulk_destroy() do, so a
+        caller which reaches it without passing through NetBoxModelViewSet.create() (e.g. a custom
+        viewset) still gets background processing rather than a synchronous write.
+        """
+        self.grant('add', 'view')
+        payload = [{'name': 'Region A', 'slug': 'region-a'}]
+
+        # Apply the same minimal scaffolding as AsyncAPIJob does when it invokes an action directly
+        viewset = RegionViewSet()
+        viewset.action_map = {'post': 'bulk_create'}
+        viewset.kwargs = {}
+        viewset.args = ()
+        viewset.format_kwarg = None
+        request = viewset.initialize_request(
+            APIRequestFactory().post('/api/dcim/regions/?background=true', payload, format='json')
+        )
+        request.user = self.user
+        request.id = uuid.uuid4()  # Ordinarily set by NetBox's middleware; recorded on the changelog
+        viewset.request = request
+
+        response = viewset.bulk_create(request)
+
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.name, 'Bulk create regions')
+
+        # The worker re-invokes this same action against a request carrying no query string, so the
+        # work is performed there rather than being enqueued a second time
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(job.data['status_code'], status.HTTP_201_CREATED)
+        self.assertTrue(Region.objects.filter(slug='region-a').exists())
+        self.assertEqual(Job.objects.count(), 1)
 
     # ------------------------------------------------------------------ update
 

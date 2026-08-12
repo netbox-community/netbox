@@ -1,4 +1,3 @@
-import warnings
 from collections import Counter
 from contextlib import contextmanager
 
@@ -32,7 +31,6 @@ __all__ = (
     'CustomFieldsMixin',
     'ExportTemplatesMixin',
     'ObjectValidationMixin',
-    'SequentialBulkCreatesMixin',
     'discard_events_on_rollback',
     'get_duplicate_objects_response',
     'get_invalid_entries_response',
@@ -51,9 +49,6 @@ BULK_ERROR_STATUSES = (
     status.HTTP_400_BAD_REQUEST,
 )
 
-# Reported for an object whose write was undone because the object it produced falls outside the
-# queryset permitted to the requesting user (see ObjectValidationMixin._validate_objects). Which
-# constraint was violated is deliberately not disclosed, consistent with the single-object endpoints.
 PERMISSION_DENIED_MESSAGE = _("You do not have permission to perform this action on this object.")
 
 
@@ -106,8 +101,7 @@ def get_non_list_response(data):
 
 def _as_field_errors(item_errors):
     """
-    Return the errors reported for one entry of a bulk request as a mapping of field name to
-    messages.
+    Return the errors reported for one entry of a bulk request as a mapping of field name to messages.
     """
     if isinstance(item_errors, dict):
         return item_errors
@@ -321,9 +315,11 @@ class BackgroundOperationMixin:
             raise RQWorkerNotRunningException()
 
         model = self.queryset.model
-        verb = _("delete") if action == 'bulk_destroy' else (
-            _("create") if action == 'create' else _("update")
-        )
+        verb = {
+            'create': _("create"),
+            'bulk_create': _("create"),
+            'bulk_destroy': _("delete"),
+        }.get(action, _("update"))
         job_name = _("Bulk {verb} {object_type}").format(
             verb=verb,
             object_type=model._meta.verbose_name_plural,
@@ -406,6 +402,12 @@ class BulkCreateModelMixin:
     ]
     """
     def bulk_create(self, request, *args, **kwargs):
+        # If background processing was requested, enqueue a job and return immediately (before
+        # any validation, which is deferred to the worker).
+        handle_background = getattr(self, '_handle_background_request', lambda *a, **kw: None)
+        if (response := handle_background(request, 'bulk_create')) is not None:
+            return response
+
         created_pks, errors, error_status = self.perform_bulk_create(request.data)
 
         if errors:
@@ -433,27 +435,20 @@ class BulkCreateModelMixin:
         Validate and create each of the given objects, rolling the entire batch back if any one of
         them could not be created.
 
-        Returns the PKs of the objects created, the per-object errors, and the status code with
-        which to report them (None if there were none). See resolve_bulk_error_status().
+        Returns the PKs of the objects created, the per-object errors (if any), and the status code
+        with which to report them (None if there were none).
         """
         created_pks = []
         errors = []
         error_statuses = set()
         using = router.db_for_write(self.queryset.model)
         with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
-            # Validate and save each object in turn, rather than validating the entire batch up front,
-            # so that validation which depends on the state left by prior saves is evaluated correctly.
-            # This covers both validation against other existing objects (e.g. checking for free space
-            # within a rack) and uniqueness: two objects in one batch which conflict with one another
-            # would otherwise both validate against the pre-batch state and then fail on save, raising
-            # an unhandled IntegrityError.
+            # Validate and save each object in turn, rather than validating the entire batch up front, so that
+            # validation which depends on the state left by prior saves is evaluated correctly.
             for i, item in enumerate(data):
                 if not isinstance(item, dict):
-                    # Checked explicitly because get_serializer() infers many=True from a list, so a
-                    # nested list would otherwise be validated as a batch of its own. This mirrors
-                    # the message REST framework itself reports for a non-dictionary item, hence its
-                    # key rather than a literal -- which NON_FIELD_ERRORS_KEY is configured to match
-                    # anyway, so that the API has a single key for non-field errors (see settings).
+                    # Checked explicitly because get_serializer() infers many=True from a list, so a nested list would
+                    # otherwise be validated as a batch of its own.
                     errors.append({
                         'index': i,
                         'errors': {
@@ -472,23 +467,18 @@ class BulkCreateModelMixin:
                     error_statuses.add(status.HTTP_400_BAD_REQUEST)
                     continue
                 try:
-                    # Provisionally create even when a prior item failed, so subsequent
-                    # cross-object validators see a realistic state. All creates are rolled
-                    # back together if any item in the batch fails.
+                    # Provisionally create even when a prior item failed, so subsequent cross-object validators see a
+                    # realistic state. All creates are rolled back together if any item in the batch fails.
                     self.perform_create(serializer)
                 except AbortRequest as e:
-                    # Raised by a signal receiver rather than by validation (e.g. assigning a tag
-                    # which is restricted to other object types). perform_create() wraps its write
-                    # in its own atomic block, so the connection is rolled back to that savepoint
-                    # and the remaining objects in the batch can still be evaluated. The message is
-                    # coerced to a string because a few receivers pass an exception rather than text.
+                    # Raised by a signal receiver rather than by validation (e.g. assigning a tag which is restricted
+                    # to other object types).
                     errors.append({'index': i, 'errors': {'__all__': [str(e.message)]}})
                     error_statuses.add(status.HTTP_400_BAD_REQUEST)
                 except PermissionDenied:
-                    # Raised by perform_create() when the object it saved falls outside the queryset
-                    # permitted to the requesting user. Reported per object so that the offending
-                    # entry is named, but still as a 403, which is what the single-object endpoint
-                    # returns for the same rejection.
+                    # Raised by perform_create() when the object it saved falls outside the queryset permitted to the
+                    # requesting user. Reported per object so that the offending entry is named, but still as a 403,
+                    # which is what the single-object endpoint returns for the same rejection.
                     errors.append({'index': i, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
                     error_statuses.add(status.HTTP_403_FORBIDDEN)
                 else:
@@ -496,27 +486,6 @@ class BulkCreateModelMixin:
             if errors:
                 transaction.set_rollback(True)
         return created_pks, errors, resolve_bulk_error_status(error_statuses)
-
-
-# TODO: Remove this in NetBox v5.0
-class SequentialBulkCreatesMixin:
-    """
-    Deprecated no-op mixin retained for backward compatibility.
-
-    Historically this was applied to individual ViewSets to make their bulk creates run one object
-    at a time. All ViewSets derived from NetBoxModelViewSet now do this unconditionally (see
-    BulkCreateModelMixin), so this mixin is a transparent pass-through and may be removed in a
-    future release. Plugins should stop inheriting from it.
-    """
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        warnings.warn(
-            "SequentialBulkCreatesMixin is deprecated and no longer does anything; all bulk "
-            f"creates are now performed sequentially. Remove it from {cls.__name__}.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
 
 
 class BulkUpdateModelMixin:
@@ -593,9 +562,6 @@ class BulkUpdateModelMixin:
                 {
                     'detail': _('{failed_count} of {total} objects could not be updated.').format(
                         failed_count=len(errors),
-                        # Every object named was matched and attempted, the duplicate and missing-ID
-                        # checks above having rejected the batch otherwise, so this equals the number
-                        # of objects submitted.
                         total=len(object_pks) + len(errors),
                     ),
                     'errors': errors,
