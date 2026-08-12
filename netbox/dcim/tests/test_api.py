@@ -493,6 +493,18 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         # A non-list body is described by its type, so that the client can see what was sent
         self.assertEqual(response.data['detail'], 'Expected a list of objects, but got dict.')
 
+        # A multipart body reaches the bulk action as a QueryDict, which must be reported as the
+        # dict the client submitted rather than by that internal class name
+        response = self.client.patch(
+            self._get_list_url(), {'id': site.pk, 'description': 'x'}, format='multipart', **self.header
+        )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['detail'], 'Expected a list of objects, but got dict.')
+
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
     def test_bulk_write_objects_empty_body(self):
         """
         Address a list endpoint with no body at all. An absent body reaches the bulk actions as an
