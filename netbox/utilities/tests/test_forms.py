@@ -1,3 +1,4 @@
+import copy
 import warnings
 from types import SimpleNamespace
 
@@ -1041,6 +1042,13 @@ class DescriptionSelectTestCase(TestCase):
         html = widget.render('test', None)
         self.assertInHTML('<option value="x" data-description="Description X">X</option>', html)
         self.assertInHTML('<option value="y">Y</option>', html)
+
+    def test_deepcopy_does_not_share_descriptions(self):
+        widget = Select(choices=[('x', 'X')], descriptions={'x': 'Description X'})
+        clone = copy.deepcopy(widget)
+        self.assertIsNot(widget.descriptions, clone.descriptions)
+        widget.descriptions['y'] = 'leaked'
+        self.assertNotIn('y', clone.descriptions)
 
     def test_choices_setter_delegates_through_mro(self):
         """

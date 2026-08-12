@@ -422,6 +422,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
     )
     primary_mac_address = DynamicModelChoiceField(
         queryset=MACAddress.objects.all(),
@@ -509,12 +510,6 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf',
             'owner', 'tags',
         ]
-        labels = {
-            'mode': _('802.1Q Mode'),
-        }
-        widgets = {
-            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
-        }
 
 
 class VirtualDiskForm(VMComponentForm):

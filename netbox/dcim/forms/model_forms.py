@@ -1242,6 +1242,7 @@ class VirtualChassisForm(PrimaryModelForm):
         label=_('Master'),
         queryset=Device.objects.all(),
         required=False,
+        widget=SelectWithPK(),
     )
 
     class Meta:
@@ -1249,9 +1250,6 @@ class VirtualChassisForm(PrimaryModelForm):
         fields = [
             'name', 'domain', 'master', 'description', 'owner', 'comments', 'tags',
         ]
-        widgets = {
-            'master': SelectWithPK(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2043,6 +2041,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         choices=add_blank_choice(InterfaceModeChoices),
         required=False,
         help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
     )
     rf_role = TypedChoiceField(
         label=_('Wireless role'),
@@ -2186,10 +2185,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
-        }
-        labels = {
-            'mode': '802.1Q Mode',
         }
 
 

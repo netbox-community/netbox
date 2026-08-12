@@ -228,7 +228,3 @@ class WirelessLinkForm(DistanceValidationMixin, TenancyForm, PrimaryModelForm):
                 attrs={'data-toggle': 'password'}
             ),
         }
-        labels = {
-            'auth_type': 'Type',
-            'auth_cipher': 'Cipher',
-        }

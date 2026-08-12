@@ -26,6 +26,11 @@ class AttrSelectMixin:
         super().__init__(*args, **kwargs)
         self.descriptions = descriptions or {}
 
+    def __deepcopy__(self, memo):
+        obj = super().__deepcopy__(memo)
+        obj.descriptions = self.descriptions.copy()
+        return obj
+
     def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
         option = super().create_option(name, value, label, selected, index, subindex, attrs)
 
@@ -90,9 +95,10 @@ class ColorSelect(forms.Select):
         self.attrs['class'] = 'color-select'
 
 
-class HTMXSelect(forms.Select):
+class HTMXSelect(Select):
     """
-    Selection widget that will re-generate the HTML form upon the selection of a new option.
+    Selection widget that re-generates the HTML form upon selection of a new option, and supports
+    per-option descriptions alongside its HTMX behavior.
     """
     def __init__(self, method='get', hx_url='.', hx_include_id='form_fields', hx_target_id=None, attrs=None, **kwargs):
         method = method.lower()
