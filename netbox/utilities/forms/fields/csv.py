@@ -100,7 +100,13 @@ class CSVModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
     def clean(self, value):
         if not isinstance(value, list):
-            value = value.split(',') if value else []
+            # str(value): a caller may bind this field from parsed YAML/JSON rather than a
+            # CSV cell, where a scalar column can arrive as a non-string (e.g. an int or
+            # bool) -- .split() would raise AttributeError otherwise. .strip() each piece:
+            # a table's default ManyToManyColumn export separator is ", " (comma space), so
+            # re-importing NetBox's own CSV export of a multi-value column would otherwise
+            # fail to match on the leading space.
+            value = [v.strip() for v in str(value).split(',')] if value else []
         return super().clean(value)
 
 

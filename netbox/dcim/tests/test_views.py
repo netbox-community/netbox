@@ -1796,48 +1796,18 @@ module-bays:
         self.assertEqual(mb1.position, '1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
-    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
-        """
-        ModuleTypeListView.export_yaml() prefetches both module_bay_types (on the module type
-        itself) and modulebaytemplates__module_bay_types (on its nested module bay templates),
-        so neither adds a query per module bay template as the number of bays grows.
-        """
-        manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
-        bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
-
-        def make_module_type(model_name, bay_count):
-            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=model_name)
-            module_type.module_bay_types.set([bay_type])
-            for i in range(bay_count):
-                bay = ModuleBayTemplate.objects.create(module_type=module_type, name=f'Bay {i}')
-                bay.module_bay_types.set([bay_type])
-            return module_type
-
-        one_bay_module_type = make_module_type('Export Query MT One Bay', 1)
-        five_bay_module_type = make_module_type('Export Query MT Five Bays', 5)
-
-        view = ModuleTypeListView()
-        view.queryset = ModuleType.objects.filter(pk=one_bay_module_type.pk)
-        with CaptureQueriesContext(connection) as one_bay_queries:
-            view.export_yaml()
-
-        view.queryset = ModuleType.objects.filter(pk=five_bay_module_type.pk)
-        with CaptureQueriesContext(connection) as five_bay_queries:
-            view.export_yaml()
-
-        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
-
     def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
         """
-        Companion to test_..._is_constant above: that test holds the module type count fixed
-        at 1 and varies bay count, so it can't detect a regression in the module_bay_types
-        prefetch on ModuleType itself (which saves one query per module TYPE row, not per
-        bay) -- a 1-row queryset can't show a per-row saving. Comparing module-type COUNTS
-        (e.g. 1 vs. 5) doesn't work either: to_yaml() touches several other per-instance
-        relations (manufacturer, port_mappings, ...) that legitimately scale with row count
-        regardless of this fix, which would swamp the signal. Instead, compare the *same*
-        5-row queryset with and without the module_bay_types prefetch, isolating exactly what
-        it saves.
+        Comparing module-type COUNTS (e.g. 1 vs. 5) to detect a per-row prefetch saving
+        doesn't work: to_yaml() touches several other per-instance relations (manufacturer,
+        port_mappings, ...) that legitimately scale with row count regardless of this fix,
+        which would swamp the signal. Instead, compare the *same* 5-row queryset with and
+        without the module_bay_types prefetch, isolating exactly what it saves.
+
+        Unlike DeviceType.to_yaml(), ModuleType.to_yaml() does not export a nested
+        module-bays section at all (a separate, pre-existing gap, out of scope here), so
+        module_bay_types is the only relation ModuleTypeListView.export_yaml() needs to
+        prefetch -- confirmed by this test's exact-delta assertion below.
         """
         manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
@@ -1858,12 +1828,8 @@ module-bays:
             view.export_yaml()
 
         # Without the prefetch, each of the 5 module types issues its own module_bay_types
-        # query. The exact delta isn't asserted -- prefetching modulebaytemplates (even when
-        # empty, as here) also lets to_yaml()'s .exists() check on that relation short-circuit
-        # from the prefetch cache instead of querying, so the totals reflect more than just
-        # module_bay_types -- but dropping the module_bay_types prefetch can only narrow this
-        # gap, never widen it, so a strict inequality still catches that regression.
-        self.assertGreater(len(unprefetched), len(prefetched))
+        # query; with it, exactly one query serves all 5.
+        self.assertEqual(len(unprefetched) - len(prefetched), 4)
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):

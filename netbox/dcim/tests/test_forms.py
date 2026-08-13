@@ -17,6 +17,7 @@ from dcim.choices import (
 )
 from dcim.forms import *
 from dcim.models import *
+from dcim.tables.modules import ModuleTypeTable
 from dcim.tests.test_module_moves import fail_after
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
@@ -395,6 +396,24 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
         self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
         self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
 
+    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        arista = Manufacturer.objects.create(name='Arista', slug='arista')
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type 2', slug='juniper-device-type-2',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay_types', form.errors)
+
 
 class ModuleBayImportFormTestCase(TestCase):
     """
@@ -430,6 +449,21 @@ class ModuleBayImportFormTestCase(TestCase):
         })
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(list(form.save().module_bay_types.all()), [own_type])
+
+    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
+        device = create_test_device('Module Bay Import Device')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        arista = Manufacturer.objects.create(name='Arista', slug='arista')
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
+
+        form = ModuleBayImportForm({
+            'device': device.name,
+            'name': 'Bay 1',
+            'module_bay_types': 'SFP28',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay_types', form.errors)
 
 
 class ModuleTypeImportFormTestCase(TestCase):
@@ -469,10 +503,9 @@ class ModuleTypeImportFormTestCase(TestCase):
 
     def test_module_bay_types_accepts_csv_comma_separated_string(self):
         """
-        Unlike ModuleBayTemplateImportForm.module_bay_types (a plain ModelMultipleChoiceField,
-        bound only from YAML-parsed lists), this form's module_bay_types is a
-        CSVModelMultipleChoiceField because ModuleTypeImportForm also serves plain CSV bulk
-        import, where the cell value arrives as a comma-separated string rather than a list.
+        module_bay_types is a CSVModelMultipleChoiceField because ModuleTypeImportForm also
+        serves plain CSV bulk import, where the cell value arrives as a comma-separated
+        string rather than a list.
         """
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
@@ -501,6 +534,51 @@ class ModuleTypeImportFormTestCase(TestCase):
         })
         self.assertTrue(form.is_valid(), form.errors)
         self.assertFalse(form.save().module_bay_types.exists())
+
+    def test_module_bay_types_round_trips_through_the_table_column_export_value(self):
+        """
+        ManyToManyColumn's export separator is ", " (comma + space, django-tables2's
+        default), not the bare "," this field's CSVModelMultipleChoiceField splits on -- so
+        re-importing NetBox's own CSV export of a multi-value module_bay_types column must
+        not fail on the leading space of every value after the first.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+        original = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        original.module_bay_types.set([bay_type_a, bay_type_b])
+
+        table = ModuleTypeTable([original])
+        exported_value = table.columns['module_bay_types'].column.value(original.module_bay_types.all())
+        self.assertEqual(exported_value, 'QSFP28, SFP28')
+
+        form = ModuleTypeImportForm({
+            'manufacturer': manufacturer.name,
+            'model': 'Module Type 2',
+            'module_bay_types': exported_value,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(
+            set(form.save().module_bay_types.values_list('name', flat=True)),
+            {bay_type_a.name, bay_type_b.name},
+        )
+
+    def test_module_bay_types_non_string_scalar_is_a_validation_error_not_a_crash(self):
+        """
+        A CSV cell is always a string, but this field is also bound from YAML-parsed data
+        (e.g. via ModuleBayTemplateImportForm), where a scalar column can arrive as a
+        non-string (an int or bool). .split() on that would raise AttributeError -- an
+        unhandled 500 rather than a form error.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        form = ModuleTypeImportForm({
+            'manufacturer': manufacturer.name,
+            'model': 'Module Type 1',
+            'module_bay_types': 100,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay_types', form.errors)
 
     def test_module_bay_types_permits_a_different_manufacturers_type(self):
         """

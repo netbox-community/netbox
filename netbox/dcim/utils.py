@@ -37,12 +37,16 @@ def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None)
             return 1
         return 2
 
-    by_name = defaultdict(list)
+    by_name = defaultdict(dict)
     for module_bay_type in module_bay_types:
-        by_name[module_bay_type.name].append(module_bay_type)
+        # Keyed by pk within each name group so a caller passing the same row twice (the
+        # three current callers never do, since each resolves from a queryset, but the
+        # signature accepts any iterable) can't manufacture a same-manufacturer "tie" below.
+        by_name[module_bay_type.name][module_bay_type.pk] = module_bay_type
 
     resolved = []
-    for name, candidates in by_name.items():
+    for name, candidates_by_pk in by_name.items():
+        candidates = list(candidates_by_pk.values())
         best_rank = min(preference(c) for c in candidates)
         best = [c for c in candidates if preference(c) == best_rank]
         if len(best) > 1:

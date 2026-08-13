@@ -34,6 +34,8 @@ The numeric position in which this module bay is situated. For example, this wou
 
 Zero or more [module bay types](./modulebaytype.md) assigned to this bay. When at least one bay type is set, only module types that share a common bay type may be installed. Leave empty to allow any module type.
 
+Bay types are importable via CSV, referenced by name, with the same manufacturer-based resolution described for [module bay templates](./modulebaytemplate.md) -- scoped to the manufacturer of the module bay's own device.
+
 ### Enabled
 
 Whether this module bay is enabled. Disabled module bays are not available for installation.
