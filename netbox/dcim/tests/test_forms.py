@@ -431,6 +431,41 @@ class ModuleTypeImportFormTestCase(TestCase):
         self.assertEqual(list(module_type.module_bay_types.all()), [scoped_type])
         self.assertNotIn(global_type, module_type.module_bay_types.all())
 
+    def test_module_bay_types_accepts_csv_comma_separated_string(self):
+        """
+        Unlike ModuleBayTemplateImportForm.module_bay_types (a plain ModelMultipleChoiceField,
+        bound only from YAML-parsed lists), this form's module_bay_types is a
+        CSVModelMultipleChoiceField because ModuleTypeImportForm also serves plain CSV bulk
+        import, where the cell value arrives as a comma-separated string rather than a list.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+
+        form = ModuleTypeImportForm({
+            'manufacturer': manufacturer.name,
+            'model': 'Module Type 1',
+            'module_bay_types': 'SFP28,QSFP28',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_type = form.save()
+        self.assertEqual(
+            set(module_type.module_bay_types.values_list('name', flat=True)),
+            {bay_type_a.name, bay_type_b.name},
+        )
+
+    def test_module_bay_types_accepts_empty_csv_string(self):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+        form = ModuleTypeImportForm({
+            'manufacturer': manufacturer.name,
+            'model': 'Module Type 1',
+            'module_bay_types': '',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.save().module_bay_types.exists())
+
     def test_module_bay_types_permits_a_different_manufacturers_type(self):
         """
         The UI (ModuleTypeForm) and REST API place no manufacturer restriction on
