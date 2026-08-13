@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
+from dcim.utils import dedupe_module_bay_types_by_manufacturer
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
@@ -223,9 +224,21 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ModuleBayTemplate
+        # module_bay_types must stay last: clean_device_type/clean_module_type narrow its
+        # queryset by manufacturer before it is itself cleaned, and Django cleans fields in
+        # this order. Without that narrowing, dedupe_module_bay_types_by_manufacturer() could
+        # pick an arbitrary manufacturer's type for a name shared across several.
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'position', 'description', 'module_bay_types',
+            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
+            'module_bay_types',
         ]
+
+    def clean_enabled(self):
+        # A dict-bound BooleanField resolves a missing key to False, not the model's own
+        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior.
+        if 'enabled' not in self.data:
+            return True
+        return self.cleaned_data['enabled']
 
     def _scope_module_bay_types(self, manufacturer):
         module_bay_types = self.fields['module_bay_types']
@@ -246,29 +259,7 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
         return module_type
 
     def clean_module_bay_types(self):
-        """
-        Resolve each submitted name against the scoped queryset, preferring a manufacturer-
-        specific match over a global one when both exist. ModuleBayType's unique constraint
-        is on (manufacturer, name), not name alone, so a name can legitimately collide between
-        a global type and one scoped to this template's manufacturer; ModelMultipleChoiceField's
-        default name-based lookup would otherwise silently attach both.
-        """
-        names = self.data.get('module_bay_types') or []
-        if not isinstance(names, (list, tuple)):
-            raise forms.ValidationError(_("Module bay types must be a list."))
-
-        queryset = self.fields['module_bay_types'].queryset
-        resolved = []
-        for name in names:
-            candidates = list(queryset.filter(name=name))
-            if not candidates:
-                raise forms.ValidationError(
-                    _("Module bay type not found: {name}").format(name=name)
-                )
-            match = next((c for c in candidates if c.manufacturer_id is not None), candidates[0])
-            resolved.append(match)
-
-        return resolved
+        return dedupe_module_bay_types_by_manufacturer(self.cleaned_data['module_bay_types'])
 
 
 class DeviceBayTemplateImportForm(forms.ModelForm):

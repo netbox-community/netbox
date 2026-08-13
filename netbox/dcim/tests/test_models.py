@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
+from django.test.utils import CaptureQueriesContext
 
 from circuits.models import *
 from core.models import ObjectType
@@ -152,6 +154,32 @@ class DeviceTypeTestCase(TestCase):
         device_type.refresh_from_db()
         self.assertEqual(device_type.interface_template_count, 1)
 
+    def test_bulk_yaml_export_prefetches_module_bay_types(self):
+        """
+        DeviceTypeListView.export_yaml() prefetches modulebaytemplates__module_bay_types so
+        that to_yaml()'s per-bay module_bay_types lookup doesn't add one query per module bay
+        template across the exported queryset.
+        """
+        from dcim.views import DeviceTypeListView
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='dt1')
+        for i in range(3):
+            bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
+            bay.module_bay_types.set([bay_type])
+
+        with CaptureQueriesContext(connection) as unprefetched:
+            [obj.to_yaml() for obj in DeviceType.objects.filter(pk=device_type.pk)]
+
+        view = DeviceTypeListView()
+        view.queryset = DeviceType.objects.filter(pk=device_type.pk)
+        with CaptureQueriesContext(connection) as prefetched:
+            view.export_yaml()
+
+        # Without the prefetch, each of the 3 bays issues its own module_bay_types query.
+        self.assertLess(len(prefetched), len(unprefetched))
+
 
 class ModuleTypeTestCase(TestCase):
 
@@ -194,6 +222,21 @@ class ModuleTypeTestCase(TestCase):
 
         data = module_bay_template.to_yaml()
         self.assertEqual(data['module_bay_types'], ['SFP28'])
+
+    def test_module_bay_template_to_yaml_orders_module_bay_types(self):
+        """
+        Multiple module bay types should export in ModuleBayType's own ordering
+        (manufacturer, name), independent of assignment order.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        module_bay_template = ModuleBayTemplate.objects.create(module_type=module_type, name='Module Bay 1')
+        module_bay_template.module_bay_types.set([bay_type_b, bay_type_a])
+
+        data = module_bay_template.to_yaml()
+        self.assertEqual(data['module_bay_types'], ['QSFP28', 'SFP28'])
 
     def test_attributes(self):
         """

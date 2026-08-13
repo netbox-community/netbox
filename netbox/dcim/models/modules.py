@@ -313,6 +313,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
             'attribute_data': self.attribute_data,
             'comments': self.comments,
+            'module_bay_types': [t.name for t in self.module_bay_types.all()],
         }
 
         # Component templates

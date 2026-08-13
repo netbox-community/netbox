@@ -8,6 +8,23 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
+def dedupe_module_bay_types_by_manufacturer(module_bay_types):
+    """
+    Given an iterable of ModuleBayType instances resolved by name, collapse any sharing a
+    name to a single entry, preferring a manufacturer-specific match over a global one.
+
+    ModuleBayType's unique constraint is on (manufacturer, name), not name alone, so a
+    global type and a manufacturer-scoped type can legitimately share the same name; a
+    plain name-based queryset lookup would otherwise resolve to both.
+    """
+    resolved = {}
+    for module_bay_type in module_bay_types:
+        existing = resolved.get(module_bay_type.name)
+        if existing is None or (existing.manufacturer_id is None and module_bay_type.manufacturer_id is not None):
+            resolved[module_bay_type.name] = module_bay_type
+    return list(resolved.values())
+
+
 def inherit_module_token(position, parent_positions):
     """
     Resolve a single {module} token in a bay position by inheriting from the position

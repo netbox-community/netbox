@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.db.models import Q
 from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
@@ -10,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from dcim.utils import reconcile_port_mappings
+from dcim.utils import dedupe_module_bay_types_by_manufacturer, reconcile_port_mappings
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup
@@ -550,13 +551,34 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Attribute values for the assigned profile, passed as a dictionary')
     )
+    module_bay_types = CSVModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Types of module bays this module type can be installed in (empty = unconstrained)'),
+    )
 
     class Meta:
         model = ModuleType
+        # module_bay_types must stay last: clean_manufacturer() narrows its queryset by
+        # manufacturer before it is itself cleaned, and Django cleans fields in this order.
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
-            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
+            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags', 'module_bay_types',
         ]
+
+    def clean_manufacturer(self):
+        if manufacturer := self.cleaned_data['manufacturer']:
+            module_bay_types = self.fields['module_bay_types']
+            module_bay_types.queryset = module_bay_types.queryset.filter(
+                Q(manufacturer__isnull=True) | Q(manufacturer=manufacturer)
+            )
+
+        return manufacturer
+
+    def clean_module_bay_types(self):
+        return dedupe_module_bay_types_by_manufacturer(self.cleaned_data['module_bay_types'])
 
     def clean(self):
         super().clean()
