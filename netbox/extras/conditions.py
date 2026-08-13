@@ -22,32 +22,14 @@ OPPOSITE_SNAPSHOT = {
     'postchange': 'prechange',
 }
 
-# Sentinel for a snapshot attribute that could not be resolved (missing key or null snapshot). Using a unique object
-# ensures that two independently unresolvable values compare equal to each other, which is the correct semantics for the
-# 'unchanged' operator when neither snapshot has the field.
+# Sentinel for a snapshot attribute that could not be resolved (missing key or null snapshot)
 _MISSING = object()
 
 
 class AbsentData(dict):
     """
     An empty dict standing in for an event payload which cannot be evaluated: one which is
-    absent altogether (a job which recorded no data), or one which is present but unusable
-    (a payload which is not a dict at all, and so has no attributes to address). Either way
-    nothing can be resolved from it, as opposed to a usable payload which merely does not
-    contain a referenced attribute.
-
-    An unusable payload is an anomaly worth reporting and an absent one is routine, but that
-    distinction belongs where the payload is normalized (see extras.events), which reports it
-    once for the event rather than once per rule. By the time conditions are evaluated the two
-    are the same thing: no data to evaluate.
-
-    A condition referencing an attribute of absent data is a non-match. It does not raise
-    InvalidCondition: the absence is a normal property of the event (e.g. a job which
-    recorded no data), not a malformed condition, so it must not abort evaluation of the
-    condition set or log an error for every rule on every such event. Neither does it resolve
-    to a value: every attribute of an absent payload is equally unresolvable, so a value would
-    let a rule fire on data the event never carried - including for an attribute which does
-    not exist at all.
+    absent (a job which recorded no data) or unusable (a payload which is not a dict at all).
     """
     def copy(self):
         # dict.copy() would return a plain dict, silently discarding the marker.
@@ -56,25 +38,12 @@ class AbsentData(dict):
 
 def walk_path(obj, keys, empty_list_is_absent=False):
     """
-    Walk a sequence of keys through obj, returning _MISSING if a key is absent along the way.
+    Walk a sequence of keys through obj, returning _MISSING if a key is absent or null along the way.
 
-    Raises TypeError if the path cannot be walked at all, i.e. if it descends into a value
-    which cannot be indexed by key (e.g. a REST API-style 'status.value' applied to a
-    snapshot, where status is the raw string "active" rather than a nested dict).
-
-    Walkability is determined from the type of the value being descended into, never from
-    its truthiness: an empty string or a zero is just as unwalkable as any other scalar, and
-    must be reported as such rather than being mistaken for an absent key.
-
-    Null values are the exception: a null is no evidence of a malformed path, since there is
-    nothing there to walk either way, so it resolves to _MISSING exactly as an absent key does.
-
-    Descending a key into an empty list maps it across no elements and so yields an empty
-    list, exactly as it yields a list of values for a populated one. An object with no tags
-    thus resolves 'tags.slug' to [], which is a legitimate value for a condition to compare
-    against, not a malformed path. Callers for which an empty list is instead an absence -
-    the snapshot operators, which need a resolved value to serve as evidence that the path is
-    well-formed - can pass empty_list_is_absent=True to get _MISSING.
+    Raises TypeError if the path descends into a value which cannot be indexed by key (e.g. a
+    REST API-style 'status.value' applied to a snapshot, where status is the raw string
+    "active"). Walkability follows from the value's type: an empty string is as unwalkable as any
+    other scalar, not an absent key.
     """
     for key in keys:
         if obj is None:
@@ -199,25 +168,20 @@ class Condition:
     def _references_absent_payload(self, data):
         """
         Return True if self.attr references an attribute of a payload which is absent
-        altogether (an AbsentData payload), e.g. a job event for a job which recorded no data,
-        as opposed to a payload which is present but does not contain the attribute.
-
-        The snapshots key is part of the evaluation context rather than of the payload, so a
-        snapshot path is never treated as referencing an absent payload.
+        altogether (AbsentData), as opposed to one which is present but lacks the attribute.
         """
         return isinstance(data, AbsentData) and self.attr.split('.')[0] not in data
 
     def _references_absent_snapshot(self, data):
         """
         Return True if self.attr is a direct snapshot path (snapshots.prechange.* or
-        snapshots.postchange.*) whose referenced snapshot is null, and whose remaining path the
-        opposite snapshot shows to be resolvable. Create events have no prechange snapshot and
-        delete events have no postchange snapshot.
+        snapshots.postchange.*) whose snapshot is null and whose remaining path the opposite
+        snapshot resolves. Create events have no prechange snapshot, delete events no
+        postchange snapshot.
 
-        Unlike an absent payload, an absent snapshot resolves to null: the snapshot's absence
-        is itself meaningful (the object did not exist before, or does not exist after), and
-        the path is validated below, so a reference which resolves to null has been shown to
-        describe the data rather than merely being unresolvable.
+        Unlike an absent payload, such a reference resolves to null: the snapshot's absence is
+        itself meaningful (the object did not exist before, or does not after), and validating
+        the path below shows the reference to describe the data.
         """
         if not self.attr.startswith(SNAPSHOT_PREFIX):
             return False
@@ -228,15 +192,11 @@ class Condition:
         if which not in snapshots or snapshots[which] is not None:
             return False
 
-        # The referenced snapshot is null. A null snapshot excuses only the absence of data
-        # the event would otherwise have carried, never a path which does not describe the
-        # data at all, so the remainder is validated against the opposite snapshot: only a
-        # path which resolves there is treated as genuinely absent here. A path the opposite
-        # snapshot cannot vouch for - because it cannot be walked at all (e.g. the REST
-        # API-style 'status.value'), or because it resolves to nothing there either (an absent
-        # key, a null, an empty list) - fails closed instead, exactly as it does when both
-        # snapshots are present. Otherwise a typo would resolve to null and fire the rule on
-        # every create or delete, and do so with nothing logged.
+        # The referenced snapshot is null, which excuses only data the event would otherwise
+        # have carried, never a path which does not describe the data. Validate the remainder
+        # against the opposite snapshot so that such a path fails closed here exactly as it does
+        # when both snapshots are present; otherwise a typo would resolve to null and fire the
+        # rule on every create or delete, with nothing logged.
         other = snapshots.get(OPPOSITE_SNAPSHOT.get(which))
         if remainder and other is not None:
             try:
@@ -246,38 +206,27 @@ class Condition:
             if value is _MISSING:
                 return False
 
-        # Nothing to validate against: with the opposite snapshot absent too, the event
-        # carries no data anywhere for the path to be checked against. Treat the data as
-        # absent rather than logging an error for every rule on every such event; testing
-        # for the absent snapshot itself (snapshots.prechange, no remainder) lands here too.
+        # Nothing to validate against: with the opposite snapshot absent too, the event carries
+        # no data anywhere for the path to be checked. Testing for the absent snapshot itself
+        # (snapshots.prechange, no remainder) lands here too.
         return True
 
     def _resolve_snapshot_attrs(self, snapshots):
         """
-        Walk self.attr through both the prechange and postchange snapshots, returning the
-        two resolved values. _MISSING is returned for a snapshot which is absent, which does
-        not contain the attribute, or in which the path cannot be walked at all (e.g. a REST
-        API-style 'status.value', where status is the raw string "active" rather than a
-        nested dict).
+        Walk self.attr through the prechange and postchange snapshots, returning the two
+        resolved values, with _MISSING for a snapshot which is absent, lacks the attribute, or
+        cannot be walked by the path.
 
-        Snapshots use the model serializer format (raw field values), not the REST
-        API format, so e.g. status is stored as "active" not {"value": "active"}.
+        Raises InvalidCondition if the attribute resolves in neither snapshot, leaving nothing
+        to compare: a misspelling, an unwalkable path, or an event which recorded no snapshots.
+        The unresolved state must be reported rather than compared, since any boolean it
+        returned would become a match under negate.
 
-        Raises InvalidCondition if the attribute resolves in neither snapshot, leaving no
-        basis for the comparison: a misspelled or unknown attribute, a path which cannot be
-        walked at all, or an event which recorded no snapshots. The unresolved state must be
-        reported rather than compared, because any value the comparison could return is a
-        boolean which negate turns into a match: 'statsu' with the changed operator and
-        negate set would otherwise fire on every event, which is the very mistake failing
-        closed is meant to catch.
-
-        A path which resolves in one snapshot but not the other describes a real difference
-        between them (a JSON attribute whose value changed shape, say, or an attribute absent
-        from one side), so the unresolved side counts as missing and the comparison proceeds:
-        raising would report the attribute as unchanged even though it demonstrably changed.
-        Only a snapshot which actually yields a value excuses the other side; one which merely
-        resolves to nothing (an absent key, a null, an empty list) offers no evidence that the
-        path describes the data at all.
+        A path which resolves in only one snapshot describes a real difference between them (a
+        JSON attribute whose value changed shape, say), so the unresolved side counts as missing
+        and the comparison proceeds: raising would report as unchanged an attribute which
+        demonstrably changed. Only a snapshot yielding a value excuses the other side; one
+        resolving to nothing is no evidence that the path describes the data.
         """
         keys = self.attr.split('.')
         values = []
@@ -331,15 +280,11 @@ class Condition:
             return not result if self.negate else result
 
         if self._references_absent_payload(data):
-            # There is no payload to evaluate, so the condition cannot be satisfied. Report a
-            # non-match without applying negation: negate inverts the result of a comparison,
-            # and no comparison took place. Inverting would let the rule fire on an event which
-            # carried nothing to match against, and since every attribute of an absent payload
-            # is equally unresolvable, a misspelled attribute would fire it too.
-            #
-            # Unlike an unresolvable snapshot reference this is not reported as an invalid
-            # condition: a job which records no data is routine, and logging an error for every
-            # rule on every such event would bury the malformed conditions worth acting on.
+            # No payload to evaluate, so the condition cannot be satisfied. Negation is not
+            # applied: it inverts the result of a comparison, and none took place - inverting
+            # would fire the rule on an event which carried nothing to match against. Nor is
+            # this an invalid condition: a job which records no data is routine, and logging it
+            # per rule per event would bury the malformed conditions worth acting on.
             return False
 
         absent = self._references_absent_snapshot(data)
@@ -349,10 +294,10 @@ class Condition:
         except TypeError as e:
             if not absent:
                 raise InvalidCondition(f"Invalid data type at '{self.attr}' for '{self.op}' evaluation: {e}")
-            # An absent snapshot resolves to null, which satisfies only a comparison
-            # against null: operators such as contains, regex, and the numeric comparisons
-            # raise a TypeError on None. That is a non-match, not a malformed condition, so
-            # report False (subject to negation below) rather than aborting the condition set.
+            # An absent snapshot resolves to null, which satisfies only a comparison against
+            # null: contains, regex and the numeric comparisons raise TypeError on None. That is
+            # a non-match, not a malformed condition, so report False (subject to negation
+            # below) rather than aborting the condition set.
             result = False
 
         if self.negate:
@@ -395,17 +340,6 @@ class Condition:
         return re.match(self.value, value) is not None
 
     # Snapshot comparison operators
-    # These resolve self.attr in both the prechange and postchange snapshots and compare the
-    # resulting values. _MISSING is used for the side which does not resolve: a snapshot which
-    # is absent (normal for create and delete events), which does not contain the attribute,
-    # or which the path cannot be walked in. At least one side always resolves, since
-    # _resolve_snapshot_attrs() raises InvalidCondition when neither does.
-    #
-    # Fail-closed semantics: an attribute which resolves in no snapshot available for the event
-    # leaves nothing to compare, so it is reported as an invalid condition rather than compared.
-    # Returning a boolean instead would let negate turn the failure into a match, and returning
-    # one quietly would leave a typo evaluating forever with no indication of why. The mistake
-    # is logged by EventRule.eval_conditions(), and the rule does not fire.
 
     def eval_changed(self, snapshots):
         pre, post = self._resolve_snapshot_attrs(snapshots)
