@@ -182,6 +182,19 @@ class ModuleTypeTestCase(TestCase):
         module_type.refresh_from_db()
         self.assertEqual(module_type.interface_template_count, 1)
 
+    def test_module_bay_template_to_yaml_includes_module_bay_types(self):
+        """
+        ModuleBayTemplate.to_yaml() should export its assigned module bay types by name.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        module_bay_template = ModuleBayTemplate.objects.create(module_type=module_type, name='Module Bay 1')
+        module_bay_template.module_bay_types.set([bay_type])
+
+        data = module_bay_template.to_yaml()
+        self.assertEqual(data['module_bay_types'], ['SFP28'])
+
     def test_attributes(self):
         """
         ModuleType.attributes should normalize iterable values into strings for presentation.

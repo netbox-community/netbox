@@ -988,6 +988,7 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
             'position': self.position,
             'enabled': self.enabled,
             'description': self.description,
+            'module_bay_types': [t.name for t in self.module_bay_types.all()],
         }
 
 

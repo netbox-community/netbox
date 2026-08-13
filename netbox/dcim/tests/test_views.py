@@ -998,6 +998,8 @@ port-mappings:
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
   - name: Module Bay 3
 device-bays:
@@ -1018,6 +1020,7 @@ inventory-items:
         manufacturer.save()
         platform = Platform(name='Platform', slug='test-platform', manufacturer=manufacturer)
         platform.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1126,6 +1129,7 @@ inventory-items:
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
         self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
@@ -1648,6 +1652,8 @@ port-mappings:
 module-bays:
   - name: Module Bay 1
     position: 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
     position: 2
   - name: Module Bay 3
@@ -1657,6 +1663,7 @@ module-bays:
         # Create the manufacturer
         manufacturer = Manufacturer(name='Generic', slug='generic')
         manufacturer.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1752,6 +1759,7 @@ module-bays:
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):

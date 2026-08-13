@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
@@ -213,12 +214,36 @@ class PortTemplateMappingImportForm(forms.ModelForm):
 
 
 class ModuleBayTemplateImportForm(forms.ModelForm):
+    module_bay_types = forms.ModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'position', 'description',
+            'device_type', 'module_type', 'name', 'label', 'position', 'description', 'module_bay_types',
         ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            module_bay_types = self.fields['module_bay_types']
+            module_bay_types.queryset = module_bay_types.queryset.filter(
+                Q(manufacturer__isnull=True) | Q(manufacturer=device_type.manufacturer)
+            )
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            module_bay_types = self.fields['module_bay_types']
+            module_bay_types.queryset = module_bay_types.queryset.filter(
+                Q(manufacturer__isnull=True) | Q(manufacturer=module_type.manufacturer)
+            )
+
+        return module_type
 
 
 class DeviceBayTemplateImportForm(forms.ModelForm):
