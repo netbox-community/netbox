@@ -95,21 +95,28 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
     """
     Update child objects when a Location is saved. All updates are queryset update() calls,
     which fire no signals and generate no change records for the affected objects.
+
+    Each query is pinned to the connection the Location was saved on: on an installation
+    with database routers configured, letting the router pick the alias would both write to
+    a different database than the one being saved and leave the row locks below outside the
+    transaction opened here. For the same reason the new Site is assigned by ID: reading
+    instance.site would fetch the related object over a router-selected connection whenever
+    the save left it uncached (a rename, say).
     """
     if created:
         return
-    with transaction.atomic(savepoint=False):
-        instance.get_descendants().update(site=instance.site)
+    with transaction.atomic(using=using, savepoint=False):
+        instance.get_descendants().using(using).update(site_id=instance.site_id)
         # Materialized once so every statement below sees the same membership, even if a
         # concurrent commit renumbers the tree mid-handler.
-        locations = list(instance.get_descendants(include_self=True).values_list('pk', flat=True))
-        Rack.objects.filter(location__in=locations).update(site=instance.site)
-        Device.objects.filter(location__in=locations).update(site=instance.site)
-        PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
-        CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
+        locations = list(instance.get_descendants(include_self=True).using(using).values_list('pk', flat=True))
+        Rack.objects.using(using).filter(location__in=locations).update(site_id=instance.site_id)
+        Device.objects.using(using).filter(location__in=locations).update(site_id=instance.site_id)
+        PowerPanel.objects.using(using).filter(location__in=locations).update(site_id=instance.site_id)
+        CableTermination.objects.using(using).filter(_location__in=locations).update(_site_id=instance.site_id)
         # Update component models for devices in these locations
         for model in COMPONENT_MODELS:
-            model.objects.filter(device__location__in=locations).update(_site=instance.site)
+            model.objects.using(using).filter(device__location__in=locations).update(_site_id=instance.site_id)
 
         # Objects scoped to descendant Locations receive no post_save of their own from the
         # queryset updates above, so their cached scope fields are updated here whenever the
@@ -123,7 +130,8 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
             # a concurrent scope change on that Site serializes against this move; an
             # unlocked read could stamp region/group values from before that change.
             site = (
-                Site.objects.filter(pk=instance.site_id)
+                Site.objects.using(using)
+                .filter(pk=instance.site_id)
                 .select_for_update(no_key=True)
                 .values('region_id', 'group_id')
                 .first()
@@ -132,9 +140,12 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
                 # Select rows through the authoritative scope rather than the cached
                 # _location, which may itself be stale; scope_id doubles as the correct
                 # _location value for Location-scoped rows.
-                location_ct = ContentType.objects.get_for_model(Location)
+                # The content type is read on the saving connection as well, since its ID is
+                # fed straight into the pinned filter below; a router-selected read could
+                # return an ID which means something else on that connection.
+                location_ct = ContentType.objects.db_manager(using).get_for_model(Location)
                 for model in (Prefix, Cluster, WirelessLAN):
-                    model.objects.filter(scope_type=location_ct, scope_id__in=locations).update(
+                    model.objects.using(using).filter(scope_type=location_ct, scope_id__in=locations).update(
                         _location_id=F('scope_id'),
                         _site_id=instance.site_id,
                         _region_id=site['region_id'],
@@ -160,31 +171,38 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
 
 
 @receiver(post_save, sender=Rack)
-def handle_rack_site_change(instance, created, **kwargs):
+def handle_rack_site_change(instance, created, using=None, **kwargs):
     """
-    Update child Devices if Site or Location assignment has changed.
+    Update child Devices if Site or Location assignment has changed. Queries are pinned to
+    the connection the Rack was saved on, and the new values are assigned by ID so that no
+    related object is fetched over a router-selected connection.
     """
     if not created:
-        Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
+        Device.objects.using(using).filter(rack=instance).update(
+            site_id=instance.site_id,
+            location_id=instance.location_id,
+        )
         # Update component models for devices in this rack
         for model in COMPONENT_MODELS:
-            model.objects.filter(device__rack=instance).update(
-                _site=instance.site,
-                _location=instance.location,
+            model.objects.using(using).filter(device__rack=instance).update(
+                _site_id=instance.site_id,
+                _location_id=instance.location_id,
             )
 
 
 @receiver(post_save, sender=Device)
-def handle_device_site_change(instance, created, **kwargs):
+def handle_device_site_change(instance, created, using=None, **kwargs):
     """
     Update child components to update the parent Site, Location, and Rack when a Device is saved.
+    Queries are pinned to the connection the Device was saved on, and the new values are
+    assigned by ID so that no related object is fetched over a router-selected connection.
     """
     if not created:
         for model in COMPONENT_MODELS:
-            model.objects.filter(device=instance).update(
-                _site=instance.site,
-                _location=instance.location,
-                _rack=instance.rack,
+            model.objects.using(using).filter(device=instance).update(
+                _site_id=instance.site_id,
+                _location_id=instance.location_id,
+                _rack_id=instance.rack_id,
             )
 
 
@@ -323,9 +341,30 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
         instance.primary_mac_address.save()
 
 
+def _get_scope_object(scope_type_id, scope_id, using):
+    """
+    Return the object referenced by a CachedScopeMixin generic scope, read on the given
+    database connection. The ancestors which cache_related_objects() traverses are selected
+    in the same query, so recomputing the cached fields from the returned object issues no
+    further reads. Returns None if the scope is unset or dangling.
+    """
+    if scope_type_id is None or scope_id is None:
+        return None
+    scope_type = ContentType.objects.db_manager(using).get_for_id(scope_type_id)
+    scope_model = scope_type.model_class()
+    if scope_model is None:
+        return None
+    queryset = scope_model._base_manager.using(using)
+    if scope_model is Location:
+        queryset = queryset.select_related('site__region', 'site__group')
+    elif scope_model is Site:
+        queryset = queryset.select_related('region', 'group')
+    return queryset.filter(pk=scope_id).first()
+
+
 @receiver(post_save, sender=Location)
 @receiver(post_save, sender=Site)
-def sync_cached_scope_fields(instance, created, **kwargs):
+def sync_cached_scope_fields(instance, created, using=None, **kwargs):
     """
     Rebuild cached scope fields for all CachedScopeMixin-based models
     affected by a change to a Site or Location.
@@ -362,9 +401,9 @@ def sync_cached_scope_fields(instance, created, **kwargs):
 
     # These models are explicitly listed because they all subclass CachedScopeMixin
     # and therefore require their cached scope fields to be recomputed.
-    with transaction.atomic(savepoint=False):
+    with transaction.atomic(using=using, savepoint=False):
         for model in (Prefix, Cluster, WirelessLAN):
-            qs = model.objects.filter(**filters)
+            qs = model.objects.using(using).filter(**filters)
 
             # Recompute the cached fields once per distinct scope, then apply each result with a
             # single UPDATE. This avoids loading every object into memory as well as the per-row
@@ -376,11 +415,19 @@ def sync_cached_scope_fields(instance, created, **kwargs):
             # all-or-nothing outside a request transaction.
             scopes = qs.values_list('scope_type_id', 'scope_id').order_by('scope_type_id', 'scope_id').distinct()
             for scope_type_id, scope_id in scopes:
-                ref = model(scope_type_id=scope_type_id, scope_id=scope_id)
+                # Resolve the scope (and the ancestors cache_related_objects() traverses) on
+                # the saving connection, then hand it to a throwaway reference object with
+                # its relations already populated, so that recomputing the cached fields
+                # reads nothing further. Assigning ref._state.db alone would not suffice:
+                # Django consults DATABASE_ROUTERS first for related-object lookups and only
+                # falls back to the instance's recorded database when every router declines.
+                ref = model()
+                ref._state.db = using
+                ref.scope = _get_scope_object(scope_type_id, scope_id, using)
                 ref.cache_related_objects()
                 qs.filter(scope_type_id=scope_type_id, scope_id=scope_id).update(
-                    _location=ref._location,
-                    _site=ref._site,
-                    _site_group=ref._site_group,
-                    _region=ref._region,
+                    _location_id=ref._location_id,
+                    _site_id=ref._site_id,
+                    _site_group_id=ref._site_group_id,
+                    _region_id=ref._region_id,
                 )
