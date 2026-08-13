@@ -275,8 +275,7 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertEqual(
-            form.errors['module_bay_types'],
-            ['Select a valid choice. Nonexistent is not one of the available choices.'],
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
         )
 
     def test_module_bay_types_prefers_manufacturer_specific_match_over_global_for_module_type(self):
@@ -362,6 +361,40 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
             set(original.module_bay_types.values_list('name', flat=True)),
         )
 
+    def test_module_bay_types_permits_a_different_manufacturers_type(self):
+        """
+        The UI (ModuleBayTemplateForm) and REST API place no manufacturer restriction on
+        module_bay_types -- a third-party device may legitimately declare a bay compatible
+        with another manufacturer's proprietary bay type. Import must permit the same, and a
+        type assigned this way must survive an export/re-import round trip rather than
+        becoming permanently unimportable.
+        """
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        cisco_bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(list(module_bay_template.module_bay_types.all()), [cisco_bay_type])
+
+        exported = module_bay_template.to_yaml()['module_bay_types']
+        reimport_form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': exported,
+        })
+        self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
+        self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
+
 
 class ModuleTypeImportFormTestCase(TestCase):
 
@@ -397,6 +430,37 @@ class ModuleTypeImportFormTestCase(TestCase):
         module_type = form.save()
         self.assertEqual(list(module_type.module_bay_types.all()), [scoped_type])
         self.assertNotIn(global_type, module_type.module_bay_types.all())
+
+    def test_module_bay_types_permits_a_different_manufacturers_type(self):
+        """
+        The UI (ModuleTypeForm) and REST API place no manufacturer restriction on
+        module_bay_types -- a third-party module may legitimately declare compatibility with
+        another manufacturer's proprietary bay type. Import must permit the same, and a type
+        created this way must survive an export/re-import round trip rather than becoming
+        permanently unimportable.
+        """
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        cisco_bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+
+        form = ModuleTypeImportForm({
+            'manufacturer': juniper.name,
+            'model': 'Juniper Line Card',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_type = form.save()
+        self.assertEqual(list(module_type.module_bay_types.all()), [cisco_bay_type])
+
+        exported = yaml.safe_load(module_type.to_yaml())['module_bay_types']
+        reimport_form = ModuleTypeImportForm({
+            'manufacturer': juniper.name,
+            'model': 'Juniper Line Card 2',
+            'module_bay_types': exported,
+        })
+        self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
+        self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
 
 
 class ModuleFormTestCase(TestCase):

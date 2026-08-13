@@ -561,24 +561,10 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = ModuleType
-        # module_bay_types must stay last: clean_manufacturer() narrows its queryset by
-        # manufacturer before it is itself cleaned, and Django cleans fields in this order.
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
             'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags', 'module_bay_types',
         ]
-
-    def clean_manufacturer(self):
-        if manufacturer := self.cleaned_data['manufacturer']:
-            module_bay_types = self.fields['module_bay_types']
-            module_bay_types.queryset = module_bay_types.queryset.filter(
-                Q(manufacturer__isnull=True) | Q(manufacturer=manufacturer)
-            )
-
-        return manufacturer
-
-    def clean_module_bay_types(self):
-        return dedupe_module_bay_types_by_manufacturer(self.cleaned_data['module_bay_types'])
 
     def clean(self):
         super().clean()
@@ -590,6 +576,11 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         # Default attribute_data to an empty dictionary if a profile is specified (to enforce schema validation)
         if self.cleaned_data.get('profile') and not self.cleaned_data.get('attribute_data'):
             self.cleaned_data['attribute_data'] = {}
+
+        if module_bay_types := self.cleaned_data.get('module_bay_types'):
+            self.cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
+                module_bay_types, self.cleaned_data.get('manufacturer'),
+            )
 
 
 class DeviceRoleImportForm(NestedGroupModelImportForm):

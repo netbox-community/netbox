@@ -8,19 +8,33 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
-def dedupe_module_bay_types_by_manufacturer(module_bay_types):
+def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None):
     """
-    Given an iterable of ModuleBayType instances resolved by name, collapse any sharing a
-    name to a single entry, preferring a manufacturer-specific match over a global one.
+    Collapse an iterable of ModuleBayType instances resolved by name to one entry per name,
+    preferring (in order) an exact match on *manufacturer*, then a global (manufacturer-less)
+    type, then any remaining candidate.
 
-    ModuleBayType's unique constraint is on (manufacturer, name), not name alone, so a
-    global type and a manufacturer-scoped type can legitimately share the same name; a
-    plain name-based queryset lookup would otherwise resolve to both.
+    ModuleBayType's uniqueness is scoped to (manufacturer, name), not name alone, so two
+    different manufacturers -- or a global type and a manufacturer-scoped one -- can
+    legitimately share a name. This does not exclude any manufacturer's types: a module or
+    bay may legitimately declare compatibility with another manufacturer's proprietary bay
+    type (e.g. a third-party line card), so callers must not scope the underlying queryset
+    by manufacturer -- only this preference order, for disambiguating an otherwise-ambiguous
+    name, is manufacturer-aware.
     """
+    manufacturer_id = manufacturer.pk if manufacturer else None
+
+    def preference(module_bay_type):
+        if module_bay_type.manufacturer_id == manufacturer_id:
+            return 0
+        if module_bay_type.manufacturer_id is None:
+            return 1
+        return 2
+
     resolved = {}
     for module_bay_type in module_bay_types:
         existing = resolved.get(module_bay_type.name)
-        if existing is None or (existing.manufacturer_id is None and module_bay_type.manufacturer_id is not None):
+        if existing is None or preference(module_bay_type) < preference(existing):
             resolved[module_bay_type.name] = module_bay_type
     return list(resolved.values())
 

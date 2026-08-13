@@ -1,5 +1,4 @@
 from django import forms
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
@@ -224,10 +223,6 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ModuleBayTemplate
-        # module_bay_types must stay last: clean_device_type/clean_module_type narrow its
-        # queryset by manufacturer before it is itself cleaned, and Django cleans fields in
-        # this order. Without that narrowing, dedupe_module_bay_types_by_manufacturer() could
-        # pick an arbitrary manufacturer's type for a name shared across several.
         fields = [
             'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
             'module_bay_types',
@@ -235,31 +230,28 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
 
     def clean_enabled(self):
         # A dict-bound BooleanField resolves a missing key to False, not the model's own
-        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior.
+        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior. Reads
+        # self.data directly (no add_prefix()/QueryDict handling) because, like that form,
+        # this one is only ever bound to a plain dict of import data, never a real HTML
+        # checkbox POST.
         if 'enabled' not in self.data:
             return True
         return self.cleaned_data['enabled']
 
-    def _scope_module_bay_types(self, manufacturer):
-        module_bay_types = self.fields['module_bay_types']
-        module_bay_types.queryset = module_bay_types.queryset.filter(
-            Q(manufacturer__isnull=True) | Q(manufacturer=manufacturer)
-        )
+    def clean(self):
+        cleaned_data = super().clean()
 
-    def clean_device_type(self):
-        if device_type := self.cleaned_data['device_type']:
-            self._scope_module_bay_types(device_type.manufacturer)
+        if module_bay_types := cleaned_data.get('module_bay_types'):
+            device_type = cleaned_data.get('device_type')
+            module_type = cleaned_data.get('module_type')
+            manufacturer = device_type.manufacturer if device_type else (
+                module_type.manufacturer if module_type else None
+            )
+            cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
+                module_bay_types, manufacturer,
+            )
 
-        return device_type
-
-    def clean_module_type(self):
-        if module_type := self.cleaned_data['module_type']:
-            self._scope_module_bay_types(module_type.manufacturer)
-
-        return module_type
-
-    def clean_module_bay_types(self):
-        return dedupe_module_bay_types_by_manufacturer(self.cleaned_data['module_bay_types'])
+        return cleaned_data
 
 
 class DeviceBayTemplateImportForm(forms.ModelForm):

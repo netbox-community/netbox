@@ -1,11 +1,9 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db import connection
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
-from django.test.utils import CaptureQueriesContext
 
 from circuits.models import *
 from core.models import ObjectType
@@ -153,32 +151,6 @@ class DeviceTypeTestCase(TestCase):
         InterfaceTemplate.objects.get(device_type=device_type, name='Interface 1').delete()
         device_type.refresh_from_db()
         self.assertEqual(device_type.interface_template_count, 1)
-
-    def test_bulk_yaml_export_prefetches_module_bay_types(self):
-        """
-        DeviceTypeListView.export_yaml() prefetches modulebaytemplates__module_bay_types so
-        that to_yaml()'s per-bay module_bay_types lookup doesn't add one query per module bay
-        template across the exported queryset.
-        """
-        from dcim.views import DeviceTypeListView
-
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='dt1')
-        for i in range(3):
-            bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
-            bay.module_bay_types.set([bay_type])
-
-        with CaptureQueriesContext(connection) as unprefetched:
-            [obj.to_yaml() for obj in DeviceType.objects.filter(pk=device_type.pk)]
-
-        view = DeviceTypeListView()
-        view.queryset = DeviceType.objects.filter(pk=device_type.pk)
-        with CaptureQueriesContext(connection) as prefetched:
-            view.export_yaml()
-
-        # Without the prefetch, each of the 3 bays issues its own module_bay_types query.
-        self.assertLess(len(prefetched), len(unprefetched))
 
 
 class ModuleTypeTestCase(TestCase):

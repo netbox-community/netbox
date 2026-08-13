@@ -1449,8 +1449,10 @@ class DeviceTypeListView(generic.ObjectListView):
 
     def export_yaml(self):
         # to_yaml() walks each device type's module bay templates and, for each, its
-        # module_bay_types -- prefetch both so bulk export doesn't issue one query per
-        # module bay template across the whole queryset.
+        # module_bay_types -- prefetch both so this one relation doesn't add a query per
+        # module bay template across the whole queryset. to_yaml()'s other component-template
+        # relations (interfaces, ports, etc.) are unprefetched here as they were before this
+        # relation existed, and remain their own N+1 across a large export.
         self.queryset = self.queryset.prefetch_related('modulebaytemplates__module_bay_types')
         return super().export_yaml()
 
@@ -1911,8 +1913,11 @@ class ModuleTypeListView(generic.ObjectListView):
 
     def export_yaml(self):
         # to_yaml() reads module_bay_types directly, plus each nested module bay template's
-        # own module_bay_types -- prefetch both so bulk export doesn't issue one query per
-        # module type/module bay template across the whole queryset.
+        # own module_bay_types -- prefetch both so these relations don't add a query per
+        # module type/module bay template across the whole queryset. to_yaml()'s other
+        # component-template relations (interfaces, ports, etc.) are unprefetched here as
+        # they were before these relations existed, and remain their own N+1 across a large
+        # export.
         self.queryset = self.queryset.prefetch_related(
             'module_bay_types', 'modulebaytemplates__module_bay_types',
         )

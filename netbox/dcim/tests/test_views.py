@@ -7,8 +7,10 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.http import StreamingHttpResponse
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import EUI
 
@@ -17,6 +19,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import (
@@ -1139,6 +1142,38 @@ inventory-items:
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
+    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
+        """
+        DeviceTypeListView.export_yaml() prefetches modulebaytemplates__module_bay_types so
+        that to_yaml()'s per-bay module_bay_types lookup doesn't add one query per module bay
+        template as the number of bays grows.
+        """
+        manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
+
+        def make_device_type(model_name, bay_count):
+            device_type = DeviceType.objects.create(
+                manufacturer=manufacturer, model=model_name, slug=model_name.lower().replace(' ', '-'),
+            )
+            for i in range(bay_count):
+                bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
+                bay.module_bay_types.set([bay_type])
+            return device_type
+
+        one_bay_device_type = make_device_type('Export Query DT One Bay', 1)
+        five_bay_device_type = make_device_type('Export Query DT Five Bays', 5)
+
+        view = DeviceTypeListView()
+        view.queryset = DeviceType.objects.filter(pk=one_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as one_bay_queries:
+            view.export_yaml()
+
+        view.queryset = DeviceType.objects.filter(pk=five_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as five_bay_queries:
+            view.export_yaml()
+
+        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
+
     def test_import_error_numbering(self):
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1760,6 +1795,37 @@ module-bays:
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+
+    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
+        """
+        ModuleTypeListView.export_yaml() prefetches both module_bay_types (on the module type
+        itself) and modulebaytemplates__module_bay_types (on its nested module bay templates),
+        so neither adds a query per module bay template as the number of bays grows.
+        """
+        manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
+
+        def make_module_type(model_name, bay_count):
+            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=model_name)
+            module_type.module_bay_types.set([bay_type])
+            for i in range(bay_count):
+                bay = ModuleBayTemplate.objects.create(module_type=module_type, name=f'Bay {i}')
+                bay.module_bay_types.set([bay_type])
+            return module_type
+
+        one_bay_module_type = make_module_type('Export Query MT One Bay', 1)
+        five_bay_module_type = make_module_type('Export Query MT Five Bays', 5)
+
+        view = ModuleTypeListView()
+        view.queryset = ModuleType.objects.filter(pk=one_bay_module_type.pk)
+        with CaptureQueriesContext(connection) as one_bay_queries:
+            view.export_yaml()
+
+        view.queryset = ModuleType.objects.filter(pk=five_bay_module_type.pk)
+        with CaptureQueriesContext(connection) as five_bay_queries:
+            view.export_yaml()
+
+        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
