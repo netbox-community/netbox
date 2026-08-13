@@ -12,11 +12,14 @@ Checks:
      duplicates these requirement strings literally; this catches drift, for example a
      plugin pin bumped in one place only. Aggregates must not reference netbox itself,
      which would defeat this guard.
+  5. Metadata-Version equals the core-metadata-version pinned in pyproject.toml, which
+     must be pinned identically for the wheel and sdist targets.
 """
 
 import importlib.util
 import re
 import sys
+import tomllib
 import zipfile
 from collections import defaultdict
 from email.parser import Parser
@@ -87,6 +90,33 @@ def split_requires(metadata):
     return core, by_extra
 
 
+def read_core_metadata_versions(root):
+    """Return the per-target core-metadata-version pins from pyproject.toml."""
+    targets = tomllib.loads((root / 'pyproject.toml').read_text())['tool']['hatch']['build']['targets']
+    return {name: targets.get(name, {}).get('core-metadata-version') for name in ('wheel', 'sdist')}
+
+
+def check_metadata_version(metadata, root):
+    configured = read_core_metadata_versions(root)
+    errors = [
+        f'pyproject.toml does not pin core-metadata-version for the {name} target'
+        for name, value in configured.items() if value is None
+    ]
+    if errors:
+        return errors
+    if configured['wheel'] != configured['sdist']:
+        errors.append(
+            'core-metadata-version differs between targets: '
+            f'wheel {configured["wheel"]}, sdist {configured["sdist"]}'
+        )
+    if metadata['Metadata-Version'] != configured['wheel']:
+        errors.append(
+            f'metadata version mismatch: wheel has {metadata["Metadata-Version"]}, '
+            f'pyproject.toml pins {configured["wheel"]}'
+        )
+    return errors
+
+
 def check_version(metadata, root, hatch_metadata):
     release_text = (root / 'netbox' / 'release.yaml').read_text()
     version = hatch_metadata._read_release_field(release_text, 'version')
@@ -140,6 +170,7 @@ def main(argv):
     metadata = read_metadata(argv[1])
     core, by_extra = split_requires(metadata)
     errors = [
+        *check_metadata_version(metadata, root),
         *check_version(metadata, root, hatch_metadata),
         *check_core_requires(core, root, hatch_metadata),
         *check_extras(metadata, by_extra),
@@ -149,7 +180,10 @@ def main(argv):
         for error in errors:
             print(f'  - {error}')
         return 1
-    print(f'OK: wheel {metadata["Version"]} matches release.yaml, requirements.txt, and expected extras')
+    print(
+        f'OK: wheel {metadata["Version"]} matches release.yaml, requirements.txt, expected extras, '
+        'and the core metadata pin'
+    )
     return 0
 
 
