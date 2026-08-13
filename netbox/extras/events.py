@@ -176,9 +176,17 @@ def process_event_rules(event_rules, object_type, event):
     # event_context['object_type']: job-lifecycle events pass it only as this parameter.
     event['object_type'] = object_type
 
-    # Normalize the event payload to a dict once for all rules. A null payload is routine
-    # for job events (the job simply recorded no data); any other non-dict is unexpected
-    # and worth surfacing, but must not take down event processing for the whole batch.
+    # Normalize the event payload to a dict once for all rules. A null payload is routine for
+    # job events (the job simply recorded no data); any other non-dict is unexpected and worth
+    # surfacing, but must not take down event processing for the whole batch. This is the only
+    # place the two are distinguished, and it reports the anomaly once for the event rather
+    # than once per rule.
+    #
+    # Both become AbsentData, which conditions treat as data absent altogether: neither offers
+    # an attribute to resolve, so a conditioned rule fails closed on either rather than
+    # matching a comparison against null. A rule with no conditions still fires, receiving the
+    # empty payload - dropping an unusable payload is deliberate, since there is nothing
+    # meaningful to hand the action.
     data = event['data']
     if not isinstance(data, dict):
         if data is not None:

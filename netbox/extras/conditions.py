@@ -30,8 +30,16 @@ _MISSING = object()
 
 class AbsentData(dict):
     """
-    An empty dict standing in for event data which is absent altogether, as opposed to data
-    which is present but does not contain a referenced attribute.
+    An empty dict standing in for an event payload which cannot be evaluated: one which is
+    absent altogether (a job which recorded no data), or one which is present but unusable
+    (a payload which is not a dict at all, and so has no attributes to address). Either way
+    nothing can be resolved from it, as opposed to a usable payload which merely does not
+    contain a referenced attribute.
+
+    An unusable payload is an anomaly worth reporting and an absent one is routine, but that
+    distinction belongs where the payload is normalized (see extras.events), which reports it
+    once for the event rather than once per rule. By the time conditions are evaluated the two
+    are the same thing: no data to evaluate.
 
     A condition referencing an attribute of absent data is a non-match. It does not raise
     InvalidCondition: the absence is a normal property of the event (e.g. a job which

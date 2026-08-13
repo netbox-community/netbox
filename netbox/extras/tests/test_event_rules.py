@@ -673,6 +673,31 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(self.queue.count, 1)
             self.assertEqual(self.queue.jobs[0].kwargs['data'], {})
 
+    def test_job_event_with_non_dict_data_and_conditions(self):
+        """
+        An invalid payload is no more evaluable than an absent one, so a conditioned rule must
+        fail closed for it — including for the phrasings which a payload normalized to an empty
+        dict would otherwise satisfy. The invalid payload is still reported once for the event,
+        as the anomaly it is.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        for conditions in (
+            {'attr': 'status', 'value': None},
+            {'attr': 'status', 'value': 'completed', 'negate': True},
+            {'attr': 'status', 'value': 'completed'},
+        ):
+            event_rule = self._job_event_rule(conditions=conditions)
+            for payload in ([1, 2], 'a string', 42):
+                with self.subTest(conditions=conditions, payload=payload):
+                    self.queue.empty()
+                    with self.assertLogs('netbox.events_processor', level='WARNING') as cm:
+                        process_job_end_event_rules(
+                            Mock(object_type=script_type, data=payload, user=self.user)
+                        )
+                    self.assertIn(type(payload).__name__, cm.output[0])
+                    self.assertEqual(self.queue.count, 0)
+            event_rule.delete()
+
     def test_no_matching_rules_leaves_payload_unserialized(self):
         """
         Normalizing the payload must not defeat EventContext's lazy serialization: an
