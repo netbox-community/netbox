@@ -5,19 +5,19 @@ from django.utils.html import escape
 
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS, IMAGE_URL_SCHEMES
 
-SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
-
 __all__ = (
     'clean_html',
     'foreground_color',
     'highlight',
 )
 
+SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
+
 
 def _attribute_filter(tag, attr, value):
     """Returns str to keep/modify attribute, None to remove it."""
     if tag == 'img' and attr == 'src':
-        match = SCHEME_RE.match(value)
+        match = SCHEME_RE.match(value.strip())
         if match and match.group(1).lower() not in IMAGE_URL_SCHEMES:
             return None
     return value
