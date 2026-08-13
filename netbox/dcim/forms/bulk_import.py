@@ -1439,16 +1439,35 @@ class ModuleBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    module_bay_types = CSVModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Types of module bays this bay accepts (empty = unconstrained)'),
+    )
 
     class Meta:
         model = ModuleBay
-        fields = ('device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags')
+        fields = (
+            'device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags', 'module_bay_types',
+        )
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
             return True
         return self.cleaned_data['enabled']
+
+    def clean(self):
+        super().clean()
+
+        if module_bay_types := self.cleaned_data.get('module_bay_types'):
+            device = self.cleaned_data.get('device')
+            manufacturer = device.device_type.manufacturer if device else None
+            self.cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
+                module_bay_types, manufacturer,
+            )
 
 
 class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):

@@ -1827,6 +1827,44 @@ module-bays:
 
         self.assertEqual(len(one_bay_queries), len(five_bay_queries))
 
+    def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
+        """
+        Companion to test_..._is_constant above: that test holds the module type count fixed
+        at 1 and varies bay count, so it can't detect a regression in the module_bay_types
+        prefetch on ModuleType itself (which saves one query per module TYPE row, not per
+        bay) -- a 1-row queryset can't show a per-row saving. Comparing module-type COUNTS
+        (e.g. 1 vs. 5) doesn't work either: to_yaml() touches several other per-instance
+        relations (manufacturer, port_mappings, ...) that legitimately scale with row count
+        regardless of this fix, which would swamp the signal. Instead, compare the *same*
+        5-row queryset with and without the module_bay_types prefetch, isolating exactly what
+        it saves.
+        """
+        manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
+
+        module_types = []
+        for i in range(5):
+            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=f'Export Query MT {i}')
+            module_type.module_bay_types.set([bay_type])
+            module_types.append(module_type)
+        pks = [mt.pk for mt in module_types]
+
+        with CaptureQueriesContext(connection) as unprefetched:
+            [obj.to_yaml() for obj in ModuleType.objects.filter(pk__in=pks)]
+
+        view = ModuleTypeListView()
+        view.queryset = ModuleType.objects.filter(pk__in=pks)
+        with CaptureQueriesContext(connection) as prefetched:
+            view.export_yaml()
+
+        # Without the prefetch, each of the 5 module types issues its own module_bay_types
+        # query. The exact delta isn't asserted -- prefetching modulebaytemplates (even when
+        # empty, as here) also lets to_yaml()'s .exists() check on that relation short-circuit
+        # from the prefetch cache instead of querying, so the totals reflect more than just
+        # module_bay_types -- but dropping the module_bay_types prefetch can only narrow this
+        # gap, never widen it, so a strict inequality still catches that regression.
+        self.assertGreater(len(unprefetched), len(prefetched))
+
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
         url = reverse('dcim:moduletype_list')

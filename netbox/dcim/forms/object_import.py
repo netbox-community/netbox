@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
 from dcim.utils import dedupe_module_bay_types_by_manufacturer
+from utilities.forms.fields import CSVModelMultipleChoiceField
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
@@ -214,7 +215,13 @@ class PortTemplateMappingImportForm(forms.ModelForm):
 
 
 class ModuleBayTemplateImportForm(forms.ModelForm):
-    module_bay_types = forms.ModelMultipleChoiceField(
+    # CSVModelMultipleChoiceField (not the plain ModelMultipleChoiceField used elsewhere in
+    # this file) so a scalar name string is accepted alongside a list -- this form is
+    # YAML-only, but ModuleTypeImportForm's equivalent field also serves plain CSV import and
+    # therefore must accept both; keeping the two consistent means `module_bay_types: SFP28`
+    # behaves the same whether it appears at the module-type level or under `module-bays:`
+    # within the same YAML document.
+    module_bay_types = CSVModelMultipleChoiceField(
         label=_('Module bay types'),
         queryset=ModuleBayType.objects.all(),
         to_field_name='name',

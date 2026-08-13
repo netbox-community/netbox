@@ -396,6 +396,42 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
         self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
 
 
+class ModuleBayImportFormTestCase(TestCase):
+    """
+    ModuleBayImportForm covers real ModuleBay instances created directly via CSV (as
+    opposed to ModuleBayTemplateImportForm, which covers templates nested under a device or
+    module type's YAML definition) -- the same class of round-trip gap, on the instance side.
+    """
+
+    def test_module_bay_types_csv_import(self):
+        device = create_test_device('Module Bay Import Device')
+        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+
+        form = ModuleBayImportForm({
+            'device': device.name,
+            'name': 'Bay 1',
+            'module_bay_types': 'SFP28',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module_bay = form.save()
+        self.assertEqual(list(module_bay.module_bay_types.all()), [bay_type])
+
+    def test_module_bay_types_prefers_devices_own_manufacturer(self):
+        device = create_test_device('Module Bay Import Device')
+        own_manufacturer = device.device_type.manufacturer
+        other_manufacturer = Manufacturer.objects.create(name='Other Mfr', slug='other-mfr')
+        own_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-own', manufacturer=own_manufacturer)
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-other', manufacturer=other_manufacturer)
+
+        form = ModuleBayImportForm({
+            'device': device.name,
+            'name': 'Bay 1',
+            'module_bay_types': 'SFP28',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(list(form.save().module_bay_types.all()), [own_type])
+
+
 class ModuleTypeImportFormTestCase(TestCase):
 
     def test_module_bay_types_round_trip(self):
@@ -496,6 +532,27 @@ class ModuleTypeImportFormTestCase(TestCase):
         })
         self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
         self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
+
+    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
+        """
+        A single other-manufacturer match is permitted (see above), but if the name matches
+        two or more *different* foreign manufacturers, there's no principled way to choose
+        one -- silently picking whichever sorts first would create a wrong FK link with no
+        signal to the importer. This must be refused rather than resolved arbitrarily.
+        """
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        arista = Manufacturer.objects.create(name='Arista', slug='arista')
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
+
+        form = ModuleTypeImportForm({
+            'manufacturer': juniper.name,
+            'model': 'Juniper Line Card',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay_types', form.errors)
 
 
 class ModuleFormTestCase(TestCase):

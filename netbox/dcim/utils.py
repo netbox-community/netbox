@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import router, transaction
 from django.utils.translation import gettext as _
 
@@ -12,7 +13,7 @@ def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None)
     """
     Collapse an iterable of ModuleBayType instances resolved by name to one entry per name,
     preferring (in order) an exact match on *manufacturer*, then a global (manufacturer-less)
-    type, then any remaining candidate.
+    type.
 
     ModuleBayType's uniqueness is scoped to (manufacturer, name), not name alone, so two
     different manufacturers -- or a global type and a manufacturer-scoped one -- can
@@ -21,6 +22,11 @@ def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None)
     type (e.g. a third-party line card), so callers must not scope the underlying queryset
     by manufacturer -- only this preference order, for disambiguating an otherwise-ambiguous
     name, is manufacturer-aware.
+
+    Raises ValidationError if a name resolves to more than one candidate that ties for the
+    best preference tier (e.g. two different manufacturers, neither *manufacturer* nor
+    unset, share the name) -- there's no principled way to pick a winner there, so the
+    import is refused rather than silently linked to an arbitrary one.
     """
     manufacturer_id = manufacturer.pk if manufacturer else None
 
@@ -31,12 +37,26 @@ def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None)
             return 1
         return 2
 
-    resolved = {}
+    by_name = defaultdict(list)
     for module_bay_type in module_bay_types:
-        existing = resolved.get(module_bay_type.name)
-        if existing is None or preference(module_bay_type) < preference(existing):
-            resolved[module_bay_type.name] = module_bay_type
-    return list(resolved.values())
+        by_name[module_bay_type.name].append(module_bay_type)
+
+    resolved = []
+    for name, candidates in by_name.items():
+        best_rank = min(preference(c) for c in candidates)
+        best = [c for c in candidates if preference(c) == best_rank]
+        if len(best) > 1:
+            manufacturers = ', '.join(sorted(c.manufacturer.name for c in best))
+            raise ValidationError({
+                'module_bay_types': _(
+                    "Module bay type \"{name}\" is ambiguous: it belongs to more than one "
+                    "manufacturer ({manufacturers}), none of which is this type's own "
+                    "manufacturer."
+                ).format(name=name, manufacturers=manufacturers)
+            })
+        resolved.append(best[0])
+
+    return resolved
 
 
 def inherit_module_token(position, parent_positions):
