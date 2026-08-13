@@ -305,6 +305,8 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
     module_bay_types = columns.ManyToManyColumn(
         verbose_name=_('Bay Types'),
         linkify_item=True,
+        # __str__() includes the manufacturer, but import resolves by name alone.
+        transform=lambda obj: obj.name,
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')

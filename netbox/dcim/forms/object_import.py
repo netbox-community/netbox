@@ -215,12 +215,9 @@ class PortTemplateMappingImportForm(forms.ModelForm):
 
 
 class ModuleBayTemplateImportForm(forms.ModelForm):
-    # CSVModelMultipleChoiceField (not the plain ModelMultipleChoiceField used elsewhere in
-    # this file) so a scalar name string is accepted alongside a list -- this form is
-    # YAML-only, but ModuleTypeImportForm's equivalent field also serves plain CSV import and
-    # therefore must accept both; keeping the two consistent means `module_bay_types: SFP28`
-    # behaves the same whether it appears at the module-type level or under `module-bays:`
-    # within the same YAML document.
+    # CSVModelMultipleChoiceField, not the plain ModelMultipleChoiceField used elsewhere in
+    # this file, so a scalar name is accepted alongside a list -- matches ModuleTypeImportForm's
+    # equivalent field, which also serves plain CSV import.
     module_bay_types = CSVModelMultipleChoiceField(
         label=_('Module bay types'),
         queryset=ModuleBayType.objects.all(),
@@ -237,10 +234,7 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
 
     def clean_enabled(self):
         # A dict-bound BooleanField resolves a missing key to False, not the model's own
-        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior. Reads
-        # self.data directly (no add_prefix()/QueryDict handling) because, like that form,
-        # this one is only ever bound to a plain dict of import data, never a real HTML
-        # checkbox POST.
+        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior.
         if 'enabled' not in self.data:
             return True
         return self.cleaned_data['enabled']

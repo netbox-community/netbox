@@ -1143,11 +1143,7 @@ inventory-items:
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
     def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
-        """
-        DeviceTypeListView.export_yaml() prefetches modulebaytemplates__module_bay_types so
-        that to_yaml()'s per-bay module_bay_types lookup doesn't add one query per module bay
-        template as the number of bays grows.
-        """
+        """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
         manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
 
@@ -1797,18 +1793,8 @@ module-bays:
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
     def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
-        """
-        Comparing module-type COUNTS (e.g. 1 vs. 5) to detect a per-row prefetch saving
-        doesn't work: to_yaml() touches several other per-instance relations (manufacturer,
-        port_mappings, ...) that legitimately scale with row count regardless of this fix,
-        which would swamp the signal. Instead, compare the *same* 5-row queryset with and
-        without the module_bay_types prefetch, isolating exactly what it saves.
-
-        Unlike DeviceType.to_yaml(), ModuleType.to_yaml() does not export a nested
-        module-bays section at all (a separate, pre-existing gap, out of scope here), so
-        module_bay_types is the only relation ModuleTypeListView.export_yaml() needs to
-        prefetch -- confirmed by this test's exact-delta assertion below.
-        """
+        """Compares the same queryset with/without the prefetch, since row-count comparisons
+        would be swamped by other per-instance relations that legitimately scale with it."""
         manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
 

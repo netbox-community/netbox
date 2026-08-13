@@ -11,22 +11,14 @@ from dcim.constants import MODULE_TOKEN
 
 def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None):
     """
-    Collapse an iterable of ModuleBayType instances resolved by name to one entry per name,
-    preferring (in order) an exact match on *manufacturer*, then a global (manufacturer-less)
-    type.
+    Collapse ModuleBayType instances resolved by name to one per name, preferring an exact
+    match on *manufacturer*, then a global (manufacturer-less) type. Names aren't globally
+    unique -- uniqueness is scoped to (manufacturer, name) -- and callers must not scope the
+    queryset by manufacturer themselves, since a type may legitimately belong to another
+    manufacturer entirely; only this preference order is manufacturer-aware.
 
-    ModuleBayType's uniqueness is scoped to (manufacturer, name), not name alone, so two
-    different manufacturers -- or a global type and a manufacturer-scoped one -- can
-    legitimately share a name. This does not exclude any manufacturer's types: a module or
-    bay may legitimately declare compatibility with another manufacturer's proprietary bay
-    type (e.g. a third-party line card), so callers must not scope the underlying queryset
-    by manufacturer -- only this preference order, for disambiguating an otherwise-ambiguous
-    name, is manufacturer-aware.
-
-    Raises ValidationError if a name resolves to more than one candidate that ties for the
-    best preference tier (e.g. two different manufacturers, neither *manufacturer* nor
-    unset, share the name) -- there's no principled way to pick a winner there, so the
-    import is refused rather than silently linked to an arbitrary one.
+    Raises ValidationError if a name ties across two or more non-preferred manufacturers,
+    rather than picking one arbitrarily.
     """
     manufacturer_id = manufacturer.pk if manufacturer else None
 
@@ -37,11 +29,9 @@ def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None)
             return 1
         return 2
 
+    # Keyed by pk so a caller passing the same row twice can't manufacture a false tie below.
     by_name = defaultdict(dict)
     for module_bay_type in module_bay_types:
-        # Keyed by pk within each name group so a caller passing the same row twice (the
-        # three current callers never do, since each resolves from a queryset, but the
-        # signature accepts any iterable) can't manufacture a same-manufacturer "tie" below.
         by_name[module_bay_type.name][module_bay_type.pk] = module_bay_type
 
     resolved = []

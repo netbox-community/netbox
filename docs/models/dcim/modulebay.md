@@ -34,7 +34,7 @@ The numeric position in which this module bay is situated. For example, this wou
 
 Zero or more [module bay types](./modulebaytype.md) assigned to this bay. When at least one bay type is set, only module types that share a common bay type may be installed. Leave empty to allow any module type.
 
-Bay types are importable via CSV, referenced by name, with the same manufacturer-based resolution described for [module bay templates](./modulebaytemplate.md) -- scoped to the manufacturer of the module bay's own device.
+Bay types are importable via CSV, referenced by name. A bay type belonging to a manufacturer other than the module bay's own device may be referenced; this mirrors the UI and REST API, which likewise place no manufacturer restriction on the assignment. Since a bay type's uniqueness is scoped to `(manufacturer, name)` rather than name alone, more than one bay type may share a name; import prefers, in order, an exact match on the device's own manufacturer, then a global (manufacturer-less) bay type. If a name instead matches two or more bay types belonging to *other* manufacturers, with neither the device's own manufacturer nor a global type available to break the tie, the import is rejected rather than resolved to an arbitrary one.
 
 ### Enabled
 
