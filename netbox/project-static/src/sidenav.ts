@@ -10,7 +10,7 @@ class SideNav {
   /**
    * Sidenav container element.
    */
-  private base: HTMLDivElement;
+  private base: HTMLElement;
 
   /**
    * SideNav internal state manager.
@@ -27,7 +27,7 @@ class SideNav {
    */
   private sections: Section[] = [];
 
-  constructor(base: HTMLDivElement) {
+  constructor(base: HTMLElement) {
     this.base = base;
     this.state = new StateManager<NavState>(
       { pinned: true },
@@ -314,7 +314,7 @@ class SideNav {
 }
 
 export function initSideNav(): void {
-  for (const sidenav of getElements<HTMLDivElement>('.navbar')) {
+  for (const sidenav of getElements<HTMLElement>('.navbar-vertical')) {
     new SideNav(sidenav);
   }
 }
