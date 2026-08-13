@@ -37,30 +37,38 @@ schema = [
 
 ## Extending Core Types & Filters
 
-!!! info "This feature was introduced in NetBox v4.6."
+!!! info "This feature was introduced in NetBox v4.7."
 
 In addition to registering its own top-level query fields, a plugin can inject fields and filters onto NetBox's **existing** core GraphQL types (e.g. `DeviceType`). This allows a plugin's related data to be traversed within a single query rooted at a core object, rather than requiring a separate top-level query. This mirrors the `PluginTemplateExtension` mechanism used to extend core object views in the UI.
 
-An extension is a mixin class declaring a `models` attribute: a list of the lowercased `app_label.model` labels of the core types it extends. Output-type extensions are collected from `graphql.type_extensions` and filter extensions from `graphql.filter_extensions` by default; these paths can be overridden via the `graphql_type_extensions` and `graphql_filter_extensions` attributes on the PluginConfig.
+An extension is a mixin class declaring a `models` attribute: a list of the lowercased `app_label.model` labels of the core types it extends. Declare `models` as an unannotated class attribute or a `ClassVar`. An annotated `models` would be collected as a GraphQL field and is rejected. Output-type extensions are collected from `graphql_extensions.type_extensions` and filter extensions from `graphql_extensions.filter_extensions` by default. These paths can be overridden via the `graphql_type_extensions` and `graphql_filter_extensions` attributes on the PluginConfig.
 
-Each declared path must resolve to a list named `type_extensions` (or `filter_extensions`) - for example, defined in `graphql.py` alongside the schema, or re-exported from the plugin's `graphql` package.
+By default, NetBox imports `type_extensions` and `filter_extensions` from a `graphql_extensions.py` module beside the plugin's `graphql.py`. The `PluginConfig` attributes may override each with a dotted path to a list under any attribute name.
 
 !!! warning
-    Do not import core GraphQL modules (e.g. `dcim.graphql.types`) from a plugin's `ready()`. Doing so assembles the affected core types before other plugins have registered their extensions, which are then silently dropped. A warning is logged under `netbox.graphql` if this occurs.
+    Extension modules are imported while plugins initialize, before NetBox's core GraphQL types are assembled. They must not import core GraphQL modules (e.g. `dcim.graphql.types`) at module level. A premature import assembles the affected core types early, and any extension registered afterwards for one of them fails at startup. Reference core types only through `strawberry.lazy()` string annotations. Plugin schema modules (`graphql.py`) are loaded later, during schema assembly, and may import core GraphQL types freely.
 
 ### Type Extensions
 
 An output-type extension is a `@strawberry.type` class whose fields and resolvers are spliced into the target type:
 
 ```python
-# graphql.py (or graphql/type_extensions.py)
-from typing import Annotated
+# graphql_extensions.py
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
 
 from utilities.querysets import RestrictedPrefetch
 from my_plugin.models import Widget
+
+if TYPE_CHECKING:
+    from dcim.graphql.types import DeviceType
+
+
+@strawberry_django.type(Widget, fields='__all__')
+class WidgetType:
+    device: Annotated['DeviceType', strawberry.lazy('dcim.graphql.types')]
 
 
 @strawberry.type
@@ -72,7 +80,7 @@ class DeviceTypeExtension:
             'widgets', info.context.request.user, 'view', queryset=Widget.objects.all()
         ),
     )
-    def widgets(self) -> list[Annotated['WidgetType', strawberry.lazy('my_plugin.graphql.types')]]:
+    def widgets(self) -> list[Annotated['WidgetType', strawberry.lazy('my_plugin.graphql_extensions')]]:
         return self.widgets.all()
 
 
@@ -89,7 +97,7 @@ type_extensions = [
 A filter extension is a `@strawberry.type` class declaring additional filters - either as annotated filter fields or as custom filter methods - which are spliced into the target filter:
 
 ```python
-# graphql.py (or graphql/filter_extensions.py)
+# graphql_extensions.py
 import strawberry
 import strawberry_django
 from django.db.models import Q
@@ -121,7 +129,7 @@ query {
 ```
 
 !!! note
-    Extensions are strictly additive: they can only add new fields, never replace existing ones. If an extension declares a name the core type already provides, the core definition always takes precedence and the extension's version is ignored. If two extensions on the same type declare the same new name, the one whose plugin is loaded first (earlier in `PLUGINS`) wins. Both cases are logged as warnings under the `netbox.graphql` logger.
+    Extensions are strictly additive. Every name an extension contributes must be new, not only its GraphQL fields and resolvers but also its helper methods and class attributes. A name the core type already provides, or that two extensions both declare, causes NetBox to fail at startup with an error naming the extension classes. This is deliberate, because Python resolves attribute lookups through the composed MRO, so a shared helper or constant name would let one plugin silently redirect another plugin's resolvers. Two extensions may inherit the same name from one shared helper base, which is not a conflict. Explicit GraphQL aliases are checked as well. Registering an extension after its target GraphQL type has been assembled also raises an error, as does an extension targeting a model that never assembles a GraphQL type or filter. Extensions are plain mixin types and may not implement GraphQL interfaces or inherit from core GraphQL classes.
 
 ## GraphQL Objects
 
