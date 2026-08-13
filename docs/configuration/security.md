@@ -9,7 +9,7 @@ Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh
 A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all the default values as well (excluding those schemes which are not desirable).
 
 !!! note
-    Image sources (`<img src="...">`) are always restricted to HTTP(S) and relative URLs, regardless of the schemes configured above.
+    Image sources (`<img src="...">`) are limited to HTTP(S) and relative URLs, subject to `ALLOWED_URL_SCHEMES`.
 
 ---
 
