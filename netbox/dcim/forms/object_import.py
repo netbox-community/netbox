@@ -227,23 +227,48 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
             'device_type', 'module_type', 'name', 'label', 'position', 'description', 'module_bay_types',
         ]
 
+    def _scope_module_bay_types(self, manufacturer):
+        module_bay_types = self.fields['module_bay_types']
+        module_bay_types.queryset = module_bay_types.queryset.filter(
+            Q(manufacturer__isnull=True) | Q(manufacturer=manufacturer)
+        )
+
     def clean_device_type(self):
         if device_type := self.cleaned_data['device_type']:
-            module_bay_types = self.fields['module_bay_types']
-            module_bay_types.queryset = module_bay_types.queryset.filter(
-                Q(manufacturer__isnull=True) | Q(manufacturer=device_type.manufacturer)
-            )
+            self._scope_module_bay_types(device_type.manufacturer)
 
         return device_type
 
     def clean_module_type(self):
         if module_type := self.cleaned_data['module_type']:
-            module_bay_types = self.fields['module_bay_types']
-            module_bay_types.queryset = module_bay_types.queryset.filter(
-                Q(manufacturer__isnull=True) | Q(manufacturer=module_type.manufacturer)
-            )
+            self._scope_module_bay_types(module_type.manufacturer)
 
         return module_type
+
+    def clean_module_bay_types(self):
+        """
+        Resolve each submitted name against the scoped queryset, preferring a manufacturer-
+        specific match over a global one when both exist. ModuleBayType's unique constraint
+        is on (manufacturer, name), not name alone, so a name can legitimately collide between
+        a global type and one scoped to this template's manufacturer; ModelMultipleChoiceField's
+        default name-based lookup would otherwise silently attach both.
+        """
+        names = self.data.get('module_bay_types') or []
+        if not isinstance(names, (list, tuple)):
+            raise forms.ValidationError(_("Module bay types must be a list."))
+
+        queryset = self.fields['module_bay_types'].queryset
+        resolved = []
+        for name in names:
+            candidates = list(queryset.filter(name=name))
+            if not candidates:
+                raise forms.ValidationError(
+                    _("Module bay type not found: {name}").format(name=name)
+                )
+            match = next((c for c in candidates if c.manufacturer_id is not None), candidates[0])
+            resolved.append(match)
+
+        return resolved
 
 
 class DeviceBayTemplateImportForm(forms.ModelForm):

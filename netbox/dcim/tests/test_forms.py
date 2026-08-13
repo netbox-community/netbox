@@ -229,6 +229,53 @@ class ModuleTypeFormTestCase(TestCase):
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
 
 
+class ModuleBayTemplateImportFormTestCase(TestCase):
+
+    def test_module_bay_types_prefers_manufacturer_specific_match_over_global(self):
+        """
+        ModuleBayType's unique constraint is on (manufacturer, name), not name alone, so a
+        global type and a manufacturer-scoped type can legally share the same name. Referencing
+        that name by import should resolve to the manufacturer-specific match only, not attach
+        both.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        scoped_type = ModuleBayType.objects.create(
+            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
+        )
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(
+            list(module_bay_template.module_bay_types.all()), [scoped_type],
+        )
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+    def test_module_bay_types_unknown_name_raises_error(self):
+        device_type = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['Nonexistent'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay_types', form.errors)
+
+
 class ModuleFormTestCase(TestCase):
 
     @classmethod
