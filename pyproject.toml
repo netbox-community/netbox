@@ -91,6 +91,8 @@ omit = [
 path = "scripts/packaging/hatch_metadata.py"
 
 [tool.hatch.build.targets.wheel]
+# Pinned artifact format. Change only when NetBox needs a newer format and the publishing path supports it.
+core-metadata-version = "2.4"
 sources = ["netbox"]
 packages = [
     "netbox/account",
@@ -145,6 +147,8 @@ exclude = [
 "netbox/netbox/configuration_testing.py" = "netbox/netbox/configuration_testing.py"
 
 [tool.hatch.build.targets.sdist]
+# Keep the sdist and wheel on the same Core Metadata contract.
+core-metadata-version = "2.4"
 include = [
     "/.github/workflows/release.yml",
     "/CHANGELOG.md",
