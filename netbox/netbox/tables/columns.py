@@ -131,9 +131,17 @@ class DurationColumn(tables.Column):
 class ManyToManyColumn(tables.ManyToManyColumn):
     """
     Overrides django-tables2's stock ManyToManyColumn to ensure that value() returns only plaintext data.
+
+    export_transform: optional callable used only for value() (CSV/table export), letting export use a
+    different representation than the rendered column (e.g. a bare name where the UI shows str(obj)).
+    Defaults to transform, matching the stock behavior of exporting the same text that's rendered.
     """
+    def __init__(self, *args, export_transform=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.export_transform = export_transform or self.transform
+
     def value(self, value):
-        items = [self.transform(item) for item in self.filter(value)]
+        items = [self.export_transform(item) for item in self.filter(value)]
         return self.separator.join(items)
 
 

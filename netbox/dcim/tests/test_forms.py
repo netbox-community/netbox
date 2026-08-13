@@ -516,16 +516,18 @@ class ModuleTypeImportFormTestCase(TestCase):
         self.assertFalse(form.save().module_bay_types.exists())
 
     def test_module_bay_types_round_trips_through_the_table_column_export_value(self):
-        """The table's CSV export (multi-value separator, name-only transform) must be re-importable."""
+        """The table's CSV export (multi-value separator, name-only transform) must be re-importable,
+        without changing the rendered UI column, which should keep str()'s manufacturer prefix."""
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28', manufacturer=manufacturer)
         bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28', manufacturer=manufacturer)
         original = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
         original.module_bay_types.set([bay_type_a, bay_type_b])
 
-        table = ModuleTypeTable([original])
-        exported_value = table.columns['module_bay_types'].column.value(original.module_bay_types.all())
+        column = ModuleTypeTable([original]).columns['module_bay_types'].column
+        exported_value = column.value(original.module_bay_types.all())
         self.assertEqual(exported_value, 'QSFP28, SFP28')
+        self.assertIn(str(manufacturer), str(column.render(original.module_bay_types.all())))
 
         form = ModuleTypeImportForm({
             'manufacturer': manufacturer.name,
