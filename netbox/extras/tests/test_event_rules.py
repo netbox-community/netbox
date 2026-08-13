@@ -630,9 +630,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def test_job_event_with_null_data_and_conditions(self):
         """
-        A condition referencing an attribute of a null payload must resolve to null rather
-        than raising: the rule is skipped without logging an error, since a job which
-        recorded no data is routine rather than a misconfigured rule.
+        A condition referencing an attribute of a null payload is a non-match rather than an
+        error: the rule is skipped without logging, since a job which recorded no data is
+        routine rather than a misconfigured rule.
         """
         script_type = ObjectType.objects.get_for_model(Script)
         self._job_event_rule(conditions={'attr': 'status', 'value': 'completed'})
@@ -640,15 +640,23 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
         self.assertEqual(self.queue.count, 0)
 
-    def test_job_event_with_null_data_matching_conditions(self):
+    def test_job_event_with_null_data_does_not_satisfy_conditions(self):
         """
-        A rule whose conditions a null payload does satisfy must still fire.
+        A null payload must not satisfy a conditioned rule, however the condition is phrased:
+        there is no data to evaluate, so nothing may enqueue the rule's action. A test for null
+        and a negated test are the two phrasings which would otherwise match.
         """
         script_type = ObjectType.objects.get_for_model(Script)
-        self._job_event_rule(conditions={'attr': 'status', 'value': None})
-        process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
-        self.assertEqual(self.queue.count, 1)
-        self.assertEqual(self.queue.jobs[0].kwargs['data'], {})
+        for conditions in (
+            {'attr': 'status', 'value': None},
+            {'attr': 'status', 'value': 'completed', 'negate': True},
+        ):
+            with self.subTest(conditions=conditions):
+                event_rule = self._job_event_rule(conditions=conditions)
+                with self.assertNoLogs('netbox.event_rules', level='ERROR'):
+                    process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
+                self.assertEqual(self.queue.count, 0)
+                event_rule.delete()
 
     def test_job_event_with_non_dict_data(self):
         """

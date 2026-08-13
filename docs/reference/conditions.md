@@ -52,7 +52,9 @@ The following condition will evaluate as true:
 !!! note "Missing keys and absent data"
     A condition which references a key that does not exist in the data being evaluated fails closed: the condition set evaluates as false, and (for an [event rule](../features/event-rules.md)) an error is logged to `netbox.event_rules` so that a typo does not silently disable the rule.
 
-    Where the data is absent altogether rather than merely missing the referenced key, the reference instead resolves to `null`. This applies to an event rule evaluating a job which recorded no data, and to a snapshot which does not exist for the event type (see [below](#snapshot-conditions-event-rules)). Such an absence is a normal property of the event rather than a mistake, so it is not treated as an error: the reference matches a condition testing for `null`, fails any other comparison, and does not affect the evaluation of the other conditions in the set.
+    Where the data is absent altogether rather than merely missing the referenced key — an event rule evaluating a job which recorded no data, say — the condition does not match. Such an absence is a normal property of the event rather than a mistake, so it is not treated as an error and does not affect the evaluation of the other conditions in the set. Because there is nothing to compare against, the condition does not match whatever the operator, and remains a non-match when `negate` is set: no rule fires on data an event never carried.
+
+    A snapshot which does not exist for the event type is the exception: it resolves to `null`, so that a condition can distinguish (for example) a newly created object from an updated one. See [below](#snapshot-conditions-event-rules).
 
 ### Examples
 

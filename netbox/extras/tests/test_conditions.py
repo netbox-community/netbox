@@ -376,31 +376,55 @@ class AbsentDataTestCase(TestCase):
         data['snapshots'] = kwargs.get('snapshots')
         return data
 
-    def test_absent_data_resolves_to_none(self):
+    def test_absent_data_is_a_non_match(self):
+        """
+        An absent payload carries nothing to match against, so a reference to any attribute of
+        it is a non-match rather than a resolved null. Matching would enqueue the rule's action
+        on an event which recorded no data at all.
+        """
         data = self._absent_data()
-        self.assertTrue(Condition('status', value=None).eval(data))
+        self.assertFalse(Condition('status', value=None).eval(data))
         self.assertFalse(Condition('status', value='completed').eval(data))
-        self.assertTrue(Condition('status', value='completed', negate=True).eval(data))
         # A nested path is equally unresolvable, and equally not an error
         self.assertFalse(Condition('output.result', value='x').eval(data))
+        self.assertFalse(Condition('output.result', value=None).eval(data))
 
     def test_absent_data_is_a_non_match_for_every_operator(self):
         data = self._absent_data()
-        for op, value in (('contains', 'foo'), ('regex', '^foo'), ('gt', 1), ('gte', 1), ('lt', 1), ('lte', 1)):
-            with self.subTest(op=op):
+        for op, value in (
+            ('eq', None), ('eq', 'foo'), ('in', ['foo']), ('contains', 'foo'), ('regex', '^foo'),
+            ('gt', 1), ('gte', 1), ('lt', 1), ('lte', 1),
+        ):
+            with self.subTest(op=op, value=value):
                 self.assertFalse(Condition('status', value=value, op=op).eval(data))
+
+    def test_negate_cannot_turn_an_absent_payload_into_a_match(self):
+        """
+        Negation inverts the result of a comparison, and against an absent payload no
+        comparison takes place. Inverting the non-match would make 'negate' a fail-open switch,
+        firing the rule on an empty payload - for a misspelled attribute as readily as a real
+        one, since neither resolves.
+        """
+        data = self._absent_data()
+        for attr in ('status', 'stauts', 'output.result'):
+            for value in (None, 'completed'):
+                with self.subTest(attr=attr, value=value):
+                    self.assertFalse(Condition(attr, value=value, negate=True).eval(data))
+        self.assertFalse(Condition('status', value='foo', op='contains', negate=True).eval(data))
 
     def test_absent_data_does_not_veto_sibling_conditions(self):
         """
-        As with an absent snapshot, an absent payload must not abort evaluation of the whole
-        condition set.
+        An absent payload must not abort evaluation of the whole condition set: the other
+        conditions, including a snapshot path drawn from the surrounding context, are still
+        evaluated on their own merits.
         """
-        data = self._absent_data()
+        data = self._absent_data(snapshots={'prechange': {'status': 'planned'}, 'postchange': None})
         ruleset = {'or': [
             {'attr': 'status', 'value': 'foo', 'op': 'regex'},
-            {'attr': 'status', 'value': None},
+            {'attr': 'snapshots.prechange.status', 'value': 'planned'},
         ]}
         self.assertTrue(ConditionSet(ruleset).eval(data))
+        self.assertFalse(ConditionSet({'and': list(ruleset['or'])}).eval(data))
 
     def test_present_data_missing_attr_still_fails_closed(self):
         """

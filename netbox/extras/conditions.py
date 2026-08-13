@@ -33,10 +33,13 @@ class AbsentData(dict):
     An empty dict standing in for event data which is absent altogether, as opposed to data
     which is present but does not contain a referenced attribute.
 
-    A condition referencing an attribute of absent data resolves to null instead of raising
+    A condition referencing an attribute of absent data is a non-match. It does not raise
     InvalidCondition: the absence is a normal property of the event (e.g. a job which
     recorded no data), not a malformed condition, so it must not abort evaluation of the
-    condition set or log an error for every rule on every such event.
+    condition set or log an error for every rule on every such event. Neither does it resolve
+    to a value: every attribute of an absent payload is equally unresolvable, so a value would
+    let a rule fire on data the event never carried - including for an attribute which does
+    not exist at all.
     """
     def copy(self):
         # dict.copy() would return a plain dict, silently discarding the marker.
@@ -185,20 +188,29 @@ class Condition:
             raise InvalidCondition(f"Invalid key path: {self.attr}")
         return value
 
-    def _references_absent_data(self, data):
+    def _references_absent_payload(self, data):
         """
-        Return True if self.attr references data which is absent altogether, as opposed to
-        data which is present but does not contain the attribute. Two cases qualify:
+        Return True if self.attr references an attribute of a payload which is absent
+        altogether (an AbsentData payload), e.g. a job event for a job which recorded no data,
+        as opposed to a payload which is present but does not contain the attribute.
 
-        * The data itself is absent (an AbsentData payload), e.g. a job event for a job
-          which recorded no data.
-        * self.attr is a direct snapshot path (snapshots.prechange.* or
-          snapshots.postchange.*) whose referenced snapshot is null, and whose remaining path
-          the opposite snapshot shows to be resolvable. Create events have no prechange
-          snapshot and delete events have no postchange snapshot.
+        The snapshots key is part of the evaluation context rather than of the payload, so a
+        snapshot path is never treated as referencing an absent payload.
         """
-        if isinstance(data, AbsentData) and self.attr.split('.')[0] not in data:
-            return True
+        return isinstance(data, AbsentData) and self.attr.split('.')[0] not in data
+
+    def _references_absent_snapshot(self, data):
+        """
+        Return True if self.attr is a direct snapshot path (snapshots.prechange.* or
+        snapshots.postchange.*) whose referenced snapshot is null, and whose remaining path the
+        opposite snapshot shows to be resolvable. Create events have no prechange snapshot and
+        delete events have no postchange snapshot.
+
+        Unlike an absent payload, an absent snapshot resolves to null: the snapshot's absence
+        is itself meaningful (the object did not exist before, or does not exist after), and
+        the path is validated below, so a reference which resolves to null has been shown to
+        describe the data rather than merely being unresolvable.
+        """
         if not self.attr.startswith(SNAPSHOT_PREFIX):
             return False
         snapshots = data.get('snapshots') if isinstance(data, dict) else None
@@ -310,17 +322,29 @@ class Condition:
             result = self.eval_func(snapshots)
             return not result if self.negate else result
 
-        absent = self._references_absent_data(data)
+        if self._references_absent_payload(data):
+            # There is no payload to evaluate, so the condition cannot be satisfied. Report a
+            # non-match without applying negation: negate inverts the result of a comparison,
+            # and no comparison took place. Inverting would let the rule fire on an event which
+            # carried nothing to match against, and since every attribute of an absent payload
+            # is equally unresolvable, a misspelled attribute would fire it too.
+            #
+            # Unlike an unresolvable snapshot reference this is not reported as an invalid
+            # condition: a job which records no data is routine, and logging an error for every
+            # rule on every such event would bury the malformed conditions worth acting on.
+            return False
+
+        absent = self._references_absent_snapshot(data)
         value = None if absent else self._resolve_attr(data)
         try:
             result = self.eval_func(value)
         except TypeError as e:
             if not absent:
                 raise InvalidCondition(f"Invalid data type at '{self.attr}' for '{self.op}' evaluation: {e}")
-            # Absent data resolves to null, which satisfies only a comparison against null:
-            # operators such as contains, regex, and the numeric comparisons raise a
-            # TypeError on None. That is a non-match, not a malformed condition, so report
-            # False (subject to negation below) rather than aborting the condition set.
+            # An absent snapshot resolves to null, which satisfies only a comparison
+            # against null: operators such as contains, regex, and the numeric comparisons
+            # raise a TypeError on None. That is a non-match, not a malformed condition, so
+            # report False (subject to negation below) rather than aborting the condition set.
             result = False
 
         if self.negate:
