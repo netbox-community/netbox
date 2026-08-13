@@ -27,20 +27,28 @@ class CleanHTMLURLPolicyTestCase(SimpleTestCase):
         self.assertIn('alt="c"', result)
 
     @tag('regression')
+    def test_img_src_leading_whitespace(self):
+        """Disallowed schemes hidden behind leading whitespace are still stripped."""
+        html = '<img src=" ssh://host/i.png">'
+        result = clean_html(html, TEST_SCHEMES)
+        self.assertNotIn('ssh://', result)
+
+    @tag('regression')
     def test_img_src_http_https_and_relative(self):
         """http/https/relative image sources are retained."""
         html = (
-            '<img src="https://example.com/i.png">'
-            '<img src="http://example.com/i.png">'
+            '<img src="https://example.com/i1.png">'
+            '<img src="http://example.com/i2.png">'
             '<img src="/rel.png">'
             '<img src="rel.png">'
-            '<img src="//cdn.example.com/i.png">'
+            '<img src="//cdn.example.com/i3.png">'
         )
         result = clean_html(html, TEST_SCHEMES)
-        self.assertIn('example.com/i.png', result)
+        self.assertIn('example.com/i1.png', result)
+        self.assertIn('example.com/i2.png', result)
         self.assertIn('src="/rel.png"', result)
         self.assertIn('src="rel.png"', result)
-        self.assertIn('src="//cdn.example.com/i.png"', result)
+        self.assertIn('src="//cdn.example.com/i3.png"', result)
 
     @tag('regression')
     def test_link_href_preserves_all_schemes(self):
