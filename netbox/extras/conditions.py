@@ -243,18 +243,26 @@ class Condition:
         Snapshots use the model serializer format (raw field values), not the REST
         API format, so e.g. status is stored as "active" not {"value": "active"}.
 
-        Raises InvalidCondition if the path cannot be walked in any snapshot and resolves to
-        a value in none of them, which is the case for a genuinely malformed path. A path
-        which resolves in one snapshot but not the other describes a real difference between
-        them (a JSON attribute whose value changed shape, say), so the unwalkable side is
-        treated as missing and the comparison proceeds: raising would report the attribute as
-        unchanged even though it demonstrably changed. Only a snapshot which actually yields
-        a value excuses the unwalkable side; one which merely resolves to nothing (an absent
-        key, a null, an empty list) offers no evidence that the path is well-formed.
+        Raises InvalidCondition if the attribute resolves in neither snapshot, leaving no
+        basis for the comparison: a misspelled or unknown attribute, a path which cannot be
+        walked at all, or an event which recorded no snapshots. The unresolved state must be
+        reported rather than compared, because any value the comparison could return is a
+        boolean which negate turns into a match: 'statsu' with the changed operator and
+        negate set would otherwise fire on every event, which is the very mistake failing
+        closed is meant to catch.
+
+        A path which resolves in one snapshot but not the other describes a real difference
+        between them (a JSON attribute whose value changed shape, say, or an attribute absent
+        from one side), so the unresolved side counts as missing and the comparison proceeds:
+        raising would report the attribute as unchanged even though it demonstrably changed.
+        Only a snapshot which actually yields a value excuses the other side; one which merely
+        resolves to nothing (an absent key, a null, an empty list) offers no evidence that the
+        path describes the data at all.
         """
         keys = self.attr.split('.')
         values = []
         errors = []
+        available = False
         resolved = False
 
         for which in ('prechange', 'postchange'):
@@ -263,6 +271,7 @@ class Condition:
                 # Absent snapshot (normal for create and delete events): nothing to resolve
                 values.append(_MISSING)
                 continue
+            available = True
             try:
                 value = walk_path(snapshot, keys, empty_list_is_absent=True)
             except TypeError as e:
@@ -272,10 +281,17 @@ class Condition:
                 values.append(value)
                 resolved = resolved or value is not _MISSING
 
-        if errors and not resolved:
+        if not available:
+            # Neither snapshot was recorded, so the attribute itself is not in question
             raise InvalidCondition(
-                f"Invalid key path for '{self.op}' operator: {self.attr} ({errors[0]}). Note that snapshots store "
-                f"raw field values, so choice fields have no '.value' suffix."
+                f"No snapshot data available for '{self.op}' operator: {self.attr}. "
+                f"Snapshot operators are only meaningful on update and delete events."
+            )
+        if not resolved:
+            reason = f" ({errors[0]})" if errors else ""
+            raise InvalidCondition(
+                f"Invalid key path for '{self.op}' operator: {self.attr}{reason}. The attribute resolves in neither "
+                f"snapshot. Note that snapshots store raw field values, so choice fields have no '.value' suffix."
             )
 
         return values
@@ -347,18 +363,17 @@ class Condition:
         return re.match(self.value, value) is not None
 
     # Snapshot comparison operators
-    # These resolve self.attr in both the prechange and postchange snapshots and
-    # compare the resulting values.  _MISSING is used when a snapshot is absent,
-    # does not contain the attribute, or cannot be walked by the path.
+    # These resolve self.attr in both the prechange and postchange snapshots and compare the
+    # resulting values. _MISSING is used for the side which does not resolve: a snapshot which
+    # is absent (normal for create and delete events), which does not contain the attribute,
+    # or which the path cannot be walked in. At least one side always resolves, since
+    # _resolve_snapshot_attrs() raises InvalidCondition when neither does.
     #
-    # Fail-closed semantics:
-    #   changed:   False when attr is absent from both snapshots (field never existed)
-    #   unchanged: False when attr is absent from both snapshots (avoids silent pass on typos)
-    #
-    # A path that cannot be walked in any of the snapshots available for the event (as
-    # opposed to one that resolves to nothing) raises InvalidCondition from
-    # _resolve_snapshot_attrs(), so a malformed condition is logged by
-    # EventRule.eval_conditions() rather than quietly evaluating False forever.
+    # Fail-closed semantics: an attribute which resolves in no snapshot available for the event
+    # leaves nothing to compare, so it is reported as an invalid condition rather than compared.
+    # Returning a boolean instead would let negate turn the failure into a match, and returning
+    # one quietly would leave a typo evaluating forever with no indication of why. The mistake
+    # is logged by EventRule.eval_conditions(), and the rule does not fire.
 
     def eval_changed(self, snapshots):
         pre, post = self._resolve_snapshot_attrs(snapshots)
@@ -366,8 +381,6 @@ class Condition:
 
     def eval_unchanged(self, snapshots):
         pre, post = self._resolve_snapshot_attrs(snapshots)
-        if pre is _MISSING and post is _MISSING:
-            return False
         return pre == post
 
 

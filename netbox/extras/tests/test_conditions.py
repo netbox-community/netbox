@@ -492,14 +492,16 @@ class SnapshotConditionTestCase(TestCase):
         }
         self.assertTrue(c.eval({'snapshots': snapshots}))
 
-    def test_changed_false_when_both_snapshots_missing_attr(self):
-        # If neither snapshot has the attr, nothing changed
+    def test_changed_raises_when_both_snapshots_missing_attr(self):
+        # An attr absent from both snapshots leaves nothing to compare: report it rather than
+        # returning a non-match, which negate would turn into a match
         c = Condition('nonexistent', op='changed')
         snapshots = {
             'prechange': {'status': 'active'},
             'postchange': {'status': 'active'},
         }
-        self.assertFalse(c.eval({'snapshots': snapshots}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
 
     def test_changed_raises_when_path_traverses_scalar(self):
         # Snapshot choice fields are raw strings, not nested dicts. A REST API-style path
@@ -598,24 +600,35 @@ class SnapshotConditionTestCase(TestCase):
                 'snapshots': {'prechange': {'status': 'active'}, 'postchange': None}
             })
 
-    def test_changed_does_not_raise_when_no_snapshot_is_available(self):
+    def test_changed_raises_when_no_snapshot_is_available(self):
         """
-        With neither snapshot available there is nothing to walk, so even a malformed path
-        cannot be identified as such; both sides are missing and the operators fail closed.
+        With neither snapshot available there is nothing to compare, whether the path is
+        malformed or not. Reporting the condition is the only way to fail closed: a boolean
+        would be a verdict on data the event never carried, and negate would turn it into a
+        match.
         """
         snapshots = {'prechange': None, 'postchange': None}
-        self.assertFalse(Condition('status.value', op='changed').eval({'snapshots': snapshots}))
-        self.assertFalse(Condition('status.value', op='unchanged').eval({'snapshots': snapshots}))
+        for attr, op, negate in (
+            ('status', 'changed', False),
+            ('status', 'changed', True),
+            ('status', 'unchanged', True),
+            ('status.value', 'changed', False),
+            ('status.value', 'unchanged', False),
+        ):
+            with self.subTest(attr=attr, op=op, negate=negate):
+                with self.assertRaises(InvalidCondition):
+                    Condition(attr, op=op, negate=negate).eval({'snapshots': snapshots})
 
-    def test_changed_missing_attr_still_resolves_to_missing(self):
-        # An attribute that is simply absent is an ordinary state difference, not a
-        # malformed path, and must not raise.
+    def test_changed_raises_when_attr_resolves_in_neither_snapshot(self):
+        # An attribute absent from both snapshots is indistinguishable from a typo, so it
+        # cannot be reported as an ordinary non-match
         c = Condition('nonexistent', op='changed')
         snapshots = {
             'prechange': {'status': 'planned'},
             'postchange': {'status': 'active', 'description': 'x'},
         }
-        self.assertFalse(c.eval({'snapshots': snapshots}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
 
     def test_changed_negated(self):
         c = Condition('status', op='changed', negate=True)
@@ -624,6 +637,23 @@ class SnapshotConditionTestCase(TestCase):
             'postchange': {'status': 'active'},
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
+        self.assertTrue(c.eval({'snapshots': {
+            'prechange': {'status': 'active'},
+            'postchange': {'status': 'active'},
+        }}))
+
+    def test_negate_cannot_turn_an_unresolved_attr_into_a_match(self):
+        """
+        A misspelled attribute must not fire the rule, whichever operator it is used with and
+        whether or not the condition is negated. Returning False for the unresolved state
+        would make 'negate' a fail-open switch.
+        """
+        snapshots = {'prechange': {'status': 'planned'}, 'postchange': {'status': 'active'}}
+        for op in ('changed', 'unchanged'):
+            for negate in (False, True):
+                with self.subTest(op=op, negate=negate):
+                    with self.assertRaises(InvalidCondition):
+                        Condition('statsu', op=op, negate=negate).eval({'snapshots': snapshots})
 
     def test_changed_raises_when_no_snapshots(self):
         c = Condition('status', op='changed')
@@ -650,15 +680,16 @@ class SnapshotConditionTestCase(TestCase):
         }
         self.assertFalse(c.eval({'snapshots': snapshots}))
 
-    def test_unchanged_false_when_both_snapshots_missing_attr(self):
-        # Fail-closed: a typo or non-existent attr resolves to _MISSING on both
-        # sides; unchanged must return False rather than silently passing.
+    def test_unchanged_raises_when_both_snapshots_missing_attr(self):
+        # Fail-closed: a typo or non-existent attr resolves on neither side, so 'unchanged'
+        # must report it rather than silently passing (or, negated, matching)
         c = Condition('statsu', op='unchanged')
         snapshots = {
             'prechange': {'status': 'active'},
             'postchange': {'status': 'active'},
         }
-        self.assertFalse(c.eval({'snapshots': snapshots}))
+        with self.assertRaises(InvalidCondition):
+            c.eval({'snapshots': snapshots})
 
     #
     # Direct snapshot path access (snapshots.prechange.* / snapshots.postchange.*)
