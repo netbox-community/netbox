@@ -397,8 +397,26 @@ class ServiceTemplateImportFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
 
+    def test_port_range_expanded(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/8000-8002,udp/53'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(
+            form.cleaned_data['port_mappings'],
+            ['tcp/8000', 'tcp/8001', 'tcp/8002', 'udp/53'],
+        )
+
+    def test_reversed_port_range_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/8010-8000'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
     def test_empty_port_rejected(self):
         form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': 'tcp/'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('port_mappings', form.errors)
+
+    def test_blank_protocol_rejected(self):
+        form = ServiceTemplateImportForm(data={'name': 'X', 'port_mappings': '/80'})
         self.assertFalse(form.is_valid())
         self.assertIn('port_mappings', form.errors)
 

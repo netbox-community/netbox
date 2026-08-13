@@ -525,10 +525,10 @@ def expand_port_mapping(protocol, ports):
     # protocol case-insensitively and stores the canonical value.
     protocol = (protocol or '').strip()
     if not protocol:
-        # A row with ports but no protocol (e.g. the initial blank row where the user typed a port but
-        # never picked a protocol) would otherwise expand to '/80' and surface as a confusing
-        # "Invalid protocol:" with a blank value. Report the real problem instead.
-        raise ValidationError(_("Select a protocol for each port mapping."))
+        # Ports given with no protocol would otherwise expand to '/80' and surface as a confusing
+        # "Invalid protocol:" with a blank value. Report the real problem instead, in wording that fits
+        # all entry paths that route through here (the form widget and CSV import).
+        raise ValidationError(_("Each port mapping must specify a protocol."))
 
     if isinstance(ports, (list, tuple)):
         # Already-expanded ports are paired as-is; validate_port_mappings() checks each value's range.
