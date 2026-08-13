@@ -7,10 +7,11 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
-from ipam.utils import legacy_protocol_and_ports, split_port_mapping
+from ipam.utils import group_port_mappings, legacy_protocol_and_ports, split_port_mapping
 from ipam.validators import validate_port_mappings
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
+from utilities.data import array_to_ranges
 
 __all__ = (
     'Service',
@@ -93,12 +94,22 @@ class ServiceBase(models.Model):
     @property
     def port_mappings_list(self):
         """
-        Return a user-friendly list of port mappings, e.g. "TCP/80, TCP/443, UDP/53".
+        Return a user-friendly list of port mappings, collapsing consecutive ports within a protocol into
+        a range, e.g. "TCP/80, TCP/443, UDP/53" or "TCP/8000-8100".
         """
-        return ', '.join(
-            f'{SERVICE_PROTOCOL_LABELS.get(protocol, protocol)}/{port}'
-            for protocol, port in (split_port_mapping(mapping) for mapping in self.port_mappings)
-        )
+        parts = []
+        for protocol, ports in group_port_mappings(self.port_mappings).items():
+            label = SERVICE_PROTOCOL_LABELS.get(protocol, protocol)
+            int_ports = [int(port) for port in ports if port.isdigit()]
+            for port_range in array_to_ranges(int_ports):
+                if len(port_range) == 1:
+                    parts.append(f'{label}/{port_range[0]}')
+                else:
+                    parts.append(f'{label}/{port_range[0]}-{port_range[1]}')
+            # A port that isn't a plain integer is only reachable via a write that bypassed validation;
+            # render it verbatim rather than raising, matching sorted_int_ports and normalize_port_mapping.
+            parts.extend(f'{label}/{port}' for port in ports if not port.isdigit())
+        return ', '.join(parts)
 
     # Read-only legacy accessors mirroring the deprecated REST/GraphQL protocol/ports fields, retained
     # for backward compatibility with code that read the old single-protocol fields. A multi-protocol

@@ -81,4 +81,4 @@ The [IP address(es)](./ipaddress.md) to which this service is bound. If no IP ad
 
 ## Bulk Import (CSV)
 
-When importing application services or [application service templates](./servicetemplate.md) via CSV, all port mappings for a row are given in a single `port_mappings` column as a comma-separated list of `protocol/port` pairs enclosed in double quotes. For example, `"tcp/80,tcp/443,udp/53"`. Protocols may be specified in any case.
+When importing application services or [application service templates](./servicetemplate.md) via CSV, all port mappings for a row are given in a single `port_mappings` column as a comma-separated list of `protocol/port` pairs enclosed in double quotes. For example, `"tcp/80,tcp/443,udp/53"`. A pair's port may be given as a hyphen range, for example `"tcp/8000-8010"`. Protocols may be entered in uppercase or lowercase.

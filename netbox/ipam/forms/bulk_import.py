@@ -9,6 +9,7 @@ from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
+from ipam.utils import expand_port_mapping, split_port_mapping
 from ipam.validators import validate_port_mappings
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
@@ -592,28 +593,36 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
 class ServicePortMappingsImportMixin(forms.Form):
     """
     Adds a ``port_mappings`` CSV column parsed from a comma-separated list of ``protocol/port`` pairs
-    (e.g. "tcp/80,udp/53") into the model's flat ``['tcp/80', 'udp/53']`` list.
+    (e.g. "tcp/80,udp/53") into the model's flat ``['tcp/80', 'udp/53']`` list. A pair's port half may be
+    a hyphen range (e.g. "tcp/8000-8010"), matching the port syntax the edit form accepts.
     """
     port_mappings = SimpleArrayField(
         base_field=forms.CharField(),
         label=_('Port mappings'),
         required=True,
-        help_text=_('Comma-separated list of protocol/port pairs in double quotes (e.g. "tcp/80,udp/53").')
+        help_text=_('Comma-separated list of protocol/port pairs in double quotes (e.g. "tcp/80,udp/53"). '
+                    'A port range may be given with a hyphen (e.g. "tcp/8000-8010").')
     )
 
     def clean_port_mappings(self):
         mappings = self.cleaned_data.get('port_mappings')
         if not mappings:
             return []
-        # Strip surrounding whitespace from each CSV token; validate_port_mappings matches the protocol
-        # case-insensitively and returns the normalized (canonical) list, so protocols may be given in
-        # any case (e.g. "TCP/80") without folding here.
-        mappings = [mapping.strip() for mapping in mappings]
+        # Expand any hyphen range in a pair's port half (tcp/8000-8010 -> tcp/8000, tcp/8001, ...) so the
+        # CSV accepts the same port syntax as the edit form. validate_port_mappings then normalizes and
+        # checks each expanded pair, matching the protocol case-insensitively.
+        expanded = []
+        for mapping in mappings:
+            protocol, ports = split_port_mapping(mapping.strip())
+            try:
+                expanded.extend(expand_port_mapping(protocol, ports))
+            except DjangoValidationError as exc:
+                raise forms.ValidationError(exc.messages)
         try:
-            mappings = validate_port_mappings(mappings)
+            expanded = validate_port_mappings(expanded)
         except DjangoValidationError as exc:
             raise forms.ValidationError(exc.messages)
-        return mappings
+        return expanded
 
 
 class ServiceTemplateImportForm(ServicePortMappingsImportMixin, PrimaryModelImportForm):

@@ -77,9 +77,9 @@ class PortMappingField(forms.Field):
                 # already-expanded list, rejects a blank protocol, and preserves a protocol-without-ports
                 # row as a bare 'protocol/' token. Errors are re-raised with the row's position (among the
                 # submitted rows — the widget omits entirely-blank ones), since it renders one row per
-                # protocol and an unqualified "Select a protocol" gives no clue which row to fix. Errors
-                # from validate_port_mappings() below are deliberately left unqualified: each quotes the
-                # offending mapping already, and a duplicate spans two rows.
+                # protocol and an unqualified "must specify a protocol" gives no clue which row to fix.
+                # Errors from validate_port_mappings() below are deliberately left unqualified: each quotes
+                # the offending mapping already, and a duplicate spans two rows.
                 try:
                     mappings.extend(expand_port_mapping(protocol, raw_ports))
                 except ValidationError as e:

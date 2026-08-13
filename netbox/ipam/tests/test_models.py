@@ -2058,6 +2058,31 @@ class ServiceTestCase(TestCase):
         )
         self.assertEqual(service.port_mappings_list, 'TCP/53, UDP/53')
 
+    def test_port_mappings_list_collapses_ranges(self):
+        vm = VirtualMachine.objects.first()
+
+        big = Service.objects.create(
+            name='big',
+            parent=vm,
+            port_mappings=[f'tcp/{port}' for port in range(8000, 8101)],
+        )
+        self.assertEqual(big.port_mappings_list, 'TCP/8000-8100')
+
+        mixed = Service.objects.create(
+            name='mixed',
+            parent=vm,
+            port_mappings=['tcp/82', 'tcp/80', 'tcp/81', 'tcp/443', 'udp/68', 'udp/67'],
+        )
+        self.assertEqual(mixed.port_mappings_list, 'TCP/80-82, TCP/443, UDP/67-68')
+
+    def test_port_mappings_list_tolerates_malformed_ports(self):
+        service = Service.objects.create(
+            name='malformed',
+            parent=VirtualMachine.objects.first(),
+            port_mappings=['tcp/80', 'tcp/abc'],
+        )
+        self.assertEqual(service.port_mappings_list, 'TCP/80, TCP/abc')
+
     def test_legacy_protocol_ports_properties(self):
         """The read-only protocol/ports properties expose the deprecated single-protocol representation."""
         vm = VirtualMachine.objects.first()
