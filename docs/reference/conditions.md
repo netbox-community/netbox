@@ -150,11 +150,13 @@ You can also read pre- or post-change values directly using the `snapshots.prech
     Snapshot data uses the **model serializer format**, not the REST API format. Choice fields such as `status` are stored as raw strings (e.g. `"active"`) rather than nested objects (e.g. `{"value": "active", "label": "Active"}`). Use `status` — not `status.value` — when referencing a snapshot attribute, both in `snapshots.prechange.*`/`snapshots.postchange.*` paths and with the `changed`/`unchanged` operators. A `.value` suffix cannot be resolved against a snapshot: the condition fails closed (the rule does not fire) and an error is logged to `netbox.event_rules`.
 
 !!! note "Snapshot availability"
-    For create events, `prechange` is `null`. The `changed` operator evaluates to `true` (each field transitioned from non-existent to its initial value), and any `snapshots.prechange.*` path resolves to `null` — so it matches a condition testing for `null` and fails any other comparison.
+    For create events, `prechange` is `null`. The `changed` operator evaluates to `true` (each field transitioned from non-existent to its initial value), and a `snapshots.prechange.*` path resolves to `null` — so it matches a condition testing for `null` and fails any other comparison.
 
-    For delete events, `postchange` is `null`. The `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, `unchanged` evaluates to `false`, and any `snapshots.postchange.*` path resolves to `null`.
+    For delete events, `postchange` is `null`. The `changed` operator evaluates to `true` for any attribute present in the prechange snapshot, `unchanged` evaluates to `false`, and a `snapshots.postchange.*` path resolves to `null`.
 
-    An absent snapshot excuses only the absence of the data, not a malformed path: a path which cannot be resolved against a snapshot at all (such as the `.value` suffix above) fails closed and is logged regardless of the event type.
+    An absent snapshot excuses only the absence of the data, not a path which does not describe it. The attribute path is checked against the opposite snapshot, and fails closed (the rule does not fire, and an error is logged) if it cannot be resolved there — whether because it cannot be resolved against a snapshot at all, such as the `.value` suffix above, or because the attribute is misspelled or unknown. Otherwise a typo would resolve to `null` and fire the rule on every create or delete.
+
+    To test only whether a snapshot is absent, reference the snapshot itself rather than an attribute of it: `{"attr": "snapshots.prechange", "value": null}`.
 
 Because an absent snapshot resolves to `null` rather than raising an error — matching a condition testing for `null` and failing any other comparison, whichever operator is used — a snapshot path can be combined safely with other conditions in a rule that also fires on create or delete. For example, this rule fires when a site is created, or when a site whose status was previously `planned` is updated:
 

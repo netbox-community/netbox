@@ -783,22 +783,46 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             Condition('snapshots.prechange.description.value', value=None).eval(blank)
 
+    def test_absent_snapshot_path_unknown_to_opposite_snapshot_fails_closed(self):
+        """
+        An absent snapshot excuses only a path the opposite snapshot shows to describe the
+        data. A path which resolves to nothing there either is not shown to describe it, so it
+        must fail closed rather than resolving to null - which would let an unknown path fire
+        the rule on every create or delete, with nothing logged, even though the same path
+        raises on an update event. Testing for the absent snapshot itself remains available
+        as 'snapshots.prechange' with no remainder.
+        """
+        create = {'snapshots': {'prechange': None, 'postchange': {'custom_fields': {'cf1': 'x'}, 'tags': []}}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.nonexistent.attr', value=None).eval(create)
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.custom_fields.cf2', value=None).eval(create)
+        # An empty list holds no element in which to find 'name', so it cannot show the path
+        # to describe the data any more than an absent key can
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.prechange.tags.name', value=None).eval(create)
+
+        delete = {'snapshots': {'prechange': {'status': 'active'}, 'postchange': None}}
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.postchange.nonexistent.attr', value=None).eval(delete)
+
     def test_absent_snapshot_path_resolves_to_none_when_shape_is_valid(self):
         """
-        A nested path which the opposite snapshot shows to be walkable is a genuine absence,
-        so it resolves to null. So is a path which cannot be checked at all, because the
-        opposite snapshot does not contain it either or is itself null.
+        A nested path which the opposite snapshot resolves is a genuine absence, so it
+        resolves to null. So is the absent snapshot itself, and a path which cannot be checked
+        at all because the opposite snapshot is null too: the event then carries no data
+        anywhere to check against, so treating it as absent is the only alternative to logging
+        an error for every rule on every such event.
         """
         create = {'snapshots': {'prechange': None, 'postchange': {'custom_fields': {'cf1': 'x'}, 'tags': []}}}
         self.assertTrue(Condition('snapshots.prechange.custom_fields.cf1', value=None).eval(create))
-        self.assertTrue(Condition('snapshots.prechange.nonexistent.attr', value=None).eval(create))
         self.assertTrue(Condition('snapshots.prechange', value=None).eval(create))
-        # An empty list contains nothing to walk, so like an absent key it cannot show the
-        # path to be malformed either
-        self.assertTrue(Condition('snapshots.prechange.tags.name', value=None).eval(create))
+        # A resolved value is a resolved value, whatever its own shape
+        self.assertTrue(Condition('snapshots.prechange.tags', value=None).eval(create))
 
         both_absent = {'snapshots': {'prechange': None, 'postchange': None}}
         self.assertTrue(Condition('snapshots.prechange.status.value', value=None).eval(both_absent))
+        self.assertTrue(Condition('snapshots.prechange.nonexistent.attr', value=None).eval(both_absent))
 
     def test_snapshot_path_without_snapshot_context_fails_closed(self):
         """

@@ -193,8 +193,9 @@ class Condition:
         * The data itself is absent (an AbsentData payload), e.g. a job event for a job
           which recorded no data.
         * self.attr is a direct snapshot path (snapshots.prechange.* or
-          snapshots.postchange.*) whose referenced snapshot is null. Create events have no
-          prechange snapshot and delete events have no postchange snapshot.
+          snapshots.postchange.*) whose referenced snapshot is null, and whose remaining path
+          the opposite snapshot shows to be resolvable. Create events have no prechange
+          snapshot and delete events have no postchange snapshot.
         """
         if isinstance(data, AbsentData) and self.attr.split('.')[0] not in data:
             return True
@@ -207,19 +208,28 @@ class Condition:
         if which not in snapshots or snapshots[which] is not None:
             return False
 
-        # The referenced snapshot is null. Validate the remainder of the path against the
-        # opposite snapshot, so that a path which cannot be walked at all (e.g. the REST
-        # API-style 'status.value') fails closed here exactly as it does when both snapshots
-        # are present, rather than resolving to None and firing the rule on every create or
-        # delete. A path which is merely absent from the opposite snapshot is indeterminate
-        # and treated as absent, since it resolves to nothing either way.
+        # The referenced snapshot is null. A null snapshot excuses only the absence of data
+        # the event would otherwise have carried, never a path which does not describe the
+        # data at all, so the remainder is validated against the opposite snapshot: only a
+        # path which resolves there is treated as genuinely absent here. A path the opposite
+        # snapshot cannot vouch for - because it cannot be walked at all (e.g. the REST
+        # API-style 'status.value'), or because it resolves to nothing there either (an absent
+        # key, a null, an empty list) - fails closed instead, exactly as it does when both
+        # snapshots are present. Otherwise a typo would resolve to null and fire the rule on
+        # every create or delete, and do so with nothing logged.
         other = snapshots.get(OPPOSITE_SNAPSHOT.get(which))
         if remainder and other is not None:
             try:
-                walk_path(other, remainder.split('.'))
+                value = walk_path(other, remainder.split('.'), empty_list_is_absent=True)
             except TypeError:
                 return False
+            if value is _MISSING:
+                return False
 
+        # Nothing to validate against: with the opposite snapshot absent too, the event
+        # carries no data anywhere for the path to be checked against. Treat the data as
+        # absent rather than logging an error for every rule on every such event; testing
+        # for the absent snapshot itself (snapshots.prechange, no remainder) lands here too.
         return True
 
     def _resolve_snapshot_attrs(self, snapshots):
