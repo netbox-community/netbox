@@ -189,6 +189,10 @@ class Condition:
         if type(snapshots) is not dict:
             return False
         which, _sep, remainder = self.attr[len(SNAPSHOT_PREFIX):].partition('.')
+        if which not in OPPOSITE_SNAPSHOT:
+            # Anything other than prechange or postchange names no snapshot the event could have
+            # recorded, so the path does not describe the data
+            return False
         if which not in snapshots or snapshots[which] is not None:
             return False
 
@@ -197,7 +201,7 @@ class Condition:
         # against the opposite snapshot so that such a path fails closed here exactly as it does
         # when both snapshots are present; otherwise a typo would resolve to null and fire the
         # rule on every create or delete, with nothing logged.
-        other = snapshots.get(OPPOSITE_SNAPSHOT.get(which))
+        other = snapshots.get(OPPOSITE_SNAPSHOT[which])
         if remainder and other is not None:
             try:
                 value = walk_path(other, remainder.split('.'), empty_list_is_absent=True)
@@ -271,7 +275,7 @@ class Condition:
         """
         if self.op in self.SNAPSHOT_OPERATORS:
             snapshots = data.get('snapshots') if isinstance(data, dict) else None
-            if snapshots is None:
+            if type(snapshots) is not dict:
                 raise InvalidCondition(
                     f"No snapshot data available for '{self.op}' operator. "
                     f"Snapshot operators are only meaningful on update and delete events."

@@ -684,6 +684,19 @@ class SnapshotConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             c.eval({'status': {'value': 'active'}})
 
+    def test_changed_raises_when_snapshots_is_not_a_dict(self):
+        """
+        A snapshots value which is not a dict holds no snapshot to compare. It must be reported
+        as an invalid condition, matching a direct snapshot path against the same data, rather
+        than raising an uncaught AttributeError which would abort event processing entirely.
+        """
+        for snapshots in ('oops', ['prechange'], 42):
+            with self.subTest(snapshots=snapshots):
+                with self.assertRaises(InvalidCondition):
+                    Condition('status', op='changed').eval({'snapshots': snapshots})
+                with self.assertRaises(InvalidCondition):
+                    Condition('snapshots.prechange.status', value='active').eval({'snapshots': snapshots})
+
     #
     # 'unchanged' operator
     #
@@ -809,6 +822,12 @@ class SnapshotConditionTestCase(TestCase):
             Condition('snapshots.prechange.stauts', value='planned').eval({'snapshots': snapshots})
         with self.assertRaises(InvalidCondition):
             Condition('snapshots.bogus.status', value='planned').eval({'snapshots': snapshots})
+
+        # A misnamed snapshot which happens to be null names no snapshot the event could have
+        # recorded, so it has no absence to excuse it: it must fail closed like any other typo,
+        # rather than resolving to null and firing the rule
+        with self.assertRaises(InvalidCondition):
+            Condition('snapshots.bogus.status', value=None).eval({'snapshots': {'bogus': None}})
 
     def test_absent_snapshot_path_traversing_scalar_still_fails_closed(self):
         """
