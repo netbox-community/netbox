@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import IntegrityError, models, router, transaction
+from django.db import IntegrityError, models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceTypeChoices
@@ -193,6 +193,20 @@ class InterfaceValidationMixin:
                 )
             })
 
+        # A channel subinterface's cable state is mirrored from its channelized parent (see
+        # update_channelized_cable_paths()), so it cannot also carry its own CableTermination -- checking
+        # cable_terminations rather than self.cable, since a valid channel child's self.cable is expected to
+        # already reflect the parent's mirrored cable. InterfaceTemplate shares this mixin but is not a
+        # CabledObjectModel and so has no cable_terminations at all.
+        cable_terminations = getattr(self, 'cable_terminations', None)
+        if self.channel_id is not None and cable_terminations is not None and cable_terminations.exists():
+            raise ValidationError({
+                'channel_id': _(
+                    "A channel ID cannot be assigned to an interface with an existing cable connection. Remove "
+                    "the cable first."
+                )
+            })
+
         # A channel subinterface must be bound to a channelized parent. A replication base is checked too, so an
         # invalid parent selection is caught before pattern expansion rather than per-instance.
         if self.channel_id is not None or (is_replicated_base and can_bind_to_channel and self.parent_id):
@@ -288,6 +302,10 @@ class InterfaceChannelRenameMixin:
         renamed = bool(self.pk and is_channelized and name_persisted and new_name != old_name)
 
         super().save(*args, **kwargs)
+        # Captured after super().save() so it reflects the DB actually used -- which, when this save() was
+        # called with an explicit using=, is not necessarily what router.db_for_write() would return if
+        # re-run here.
+        db_alias = self._state.db
 
         if name_persisted:
             self._original_name = new_name
@@ -297,24 +315,23 @@ class InterfaceChannelRenameMixin:
         if renamed:
             # Defer until commit so a later save in the same transaction cannot overwrite the cascade.
             transaction.on_commit(
-                lambda: self._rename_channel_subinterfaces(old_name, new_name),
-                using=router.db_for_write(type(self)),
+                lambda: self._rename_channel_subinterfaces(old_name, new_name, db_alias),
+                using=db_alias,
             )
 
-    def _rename_channel_subinterfaces(self, old_name, new_name):
+    def _rename_channel_subinterfaces(self, old_name, new_name, db_alias):
         """
         Rename each channel subinterface following the "<parent name>:<channel ID>" convention to match this
         interface's new name. A subinterface named otherwise is left untouched, as is one whose renamed form
         would exceed the name field's max length or collide with an existing sibling.
         """
         max_name_length = self._meta.get_field('name').max_length
-        db_alias = router.db_for_write(type(self))
         # This runs from an on_commit callback, after the triggering save()'s own transaction has already
         # committed -- so without this outer atomic(), each child below would run in its own independent,
         # auto-committing transaction rather than a savepoint, and an unexpected failure partway through
         # could leave only some of the child set renamed.
         with transaction.atomic(using=db_alias):
-            for child in self.child_interfaces.filter(channel_id__isnull=False):
+            for child in self.child_interfaces.using(db_alias).filter(channel_id__isnull=False):
                 if child.name != f'{old_name}:{child.channel_id}':
                     continue
                 candidate_name = f'{new_name}:{child.channel_id}'
@@ -331,7 +348,7 @@ class InterfaceChannelRenameMixin:
                 # and a collision on one child can't abort the rename of the others.
                 try:
                     with transaction.atomic(using=db_alias):
-                        child.save(update_fields=['name', '_name', 'last_updated'])
+                        child.save(using=db_alias, update_fields=['name', '_name', 'last_updated'])
                 except IntegrityError:
                     # Confirm this was really the expected name collision (not some other constraint) before
                     # treating it as safe to skip. The (device, name) constraint is declared via

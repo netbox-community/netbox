@@ -204,8 +204,14 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
 
     parent_ids = set()
 
-    # A channel subinterface was added, moved between parents, or had its channel_id changed
-    if instance.channel_id or instance._original_channel_id:
+    # A channel subinterface was added, moved between parents, or had its channel_id changed. Gated on an actual
+    # change (or creation) so a full re-save of an already-channelized child with neither field touched doesn't
+    # propagate cable state and rebuild the parent's paths for unrelated changes.
+    channelization_touched = (
+        created or instance.channel_id != instance._original_channel_id
+        or instance.parent_id != instance._original_parent_id
+    )
+    if channelization_touched and (instance.channel_id or instance._original_channel_id):
         parent_ids.update(pk for pk in (instance.parent_id, instance._original_parent_id) if pk)
 
     # Channelization was toggled on this interface while it carries a cable
@@ -221,9 +227,12 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
             parent.propagate_channel_cables()
         rebuild_cable_paths(parent.cable)
 
-    # A channel subinterface whose parent no longer provides a cable must not retain stale mirrored cable attributes
-    if instance.channel_id and instance.cable_id:
-        parent = instance.parent
+    # A channel subinterface whose parent no longer provides a cable must not retain stale mirrored cable
+    # attributes -- including when it was just detached from channelization entirely (channel_id and/or parent
+    # cleared), since it then drops out of the old parent's propagation queryset above and would otherwise keep
+    # its old cable cache indefinitely.
+    if (instance.channel_id or instance._original_channel_id) and instance.cable_id:
+        parent = instance.parent if instance.channel_id else None
         if not (parent and parent.channels and parent.cable_id):
             Interface.objects.filter(pk=instance.pk).update(
                 cable=None, cable_end='', cable_connector=None, cable_positions=None

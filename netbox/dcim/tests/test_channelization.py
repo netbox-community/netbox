@@ -1,8 +1,9 @@
 import json
+from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import connection
+from django.db import connection, router
 from django.test import Client, TestCase, TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -409,6 +410,64 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
                 self.assertPathExists((near, cable, far), is_complete=True, is_active=True)
                 self.assertPathExists((far, cable, near), is_complete=True, is_active=True)
 
+    def test_112_full_resave_of_unchanged_channel_child_skips_propagation(self):
+        """
+        A full re-save of an already-channelized child with neither channel_id nor parent actually changed must
+        not re-propagate cable state or rebuild the parent's paths; previously only update_fields-excluded
+        partial saves were guarded, so a full save of an unrelated field still passed through.
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+
+        channel = channels[0]
+        channel.refresh_from_db()
+        channel.description = 'updated'
+        with (
+            mock.patch.object(Interface, 'propagate_channel_cables') as mock_propagate,
+            mock.patch('dcim.signals.rebuild_cable_paths') as mock_rebuild,
+        ):
+            channel.save()
+
+        mock_propagate.assert_not_called()
+        mock_rebuild.assert_not_called()
+
+    def test_113_detach_channel_clears_stale_cable_attributes(self):
+        """
+        Fully detaching a channel subinterface (clearing both parent and channel_id) must clear its mirrored
+        cable attributes too -- once detached, it drops out of the old parent's propagation queryset and would
+        otherwise retain a stale cable_id indefinitely.
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+
+        channel = channels[0]
+        channel.refresh_from_db()
+        self.assertEqual(channel.cable_id, cable.pk)
+
+        channel.parent = None
+        channel.channel_id = None
+        channel.type = InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        channel.full_clean()
+        channel.save()
+
+        channel.refresh_from_db()
+        self.assertIsNone(channel.cable_id)
+        self.assertIsNone(channel.cable_connector)
+        self.assertIsNone(channel.cable_positions)
+        self.assertPathIsNotSet(channel)
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """
@@ -594,6 +653,25 @@ class ChannelizedInterfaceTestCase(TestCase):
         with self.assertRaises(ValidationError):
             duplicate.full_clean()
 
+    def test_channel_id_rejected_on_interface_with_existing_cable_termination(self):
+        # A channel subinterface's cable state is mirrored from its parent; an interface that already carries its
+        # own direct cable connection cannot also be converted into one.
+        interface = Interface.objects.create(
+            device=self.device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        far = Interface.objects.create(
+            device=self.device, name='xe1', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        cable = Cable(a_terminations=[interface], b_terminations=[far])
+        cable.clean()
+        cable.save()
+
+        interface.refresh_from_db()
+        interface.parent = self.parent
+        interface.channel_id = 1
+        with self.assertRaises(ValidationError):
+            interface.full_clean()
+
     # -- renaming ----------------------------------------------------------------------------------------------
     # Renaming a channelized parent interface updates the names of any channel subinterfaces which follow the
     # "<parent name>:<channel ID>" convention.
@@ -609,6 +687,37 @@ class ChannelizedInterfaceTestCase(TestCase):
 
         child.refresh_from_db()
         self.assertEqual(child.name, 'et1:1')
+
+    def test_rename_cascade_uses_save_state_db_not_router(self):
+        # The deferred callback and child query/save must reuse self._state.db (the DB actually used by
+        # save()), not re-invoke router.db_for_write() -- which could differ from an explicit save(using=...).
+        # Django's own base Model.save() legitimately consults the router once per plain save() call (when no
+        # explicit using= is given); the pre-fix mixin code consulted it twice more for the same instance during
+        # the cascade. Spy on calls for the Interface model specifically to confirm only that one call remains.
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        real_db_for_write = router.db_for_write
+        calls = []
+
+        def spy(model, **hints):
+            if model is Interface:
+                calls.append(model)
+            return real_db_for_write(model, **hints)
+
+        with mock.patch('django.db.router.db_for_write', side_effect=spy):
+            with self.captureOnCommitCallbacks(execute=True):
+                self.parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.name, 'et1:1')
+        self.assertEqual(
+            len(calls), 1,
+            "router.db_for_write(Interface) was consulted more than once; the rename cascade should reuse "
+            "self._state.db instead of re-invoking the router."
+        )
 
     def test_rename_leaves_nonconforming_children_untouched(self):
         child = Interface.objects.create(
