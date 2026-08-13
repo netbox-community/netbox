@@ -43,7 +43,7 @@ class AbsentData(dict):
         return AbsentData(self)
 
 
-def walk_path(obj, keys):
+def walk_path(obj, keys, empty_list_is_absent=False):
     """
     Walk a sequence of keys through obj, returning _MISSING if a key is absent along the way.
 
@@ -55,14 +55,23 @@ def walk_path(obj, keys):
     its truthiness: an empty string or a zero is just as unwalkable as any other scalar, and
     must be reported as such rather than being mistaken for an absent key.
 
-    Null values and empty lists are the exception. Neither is evidence of a malformed path,
-    since there is nothing there to walk either way, so both resolve to _MISSING exactly as
-    an absent key does.
+    Null values are the exception: a null is no evidence of a malformed path, since there is
+    nothing there to walk either way, so it resolves to _MISSING exactly as an absent key does.
+
+    Descending a key into an empty list maps it across no elements and so yields an empty
+    list, exactly as it yields a list of values for a populated one. An object with no tags
+    thus resolves 'tags.slug' to [], which is a legitimate value for a condition to compare
+    against, not a malformed path. Callers for which an empty list is instead an absence -
+    the snapshot operators, which need a resolved value to serve as evidence that the path is
+    well-formed - can pass empty_list_is_absent=True to get _MISSING.
     """
     for key in keys:
         if obj is None:
             return _MISSING
         if isinstance(obj, list):
+            if not obj and empty_list_is_absent:
+                # An empty list yields no evidence either way
+                return _MISSING
             values = []
             for item in obj:
                 if item is None:
@@ -72,9 +81,6 @@ def walk_path(obj, keys):
                 if key not in item:
                     return _MISSING
                 values.append(item[key])
-            if not values:
-                # An empty list yields no evidence either way
-                return _MISSING
             obj = values
         elif isinstance(obj, dict):
             if key not in obj:
@@ -248,7 +254,7 @@ class Condition:
                 values.append(_MISSING)
                 continue
             try:
-                value = walk_path(snapshot, keys)
+                value = walk_path(snapshot, keys, empty_list_is_absent=True)
             except TypeError as e:
                 values.append(_MISSING)
                 errors.append(e)

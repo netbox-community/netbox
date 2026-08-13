@@ -53,6 +53,24 @@ class ConditionTestCase(TestCase):
         with self.assertRaises(InvalidCondition):
             c.eval({'x': {'y': {'a': 1}}})
 
+    def test_nested_within_list(self):
+        c = Condition('tags.slug', 'exempt', 'contains')
+        self.assertTrue(c.eval({'tags': [{'slug': 'exempt'}, {'slug': 'other'}]}))
+        self.assertFalse(c.eval({'tags': [{'slug': 'other'}]}))
+
+    def test_nested_within_empty_list(self):
+        """
+        Descending into an empty list resolves to an empty list, not an absent attribute: an
+        object with no tags is a legitimate non-match for the documented 'tags.slug contains'
+        condition, not a malformed path. Raising here would abort the whole condition set,
+        which for an 'or' set means a matching sibling condition never gets evaluated.
+        """
+        self.assertFalse(Condition('tags.slug', 'exempt', 'contains').eval({'tags': []}))
+        self.assertTrue(Condition('tags.slug', 'exempt', 'contains', negate=True).eval({'tags': []}))
+        self.assertTrue(Condition('tags.slug', [], 'eq').eval({'tags': []}))
+        # The list is carried through the remainder of the path, just as a populated one is
+        self.assertFalse(Condition('tags.parent.slug', 'exempt', 'contains').eval({'tags': []}))
+
     #
     # Operator tests
     #
@@ -235,6 +253,28 @@ class ConditionSetTestCase(TestCase):
         self.assertTrue(cs.eval({'a': 1, 'b': 2, 'c': 9}))
         self.assertFalse(cs.eval({'a': 9, 'b': 2, 'c': 9}))
         self.assertFalse(cs.eval({'a': 9, 'b': 9, 'c': 3}))
+
+    def test_untagged_object_does_not_veto_sibling_conditions(self):
+        """
+        The documented "status is active and primary_ip4 is defined, or the exempt tag is
+        applied" example, evaluated for an object with no tags at all. The tag condition is a
+        plain non-match: it must not abort the set before its sibling is reached, whichever
+        order the two are listed in.
+        """
+        tag_rule = {'attr': 'tags.slug', 'value': 'exempt', 'op': 'contains'}
+        status_rule = {'and': [
+            {'attr': 'status.value', 'value': 'active'},
+            {'attr': 'primary_ip4', 'value': None, 'negate': True},
+        ]}
+        data = {'status': {'value': 'active'}, 'primary_ip4': {'address': '192.0.2.1/32'}, 'tags': []}
+
+        self.assertTrue(ConditionSet({'or': [tag_rule, status_rule]}).eval(data))
+        self.assertTrue(ConditionSet({'or': [status_rule, tag_rule]}).eval(data))
+
+        # Neither condition matches: still False rather than an error
+        self.assertFalse(ConditionSet({'or': [tag_rule, status_rule]}).eval({
+            'status': {'value': 'planned'}, 'primary_ip4': None, 'tags': []
+        }))
 
     def test_event_rule_conditions_without_logic_operator(self):
         """
