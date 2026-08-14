@@ -357,6 +357,51 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
             form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
         )
 
+    def test_module_bay_types_resolution_is_independent_of_field_order(self):
+        """
+        Resolution must not depend on the parent type having been cleaned first, so declaring
+        module_bay_types ahead of device_type/module_type must not change the outcome.
+        """
+        class ReorderedImportForm(ModuleBayTemplateImportForm):
+            class Meta(ModuleBayTemplateImportForm.Meta):
+                fields = [
+                    'module_bay_types', 'device_type', 'module_type', 'name', 'label', 'position',
+                    'enabled', 'description',
+                ]
+
+        self.assertEqual(list(ReorderedImportForm().fields)[0], 'module_bay_types')
+
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        juniper_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-juniper', manufacturer=juniper)
+        cisco_type = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        # The device type's own manufacturer still wins over the global type of the same name
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module_bay_template = form.save()
+        self.assertEqual(list(module_bay_template.module_bay_types.all()), [juniper_type])
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+        # ...and another manufacturer's bay type is still rejected rather than resolved to
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': [cisco_type.name],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
 
 class ModuleFormTestCase(TestCase):
 
