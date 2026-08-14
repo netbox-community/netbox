@@ -7,8 +7,10 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.http import StreamingHttpResponse
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import EUI
 
@@ -17,6 +19,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import (
@@ -998,11 +1001,15 @@ port-mappings:
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
+    enabled: false
   - name: Module Bay 3
 device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
+    enabled: false
   - name: Device Bay 3
 inventory-items:
   - name: Inventory Item 1
@@ -1018,6 +1025,7 @@ inventory-items:
         manufacturer.save()
         platform = Platform(name='Platform', slug='test-platform', manufacturer=manufacturer)
         platform.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1126,14 +1134,51 @@ inventory-items:
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+        self.assertTrue(mb1.enabled)
+
+        mb2 = ModuleBayTemplate.objects.filter(name='Module Bay 2').first()
+        self.assertFalse(mb2.enabled)
 
         self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
+        self.assertTrue(db1.enabled)
+
+        db2 = DeviceBayTemplate.objects.filter(name='Device Bay 2').first()
+        self.assertFalse(db2.enabled)
 
         self.assertEqual(device_type.inventoryitemtemplates.count(), 3)
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
+
+    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
+        """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
+        manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
+
+        def make_device_type(model_name, bay_count):
+            device_type = DeviceType.objects.create(
+                manufacturer=manufacturer, model=model_name, slug=model_name.lower().replace(' ', '-'),
+            )
+            for i in range(bay_count):
+                bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
+                bay.module_bay_types.set([bay_type])
+            return device_type
+
+        one_bay_device_type = make_device_type('Export Query DT One Bay', 1)
+        five_bay_device_type = make_device_type('Export Query DT Five Bays', 5)
+
+        view = DeviceTypeListView()
+        view.queryset = DeviceType.objects.filter(pk=one_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as one_bay_queries:
+            view.export_yaml()
+
+        view.queryset = DeviceType.objects.filter(pk=five_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as five_bay_queries:
+            view.export_yaml()
+
+        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
 
     def test_import_error_numbering(self):
         # Add all required permissions to the test user
@@ -1648,6 +1693,8 @@ port-mappings:
 module-bays:
   - name: Module Bay 1
     position: 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
     position: 2
   - name: Module Bay 3
@@ -1657,6 +1704,7 @@ module-bays:
         # Create the manufacturer
         manufacturer = Manufacturer(name='Generic', slug='generic')
         manufacturer.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1752,6 +1800,34 @@ module-bays:
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+
+    def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
+        """Compares an unprefetched to_yaml() call per instance against export_yaml() (which
+        prefetches and issues no queries of its own beyond that), rather than a row-count
+        comparison, which other per-instance relations that legitimately scale with it would
+        swamp."""
+        manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
+
+        module_types = []
+        for i in range(5):
+            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=f'Export Query MT {i}')
+            module_type.module_bay_types.set([bay_type])
+            module_types.append(module_type)
+        pks = [mt.pk for mt in module_types]
+
+        with CaptureQueriesContext(connection) as unprefetched:
+            [obj.to_yaml() for obj in ModuleType.objects.filter(pk__in=pks)]
+
+        view = ModuleTypeListView()
+        view.queryset = ModuleType.objects.filter(pk__in=pks)
+        with CaptureQueriesContext(connection) as prefetched:
+            view.export_yaml()
+
+        # Without the prefetch, each of the 5 module types issues its own module_bay_types
+        # query; with it, exactly one query serves all 5.
+        self.assertEqual(len(unprefetched) - len(prefetched), 4)
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):

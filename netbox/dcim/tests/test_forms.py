@@ -229,6 +229,180 @@ class ModuleTypeFormTestCase(TestCase):
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
 
 
+class ModuleBayTemplateImportFormTestCase(TestCase):
+
+    def test_module_bay_types_prefers_manufacturer_specific_match_over_global(self):
+        """A name shared by a global and a manufacturer-scoped type resolves to the scoped one."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        scoped_type = ModuleBayType.objects.create(
+            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
+        )
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(
+            list(module_bay_template.module_bay_types.all()), [scoped_type],
+        )
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+    def test_module_bay_types_unknown_name_raises_error(self):
+        device_type = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['Nonexistent'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+    def test_module_bay_types_prefers_manufacturer_specific_match_over_global_for_module_type(self):
+        """Same disambiguation, but for a module bay template nested under a ModuleType."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        scoped_type = ModuleBayType.objects.create(
+            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
+        )
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+
+        form = ModuleBayTemplateImportForm({
+            'module_type': module_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(
+            list(module_bay_template.module_bay_types.all()), [scoped_type],
+        )
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+    def test_enabled_honors_explicit_false(self):
+        device_type = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'enabled': False,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.save().enabled)
+
+    def test_import_export_round_trip_preserves_module_bay_types(self):
+        """to_yaml() then re-import through this form preserves module bay types."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1',
+        )
+        original = ModuleBayTemplate.objects.create(device_type=device_type, name='Module Bay 1')
+        original.module_bay_types.set([bay_type_a, bay_type_b])
+
+        exported = original.to_yaml()
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': exported['module_bay_types'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        reimported = form.save()
+        self.assertEqual(
+            set(reimported.module_bay_types.values_list('name', flat=True)),
+            set(original.module_bay_types.values_list('name', flat=True)),
+        )
+
+    def test_module_bay_types_name_belonging_only_to_other_manufacturers_is_unresolvable(self):
+        """
+        A name that exists only for manufacturers other than the device type's own (and isn't
+        global) must not resolve at all -- module_bay_types is scoped to the device type's own
+        manufacturer plus global types, with no cross-manufacturer fallback.
+        """
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+    def test_module_bay_types_resolution_is_independent_of_field_order(self):
+        """
+        Resolution must not depend on the parent type having been cleaned first, so declaring
+        module_bay_types ahead of device_type/module_type must not change the outcome.
+        """
+        class ReorderedImportForm(ModuleBayTemplateImportForm):
+            class Meta(ModuleBayTemplateImportForm.Meta):
+                fields = [
+                    'module_bay_types', 'device_type', 'module_type', 'name', 'label', 'position',
+                    'enabled', 'description',
+                ]
+
+        self.assertEqual(list(ReorderedImportForm().fields)[0], 'module_bay_types')
+
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        juniper_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-juniper', manufacturer=juniper)
+        cisco_type = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        # The device type's own manufacturer still wins over the global type of the same name
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module_bay_template = form.save()
+        self.assertEqual(list(module_bay_template.module_bay_types.all()), [juniper_type])
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+        # ...and another manufacturer's bay type is still rejected rather than resolved to
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': [cisco_type.name],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+
 class ModuleFormTestCase(TestCase):
 
     @classmethod

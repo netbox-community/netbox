@@ -1447,6 +1447,11 @@ class DeviceTypeListView(generic.ObjectListView):
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
 
+    def export_yaml(self):
+        # Avoid one module_bay_types query per module bay template across the export.
+        self.queryset = self.queryset.prefetch_related('modulebaytemplates__module_bay_types')
+        return super().export_yaml()
+
 
 @register_model_view(DeviceType)
 class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
@@ -1901,6 +1906,13 @@ class ModuleTypeListView(generic.ObjectListView):
     filterset = filtersets.ModuleTypeFilterSet
     filterset_form = forms.ModuleTypeFilterForm
     table = tables.ModuleTypeTable
+
+    def export_yaml(self):
+        # Avoid one module_bay_types query per module type across the export. (Unlike
+        # DeviceType.to_yaml(), ModuleType.to_yaml() doesn't export module bay templates at
+        # all, so there's nothing to prefetch alongside it.)
+        self.queryset = self.queryset.prefetch_related('module_bay_types')
+        return super().export_yaml()
 
 
 @register_model_view(ModuleType)
