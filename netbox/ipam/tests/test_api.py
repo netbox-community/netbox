@@ -653,6 +653,44 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     @tag('regression')
+    def test_create_available_ips_errors_by_position(self):
+        """
+        Test that the errors for a request creating multiple IP addresses are correlated to the
+        positions of the entries which failed validation.
+        """
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
+
+        # An invalid request attribute, rejected before any address has been allocated
+        data = [
+            {'description': 'Test IP 1'},
+            {'prefix_length': 23},  # Parent prefix is a /24
+        ]
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0], {})
+        self.assertIn('prefix_length', response.data[1])
+
+        # An invalid object attribute, rejected after the addresses have been allocated
+        data = [
+            {'description': 'Test IP 1'},
+            {'status': 'not-a-valid-status'},
+        ]
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0], {})
+        self.assertIn('status', response.data[1])
+
+        # A single object is wrapped in a list, so its errors are reported in the same form
+        response = self.client.post(url, {'prefix_length': 23}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data), 1)
+        self.assertIn('prefix_length', response.data[0])
+
+    @tag('regression')
     def test_graphql_tenant_prefixes_contains_nested_skips_invalid(self):
         """
         Test the GraphQL API Tenant nested Prefix `contains` filter skips invalid input.

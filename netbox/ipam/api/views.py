@@ -22,7 +22,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin, discard_events_on_rollback
 from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
-from utilities.api import get_serializer_for_model
+from utilities.api import get_positional_errors, get_serializer_for_model
 from virtualization.models import VMInterface
 
 from . import serializers
@@ -265,8 +265,10 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
             **self.get_extra_context(parent),
         })
         if not serializer.is_valid():
+            # Report the errors by the position of each entry in the request, as the serializer is
+            # always bound to a list (a single object having been wrapped in one above)
             return Response(
-                serializer.errors,
+                get_positional_errors(serializer.errors, len(requested_objects)),
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -292,7 +294,12 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                 serializer = serializer_class(data=requested_objects[0], context=context)
 
             if not serializer.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                # A list request is reported by position; a single object carries no position, and
+                # its errors pass through unchanged
+                return Response(
+                    get_positional_errors(serializer.errors, len(requested_objects)),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             # Create the new IP address(es)
             using = router.db_for_write(self.queryset.model)
