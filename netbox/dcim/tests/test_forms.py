@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import yaml
 from django import forms
 from django.test import TestCase
 
@@ -17,7 +16,6 @@ from dcim.choices import (
 )
 from dcim.forms import *
 from dcim.models import *
-from dcim.tables.modules import ModuleTypeTable
 from dcim.tests.test_module_moves import fail_after
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
@@ -350,11 +348,15 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
             set(original.module_bay_types.values_list('name', flat=True)),
         )
 
-    def test_module_bay_types_permits_a_different_manufacturers_type(self):
-        """The UI/API place no manufacturer restriction on module_bay_types; import must match."""
+    def test_module_bay_types_name_belonging_only_to_other_manufacturers_is_unresolvable(self):
+        """
+        A name that exists only for manufacturers other than the device type's own (and isn't
+        global) must not resolve at all -- module_bay_types is scoped to the device type's own
+        manufacturer plus global types, with no cross-manufacturer fallback.
+        """
         juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
         cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
-        cisco_bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
         device_type = DeviceType.objects.create(
             manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
         )
@@ -364,237 +366,10 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
             'name': 'Module Bay 1',
             'module_bay_types': ['SFP28'],
         })
-        self.assertTrue(form.is_valid(), form.errors)
-
-        module_bay_template = form.save()
-        self.assertEqual(list(module_bay_template.module_bay_types.all()), [cisco_bay_type])
-
-        exported = module_bay_template.to_yaml()['module_bay_types']
-        reimport_form = ModuleBayTemplateImportForm({
-            'device_type': device_type.pk,
-            'name': 'Module Bay 2',
-            'module_bay_types': exported,
-        })
-        self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
-        self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
-
-    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
-        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
-        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
-        arista = Manufacturer.objects.create(name='Arista', slug='arista')
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
-        device_type = DeviceType.objects.create(
-            manufacturer=juniper, model='Juniper Device Type 2', slug='juniper-device-type-2',
-        )
-
-        form = ModuleBayTemplateImportForm({
-            'device_type': device_type.pk,
-            'name': 'Module Bay 1',
-            'module_bay_types': ['SFP28'],
-        })
         self.assertFalse(form.is_valid())
-        # Must name both manufacturers, not just error -- a plain invalid_choice would also
-        # pass assertIn() and mask a regression of the scoping removed in 6f3c537.
-        errors = form.errors.get('module_bay_types', [])
-        self.assertTrue(any('Cisco' in e and 'Arista' in e for e in errors), errors)
-
-
-class ModuleBayImportFormTestCase(TestCase):
-    """Covers real ModuleBay instances via CSV, as opposed to templates via ModuleBayTemplateImportForm."""
-
-    def test_module_bay_types_csv_import(self):
-        device = create_test_device('Module Bay Import Device')
-        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
-
-        form = ModuleBayImportForm({
-            'device': device.name,
-            'name': 'Bay 1',
-            'module_bay_types': 'SFP28',
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        module_bay = form.save()
-        self.assertEqual(list(module_bay.module_bay_types.all()), [bay_type])
-
-    def test_module_bay_types_prefers_devices_own_manufacturer(self):
-        device = create_test_device('Module Bay Import Device')
-        own_manufacturer = device.device_type.manufacturer
-        other_manufacturer = Manufacturer.objects.create(name='Other Mfr', slug='other-mfr')
-        own_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-own', manufacturer=own_manufacturer)
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-other', manufacturer=other_manufacturer)
-
-        form = ModuleBayImportForm({
-            'device': device.name,
-            'name': 'Bay 1',
-            'module_bay_types': 'SFP28',
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        self.assertEqual(list(form.save().module_bay_types.all()), [own_type])
-
-    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
-        device = create_test_device('Module Bay Import Device')
-        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
-        arista = Manufacturer.objects.create(name='Arista', slug='arista')
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
-
-        form = ModuleBayImportForm({
-            'device': device.name,
-            'name': 'Bay 1',
-            'module_bay_types': 'SFP28',
-        })
-        self.assertFalse(form.is_valid())
-        # Must name both manufacturers, not just error -- a plain invalid_choice would also
-        # pass assertIn() and mask a regression of the scoping removed in 6f3c537.
-        errors = form.errors.get('module_bay_types', [])
-        self.assertTrue(any('Cisco' in e and 'Arista' in e for e in errors), errors)
-
-
-class ModuleTypeImportFormTestCase(TestCase):
-
-    def test_module_bay_types_round_trip(self):
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28', manufacturer=manufacturer)
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 1',
-            'module_bay_types': ['SFP28'],
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-
-        module_type = form.save()
-        self.assertEqual(list(module_type.module_bay_types.all()), [bay_type])
-        self.assertEqual(yaml.safe_load(module_type.to_yaml())['module_bay_types'], ['SFP28'])
-
-    def test_module_bay_types_prefers_manufacturer_specific_match_over_global(self):
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
-        scoped_type = ModuleBayType.objects.create(
-            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
-        )
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 1',
-            'module_bay_types': ['SFP28'],
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-
-        module_type = form.save()
-        self.assertEqual(list(module_type.module_bay_types.all()), [scoped_type])
-        self.assertNotIn(global_type, module_type.module_bay_types.all())
-
-    def test_module_bay_types_accepts_csv_comma_separated_string(self):
-        """This form also serves plain CSV import, where the value is a string, not a list."""
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
-        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 1',
-            'module_bay_types': 'SFP28,QSFP28',
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-
-        module_type = form.save()
         self.assertEqual(
-            set(module_type.module_bay_types.values_list('name', flat=True)),
-            {bay_type_a.name, bay_type_b.name},
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
         )
-
-    def test_module_bay_types_accepts_empty_csv_string(self):
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 1',
-            'module_bay_types': '',
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        self.assertFalse(form.save().module_bay_types.exists())
-
-    def test_module_bay_types_round_trips_through_the_table_column_export_value(self):
-        """The table's CSV export (multi-value separator, name-only transform) must be re-importable,
-        without changing the rendered UI column, which should keep str()'s manufacturer prefix."""
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28', manufacturer=manufacturer)
-        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28', manufacturer=manufacturer)
-        original = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
-        original.module_bay_types.set([bay_type_a, bay_type_b])
-
-        column = ModuleTypeTable([original]).columns['module_bay_types'].column
-        exported_value = column.value(original.module_bay_types.all())
-        self.assertEqual(exported_value, 'QSFP28, SFP28')
-        self.assertIn(str(manufacturer), str(column.render(original.module_bay_types.all())))
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 2',
-            'module_bay_types': exported_value,
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        self.assertEqual(
-            set(form.save().module_bay_types.values_list('name', flat=True)),
-            {bay_type_a.name, bay_type_b.name},
-        )
-
-    def test_module_bay_types_non_string_scalar_is_a_validation_error_not_a_crash(self):
-        """A non-string scalar (e.g. from YAML) must produce a form error, not a crash."""
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-
-        form = ModuleTypeImportForm({
-            'manufacturer': manufacturer.name,
-            'model': 'Module Type 1',
-            'module_bay_types': 100,
-        })
-        self.assertFalse(form.is_valid())
-        self.assertIn('module_bay_types', form.errors)
-
-    def test_module_bay_types_permits_a_different_manufacturers_type(self):
-        """The UI/API place no manufacturer restriction on module_bay_types; import must match."""
-        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
-        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
-        cisco_bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
-
-        form = ModuleTypeImportForm({
-            'manufacturer': juniper.name,
-            'model': 'Juniper Line Card',
-            'module_bay_types': ['SFP28'],
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-
-        module_type = form.save()
-        self.assertEqual(list(module_type.module_bay_types.all()), [cisco_bay_type])
-
-        exported = yaml.safe_load(module_type.to_yaml())['module_bay_types']
-        reimport_form = ModuleTypeImportForm({
-            'manufacturer': juniper.name,
-            'model': 'Juniper Line Card 2',
-            'module_bay_types': exported,
-        })
-        self.assertTrue(reimport_form.is_valid(), reimport_form.errors)
-        self.assertEqual(list(reimport_form.save().module_bay_types.all()), [cisco_bay_type])
-
-    def test_module_bay_types_rejects_ambiguous_name_across_two_foreign_manufacturers(self):
-        """A name matching two different foreign manufacturers must be refused, not resolved arbitrarily."""
-        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
-        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
-        arista = Manufacturer.objects.create(name='Arista', slug='arista')
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
-        ModuleBayType.objects.create(name='SFP28', slug='sfp28-arista', manufacturer=arista)
-
-        form = ModuleTypeImportForm({
-            'manufacturer': juniper.name,
-            'model': 'Juniper Line Card',
-            'module_bay_types': ['SFP28'],
-        })
-        self.assertFalse(form.is_valid())
-        # Must name both manufacturers, not just error -- a plain invalid_choice would also
-        # pass assertIn() and mask a regression of the scoping removed in 6f3c537.
-        errors = form.errors.get('module_bay_types', [])
-        self.assertTrue(any('Cisco' in e and 'Arista' in e for e in errors), errors)
 
 
 class ModuleFormTestCase(TestCase):

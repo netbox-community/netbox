@@ -1028,8 +1028,6 @@ class ModuleBayTable(ModularDeviceComponentTable):
     module_bay_types = columns.ManyToManyColumn(
         verbose_name=_('Bay Types'),
         linkify_item=True,
-        # Export as bare name (import resolves by name alone); UI keeps str()'s manufacturer prefix.
-        export_transform=lambda obj: obj.name,
     )
 
     class Meta(ModularDeviceComponentTable.Meta):

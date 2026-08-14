@@ -100,9 +100,7 @@ class CSVModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
     def clean(self, value):
         if not isinstance(value, list):
-            # str(): a non-CSV caller (e.g. YAML) may pass a non-string scalar. strip(): a
-            # table's default ManyToManyColumn export separator is ", ", not ",".
-            value = [v.strip() for v in str(value).split(',')] if value else []
+            value = value.split(',') if value else []
         return super().clean(value)
 
 

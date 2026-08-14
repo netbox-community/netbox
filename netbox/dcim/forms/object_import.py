@@ -1,10 +1,9 @@
 from django import forms
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
-from dcim.utils import dedupe_module_bay_types_by_manufacturer
-from utilities.forms.fields import CSVModelMultipleChoiceField
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
@@ -215,10 +214,7 @@ class PortTemplateMappingImportForm(forms.ModelForm):
 
 
 class ModuleBayTemplateImportForm(forms.ModelForm):
-    # CSVModelMultipleChoiceField, not the plain ModelMultipleChoiceField used elsewhere in
-    # this file, so a scalar name is accepted alongside a list -- matches ModuleTypeImportForm's
-    # equivalent field, which also serves plain CSV import.
-    module_bay_types = CSVModelMultipleChoiceField(
+    module_bay_types = forms.ModelMultipleChoiceField(
         label=_('Module bay types'),
         queryset=ModuleBayType.objects.all(),
         to_field_name='name',
@@ -227,6 +223,8 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ModuleBayTemplate
+        # module_bay_types must stay last: clean_device_type/clean_module_type narrow its queryset by
+        # manufacturer before it is itself cleaned, and Django cleans fields in this order.
         fields = [
             'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
             'module_bay_types',
@@ -239,20 +237,42 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
             return True
         return self.cleaned_data['enabled']
 
-    def clean(self):
-        cleaned_data = super().clean()
+    def _scope_module_bay_types(self, manufacturer):
+        module_bay_types = self.fields['module_bay_types']
+        module_bay_types.queryset = module_bay_types.queryset.filter(
+            Q(manufacturer__isnull=True) | Q(manufacturer=manufacturer)
+        )
 
-        if module_bay_types := cleaned_data.get('module_bay_types'):
-            device_type = cleaned_data.get('device_type')
-            module_type = cleaned_data.get('module_type')
-            manufacturer = device_type.manufacturer if device_type else (
-                module_type.manufacturer if module_type else None
-            )
-            cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
-                module_bay_types, manufacturer,
-            )
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            self._scope_module_bay_types(device_type.manufacturer)
 
-        return cleaned_data
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            self._scope_module_bay_types(module_type.manufacturer)
+
+        return module_type
+
+    def clean_module_bay_types(self):
+        """
+        Collapse to one match per name, preferring a manufacturer-specific match over a global
+        one. ModuleBayType's unique constraint is on (manufacturer, name), not name alone, so a
+        name can legitimately collide between a global type and one scoped to this template's
+        own manufacturer (narrowed by clean_device_type/clean_module_type above); the field's
+        default name-based lookup resolves both matches into cleaned_data rather than picking
+        one, since it has no way to know which is meant.
+        """
+        module_bay_types = self.cleaned_data['module_bay_types']
+
+        by_name = {}
+        for module_bay_type in module_bay_types:
+            existing = by_name.get(module_bay_type.name)
+            if existing is None or module_bay_type.manufacturer_id is not None:
+                by_name[module_bay_type.name] = module_bay_type
+
+        return list(by_name.values())
 
 
 class DeviceBayTemplateImportForm(forms.ModelForm):

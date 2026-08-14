@@ -2,55 +2,10 @@ from collections import defaultdict
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db import router, transaction
 from django.utils.translation import gettext as _
 
 from dcim.constants import MODULE_TOKEN
-
-
-def dedupe_module_bay_types_by_manufacturer(module_bay_types, manufacturer=None):
-    """
-    Collapse ModuleBayType instances resolved by name to one per name, preferring an exact
-    match on *manufacturer*, then a global (manufacturer-less) type. Names aren't globally
-    unique -- uniqueness is scoped to (manufacturer, name) -- and callers must not scope the
-    queryset by manufacturer themselves, since a type may legitimately belong to another
-    manufacturer entirely; only this preference order is manufacturer-aware.
-
-    Raises ValidationError if a name ties across two or more non-preferred manufacturers,
-    rather than picking one arbitrarily.
-    """
-    manufacturer_id = manufacturer.pk if manufacturer else None
-
-    def preference(module_bay_type):
-        if module_bay_type.manufacturer_id == manufacturer_id:
-            return 0
-        if module_bay_type.manufacturer_id is None:
-            return 1
-        return 2
-
-    # Keyed by pk so a caller passing the same row twice can't manufacture a false tie below.
-    by_name = defaultdict(dict)
-    for module_bay_type in module_bay_types:
-        by_name[module_bay_type.name][module_bay_type.pk] = module_bay_type
-
-    resolved = []
-    for name, candidates_by_pk in by_name.items():
-        candidates = list(candidates_by_pk.values())
-        best_rank = min(preference(c) for c in candidates)
-        best = [c for c in candidates if preference(c) == best_rank]
-        if len(best) > 1:
-            manufacturers = ', '.join(sorted(c.manufacturer.name for c in best))
-            raise ValidationError({
-                'module_bay_types': _(
-                    "Module bay type \"{name}\" is ambiguous: it belongs to more than one "
-                    "manufacturer ({manufacturers}), none of which is this type's own "
-                    "manufacturer."
-                ).format(name=name, manufacturers=manufacturers)
-            })
-        resolved.append(best[0])
-
-    return resolved
 
 
 def inherit_module_token(position, parent_positions):

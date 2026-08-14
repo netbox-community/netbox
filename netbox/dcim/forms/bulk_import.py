@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.db.models import Q
 from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
@@ -11,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from dcim.utils import dedupe_module_bay_types_by_manufacturer, reconcile_port_mappings
+from dcim.utils import reconcile_port_mappings
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup
@@ -551,19 +550,12 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Attribute values for the assigned profile, passed as a dictionary')
     )
-    module_bay_types = CSVModelMultipleChoiceField(
-        label=_('Module bay types'),
-        queryset=ModuleBayType.objects.all(),
-        to_field_name='name',
-        required=False,
-        help_text=_('Types of module bays this module type can be installed in (empty = unconstrained)'),
-    )
 
     class Meta:
         model = ModuleType
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
-            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags', 'module_bay_types',
+            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
@@ -576,11 +568,6 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         # Default attribute_data to an empty dictionary if a profile is specified (to enforce schema validation)
         if self.cleaned_data.get('profile') and not self.cleaned_data.get('attribute_data'):
             self.cleaned_data['attribute_data'] = {}
-
-        if module_bay_types := self.cleaned_data.get('module_bay_types'):
-            self.cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
-                module_bay_types, self.cleaned_data.get('manufacturer'),
-            )
 
 
 class DeviceRoleImportForm(NestedGroupModelImportForm):
@@ -1439,35 +1426,16 @@ class ModuleBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
-    module_bay_types = CSVModelMultipleChoiceField(
-        label=_('Module bay types'),
-        queryset=ModuleBayType.objects.all(),
-        to_field_name='name',
-        required=False,
-        help_text=_('Types of module bays this bay accepts (empty = unconstrained)'),
-    )
 
     class Meta:
         model = ModuleBay
-        fields = (
-            'device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags', 'module_bay_types',
-        )
+        fields = ('device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags')
 
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
             return True
         return self.cleaned_data['enabled']
-
-    def clean(self):
-        super().clean()
-
-        if module_bay_types := self.cleaned_data.get('module_bay_types'):
-            device = self.cleaned_data.get('device')
-            manufacturer = device.device_type.manufacturer if device else None
-            self.cleaned_data['module_bay_types'] = dedupe_module_bay_types_by_manufacturer(
-                module_bay_types, manufacturer,
-            )
 
 
 class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
