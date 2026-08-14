@@ -168,9 +168,6 @@ Default: `True`
 
 When enabled, only authenticated users are permitted to access any part of NetBox. Disabling this will allow unauthenticated users to access most areas of NetBox (but not make any changes).
 
-!!! info "Changed in NetBox v4.0.2"
-    Prior to NetBox v4.0.2, this setting was disabled by default.
-
 ---
 
 ## LOGIN_TIMEOUT

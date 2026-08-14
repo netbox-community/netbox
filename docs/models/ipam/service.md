@@ -4,9 +4,8 @@ An application service represents a layer seven application available on a devic
 
 To aid in the efficient creation of application services, users may opt to first create an [application service template](./servicetemplate.md) from which service definitions can be quickly replicated.
 
-!!! note "Changed in NetBox v4.4"
-
-    Previously, application services were referred to simply as "services". The name has been changed in the UI to better reflect their intended use. There is no change to the name of the model or in any programmatic NetBox APIs.
+!!! note "Naming"
+    Application services are referred to simply as "services" in the name of the model and throughout NetBox's programmatic APIs. Only the UI uses the longer name, which better reflects their intended use.
 
 ## Fields
 
@@ -14,10 +13,6 @@ To aid in the efficient creation of application services, users may opt to first
 
 The parent object to which the application service is assigned. This must be one of [Device](../dcim/device.md),
 [VirtualMachine](../virtualization/virtualmachine.md), or [FHRP Group](./fhrpgroup.md).
-
-!!! note "Changed in NetBox v4.3"
-
-    Previously, `parent` was a property that pointed to either a Device or Virtual Machine. With the capability to assign services to FHRP groups, this is a unified in a concrete field.
 
 ### Name
 

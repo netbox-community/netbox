@@ -1,5 +1,7 @@
 # Module Bay Types
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 Module bay types are user-defined labels that can be assigned to [module bays](./modulebay.md) and [module types](./moduletype.md) to restrict which modules may be installed into which bays. This is useful for modeling chassis hardware where not every bay accepts every type of line card.
 
 When **both** a module bay and the module type being installed have at least one bay type assigned, NetBox will check for a non-empty intersection. If the two sets share no bay types in common, the installation will be rejected as incompatible.

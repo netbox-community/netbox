@@ -103,6 +103,8 @@ The following condition will evaluate as true:
 
 ## Snapshot Conditions (Event Rules)
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 When used in an [event rule](../features/event-rules.md), conditions can also inspect the **pre-change and post-change snapshots** captured at the time of the event. This allows rules to fire only when a specific field actually changes value, rather than whenever it has a particular value.
 
 ### Snapshot Operators

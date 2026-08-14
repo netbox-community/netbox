@@ -253,8 +253,6 @@ Similarly, you can opt to omit only specific fields by passing the `omit` parame
 GET /api/dcim/sites/?omit=circuit_count,device_count,virtualmachine_count
 ```
 
-!!! note "The `omit` parameter was introduced in NetBox v4.5.2."
-
 Strategic use of the `fields` and `omit` parameters can drastically improve REST API performance, as the exclusion of fields which reference related objects reduces the number and complexity of underlying database queries needed to generate the response.
 
 !!! note
@@ -669,9 +667,27 @@ Note that there is no requirement for the attributes to be identical among objec
 !!! note
     The bulk update of objects is an all-or-none operation, meaning that if NetBox fails to successfully update any of the specified objects (e.g. due a validation error), the entire operation will be aborted and none of the objects will be updated.
 
-### Concurrent Update Protection
+### Errors in Bulk Operations
 
-!!! info "This feature was introduced in NetBox v4.6."
+!!! info "This feature was introduced in NetBox v4.7."
+
+When a bulk creation or update fails validation, the response identifies each offending object by its index within the submitted list, so that a client can correct and resubmit only the objects which actually failed. (The operation itself remains all-or-none: No objects are written unless every object validates.)
+
+```json
+{
+    "detail": "1 of 3 objects failed validation.",
+    "errors": [
+        {
+            "index": 1,
+            "errors": {
+                "slug": ["This field may not be blank."]
+            }
+        }
+    ]
+}
+```
+
+### Concurrent Update Protection
 
 To guard against the lost-update problem when multiple clients modify the same object, NetBox returns a weak `ETag` response header on detail-view responses (`GET`, `POST`, `PATCH`, `PUT`) for individual objects. Clients may supply this value back on a subsequent `PATCH` or `PUT` request via the `If-Match` request header. If the object's current ETag does not match any of the values supplied, the server rejects the request with a `412 Precondition Failed` response and includes the current ETag in the response so the client can retry.
 
@@ -692,8 +708,6 @@ $ curl -s -X PATCH \
 A literal `If-Match: *` value matches any current ETag and may be used to assert simply that the object exists. Submitting `If-Match` is optional; requests without the header retain prior (last-write-wins) behavior.
 
 ### Adding and Removing Tags
-
-!!! info "This feature was introduced in NetBox v4.6."
 
 In addition to replacing an object's tag set wholesale via the `tags` field, taggable models accept two write-only fields, `add_tags` and `remove_tags`, which apply only the specified additions or removals without disturbing existing tags. This is convenient when concurrent clients each manage a distinct subset of an object's tags.
 

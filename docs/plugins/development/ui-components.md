@@ -1,8 +1,5 @@
 # UI Components
 
-!!! note "New in NetBox v4.6"
-    All UI components described here were introduced in NetBox v4.6. Be sure to set the minimum NetBox version to 4.6.0 for your plugin before incorporating any of these resources.
-
 To simplify the process of designing your plugin's user interface, and to encourage a consistent look and feel throughout the entire application, NetBox provides a set of components that enable programmatic UI design. These make it possible to declare complex page layouts with little or no custom HTML.
 
 ## Page Layout
@@ -54,6 +51,8 @@ class MyView(generic.ObjectView):
 ::: netbox.ui.layout.Column
 
 ## Breadcrumbs
+
+!!! info "This feature was introduced in NetBox v4.7."
 
 Breadcrumbs are rendered at the top of an object's page to convey its position within a hierarchy and to provide quick navigation to related objects. By default, a single breadcrumb linking to the object's list view is shown. To add object-specific breadcrumbs, pass a list of `Breadcrumb` instances to your layout, just as you would its panels.
 

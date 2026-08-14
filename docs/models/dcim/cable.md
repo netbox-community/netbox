@@ -23,8 +23,6 @@ The cable's operational status. Choices include:
 
 ### Profile
 
-!!! note "This field was introduced in NetBox v4.5."
-
 The profile to which the cable conforms. The profile determines the mapping of termination between the two ends and enables logical tracing across complex connections, such as breakout cables. Supported profiles are listed below.
 
 * Straight (single position)

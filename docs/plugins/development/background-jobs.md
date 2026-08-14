@@ -41,8 +41,6 @@ This is the human-friendly names of your background job. If omitted, the class n
 
 ### Logging
 
-!!! info "This feature was introduced in NetBox v4.4."
-
 A Python logger is instantiated by the runner for each job. It can be utilized within a job's `run()` method as needed:
 
 ```python

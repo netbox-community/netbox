@@ -1,5 +1,7 @@
 # Event Rule Actions
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 [Event rules](../../models/extras/eventrule.md) dispatch to an *action* when a matching event occurs, such as sending a webhook request or running a script. Plugins can register their own action types to extend the list of actions an event rule can perform, by subclassing NetBox's `EventRuleAction` class.
 
 ```python title="event_rules.py"
