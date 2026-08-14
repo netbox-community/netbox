@@ -1,7 +1,7 @@
 import collections
 from importlib import import_module
 
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
@@ -24,8 +24,7 @@ registry['plugins'].update({
     'jinja_filters': {},
     'graphql_type_extensions': collections.defaultdict(list),
     'graphql_filter_extensions': collections.defaultdict(list),
-    # (store_key, label) pairs whose core type/filter has already been assembled, used to detect extensions
-    # registered too late to be spliced in.
+    # Assembled (store key, model label) pairs. Registering an extension for an assembled target raises.
     'graphql_extensions_assembled': set(),
     'menus': [],
     'menu_items': {},
@@ -38,9 +37,9 @@ DEFAULT_RESOURCE_PATHS = {
     'data_backends': 'data_backends.backends',
     'event_rule_actions': 'event_rules.event_rule_actions',
     'graphql_schema': 'graphql.schema',
+    'graphql_type_extensions': 'graphql_extensions.type_extensions',
+    'graphql_filter_extensions': 'graphql_extensions.filter_extensions',
     'jinja_filters': 'jinja_env.filters',
-    'graphql_type_extensions': 'graphql.type_extensions',
-    'graphql_filter_extensions': 'graphql.filter_extensions',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -91,6 +90,7 @@ class PluginConfig(AppConfig):
     event_rule_actions = None
     graphql_schema = None
     jinja_filters = None
+    # Extension resources load from ready() and must not import core GraphQL modules. Schemas load at assembly.
     graphql_type_extensions = None
     graphql_filter_extensions = None
     menu = None
@@ -118,14 +118,16 @@ class PluginConfig(AppConfig):
         if path := getattr(self, name, None):
             return import_string(f"{self.__module__}.{path}")
 
-        # Fall back to the resource's default path. Return None if the module has not been provided.
+        # Fall back to the default path. Only the module's own absence returns None, nested errors propagate.
         default_path = f'{self.__module__}.{DEFAULT_RESOURCE_PATHS[name]}'
         default_module, resource_name = default_path.rsplit('.', 1)
         try:
             module = import_module(default_module)
-            return getattr(module, resource_name, None)
-        except ModuleNotFoundError:
-            pass
+        except ModuleNotFoundError as exc:
+            if exc.name and (default_module == exc.name or default_module.startswith(f'{exc.name}.')):
+                return None
+            raise
+        return getattr(module, resource_name, None)
 
     def ready(self):
         from netbox.models.features import register_models
@@ -164,12 +166,7 @@ class PluginConfig(AppConfig):
         if menu_items := self._load_resource('menu_items'):
             register_menu_items(self.verbose_name, menu_items)
 
-        # Register GraphQL schema (if defined)
-        if graphql_schema := self._load_resource('graphql_schema'):
-            register_graphql_schema(graphql_schema)
-
-        # Register GraphQL type & filter extensions (if defined). These must be registered before the GraphQL
-        # schema is assembled (during ROOT_URLCONF loading), which occurs after all apps' ready() methods run.
+        # Register GraphQL type & filter extensions (if defined)
         if graphql_type_extensions := self._load_resource('graphql_type_extensions'):
             register_graphql_type_extensions(graphql_type_extensions)
         if graphql_filter_extensions := self._load_resource('graphql_filter_extensions'):
@@ -222,3 +219,21 @@ class PluginConfig(AppConfig):
         for setting, value in cls.default_settings.items():
             if setting not in user_config:
                 user_config[setting] = value
+
+
+def _load_plugin_graphql_schemas():
+    """
+    Load and register every installed plugin's GraphQL schema resource. Runs during root schema assembly, after
+    all plugins have initialized, so plugin schema modules may import core GraphQL types freely.
+    """
+    configs = {config.name: config for config in apps.get_app_configs()}
+    for plugin_name in registry['plugins']['installed']:
+        if (config := configs.get(plugin_name)) is None:
+            raise ImproperlyConfigured(
+                f"Plugin '{plugin_name}' has no AppConfig named after its PLUGINS entry. PluginConfig.name "
+                f"must match the configured plugin name."
+            )
+        if graphql_schema := config._load_resource('graphql_schema'):
+            # Avoid duplicate registration if the loader is invoked more than once.
+            registered = registry['plugins']['graphql_schemas']
+            register_graphql_schema([cls for cls in graphql_schema if cls not in registered])

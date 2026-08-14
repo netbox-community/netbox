@@ -1030,6 +1030,9 @@ for plugin_name in PLUGINS:
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
 
+# GraphQL assembly must run after every plugin has initialized.
+INSTALLED_APPS.append('netbox.graphql.apps.GraphQLConfig')
+
 
 #
 # Monkey-patching

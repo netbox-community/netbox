@@ -1,10 +1,12 @@
 import json
 import re
-from unittest import skipIf
+from unittest import mock, skipIf
 
 import strawberry
+import strawberry_django
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
@@ -34,7 +36,10 @@ from ipam.models import RIR, Aggregate, IPAddress, Prefix
 from netbox.graphql.pagination import apply_distinct_window_pagination
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
-from users.models import Token, User
+from netbox.graphql.utils import register_model_graphql_type, splice_extension_bases, validate_extension_final_names
+from netbox.registry import registry
+from netbox.tests.dummy_plugin.models import DummySiteAttachment
+from users.models import ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases, TestCase, disable_warnings
 
@@ -177,6 +182,91 @@ class GraphQLAPITestCase(APITestCase):
         self.assertEqual(len(sites), 1)
         self.assertEqual(sites[0]['name'], 'Site 1')
         self.assertEqual(sites[0]['dummy_plugin_field'], 'dummy-plugin-value')
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_plugin_extension_preserves_get_queryset(self):
+        """
+        An extended core type keeps its own get_queryset() hook working, including its zero-argument super()
+        call and the unit_count annotation.
+        """
+        site = Site.objects.create(name='Reservation Site', slug='reservation-site')
+        rack = Rack.objects.create(name='Rack 1', site=site)
+        RackReservation.objects.create(rack=rack, units=[1, 2, 3], user=self.user, description='Test')
+
+        self.add_permissions('dcim.view_rackreservation')
+        url = reverse('graphql')
+        query = '{ rack_reservation_list { description units unit_count dummy_reservation_note } }'
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        reservation = next(r for r in data['data']['rack_reservation_list'] if r['description'] == 'Test')
+        self.assertEqual(reservation['unit_count'], 3)
+        self.assertEqual(reservation['dummy_reservation_note'], 'dummy-reservation-note')
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_plugin_reverse_relation_scoped(self):
+        """
+        A plugin-provided reverse relation resolves through RestrictedPrefetch and returns only related objects
+        the requesting user may view.
+        """
+        site = Site.objects.create(name='Attachment Site', slug='attachment-site')
+        DummySiteAttachment.objects.create(site=site, name='Attachment A')
+        DummySiteAttachment.objects.create(site=site, name='Attachment B')
+
+        self.add_permissions('dcim.view_site')
+        obj_perm = ObjectPermission(name='Attachment view', actions=['view'], constraints={'name': 'Attachment A'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(DummySiteAttachment))
+
+        url = reverse('graphql')
+        query = (
+            '{ site_list(filters: {name: {exact: "Attachment Site"}}) '
+            '{ name dummy_site_attachments { name } } }'
+        )
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        attachments = data['data']['site_list'][0]['dummy_site_attachments']
+        self.assertEqual([a['name'] for a in attachments], ['Attachment A'])
+
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_plugin_schema_query_executes(self):
+        """
+        A plugin-provided top-level query field returning a core type executes, proving plugin schemas load
+        at assembly time with extensions applied.
+        """
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+        query = '{ dummy_plugin_site_list { name dummy_plugin_field } }'
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        site = next(s for s in data['data']['dummy_plugin_site_list'] if s['name'] == 'Site 1')
+        self.assertEqual(site['dummy_plugin_field'], 'dummy-plugin-value')
+
+    @skipIf('netbox.tests.dummy_plugin_b' not in settings.PLUGINS, "dummy_plugin_b not in settings.PLUGINS")
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_cross_plugin_extension_applies(self):
+        """
+        An extension registered by a later plugin applies to a core type that an earlier plugin's schema
+        module imports, proving later plugin extensions are registered before earlier plugin schemas load.
+        """
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+        query = '{ dummy_plugin_site_list { name dummy_plugin_b_field } }'
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        site = next(s for s in data['data']['dummy_plugin_site_list'] if s['name'] == 'Site 1')
+        self.assertEqual(site['dummy_plugin_b_field'], 'dummy-plugin-b-value')
 
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphql_filter_objects(self):
@@ -1376,7 +1466,7 @@ class JSONStringLookupTestCase(TestCase):
 
 
 class SpliceExtensionBasesTestCase(TestCase):
-    """Verify splice_extension_bases() behavior: pass-through, splicing, and collision warnings."""
+    """Verify splice_extension_bases() composition and the strictly additive extension contract."""
 
     @staticmethod
     def _make_core():
@@ -1395,14 +1485,11 @@ class SpliceExtensionBasesTestCase(TestCase):
         return CoreType
 
     def test_no_extensions_is_passthrough(self):
-        from netbox.graphql.utils import splice_extension_bases
         CoreType = self._make_core()
         self.assertIs(splice_extension_bases(CoreType, []), CoreType)
         self.assertIs(splice_extension_bases(CoreType, None), CoreType)
 
     def test_extension_spliced_into_bases(self):
-        from netbox.graphql.utils import splice_extension_bases
-
         @strawberry.type
         class Extension:
             models = ['dcim.device']
@@ -1413,79 +1500,41 @@ class SpliceExtensionBasesTestCase(TestCase):
         self.assertIsNot(result, CoreType)
         self.assertEqual(result.__name__, CoreType.__name__)
         self.assertIn(Extension, result.__mro__)
+        self.assertTrue(issubclass(result, CoreType))
         # The extension is appended *after* the core bases in the MRO (additive, core wins collisions)
         self.assertGreater(result.__mro__.index(Extension), result.__mro__.index(CoreType.__bases__[0]))
 
-    def test_warns_when_extension_collides_with_core_own_field(self):
-        # A name the core type defines directly always wins; the extension's version is ignored (and warned).
-        from netbox.graphql.utils import splice_extension_bases
-
+    def test_extension_cannot_shadow_core_own_field(self):
         @strawberry.type
         class Extension:
             models = ['dcim.device']
-            name: str  # collides with CoreType.name (own body)
+            name: str
 
-        CoreType = self._make_core()
-        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
-            splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("already provides" in msg and "core takes precedence" in msg for msg in cm.output))
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [Extension])
 
-    def test_warns_when_extension_collides_with_inherited_field(self):
-        # A name the core type inherits also wins over the extension (extensions are strictly additive).
-        from netbox.graphql.utils import splice_extension_bases
-
+    def test_extension_cannot_shadow_inherited_field(self):
         @strawberry.type
         class Extension:
             models = ['dcim.device']
-            description: str  # collides with CoreBase.description (inherited)
+            description: str
 
-        CoreType = self._make_core()
-        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
-            splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("already provides" in msg for msg in cm.output))
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [Extension])
 
-    def test_core_hook_wins_over_extension(self):
-        # An extension declaring get_queryset is ignored; the core permission-enforcing hook is preserved by
-        # ordering (extensions are appended after the core bases).
-        from netbox.graphql.utils import splice_extension_bases
-
+    def test_extension_cannot_shadow_core_hook(self):
         @strawberry.type
         class Extension:
             models = ['dcim.device']
 
             @classmethod
             def get_queryset(cls, queryset, info, **kwargs):
-                return 'EXTENSION_WON'
+                return queryset
 
-        CoreType = self._make_core()
-        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
-            result = splice_extension_bases(CoreType, [Extension])
-        self.assertTrue(any("already provides" in msg and "get_queryset" in msg for msg in cm.output))
-        # Core's get_queryset (identity) is retained, not the extension's override
-        self.assertEqual(result.get_queryset('CORE_QS', None), 'CORE_QS')
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [Extension])
 
-    def test_mro_conflict_raises_clear_error(self):
-        from netbox.graphql.utils import splice_extension_bases
-
-        class A:
-            pass
-
-        class B:
-            pass
-
-        class Core(A, B):
-            name = 'core'
-
-        class Extension(B, A):  # reversed base order -> inconsistent MRO when spliced
-            models = ['dcim.device']
-
-        with self.assertRaises(TypeError) as ctx:
-            splice_extension_bases(Core, [Extension])
-        self.assertIn('Failed to splice', str(ctx.exception))
-
-    def test_warns_on_collision_between_extensions(self):
-        from netbox.graphql.utils import splice_extension_bases
-
+    def test_two_extensions_cannot_declare_same_new_field(self):
         @strawberry.type
         class ExtensionA:
             models = ['dcim.device']
@@ -1496,7 +1545,384 @@ class SpliceExtensionBasesTestCase(TestCase):
             models = ['dcim.device']
             widgets: str
 
-        CoreType = self._make_core()
-        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
-            splice_extension_bases(CoreType, [ExtensionA, ExtensionB])
-        self.assertTrue(any("both define" in msg and "loaded first" in msg for msg in cm.output))
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [ExtensionA, ExtensionB])
+
+    def test_extension_cannot_interleave_ahead_of_core_ancestor(self):
+        """Shared ancestry is rejected because C3 could resolve an inherited hook to the extension side."""
+        class CoreBase:
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return 'core'
+
+        class CoreType(CoreBase):
+            pass
+
+        class ExtensionBase(CoreBase):
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return 'plugin'
+
+        @strawberry.type
+        class Extension(ExtensionBase):
+            models = ['dcim.site']
+
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(CoreType, [Extension])
+
+    def test_extension_cannot_inherit_core_hook_name(self):
+        """An inherited plain method colliding with a core name fails instead of being silently ignored."""
+        class PluginBase:
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return queryset
+
+        @strawberry.type
+        class Extension(PluginBase):
+            models = ['dcim.site']
+
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [Extension])
+
+    def test_extensions_may_share_a_helper_base(self):
+        """Two extensions inheriting the same helper method compose without a collision error."""
+        class Helper:
+            @classmethod
+            def _helper(cls):
+                return 'x'
+
+        @strawberry.type
+        class ExtensionA(Helper):
+            models = ['dcim.site']
+            field_a: str
+
+        @strawberry.type
+        class ExtensionB(Helper):
+            models = ['dcim.site']
+            field_b: str
+
+        composed = splice_extension_bases(self._make_core(), [ExtensionA, ExtensionB])
+        self.assertTrue(issubclass(composed, ExtensionA))
+
+    def test_extension_may_inherit_annotation_only_name_from_plain_base(self):
+        """An annotation on a plain base is neither a Strawberry field nor an attribute, so it shadows nothing."""
+        class Helper:
+            name: str
+
+        @strawberry.type
+        class Extension(Helper):
+            models = ['dcim.site']
+            plugin_field: str
+
+        composed = splice_extension_bases(self._make_core(), [Extension])
+        self.assertTrue(issubclass(composed, Extension))
+
+    def test_extensions_may_share_a_plain_annotated_helper_base(self):
+        """Two extensions inheriting one annotation-only helper base do not collide with each other."""
+        class Helper:
+            internal_state: str
+
+        @strawberry.type
+        class ExtensionA(Helper):
+            models = ['dcim.site']
+            field_a: str
+
+        @strawberry.type
+        class ExtensionB(Helper):
+            models = ['dcim.site']
+            field_b: str
+
+        composed = splice_extension_bases(self._make_core(), [ExtensionA, ExtensionB])
+        self.assertTrue(issubclass(composed, ExtensionA))
+        self.assertTrue(issubclass(composed, ExtensionB))
+
+    def test_two_extensions_cannot_bind_the_same_helper_function(self):
+        """Sharing one base is legal, but two declarations of a name are not, even for the same function object."""
+        def shared_helper(self):
+            return 'x'
+
+        @strawberry.type
+        class ExtensionA:
+            models = ['dcim.site']
+            field_a: str
+            helper = shared_helper
+
+        @strawberry.type
+        class ExtensionB:
+            models = ['dcim.site']
+            field_b: str
+            helper = shared_helper
+
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [ExtensionA, ExtensionB])
+
+    def test_extension_cannot_inherit_field_named_for_core_hook(self):
+        """A field inherited from a decorated base still collides with a core name that is only a plain hook."""
+        @strawberry.type
+        class ExtensionBase:
+            get_queryset: str
+
+        @strawberry.type
+        class Extension(ExtensionBase):
+            models = ['dcim.site']
+
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [Extension])
+
+    def test_extensions_cannot_collide_via_inherited_field_and_plain_method(self):
+        """One extension's inherited Strawberry field collides with another's plain method of the same name."""
+        @strawberry.type
+        class BaseWithField:
+            shared: str
+
+        @strawberry.type
+        class ExtensionA(BaseWithField):
+            models = ['dcim.site']
+
+        @strawberry.type
+        class ExtensionB:
+            models = ['dcim.site']
+
+            def shared(self):
+                return 'x'
+
+        with self.assertRaises(ImproperlyConfigured):
+            splice_extension_bases(self._make_core(), [ExtensionA, ExtensionB])
+
+    def test_conflicting_extension_bases_raise_clear_error(self):
+        class A:
+            pass
+
+        class B:
+            pass
+
+        class Core:
+            name = 'core'
+
+        @strawberry.type
+        class Ext1(A, B):
+            models = ['dcim.device']
+            field_1: str
+
+        @strawberry.type
+        class Ext2(B, A):
+            models = ['dcim.device']
+            field_2: str
+
+        with self.assertRaises(ImproperlyConfigured) as ctx:
+            splice_extension_bases(Core, [Ext1, Ext2])
+        self.assertIn('Failed to compose', str(ctx.exception))
+
+    def test_zero_arg_super_and_own_fields_survive_composition(self):
+        """Composition preserves the core class's own annotated fields and its zero-argument super() calls."""
+        @strawberry.type
+        class Extension:
+            models = ['dcim.rackreservation']
+
+            @strawberry_django.field
+            def extension_field(self) -> str:
+                return 'x'
+
+        @strawberry.type
+        class CoreBase:
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return queryset
+
+        class RackReservationProto(CoreBase):
+            units: list[int]
+            description: str
+
+            @classmethod
+            def get_queryset(cls, queryset, info, **kwargs):
+                return super().get_queryset(queryset, info, **kwargs)
+
+        core_type = strawberry_django.type(RackReservation, fields='__all__')(RackReservationProto)
+        composed = splice_extension_bases(core_type, [Extension])
+        self.assertTrue(issubclass(composed, RackReservationProto))
+        result = strawberry_django.type(RackReservation, fields='__all__')(composed)
+        names = {f.name for f in result.__strawberry_definition__.fields}
+        self.assertIn('units', names)
+        self.assertIn('description', names)
+        self.assertIn('extension_field', names)
+        self.assertIs(result.get_queryset('QS', None), 'QS')
+
+    def test_extension_cannot_replace_generated_model_field(self):
+        @strawberry.type
+        class CoreBase:
+            pass
+
+        class CoreType(CoreBase):
+            pass
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            name: str
+
+        core_type = strawberry_django.type(Site, fields='__all__')(CoreType)
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_type, [Extension])
+
+    def test_extension_cannot_alias_onto_existing_name(self):
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+
+            @strawberry.field(name='description')
+            def plugin_description(self) -> str:
+                return 'x'
+
+        core_type = strawberry_django.type(Site, fields='__all__')(self._make_core())
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_type, [Extension])
+
+    def test_extension_cannot_alias_away_generated_model_field(self):
+        """An aliased extension field still claims its python name, which would suppress the generated field."""
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            slug: str = strawberry.field(name='plugin_slug')
+
+        core_type = strawberry_django.type(Site, fields='__all__')(self._make_core())
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_type, [Extension])
+
+    def test_filter_extension_cannot_alias_away_core_filter_field(self):
+        """The python-name check applies to the filter path as well."""
+        class CoreFilter:
+            name: str | None = strawberry_django.filter_field()
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            name: str | None = strawberry_django.filter_field(name='plugin_name')
+
+        core_filter = strawberry_django.filter_type(Site, lookups=True)(CoreFilter)
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_filter, [Extension])
+
+    def test_filter_extension_cannot_alias_away_logical_field(self):
+        """A generated logical filter field is protected from python-name capture through an alias."""
+        class CoreFilter:
+            pass
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            AND: str | None = strawberry_django.filter_field(name='plugin_and')
+
+        core_filter = strawberry_django.filter_type(Site, lookups=True)(CoreFilter)
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_filter, [Extension])
+
+    def test_extension_cannot_alias_onto_core_filter_alias(self):
+        class CoreFilter:
+            _custom: str | None = strawberry_django.filter_field(name='custom')
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            custom: str | None = strawberry_django.filter_field()
+
+        core_filter = strawberry_django.filter_type(Site, lookups=True)(CoreFilter)
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_filter, [Extension])
+
+    def test_extension_cannot_redefine_filter_logical_fields(self):
+        class CoreFilter:
+            pass
+
+        @strawberry.type
+        class Extension:
+            models = ['dcim.site']
+            AND: str | None = None
+
+        core_filter = strawberry_django.filter_type(Site, lookups=True)(CoreFilter)
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_filter, [Extension])
+
+    def test_two_extensions_cannot_inherit_same_python_name(self):
+        """Inherited fields collide by python name even when their GraphQL aliases differ."""
+        @strawberry.type
+        class ExtensionBaseA:
+            value: str = strawberry.field(name='plugin_a_value')
+
+        @strawberry.type
+        class ExtensionA(ExtensionBaseA):
+            models = ['dcim.site']
+
+        @strawberry.type
+        class ExtensionBaseB:
+            value: str = strawberry.field(name='plugin_b_value')
+
+        @strawberry.type
+        class ExtensionB(ExtensionBaseB):
+            models = ['dcim.site']
+
+        core_type = strawberry_django.type(Site, fields='__all__')(self._make_core())
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_type, [ExtensionA, ExtensionB])
+
+    def test_extension_composition_preserves_core_is_type_of(self):
+        """A core-defined is_type_of survives composition instead of being shadowed by the injected default."""
+        @strawberry.type
+        class Extension:
+            models = ['dcim.rackreservation']
+
+            @strawberry_django.field
+            def marker_field(self) -> str:
+                return 'x'
+
+        @strawberry.type
+        class CoreBase:
+            pass
+
+        class Proto(CoreBase):
+            @classmethod
+            def is_type_of(cls, obj, info):
+                return True
+
+        custom = vars(Proto)['is_type_of']
+        with mock.patch.dict(registry['plugins']['graphql_type_extensions'], {'dcim.rackreservation': [Extension]}):
+            final = register_model_graphql_type(
+                RackReservation, strawberry_django.type, 'graphql_type_extensions', fields='__all__'
+            )(Proto)
+        self.assertIs(vars(final).get('is_type_of'), custom)
+
+    def test_defaulted_extension_field_composes_onto_required_core_fields(self):
+        """Strawberry keyword-only fields let a defaulted extension field precede required core fields."""
+        @strawberry.type
+        class Extension:
+            models = ['dcim.rackreservation']
+            plugin_note: str = strawberry.field(default='note')
+
+        @strawberry.type
+        class Proto:
+            pass
+
+        with mock.patch.dict(registry['plugins']['graphql_type_extensions'], {'dcim.rackreservation': [Extension]}):
+            final = register_model_graphql_type(
+                RackReservation, strawberry_django.type, 'graphql_type_extensions', fields='__all__'
+            )(Proto)
+        names = {field.python_name for field in final.__strawberry_definition__.fields}
+        self.assertIn('plugin_note', names)
+        self.assertIn('units', names)
+
+    def test_two_extensions_cannot_alias_same_final_name(self):
+        @strawberry.type
+        class ExtensionA:
+            models = ['dcim.site']
+            widgets: str
+
+        @strawberry.type
+        class ExtensionB:
+            models = ['dcim.site']
+
+            @strawberry.field(name='widgets')
+            def other_name(self) -> str:
+                return 'x'
+
+        core_type = strawberry_django.type(Site, fields='__all__')(self._make_core())
+        with self.assertRaises(ImproperlyConfigured):
+            validate_extension_final_names(core_type, [ExtensionA, ExtensionB])

@@ -1,6 +1,11 @@
 import re
-from unittest import skipIf
+import subprocess
+import sys
+from unittest import mock, skipIf
 
+import strawberry
+import strawberry_django
+from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
@@ -8,14 +13,20 @@ from django.urls import reverse
 
 from core.choices import JobIntervalChoices
 from core.models import ObjectType
+from dcim.models import Site
 from extras.dashboard.widgets import DashboardWidget
+from netbox.graphql import utils as graphql_utils
 from netbox.graphql.schema import Query
+from netbox.graphql.utils import register_model_graphql_type
+from netbox.plugins import DEFAULT_RESOURCE_PATHS, _load_plugin_graphql_schemas
 from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuItem
+from netbox.plugins.registration import register_graphql_type_extensions
 from netbox.plugins.utils import get_plugin_config
 from netbox.registry import registry
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
+from netbox.tests.dummy_plugin.models import DummyModel
 from netbox.tests.dummy_plugin.webhook_callbacks import set_context
 
 
@@ -118,7 +129,6 @@ class PluginTestCase(TestCase):
         """
         Check that a plugin can register a custom column on a core model table.
         """
-        from dcim.models import Site
         from dcim.tables import SiteTable
 
         table = SiteTable(Site.objects.all())
@@ -222,7 +232,7 @@ class PluginTestCase(TestCase):
         Validate that plugin GraphQL type & filter extensions are registered and spliced into the built schema.
         """
         from netbox.graphql.schema import schema
-        from netbox.tests.dummy_plugin.graphql import SiteFilterExtension, SiteTypeExtension
+        from netbox.tests.dummy_plugin.graphql_extensions import SiteFilterExtension, SiteTypeExtension
 
         # Extensions are registered against the targeted core model
         self.assertIn(SiteTypeExtension, registry['plugins']['graphql_type_extensions']['dcim.site'])
@@ -236,6 +246,63 @@ class PluginTestCase(TestCase):
         site_filter = re.search(r'\ninput SiteFilter \{.*?\n\}', schema_str, re.DOTALL)
         self.assertIsNotNone(site_filter, "SiteFilter not found in GraphQL schema")
         self.assertIn('dummy_plugin_filter', site_filter.group(0))
+
+    def test_load_resource_returns_none_for_missing_default_module(self):
+        config = apps.get_app_config('dummy_plugin')
+        with mock.patch.dict(DEFAULT_RESOURCE_PATHS, {'graphql_type_extensions': 'no_such_module.type_extensions'}):
+            self.assertIsNone(config._load_resource('graphql_type_extensions'))
+
+    def test_load_resource_propagates_nested_import_error(self):
+        config = apps.get_app_config('dummy_plugin')
+        with mock.patch.dict(DEFAULT_RESOURCE_PATHS, {'graphql_type_extensions': 'broken_import.type_extensions'}):
+            with self.assertRaises(ModuleNotFoundError):
+                config._load_resource('graphql_type_extensions')
+
+    def test_graphql_finalizer_app_installed_after_plugins(self):
+        finalizer = settings.INSTALLED_APPS.index('netbox.graphql.apps.GraphQLConfig')
+        plugin_positions = [i for i, app in enumerate(settings.INSTALLED_APPS) if 'dummy_plugin' in app]
+        self.assertTrue(plugin_positions)
+        self.assertGreater(finalizer, max(plugin_positions))
+        self.assertEqual(apps.get_app_config('netbox_graphql').name, 'netbox.graphql')
+
+    def test_graphql_finalizer_runs_during_django_setup(self):
+        """The finalizer assembles the schema before auditing targets, and its errors fail django.setup()."""
+        # Source for a child interpreter, so it carries no indentation of its own.
+        script = """
+import sys
+import django
+from netbox.graphql import utils
+
+
+def audit():
+    if 'netbox.graphql.schema' not in sys.modules:
+        raise RuntimeError('SCHEMA_NOT_ASSEMBLED')
+    raise RuntimeError('AUDIT_RAN_AFTER_SCHEMA')
+
+
+utils.validate_extension_targets = audit
+django.setup()
+"""
+        # The child inherits this process's settings, which is safe only because ready() touches no database.
+        result = subprocess.run(
+            [sys.executable, '-c', script], capture_output=True, text=True, cwd=settings.BASE_DIR, timeout=300
+        )
+        self.assertNotEqual(result.returncode, 0, f"stdout:\n{result.stdout}\n\nstderr:\n{result.stderr}")
+        self.assertIn('AUDIT_RAN_AFTER_SCHEMA', result.stderr)
+
+    def test_missing_plugin_app_config_raises_clear_error(self):
+        installed = [*registry['plugins']['installed'], 'not_a_real_plugin']
+        with mock.patch.dict(registry['plugins'], {'installed': installed}):
+            with self.assertRaises(ImproperlyConfigured) as ctx:
+                _load_plugin_graphql_schemas()
+        self.assertIn('not_a_real_plugin', str(ctx.exception))
+
+    def test_plugin_schema_loading_is_idempotent(self):
+        before = list(registry['plugins']['graphql_schemas'])
+        self.addCleanup(lambda: registry['plugins']['graphql_schemas'].__setitem__(slice(None), before))
+        _load_plugin_graphql_schemas()
+        _load_plugin_graphql_schemas()
+        self.assertEqual(registry['plugins']['graphql_schemas'], before)
 
     @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):
@@ -445,28 +512,175 @@ class RegisterGraphQLExtensionsTestCase(TestCase):
         with self.assertRaises(TypeError):
             register_graphql_filter_extensions([UndecoratedFilter])
 
-    def test_warns_when_registered_after_assembly(self):
-        # An extension registered after its core type was already assembled is warned and will be dropped.
-        import strawberry
-
-        from netbox.plugins.registration import register_graphql_type_extensions
-
+    def test_raises_when_registered_after_assembly(self):
         @strawberry.type
         class LateExt:
             models = ['dcim.cable']
             late_field: str
 
-        store, label = 'graphql_type_extensions', 'dcim.cable'
-        assembled = registry['plugins']['graphql_extensions_assembled']
-        was_present = (store, label) in assembled
-        assembled.add((store, label))
-        # Restore global registry state regardless of outcome so other tests are unaffected.
-        self.addCleanup(lambda: registry['plugins'][store].__setitem__(
-            label, [e for e in registry['plugins'][store][label] if e is not LateExt]
-        ))
-        if not was_present:
-            self.addCleanup(assembled.discard, (store, label))
-
-        with self.assertLogs('netbox.graphql', level='WARNING') as cm:
+        with self.assertRaises(ImproperlyConfigured) as ctx:
             register_graphql_type_extensions([LateExt])
-        self.assertTrue(any('after the core type was assembled' in msg for msg in cm.output))
+        self.assertIn('strawberry.lazy()', str(ctx.exception))
+        self.assertNotIn(LateExt, registry['plugins']['graphql_type_extensions'].get('dcim.cable', []))
+
+    def test_rejects_string_models(self):
+        @strawberry.type
+        class Ext:
+            models = 'dcim.site'
+            field_a: str
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_duplicate_labels(self):
+        @strawberry.type
+        class Ext:
+            models = ['dcim.site', 'dcim.Site']
+            field_a: str
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_subclass_of_strawberry_django_type(self):
+        @strawberry_django.type(DummyModel, fields='__all__')
+        class Base:
+            pass
+
+        @strawberry.type
+        class Ext(Base):
+            models = ['dcim.site']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_duplicate_registration(self):
+        @strawberry.type
+        class Ext:
+            models = ['dcim.cable']
+            field_a: str
+
+        with mock.patch.dict(registry['plugins']['graphql_type_extensions'], {'dcim.cable': [Ext]}):
+            with self.assertRaises(TypeError):
+                register_graphql_type_extensions([Ext])
+
+    def test_rejects_interface_implementing_extension(self):
+        @strawberry.interface
+        class PluginInterface:
+            plugin_field: str
+
+        @strawberry.type
+        class Ext(PluginInterface):
+            models = ['dcim.site']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_extension_instance(self):
+        @strawberry.type
+        class Ext:
+            models = ['dcim.site']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext()])
+
+    def test_rejects_non_string_model_label(self):
+        @strawberry.type
+        class Ext:
+            models = [None]
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_input_type_extension(self):
+        @strawberry.input
+        class Ext:
+            models = ['dcim.site']
+            field_a: str
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_interface_extension(self):
+        @strawberry.interface
+        class Ext:
+            models = ['dcim.site']
+            field_a: str
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejects_strawberry_django_type_extension(self):
+        @strawberry_django.type(DummyModel, fields='__all__')
+        class Ext:
+            models = ['dcim.site']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_core_assembly_allowed_during_app_initialization(self):
+        """Core types still assemble while apps are initializing, since the old apps.ready gate was removed."""
+        with (
+            mock.patch.object(apps, 'ready', False),
+            mock.patch.dict(registry['plugins']['graphql_type_extensions'], {}, clear=True),
+        ):
+            @register_model_graphql_type(Site, strawberry_django.type, 'graphql_type_extensions', fields='__all__')
+            class TestSiteType:
+                pass
+
+        self.assertTrue(hasattr(TestSiteType, '__strawberry_definition__'))
+
+    def test_rejects_extension_with_unassembled_target(self):
+        @strawberry.type
+        class Ext:
+            models = ['dcim.cablepath']
+            field_a: str
+
+        with mock.patch.dict(registry['plugins']['graphql_type_extensions'], {'dcim.cablepath': [Ext]}):
+            with self.assertRaises(ImproperlyConfigured) as ctx:
+                graphql_utils.validate_extension_targets()
+        self.assertIn('dcim.cablepath', str(ctx.exception))
+
+    def test_extension_targets_validate_on_real_state(self):
+        graphql_utils.validate_extension_targets()
+
+    def test_rejects_annotated_models_marker(self):
+        @strawberry.type
+        class Ext:
+            models: tuple[str, ...] = ('dcim.site',)
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([Ext])
+
+    def test_rejected_registration_creates_no_registry_bucket(self):
+        @strawberry.type
+        class Ext:
+            models = ['dcim.cable']
+            field_a: str
+
+        with self.assertRaises(ImproperlyConfigured):
+            register_graphql_type_extensions([Ext])
+        self.assertNotIn('dcim.cable', registry['plugins']['graphql_type_extensions'])
+
+    def test_rejects_non_iterable_models(self):
+        @strawberry.type
+        class Ext:
+            models = 5
+
+        with self.assertRaises(TypeError) as ctx:
+            register_graphql_type_extensions([Ext])
+        self.assertIn("must declare 'models'", str(ctx.exception))
+
+    def test_invalid_batch_entry_registers_nothing(self):
+        self.addCleanup(lambda: registry['plugins']['graphql_type_extensions'].pop('dcim.cablepath', None))
+
+        @strawberry.type
+        class GoodExt:
+            models = ['dcim.cablepath']
+            field_a: str
+
+        class BadExt:
+            models = ['dcim.cablepath']
+
+        with self.assertRaises(TypeError):
+            register_graphql_type_extensions([GoodExt, BadExt])
+        self.assertNotIn(GoodExt, registry['plugins']['graphql_type_extensions'].get('dcim.cablepath', ()))

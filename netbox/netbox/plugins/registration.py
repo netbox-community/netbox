@@ -2,6 +2,7 @@ import inspect
 import logging
 
 from django.apps import apps
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from netbox.graphql.utils import get_model_label
@@ -108,35 +109,70 @@ def register_graphql_schema(graphql_schema):
 
 def _register_graphql_extensions(class_list, store):
     """
-    Collect a list of GraphQL output-type or filter mixin classes into the given registry store, bucketed by the
-    model labels declared on each class's `models` attribute. Each declared label is validated against the app
-    registry and normalized to the canonical `app_label.model_name` form (via `get_model_label`) so that the
-    stored key always matches the label `register_type`/`register_filter` look up.
+    Validate GraphQL extension classes and record them in the registry, bucketed by the canonical labels declared
+    in each class's `models` attribute. The whole list is validated before anything is recorded.
     """
+    staged = []
+    staged_pairs = set()
     for extension in class_list:
         if not inspect.isclass(extension):
             raise TypeError(
                 _("GraphQL extension {extension} was passed as an instance!").format(extension=extension)
             )
         models = getattr(extension, 'models', None)
+        if isinstance(models, str):
+            raise TypeError(
+                _("GraphQL extension {extension} must declare 'models' as a list of labels, not a string.").format(
+                    extension=extension
+                )
+            )
+        try:
+            models = tuple(models or ())
+        except TypeError:
+            raise TypeError(
+                _("GraphQL extension {extension} must declare 'models' as an iterable of model labels.").format(
+                    extension=extension
+                )
+            ) from None
         if not models:
             raise TypeError(
                 _("GraphQL extension {extension} must declare a non-empty 'models' attribute.").format(
                     extension=extension
                 )
             )
-        # Must be @strawberry.type-decorated for its fields to be collected. Check the class's own __dict__ (not
-        # hasattr) so an undecorated subclass of a @strawberry.type base is still rejected. `__strawberry_definition__`
-        # is a Strawberry internal (verified against strawberry-graphql 0.321.0); revisit on dependency upgrades.
-        if '__strawberry_definition__' not in vars(extension):
+        # Own __dict__ check so undecorated subclasses are rejected (Strawberry internal, pinned 0.323.2).
+        definition = vars(extension).get('__strawberry_definition__')
+        if definition is None:
             raise TypeError(
                 _("GraphQL extension {extension} must be decorated with @strawberry.type.").format(
                     extension=extension
                 )
             )
+        if definition.is_input or definition.is_interface or hasattr(extension, '__strawberry_django_definition__'):
+            raise TypeError(
+                _("GraphQL extension {extension} must be a plain @strawberry.type, not an input, an interface, "
+                  "or a strawberry_django type.").format(extension=extension)
+            )
+        if definition.interfaces:
+            raise TypeError(
+                _("GraphQL extension {extension} must not implement GraphQL interfaces.").format(
+                    extension=extension
+                )
+            )
+        if any(field.python_name == 'models' for field in definition.fields):
+            raise TypeError(
+                _("GraphQL extension {extension} must declare 'models' as an unannotated class attribute or "
+                  "ClassVar, not as a GraphQL field.").format(extension=extension)
+            )
+        seen = set()
+        canonical_labels = []
         for label in models:
-            # Resolve the model to validate the label and derive its canonical key; a bad label would otherwise
-            # register into a bucket that is never looked up, silently dropping the extension.
+            if not isinstance(label, str):
+                raise TypeError(
+                    _("GraphQL extension {extension} declares an invalid model label: {label!r}.").format(
+                        extension=extension, label=label
+                    )
+                )
             try:
                 model = apps.get_model(label)
             except (LookupError, ValueError):
@@ -146,15 +182,35 @@ def _register_graphql_extensions(class_list, store):
                     )
                 )
             canonical_label = get_model_label(model)
-            # If the core type/filter was already assembled (a plugin imported a core graphql module during
-            # ready()), this extension is too late to be spliced in and will not appear in the schema. Fetch the
-            # logger lazily (not the module-level one) so it isn't disabled by a `disable_existing_loggers` config.
-            if (store, canonical_label) in registry['plugins']['graphql_extensions_assembled']:
-                logging.getLogger('netbox.graphql').warning(
-                    "GraphQL extension %s for '%s' was registered after the core type was assembled and will be "
-                    "ignored. Avoid importing core GraphQL modules from a plugin's ready().",
-                    extension, canonical_label,
+            if canonical_label in seen:
+                raise TypeError(
+                    _("GraphQL extension {extension} declares duplicate label '{label}'.").format(
+                        extension=extension, label=canonical_label
+                    )
                 )
+            seen.add(canonical_label)
+            canonical_labels.append(canonical_label)
+        if any(
+            extension in registry['plugins'][store].get(label, ()) or (label, extension) in staged_pairs
+            for label in canonical_labels
+        ):
+            raise TypeError(
+                _("GraphQL extension {extension} is already registered.").format(extension=extension)
+            )
+        if assembled := [
+            label for label in canonical_labels
+            if (store, label) in registry['plugins']['graphql_extensions_assembled']
+        ]:
+            raise ImproperlyConfigured(
+                f"GraphQL extension {extension} for '{', '.join(assembled)}' was registered after the "
+                f"target GraphQL type was assembled. This usually means this or another plugin imported a core "
+                f"GraphQL module during plugin initialization. Reference core GraphQL types through "
+                f"strawberry.lazy() string annotations instead of importing them at module level."
+            )
+        staged.append((extension, canonical_labels))
+        staged_pairs.update((label, extension) for label in canonical_labels)
+    for extension, canonical_labels in staged:
+        for canonical_label in canonical_labels:
             registry['plugins'][store][canonical_label].append(extension)
 
 
