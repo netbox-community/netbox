@@ -336,10 +336,6 @@ GET /api/ipam/prefixes/13980/?brief=true
 
 The brief format is supported for both lists and individual objects.
 
-### Excluding Config Contexts
-
-When retrieving devices and virtual machines via the REST API, each will include its rendered [configuration context data](../features/context-data.md) by default. Users with large amounts of context data will likely observe suboptimal performance when returning multiple objects, particularly with very high page sizes. To combat this, context data may be excluded from the response data by attaching the query parameter `?exclude=config_context` to the request. This parameter works for both list and detail views.
-
 ## Pagination
 
 API responses which contain a list of many objects will be paginated for efficiency. NetBox employs offset-based pagination by default, which forms a page by skipping the number of objects indicated by the `offset` URL parameter. The root JSON object returned by a list endpoint contains the following attributes:
