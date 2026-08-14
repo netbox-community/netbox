@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-* PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later, and will refuse to start when connected to an earlier release. (NetBox v4.6 reported this as a warning.)
+* PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later: The upgrade script will abort when connected to an earlier release. (NetBox v4.6 reported this as a warning.)
 * Redis 5.x is no longer supported. NetBox now requires Redis 6.0 or later.
 * Selection and multiple selection custom field values are now returned as objects specifying both the raw value and its human-friendly label (e.g. `{"value": "datacenter", "label": "Data Center"}`) in both the REST and GraphQL APIs. These fields continue to accept the raw value on write.
 * The `protocol` and `ports` fields on the ApplicationService and ApplicationServiceTemplate models have been replaced by a unified `port_mappings` field, which supports multiple protocols per service. The legacy fields are retained (as deprecated) in the REST and GraphQL APIs, but at the ORM level they are now read-only properties derived from `port_mappings`: Passing `protocol` or `ports` to the model raises a `TypeError`, and assigning to `service.ports` raises an `AttributeError`.
