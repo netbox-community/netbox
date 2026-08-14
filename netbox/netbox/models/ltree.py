@@ -304,8 +304,8 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         self._loaded_name = self.__dict__.get('name')
 
     @classmethod
-    def from_db(cls, db, field_names, values):
-        instance = super().from_db(db, field_names, values)
+    def from_db(cls, db, field_names, values, **kwargs):
+        instance = super().from_db(db, field_names, values, **kwargs)
         instance._loaded_parent_id = instance.__dict__.get('parent_id')
         instance._loaded_name = instance.__dict__.get('name')
         return instance

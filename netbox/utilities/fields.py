@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericForeignKeyDescriptor
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -68,9 +68,25 @@ class NaturalOrderingField(models.CharField):
         )
 
 
+class RestrictedGenericForeignKeyDescriptor(GenericForeignKeyDescriptor):
+    """
+    Django 6.1 moved get_prefetch_querysets() off GenericForeignKey and onto a separate
+    descriptor, which prefetch_related() now prefers over the field itself. Delegate back to
+    the field so that RestrictedGenericForeignKey's restrict()-aware implementation is used.
+    """
+    def get_prefetch_querysets(self, instances, querysets=None):
+        return self.field.get_prefetch_querysets(instances, querysets)
+
+
 class RestrictedGenericForeignKey(GenericForeignKey):
 
-    # Replicated largely from GenericForeignKey. Changes include:
+    def contribute_to_class(self, cls, name, **kwargs):
+        super().contribute_to_class(cls, name, **kwargs)
+        # Replace the descriptor installed by GenericForeignKey with one which defers to
+        # get_prefetch_querysets() below.
+        setattr(cls, self.attname, RestrictedGenericForeignKeyDescriptor(self))
+
+    # Replicated largely from GenericForeignKeyDescriptor. Changes include:
     #  1. Capture restrict_params from RestrictedPrefetch (hack)
     #  2. If restrict_params is set, call restrict() on the queryset for
     #     the related model

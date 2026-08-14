@@ -77,8 +77,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
   'Test Email Subject',
   'Test Email Body',
   'noreply-netbox@example.com',
-  ['users@example.com'],
-  fail_silently=False
+  ['users@example.com']
 )
 ```
 

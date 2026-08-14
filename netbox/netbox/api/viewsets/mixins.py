@@ -109,7 +109,7 @@ def _as_field_errors(item_errors):
     return {api_settings.NON_FIELD_ERRORS_KEY: item_errors}
 
 
-def get_invalid_entries_response(entry_errors):
+def get_invalid_entries_response(entry_errors, total):
     """
     Return a structured error Response for the entries of a bulk request which could not be
     interpreted, or None if every entry was interpretable.
@@ -122,13 +122,20 @@ def get_invalid_entries_response(entry_errors):
 
     Passing this stage is what allows every later error to be correlated by `id` instead.
 
-    :param entry_errors: The `errors` of a BulkOperationSerializer bound to a list, which holds one
-        entry per object in the request (an empty dict where that object was interpretable).
+    :param entry_errors: The `errors` of a BulkOperationSerializer bound to a list. These are
+        reported as a mapping of the position of each uninterpretable entry in the request to that
+        entry's errors; the entries which were interpretable are omitted.
+    :param total: The number of entries in the request, for the summary message.
     """
+    # Ignore any error not correlated to a position, as it does not pertain to a single entry
+    indexed_errors = {
+        index: item_errors
+        for index, item_errors in entry_errors.items()
+        if isinstance(index, int)
+    }
     errors = [
-        {'index': i, 'errors': _as_field_errors(item_errors)}
-        for i, item_errors in enumerate(entry_errors)
-        if item_errors
+        {'index': index, 'errors': _as_field_errors(item_errors)}
+        for index, item_errors in sorted(indexed_errors.items())
     ]
     if not errors:
         return None
@@ -137,7 +144,7 @@ def get_invalid_entries_response(entry_errors):
         {
             'detail': _('{failed_count} of {total} objects failed validation.').format(
                 failed_count=len(errors),
-                total=len(entry_errors),
+                total=total,
             ),
             'errors': errors,
         },
@@ -528,7 +535,7 @@ class BulkUpdateModelMixin:
         # a malformed entry is reported in the same form as every other bulk error
         serializer = BulkOperationSerializer(data=request.data, many=True)
         if not serializer.is_valid():
-            return get_invalid_entries_response(serializer.errors)
+            return get_invalid_entries_response(serializer.errors, len(request.data))
 
         object_ids = [o['id'] for o in serializer.validated_data]
 
@@ -673,7 +680,7 @@ class BulkDestroyModelMixin:
         # a malformed entry is reported in the same form as every other bulk error
         serializer = BulkOperationSerializer(data=request.data, many=True)
         if not serializer.is_valid():
-            return get_invalid_entries_response(serializer.errors)
+            return get_invalid_entries_response(serializer.errors, len(request.data))
 
         object_ids = [o['id'] for o in serializer.validated_data]
 

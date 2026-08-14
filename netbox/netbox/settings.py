@@ -464,16 +464,23 @@ if SESSION_FILE_PATH is not None:
 # Email
 #
 
-EMAIL_HOST = EMAIL.get('SERVER')
-EMAIL_HOST_USER = EMAIL.get('USERNAME')
-EMAIL_HOST_PASSWORD = EMAIL.get('PASSWORD')
-EMAIL_PORT = EMAIL.get('PORT', 25)
-EMAIL_SSL_CERTFILE = EMAIL.get('SSL_CERTFILE')
-EMAIL_SSL_KEYFILE = EMAIL.get('SSL_KEYFILE')
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+        'OPTIONS': {
+            'host': EMAIL.get('SERVER'),
+            'port': EMAIL.get('PORT', 25),
+            'username': EMAIL.get('USERNAME'),
+            'password': EMAIL.get('PASSWORD'),
+            'use_ssl': EMAIL.get('USE_SSL', False),
+            'use_tls': EMAIL.get('USE_TLS', False),
+            'ssl_certfile': EMAIL.get('SSL_CERTFILE'),
+            'ssl_keyfile': EMAIL.get('SSL_KEYFILE'),
+            'timeout': EMAIL.get('TIMEOUT', 10),
+        },
+    },
+}
 EMAIL_SUBJECT_PREFIX = '[NetBox] '
-EMAIL_USE_SSL = EMAIL.get('USE_SSL', False)
-EMAIL_USE_TLS = EMAIL.get('USE_TLS', False)
-EMAIL_TIMEOUT = EMAIL.get('TIMEOUT', 10)
 SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 
 
