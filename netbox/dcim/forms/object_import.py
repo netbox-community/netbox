@@ -263,6 +263,12 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
         own manufacturer (narrowed by clean_device_type/clean_module_type above); the field's
         default name-based lookup resolves both matches into cleaned_data rather than picking
         one, since it has no way to know which is meant.
+
+        If neither device_type nor module_type resolved (so the queryset above was never
+        narrowed), a name could in principle collide across two unrelated manufacturers here
+        too. That's not reachable with valid data: ModularComponentTemplateModel.clean()
+        rejects a template with neither parent, so the form fails in _post_clean() before this
+        method's result would ever be saved.
         """
         module_bay_types = self.cleaned_data['module_bay_types']
 

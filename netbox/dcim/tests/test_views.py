@@ -1793,8 +1793,10 @@ module-bays:
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
 
     def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
-        """Compares the same queryset with/without the prefetch, since row-count comparisons
-        would be swamped by other per-instance relations that legitimately scale with it."""
+        """Compares an unprefetched to_yaml() call per instance against export_yaml() (which
+        prefetches and issues no queries of its own beyond that), rather than a row-count
+        comparison, which other per-instance relations that legitimately scale with it would
+        swamp."""
         manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
         bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
 
