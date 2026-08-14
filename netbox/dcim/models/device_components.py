@@ -1154,6 +1154,18 @@ class Interface(
                 )
             })
 
+        # A channel subinterface's cable state is mirrored from its channelized parent (see
+        # update_channelized_cable_paths()), so it cannot also carry its own CableTermination -- checking
+        # cable_terminations rather than self.cable, since a valid channel child's self.cable is expected to
+        # already reflect the parent's mirrored cable.
+        if self.channel_id is not None and self.cable_terminations.exists():
+            raise ValidationError({
+                'channel_id': _(
+                    "A channel ID cannot be assigned to an interface with an existing cable connection. Remove "
+                    "the cable first."
+                )
+            })
+
         # Parent validation (self-reference and interface-type restrictions are enforced by InterfaceValidationMixin)
 
         # An interface's parent must belong to the same device or virtual chassis

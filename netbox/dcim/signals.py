@@ -241,6 +241,16 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
                 if instance in cablepath.origins:
                     cablepath.delete()
 
+    # A channel child's own cable_id/cable_end/cable_connector/cable_positions may have just been mutated at the
+    # DB level above -- either mirrored from its parent (propagate_channel_cables(), which bulk_updates a
+    # separately-fetched copy of this same row) or cleared (the queryset .update() above) -- without touching
+    # this in-memory `instance`. A later full save() of this same instance by another caller in the same request
+    # (e.g. MACAddressShortcutMixin.update()'s second instance.save() for a combined mac_address change) would
+    # otherwise write those stale in-memory values back over what was just written. Refresh from the DB so it
+    # doesn't.
+    if instance.channel_id or instance._original_channel_id:
+        instance.refresh_from_db(fields=['cable', 'cable_end', 'cable_connector', 'cable_positions'])
+
     # Refresh the cached channelization state so that saving this same in-memory instance again compares against its
     # current values rather than re-triggering propagation from a stale baseline.
     instance._original_channels = instance.channels

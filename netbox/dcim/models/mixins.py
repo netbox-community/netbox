@@ -193,20 +193,6 @@ class InterfaceValidationMixin:
                 )
             })
 
-        # A channel subinterface's cable state is mirrored from its channelized parent (see
-        # update_channelized_cable_paths()), so it cannot also carry its own CableTermination -- checking
-        # cable_terminations rather than self.cable, since a valid channel child's self.cable is expected to
-        # already reflect the parent's mirrored cable. InterfaceTemplate shares this mixin but is not a
-        # CabledObjectModel and so has no cable_terminations at all.
-        cable_terminations = getattr(self, 'cable_terminations', None)
-        if self.channel_id is not None and cable_terminations is not None and cable_terminations.exists():
-            raise ValidationError({
-                'channel_id': _(
-                    "A channel ID cannot be assigned to an interface with an existing cable connection. Remove "
-                    "the cable first."
-                )
-            })
-
         # A channel subinterface must be bound to a channelized parent. A replication base is checked too, so an
         # invalid parent selection is caught before pattern expansion rather than per-instance.
         if self.channel_id is not None or (is_replicated_base and can_bind_to_channel and self.parent_id):
@@ -341,8 +327,7 @@ class InterfaceChannelRenameMixin:
                 # too; a channel subinterface can never itself be channelized, so this can't recurse into the
                 # cascade. update_fields is restricted to what actually changed so unrelated receivers (e.g.
                 # Interface's own cable-path rebuild) can skip redundant work.
-                if hasattr(child, 'snapshot'):
-                    child.snapshot()
+                child.snapshot()
                 child.name = candidate_name
                 # Renamed in its own savepoint: the DB's unique constraint is the sole arbiter of a collision,
                 # and a collision on one child can't abort the rename of the others.

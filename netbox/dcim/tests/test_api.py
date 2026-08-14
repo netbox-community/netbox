@@ -3237,6 +3237,46 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         self.assertEqual(iface.primary_mac_address.pk, mac2.pk)
         self.assertEqual(iface.mac_addresses.count(), mac_count_before)
 
+    def test_channel_binding_survives_combined_mac_address_update(self):
+        """
+        PATCHing channel_id/parent and mac_address together must not let the mac_address shortcut's
+        second instance.save() (see MACAddressShortcutMixin.update()) write the interface's
+        pre-propagation, stale in-memory cable_id back over the cable just mirrored from its newly
+        assigned parent by update_channelized_cable_paths().
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        channelized_parent = Interface.objects.get(device=device, name='Interface 3')
+        far_end = Interface.objects.create(device=device, name='Far End', type='1000base-t')
+        cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
+            a_terminations=[channelized_parent],
+            b_terminations=[far_end],
+        )
+        cable.full_clean()
+        cable.save()
+
+        child = Interface.objects.get(device=device, name='Interface 1')
+        url = self._get_detail_url(child)
+
+        data = {
+            'parent': channelized_parent.pk,
+            'channel_id': 1,
+            'type': 'channel',
+            'mac_address': 'AA:BB:CC:DD:EE:01',
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        child.refresh_from_db()
+        self.assertEqual(
+            child.cable_id, cable.pk,
+            "the mac_address update's second save() clobbered the cable just mirrored from the parent",
+        )
+        self.assertEqual(child.cable_positions, [1])
+        self.assertIsNotNone(child.primary_mac_address)
+        self.assertEqual(str(child.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:01')
+
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
     model = FrontPort
