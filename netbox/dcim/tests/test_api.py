@@ -3241,8 +3241,10 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         """
         PATCHing channel_id/parent and mac_address together must not let the mac_address shortcut's
         second instance.save() (see MACAddressShortcutMixin.update()) write the interface's
-        pre-propagation, stale in-memory cable_id back over the cable just mirrored from its newly
-        assigned parent by update_channelized_cable_paths().
+        pre-propagation, stale in-memory cable_id/_path back over the cable and path just mirrored
+        from its newly assigned parent by update_channelized_cable_paths() -- and, on detach, must
+        not resurrect the stale in-memory values that update() clears via a queryset .update()
+        rather than a save() on this same instance.
         """
         self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
         device = Device.objects.first()
@@ -3259,6 +3261,7 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         child = Interface.objects.get(device=device, name='Interface 1')
         url = self._get_detail_url(child)
 
+        # Attach: bind the channel and set mac_address in the same request.
         data = {
             'parent': channelized_parent.pk,
             'channel_id': 1,
@@ -3274,8 +3277,30 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
             "the mac_address update's second save() clobbered the cable just mirrored from the parent",
         )
         self.assertEqual(child.cable_positions, [1])
+        self.assertIsNotNone(
+            child._path_id, "the mac_address update's second save() clobbered the path traced on attach",
+        )
         self.assertIsNotNone(child.primary_mac_address)
         self.assertEqual(str(child.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:01')
+
+        # Detach: clear the channel binding and change mac_address again in the same request.
+        data = {
+            'parent': None,
+            'channel_id': None,
+            'type': '1000base-t',
+            'mac_address': 'AA:BB:CC:DD:EE:02',
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        child.refresh_from_db()
+        self.assertIsNone(
+            child.cable_id, "the mac_address update's second save() resurrected the cleared cable on detach",
+        )
+        self.assertIsNone(
+            child._path_id, "the mac_address update's second save() resurrected the cleared path on detach",
+        )
+        self.assertEqual(str(child.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:02')
 
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):

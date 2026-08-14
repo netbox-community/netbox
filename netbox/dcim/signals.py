@@ -218,11 +218,16 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
     if instance.channels != instance._original_channels and instance.cable_id:
         parent_ids.add(instance.pk)
 
+    # Tracks whether anything below mutated instance's own row via a queryset/bulk operation (which bypasses
+    # this in-memory `instance`) rather than via save() -- see the refresh_from_db() call at the end.
+    own_row_mutated = False
+
     # select_related('cable') avoids a per-parent round-trip to fetch the Cable, which both
     # propagate_channel_cables() and rebuild_cable_paths() dereference. (Cable.profile is a plain field, not a
     # relation, so it needs no prefetching.)
     parents = Interface.objects.filter(pk__in=parent_ids, cable__isnull=False).select_related('cable')
     for parent in parents:
+        own_row_mutated = True
         if parent.channels:
             parent.propagate_channel_cables()
         rebuild_cable_paths(parent.cable)
@@ -237,19 +242,23 @@ def update_channelized_cable_paths(instance, created, raw=False, update_fields=N
             Interface.objects.filter(pk=instance.pk).update(
                 cable=None, cable_end='', cable_connector=None, cable_positions=None
             )
+            own_row_mutated = True
             for cablepath in CablePath.objects.filter(_nodes__contains=instance):
                 if instance in cablepath.origins:
                     cablepath.delete()
 
-    # A channel child's own cable_id/cable_end/cable_connector/cable_positions may have just been mutated at the
-    # DB level above -- either mirrored from its parent (propagate_channel_cables(), which bulk_updates a
-    # separately-fetched copy of this same row) or cleared (the queryset .update() above) -- without touching
-    # this in-memory `instance`. A later full save() of this same instance by another caller in the same request
-    # (e.g. MACAddressShortcutMixin.update()'s second instance.save() for a combined mac_address change) would
-    # otherwise write those stale in-memory values back over what was just written. Refresh from the DB so it
-    # doesn't.
-    if instance.channel_id or instance._original_channel_id:
-        instance.refresh_from_db(fields=['cable', 'cable_end', 'cable_connector', 'cable_positions'])
+    # A channel child's own cable_id/cable_end/cable_connector/cable_positions/_path may have just been mutated
+    # at the DB level above -- mirrored from its parent (propagate_channel_cables(), which bulk_updates a
+    # separately-fetched copy of this same row), cleared (the queryset .update() above), or rewritten by
+    # rebuild_cable_paths()/CablePath.save()/.delete() (which set/clear _path on path origins via queryset
+    # .update(), also bypassing this in-memory `instance`) -- without touching this in-memory `instance`. A
+    # later full save() of this same instance by another caller in the same request (e.g.
+    # MACAddressShortcutMixin.update()'s second instance.save() for a combined mac_address change) would
+    # otherwise write those stale in-memory values back over what was just written. Gated on own_row_mutated so
+    # a full re-save of an already-consistent channel child (nothing channelization-related touched) doesn't
+    # pay for a refresh it doesn't need.
+    if own_row_mutated:
+        instance.refresh_from_db(fields=['cable', 'cable_end', 'cable_connector', 'cable_positions', '_path'])
 
     # Refresh the cached channelization state so that saving this same in-memory instance again compares against its
     # current values rather than re-triggering propagation from a stale baseline.
