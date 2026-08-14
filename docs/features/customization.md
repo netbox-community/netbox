@@ -79,6 +79,9 @@ To learn more about this feature, check out the [documentation for reports](../c
 
 ## Custom Scripts
 
+!!! warning "Deprecation Warning"
+    Beginning in NetBox v4.7, the custom scripts functionality built into core NetBox has been deprecated in favor of a dedicated plugin, and is scheduled for removal in NetBox v5.0. See the [custom scripts documentation](../customization/custom-scripts.md) for details.
+
 Custom scripts are similar to reports, but more powerful. A custom script can prompt the user for input via a form (or API data), and is built to do much more than just reporting. Custom scripts are generally used to automate tasks, such as the population of new objects in NetBox, or exchanging data with external systems. As with reports, they can be run via the UI, REST API, or CLI, and be scheduled to execute at a future time.
 
 The complete Python environment is available to a custom script, including all of NetBox's internal mechanisms: There are no artificial restrictions on what a script can do. As such, custom scripting is considered an advanced feature and requires sufficient familiarity with Python and NetBox's data model.

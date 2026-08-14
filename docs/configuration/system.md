@@ -282,6 +282,9 @@ The file path to the location where [custom reports](../customization/reports.md
 
 ## SCRIPTS_ROOT
 
+!!! warning "Deprecation Warning"
+    The custom scripts functionality has been deprecated beginning in NetBox v4.7, and is scheduled for removal in NetBox v5.0. This parameter will be removed along with it.
+
 Default: `$INSTALL_ROOT/netbox/scripts/`
 
 The file path to the location where [custom scripts](../customization/custom-scripts.md) will be kept. By default, this is the `netbox/scripts/` directory within the base NetBox installation path.

@@ -62,6 +62,9 @@ python3 netbox/manage.py renaturalize [app_label.ModelName ...]
 
 ## runscript
 
+!!! warning "Deprecation Warning"
+    The custom scripts functionality has been deprecated beginning in NetBox v4.7, and is scheduled for removal in NetBox v5.0. This command will be removed along with it.
+
 Run a [custom script](../customization/custom-scripts.md) from the command line, outside the web UI or API.
 
 ```
