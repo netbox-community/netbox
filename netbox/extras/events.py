@@ -11,6 +11,7 @@ from netbox.models.features import has_feature
 from utilities.api import get_serializer_for_model
 from utilities.serialization import serialize_object
 
+from .conditions import AbsentData
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -161,24 +162,37 @@ def process_event_rules(event_rules, object_type, event):
 
     Notes on event sources:
     - Object change events (created/updated/deleted) are enqueued via enqueue_event()
-      during an HTTP request. These events include a request object.
+      during an HTTP request. These events include a request object, and their payload is
+      always the serialized object.
     - Job lifecycle events (JOB_STARTED/JOB_COMPLETED) are emitted by job_start/job_end
       signal handlers and may not include a request context. Consumers must not assume
-      that a request is always present.
+      that a request is always present. Their payload is the job's `data` field, which is
+      nullable and (for a job which sets it directly) not guaranteed to be a dict.
     """
+    if not event_rules:
+        return
 
     # Normalize object_type onto the event context so that an action's enqueue() can always read
     # event_context['object_type']: job-lifecycle events pass it only as this parameter.
     event['object_type'] = object_type
 
+    # Normalize the event payload to a dict or AbsentData once for all rules.
+    data = event['data']
+    if not isinstance(data, dict):
+        if data is not None:
+            logger.warning(
+                _('Ignoring invalid data payload on {event_type} event (got {data_type})').format(
+                    event_type=event['event_type'],
+                    data_type=type(data).__name__,
+                )
+            )
+        data = AbsentData()
+
     for event_rule in event_rules:
 
-        # Evaluate event rule conditions (if any).
-        # Snapshots are merged into the condition context so conditions can
-        # reference snapshots.prechange.<attr> and snapshots.postchange.<attr>
-        # using the standard dot-path syntax, and so the 'changed'/'unchanged'
-        # operators can access pre/post values.
-        condition_data = {**event['data'], 'snapshots': event.get('snapshots')}
+        # Merge snapshots and evaluate event rule conditions (if any).
+        condition_data = data.copy()
+        condition_data['snapshots'] = event.get('snapshots')
         if not event_rule.eval_conditions(condition_data):
             continue
 
@@ -201,7 +215,7 @@ def process_event_rules(event_rules, object_type, event):
 
         # Merge rule-specific action_data with the event payload.
         # Copy to avoid mutating the rule's stored action_data dict.
-        event_data = {**action_data, **event['data']}
+        event_data = {**action_data, **data}
 
         action = event_rule.action_provider
         if action is None:

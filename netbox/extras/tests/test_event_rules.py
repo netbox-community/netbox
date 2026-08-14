@@ -604,6 +604,122 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertNotIn('request', job.kwargs)
 
+    def _job_event_rule(self, conditions=None):
+        webhook = Webhook.objects.get(name='Webhook 1')
+        event_rule = EventRule.objects.create(
+            name='Event Rule Job Completed',
+            event_types=[JOB_COMPLETED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=ObjectType.objects.get_for_model(Webhook),
+            action_object_id=webhook.pk,
+            conditions=conditions,
+        )
+        event_rule.object_types.set([ObjectType.objects.get_for_model(Script)])
+        return event_rule
+
+    def test_job_event_with_null_data(self):
+        """
+        Job.data is nullable, and a job which recorded no data is entirely routine. Event
+        processing must handle it rather than raising while merging the payload.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        self._job_event_rule()
+        process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
+        self.assertEqual(self.queue.count, 1)
+        self.assertEqual(self.queue.jobs[0].kwargs['data'], {})
+
+    def test_job_event_with_null_data_and_conditions(self):
+        """
+        A condition referencing an attribute of a null payload is a non-match rather than an
+        error: the rule is skipped without logging, since a job which recorded no data is
+        routine rather than a misconfigured rule.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        self._job_event_rule(conditions={'attr': 'status', 'value': 'completed'})
+        with self.assertNoLogs('netbox.event_rules', level='ERROR'):
+            process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
+        self.assertEqual(self.queue.count, 0)
+
+    def test_job_event_with_null_data_does_not_satisfy_conditions(self):
+        """
+        A null payload must not satisfy a conditioned rule, however the condition is phrased:
+        there is no data to evaluate, so nothing may enqueue the rule's action. A test for null
+        and a negated test are the two phrasings which would otherwise match.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        for conditions in (
+            {'attr': 'status', 'value': None},
+            {'attr': 'status', 'value': 'completed', 'negate': True},
+        ):
+            with self.subTest(conditions=conditions):
+                event_rule = self._job_event_rule(conditions=conditions)
+                with self.assertNoLogs('netbox.event_rules', level='ERROR'):
+                    process_job_end_event_rules(Mock(object_type=script_type, data=None, user=self.user))
+                self.assertEqual(self.queue.count, 0)
+                event_rule.delete()
+
+    def test_job_event_with_non_dict_data(self):
+        """
+        A payload which is neither null nor a dict is unexpected: log it, but continue
+        processing rather than aborting the batch.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        self._job_event_rule()
+        for payload in ([1, 2], 'a string', 42):
+            self.queue.empty()
+            with self.assertLogs('netbox.events_processor', level='WARNING') as cm:
+                process_job_end_event_rules(Mock(object_type=script_type, data=payload, user=self.user))
+            self.assertIn(type(payload).__name__, cm.output[0])
+            self.assertEqual(self.queue.count, 1)
+            self.assertEqual(self.queue.jobs[0].kwargs['data'], {})
+
+    def test_job_event_with_non_dict_data_and_conditions(self):
+        """
+        An invalid payload is no more evaluable than an absent one, so a conditioned rule must
+        fail closed for it — including for the phrasings which a payload normalized to an empty
+        dict would otherwise satisfy. The invalid payload is still reported once for the event,
+        as the anomaly it is.
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        for conditions in (
+            {'attr': 'status', 'value': None},
+            {'attr': 'status', 'value': 'completed', 'negate': True},
+            {'attr': 'status', 'value': 'completed'},
+        ):
+            event_rule = self._job_event_rule(conditions=conditions)
+            for payload in ([1, 2], 'a string', 42):
+                with self.subTest(conditions=conditions, payload=payload):
+                    self.queue.empty()
+                    with self.assertLogs('netbox.events_processor', level='WARNING') as cm:
+                        process_job_end_event_rules(
+                            Mock(object_type=script_type, data=payload, user=self.user)
+                        )
+                    self.assertIn(type(payload).__name__, cm.output[0])
+                    self.assertEqual(self.queue.count, 0)
+            event_rule.delete()
+
+    def test_no_matching_rules_leaves_payload_unserialized(self):
+        """
+        Normalizing the payload must not defeat EventContext's lazy serialization: an
+        event with no applicable rules should never have its payload materialized.
+        """
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        site = Site.objects.create(name='Site Lazy', slug='site-lazy')
+
+        queue = {}
+        enqueue_event(queue, site, request, OBJECT_UPDATED)
+        event = queue[f'dcim.site:{site.pk}']
+        self.assertNotIn('data', event.data)
+
+        process_event_rules(
+            event_rules=EventRule.objects.none(),
+            object_type=ObjectType.objects.get_for_model(Site),
+            event=event,
+        )
+        self.assertNotIn('data', event.data)
+
     def test_duplicate_enqueue_refreshes_lazy_payload(self):
         """
         When the same object is enqueued more than once in a single request,
