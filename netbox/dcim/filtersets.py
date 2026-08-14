@@ -2570,7 +2570,9 @@ class InterfaceFilterSet(
     def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
         return {
-            'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES),
+            # A channel subinterface is excluded even if its type is otherwise connectable: it derives its cable
+            # from its channelized parent and cannot be cabled directly (matches Interface.is_wired).
+            'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES).filter(channel_id__isnull=True),
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())

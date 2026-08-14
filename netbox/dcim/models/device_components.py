@@ -15,6 +15,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import (
     CoolingLoopValidationMixin,
     DiameterMixin,
+    InterfaceChannelRenameMixin,
     InterfaceValidationMixin,
     MaxFlowMixin,
 )
@@ -928,6 +929,7 @@ class BaseInterface(models.Model):
 
 
 class Interface(
+    InterfaceChannelRenameMixin,
     InterfaceValidationMixin,
     ModularComponentModel,
     BaseInterface,
@@ -1129,13 +1131,12 @@ class Interface(
         )
 
     def __init__(self, *args, **kwargs):
+        # InterfaceChannelRenameMixin.__init__() (reached via super(), first in the MRO) sets _original_channels, used
+        # below by InterfaceValidationMixin.clean() and by post_save signal handlers.
         super().__init__(*args, **kwargs)
 
         # Cache channelization-related fields so post-save signal handlers can detect changes which require rebuilding
         # cable paths (channelization does not involve modifying the Cable itself, so the cable signals do not fire).
-        # _original_channels is additionally used by InterfaceValidationMixin.clean() to detect a channel-count
-        # reduction that would orphan a bound subinterface.
-        self._original_channels = self.__dict__.get('channels')
         self._original_channel_id = self.__dict__.get('channel_id')
         self._original_parent_id = self.__dict__.get('parent_id')
 
@@ -1155,6 +1156,18 @@ class Interface(
             raise ValidationError({
                 'mark_connected': _("{display_type} interfaces cannot be marked as connected.".format(
                     display_type=self.get_type_display())
+                )
+            })
+
+        # A channel subinterface's cable state is mirrored from its channelized parent (see
+        # update_channelized_cable_paths()), so it cannot also carry its own CableTermination -- checking
+        # cable_terminations rather than self.cable, since a valid channel child's self.cable is expected to
+        # already reflect the parent's mirrored cable.
+        if self.channel_id is not None and self.cable_terminations.exists():
+            raise ValidationError({
+                'channel_id': _(
+                    "A channel ID cannot be assigned to an interface with an existing cable connection. Remove "
+                    "the cable first."
                 )
             })
 
@@ -1272,6 +1285,8 @@ class Interface(
         if self.rf_channel and not self.rf_channel_width:
             self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
 
+        # InterfaceChannelRenameMixin.save() (reached via super(), first in the MRO) detects and cascades a channelized
+        # parent rename around this call.
         super().save(*args, **kwargs)
 
     @property
@@ -1280,9 +1295,8 @@ class Interface(
 
     @property
     def is_wired(self):
-        # Excludes virtual, wireless, and channel-type interfaces (channel subinterfaces derive their cable from the
-        # channelized parent and cannot be cabled directly).
-        return self.type not in NONCONNECTABLE_IFACE_TYPES
+        # Also excludes any channel subinterface, which derives its cable from the channelized parent.
+        return self.type not in NONCONNECTABLE_IFACE_TYPES and self.channel_id is None
 
     @property
     def is_virtual(self):
@@ -1302,7 +1316,8 @@ class Interface(
 
     @property
     def is_channel(self):
-        return self.type == InterfaceTypeChoices.TYPE_CHANNEL
+        # Identified by channel_id, not type — it may keep its own specific physical type instead of "channel".
+        return self.channel_id is not None
 
     @property
     def link(self):

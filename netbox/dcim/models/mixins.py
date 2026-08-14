@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import IntegrityError, models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceTypeChoices
@@ -19,6 +19,7 @@ __all__ = (
     'CachedScopeMixin',
     'CoolingLoopValidationMixin',
     'DiameterMixin',
+    'InterfaceChannelRenameMixin',
     'InterfaceValidationMixin',
     'MaxFlowMixin',
     'RenderConfigMixin',
@@ -146,11 +147,24 @@ class InterfaceValidationMixin:
         if self.pk and self.parent_id == self.pk:
             raise ValidationError({'parent': _("An interface cannot be its own parent.")})
 
-        # Only virtual and channel interfaces may have a parent interface
-        if self.parent_id and self.type not in (InterfaceTypeChoices.TYPE_VIRTUAL, InterfaceTypeChoices.TYPE_CHANNEL):
-            raise ValidationError({
-                'parent': _("Only virtual and channel interfaces may be assigned to a parent interface.")
-            })
+        # A channel subinterface may keep its own specific physical type (e.g. 10GBASE-SR) instead of the
+        # generic "channel" type, but never a virtual or wireless type.
+        can_bind_to_channel = (
+            self.type == InterfaceTypeChoices.TYPE_CHANNEL or self.type not in NONCONNECTABLE_IFACE_TYPES
+        )
+        # During bulk-creation pattern validation (a replication base), channel_id is not yet assigned — it is
+        # supplied per-instance during expansion — so the parent/channel_id presence checks below are relaxed.
+        is_replicated_base = getattr(self, '_replicated_base', False)
+
+        # An interface may have a parent only if virtual, or bound to a channel on that parent.
+        if self.parent_id and self.type != InterfaceTypeChoices.TYPE_VIRTUAL:
+            if self.channel_id is None and not (is_replicated_base and can_bind_to_channel):
+                raise ValidationError({
+                    'parent': _(
+                        "Only virtual interfaces, or a channel subinterface with a channel ID assigned, may be "
+                        "assigned to a parent interface."
+                    )
+                })
 
         # Only one layer of channelization is permitted: an interface cannot be both channelized and a channel
         if self.channels and self.channel_id:
@@ -168,21 +182,23 @@ class InterfaceValidationMixin:
 
         # The channel type and channel_id are mutually dependent. The channel_id requirement is relaxed for a
         # replication base (bulk creation), where each channel_id is supplied per-instance during expansion.
-        is_channel = self.type == InterfaceTypeChoices.TYPE_CHANNEL
-        if is_channel and self.channel_id is None and not getattr(self, '_replicated_base', False):
+        if self.type == InterfaceTypeChoices.TYPE_CHANNEL and self.channel_id is None and not is_replicated_base:
             raise ValidationError({
                 'channel_id': _("Channel interfaces must have a channel ID assigned.")
             })
-        if self.channel_id is not None and not is_channel:
+        if self.channel_id is not None and not can_bind_to_channel:
             raise ValidationError({
-                'channel_id': _("A channel ID can be assigned only to a channel-type interface.")
+                'channel_id': _(
+                    "A channel ID cannot be assigned to a virtual, LAG, bridge, or wireless interface."
+                )
             })
 
-        # A channel subinterface must be bound to a channelized parent interface
-        if is_channel:
+        # A channel subinterface must be bound to a channelized parent. A replication base is checked too, so an
+        # invalid parent selection is caught before pattern expansion rather than per-instance.
+        if self.channel_id is not None or (is_replicated_base and can_bind_to_channel and self.parent_id):
             if self.parent is None:
                 raise ValidationError({
-                    'parent': _("Channel interfaces must be assigned to a parent interface.")
+                    'parent': _("A channel subinterface must be assigned to a parent interface.")
                 })
             if not self.parent.channels:
                 raise ValidationError({
@@ -197,9 +213,8 @@ class InterfaceValidationMixin:
                     ).format(channel_id=self.channel_id, channels=self.parent.channels)
                 })
 
-        # Reducing or clearing the channel count cannot orphan an existing channel subinterface bound to a higher
-        # channel (clearing channelization entirely would orphan every bound subinterface). Gated on the current or
-        # original channel count so the child lookup stays off the hot path for ordinary (never-channelized) interfaces.
+        # Reducing or clearing the channel count cannot orphan an existing child bound to a higher channel. Gated
+        # on channels/_original_channels so this stays off the hot path for never-channelized interfaces.
         if self.pk and (self.channels or self._original_channels):
             max_child_channel_id = self.child_interfaces.filter(
                 channel_id__gt=self.channels or 0
@@ -240,6 +255,95 @@ class InterfaceValidationMixin:
         # RF role may be set only for wireless interfaces
         if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+
+
+class InterfaceChannelRenameMixin:
+    """
+    Cooperative __init__()/save() mixin for Interface and InterfaceTemplate: detects a rename of a channelized
+    parent and cascades it to any channel subinterface which follows the "<parent name>:<channel ID>" naming
+    convention.
+
+    Must precede the model's other bases so its __init__()/save() sit ahead of them in the MRO; both delegate
+    onward via super(), so a consuming model only needs to list this mixin first among its bases and call
+    super().__init__()/super().save() as usual -- no extra wiring required.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_name = self.__dict__.get('name')
+        # Also relied on by InterfaceValidationMixin.clean() (a channel-count reduction that would orphan an
+        # existing child). Tracked here rather than per-model so both concerns share one source of truth.
+        self._original_channels = self.__dict__.get('channels')
+
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        # A save() whose update_fields excludes 'name'/'channels' won't actually persist that attribute, so the
+        # cascade decision below can't treat self.name/self.channels as current in that case -- fall back to the
+        # last known persisted value instead. Without this, e.g. clearing self.channels in memory and saving
+        # with update_fields=['name'] would see a falsy self.channels and skip a cascade the DB still requires.
+        name_persisted = update_fields is None or 'name' in update_fields
+        channels_persisted = update_fields is None or 'channels' in update_fields
+        is_channelized = self.channels if channels_persisted else self._original_channels
+        old_name, new_name = self._original_name, self.name
+        renamed = bool(self.pk and is_channelized and name_persisted and new_name != old_name)
+
+        super().save(*args, **kwargs)
+        # Captured after super().save() so it reflects the DB actually used -- which, when this save() was
+        # called with an explicit using=, is not necessarily what router.db_for_write() would return if
+        # re-run here.
+        db_alias = self._state.db
+
+        if name_persisted:
+            self._original_name = new_name
+        if channels_persisted:
+            self._original_channels = self.channels
+
+        if renamed:
+            # Defer until commit so a later save in the same transaction cannot overwrite the cascade.
+            transaction.on_commit(
+                lambda: self._rename_channel_subinterfaces(old_name, new_name, db_alias),
+                using=db_alias,
+            )
+
+    def _rename_channel_subinterfaces(self, old_name, new_name, db_alias):
+        """
+        Rename each channel subinterface following the "<parent name>:<channel ID>" convention to match this
+        interface's new name. A subinterface named otherwise is left untouched, as is one whose renamed form
+        would exceed the name field's max length or collide with an existing sibling.
+        """
+        max_name_length = self._meta.get_field('name').max_length
+        # This runs from an on_commit callback, after the triggering save()'s own transaction has already
+        # committed -- so without this outer atomic(), each child below would run in its own independent,
+        # auto-committing transaction rather than a savepoint, and an unexpected failure partway through
+        # could leave only some of the child set renamed.
+        with transaction.atomic(using=db_alias):
+            for child in self.child_interfaces.using(db_alias).filter(channel_id__isnull=False):
+                if child.name != f'{old_name}:{child.channel_id}':
+                    continue
+                candidate_name = f'{new_name}:{child.channel_id}'
+                if len(candidate_name) > max_name_length:
+                    continue
+                # A full save() (not a queryset update()) so _name, last_updated, and the changelog get updated
+                # too; a channel subinterface can never itself be channelized, so this can't recurse into the
+                # cascade. update_fields is restricted to what actually changed so unrelated receivers (e.g.
+                # Interface's own cable-path rebuild) can skip redundant work.
+                child.snapshot()
+                child.name = candidate_name
+                # Renamed in its own savepoint: the DB's unique constraint is the sole arbiter of a collision,
+                # and a collision on one child can't abort the rename of the others.
+                try:
+                    with transaction.atomic(using=db_alias):
+                        child.save(using=db_alias, update_fields=['name', '_name', 'last_updated'])
+                except IntegrityError:
+                    # Confirm this was really the expected name collision (not some other constraint) before
+                    # treating it as safe to skip. The (device, name) constraint is declared via
+                    # Meta.constraints, which validate_unique() does not check -- only validate_constraints()
+                    # does.
+                    try:
+                        child.validate_constraints()
+                    except ValidationError:
+                        continue
+                    raise
 
 
 class CoolingLoopValidationMixin:
