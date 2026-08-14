@@ -1004,10 +1004,12 @@ module-bays:
     module_bay_types:
       - SFP28
   - name: Module Bay 2
+    enabled: false
   - name: Module Bay 3
 device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
+    enabled: false
   - name: Device Bay 3
 inventory-items:
   - name: Inventory Item 1
@@ -1133,10 +1135,18 @@ inventory-items:
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+        self.assertTrue(mb1.enabled)
+
+        mb2 = ModuleBayTemplate.objects.filter(name='Module Bay 2').first()
+        self.assertFalse(mb2.enabled)
 
         self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
+        self.assertTrue(db1.enabled)
+
+        db2 = DeviceBayTemplate.objects.filter(name='Device Bay 2').first()
+        self.assertFalse(db2.enabled)
 
         self.assertEqual(device_type.inventoryitemtemplates.count(), 3)
         ii1 = InventoryItemTemplate.objects.first()

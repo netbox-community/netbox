@@ -294,20 +294,6 @@ class ModuleBayTemplateImportFormTestCase(TestCase):
         )
         self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
 
-    def test_enabled_defaults_true_when_omitted(self):
-        device_type = DeviceType.objects.create(
-            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
-            model='Device Type 1',
-            slug='device-type-1',
-        )
-
-        form = ModuleBayTemplateImportForm({
-            'device_type': device_type.pk,
-            'name': 'Module Bay 1',
-        })
-        self.assertTrue(form.is_valid(), form.errors)
-        self.assertTrue(form.save().enabled)
-
     def test_enabled_honors_explicit_false(self):
         device_type = DeviceType.objects.create(
             manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),

@@ -230,13 +230,6 @@ class ModuleBayTemplateImportForm(forms.ModelForm):
             'module_bay_types',
         ]
 
-    def clean_enabled(self):
-        # A dict-bound BooleanField resolves a missing key to False, not the model's own
-        # default=True -- match ModuleBayImportForm's equivalent CSV-import behavior.
-        if 'enabled' not in self.data:
-            return True
-        return self.cleaned_data['enabled']
-
     def _scope_module_bay_types(self, manufacturer):
         module_bay_types = self.fields['module_bay_types']
         module_bay_types.queryset = module_bay_types.queryset.filter(
@@ -286,7 +279,7 @@ class DeviceBayTemplateImportForm(forms.ModelForm):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name', 'label', 'description',
+            'device_type', 'name', 'label', 'enabled', 'description',
         ]
 
 
