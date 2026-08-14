@@ -1,12 +1,10 @@
 from django.apps import apps
 from django.core.cache import cache
 from django.core.checks import Error, Tags, register
-from django.db import connection
 from django.db.models import Index, UniqueConstraint
 
 __all__ = (
     'check_duplicate_indexes',
-    'check_postgresql_version',
     'check_redis_version',
 )
 
@@ -42,31 +40,6 @@ def check_duplicate_indexes(app_configs, **kwargs):
                     )
                 )
 
-    return errors
-
-
-@register(Tags.database)
-def check_postgresql_version(app_configs, **kwargs):
-    """
-    Report an error if the PostgreSQL version is less than 15.
-    """
-    errors = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('SHOW server_version_num')
-            row = cursor.fetchone()
-            pg_version = int(row[0])
-        if pg_version < 150000:
-            major_version = pg_version // 10000
-            errors.append(
-                Error(
-                    f'PostgreSQL {major_version} is not supported. NetBox requires PostgreSQL 15 or later.',
-                    hint='Please upgrade to PostgreSQL 15 or later.',
-                    id='netbox.E001',
-                )
-            )
-    except Exception:
-        pass
     return errors
 
 
