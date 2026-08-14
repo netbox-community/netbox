@@ -160,8 +160,7 @@ social-auth-app-django
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
-# Need to verify that v4.9.0 does not introduce breaking changes (see #22095)
-social-auth-core==4.8.*
+social-auth-core
 
 # Image thumbnail generation
 # https://github.com/jazzband/sorl-thumbnail/blob/master/CHANGES.rst
