@@ -17,7 +17,6 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -428,7 +427,7 @@ class PlatformViewSet(NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(SequentialBulkCreatesMixin, ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
+class DeviceViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()

@@ -107,3 +107,114 @@ class OpenAPISchemaTestCase(TestCase):
         self.assertNotIn('oneOf', request_schema, "DELETE should NOT have oneOf")
         self.assertEqual(request_schema['type'], 'array', "DELETE should require array")
         self.assertIn('items', request_schema, "DELETE array should have items")
+
+    def _get_response_schema(self, path, method, code):
+        """Return the JSON response schema documented for the given operation and status code."""
+        responses = self.schema['paths'][path][method]['responses']
+        self.assertIn(code, responses, f"{method.upper()} {path} should document a {code} response")
+        return responses[code]['content']['application/json']['schema']
+
+    def test_bulk_error_component_is_defined(self):
+        """
+        The structured error body returned by a failed bulk operation should be a named component,
+        so that generated clients have a type for it.
+
+        Refs: #20054
+        """
+        components = self.schema['components']['schemas']
+
+        self.assertIn('BulkOperationError', components)
+        envelope = components['BulkOperationError']
+        self.assertEqual(sorted(envelope['properties']), ['detail', 'errors'])
+        # `errors` is absent where the request could not be attributed to individual entries
+        self.assertEqual(envelope['required'], ['detail'])
+        self.assertEqual(
+            envelope['properties']['errors']['items']['$ref'],
+            '#/components/schemas/BulkOperationEntryError',
+        )
+
+        self.assertIn('BulkOperationEntryError', components)
+        entry = components['BulkOperationEntryError']
+        # An entry is correlated by `id` or by `index`, so neither is required; `errors` always is
+        self.assertEqual(sorted(entry['properties']), ['errors', 'id', 'index'])
+        self.assertEqual(entry['required'], ['errors'])
+
+    def test_bulk_update_documents_error_response(self):
+        """
+        Bulk update operations should document the structured 400 response.
+
+        Refs: #20054
+        """
+        ref = {'$ref': '#/components/schemas/BulkOperationError'}
+
+        for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
+            for method in ('put', 'patch'):
+                with self.subTest(path=path, method=method):
+                    self.assertEqual(self._get_response_schema(path, method, '400'), ref)
+
+    def test_bulk_delete_documents_error_responses(self):
+        """
+        Bulk delete operations should document the 400 (unresolvable request or protection rule), the
+        403 (not permitted) and the 409 (dependent object) responses.
+
+        Refs: #20054
+        """
+        ref = {'$ref': '#/components/schemas/BulkOperationError'}
+
+        for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
+            with self.subTest(path=path):
+                self.assertEqual(self._get_response_schema(path, 'delete', '400'), ref)
+                self.assertEqual(self._get_response_schema(path, 'delete', '403'), ref)
+                self.assertEqual(self._get_response_schema(path, 'delete', '409'), ref)
+
+    def test_bulk_write_operations_document_forbidden_response(self):
+        """
+        Every bulk write should document the 403 returned when an object-level permission refuses one
+        of the objects specified.
+
+        Refs: #20054
+        """
+        ref = {'$ref': '#/components/schemas/BulkOperationError'}
+
+        for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
+            for method in ('post', 'put', 'patch', 'delete'):
+                with self.subTest(path=path, method=method):
+                    self.assertEqual(self._get_response_schema(path, method, '403'), ref)
+
+    def test_create_documents_error_response_for_either_shape(self):
+        """
+        A POST to a list endpoint accepts either a single object or a list, so its 400 response
+        should document both the field-keyed and the bulk error shapes.
+
+        Refs: #20054
+        """
+        for path in ('/api/dcim/sites/', '/api/ipam/prefixes/', '/api/users/users/'):
+            with self.subTest(path=path):
+                schema = self._get_response_schema(path, 'post', '400')
+                self.assertEqual(
+                    schema['oneOf'],
+                    [
+                        {'type': 'object', 'additionalProperties': {}},
+                        {'$ref': '#/components/schemas/BulkOperationError'},
+                    ],
+                )
+
+    def test_detail_operations_omit_bulk_error_response(self):
+        """
+        The bulk error body applies only to list endpoints; detail endpoints must not advertise it.
+
+        Refs: #20054
+        """
+        path = '/api/dcim/sites/{id}/'
+
+        for method in ('get', 'put', 'patch', 'delete'):
+            with self.subTest(method=method):
+                responses = self.schema['paths'][path][method]['responses']
+                self.assertNotIn('409', responses)
+                self.assertNotIn('403', responses)
+                for code, response in responses.items():
+                    schema = response.get('content', {}).get('application/json', {}).get('schema', {})
+                    self.assertNotEqual(
+                        schema.get('$ref'), '#/components/schemas/BulkOperationError',
+                        f"{method.upper()} {path} ({code}) should not reference the bulk error body"
+                    )

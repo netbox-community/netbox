@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -25,6 +25,7 @@ from utilities.testing import (
     create_test_device,
     create_test_nat_ip_pair,
     disable_logging,
+    disable_warnings,
 )
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -467,6 +468,204 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_update_objects_non_list_body(self):
+        """
+        PATCH a list endpoint with a body which is not a list. The response should identify the
+        problem with the request as a whole, as there are no entries to report against.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        response = self.client.patch(
+            self._get_list_url(), {'id': site.pk, 'description': 'x'}, format='json', **self.header
+        )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertNotIn('errors', response.data)
+
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
+        # A non-list body is described by its type, so that the client can see what was sent
+        self.assertEqual(response.data['detail'], 'Expected a list of objects, but got dict.')
+
+        # A multipart body reaches the bulk action as a QueryDict, which must be reported as the
+        # dict the client submitted rather than by that internal class name
+        response = self.client.patch(
+            self._get_list_url(), {'id': site.pk, 'description': 'x'}, format='multipart', **self.header
+        )
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['detail'], 'Expected a list of objects, but got dict.')
+
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
+    def test_bulk_write_objects_empty_body(self):
+        """
+        Address a list endpoint with no body at all. An absent body reaches the bulk actions as an
+        empty dict, so it must not be reported as having "got dict" -- there is no object to describe.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change', 'delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = Site.objects.count()
+
+        for method in ('patch', 'put', 'delete'):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(self._get_list_url(), **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(
+                    response.data['detail'], 'Expected a list of objects, but no data was submitted.'
+                )
+                self.assertNotIn('errors', response.data)
+
+        # An explicitly submitted empty object is indistinguishable, and reads the same way
+        response = self.client.patch(self._get_list_url(), {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data['detail'], 'Expected a list of objects, but no data was submitted.'
+        )
+
+        self.assertEqual(Site.objects.count(), initial_count, 'No objects should have been deleted')
+
+    def test_bulk_update_objects_non_numeric_id(self):
+        """
+        PATCH a set of objects where one entry carries a non-numeric ID. The failure must be
+        correlated by position, in the same structured form as every other bulk error.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [{'id': site.pk, 'description': 'x'}, {'id': 'not-a-number', 'description': 'y'}]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['index'], 1)
+        self.assertIn('id', response.data['errors'][0]['errors'])
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+
+    def test_bulk_write_objects_null_entry(self):
+        """
+        Address a list endpoint with a list containing a null entry. A null fails before any field
+        is considered, so its error arrives as a bare list of messages; it must still be reported
+        as a mapping keyed by field name, as the schema declares.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change', 'delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        initial_count = Site.objects.count()
+
+        for method in ('patch', 'put', 'delete'):
+            with self.subTest(method=method):
+                data = [{'id': site.pk, 'description': 'x'}, None]
+                response = getattr(self.client, method)(
+                    self._get_list_url(), data, format='json', **self.header
+                )
+
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertEqual(len(response.data['errors']), 1)
+                self.assertEqual(response.data['errors'][0]['index'], 1)
+
+                # Reported under the key which every other non-field error uses
+                entry_errors = response.data['errors'][0]['errors']
+                self.assertIsInstance(entry_errors, dict)
+                self.assertIn('__all__', entry_errors)
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.description, '')
+        self.assertEqual(Site.objects.count(), initial_count, 'No objects should have been deleted')
+
+    def test_bulk_update_objects_duplicate_id_invalid_entry(self):
+        """
+        PATCH a set of objects in which one object is named twice, once with invalid data and once
+        with valid data. The invalid entry must not be discarded in favor of the valid one.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [
+            {'id': site.pk, 'name': ''},  # Invalid: name is required
+            {'id': site.pk, 'name': 'Renamed Site'},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site.pk])
+
+        # The valid entry must not have been applied
+        site.refresh_from_db()
+        self.assertEqual(site.name, 'Site 1')
+
+    def test_bulk_delete_objects_duplicate_id_changelog_message(self):
+        """
+        DELETE a set of objects in which one object is named twice with differing changelog
+        messages. The request must be rejected rather than recording only one of the messages.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        site = Site.objects.get(slug='site-1')
+        data = [
+            {'id': site.pk, 'changelog_message': 'First message'},
+            {'id': site.pk, 'changelog_message': 'Second message'},
+        ]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site.pk])
+        self.assertTrue(Site.objects.filter(pk=site.pk).exists())
+
+    def test_bulk_create_objects_conflicting(self):
+        """
+        POST a set of objects in which two conflict with one another. Objects are created one at a
+        time, so the second must fail validation against the first rather than passing validation
+        and then raising an IntegrityError on save.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {'name': 'Site 10', 'slug': 'site-10'},
+            {'name': 'Site 11', 'slug': 'site-11'},
+            {'name': 'Site 10', 'slug': 'site-10'},  # Duplicates the first item
+        ]
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+        # Only the third item failed; the first two were provisionally created and rolled back
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['index'], 2)
+        self.assertIn('slug', response.data['errors'][0]['errors'])
+
     def test_bulk_delete_objects_protected(self):
         """
         DELETE a set of objects where one has a protected FK dependency. Verify the structured
@@ -495,6 +694,270 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIn('errors', response.data['errors'][0])
 
         # Verify that no sites were actually deleted (transaction rolled back)
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_update_objects_unpermitted(self):
+        """
+        PATCH a set of objects where the requesting user's object-level permissions exclude one of
+        them. The excluded object must be reported rather than silently omitted from the response.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'], constraints={'slug': 'site-1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'description': 'Permitted'},
+            {'id': site2.pk, 'description': 'Not permitted'},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+
+        # Neither site may have been updated, including the one the user is permitted to change
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.description, '', 'Site 1 should not have been updated')
+        self.assertEqual(site2.description, '', 'Site 2 should not have been updated')
+
+    def test_bulk_delete_objects_unpermitted(self):
+        """
+        DELETE a set of objects where the requesting user's object-level permissions exclude one of
+        them. The excluded object must be reported rather than the request reporting success.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'], constraints={'slug': 'site-1'})
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual(len(response.data['errors']), 1)
+        self.assertEqual(response.data['errors'][0]['id'], site2.pk)
+
+        # Neither site may have been deleted, including the one the user is permitted to delete
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_update_objects_abort_request(self):
+        """
+        PATCH a set of objects where a signal receiver raises AbortRequest for more than one of
+        them. Each failure must be correlated to its own object (proving the batch continues past
+        the first abort) and no object may be modified.
+        """
+        # This tag may only be assigned to Regions, so assigning it to a Site raises AbortRequest
+        # from extras.signals.validate_assigned_tags.
+        restricted_tag = Tag.objects.create(name='Regions Only', slug='regions-only')
+        restricted_tag.object_types.set([ObjectType.objects.get_for_model(Region)])
+
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+        self.add_permissions('extras.view_tag')
+
+        data = [
+            {'id': site1.pk, 'tags': [{'name': 'Regions Only'}]},
+            {'id': site2.pk, 'tags': [{'name': 'Regions Only'}]},
+        ]
+        response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            # Reported as a non-field error, in the same list-of-messages form as field errors
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been tagged (whole batch rolled back)
+        self.assertFalse(site1.tags.exists(), 'Site 1 should not have been tagged')
+        self.assertFalse(site2.tags.exists(), 'Site 2 should not have been tagged')
+
+    def test_bulk_delete_objects_abort_request(self):
+        """
+        DELETE a set of objects where a protection rule blocks more than one of them. Each failure
+        must be correlated to its own object and no object may be deleted. A protection rule is a
+        rejection of the request rather than a conflict with the state of the database, so this
+        reports 400 -- as the single-object endpoint does for the same rule.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Neither site has a description, so the rule blocks both deletions via AbortRequest raised
+        # from core.signals.handle_deleted_object.
+        protection_rules = {'dcim.site': [{'description': {'required': True}}]}
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        with override_settings(PROTECTION_RULES=protection_rules):
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been deleted
+        self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
+        self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
+
+    def test_bulk_update_objects_permission_constraint(self):
+        """
+        PATCH a set of objects where the update would move one of them outside the requesting user's
+        object-level permissions. The offending object must be named, rather than the whole batch
+        failing with an opaque 403, and nothing may be modified.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        Site.objects.filter(pk__in=(site1.pk, site2.pk)).update(status=SiteStatusChoices.STATUS_ACTIVE)
+
+        # Only active sites may be changed, so setting Site 2's status to "planned" saves the object
+        # and then fails _validate_objects(), which perform_update() reports as PermissionDenied.
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'description': 'Permitted'},
+            {'id': site2.pk, 'status': SiteStatusChoices.STATUS_PLANNED},
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        # Still a 403, as the single-object endpoint returns, but now correlated
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site2.pk])
+        self.assertIsInstance(response.data['errors'][0]['errors']['__all__'], list)
+
+        # Neither site may have been modified, including the permitted one
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.description, '', 'Site 1 should not have been updated')
+        self.assertEqual(site2.status, SiteStatusChoices.STATUS_ACTIVE, 'Site 2 should not have been updated')
+
+    def test_bulk_update_objects_permission_constraint_and_validation_error(self):
+        """
+        PATCH a set of objects where one entry is invalid and another is refused by object-level
+        permissions. Both must be reported, and the authorization failure must determine the status
+        code: it is the failure which would remain were the invalid entry corrected.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+        Site.objects.filter(pk__in=(site1.pk, site2.pk)).update(status=SiteStatusChoices.STATUS_ACTIVE)
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = [
+            {'id': site1.pk, 'status': 'not-a-valid-status'},  # Fails validation (400)
+            {'id': site2.pk, 'status': SiteStatusChoices.STATUS_PLANNED},  # Not permitted (403)
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+
+        site1.refresh_from_db()
+        site2.refresh_from_db()
+        self.assertEqual(site1.status, SiteStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(site2.status, SiteStatusChoices.STATUS_ACTIVE)
+
+    def test_bulk_create_objects_permission_constraint(self):
+        """
+        POST a set of objects where one falls outside the requesting user's object-level permissions.
+        The offending object must be correlated by its position, and nothing may be created.
+        """
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+            constraints={'status': SiteStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {'name': 'Site 20', 'slug': 'site-20', 'status': SiteStatusChoices.STATUS_ACTIVE},
+            {'name': 'Site 21', 'slug': 'site-21', 'status': SiteStatusChoices.STATUS_PLANNED},
+        ]
+        with disable_warnings('django.request'):
+            response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual([e['index'] for e in response.data['errors']], [1])
+        self.assertIsInstance(response.data['errors'][0]['errors']['__all__'], list)
+
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any sibling is not permitted',
+        )
+
+    def test_bulk_delete_objects_conflict_and_abort_request(self):
+        """
+        DELETE a set of objects where one is blocked by a dependent object and another by a
+        protection rule. Both failures must be reported, and the dependency conflict must determine
+        the status code: it is the failure which would remain were the request itself corrected.
+        """
+        site1 = Site.objects.get(slug='site-1')
+        site2 = Site.objects.get(slug='site-2')
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['delete'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Site 1 is blocked by a dependent Device (ProtectedError); Site 2 is blocked by the
+        # protection rule below, as it has no description (AbortRequest). Site 1 is given a
+        # description so that only one of the two failure modes applies to it.
+        create_test_device('Protected Device', site=site1)
+        site1.description = 'Has a description'
+        site1.save()
+
+        protection_rules = {'dcim.site': [{'description': {'required': True}}]}
+        data = [{'id': site1.pk}, {'id': site2.pk}]
+        with override_settings(PROTECTION_RULES=protection_rules):
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertEqual([e['id'] for e in response.data['errors']], [site1.pk, site2.pk])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        # Neither site may have been deleted
         self.assertTrue(Site.objects.filter(pk=site1.pk).exists(), 'Site 1 should not have been deleted')
         self.assertTrue(Site.objects.filter(pk=site2.pk).exists(), 'Site 2 should not have been deleted')
 
@@ -2261,10 +2724,9 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
     def test_bulk_create_objects_validation_error(self):
         """
-        POST a set of Device objects where the first passes and the second fails validation.
-        DeviceViewSet uses SequentialBulkCreatesMixin, so the response should report only the
-        failed object, and no objects should be created despite the first item passing
-        (atomic rollback).
+        POST a set of Device objects where the first passes and the second fails validation. The
+        response should report only the failed object, and no objects should be created despite
+        the first item passing (atomic rollback).
         """
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
@@ -2291,6 +2753,41 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         # Second item failed validation — first item succeeded so it's omitted
         self.assertEqual(response.data['errors'][0]['index'], 1)
         self.assertIn('errors', response.data['errors'][0])
+
+    def test_bulk_create_objects_abort_request(self):
+        """
+        POST a set of Device objects where a signal receiver raises AbortRequest for more than one
+        of them. Each failure must be correlated to its position in the request (proving the batch
+        continues past the first abort) and no object may be created.
+        """
+        # This tag may only be assigned to Regions, so assigning it to a Device raises AbortRequest
+        # from extras.signals.validate_assigned_tags.
+        restricted_tag = Tag.objects.create(name='Regions Only', slug='regions-only')
+        restricted_tag.object_types.set([ObjectType.objects.get_for_model(Region)])
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+        self.add_permissions('extras.view_tag')
+
+        initial_count = self._get_queryset().count()
+        data = [
+            {**self.create_data[0], 'tags': [{'name': 'Regions Only'}]},
+            {**self.create_data[1], 'tags': [{'name': 'Regions Only'}]},
+        ]
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('detail', response.data)
+        self.assertEqual([e['index'] for e in response.data['errors']], [0, 1])
+        for error in response.data['errors']:
+            self.assertIsInstance(error['errors']['__all__'], list)
+
+        self.assertEqual(
+            self._get_queryset().count(), initial_count,
+            'No objects should be created when any sibling is aborted',
+        )
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):

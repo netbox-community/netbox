@@ -809,6 +809,12 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'core.api.schema.NetBoxAutoSchema',
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    # Align REST framework's key for errors which pertain to no particular field with Django's
+    # (django.core.exceptions.NON_FIELD_ERRORS), so that the API reports such an error under one key
+    # rather than two. Model validation errors reach a response by way of full_clean(), and so are
+    # keyed by Django; errors raised by a serializer or field are keyed by REST framework. Without
+    # this, which of the two a client must read depends on the layer which rejected the request.
+    'NON_FIELD_ERRORS_KEY': '__all__',
     'SCHEMA_COERCE_METHOD_NAMES': {
         # Default mappings
         'retrieve': 'read',

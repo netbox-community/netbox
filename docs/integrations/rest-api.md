@@ -592,6 +592,9 @@ http://netbox/api/dcim/sites/ \
 ]
 ```
 
+!!! note
+    The bulk creation of objects is an all-or-none operation, meaning that if NetBox fails to successfully create any of the specified objects (e.g. due to a validation error), the entire operation will be aborted and none of the objects will be created.
+
 ### Updating an Object
 
 To modify an object which has already been created, make a `PATCH` request to the model's _detail_ endpoint specifying its unique numeric ID. Include any data which you wish to update on the object. As with object creation, the `Authorization` and `Content-Type` headers must also be specified.
