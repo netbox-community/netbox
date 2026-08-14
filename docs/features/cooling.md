@@ -1,5 +1,7 @@
 # Cooling
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 As part of its DCIM feature set, NetBox supports modeling data center cooling infrastructure, from facility plant down to the coolant connections on individual devices. This is used to document liquid- and hybrid-cooled environments (chillers, cooling distribution units, manifolds, rear-door heat exchangers, and cold-plate servers) as a source of truth.
 
 ## Model Overview

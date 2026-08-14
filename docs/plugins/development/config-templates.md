@@ -1,5 +1,7 @@
 # Jinja Config Templates
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 NetBox uses [Jinja](https://jinja.palletsprojects.com/) to render [configuration templates](../../features/configuration-rendering.md). Plugins can extend this rendering pipeline in two complementary ways:
 
 1. **Register custom filters** — make new template filters available by name in every config template.

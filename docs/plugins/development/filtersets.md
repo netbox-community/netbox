@@ -6,8 +6,7 @@ Filter sets define the mechanisms available for filtering or searching through a
 
 To support additional functionality standard to NetBox models, such as tag assignment and custom field support, the `NetBoxModelFilterSet` class is available for use by plugins. This should be used as the base filter set class for plugin models which inherit from `NetBoxModel`. Within this class, individual filters can be declared as directed by the `django-filters` documentation. An example is provided below.
 
-!!! info "New in NetBox v4.5: FilterSet Registration"
-    NetBox v4.5 introduced the `register_filterset()` utility function. This enables plugins to register their filtersets to receive advanced functionality, such as the automatic attachment of field-specific lookup modifiers on the filter form. Registration is optional: Unregistered filtersets will continue to work as before, but will not receive the enhanced functionality.
+The `register_filterset()` utility function enables plugins to register their filtersets to receive advanced functionality, such as the automatic attachment of field-specific lookup modifiers on the filter form. Registration is optional: Unregistered filtersets will continue to work as before, but will not receive the enhanced functionality.
 
 ```python
 # filtersets.py

@@ -86,8 +86,6 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ## HOSTNAME
 
-!!! info "This parameter was introduced in NetBox v4.4."
-
 Default: System hostname
 
 The hostname displayed in the user interface identifying the system on which NetBox is running. If not defined, this defaults to the system hostname as reported by Python's `platform.node()`.
@@ -95,8 +93,6 @@ The hostname displayed in the user interface identifying the system on which Net
 ---
 
 ## HTTP_CLIENT_IP_HEADERS
-
-!!! info "This parameter was introduced in NetBox v4.6.1."
 
 Default:
 
@@ -142,7 +138,7 @@ A list of IP addresses recognized as internal to the system, used to control the
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
 addresses (and [`DEBUG`](./development.md#debug) is `True`).
 
-!!! info "New in NetBox v4.6"
+!!! info "Enabling the toolbar for all clients"
     Setting this parameter to an empty list will enable the toolbar for all requests provided debugging is enabled:
 
     ```python

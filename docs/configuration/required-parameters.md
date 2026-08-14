@@ -25,8 +25,6 @@ ALLOWED_HOSTS = ['*']
 
 ## API_TOKEN_PEPPERS
 
-!!! info "This parameter was introduced in NetBox v4.5."
-
 [Cryptographic peppers](https://en.wikipedia.org/wiki/Pepper_(cryptography)) are employed to generate hashes of sensitive values on the server. This parameter defines the peppers used to hash v2 API tokens in NetBox. You must define at least one pepper before creating a v2 API token. See the [API documentation](../integrations/rest-api.md#authentication) for further information about how peppers are used.
 
 ```python

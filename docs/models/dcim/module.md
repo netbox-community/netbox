@@ -6,6 +6,8 @@ Similar to devices, modules are instantiated from [module types](./moduletype.md
 
 ## Moving Modules
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 An installed module can be moved to a different module bay after creation. The destination bay must be enabled and unoccupied. Moving a module relocates its entire subtree: the components installed by the module, the module bays belonging to it, and any child modules installed within those bays.
 
 Component names, labels, and module bay positions derived from the module type's templates (for example, names containing `{module}`) are re-resolved for the destination bay. A component is renamed only when its current name matches exactly one of the module type's templates as resolved for the source bay; components whose names do not match any template resolution (including manually renamed components) are preserved as-is. All resulting names are validated against the destination device before the move is applied. A move is rejected when a template-derived name, label, or position would exceed the destination field's maximum length. A move is also rejected when a component's current value matched a template for the source bay but that template cannot be resolved for the destination bay's nesting depth.

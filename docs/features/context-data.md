@@ -93,7 +93,7 @@ A profile's schema may be authored directly in NetBox or populated from an exter
 
 ## Pre-rendered Caching
 
-!!! info "New in NetBox v4.7"
+!!! info "This feature was introduced in NetBox v4.7."
 
 NetBox pre-renders each device's and virtual machine's merged context data and stores it on the object itself, so most reads can return the result without recomputing the full set of applicable contexts. The cache is initially populated during upgrade (the upgrade script runs the `rebuild_config_context_cache` management command) and is thereafter kept current automatically: whenever an upstream change is detected — a config context being created, modified, or deleted; a device/VM's scope-relevant attribute changing (site, role, tenant, tags, cluster, etc.); or a related object being re-routed in a way that changes which contexts apply — NetBox marks the affected caches invalid and enqueues a non-blocking [background job](./background-jobs.md) to repopulate them.
 

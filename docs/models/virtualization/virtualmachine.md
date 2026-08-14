@@ -46,9 +46,6 @@ The location or host for this VM. At least one must be specified:
 - **Device only**: The VM runs directly on a physical host device without a cluster (e.g. containers). The site is automatically inferred from the device's site.
 - **Cluster + Device**: The VM belongs to a cluster and is pinned to a specific host device within that cluster. The device must be a registered host of the assigned cluster.
 
-!!! info "New in NetBox v4.6"
-    Virtual machines can now be assigned directly to a device without requiring a cluster. This is particularly useful for modeling VMs running on standalone hosts outside of a cluster.
-
 ### Platform
 
 A VM may be associated with a particular [platform](../dcim/platform.md) to indicate its operating system. If a virtual machine type defines a default platform, it will be applied when the VM is created unless an explicit platform is specified.

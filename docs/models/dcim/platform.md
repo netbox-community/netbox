@@ -12,8 +12,6 @@ The assignment of platforms to devices and virtual machines is optional.
 
 ## Parent
 
-!!! "This field was introduced in NetBox v4.4."
-
 The parent platform class to which this platform belongs (optional).
 
 ### Name

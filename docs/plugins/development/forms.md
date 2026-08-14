@@ -212,6 +212,8 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
 
 ## Static Choice Fields
 
+!!! info "This feature was introduced in NetBox v4.7."
+
 These fields render a standard HTML `<select>` element (as opposed to the API-backed widgets used by the dynamic object fields below). They extend Django's built-in choice fields to optionally display a short **description** beneath each option's label.
 
 For choice set-backed fields, descriptions are defined per choice using a `Choice` object in the `ChoiceSet` and are rendered automatically. Pass `show_descriptions=False` to suppress them for a particular field.
@@ -260,6 +262,8 @@ status = ChoiceField(choices=StatusChoices)
       members: false
 
 ## Generic Object Fields
+
+!!! info "This feature was introduced in NetBox v4.7."
 
 `GenericObjectChoiceField` represents a generic foreign key (a `content_type` plus `object_id` pair) as a single, REST API-backed form field. Pair it with `GenericObjectFormMixin` on the form to seed the field's initial value from the model's GFK descriptor and assign the selected object back to it automatically.
 

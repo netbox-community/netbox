@@ -35,6 +35,8 @@ The type of interface. Interfaces may be physical or virtual in nature, but only
 
 ### Channels
 
+!!! info "This field was added in NetBox v4.7."
+
 For a channelized (breakout) interface, the number of physical channels into which the interface is divided. For example, a 40GE interface broken out into four 10GE channels would have `channels` set to four. Each channel is modeled as a channel subinterface bound to this interface via its [channel ID](#channel-id).
 
 A single physical cable terminates to the channelized (parent) interface, occupying one connector shared by all of its channels; NetBox traces a distinct cable path for each channel subinterface. Only one layer of channelization is supported: an interface cannot be both channelized and itself bound to a channel.
@@ -55,7 +57,7 @@ The [virtual routing and forwarding](../ipam/vrf.md) instance to which this inte
 
 The [MAC address](./macaddress.md) assigned to this interface which is designated as its primary.
 
-!!! note "Changed in NetBox v4.2"
+!!! note "MAC address is a property"
     The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
 ### WWN

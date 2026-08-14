@@ -125,8 +125,6 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 ## STREAMING_EXPORTS
 
-!!! note "This parameter was introduced in NetBox v4.6."
-
 Default: `False`
 
 When set to `True`, CSV bulk exports are returned as a streaming HTTP response, emitting rows to the client as they are rendered rather than buffering the entire dataset in memory first. This can significantly reduce memory usage and time-to-first-byte for very large exports.

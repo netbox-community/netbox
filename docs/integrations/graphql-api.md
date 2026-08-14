@@ -51,9 +51,6 @@ For more detail on constructing GraphQL queries, see the [GraphQL queries docume
 
 ## Filtering
 
-!!! note "Changed in NetBox v4.3"
-    The filtering syntax fo the GraphQL API has changed substantially in NetBox v4.3.
-
 Filters can be specified as key-value pairs within parentheses immediately following the query name. For example, the following will return only active sites:
 
 ```
@@ -138,8 +135,6 @@ The GraphQL API supports two types of pagination. Offset-based pagination operat
 The alternative approach is cursor-based pagination, which operates using absolute (rather than relative) primary key values. (These are the numeric IDs assigned to each object in the database.) When using cursor-based pagination, the response will contain records with a primary key greater than or equal to the specified start value, up to the maximum number of results. This strategy requires keeping track of the last seen primary key from each response when paginating through data, but is extremely performant. The cursor is specified by passing the starting object ID via the `start` parameter.
 
 To ensure consistent ordering, objects will always be ordered by their primary keys when cursor-based pagination is used.
-
-!!! note "Cursor-based pagination was introduced in NetBox v4.5.2."
 
 Both pagination strategies support an optional `limit` parameter specifying the maximum number of objects to include in the response. The [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size) configuration parameter (default `1000`) sets a hard ceiling on this value; if no limit is specified, up to `MAX_PAGE_SIZE` records are returned.
 
