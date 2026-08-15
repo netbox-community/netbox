@@ -3790,6 +3790,53 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
         self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_unchanged_edit_without_add_permission(self):
+        """
+        Editing an unrelated field on an interface with a pre-populated primary MAC, as a user without
+        add_macaddress, succeeds: the untouched pre-populated MAC must not require the create permission.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        # Re-submit the current primary MAC unchanged while editing an unrelated field.
+        data = {
+            **self.form_data,
+            'mac_address': 'AA:BB:CC:DD:EE:FF',
+            'description': 'Updated description',
+            'changelog_message': 'test',
+        }
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertEqual(instance.description, 'Updated description')
+        self.assertEqual(instance.primary_mac_address_id, mac.pk)
+
+    @override_settings(
+        EXEMPT_VIEW_PERMISSIONS=['*'],
+        EXEMPT_EXCLUDE_MODELS=[],
+        CUSTOM_VALIDATORS={'dcim.macaddress': [{'mac_address': {'regex': '^AA:'}}]},
+    )
+    def test_mac_address_shortcut_custom_validation_error(self):
+        """
+        A MAC that fails a custom validator on the edit form is surfaced as a request error, not a 500.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+
+        data = {**self.form_data, 'mac_address': 'BB:CC:DD:EE:FF:00', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # AbortRequest re-renders the form (200) rather than 500ing; the MAC is not created.
+        self.assertHttpStatus(response, 200)
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
@@ -5590,6 +5637,35 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(response['Location'], mac.get_absolute_url())
         mac.assigned_object.refresh_from_db()
         self.assertIsNone(mac.assigned_object.primary_mac_address)
+
+    def test_set_primary_enforces_object_level_change_permission(self):
+        """
+        A user with model-level change_interface but a constrained ObjectPermission that excludes the
+        target interface cannot set its primary MAC: object-level constraints are enforced, not just
+        the model-level permission.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        # Grant change_interface constrained to a different interface (id != target), so the target
+        # is invisible to the change-restricted queryset.
+        obj_perm = ObjectPermission(
+            name='Constrained interface change',
+            actions=['change'],
+            constraints={'id__gt': interface.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Interface))
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertIsNone(interface.primary_mac_address_id)
 
     def test_set_primary_get_redirects(self):
         """

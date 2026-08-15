@@ -3838,6 +3838,152 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         )
         self.assertEqual(str(child.primary_mac_address.mac_address).upper(), 'AA:BB:CC:DD:EE:02')
 
+    def test_mac_address_conflicts_with_primary_mac_address(self):
+        """
+        Supplying both the mac_address shortcut and primary_mac_address in one request is rejected
+        rather than letting one silently win.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+        mac = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:22', assigned_object=iface)
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'mac_address': 'DD:EE:FF:00:11:33', 'primary_mac_address': {'mac_address': str(mac.mac_address)}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_mac_address_conflicts_with_explicit_null_primary(self):
+        """
+        The mac_address shortcut alongside an explicit primary_mac_address=null is a conflict (set vs
+        clear) and is rejected, not silently resolved in the shortcut's favor.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+        iface = Interface.objects.first()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'mac_address': 'DD:EE:FF:00:11:44', 'primary_mac_address': None},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_mac_address_agreeing_with_primary_mac_address_is_accepted(self):
+        """
+        A read-modify-write round-trip echoes both readable fields with matching values. When the
+        shortcut and primary_mac_address designate the same MAC, the request is accepted.
+        """
+        self.add_permissions(
+            'dcim.change_interface', 'dcim.add_macaddress', 'dcim.change_macaddress', 'dcim.view_macaddress'
+        )
+        iface = Interface.objects.first()
+        mac = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:66', assigned_object=iface)
+        iface.primary_mac_address = mac
+        iface.save()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {
+                'mac_address': str(mac.mac_address),
+                'primary_mac_address': {'mac_address': str(mac.mac_address)},
+                'description': 'round-trip edit',
+            },
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        iface.refresh_from_db()
+        self.assertEqual(iface.primary_mac_address_id, mac.pk)
+        self.assertEqual(iface.description, 'round-trip edit')
+
+    def test_null_mac_fields_round_trip_accepted(self):
+        """
+        An interface with no primary MAC round-trips both fields as null; echoing both back is accepted.
+        """
+        self.add_permissions('dcim.change_interface')
+        iface = Interface.objects.first()
+        iface.primary_mac_address = None
+        iface.save()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'mac_address': None, 'primary_mac_address': None, 'description': 'null round-trip'},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_primary_mac_address_must_belong_to_interface(self):
+        """
+        Setting primary_mac_address (bypassing the shortcut op) to a MAC not assigned to this interface
+        is rejected on update, so the primary MAC can't dangle outside the interface's own MAC set.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.change_macaddress')
+        iface = Interface.objects.first()
+        unassigned = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:55')
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'primary_mac_address': {'mac_address': str(unassigned.mac_address)}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        iface.refresh_from_db()
+        self.assertIsNone(iface.primary_mac_address)
+
+    def test_create_with_unassigned_primary_mac_address(self):
+        """
+        Creating an interface with a nested, as-yet-unassigned primary_mac_address is allowed: the
+        clean() invariant is skipped while adding, and the post_save signal assigns the MAC to the new
+        interface. This pins the create-path carve-out against a future signal regression.
+        """
+        self.add_permissions(
+            'dcim.add_interface', 'dcim.add_macaddress', 'dcim.change_macaddress', 'dcim.view_macaddress'
+        )
+        device = Device.objects.first()
+        unassigned = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:77')
+
+        data = {
+            'device': device.pk,
+            'name': 'Interface With Primary MAC',
+            'type': '1000base-t',
+            'primary_mac_address': {'mac_address': str(unassigned.mac_address)},
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        iface = Interface.objects.get(pk=response.data['id'])
+        self.assertEqual(iface.primary_mac_address_id, unassigned.pk)
+        # The signal assigned the MAC to the new interface, so it isn't a dangling primary.
+        unassigned.refresh_from_db()
+        self.assertEqual(unassigned.assigned_object, iface)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.macaddress': [{'mac_address': {'regex': '^AA:'}}]})
+    def test_mac_address_custom_validation_returns_400(self):
+        """
+        A MAC that fails a custom validator on creation returns a 400, not a 500 (the model
+        ValidationError raised inside the serializer is translated to a DRF error).
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+        device = Device.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Interface Custom Validation',
+            'type': '1000base-t',
+            'mac_address': 'BB:CC:DD:EE:FF:00',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
     model = FrontPort

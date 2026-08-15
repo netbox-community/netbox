@@ -1265,10 +1265,7 @@ class MACAddressActionsColumn(columns.ActionsColumn):
                 # back to the list path.
                 return_url = request.GET.get('return_url', request.get_full_path())
                 url = f'{url}?return_url={quote(return_url)}'
-                # `embedded` distinguishes the two render contexts, which differ in whether a surrounding
-                # <form> exists. A standalone list view (generic/object_list.html) always wraps the table in
-                # the bulk-edit <form>; an embedded HTMX partial (htmx/table.html, embedded=True) has none.
-                # core templates gate their own form-dependent markup on this same flag.
+                # Embedded tables need their own form; list tables reuse the surrounding bulk form.
                 if getattr(table, 'embedded', False):
                     # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
                     action_li = format_html(

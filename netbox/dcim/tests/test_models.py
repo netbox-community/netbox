@@ -54,6 +54,67 @@ class MACAddressTestCase(TestCase):
         self.mac_b.assigned_object = None
         self.mac_b.clean()
 
+    def test_set_primary_mac_address_assigns(self):
+        self.interface.set_primary_mac_address(self.mac_b)
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_b.pk)
+
+    def test_set_primary_mac_address_clears(self):
+        self.interface.set_primary_mac_address(None)
+        self.interface.refresh_from_db()
+        self.assertIsNone(self.interface.primary_mac_address_id)
+
+    def test_set_primary_mac_address_noop_when_already_primary(self):
+        # mac_a is already primary; re-setting it changes nothing and doesn't error.
+        self.interface.set_primary_mac_address(self.mac_a)
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_a.pk)
+
+    def test_set_primary_mac_address_from_value_finds_existing(self):
+        # A value already present on the interface is promoted, not duplicated.
+        count_before = self.interface.mac_addresses.count()
+        self.interface.set_primary_mac_address_from_value(str(self.mac_b.mac_address))
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_b.pk)
+        self.assertEqual(self.interface.mac_addresses.count(), count_before)
+
+    def test_set_primary_mac_address_from_value_creates(self):
+        count_before = self.interface.mac_addresses.count()
+        self.interface.set_primary_mac_address_from_value('aabbccddeeff')
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.mac_addresses.count(), count_before + 1)
+        self.assertEqual(str(self.interface.primary_mac_address.mac_address).lower(), 'aa:bb:cc:dd:ee:ff')
+
+    def test_set_primary_mac_address_rejects_foreign_mac(self):
+        # A MAC assigned to a different interface can't be made primary here.
+        other = Interface.objects.create(
+            device=self.interface.device,
+            name='Interface 2',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        foreign_mac = MACAddress.objects.create(mac_address='ffeeddccbbaa', assigned_object=other)
+        with self.assertRaises(ValidationError):
+            self.interface.set_primary_mac_address(foreign_mac)
+
+    def test_clean_rejects_unassigned_primary_mac_on_update(self):
+        # An existing interface can't point its primary at a MAC that isn't assigned to it.
+        unassigned = MACAddress.objects.create(mac_address='aabbccdd0099')
+        self.interface.primary_mac_address = unassigned
+        with self.assertRaises(ValidationError):
+            self.interface.full_clean()
+
+    def test_clean_allows_unassigned_primary_mac_on_create(self):
+        # On create the MAC is assigned by a post_save signal after clean(), so an as-yet-unassigned
+        # primary MAC must pass validation on a new (adding) instance.
+        mac = MACAddress.objects.create(mac_address='aabbccdd00aa')
+        new_iface = Interface(
+            device=self.interface.device,
+            name='Interface Create Heal',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            primary_mac_address=mac,
+        )
+        new_iface.full_clean()  # must not raise
+
 
 class LocationTestCase(TestCase):
 

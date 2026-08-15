@@ -145,6 +145,7 @@ class VMInterfaceSerializer(MACAddressShortcutMixin, OwnerMixin, NetBoxModelSeri
         mac_address = _UNSET
         if isinstance(data, dict):
             mac_address = data.pop('mac_address', _UNSET)
+        self._validate_no_mac_conflict(data, mac_address)
 
         if not self.nested and isinstance(data, dict) and mac_address not in (_UNSET, None):
             try:

@@ -364,6 +364,7 @@ class InterfaceSerializer(
         mac_address = _UNSET
         if isinstance(data, dict):
             mac_address = data.pop('mac_address', _UNSET)
+        self._validate_no_mac_conflict(data, mac_address)
 
         if not self.nested and isinstance(data, dict):
             if mac_address not in (_UNSET, None):

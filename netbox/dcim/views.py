@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import router, transaction
 from django.db.models import Func, IntegerField, Prefetch
@@ -5872,26 +5873,28 @@ class MACAddressSetPrimaryView(ConditionalLoginRequiredMixin, GetReturnURLMixin,
             messages.error(request, _('This MAC address is not assigned to an interface.'))
             return redirect(mac.get_absolute_url())
 
-        perm = get_permission_for_model(assigned_object, 'change')
-        if not request.user.has_perm(perm):
+        # Re-fetch the interface through its change-restricted queryset so object-level permissions
+        # are enforced, not just the model-level change permission.
+        model = assigned_object._meta.model
+        interface = model.objects.restrict(request.user, 'change').filter(pk=assigned_object.pk).first()
+        if interface is None:
             messages.error(
                 request,
                 _('You do not have permission to modify {object}.').format(object=assigned_object)
             )
             return redirect(mac.get_absolute_url())
 
-        if assigned_object.primary_mac_address_id != mac.pk:
-            assigned_object.snapshot()
-            assigned_object.primary_mac_address = mac
-            assigned_object.save()
-            messages.success(
-                request,
-                _('Set {mac} as primary MAC address for {interface}.').format(
-                    mac=mac, interface=assigned_object
-                )
-            )
+        try:
+            interface.set_primary_mac_address(mac)
+        except ValidationError as e:
+            messages.error(request, ', '.join(e.messages))
+            return redirect(mac.get_absolute_url())
 
-        return redirect(self.get_return_url(request, assigned_object))
+        messages.success(
+            request,
+            _('Set {mac} as primary MAC address for {interface}.').format(mac=mac, interface=interface)
+        )
+        return redirect(self.get_return_url(request, interface))
 
 
 @register_model_view(MACAddress, 'bulk_import', path='import', detail=False)
