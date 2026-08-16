@@ -54,7 +54,7 @@ The filesystem path to NetBox's documentation. This is used when presenting cont
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` configuration parameter:
 
-* `SERVER` - Hostname or IP address of the email server (use `localhost` if running locally)
+* `SERVER` - Hostname or IP address of the email server (required; use `localhost` if running locally)
 * `PORT` - TCP port to use for the connection (default: `25`)
 * `USERNAME` - Username with which to authenticate
 * `PASSWORD` - Password with which to authenticate
@@ -68,6 +68,9 @@ In order to send email, NetBox needs an email server configured. The following i
 !!! note
     The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
 
+!!! warning
+    `SERVER` must be defined in order to send email: A deployment which omits it raises an `InvalidMailer` exception when attempting to send. Note that this is raised at send time rather than at startup, so a misconfiguration here will not be apparent until NetBox first tries to send mail.
+
 Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
@@ -77,8 +80,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
   'Test Email Subject',
   'Test Email Body',
   'noreply-netbox@example.com',
-  ['users@example.com'],
-  fail_silently=False
+  ['users@example.com']
 )
 ```
 

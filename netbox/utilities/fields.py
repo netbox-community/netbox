@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericForeignKeyDescriptor
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -68,9 +68,25 @@ class NaturalOrderingField(models.CharField):
         )
 
 
+class RestrictedGenericForeignKeyDescriptor(GenericForeignKeyDescriptor):
+    """
+    Django 6.1 moved get_prefetch_querysets() off GenericForeignKey and onto a separate
+    descriptor, which prefetch_related() now prefers over the field itself. Delegate back to
+    the field so that RestrictedGenericForeignKey's restrict()-aware implementation is used.
+    """
+    def get_prefetch_querysets(self, instances, querysets=None):
+        return self.field.get_prefetch_querysets(instances, querysets)
+
+
 class RestrictedGenericForeignKey(GenericForeignKey):
 
-    # Replicated largely from GenericForeignKey. Changes include:
+    def contribute_to_class(self, cls, name, **kwargs):
+        super().contribute_to_class(cls, name, **kwargs)
+        # Replace the descriptor installed by GenericForeignKey with one which defers to
+        # get_prefetch_querysets() below.
+        setattr(cls, self.attname, RestrictedGenericForeignKeyDescriptor(self))
+
+    # Replicated largely from GenericForeignKeyDescriptor. Changes include:
     #  1. Capture restrict_params from RestrictedPrefetch (hack)
     #  2. If restrict_params is set, call restrict() on the queryset for
     #     the related model
@@ -116,14 +132,18 @@ class RestrictedGenericForeignKey(GenericForeignKey):
         for ct_id, fkeys in fk_dict.items():
             if ct_id in custom_queryset_dict:
                 # Return values from the custom queryset, if provided.
-                ret_val.extend(custom_queryset_dict[ct_id].filter(pk__in=fkeys))
+                qs = custom_queryset_dict[ct_id].filter(pk__in=fkeys)
             else:
                 instance = instance_dict[ct_id]
                 ct = self.get_content_type(id=ct_id, using=instance._state.db)
                 qs = ct.model_class().objects.filter(pk__in=fkeys)
                 if restrict_params:
                     qs = qs.restrict(**restrict_params)
-                ret_val.extend(qs)
+            # Carry the fetch mode of the objects being prefetched over to the objects prefetched
+            # onto them. Every instance in a batch shares one fetch mode, so the first is
+            # representative; it is safe to index because fk_dict is populated from `instances`,
+            # and so is empty (skipping this loop entirely) whenever `instances` is.
+            ret_val.extend(qs.fetch_mode(instances[0]._state.fetch_mode))
 
         # For doing the join in Python, we have to match both the FK val and the
         # content type, so we use a callable that returns a (fk, class) pair.

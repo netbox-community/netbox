@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-* PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later.
+* PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later: The upgrade script will abort when connected to an earlier release. (NetBox v4.6 reported this as a warning.)
 * Redis 5.x is no longer supported. NetBox now requires Redis 6.0 or later.
 * Selection and multiple selection custom field values are now returned as objects specifying both the raw value and its human-friendly label (e.g. `{"value": "datacenter", "label": "Data Center"}`) in both the REST and GraphQL APIs. These fields continue to accept the raw value on write.
 * The `protocol` and `ports` fields on the ApplicationService and ApplicationServiceTemplate models have been replaced by a unified `port_mappings` field, which supports multiple protocols per service. The legacy fields are retained (as deprecated) in the REST and GraphQL APIs, but at the ORM level they are now read-only properties derived from `port_mappings`: Passing `protocol` or `ports` to the model raises a `TypeError`, and assigning to `service.ports` raises an `AttributeError`.
@@ -20,6 +20,7 @@
 * The `request` object passed to custom link templates is now a sanitized subset of the current request. Only the `id`, `path`, `path_info`, `method`, `GET`, and `user` attributes are available; cookies, headers, and session state are no longer accessible.
 * URL custom field values are now validated against the [`ALLOWED_URL_SCHEMES`](../configuration/security.md#allowed_url_schemes) configuration parameter. A value entered without a scheme is assumed to use `https` and stored as an absolute URL.
 * Webhooks now support a configurable timeout. If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less, you must also set [`WEBHOOK_DEFAULT_TIMEOUT`](../configuration/miscellaneous.md#webhook_default_timeout) to a lower value; NetBox will refuse to start otherwise.
+* Specifying an email server under the [`EMAIL`](../configuration/system.md#email) configuration parameter is now mandatory in order to send mail: A deployment which does not define `EMAIL['SERVER']` will raise an `InvalidMailer` exception when attempting to send, rather than failing at the SMTP connection.
 * The upgrade script now runs the `rebuild_config_context_cache` management command to populate the new config context cache. This may extend the duration of the upgrade for deployments with a large number of devices and virtual machines.
 * Removal of deprecated behavior
     * The `housekeeping` management command has been removed. (Its constituent tasks are performed by the individual management commands introduced in NetBox v4.6.)
@@ -140,6 +141,7 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * [#22571](https://github.com/netbox-community/netbox/issues/22571) - Migrate from django-pglocks to django-pgware
 * [#22615](https://github.com/netbox-community/netbox/issues/22615) - Remove the legacy `request_id` and `username` keys from the webhook context
 * [#22909](https://github.com/netbox-community/netbox/issues/22909) - Tolerate an undefined column when flushing deferred search cache updates
+* [#22942](https://github.com/netbox-community/netbox/issues/22942) - Upgrade to Django 6.1
 
 ### REST API Changes
 

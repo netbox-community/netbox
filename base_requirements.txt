@@ -4,7 +4,7 @@ colorama
 
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django==6.0.*
+Django==6.1.*
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -74,7 +74,7 @@ django-timezone-field
 # A REST API framework for Django projects
 # https://www.django-rest-framework.org/community/release-notes/
 # TODO: Re-evaluate the monkey-patch of get_unique_validators() before upgrading
-djangorestframework==3.17.1
+djangorestframework==3.18.0
 
 # Sane and flexible OpenAPI 3 schema generation for Django REST framework.
 # https://github.com/tfranzel/drf-spectacular/blob/master/CHANGELOG.rst

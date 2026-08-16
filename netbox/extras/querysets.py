@@ -74,7 +74,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
 
         if aggregate_data:
             return queryset.aggregate(
-                config_context_data=JSONBAgg('data', ordering=['weight', 'name'])
+                config_context_data=JSONBAgg('data', order_by=['weight', 'name'])
             )['config_context_data']
 
         return queryset

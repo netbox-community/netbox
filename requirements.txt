@@ -1,5 +1,5 @@
 colorama==0.4.6
-Django==6.0.7
+Django==6.1
 django-cors-headers==4.9.0
 django-debug-toolbar==7.0.0
 django-filter==26.1
@@ -15,7 +15,7 @@ django-storages==1.14.6
 django-tables2==3.0.0
 django-taggit==6.1.0
 django-timezone-field==7.2.2
-djangorestframework==3.17.1
+djangorestframework==3.18.0
 drf-spectacular==0.30.0
 drf-spectacular-sidecar==2026.7.1
 feedparser==6.0.14
