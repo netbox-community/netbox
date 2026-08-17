@@ -3,6 +3,7 @@ import datetime
 import json
 from decimal import Decimal
 from io import StringIO
+from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -3789,6 +3790,73 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
         self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_unchanged_edit_without_add_permission(self):
+        """
+        Editing an unrelated field on an interface with a pre-populated primary MAC, as a user without
+        add_macaddress, succeeds: the untouched pre-populated MAC must not require the create permission.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        # Re-submit the current primary MAC unchanged while editing an unrelated field.
+        data = {
+            **self.form_data,
+            'mac_address': 'AA:BB:CC:DD:EE:FF',
+            'description': 'Updated description',
+            'changelog_message': 'test',
+        }
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertEqual(instance.description, 'Updated description')
+        self.assertEqual(instance.primary_mac_address_id, mac.pk)
+
+    @override_settings(
+        EXEMPT_VIEW_PERMISSIONS=['*'],
+        EXEMPT_EXCLUDE_MODELS=[],
+        CUSTOM_VALIDATORS={'dcim.macaddress': [{'mac_address': {'regex': '^AA:'}}]},
+    )
+    def test_mac_address_shortcut_custom_validation_error(self):
+        """
+        A MAC that fails a custom validator on the edit form is surfaced as a request error, not a 500.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+
+        data = {**self.form_data, 'mac_address': 'BB:CC:DD:EE:FF:00', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # AbortRequest re-renders the form (200) rather than 500ing; the MAC is not created.
+        self.assertHttpStatus(response, 200)
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_edit_interface_with_dangling_primary_mac_does_not_500(self):
+        """
+        An interface with a primary MAC not assigned to it (reachable via direct ORM) must render a
+        form error on edit, not a 500. The error is non-field because primary_mac_address is not an
+        InterfaceForm field, so a field-keyed error would raise in the form's add_error().
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        dangling = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:AA')
+        instance.primary_mac_address = dangling
+        instance.save()
+
+        data = {**self.form_data, 'description': 'edit attempt', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # The invalid form re-renders (200) rather than 500ing.
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Only a MAC address assigned to this interface')
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
@@ -5589,6 +5657,150 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(response['Location'], mac.get_absolute_url())
         mac.assigned_object.refresh_from_db()
         self.assertIsNone(mac.assigned_object.primary_mac_address)
+
+    def test_set_primary_enforces_object_level_change_permission(self):
+        """
+        A user with model-level change_interface but a constrained ObjectPermission that excludes the
+        target interface cannot set its primary MAC: object-level constraints are enforced, not just
+        the model-level permission.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        # Grant change_interface constrained to a different interface (id != target), so the target
+        # is invisible to the change-restricted queryset.
+        obj_perm = ObjectPermission(
+            name='Constrained interface change',
+            actions=['change'],
+            constraints={'id__gt': interface.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Interface))
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertIsNone(interface.primary_mac_address_id)
+
+    def test_set_primary_get_redirects(self):
+        """
+        A direct GET (bookmark, prefetch) degrades to the MAC's detail page rather than a 405.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+
+    def test_set_primary_anonymous_redirects_to_login(self):
+        """
+        With LOGIN_REQUIRED, an unauthenticated request is redirected to the login page (via
+        ConditionalLoginRequiredMixin) rather than 404ing or acting, for both GET and POST.
+        """
+        self.client.logout()
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+
+        with override_settings(LOGIN_REQUIRED=True):
+            for method in (self.client.get, self.client.post):
+                response = method(url)
+                self.assertHttpStatus(response, 302)
+                self.assertTrue(response['Location'].startswith(reverse('login')))
+
+    def test_set_primary_honors_return_url(self):
+        """
+        With a safe return_url supplied (as the list-view action does), the view redirects there
+        rather than to the interface, so setting a primary MAC from the list keeps the user on it.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        return_url = reverse('dcim:macaddress_list')
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(f'{url}?return_url={return_url}')
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], return_url)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_list_view_request(self):
+        """
+        Request-level coverage of the real list-view wiring: GET the MAC list and confirm the
+        table is served inside the bulk-edit <form> with the Set as primary action riding it via
+        formaction, and no nested <form>. This fails if the list view stops wrapping the table in
+        a form or the column's context detection breaks (the class of regression #18821 was).
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        list_url = reverse('dcim:macaddress_list')
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(list_url)}'
+
+        response = self.client.get(list_url)
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+
+        # The action rides the bulk form via a formaction button; it injects no nested <form> of its
+        # own (which the parser would drop, producing the original 405).
+        self.assertInHTML(
+            f'<button type="submit" formaction="{action_url}" formmethod="post" '
+            f'class="dropdown-item"><i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertNotIn(f'<form method="post" action="{set_primary_url}', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_embedded_request(self):
+        """
+        Request-level coverage of the embedded panel wiring: GET the MAC list as ObjectsTablePanel
+        does (?embedded=True with the parent object's return_url) and confirm the action renders a
+        self-contained <form> (no surrounding form to ride) that returns the user to that object.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface_url = mac.assigned_object.get_absolute_url()
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(interface_url)}'
+
+        response = self.client.get(
+            reverse('dcim:macaddress_list') + f'?embedded=True&return_url={quote(interface_url)}',
+            headers={'hx-request': 'true'},
+        )
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+
+        # A self-contained POST <form> to the returning action URL (valid here, no surrounding form)
+        # wraps the submit button. Assert the button structurally; the form's action carries the
+        # return_url so the user lands back on the interface.
+        self.assertInHTML(
+            '<button type="submit" class="dropdown-item">'
+            '<i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertIn(f'<form method="post" action="{action_url}">', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_from_embedded_redirects_to_interface(self):
+        """
+        A set-primary POST with no return_url falls back to the assigned object's detail page, so
+        the action always lands the user on the interface even absent an explicit return target.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
 
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):

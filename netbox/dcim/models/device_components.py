@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, router, transaction
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -882,20 +882,24 @@ class BaseInterface(models.Model):
                 'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
             })
 
-        # Check that the primary MAC address (if any) is assigned to this interface
-        if (
-                self.primary_mac_address and
-                self.primary_mac_address.assigned_object is not None and
-                self.primary_mac_address.assigned_object != self
-        ):
-            raise ValidationError({
-                'primary_mac_address': _(
-                    "MAC address {mac_address} is assigned to a different interface ({interface})."
-                ).format(
-                    mac_address=self.primary_mac_address,
-                    interface=self.primary_mac_address.assigned_object,
+        # A primary MAC address must belong to this interface. On create the MAC is assigned by a
+        # post_save signal after this runs, so an as-yet-unassigned MAC is only rejected on update
+        # (self._state.adding is False), where no such signal fires. These are raised as non-field
+        # errors: primary_mac_address is not an InterfaceForm field (it's edited via the mac_address
+        # shortcut), so a field-keyed error would raise in the form's add_error() rather than render.
+        if self.primary_mac_address:
+            if self.primary_mac_address.assigned_object is None:
+                if not self._state.adding:
+                    raise ValidationError(
+                        _("Only a MAC address assigned to this interface can be its primary MAC address.")
+                    )
+            elif self.primary_mac_address.assigned_object != self:
+                raise ValidationError(
+                    _("MAC address {mac_address} is assigned to a different interface ({interface}).").format(
+                        mac_address=self.primary_mac_address,
+                        interface=self.primary_mac_address.assigned_object,
+                    )
                 )
-            })
 
     def save(self, *args, **kwargs):
 
@@ -908,6 +912,67 @@ class BaseInterface(models.Model):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
+
+    def set_primary_mac_address(self, mac):
+        """
+        Set (or clear) this interface's primary MAC address as a single atomic, validated operation.
+        Pass a MACAddress instance to designate it primary, or None to clear the primary MAC. The
+        callers own permission checks; this method owns the validated write. To set from a submitted
+        address string (find-or-create on this interface) use set_primary_mac_address_from_value().
+        """
+        self._set_primary_mac_address(mac=mac)
+    set_primary_mac_address.alters_data = True
+
+    def set_primary_mac_address_from_value(self, mac_address):
+        """
+        Set this interface's primary MAC address from a submitted address string, finding an existing
+        MAC on the interface or creating one, all within the operation's locked transaction. An empty
+        value clears the primary MAC. For the form and API adapters, which receive a string.
+        """
+        self._set_primary_mac_address(mac_value=mac_address or None)
+    set_primary_mac_address_from_value.alters_data = True
+
+    def _set_primary_mac_address(self, mac=None, mac_value=None):
+        """
+        Shared implementation of the two public setters. Locks this interface's row, resolves a
+        submitted string to a MACAddress (find-or-create, inside the lock so concurrent requests can't
+        both create the same one), validates, and saves. Callers pass either a resolved MACAddress
+        (`mac`) or an address string (`mac_value`), never both.
+        """
+        with transaction.atomic(using=router.db_for_write(type(self))):
+            # Lock and re-fetch this interface so concurrent set-primary/find-or-create requests
+            # serialize, and mutate the freshly-loaded row rather than the caller's in-memory instance.
+            # The re-fetch resets change-tracking state (e.g. _original_device) to the persisted values,
+            # so full_clean() validates the persisted object plus this one change, not unrelated edits the
+            # adapter already validated and saved.
+            locked = type(self).objects.select_for_update().get(pk=self.pk)
+
+            # Resolve a submitted string to a MAC inside the lock, so two concurrent requests setting the
+            # same new value can't both miss the lookup and both create a duplicate.
+            if mac_value is not None:
+                mac = locked.mac_addresses.filter(mac_address=mac_value).first()
+                if mac is None:
+                    mac = locked.mac_addresses.model(mac_address=mac_value, assigned_object=locked)
+                    mac.full_clean()
+                    mac.save()
+
+            target_id = mac.pk if mac is not None else None
+            if locked.primary_mac_address_id == target_id:
+                self.primary_mac_address = mac
+                self.__dict__.pop('mac_address', None)
+                return
+
+            # Snapshot the locked row (refetched after any adapter save this request) so the changelog
+            # records the correct pre-change state for this MAC change, not an earlier field edit.
+            locked.snapshot()
+            locked.primary_mac_address = mac
+            locked.full_clean(validate_unique=False)
+            locked.save()
+
+        # Reflect the change on the caller's instance (for success messages and API responses) and
+        # invalidate the cached read-side mac_address property.
+        self.primary_mac_address = mac
+        self.__dict__.pop('mac_address', None)
 
     @property
     def tunnel_termination(self):

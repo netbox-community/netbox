@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 import django_tables2 as tables
 from django.middleware.csrf import get_token
 from django.urls import reverse
@@ -1257,17 +1259,36 @@ class MACAddressActionsColumn(columns.ActionsColumn):
             request = getattr(table, 'context', {}).get('request')
             if request:
                 url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
-                form_li = format_html(
-                    '<li><form method="post" action="{}">'
-                    '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
-                    '<button type="submit" class="dropdown-item">'
-                    '<i class="mdi mdi-star-outline"></i> {}'
-                    '</button></form></li>',
-                    url, get_token(request), _('Set as primary'),
-                )
+                # Return the user where they came from, the same way the parent's GET actions
+                # (edit/delete/changelog) do. In an embedded panel ObjectsTablePanel injects the parent
+                # object's URL as ?return_url=, so this lands on the interface; on the list view it falls
+                # back to the list path.
+                return_url = request.GET.get('return_url', request.get_full_path())
+                url = f'{url}?return_url={quote(return_url)}'
+                # Embedded tables need their own form; list tables reuse the surrounding bulk form.
+                if getattr(table, 'embedded', False):
+                    # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
+                    action_li = format_html(
+                        '<li><form method="post" action="{}">'
+                        '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+                        '<button type="submit" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></form></li>',
+                        url, get_token(request), _('Set as primary'),
+                    )
+                else:
+                    # Inside the bulk-edit <form>: a nested <form> is invalid HTML and gets dropped by the
+                    # parser, so ride the surrounding form via formaction/formmethod instead (matching the
+                    # DataSource sync button in core/tables/template_code.py).
+                    action_li = format_html(
+                        '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></li>',
+                        url, _('Set as primary'),
+                    )
                 html_str = str(html)
                 if '</ul>' in html_str:
-                    html = mark_safe(html_str.replace('</ul>', str(form_li) + '</ul>', 1))
+                    html = mark_safe(html_str.replace('</ul>', str(action_li) + '</ul>', 1))
 
         return html
 

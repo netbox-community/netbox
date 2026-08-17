@@ -1,6 +1,6 @@
 import logging
 
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -831,6 +831,82 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         iface.refresh_from_db()
         self.assertEqual(iface.primary_mac_address.pk, mac2.pk)
         self.assertEqual(iface.mac_addresses.count(), mac_count_before)
+
+    def test_mac_address_conflicts_with_primary_mac_address(self):
+        """
+        Supplying both mac_address and primary_mac_address in one request is rejected on VMInterface
+        too (the shared shortcut mixin applies to both interface types).
+        """
+        from dcim.models import MACAddress
+
+        self.add_permissions(
+            'virtualization.change_vminterface', 'dcim.add_macaddress', 'dcim.change_macaddress'
+        )
+        iface = VMInterface.objects.first()
+        mac = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:22', assigned_object=iface)
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'mac_address': 'DD:EE:FF:00:11:33', 'primary_mac_address': {'mac_address': str(mac.mac_address)}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_mac_address_conflicts_with_explicit_null_primary(self):
+        """
+        The presence-based conflict guard applies to VMInterface too: mac_address shortcut plus an
+        explicit primary_mac_address=null is rejected.
+        """
+        self.add_permissions('virtualization.change_vminterface', 'dcim.add_macaddress')
+        iface = VMInterface.objects.first()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'mac_address': 'DD:EE:FF:00:11:44', 'primary_mac_address': None},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_primary_mac_address_must_belong_to_interface(self):
+        """
+        Setting primary_mac_address to a MAC not assigned to this VMInterface is rejected on update,
+        so the primary MAC can't dangle outside the interface's own MAC set.
+        """
+        from dcim.models import MACAddress
+
+        self.add_permissions('virtualization.change_vminterface', 'dcim.change_macaddress')
+        iface = VMInterface.objects.first()
+        unassigned = MACAddress.objects.create(mac_address='DD:EE:FF:00:11:55')
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'primary_mac_address': {'mac_address': str(unassigned.mac_address)}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        iface.refresh_from_db()
+        self.assertIsNone(iface.primary_mac_address)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.macaddress': [{'mac_address': {'regex': '^AA:'}}]})
+    def test_mac_address_custom_validation_returns_400(self):
+        """
+        A MAC that fails a custom validator on VMInterface creation returns 400, not 500.
+        """
+        self.add_permissions('virtualization.add_vminterface', 'dcim.add_macaddress')
+        vm = VirtualMachine.objects.first()
+        data = {
+            'virtual_machine': vm.pk,
+            'name': 'VMInterface Custom Validation',
+            'mac_address': 'BB:CC:DD:EE:FF:00',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
 class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):
