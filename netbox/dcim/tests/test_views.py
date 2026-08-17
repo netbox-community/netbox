@@ -3837,6 +3837,26 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.primary_mac_address)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_edit_interface_with_dangling_primary_mac_does_not_500(self):
+        """
+        An interface with a primary MAC not assigned to it (reachable via direct ORM) must render a
+        form error on edit, not a 500. The error is non-field because primary_mac_address is not an
+        InterfaceForm field, so a field-keyed error would raise in the form's add_error().
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        dangling = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:AA')
+        instance.primary_mac_address = dangling
+        instance.save()
+
+        data = {**self.form_data, 'description': 'edit attempt', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # The invalid form re-renders (200) rather than 500ing.
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Only a MAC address assigned to this interface')
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort

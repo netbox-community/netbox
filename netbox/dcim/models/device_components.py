@@ -884,24 +884,22 @@ class BaseInterface(models.Model):
 
         # A primary MAC address must belong to this interface. On create the MAC is assigned by a
         # post_save signal after this runs, so an as-yet-unassigned MAC is only rejected on update
-        # (self._state.adding is False), where no such signal fires.
+        # (self._state.adding is False), where no such signal fires. These are raised as non-field
+        # errors: primary_mac_address is not an InterfaceForm field (it's edited via the mac_address
+        # shortcut), so a field-keyed error would raise in the form's add_error() rather than render.
         if self.primary_mac_address:
             if self.primary_mac_address.assigned_object is None:
                 if not self._state.adding:
-                    raise ValidationError({
-                        'primary_mac_address': _(
-                            "Only a MAC address assigned to this interface can be its primary MAC address."
-                        )
-                    })
+                    raise ValidationError(
+                        _("Only a MAC address assigned to this interface can be its primary MAC address.")
+                    )
             elif self.primary_mac_address.assigned_object != self:
-                raise ValidationError({
-                    'primary_mac_address': _(
-                        "MAC address {mac_address} is assigned to a different interface ({interface})."
-                    ).format(
+                raise ValidationError(
+                    _("MAC address {mac_address} is assigned to a different interface ({interface}).").format(
                         mac_address=self.primary_mac_address,
                         interface=self.primary_mac_address.assigned_object,
                     )
-                })
+                )
 
     def save(self, *args, **kwargs):
 
