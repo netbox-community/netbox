@@ -1,12 +1,14 @@
 import json
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
@@ -3919,6 +3921,39 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
             **self.header
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_combined_update_changelog_does_not_reattribute_other_fields(self):
+        """
+        A combined PATCH of an unrelated field plus the mac_address shortcut produces two ObjectChange
+        rows (the fields save, then the primary-MAC save). The MAC change's row must record the state
+        after the field save as its prechange, so the unrelated field edit isn't re-reported as part of
+        the MAC change.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+        iface = Interface.objects.first()
+        iface.description = 'original'
+        iface.primary_mac_address = None
+        iface.save()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(
+            url,
+            {'description': 'updated', 'mac_address': 'AA:BB:CC:DD:EE:10'},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        changes = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+            changed_object_type=ContentType.objects.get_for_model(Interface),
+            changed_object_id=iface.pk,
+        ).order_by('pk')
+        # The MAC change is the row whose postchange records the new primary MAC.
+        mac_change = changes.filter(postchange_data__primary_mac_address__isnull=False).last()
+        self.assertIsNotNone(mac_change)
+        # Its prechange must reflect the already-saved description, so the field edit isn't re-attributed.
+        self.assertEqual(mac_change.prechange_data['description'], 'updated')
 
     def test_primary_mac_address_must_belong_to_interface(self):
         """

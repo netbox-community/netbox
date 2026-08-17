@@ -962,12 +962,9 @@ class BaseInterface(models.Model):
                 self.__dict__.pop('mac_address', None)
                 return
 
-            # Carry over a snapshot the calling adapter already took this request; otherwise snapshot the
-            # locked row so the changelog records the correct pre-change state.
-            if getattr(self, '_prechange_snapshot', None):
-                locked._prechange_snapshot = self._prechange_snapshot
-            else:
-                locked.snapshot()
+            # Snapshot the locked row (refetched after any adapter save this request) so the changelog
+            # records the correct pre-change state for this MAC change, not an earlier field edit.
+            locked.snapshot()
             locked.primary_mac_address = mac
             locked.full_clean(validate_unique=False)
             locked.save()
