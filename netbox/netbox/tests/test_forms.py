@@ -1,4 +1,9 @@
+from unittest.mock import patch
+
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import MaxLengthValidator
 from django.forms.models import ALL_FIELDS
 from django.test import TestCase
 
@@ -22,12 +27,8 @@ from vpn.forms import TunnelCreateForm, TunnelTerminationForm
 from wireless.forms import WirelessLANForm
 
 
-class NetBoxModelImportFormCleanTestCase(TestCase):
-    """
-    Test the clean() method of NetBoxModelImportForm to ensure it properly converts
-    empty strings to None for nullable fields during CSV import.
-    Uses InterfaceImportForm as the concrete implementation to test.
-    """
+class NetBoxModelImportFormTestCase(TestCase):
+    """Test NetBoxModelImportForm."""
 
     @classmethod
     def setUpTestData(cls):
@@ -318,6 +319,102 @@ class NetBoxModelImportFormCleanTestCase(TestCase):
         )
         self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
         self.assertIsNone(form.cleaned_data['wwn'])
+
+    def test_missing_field_validation_error_becomes_non_field_error(self):
+        """Convert validation errors for absent fields to non-field errors."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        with patch.object(
+            form.instance,
+            'full_clean',
+            side_effect=DjangoValidationError({'absent_field': ['Field error.']}),
+        ):
+            result = form.is_valid()
+
+        self.assertFalse(result)
+        self.assertIn('absent_field: Field error.', form.non_field_errors())
+
+    def test_non_field_error_not_overwritten_by_remapped_missing_field_error(self):
+        """Preserve remapped and existing non-field errors."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Mixed',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
+        # absent_field appears first to expose the former overwrite bug
+        form._update_errors(DjangoValidationError({
+            'absent_field': ['Field error.'],
+            NON_FIELD_ERRORS: ['A general error.'],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn('A general error.', non_field_errors)
+        self.assertIn('absent_field: Field error.', non_field_errors)
+
+    def test_remapped_error_preserves_code_and_params(self):
+        """Preserve the original ValidationError code and params when remapping."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Params',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
+        form._update_errors(DjangoValidationError({
+            'absent_field': [
+                DjangoValidationError(
+                    '%(value)s is not a valid value.',
+                    code='invalid_value',
+                    params={'value': '100%'},
+                ),
+            ],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn(
+            'absent_field: 100% is not a valid value.',
+            non_field_errors,
+        )
+        error_data = form.errors[NON_FIELD_ERRORS].as_data()
+        matching = [error for error in error_data if error.code == 'invalid_value']
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0].params, {'value': '100%'})
+
+    def test_remapped_error_preserves_pluralized_message(self):
+        """Preserve pluralization order when remapping an ngettext_lazy message."""
+        form = InterfaceImportForm(
+            data={
+                'device': self.device,
+                'name': 'Test Interface Plural',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            }
+        )
+        self.assertTrue(form.is_valid(), f'Form errors: {form.errors}')
+        form._update_errors(DjangoValidationError({
+            'absent_field': [
+                DjangoValidationError(
+                    MaxLengthValidator.message,
+                    code=MaxLengthValidator.code,
+                    params={'limit_value': 20, 'show_value': 25},
+                ),
+            ],
+        }))
+        non_field_errors = form.non_field_errors()
+        self.assertIn(
+            'absent_field: Ensure this value has at most 20 characters (it has 25).',
+            non_field_errors,
+        )
+        error_data = form.errors[NON_FIELD_ERRORS].as_data()
+        matching = [error for error in error_data if error.code == MaxLengthValidator.code]
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0].params, {'limit_value': 20, 'show_value': 25})
 
 
 class HTMXPartialSwapRenderingTestCase(TestCase):

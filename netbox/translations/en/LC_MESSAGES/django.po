@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-07 05:30+0000\n"
+"POT-Creation-Date: 2026-08-13 05:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1443,7 +1443,7 @@ msgstr ""
 #: netbox/extras/models/models.py:183 netbox/extras/models/models.py:361
 #: netbox/extras/models/models.py:467 netbox/extras/models/models.py:529
 #: netbox/extras/models/models.py:619 netbox/extras/models/models.py:761
-#: netbox/extras/models/notifications.py:127 netbox/extras/models/scripts.py:29
+#: netbox/extras/models/notifications.py:127 netbox/extras/models/scripts.py:30
 #: netbox/ipam/models/asns.py:18 netbox/ipam/models/fhrp.py:24
 #: netbox/ipam/models/services.py:63 netbox/ipam/models/services.py:91
 #: netbox/ipam/models/vlans.py:42 netbox/ipam/models/vlans.py:231
@@ -2333,7 +2333,7 @@ msgstr ""
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:974 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
-#: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
+#: netbox/netbox/models/features.py:63 netbox/users/models/tokens.py:51
 msgid "created"
 msgstr ""
 
@@ -2456,7 +2456,7 @@ msgid ""
 msgstr ""
 
 #: netbox/core/models/data.py:294 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:68
+#: netbox/netbox/models/features.py:69
 msgid "last updated"
 msgstr ""
 
@@ -4197,7 +4197,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:694
 #: netbox/extras/forms/model_forms.py:779
 #: netbox/extras/forms/model_forms.py:831 netbox/extras/ui/panels.py:103
-#: netbox/netbox/forms/bulk_import.py:27 netbox/netbox/forms/mixins.py:135
+#: netbox/netbox/forms/bulk_import.py:28 netbox/netbox/forms/mixins.py:135
 #: netbox/netbox/tables/columns.py:503
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:29
@@ -8345,6 +8345,22 @@ msgstr ""
 msgid "Scheduled time must be in the future."
 msgstr ""
 
+#: netbox/extras/api/views.py:370
+msgid "The script has been enqueued for execution."
+msgstr ""
+
+#: netbox/extras/api/views.py:383
+msgid "This token does not permit write operations (running a script)."
+msgstr ""
+
+#: netbox/extras/api/views.py:388
+msgid "This user does not have permission to run this script."
+msgstr ""
+
+#: netbox/extras/api/views.py:398
+msgid "This script is not currently executable."
+msgstr ""
+
 #: netbox/extras/choices.py:30 netbox/extras/forms/misc.py:14
 msgid "Text"
 msgstr ""
@@ -8664,12 +8680,12 @@ msgstr ""
 msgid "Ignoring invalid action_data on event rule \"{rule}\" (got {data_type})"
 msgstr ""
 
-#: netbox/extras/events.py:276
+#: netbox/extras/events.py:278
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:319
+#: netbox/extras/events.py:321
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -10192,23 +10208,23 @@ msgstr ""
 msgid "subscriptions"
 msgstr ""
 
-#: netbox/extras/models/scripts.py:41
+#: netbox/extras/models/scripts.py:42
 msgid "is executable"
 msgstr ""
 
-#: netbox/extras/models/scripts.py:66
+#: netbox/extras/models/scripts.py:67
 msgid "script"
 msgstr ""
 
-#: netbox/extras/models/scripts.py:67
+#: netbox/extras/models/scripts.py:68
 msgid "scripts"
 msgstr ""
 
-#: netbox/extras/models/scripts.py:113
+#: netbox/extras/models/scripts.py:114
 msgid "script module"
 msgstr ""
 
-#: netbox/extras/models/scripts.py:114
+#: netbox/extras/models/scripts.py:115
 msgid "script modules"
 msgstr ""
 
@@ -12514,13 +12530,13 @@ msgstr ""
 msgid "Remove tags"
 msgstr ""
 
-#: netbox/netbox/forms/bulk_import.py:31
+#: netbox/netbox/forms/bulk_import.py:32
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. \"tag1,tag2,"
 "tag3\")"
 msgstr ""
 
-#: netbox/netbox/forms/bulk_import.py:79
+#: netbox/netbox/forms/bulk_import.py:105
 msgid "Name of the object's owner"
 msgstr ""
 
@@ -12577,53 +12593,53 @@ msgstr ""
 msgid "Single sign-on failed. Please try again or contact your administrator."
 msgstr ""
 
-#: netbox/netbox/models/deletion.py:76
+#: netbox/netbox/models/deletion.py:142
 #, python-brace-format
 msgid ""
 "{object_name} object can't be deleted because its {pk_attname} attribute is "
 "set to None."
 msgstr ""
 
-#: netbox/netbox/models/features.py:311
+#: netbox/netbox/models/features.py:312
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr ""
 
-#: netbox/netbox/models/features.py:320
+#: netbox/netbox/models/features.py:321
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr ""
 
-#: netbox/netbox/models/features.py:327
+#: netbox/netbox/models/features.py:328
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/netbox/models/features.py:524
+#: netbox/netbox/models/features.py:565
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/netbox/models/features.py:534
+#: netbox/netbox/models/features.py:575
 msgid "data path"
 msgstr ""
 
-#: netbox/netbox/models/features.py:538
+#: netbox/netbox/models/features.py:579
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/netbox/models/features.py:541
+#: netbox/netbox/models/features.py:582
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/netbox/models/features.py:543
+#: netbox/netbox/models/features.py:584
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/netbox/models/features.py:546
+#: netbox/netbox/models/features.py:587
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:639
+#: netbox/netbox/models/features.py:680
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -13036,7 +13052,7 @@ msgstr ""
 #: netbox/templates/generic/bulk_delete.html:21
 #: netbox/templates/generic/bulk_delete.html:79
 #: netbox/templates/generic/object_delete.html:19
-#: netbox/templates/htmx/delete_form.html:70
+#: netbox/templates/htmx/delete_form.html:77
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:48
 #: netbox/templates/ipam/panels/fhrp_groups.html:34
 #: netbox/users/ui/panels.py:59 netbox/utilities/templatetags/buttons.py:146
@@ -13226,71 +13242,71 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:897
+#: netbox/netbox/settings.py:893
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:898
+#: netbox/netbox/settings.py:894
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:899
+#: netbox/netbox/settings.py:895
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:900
+#: netbox/netbox/settings.py:896
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:901
+#: netbox/netbox/settings.py:897
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:902
+#: netbox/netbox/settings.py:898
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:903
+#: netbox/netbox/settings.py:899
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:904
+#: netbox/netbox/settings.py:900
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:905
+#: netbox/netbox/settings.py:901
 msgid "Korean"
 msgstr ""
 
-#: netbox/netbox/settings.py:906
+#: netbox/netbox/settings.py:902
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:907
+#: netbox/netbox/settings.py:903
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:908
+#: netbox/netbox/settings.py:904
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:909
+#: netbox/netbox/settings.py:905
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:910
+#: netbox/netbox/settings.py:906
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:911
+#: netbox/netbox/settings.py:907
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:912
+#: netbox/netbox/settings.py:908
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:913
+#: netbox/netbox/settings.py:909
 msgid "Chinese"
 msgstr ""
 
@@ -13603,8 +13619,8 @@ msgstr ""
 #: netbox/templates/generic/bulk_rename.html:101
 #: netbox/templates/generic/confirmation_form.html:19
 #: netbox/templates/generic/object_edit.html:74
-#: netbox/templates/htmx/delete_form.html:66
-#: netbox/templates/htmx/delete_form.html:68
+#: netbox/templates/htmx/delete_form.html:73
+#: netbox/templates/htmx/delete_form.html:75
 #: netbox/templates/htmx/quick_add.html:21
 #: netbox/templates/ipam/ipaddress_assign.html:28
 #: netbox/templates/users/token_edit.html:32

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.exceptions import NON_FIELD_ERRORS, MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils.functional import lazy
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
@@ -1894,17 +1894,19 @@ class CableImportForm(PrimaryModelImportForm):
                     **side_b_parent_params
                 )
 
-    def add_error(self, field, error):
+    def _update_errors(self, errors):
         # Remap any termination errors raised by Cable.clean() onto the relevant import column.
-        # Without this, Django raises ValueError for an error reported against a field which does
-        # not exist on the form. Errors are dispatched per key so that both sides can fall back to
-        # a non-field error without colliding.
-        if field is None and hasattr(error, 'error_dict'):
-            for name, errors in error.error_dict.items():
-                super().add_error(self._map_termination_field(name), errors)
-            return
+        # Without this, the base form reports them as prefixed non-field errors, as neither
+        # a_terminations nor b_terminations exists as a field on this form. Errors are dispatched
+        # per key so that both sides can fall back to a non-field error without colliding.
+        if hasattr(errors, 'error_dict'):
+            remapped = {}
+            for name, error_list in errors.error_dict.items():
+                mapped_name = self._map_termination_field(name) or NON_FIELD_ERRORS
+                remapped.setdefault(mapped_name, []).extend(error_list)
+            errors = forms.ValidationError(remapped)
 
-        super().add_error(self._map_termination_field(field), error)
+        super()._update_errors(errors)
 
     def _map_termination_field(self, field):
         """

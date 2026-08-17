@@ -1,10 +1,9 @@
 from django.urls import include, path
 
-from netbox.api.routers import NetBoxRouter
-
 from . import views
+from .routers import ScriptRouter
 
-router = NetBoxRouter()
+router = ScriptRouter()
 router.APIRootView = views.ExtrasRootView
 
 router.register('event-rules', views.EventRuleViewSet)

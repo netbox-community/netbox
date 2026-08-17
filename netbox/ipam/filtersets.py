@@ -1246,7 +1246,7 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
     )
     protocol = django_filters.MultipleChoiceFilter(
         choices=ServiceProtocolChoices,
-        method='filter_noop',
+        method='filter_protocol_noop',
     )
     # Negation lookup retained from when `protocol` was a model field: method-based filters don't get
     # the char-based lookups (protocol__n, __ic, ...) auto-generated, and silently dropping protocol__n
@@ -1313,6 +1313,13 @@ class ServicePortMappingFilterMixin(django_filters.FilterSet):
     def filter_noop(self, queryset, name, value):
         # See filter_queryset(), which applies `protocol` and the port lookups as one correlated predicate.
         return queryset
+
+    def filter_protocol_noop(self, queryset, name, value: list[str]):
+        # A no-op like filter_noop(), from which this differs only in its type hint. `protocol` is not a
+        # model field, so the schema generator cannot infer the parameter's type from the model, and a
+        # plain MultipleChoiceFilter carries none of the @extend_schema_field annotations which the
+        # MultiValue* filters (used by the port lookups) do. The hint supplies it.
+        return self.filter_noop(queryset, name, value)
 
     def filter_port_mappings(self, queryset, name, value: list[str]):
         # Array overlap (&&) is served by the GIN index on port_mappings and gives the multi-value OR

@@ -3757,6 +3757,38 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.primary_mac_address)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_import_omitted_field_validation_error(self):
+        """Surface omitted-field validation errors during bulk updates."""
+        device = Device.objects.first()
+        wireless_interface = Interface.objects.create(
+            device=device,
+            name='Wireless-22683',
+            type=InterfaceTypeChoices.TYPE_80211AC,
+            rf_channel_width=Decimal('20.0'),
+        )
+        self.add_permissions('dcim.add_interface', 'dcim.change_interface')
+        csv_data = '\n'.join([
+            'id,type',
+            f'{wireless_interface.pk},{InterfaceTypeChoices.TYPE_1GE_GBIC}',
+        ])
+        response = self.client.post(
+            self._get_url('bulk_import'),
+            data={
+                'data': csv_data,
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
+            },
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertContains(
+            response,
+            'rf_channel_width: Channel width may be set only on wireless interfaces.',
+        )
+        wireless_interface.refresh_from_db()
+        self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
+        self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
