@@ -328,6 +328,7 @@
                         "virtual",
                         "bridge",
                         "lag",
+                        "channel",
                         "100base-fx",
                         "100base-lfx",
                         "100base-tx",

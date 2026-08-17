@@ -2,20 +2,32 @@
 
 ## v4.7.0-beta1 (2026-08-17)
 
+!!! danger "Not for Production Use"
+    This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+
+!!! warning "PostgreSQL 15 or Later Required"
+    This release of NetBox drops support for PostgreSQL 14.
+
+!!! warning "PostgreSQL ltree Extension Required"
+    The PostgreSQL database must support the [ltree extension](https://www.postgresql.org/docs/current/ltree.html). This is a trusted module which ships with PostgreSQL and does not require superuser permission to activate. It will be installed automatically upon upgrade.
+
+!!! warning "Redis 6.0 or Later Required"
+    This release of NetBox drops support for Redis 5.x.
+
 ### Breaking Changes
 
 * PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later: The upgrade script will abort when connected to an earlier release. (NetBox v4.6 reported this as a warning.)
 * Redis 5.x is no longer supported. NetBox now requires Redis 6.0 or later.
 * Selection and multiple selection custom field values are now returned as objects specifying both the raw value and its human-friendly label (e.g. `{"value": "datacenter", "label": "Data Center"}`) in both the REST and GraphQL APIs. These fields continue to accept the raw value on write.
-* The `protocol` and `ports` fields on the ApplicationService and ApplicationServiceTemplate models have been replaced by a unified `port_mappings` field, which supports multiple protocols per service. The legacy fields are retained (as deprecated) in the REST and GraphQL APIs, but at the ORM level they are now read-only properties derived from `port_mappings`: Passing `protocol` or `ports` to the model raises a `TypeError`, and assigning to `service.ports` raises an `AttributeError`.
+* The `protocol` and `ports` fields on the `ipam.Service` and `ipam.ServiceTemplate` models have been replaced by a unified `port_mappings` field, which supports multiple protocols per service. The legacy fields are retained (as deprecated) in the REST and GraphQL APIs, but at the ORM level they are now read-only properties derived from `port_mappings`: Passing `protocol` or `ports` to the model raises a `TypeError`, and assigning to `service.ports` raises an `AttributeError`.
 * Because `protocol` is now filtered against the `port_mappings` array rather than a dedicated model field, the character-based REST filter lookups previously generated for it (`protocol__ic`, `protocol__isw`, `protocol__empty`, etc.) are no longer available. The `port__empty` lookup has been removed as well.
-* The GraphQL filters for ApplicationService and ApplicationServiceTemplate have changed shape: The nested `ports` integer lookup has been replaced by the flat `port`, `port__gt`, `port__gte`, `port__lt`, and `port__lte` parameters (each accepting a list of values), alongside the new `port_mappings` parameter. Additionally, the members of `ServiceProtocolEnum` have been renamed to drop a spurious `ROLE_` prefix (e.g. `ROLE_TCP` is now `TCP`).
+* The GraphQL filters for `ipam.Service` and `ipam.ServiceTemplate` have changed shape: The nested `ports` integer lookup has been replaced by the flat `port`, `port__gt`, `port__gte`, `port__lt`, and `port__lte` parameters (each accepting a list of values), alongside the new `port_mappings` parameter. Additionally, the members of `ServiceProtocolEnum` have been renamed to drop a spurious `ROLE_` prefix (e.g. `ROLE_TCP` is now `TCP`).
 * Config context data is now pre-rendered and cached for each device and virtual machine, and is always included in their REST API representations. The `DeviceWithConfigContextSerializer` and `VirtualMachineWithConfigContextSerializer` classes have been removed (merged into the base serializers), and the `?exclude=config_context` query parameter is now silently ignored.
 * Failed bulk create and update operations via the REST API now return a structured response of the form `{"detail": ..., "errors": [{"index": N, "errors": {...}}]}`, correlating each error with the index of the offending object in the submitted list. (Bulk operations remain all-or-none.)
 * API token plaintexts can no longer be specified by the client when creating a token via the REST API. The `token` field is now read-only, and any value supplied is ignored. (This restriction was already in effect in the web UI.)
 * Executing a custom script via the REST API now requires that the calling token have its write ability enabled.
 * Updates to the global search cache are now deferred to a background task. As a result, a newly created or modified object may not appear in search results for a brief period. (When no background worker is running, the index is updated synchronously as before.)
-* Nested group models (Region, SiteGroup, Location, TenantGroup, ContactGroup, WirelessLANGroup, etc.) are now backed by a PostgreSQL `ltree` column rather than django-mptt. The MPTT-backed `NestedGroupModel` base class is retained for backward compatibility with plugins, but is deprecated: New code should use `NestedLtreeGroupModel` instead.
+* Nested group models (Region, SiteGroup, Location, DeviceRole, Platform, TenantGroup, ContactGroup, WirelessLANGroup, etc.) are now backed by a PostgreSQL `ltree` column rather than django-mptt. The MPTT-backed `NestedGroupModel` base class is retained for backward compatibility with plugins, but is deprecated: New code should use `NestedLtreeGroupModel` instead.
 * django-tables2 has been upgraded to v3.0, which renames its `querystring` template tag to `querystring_replace` and removes the `RelatedLinkColumn` class.
 * The `request` object passed to custom link templates is now a sanitized subset of the current request. Only the `id`, `path`, `path_info`, `method`, `GET`, and `user` attributes are available; cookies, headers, and session state are no longer accessible.
 * URL custom field values are now validated against the [`ALLOWED_URL_SCHEMES`](../configuration/security.md#allowed_url_schemes) configuration parameter. A value entered without a scheme is assumed to use `https` and stored as an absolute URL.
@@ -90,7 +102,7 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * [#22441](https://github.com/netbox-community/netbox/issues/22441) - Record and display the execution time of each background job
 * [#22446](https://github.com/netbox-community/netbox/issues/22446) - Introduce breadcrumbs support for declarative layouts
 * [#22486](https://github.com/netbox-community/netbox/issues/22486) - Support a configurable timeout for webhooks, with a new `WEBHOOK_DEFAULT_TIMEOUT` configuration parameter
-* [#22595](https://github.com/netbox-community/netbox/issues/22595) - Introduce the `BULK_UPDATE_CHUNK_SIZE` configuration parameter to bound the number of rows affected by a single bulk `UPDATE` statement
+* [#22595](https://github.com/netbox-community/netbox/issues/22595) - Introduce the [`BULK_UPDATE_CHUNK_SIZE`](../configuration/system.md#bulk_update_chunk_size) configuration parameter to bound the number of rows affected by a single bulk `UPDATE` statement
 * [#22604](https://github.com/netbox-community/netbox/issues/22604) - Document the experimental Python package installation and upgrade workflow
 * [#22607](https://github.com/netbox-community/netbox/issues/22607) - Sanitize the HTTP request passed to the template context when rendering custom links
 * [#22640](https://github.com/netbox-community/netbox/issues/22640) - Enforce `ALLOWED_URL_SCHEMES` when validating URL custom field values
@@ -140,7 +152,6 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * [#22485](https://github.com/netbox-community/netbox/issues/22485) - Move the search subsystem's signal wiring into `AppConfig.ready()` and break its import cycle
 * [#22571](https://github.com/netbox-community/netbox/issues/22571) - Migrate from django-pglocks to django-pgware
 * [#22615](https://github.com/netbox-community/netbox/issues/22615) - Remove the legacy `request_id` and `username` keys from the webhook context
-* [#22909](https://github.com/netbox-community/netbox/issues/22909) - Tolerate an undefined column when flushing deferred search cache updates
 * [#22942](https://github.com/netbox-community/netbox/issues/22942) - Upgrade to Django 6.1
 
 ### REST API Changes
