@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -12,6 +12,7 @@ from dcim.choices import CableEndChoices, CableProfileChoices, LinkStatusChoices
 from dcim.models import (
     Cable,
     CablePath,
+    CableTermination,
     Device,
     DeviceRole,
     DeviceType,
@@ -30,6 +31,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from ipam.models import Prefix
+from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
@@ -160,6 +162,127 @@ class RackSiteChangeSignalTestCase(TestCase):
         self.assertEqual(device.location, self.location_b)
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(interface._location, self.location_b)
+
+
+class ScopeSignalConnectionTestCase(TestCase):
+    """
+    Verify the scope-propagation handlers issue every query against the connection the
+    saved object was written to, rather than letting DATABASE_ROUTERS select one. On an
+    installation with routers configured (e.g. netbox_branching), a routed query both
+    writes to the wrong database and falls outside the transaction opened by the handler,
+    which makes the handler's select_for_update() raise.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        cls.device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+
+    def test_location_save_pins_queries_to_saving_connection(self):
+        parent = Location.objects.create(name='Parent', slug='parent', site=self.site_a)
+        child = Location.objects.create(name='Child', slug='child', site=self.site_a, parent=parent)
+        rack = Rack.objects.create(name='Rack', site=self.site_a, location=parent)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            location=parent,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+        power_panel = PowerPanel.objects.create(name='Panel', site=self.site_a, location=parent)
+        cluster_type = ClusterType.objects.create(name='Cluster Type', slug='cluster-type')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=child)
+
+        # Re-fetch and assign the new Site by ID, leaving the site relation uncached: a
+        # handler which reads instance.site rather than instance.site_id would fetch it
+        # over a routed connection, which is what the Site entry below catches.
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site_id = self.site_b.pk
+        router = PinnedConnectionRouter(
+            CableTermination,
+            CircuitTermination,
+            Cluster,
+            Device,
+            Interface,
+            PowerPanel,
+            Prefix,
+            Rack,
+            Site,
+            WirelessLAN,
+        )
+        with override_settings(DATABASE_ROUTERS=[router]):
+            parent.save()
+
+        for obj in (child, rack, device, power_panel):
+            obj.refresh_from_db()
+            self.assertEqual(obj.site, self.site_b)
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, self.site_b)
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site, self.site_b)
+
+    def test_rack_save_pins_queries_to_saving_connection(self):
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            rack=rack,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        rack = Rack.objects.get(pk=rack.pk)
+        rack.site_id = self.site_b.pk
+        router = PinnedConnectionRouter(CableTermination, Device, Interface, Site)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            rack.save()
+
+        device.refresh_from_db()
+        interface.refresh_from_db()
+        self.assertEqual(device.site, self.site_b)
+        self.assertEqual(interface._site, self.site_b)
+
+    def test_device_save_pins_queries_to_saving_connection(self):
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        device = Device.objects.get(pk=device.pk)
+        device.site_id = self.site_b.pk
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(CableTermination, Interface, Site)]):
+            device.save()
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, self.site_b)
+
+    def test_site_save_pins_scope_resync_to_saving_connection(self):
+        region = Region.objects.create(name='Region', slug='region')
+        cluster_type = ClusterType.objects.create(name='Cluster Type', slug='cluster-type')
+        # Scope the Cluster to a Location rather than to the Site itself: the rebuild then
+        # has to resolve the Location behind the object's generic scope, which is the read
+        # that must follow the connection the Site was saved on.
+        location = Location.objects.create(name='Location', slug='location', site=self.site_a)
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=location)
+
+        site = Site.objects.get(pk=self.site_a.pk)
+        site.region = region
+        # Region is included to catch the Location's site.region read made while rebuilding
+        # the cached fields; Site itself cannot be, as Django routes the save under test.
+        router = PinnedConnectionRouter(CircuitTermination, Cluster, Location, Prefix, Region, WirelessLAN)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            site.save()
+
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region)
 
 
 class DeviceSiteChangeSignalTestCase(TestCase):

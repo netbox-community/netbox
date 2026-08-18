@@ -1032,7 +1032,7 @@ class Device(
                 # Set default values for any applicable custom fields
                 if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                     component.custom_field_data = cf_defaults
-                component.save()
+                component.save(using=using)
 
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)
