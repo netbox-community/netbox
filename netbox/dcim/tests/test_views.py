@@ -1248,13 +1248,13 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
+        cls.profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
 
         module_types = ModuleType.objects.bulk_create([
             ModuleType(
                 model='Module Type 1',
                 manufacturer=manufacturers[0],
-                profile=profile,
+                profile=cls.profile,
                 attribute_data={'media': ['copper', 'qsfp28']},
             ),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
@@ -1262,8 +1262,6 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
-
-        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1280,7 +1278,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "manufacturer,model,part_number,comments,profile",
-            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+            f"Manufacturer 1,Module Type 4,module-type-4,,{cls.profile.name}",
         )
 
         cls.csv_update_data = (
@@ -1334,9 +1332,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         def verify_module_type_profile(scenario_name):
             # TODO: remove extra regression asserts once parent test supports testing all import fields
-            fan_module_type = ModuleType.objects.get(part_number='generic-fan')
-            fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
-            assert fan_module_type.profile == fan_module_type_profile
+            module_type = ModuleType.objects.get(part_number='module-type-4')
+            self.assertEqual(module_type.profile_id, self.profile.pk)
 
         # run base test
         super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
