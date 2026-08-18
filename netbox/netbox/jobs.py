@@ -217,9 +217,14 @@ class JobRunner(ABC):
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
-            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
-            # delete the existing job and schedule a new job instead.
-            if (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
+            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule.
+            # Otherwise, delete the existing job and schedule a new job instead. A job still in "scheduled"
+            # status whose time has already passed is stale (its RQ-side scheduler entry was lost, e.g. by a
+            # Redis restart) and must be replaced rather than reused, even though its parameters match.
+            # Running/pending jobs are exempt from this check: their `scheduled` timestamp is expected to be
+            # in the past (or unset) once they've started, and that must not be mistaken for staleness.
+            is_stale = job.status == JobStatusChoices.STATUS_SCHEDULED and job.scheduled <= timezone.now()
+            if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 

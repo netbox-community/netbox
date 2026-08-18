@@ -152,6 +152,68 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
+    def test_enqueue_once_replaces_stale_scheduled_job(self):
+        """
+        A job still in "scheduled" status whose time has already passed is stale (its RQ-side
+        scheduler entry was lost, e.g. by a Redis restart between backup and restore — see
+        #22714) and must be replaced, even though its recorded interval matches.
+        """
+        stale = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        # Mirrors how rqworker.py calls enqueue_once() for system jobs at startup: no
+        # schedule_at, only the registered interval.
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertNotEqual(job, stale)
+        self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_pending_job_with_no_schedule(self):
+        """
+        A pending job (not yet picked up by a worker) has no `scheduled` timestamp at all.
+        That must not be mistaken for a stale schedule and must not raise when compared
+        against the current time.
+        """
+        pending = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_PENDING,
+            interval=60,
+            scheduled=None,
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, pending)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_running_job_with_past_schedule(self):
+        """
+        Once a job starts, its `scheduled` timestamp is left in the past (that's normal —
+        `start()` doesn't clear it) while status moves to "running". A concurrent
+        enqueue_once() call (e.g. a second worker starting up mid-run) must not mistake
+        that for staleness and delete an in-flight job out from under itself.
+        """
+        running = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=5),
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, running)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
     def test_enqueue_once_with_enqueue(self):
         instance = DataSource()
         job1 = TestJobRunner.enqueue_once(instance, schedule_at=self.get_schedule_at(2))
