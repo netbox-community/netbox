@@ -73,13 +73,16 @@ class NetBoxTaggableManager(_TaggableManager):
     @require_instance_manager
     def set_base(self, objs, *, clear=False, through_defaults=None, raw=False):
         # Django's deserializer assigns M2M data through this method, passing primary keys;
-        # taggit's set() takes only Tag instances or names.
+        # taggit's set() takes only Tag instances or names. Keys which match no tag are passed
+        # through for the database to reject, as ManyRelatedManager.set_base() does.
         tag_model = self.through.tag_model()
         if pks := [obj for obj in objs if not isinstance(obj, (tag_model, str))]:
-            tags = tag_model._default_manager.in_bulk(pks)
-            if missing := set(pks) - set(tags):
-                raise tag_model.DoesNotExist(f'No such tag(s): {sorted(missing)}')
-            objs = [obj if isinstance(obj, (tag_model, str)) else tags[obj] for obj in objs]
+            db = router.db_for_write(self.through, instance=self.instance)
+            tags = tag_model._default_manager.using(db).in_bulk(pks)
+            objs = [
+                obj if isinstance(obj, (tag_model, str)) else tags.get(obj) or tag_model(pk=obj)
+                for obj in objs
+            ]
         return self.set(objs, clear=clear, through_defaults=through_defaults)
 
 

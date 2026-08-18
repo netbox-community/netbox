@@ -1,4 +1,5 @@
 from django.core import serializers
+from django.db import IntegrityError, connection, transaction
 from django.test import TestCase
 
 from dcim.choices import SiteStatusChoices
@@ -98,3 +99,16 @@ class SerializationTestCase(TestCase):
 
         site = Site.objects.get(pk=125)
         self.assertEqual(sorted(site.tags.values_list('pk', flat=True)), sorted(tag.pk for tag in tags))
+
+    def test_deserialized_object_save_with_unknown_tag_pk(self):
+        """A key matching no tag is left for the database to reject."""
+        data = [{
+            'model': 'dcim.site',
+            'pk': 126,
+            'fields': {'name': 'Site 4', 'slug': 'site-4', 'tags': [99999]},
+        }]
+        with transaction.atomic():
+            list(serializers.deserialize('python', data))[0].save()
+            with self.assertRaises(IntegrityError):
+                connection.check_constraints()
+            transaction.set_rollback(True)
