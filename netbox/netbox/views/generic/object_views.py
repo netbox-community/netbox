@@ -495,13 +495,16 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
             # Delete the object
             try:
-                obj.delete()
+                with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+                    obj.delete()
             except (ProtectedError, RestrictedError) as e:
                 logger.info(f"Caught {type(e)} while attempting to delete objects")
+                clear_events.send(sender=self)
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
             except AbortRequest as e:
                 logger.debug(e.message)
+                clear_events.send(sender=self)
                 messages.error(request, mark_safe(e.message))
                 return redirect(obj.get_absolute_url())
 
