@@ -4,6 +4,9 @@
   {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
   {% if object.location %}
-    <li class="breadcrumb-item">{{ object.location|linkify }}</li>
+    {% for location in object.location.get_ancestors %}
+      <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?location_id={{ location.pk }}">{{ location }}</a></li>
+    {% endfor %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:powerpanel_list' %}?location_id={{ object.location.pk }}">{{ object.location }}</a></li>
   {% endif %}
 {% endblock %}

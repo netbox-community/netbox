@@ -5,7 +5,10 @@
 {% load i18n %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:devicerole_list' %}">{% trans "Device Roles" %}</a></li>
+  {{ block.super }}
+  {% for devicerole in object.get_ancestors %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:devicerole_list' %}?parent_id={{ devicerole.pk }}">{{ devicerole }}</a></li>
+  {% endfor %}
 {% endblock %}
 
 {% block extra_controls %}
