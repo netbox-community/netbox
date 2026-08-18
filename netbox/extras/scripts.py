@@ -326,7 +326,7 @@ class BaseScript:
         self._current_test = None  # Tracks the current test method being run (if any)
 
         # Initiate the log
-        self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
+        self.logger = logging.getLogger(f"netbox.scripts.{self.full_name}")
 
         # Declare the placeholder for the current request
         self.request = None
