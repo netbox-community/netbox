@@ -2869,6 +2869,10 @@ class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.SimpleLayout(
         breadcrumbs=[
             Breadcrumb('manufacturer', url=filtered_list_url('dcim:platform_list', 'manufacturer_id')),
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('dcim:platform_list', 'parent_id'),
+            ),
         ],
         left_panels=[
             panels.PlatformPanel(),
@@ -5404,7 +5408,11 @@ class PowerPanelView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.SimpleLayout(
         breadcrumbs=[
             Breadcrumb('site', url=filtered_list_url('dcim:powerpanel_list', 'site_id')),
-            Breadcrumb('location'),
+            Breadcrumb(
+                lambda o: o.location.get_ancestors() if o.location else [],
+                url=filtered_list_url('dcim:powerpanel_list', 'location_id'),
+            ),
+            Breadcrumb('location', url=filtered_list_url('dcim:powerpanel_list', 'location_id')),
         ],
         left_panels=[
             panels.PowerPanelPanel(),
@@ -5583,7 +5591,11 @@ class CoolingSourceView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.SimpleLayout(
         breadcrumbs=[
             Breadcrumb('site', url=filtered_list_url('dcim:coolingsource_list', 'site_id')),
-            Breadcrumb('location'),
+            Breadcrumb(
+                lambda o: o.location.get_ancestors() if o.location else [],
+                url=filtered_list_url('dcim:coolingsource_list', 'location_id'),
+            ),
+            Breadcrumb('location', url=filtered_list_url('dcim:coolingsource_list', 'location_id')),
         ],
         left_panels=[
             panels.CoolingSourcePanel(),
