@@ -1,13 +1,15 @@
 import uuid
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
-from ipam.models import IPAddress, Prefix
+from ipam import signals
+from ipam.models import VRF, IPAddress, Prefix
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.testing import PinnedConnectionRouter
 from utilities.testing.utils import create_test_device, create_test_virtualmachine
 
 
@@ -229,3 +231,56 @@ class ClearOOBIPSignalTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
             ).exists()
         )
+
+
+class PrefixHierarchySignalConnectionTestCase(TestCase):
+    """
+    Verify the prefix hierarchy handlers issue every query against the connection the saved
+    Prefix was written to, rather than letting DATABASE_ROUTERS select one. On an
+    installation with routers configured (e.g. netbox_branching), a routed query would
+    recount the hierarchy against one database and write the result to another.
+
+    These handlers are invoked directly rather than through save()/delete(): every query
+    they make is against Prefix, which is also the model being written, so a router which
+    fails routed Prefix queries would trip on the save itself.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.vrf = VRF.objects.create(name='VRF 1')
+
+    def test_prefix_saved_handler_pins_queries_to_given_connection(self):
+        parent = Prefix.objects.create(prefix='10.0.0.0/16', vrf=self.vrf)
+        child = Prefix.objects.create(prefix='10.0.1.0/24', vrf=self.vrf)
+
+        # Re-fetch and move the child, leaving the vrf relation uncached: a lookup which
+        # filters on self.vrf rather than self.vrf_id fetches it over a routed connection,
+        # which the VRF entry below catches. The same applies to the throwaway Prefix the
+        # handler builds to clean up the child's previous position. The instance is not
+        # re-fetched after the save, as that would reset the _prefix snapshot the handler
+        # compares against and it would decline to do any work at all.
+        child = Prefix.objects.get(pk=child.pk)
+        child.prefix = '10.0.2.0/24'
+        child.save()
+        self.assertNotEqual(child.prefix, child._prefix)
+
+        router = PinnedConnectionRouter(Prefix, VRF)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            signals.handle_prefix_saved(instance=child, created=False, using='default')
+
+        parent.refresh_from_db()
+        child.refresh_from_db()
+        self.assertEqual(parent._children, 1)
+        self.assertEqual(child._depth, 1)
+
+    def test_prefix_deleted_handler_pins_queries_to_given_connection(self):
+        parent = Prefix.objects.create(prefix='10.0.0.0/16', vrf=self.vrf)
+        child = Prefix.objects.create(prefix='10.0.1.0/24', vrf=self.vrf)
+
+        child = Prefix.objects.get(pk=child.pk)
+        router = PinnedConnectionRouter(Prefix, VRF)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            signals.handle_prefix_deleted(instance=child, using='default')
+
+        parent.refresh_from_db()
+        self.assertEqual(parent._children, 1)

@@ -31,6 +31,7 @@ from dcim.models import (
     VirtualChassis,
 )
 from ipam.models import Prefix
+from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
@@ -161,29 +162,6 @@ class RackSiteChangeSignalTestCase(TestCase):
         self.assertEqual(device.location, self.location_b)
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(interface._location, self.location_b)
-
-
-class UnpinnedQuery(Exception):
-    """Raised when a query which should have been pinned to a connection is routed instead."""
-
-
-class PinnedConnectionRouter:
-    """
-    Fails any read or write of the given models which is not pinned to an explicit database
-    alias. Django consults DATABASE_ROUTERS only for queries which name no connection, so a
-    signal handler which threads through the alias supplied by the signal never reaches
-    this router. Each test leaves out the model being saved, as Django routes that save
-    itself.
-    """
-    def __init__(self, *models):
-        self.models = models
-
-    def _check(self, model, **hints):
-        if model in self.models:
-            raise UnpinnedQuery(f"{model.__name__} query was routed rather than pinned to a connection")
-
-    db_for_read = _check
-    db_for_write = _check
 
 
 class ScopeSignalConnectionTestCase(TestCase):
