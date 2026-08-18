@@ -6,6 +6,7 @@ from django.db.models import F, Q
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
+from circuits.models import CircuitTermination
 from dcim.choices import CableEndChoices, LinkStatusChoices
 from ipam.models import Prefix
 from netbox.search.backends import search_backend
@@ -90,7 +91,7 @@ def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
 
 
 @receiver(post_save, sender=Location)
-def handle_location_site_change(instance, created, **kwargs):
+def handle_location_site_change(instance, created, using=None, **kwargs):
     """
     Update child objects when a Location is saved. All updates are queryset update() calls,
     which fire no signals and generate no change records for the affected objects.
@@ -139,6 +140,23 @@ def handle_location_site_change(instance, created, **kwargs):
                         _region_id=site['region_id'],
                         _site_group_id=site['group_id'],
                     )
+
+                # CircuitTermination caches the same ancestry under its own generic
+                # termination field rather than CachedScopeMixin.scope, so it is invisible to
+                # both the loop above and sync_cached_scope_fields(). Its own rows are
+                # refreshed by the denormalized-field registry, but only their _site: _region
+                # and _site_group are mapped off the separate _site registration, which fires
+                # on a Site save. Rows scoped to descendant Locations get nothing at all, as
+                # the get_descendants() update above fires no post_save — which is why the
+                # include_self=True membership is load-bearing here.
+                CircuitTermination.objects.using(using).filter(
+                    termination_type=location_ct, termination_id__in=locations
+                ).update(
+                    _location_id=F('termination_id'),
+                    _site_id=instance.site_id,
+                    _region_id=site['region_id'],
+                    _site_group_id=site['group_id'],
+                )
 
 
 @receiver(post_save, sender=Rack)

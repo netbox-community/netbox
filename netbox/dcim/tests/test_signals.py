@@ -6,6 +6,7 @@ from django.db import connection, transaction
 from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim import signals
 from dcim.choices import CableEndChoices, CableProfileChoices, LinkStatusChoices
 from dcim.models import (
@@ -75,6 +76,48 @@ class LocationSiteChangeSignalTestCase(TestCase):
         self.assertEqual(device.site, self.site_b)
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(power_panel.site, self.site_b)
+
+    def test_changing_location_site_updates_circuittermination_caches(self):
+        # CircuitTermination caches its scope ancestry under termination_type/termination_id
+        # rather than under CachedScopeMixin's scope field, so sync_cached_scope_fields does
+        # not cover it and the denormalized-field registry refreshes only _site. Both the
+        # moved Location's own terminations and those of its descendants must be repaired
+        # here, region and site group included. Origin and destination Sites are given
+        # distinct regions and groups so a value left stale is distinguishable from one that
+        # was never set.
+        origin_region = Region.objects.create(name='Region C', slug='region-c')
+        origin_group = SiteGroup.objects.create(name='Group C', slug='group-c')
+        origin = Site.objects.create(
+            name='Site C', slug='site-c', region=origin_region, group=origin_group
+        )
+        region = Region.objects.create(name='Region D', slug='region-d')
+        group = SiteGroup.objects.create(name='Group D', slug='group-d')
+        site = Site.objects.create(name='Site D', slug='site-d', region=region, group=group)
+        parent_location = Location.objects.create(name='Parent', slug='parent', site=origin)
+        child_location = Location.objects.create(name='Child', slug='child', site=origin, parent=parent_location)
+        provider = Provider.objects.create(name='Provider', slug='provider')
+        circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
+        circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+        termination_a = CircuitTermination.objects.create(
+            circuit=circuit, term_side='A', termination=parent_location
+        )
+        termination_z = CircuitTermination.objects.create(
+            circuit=circuit, term_side='Z', termination=child_location
+        )
+        for termination in (termination_a, termination_z):
+            self.assertEqual(termination._site, origin)
+            self.assertEqual(termination._region, origin_region)
+            self.assertEqual(termination._site_group, origin_group)
+
+        parent_location.site = site
+        parent_location.save()
+
+        for termination, location in ((termination_a, parent_location), (termination_z, child_location)):
+            termination.refresh_from_db()
+            self.assertEqual(termination._location, location)
+            self.assertEqual(termination._site, site)
+            self.assertEqual(termination._region, region)
+            self.assertEqual(termination._site_group, group)
 
     def test_creating_location_does_not_attempt_to_propagate(self):
         # Should not raise — newly-created locations have no descendants.
