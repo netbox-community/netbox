@@ -44,14 +44,8 @@ __all__ = (
 # and compare identically.
 _PATH_LABEL_WIDTH = 19
 
-# The backfill SQL uses unqualified ltree syntax (the `::ltree` casts and the `||` operator),
-# which is resolved through search_path. Prepending this statement puts the schema hosting the
-# ltree extension on the path, so the backfill also succeeds for callers which run migrations
-# with a restricted search_path — e.g. netbox-branching applies the migration plan to a branch
-# schema with only that schema visible. It belongs in the same statement batch rather than in a
-# preceding operation, because such a caller may (re)set search_path immediately before each
-# RunSQL body. set_config(..., true) is SET LOCAL: it lasts to the end of the transaction, and
-# on the main schema it is a no-op because that schema is already on the path.
+# The SQL below names the ltree type and operators unqualified, so the extension's schema has to
+# be on the search_path. Put it there here (SET LOCAL) rather than relying on the caller's path.
 _ENSURE_LTREE_ON_PATH = """
 SELECT set_config(
     'search_path',
