@@ -110,7 +110,7 @@ HTML_ALLOWED_ATTRIBUTES = {
     "th": {"align"},
 }
 
-# Allowed URL schemes for image sources (img[src]); independent of ALLOWED_URL_SCHEMES
+# Allowed URL schemes for image sources (img[src]); applied in addition to ALLOWED_URL_SCHEMES
 IMAGE_URL_SCHEMES = {'http', 'https'}
 
 HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS = ['socks4', 'socks4a', 'socks4h', 'socks5', 'socks5a', 'socks5h']

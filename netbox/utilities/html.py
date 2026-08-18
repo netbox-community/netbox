@@ -13,11 +13,16 @@ __all__ = (
 
 SCHEME_RE = re.compile(r'^([a-zA-Z][a-zA-Z0-9+.-]*):')
 
+# Per the URL spec, browsers ignore leading/trailing C0 control characters & space, and strip any tab or
+# newline characters appearing within a URL. We must normalize accordingly before checking the scheme.
+URL_STRIP_CHARS = ''.join(chr(c) for c in range(0x21))
+URL_REMOVE_CHARS = str.maketrans('', '', '\t\r\n')
+
 
 def _attribute_filter(tag, attr, value):
     """Returns str to keep/modify attribute, None to remove it."""
     if tag == 'img' and attr == 'src':
-        match = SCHEME_RE.match(value.strip())
+        match = SCHEME_RE.match(value.strip(URL_STRIP_CHARS).translate(URL_REMOVE_CHARS))
         if match and match.group(1).lower() not in IMAGE_URL_SCHEMES:
             return None
     return value

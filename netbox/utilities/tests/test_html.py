@@ -34,6 +34,19 @@ class CleanHTMLURLPolicyTestCase(SimpleTestCase):
         self.assertNotIn('ssh://', result)
 
     @tag('regression')
+    def test_img_src_embedded_control_characters(self):
+        """Disallowed schemes obscured by tab/newline/control characters are still stripped."""
+        html = (
+            '<img src="ss&#9;h://host/i.png">'
+            '<img src="fi&#13;le:///etc">'
+            '<img src="&#1;ftp://host/i.png">'
+        )
+        result = clean_html(html, TEST_SCHEMES)
+        self.assertNotIn('h://host', result)
+        self.assertNotIn('le:///etc', result)
+        self.assertNotIn('ftp://host', result)
+
+    @tag('regression')
     def test_img_src_http_https_and_relative(self):
         """http/https/relative image sources are retained."""
         html = (
@@ -77,12 +90,12 @@ class CleanHTMLURLPolicyTestCase(SimpleTestCase):
     def test_javascript_url_blocked(self):
         """nh3's url_schemes filtering still applies with the attribute filter in place."""
         html = '<a href="javascript:alert(1)">x</a><img src="javascript:alert(1)">'
-        result = clean_html(html, ['http', 'https'])
+        result = clean_html(html, ['https', 'mailto'])
         self.assertNotIn('javascript:', result)
 
     @tag('regression')
     def test_img_src_respects_allowed_url_schemes(self):
         """Image sources must respect ALLOWED_URL_SCHEMES, not just IMAGE_URL_SCHEMES."""
         html = '<img src="http://example.com/i.png">'
-        result = clean_html(html, ['https'])
+        result = clean_html(html, ['https', 'mailto'])
         self.assertNotIn('http://example.com', result)
