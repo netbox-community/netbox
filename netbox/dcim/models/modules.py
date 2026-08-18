@@ -334,16 +334,18 @@ class Module(TrackingModelMixin, PrimaryModel):
         old_module_bay_id = None
 
         if not is_new:
-            old_module_bay_id = Module.objects.filter(pk=self.pk).values_list(
+            old_module_bay_id = Module.objects.using(self._state.db).filter(pk=self.pk).values_list(
                 'module_bay_id', flat=True
             ).first()
 
         super().save(*args, **kwargs)
 
+        using = self._state.db
+
         if old_module_bay_id is not None and old_module_bay_id != self.module_bay_id:
-            for child_bay in self.modulebays.select_related('module__module_bay'):
+            for child_bay in self.modulebays.db_manager(using).select_related('module__module_bay'):
                 child_bay.snapshot()
-                child_bay.save()
+                child_bay.save(using=using)
 
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
@@ -352,8 +354,6 @@ class Module(TrackingModelMixin, PrimaryModel):
         # both replication and component adoption is disabled
         if not is_new or (disable_replication and not adopt_components):
             return
-
-        using = self._state.db
 
         # Iterate all component types
         for templates, component_attribute, component_model in [
@@ -372,7 +372,9 @@ class Module(TrackingModelMixin, PrimaryModel):
             # Prefetch installed components
             installed_components = {
                 component.name: component
-                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+                for component in getattr(self.device, component_attribute).db_manager(using).filter(
+                    module__isnull=True
+                )
             }
 
             # Get the template for the module type.
@@ -420,7 +422,7 @@ class Module(TrackingModelMixin, PrimaryModel):
             else:
                 # MPTT models must be saved individually to maintain tree structure
                 for instance in create_instances:
-                    instance.save()
+                    instance.save(using=using)
 
             update_fields = ['module']
 
@@ -439,7 +441,8 @@ class Module(TrackingModelMixin, PrimaryModel):
 
             # Rebuild MPTT tree if needed (bulk_update bypasses model save)
             if issubclass(component_model, MPTTModel) and update_instances:
-                component_model.objects.rebuild()
+                # db_manager() is used in place of using(), as rebuild() is a manager method
+                component_model.objects.db_manager(using).rebuild()
 
         # Replicate any front/rear port mappings from the ModuleType
         create_port_mappings(self.device, self.module_type, self)
