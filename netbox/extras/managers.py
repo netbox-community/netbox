@@ -11,8 +11,11 @@ __all__ = (
 
 class NetBoxTaggableManager(_TaggableManager):
     """
-    Extends taggit's _TaggableManager to replace the per-tag get_or_create loop in add() with a
-    single bulk_create() call, reducing SQL queries from O(N) to O(1) when assigning tags.
+    Extends taggit's _TaggableManager to:
+
+    * Replace the per-tag get_or_create loop in add() with a single bulk_create() call, reducing
+      SQL queries from O(N) to O(1) when assigning tags.
+    * Implement set_base(), the M2M assignment entry point Django's deserializer calls.
     """
 
     @require_instance_manager
@@ -67,10 +70,16 @@ class NetBoxTaggableManager(_TaggableManager):
             using=db,
         )
 
+    @require_instance_manager
     def set_base(self, objs, *, clear=False, through_defaults=None, raw=False):
-        # Django 6.1's DeserializedObject.save() assigns M2M data through
-        # ManyRelatedManager.set_base(), which taggit's manager does not implement. `raw` only
-        # reaches m2m_changed receivers, which do not distinguish it.
+        # Django's deserializer assigns M2M data through this method, passing primary keys;
+        # taggit's set() takes only Tag instances or names.
+        tag_model = self.through.tag_model()
+        if pks := [obj for obj in objs if not isinstance(obj, (tag_model, str))]:
+            tags = tag_model._default_manager.in_bulk(pks)
+            if missing := set(pks) - set(tags):
+                raise tag_model.DoesNotExist(f'No such tag(s): {sorted(missing)}')
+            objs = [obj if isinstance(obj, (tag_model, str)) else tags[obj] for obj in objs]
         return self.set(objs, clear=clear, through_defaults=through_defaults)
 
 

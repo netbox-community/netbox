@@ -1,3 +1,4 @@
+from django.core import serializers
 from django.test import TestCase
 
 from dcim.choices import SiteStatusChoices
@@ -72,10 +73,28 @@ class SerializationTestCase(TestCase):
         self.assertEqual(site.name, data['name'])
         self.assertEqual(sorted(site.tags.values_list('name', flat=True)), data['tags'])
 
-    def test_deserialized_object_save_without_tags(self):
-        """An untagged object also carries a (empty) tags accessor through m2m_data."""
+    def test_deserialized_object_save_with_empty_tag_list(self):
+        """
+        An empty `tags` list still reaches set_base(): deserialize_object() only pops the key
+        when it is non-empty, so Django populates m2m_data['tags'] with an empty list. (Data
+        carrying no `tags` key at all would not populate m2m_data, and so would not exercise
+        set_base() — keep the empty list explicit.)
+        """
         deserialize_object(Site, {'name': 'Site 2', 'slug': 'site-2', 'tags': []}, pk=124).save()
 
         site = Site.objects.get(pk=124)
         self.assertEqual(site.name, 'Site 2')
         self.assertEqual(site.tags.count(), 0)
+
+    def test_deserialized_object_save_with_tag_pks(self):
+        """Django's deserializer resolves M2M values to primary keys; set_base() must take them."""
+        tags = list(Tag.objects.all()[:2])
+        data = [{
+            'model': 'dcim.site',
+            'pk': 125,
+            'fields': {'name': 'Site 3', 'slug': 'site-3', 'tags': [tag.pk for tag in tags]},
+        }]
+        list(serializers.deserialize('python', data))[0].save()
+
+        site = Site.objects.get(pk=125)
+        self.assertEqual(sorted(site.tags.values_list('pk', flat=True)), sorted(tag.pk for tag in tags))
