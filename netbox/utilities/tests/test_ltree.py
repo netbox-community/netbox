@@ -916,29 +916,46 @@ class RestrictedSearchPathBackfillTests(TestCase):
     """
     The backfill SQL must resolve the ltree type itself, so that callers which apply
     migrations one schema at a time (with the extension's schema off the search_path)
-    can still run it.
+    can still run it, and must leave the caller's search_path as it found it.
     """
+
+    def _create_tree(self, cursor, table):
+        cursor.execute(
+            f'CREATE TABLE sp_test.{table} ('
+            f'id bigint PRIMARY KEY, parent_id bigint, path ltree, sort_path text, name text)'
+        )
+        cursor.execute(
+            f"INSERT INTO sp_test.{table} VALUES (1, NULL, NULL, NULL, 'root'), (2, 1, NULL, NULL, 'child')"
+        )
 
     def test_backfill_with_extension_schema_off_search_path(self):
         with connection.cursor() as cursor:
             cursor.execute('CREATE SCHEMA sp_test')
             cursor.execute('SET LOCAL search_path = sp_test, public')
-            cursor.execute(
-                'CREATE TABLE sp_test.tree ('
-                'id bigint PRIMARY KEY, parent_id bigint, path ltree, sort_path text, name text)'
-            )
-            cursor.execute(
-                "INSERT INTO sp_test.tree VALUES (1, NULL, NULL, NULL, 'root'), (2, 1, NULL, NULL, 'child')"
-            )
+            self._create_tree(cursor, 'sorted')
+            self._create_tree(cursor, 'plain')
 
-            # Drop the extension's schema from the path, then run the backfill
+            # As the migrations do: several tables in one statement batch, both variants,
+            # with the extension's schema absent from the path.
             cursor.execute('SET LOCAL search_path = sp_test')
-            cursor.execute(populate_paths_sql('tree', sort_path=True))
+            cursor.execute('\n'.join((
+                populate_paths_sql('sorted', sort_path=True),
+                populate_paths_sql('plain'),
+            )))
+            cursor.execute("SELECT current_setting('search_path')")
+            path_after = cursor.fetchone()[0]
 
             cursor.execute('SET LOCAL search_path = sp_test, public')
-            cursor.execute('SELECT id, path::text, sort_path FROM sp_test.tree ORDER BY id')
-            rows = cursor.fetchall()
+            cursor.execute('SELECT path::text, sort_path FROM sp_test.sorted ORDER BY id')
+            sorted_rows = cursor.fetchall()
+            cursor.execute('SELECT path::text FROM sp_test.plain ORDER BY id')
+            plain_rows = cursor.fetchall()
 
-        self.assertEqual(rows[0][1], _path(1))
-        self.assertEqual(rows[1][1], _path(1, 2))
-        self.assertEqual(rows[1][2], 'root\tchild')
+        self.assertEqual(path_after, 'sp_test')
+
+        self.assertEqual(len(sorted_rows), 2)
+        self.assertEqual([r[0] for r in sorted_rows], [_path(1), _path(1, 2)])
+        self.assertEqual([r[1] for r in sorted_rows], ['root', 'root\tchild'])
+
+        self.assertEqual(len(plain_rows), 2)
+        self.assertEqual([r[0] for r in plain_rows], [_path(1), _path(1, 2)])
