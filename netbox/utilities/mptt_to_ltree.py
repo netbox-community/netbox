@@ -75,10 +75,9 @@ def populate_paths_sql(table, *, sort_path=False):
         minutes — plan a maintenance window accordingly.
 
     !!! note
-        Run the returned SQL inside a transaction (as an atomic migration does). It
-        begins by adding the ltree extension's schema to the search_path with SET
-        LOCAL, which PostgreSQL discards outside a transaction block; in a migration
-        declaring `atomic = False`, ensure that schema is on the search_path instead.
+        Run this inside a transaction, as an atomic migration does. It leads with a SET
+        LOCAL putting the ltree extension's schema on the search_path, which PostgreSQL
+        discards outside a transaction block.
     """
     if sort_path:
         return _ENSURE_LTREE_ON_PATH + f"""
