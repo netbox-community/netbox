@@ -44,6 +44,24 @@ __all__ = (
 # and compare identically.
 _PATH_LABEL_WIDTH = 19
 
+# The backfill SQL uses unqualified ltree syntax (the `::ltree` casts and the `||` operator),
+# which is resolved through search_path. Prepending this statement puts the schema hosting the
+# ltree extension on the path, so the backfill also succeeds for callers which run migrations
+# with a restricted search_path — e.g. netbox-branching applies the migration plan to a branch
+# schema with only that schema visible. It belongs in the same statement batch rather than in a
+# preceding operation, because such a caller may (re)set search_path immediately before each
+# RunSQL body. set_config(..., true) is SET LOCAL: it lasts to the end of the transaction, and
+# on the main schema it is a no-op because that schema is already on the path.
+_ENSURE_LTREE_ON_PATH = """
+SELECT set_config(
+    'search_path',
+    current_setting('search_path') || ',' || quote_ident(n.nspname),
+    true
+)
+FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace
+WHERE e.extname = 'ltree';
+"""
+
 
 def populate_paths_sql(table, *, sort_path=False):
     """
@@ -62,7 +80,7 @@ def populate_paths_sql(table, *, sort_path=False):
         minutes — plan a maintenance window accordingly.
     """
     if sort_path:
-        return f"""
+        return _ENSURE_LTREE_ON_PATH + f"""
 WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
     SELECT id, parent_id,
            lpad(id::text, {_PATH_LABEL_WIDTH}, '0')::ltree,
@@ -77,7 +95,7 @@ WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
 UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
 FROM t WHERE "{table}".id = t.id;
 """
-    return f"""
+    return _ENSURE_LTREE_ON_PATH + f"""
 WITH RECURSIVE t(id, parent_id, path) AS (
     SELECT id, parent_id, lpad(id::text, {_PATH_LABEL_WIDTH}, '0')::ltree
     FROM "{table}" WHERE parent_id IS NULL
