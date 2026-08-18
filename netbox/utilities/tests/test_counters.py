@@ -1,10 +1,17 @@
 from unittest.mock import patch
 
+from django.db.utils import ConnectionDoesNotExist
 from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import *
-from utilities.counters import connect_counters, update_counter
+from utilities.counters import (
+    connect_counters,
+    post_delete_receiver,
+    post_save_receiver,
+    pre_delete_receiver,
+    update_counter,
+)
 from utilities.testing.base import TestCase
 from utilities.testing.utils import create_test_device
 
@@ -248,6 +255,26 @@ class CounterConnectionTestCase(TestCase):
         other.refresh_from_db()
         self.assertEqual(self.device.interface_count, 0)
         self.assertEqual(other.interface_count, 1)
+
+    def test_receivers_use_the_alias_supplied_by_the_signal(self):
+        """
+        The tests above prove the queries name *an* alias, but with one configured database that
+        alias is always 'default' — they would pass just as well against a hardcoded
+        .using('default'). Invoking each receiver with an alias that does not exist distinguishes
+        "threaded through from the signal" from "happens to be the default".
+        """
+        interface = Interface.objects.create(device=self.device, name='Interface 1')
+        interface = Interface.objects.get(pk=interface.pk)
+
+        with self.assertRaises(ConnectionDoesNotExist):
+            post_save_receiver(Interface, interface, created=True, using='nonexistent')
+
+        # origin=None: the parent is not itself being deleted, so the existence guard runs
+        with self.assertRaises(ConnectionDoesNotExist):
+            pre_delete_receiver(Interface, interface, origin=None, using='nonexistent')
+
+        with self.assertRaises(ConnectionDoesNotExist):
+            post_delete_receiver(Interface, interface, origin=None, using='nonexistent')
 
     def test_delete_pins_counter_decrement(self):
         interface = Interface.objects.create(device=self.device, name='Interface 1')
