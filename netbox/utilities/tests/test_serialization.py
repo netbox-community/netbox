@@ -58,3 +58,24 @@ class SerializationTestCase(TestCase):
         self.assertEqual(instance.object.status, SiteStatusChoices.STATUS_ACTIVE)  # Default field value
         self.assertEqual(instance.object.foo, data['foo'])  # Non-field attribute
         self.assertEqual(list(instance.m2m_data['tags']), list(Tag.objects.all()))
+
+    def test_deserialized_object_save(self):
+        """A deserialized object saves and reassigns its tags (Django 6.1 calls set_base())."""
+        data = {
+            'name': 'Site 1',
+            'slug': 'site-1',
+            'tags': ['Tag 1', 'Tag 2'],
+        }
+        deserialize_object(Site, data, pk=123).save()
+
+        site = Site.objects.get(pk=123)
+        self.assertEqual(site.name, data['name'])
+        self.assertEqual(sorted(site.tags.values_list('name', flat=True)), data['tags'])
+
+    def test_deserialized_object_save_without_tags(self):
+        """An untagged object also carries a (empty) tags accessor through m2m_data."""
+        deserialize_object(Site, {'name': 'Site 2', 'slug': 'site-2', 'tags': []}, pk=124).save()
+
+        site = Site.objects.get(pk=124)
+        self.assertEqual(site.name, 'Site 2')
+        self.assertEqual(site.tags.count(), 0)

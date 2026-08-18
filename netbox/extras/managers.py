@@ -67,6 +67,12 @@ class NetBoxTaggableManager(_TaggableManager):
             using=db,
         )
 
+    def set_base(self, objs, *, clear=False, through_defaults=None, raw=False):
+        # Django 6.1's DeserializedObject.save() assigns M2M data through
+        # ManyRelatedManager.set_base(), which taggit's manager does not implement. `raw` only
+        # reaches m2m_changed receivers, which do not distinguish it.
+        return self.set(objs, clear=clear, through_defaults=through_defaults)
+
 
 class NetBoxTaggableManagerField(TaggableManager):
     """
