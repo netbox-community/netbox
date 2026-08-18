@@ -6,6 +6,7 @@ from django.test import TestCase
 from core.models import ObjectChange
 from dcim.models import Region, Site
 from tenancy.models import Contact, ContactGroup
+from utilities.mptt_to_ltree import populate_paths_sql
 
 
 def _path(*pks):
@@ -909,3 +910,35 @@ class NaturalSortSortPathTests(TestCase):
         )
         # Expected tree-flatten: parent, its child, then the unrelated root.
         self.assertEqual(names, ['nsP', 'nsPchild', 'nsP1'])
+
+
+class RestrictedSearchPathBackfillTests(TestCase):
+    """
+    The backfill SQL must resolve the ltree type itself, so that callers which apply
+    migrations one schema at a time (with the extension's schema off the search_path)
+    can still run it.
+    """
+
+    def test_backfill_with_extension_schema_off_search_path(self):
+        with connection.cursor() as cursor:
+            cursor.execute('CREATE SCHEMA sp_test')
+            cursor.execute('SET LOCAL search_path = sp_test, public')
+            cursor.execute(
+                'CREATE TABLE sp_test.tree ('
+                'id bigint PRIMARY KEY, parent_id bigint, path ltree, sort_path text, name text)'
+            )
+            cursor.execute(
+                "INSERT INTO sp_test.tree VALUES (1, NULL, NULL, NULL, 'root'), (2, 1, NULL, NULL, 'child')"
+            )
+
+            # Drop the extension's schema from the path, then run the backfill
+            cursor.execute('SET LOCAL search_path = sp_test')
+            cursor.execute(populate_paths_sql('tree', sort_path=True))
+
+            cursor.execute('SET LOCAL search_path = sp_test, public')
+            cursor.execute('SELECT id, path::text, sort_path FROM sp_test.tree ORDER BY id')
+            rows = cursor.fetchall()
+
+        self.assertEqual(rows[0][1], _path(1))
+        self.assertEqual(rows[1][1], _path(1, 2))
+        self.assertEqual(rows[1][2], 'root\tchild')

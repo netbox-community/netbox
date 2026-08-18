@@ -46,6 +46,7 @@ _PATH_LABEL_WIDTH = 19
 
 # The SQL below names the ltree type and operators unqualified, so the extension's schema has to
 # be on the search_path. Put it there here (SET LOCAL) rather than relying on the caller's path.
+# No-op when it is already on the path, which also keeps repeated emissions idempotent.
 _ENSURE_LTREE_ON_PATH = """
 SELECT set_config(
     'search_path',
@@ -53,7 +54,7 @@ SELECT set_config(
     true
 )
 FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace
-WHERE e.extname = 'ltree';
+WHERE e.extname = 'ltree' AND NOT n.nspname = ANY (current_schemas(true));
 """
 
 
@@ -72,6 +73,12 @@ def populate_paths_sql(table, *, sort_path=False):
         The UPDATE takes a row-exclusive lock on the entire table for the
         duration of the statement. On large tables this can block writes for
         minutes — plan a maintenance window accordingly.
+
+    !!! note
+        Run the returned SQL inside a transaction (as an atomic migration does). It
+        begins by adding the ltree extension's schema to the search_path with SET
+        LOCAL, which PostgreSQL discards outside a transaction block; in a migration
+        declaring `atomic = False`, ensure that schema is on the search_path instead.
     """
     if sort_path:
         return _ENSURE_LTREE_ON_PATH + f"""
