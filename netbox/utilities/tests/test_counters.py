@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import *
@@ -192,3 +193,72 @@ class CountersTestCase(TestCase):
         vc.refresh_from_db()
         self.assertEqual(device1.device_type.device_count, 2, 'device_count should decrement exactly once')
         self.assertEqual(vc.member_count, 0, 'member_count should decrement exactly once')
+
+
+class UnpinnedQuery(Exception):
+    """Raised when a query which should have been pinned to a connection is routed instead."""
+
+
+class PinnedConnectionRouter:
+    """
+    Fails any read or write of the given models which is not pinned to an explicit database alias.
+    Django consults DATABASE_ROUTERS only for queries which name no connection, so a signal handler
+    which threads through the alias supplied by the signal never reaches this router. Each test
+    leaves out the model being written, as Django routes that write itself.
+    """
+    def __init__(self, *models):
+        self.models = models
+
+    def _check(self, model, **hints):
+        if model in self.models:
+            raise UnpinnedQuery(f"{model.__name__} query was routed rather than pinned to a connection")
+
+    db_for_read = _check
+    db_for_write = _check
+
+
+class CounterConnectionTestCase(TestCase):
+    """
+    Validate that the counter cache handlers issue their queries against the connection the
+    triggering object was written to, rather than letting DATABASE_ROUTERS select one. A routed
+    query updates a counter in a different database than the one holding the change which triggered
+    it, leaving the cached count silently wrong.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Device 1')
+
+    def test_create_pins_counter_increment(self):
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device)]):
+            Interface.objects.create(device=self.device, name='Interface 1')
+
+        self.device.refresh_from_db()
+        self.assertEqual(self.device.interface_count, 1)
+
+    def test_move_pins_both_counter_updates(self):
+        other = create_test_device('Device 2')
+        interface = Interface.objects.create(device=self.device, name='Interface 1')
+
+        interface = Interface.objects.get(pk=interface.pk)
+        interface.device = other
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device)]):
+            interface.save()
+
+        self.device.refresh_from_db()
+        other.refresh_from_db()
+        self.assertEqual(self.device.interface_count, 0)
+        self.assertEqual(other.interface_count, 1)
+
+    def test_delete_pins_counter_decrement(self):
+        interface = Interface.objects.create(device=self.device, name='Interface 1')
+        self.device.refresh_from_db()
+        self.assertEqual(self.device.interface_count, 1)
+
+        # The delete itself is pinned, as Django routes an unpinned one; that leaves
+        # pre_delete_receiver's existence guard as the only Interface query in scope, and that read
+        # decides whether the decrement below happens at all.
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device, Interface)]):
+            Interface.objects.using('default').filter(pk=interface.pk).delete()
+
+        self.device.refresh_from_db()
+        self.assertEqual(self.device.interface_count, 0)
