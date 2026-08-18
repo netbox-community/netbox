@@ -353,6 +353,8 @@ class Module(TrackingModelMixin, PrimaryModel):
         if not is_new or (disable_replication and not adopt_components):
             return
 
+        using = self._state.db
+
         # Iterate all component types
         for templates, component_attribute, component_model in [
             ("consoleporttemplates", "consoleports", ConsolePort),
@@ -404,7 +406,7 @@ class Module(TrackingModelMixin, PrimaryModel):
 
             # we handle create and update separately - this is for create
             if not issubclass(component_model, MPTTModel):
-                component_model.objects.bulk_create(create_instances)
+                component_model.objects.using(using).bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object
                 for component in create_instances:
                     post_save.send(
@@ -412,7 +414,7 @@ class Module(TrackingModelMixin, PrimaryModel):
                         instance=component,
                         created=True,
                         raw=False,
-                        using='default',
+                        using=using,
                         update_fields=None
                     )
             else:
@@ -423,7 +425,7 @@ class Module(TrackingModelMixin, PrimaryModel):
             update_fields = ['module']
 
             # we handle create and update separately - this is for update
-            component_model.objects.bulk_update(update_instances, update_fields)
+            component_model.objects.using(using).bulk_update(update_instances, update_fields)
             # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(
@@ -431,7 +433,7 @@ class Module(TrackingModelMixin, PrimaryModel):
                     instance=component,
                     created=False,
                     raw=False,
-                    using='default',
+                    using=using,
                     update_fields=update_fields
                 )
 
