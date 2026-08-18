@@ -24,7 +24,7 @@ class ClusterPanel(panels.ObjectAttributesPanel):
 
 class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
-    default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
+    default_platform = attrs.NestedObjectAttr('default_platform', linkify=True, max_depth=3)
     default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
     default_memory = attrs.TemplatedAttr(
         'default_memory',
