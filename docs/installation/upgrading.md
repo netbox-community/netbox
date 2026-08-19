@@ -68,6 +68,22 @@ NetBox v4.7 and later require the PostgreSQL [`ltree` extension](https://www.pos
 
 If `ltree` is not already installed and the NetBox database user does not hold the `CREATE` privilege, grant it by invoking the PostgreSQL shell as the system Postgres user:
 
+```no-highlight
+sudo -u postgres psql
+```
+
+Then issue the following command, substituting the name of your database and user (role) where applicable:
+
+```postgresql
+GRANT CREATE ON DATABASE netbox TO netbox;
+```
+
+Alternatively, a database administrator can install the extension before upgrading:
+
+```postgresql
+CREATE EXTENSION IF NOT EXISTS ltree;
+```
+
 ## Upgrade a Release Archive or Git Installation
 
 The following procedure applies to NetBox installations created from a release archive or Git checkout. Complete the preparation steps above, then use the same installation method that was used for the existing deployment.
