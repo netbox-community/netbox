@@ -13,12 +13,13 @@ from dcim.models import (
     InterfaceTemplate,
     InventoryItemTemplate,
     ModuleBayTemplate,
+    ModuleBayType,
     PortTemplateMapping,
     PowerOutletTemplate,
     PowerPortTemplate,
     RearPortTemplate,
 )
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
@@ -405,10 +406,12 @@ class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
-    module_bay_types = ModuleBayTypeSerializer(
+    module_bay_types = SerializedPKRelatedField(
+        queryset=ModuleBayType.objects.all(),
+        serializer=ModuleBayTypeSerializer,
         nested=True,
-        many=True,
         required=False,
+        many=True
     )
 
     class Meta:

@@ -15,6 +15,7 @@ from dcim.models import (
     Interface,
     InventoryItem,
     ModuleBay,
+    ModuleBayType,
     PortMapping,
     PowerOutlet,
     PowerPort,
@@ -530,10 +531,12 @@ class ModuleBaySerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    module_bay_types = ModuleBayTypeSerializer(
+    module_bay_types = SerializedPKRelatedField(
+        queryset=ModuleBayType.objects.all(),
+        serializer=ModuleBayTypeSerializer,
         nested=True,
-        many=True,
         required=False,
+        many=True
     )
     _occupied = serializers.BooleanField(required=False, read_only=True)
     is_module_compatible = serializers.BooleanField(read_only=True)

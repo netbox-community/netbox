@@ -298,7 +298,7 @@ class ModuleTypeProfileViewSet(NetBoxModelViewSet):
 
 
 class ModuleTypeViewSet(NetBoxModelViewSet):
-    queryset = ModuleType.objects.all()
+    queryset = ModuleType.objects.prefetch_related('module_bay_types__manufacturer')
     serializer_class = serializers.ModuleTypeSerializer
     filterset_class = filtersets.ModuleTypeFilterSet
 
@@ -362,7 +362,7 @@ class RearPortTemplateViewSet(NetBoxModelViewSet):
 
 
 class ModuleBayTemplateViewSet(NetBoxModelViewSet):
-    queryset = ModuleBayTemplate.objects.all()
+    queryset = ModuleBayTemplate.objects.prefetch_related('module_bay_types__manufacturer')
     serializer_class = serializers.ModuleBayTemplateSerializer
     filterset_class = filtersets.ModuleBayTemplateFilterSet
 
@@ -545,7 +545,7 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 class ModuleBayViewSet(NetBoxModelViewSet):
     queryset = ModuleBay.objects.prefetch_related(
-        'module_bay_types',
+        'module_bay_types__manufacturer',
         'installed_module__module_type__module_bay_types',
     )
     serializer_class = serializers.ModuleBaySerializer

@@ -1510,15 +1510,25 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
         )
         ModuleType.objects.bulk_create(module_types)
 
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 2', slug='module-bay-type-2'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+        for module_type in module_types:
+            module_type.module_bay_types.set(module_bay_types)
+
         cls.create_data = [
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Module Type 4',
+                'module_bay_types': [module_bay_types[0].pk, module_bay_types[1].pk],
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Module Type 5',
                 'end_of_life': '2035-06-30',
+                'module_bay_types': [module_bay_types[0].pk],
             },
             {
                 'manufacturer': manufacturers[1].pk,
@@ -2145,15 +2155,25 @@ class ModuleBayTemplateTestCase(APIViewTestCases.APIViewTestCase):
         )
         ModuleBayTemplate.objects.bulk_create(module_bay_templates)
 
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturer, name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturer, name='Module Bay Type 2', slug='module-bay-type-2'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+        for module_bay_template in module_bay_templates:
+            module_bay_template.module_bay_types.set(module_bay_types)
+
         cls.create_data = [
             {
                 'device_type': devicetype.pk,
                 'name': 'Module Bay Template 4',
                 'enabled': False,
+                'module_bay_types': [module_bay_types[0].pk, module_bay_types[1].pk],
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Module Bay Template 5',
+                'module_bay_types': [module_bay_types[0].pk],
             },
             {
                 'device_type': devicetype.pk,
@@ -4280,15 +4300,25 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
         for module_bay in module_bays:
             module_bay.save()
 
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturer, name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturer, name='Module Bay Type 2', slug='module-bay-type-2'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+        for module_bay in module_bays:
+            module_bay.module_bay_types.set(module_bay_types)
+
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Device Bay 4',
                 'enabled': False,
+                'module_bay_types': [module_bay_types[0].pk, module_bay_types[1].pk],
             },
             {
                 'device': device.pk,
                 'name': 'Device Bay 5',
+                'module_bay_types': [module_bay_types[0].pk],
             },
             {
                 'device': device.pk,
@@ -4341,6 +4371,39 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(url, **self.header)
         self.assertHttpStatus(response, 200)
         self.assertTrue(response.data['is_module_compatible'])
+
+    def test_module_bay_types_write(self):
+        """
+        module_bay_types accepts a list of primary keys, renders as nested objects, is cleared by an
+        empty list, and rejects an unknown primary key without altering the existing assignment.
+        """
+        self.add_permissions('dcim.view_modulebay', 'dcim.change_modulebay')
+        bay_type = ModuleBayType.objects.first()
+        module_bay = self._get_queryset().first()
+        url = self._get_detail_url(module_bay)
+        self.assertEqual(module_bay.module_bay_types.count(), 2)
+
+        # Assigning by primary key replaces the existing set rather than adding to it
+        response = self.client.patch(url, {'module_bay_types': [bay_type.pk]}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertListEqual([mbt.pk for mbt in module_bay.module_bay_types.all()], [bay_type.pk])
+
+        # The response renders nested objects, not bare primary keys
+        self.assertIsInstance(response.data['module_bay_types'][0], dict)
+        self.assertEqual(response.data['module_bay_types'][0]['id'], bay_type.pk)
+        self.assertEqual(response.data['module_bay_types'][0]['name'], bay_type.name)
+
+        # An unknown primary key is rejected without altering the existing assignment
+        bad_pk = ModuleBayType.objects.order_by('pk').last().pk + 1
+        response = self.client.patch(url, {'module_bay_types': [bad_pk]}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('module_bay_types', response.data)
+        self.assertListEqual([mbt.pk for mbt in module_bay.module_bay_types.all()], [bay_type.pk])
+
+        # An empty list clears the assignment
+        response = self.client.patch(url, {'module_bay_types': []}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(module_bay.module_bay_types.count(), 0)
 
 
 class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):
