@@ -44,6 +44,28 @@ __all__ = (
 # and compare identically.
 _PATH_LABEL_WIDTH = 19
 
+# The SQL below names the ltree type and operators unqualified, so the extension's schema has to
+# be on the search_path. Put it there via set_config(..., true) — the function form of SET LOCAL —
+# rather than relying on the caller's path. Appending is a no-op when the schema is already on the
+# path, which also keeps repeated emissions idempotent.
+_ENSURE_LTREE_ON_PATH = """
+SELECT set_config('netbox.ltree_prior_search_path', current_setting('search_path'), true);
+SELECT set_config(
+    'search_path',
+    concat_ws(',', NULLIF(current_setting('search_path'), ''), quote_ident(n.nspname)),
+    true
+)
+FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace
+WHERE e.extname = 'ltree' AND NOT n.nspname = ANY (current_schemas(true));
+"""
+
+# SET LOCAL persists to the end of the transaction, so restore the caller's value once the
+# ltree-dependent statements are done: a caller which narrows search_path to isolate unqualified
+# names must not have it left widened for the operations which follow.
+_RESTORE_SEARCH_PATH = """
+SELECT set_config('search_path', current_setting('netbox.ltree_prior_search_path'), true);
+"""
+
 
 def populate_paths_sql(table, *, sort_path=False):
     """
@@ -60,9 +82,15 @@ def populate_paths_sql(table, *, sort_path=False):
         The UPDATE takes a row-exclusive lock on the entire table for the
         duration of the statement. On large tables this can block writes for
         minutes — plan a maintenance window accordingly.
+
+    !!! note
+        Run this inside a transaction, as an atomic migration does. The statements are
+        bracketed by set_config(..., true) — i.e. SET LOCAL — calls which put the ltree
+        extension's schema on the search_path and then restore the caller's value;
+        PostgreSQL discards SET LOCAL outside a transaction block.
     """
     if sort_path:
-        return f"""
+        return _ENSURE_LTREE_ON_PATH + f"""
 WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
     SELECT id, parent_id,
            lpad(id::text, {_PATH_LABEL_WIDTH}, '0')::ltree,
@@ -76,8 +104,8 @@ WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
 )
 UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
 FROM t WHERE "{table}".id = t.id;
-"""
-    return f"""
+""" + _RESTORE_SEARCH_PATH
+    return _ENSURE_LTREE_ON_PATH + f"""
 WITH RECURSIVE t(id, parent_id, path) AS (
     SELECT id, parent_id, lpad(id::text, {_PATH_LABEL_WIDTH}, '0')::ltree
     FROM "{table}" WHERE parent_id IS NULL
@@ -86,7 +114,7 @@ WITH RECURSIVE t(id, parent_id, path) AS (
     FROM "{table}" r JOIN t ON r.parent_id = t.id
 )
 UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
-"""
+""" + _RESTORE_SEARCH_PATH
 
 
 def assert_paths_populated_sql(table):
