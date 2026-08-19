@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.models import DeviceType, ModuleBayType, ModuleType, ModuleTypeProfile
-from netbox.api.fields import AttributesField, ChoiceField
+from netbox.api.fields import AttributesField, ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
 
@@ -104,10 +104,12 @@ class ModuleTypeSerializer(PrimaryModelSerializer):
     manufacturer = ManufacturerSerializer(
         nested=True
     )
-    module_bay_types = ModuleBayTypeSerializer(
+    module_bay_types = SerializedPKRelatedField(
+        queryset=ModuleBayType.objects.all(),
+        serializer=ModuleBayTypeSerializer,
         nested=True,
-        many=True,
         required=False,
+        many=True
     )
     weight_unit = ChoiceField(
         choices=WeightUnitChoices,
