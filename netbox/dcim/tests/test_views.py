@@ -16,7 +16,7 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.models import ConfigTemplate
+from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
@@ -2540,6 +2540,54 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(url, {'config_template_id': override_template.pk})
         self.assertHttpStatus(response, 200)
         self.assertIn(b'Error rendering template', response.content)
+
+    def test_device_configcontext_is_not_cacheable(self):
+        """
+        The config context tab renders the merged context data, which may contain sensitive
+        values, so the response must not be cached by the browser.
+        """
+        ConfigContext.objects.create(name='Config Context 1', data={'password': 'super-secret-password'})
+        device = Device.objects.first()
+
+        self.add_permissions('dcim.view_device', 'extras.view_configcontext')
+        url = reverse('dcim:device_configcontext', kwargs={'pk': device.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+    def test_device_renderconfig_is_not_cacheable(self):
+        """
+        The render config tab renders the config template with context data substituted into it,
+        which may contain sensitive values, so the response must not be cached by the browser.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='enable secret super-secret-password'
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the rendered config is in fact present in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+        # The direct export of the rendered config must not be cached either
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'super-secret-password', response.content)
+        self.assertNotCacheable(response)
 
     def test_device_role_display_colored(self):
         parent_role = DeviceRole.objects.create(name='Parent Role', slug='parent-role', color='111111')
