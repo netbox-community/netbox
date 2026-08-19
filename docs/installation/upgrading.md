@@ -61,22 +61,12 @@ NetBox requires the following dependencies:
 
 ## Verify Database Permissions
 
-NetBox v4.7 and later require the PostgreSQL [`ltree` extension](https://www.postgresql.org/docs/current/ltree.html), which NetBox installs automatically when applying database migrations. Installing an extension requires that the NetBox database user hold the `CREATE` privilege on the database; without it, the upgrade will fail with a permission error while migrating.
-
-Before upgrading to NetBox v4.7 or later, grant the privilege by invoking the PostgreSQL shell as the system Postgres user:
-
-```no-highlight
-sudo -u postgres psql
-```
-
-Then issue the following command, substituting the name of your database and user (role) where applicable:
-
-```postgresql
-GRANT CREATE ON DATABASE netbox TO netbox;
-```
+NetBox v4.7 and later require the PostgreSQL [`ltree` extension](https://www.postgresql.org/docs/current/ltree.html). NetBox installs this extension automatically when applying database migrations if it is not already present. Installing it requires that the NetBox database user hold the `CREATE` privilege on the database.
 
 !!! note
-    The database owner already holds this privilege implicitly, so this step is unnecessary if your NetBox user owns the NetBox database. (`ltree` is a trusted module which ships with PostgreSQL; activating it does not require superuser permission.)
+    Installations created using NetBox's PostgreSQL setup instructions already satisfy this requirement because those instructions make the NetBox user the database owner. No additional grant is needed for these installations.
+
+If `ltree` is not already installed and the NetBox database user does not hold the `CREATE` privilege, grant it by invoking the PostgreSQL shell as the system Postgres user:
 
 ## Upgrade a Release Archive or Git Installation
 

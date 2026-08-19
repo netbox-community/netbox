@@ -9,7 +9,7 @@
     This release of NetBox drops support for PostgreSQL 14.
 
 !!! warning "PostgreSQL ltree Extension Required"
-    The PostgreSQL database must support the [ltree extension](https://www.postgresql.org/docs/current/ltree.html). This is a trusted module which ships with PostgreSQL and does not require superuser permission to activate. It will be installed automatically upon upgrade, however the NetBox database user must hold the `CREATE` privilege on the database (i.e. `GRANT CREATE ON DATABASE netbox TO netbox;`) in order for this to succeed. See [Verify Database Permissions](../installation/upgrading.md#verify-database-permissions) for details.
+    The PostgreSQL database must support the [ltree extension](https://www.postgresql.org/docs/current/ltree.html). This trusted module ships with PostgreSQL and does not require superuser permission to activate. NetBox will install it automatically during the upgrade if it is not already present. This requires the NetBox database user to hold the `CREATE` privilege on the database. Installations created using NetBox's standard PostgreSQL setup instructions already satisfy this requirement because the NetBox user owns the database. See [Verify Database Permissions](../installation/upgrading.md#verify-database-permissions) for details.
 
 !!! warning "Redis 6.0 or Later Required"
     This release of NetBox drops support for Redis 5.x.
