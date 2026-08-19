@@ -70,3 +70,15 @@ body:
       placeholder: A TypeError exception was raised
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: Suspected Cause
+      description: >
+        If you have identified the likely root cause(s), please detail your findings
+        here (optional).
+  - type: textarea
+    attributes:
+      label: Proposed Fix
+      description: >
+        If you would like to propose a specific fix likely to resolve this issue, please
+        describe it here (optional).
