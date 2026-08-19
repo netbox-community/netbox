@@ -1853,6 +1853,47 @@ module-bays:
         self.assertGreater(len(rows), 1)
         self.assertEqual(len(rows) - 1, ModuleType.objects.count())
 
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.change_moduletype',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_types = list(
+            ModuleType.objects.filter(model__in=('Module Type 2', 'Module Type 3')).order_by('pk')
+        )
+        for module_type, kept_type in zip(module_types, kept_types):
+            module_type.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_type.pk for module_type in module_types]
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_type, kept_type in zip(module_types, kept_types):
+            self.assertEqual(
+                set(module_type.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
+
 
 class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = ModuleTypeProfile
@@ -2273,6 +2314,56 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         cls.bulk_edit_data = {
             'description': 'Foo bar',
         }
+
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_modulebaytemplate',
+            'dcim.change_modulebaytemplate',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_bay_templates = list(ModuleBayTemplate.objects.order_by('pk')[:2])
+        for module_bay_template, kept_type in zip(module_bay_templates, kept_types):
+            module_bay_template.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_bay_template.pk for module_bay_template in module_bay_templates]
+
+        # The reported symptom: both controls must appear on the bulk-edit form
+        response = self.client.post(self._get_url('bulk_edit'), {'pk': pk_list})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Add bay types')
+        self.assertContains(response, 'Remove bay types')
+
+        # Declaring fieldsets switches the template to its grouped branch, which must keep
+        # annotating the nullable fields
+        self.assertContains(response, 'id="nullify_id_label"')
+        self.assertContains(response, 'id="nullify_id_description"')
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_bay_template, kept_type in zip(module_bay_templates, kept_types):
+            self.assertEqual(
+                set(module_bay_template.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
 
 
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
@@ -4176,6 +4267,45 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
         self.assertEqual(initial_count + 8, self._get_queryset().count())
+
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_modulebay',
+            'dcim.change_modulebay',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_bays = list(ModuleBay.objects.order_by('pk')[:2])
+        for module_bay, kept_type in zip(module_bays, kept_types):
+            module_bay.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_bay.pk for module_bay in module_bays]
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_bay, kept_type in zip(module_bays, kept_types):
+            self.assertEqual(
+                set(module_bay.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
 
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):

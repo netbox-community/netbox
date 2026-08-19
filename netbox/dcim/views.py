@@ -2626,6 +2626,17 @@ class ModuleBayTemplateBulkEditView(generic.BulkEditView):
     table = tables.ModuleBayTemplateTable
     form = forms.ModuleBayTemplateBulkEditForm
 
+    def post_save_operations(self, form, obj):
+        # Unlike the ModuleType and ModuleBay editors, no compatibility warning: a template
+        # has no installed module to invalidate.
+        super().post_save_operations(form, obj)
+        add = form.cleaned_data.get('add_module_bay_types')
+        remove = form.cleaned_data.get('remove_module_bay_types')
+        if add:
+            obj.module_bay_types.add(*add)
+        if remove:
+            obj.module_bay_types.remove(*remove)
+
 
 @register_model_view(ModuleBayTemplate, 'bulk_rename', path='rename', detail=False)
 class ModuleBayTemplateBulkRenameView(generic.BulkRenameView):

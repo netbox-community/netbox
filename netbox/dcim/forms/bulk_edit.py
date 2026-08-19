@@ -1601,7 +1601,21 @@ class ModuleBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect,
     )
+    add_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Add bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+    remove_module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Remove bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
 
+    fieldsets = (
+        FieldSet('label', 'enabled', 'description'),
+        FieldSet('add_module_bay_types', 'remove_module_bay_types', name=_('Bay Types')),
+    )
     nullable_fields = ('label', 'position', 'description')
 
 
