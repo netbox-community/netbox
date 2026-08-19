@@ -42,6 +42,7 @@ NetBox requires the following dependencies:
 
 | NetBox Version | Python min | Python max | PostgreSQL min | Redis min |                                       Documentation                                       |
 |:--------------:|:----------:|:----------:|:--------------:|:---------:|:-----------------------------------------------------------------------------------------:|
+|      4.7       |    3.12    |    3.14    |       15       |    6.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.7.0/docs/installation/index.md) |
 |      4.6       |    3.12    |    3.14    |       14       |    5.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.6.0/docs/installation/index.md) |
 |      4.5       |    3.12    |    3.14    |       14       |    5.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.5.0/docs/installation/index.md) |
 |      4.4       |    3.10    |    3.12    |       14       |    5.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.4.0/docs/installation/index.md) |
@@ -57,6 +58,31 @@ NetBox requires the following dependencies:
 |      3.2       |    3.8     |    3.10    |       10       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.2.0/docs/installation/index.md) |
 |      3.1       |    3.7     |    3.9     |       10       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.1.0/docs/installation/index.md) |
 |      3.0       |    3.7     |    3.9     |      9.6       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v3.0.0/docs/installation/index.md) |
+
+## Verify Database Permissions
+
+NetBox v4.7 and later require the PostgreSQL [`ltree` extension](https://www.postgresql.org/docs/current/ltree.html). NetBox installs this extension automatically when applying database migrations if it is not already present. Installing it requires that the NetBox database user hold the `CREATE` privilege on the database.
+
+!!! note
+    Installations created using NetBox's PostgreSQL setup instructions already satisfy this requirement because those instructions make the NetBox user the database owner. No additional grant is needed for these installations.
+
+If `ltree` is not already installed and the NetBox database user does not hold the `CREATE` privilege, grant it by invoking the PostgreSQL shell as the system Postgres user:
+
+```no-highlight
+sudo -u postgres psql
+```
+
+Then issue the following command, substituting the name of your database and user (role) where applicable:
+
+```postgresql
+GRANT CREATE ON DATABASE netbox TO netbox;
+```
+
+Alternatively, a database administrator can install the extension before upgrading:
+
+```postgresql
+CREATE EXTENSION IF NOT EXISTS ltree;
+```
 
 ## Upgrade a Release Archive or Git Installation
 
