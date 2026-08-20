@@ -11,8 +11,11 @@ __all__ = (
 
 class NetBoxTaggableManager(_TaggableManager):
     """
-    Extends taggit's _TaggableManager to replace the per-tag get_or_create loop in add() with a
-    single bulk_create() call, reducing SQL queries from O(N) to O(1) when assigning tags.
+    Extends taggit's _TaggableManager to:
+
+    * Replace the per-tag get_or_create loop in add() with a single bulk_create() call, reducing
+      SQL queries from O(N) to O(1) when assigning tags.
+    * Implement set_base(), the M2M assignment entry point Django's deserializer calls.
     """
 
     @require_instance_manager
@@ -66,6 +69,21 @@ class NetBoxTaggableManager(_TaggableManager):
             pk_set=new_ids,
             using=db,
         )
+
+    @require_instance_manager
+    def set_base(self, objs, *, clear=False, through_defaults=None, raw=False):
+        # Django's deserializer assigns M2M data through this method, passing primary keys;
+        # taggit's set() takes only Tag instances or names. Keys which match no tag are passed
+        # through for the database to reject, as ManyRelatedManager.set_base() does.
+        tag_model = self.through.tag_model()
+        if pks := [obj for obj in objs if not isinstance(obj, (tag_model, str))]:
+            db = router.db_for_write(self.through, instance=self.instance)
+            tags = tag_model._default_manager.using(db).in_bulk(pks)
+            objs = [
+                obj if isinstance(obj, (tag_model, str)) else tags.get(obj) or tag_model(pk=obj)
+                for obj in objs
+            ]
+        return self.set(objs, clear=clear, through_defaults=through_defaults)
 
 
 class NetBoxTaggableManagerField(TaggableManager):
