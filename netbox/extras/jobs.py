@@ -5,9 +5,13 @@ from contextlib import ExitStack
 from django.apps import apps
 from django.db import DEFAULT_DB_ALIAS, router, transaction
 from django.utils.translation import gettext as _
+from django_pg_utils import advisory_lock
 
 from core.signals import clear_events
 from dcim.models import Device
+from extras.choices import CustomFieldStatusChoices
+from extras.constants import CUSTOMFIELD_JOB_TIMEOUT
+from extras.models import CustomField
 from extras.models import Script as ScriptModel
 from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
@@ -15,6 +19,21 @@ from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
 
 from .utils import is_report
+
+__all__ = (
+    'CustomFieldDataJob',
+    'CustomFieldProvisioningJob',
+    'CustomFieldPurgeJob',
+    'RenderConfigContextJob',
+    'ScriptJob',
+    'provision_custom_field',
+    'purge_custom_field',
+)
+
+
+#
+# Config contexts
+#
 
 RENDER_CONFIG_CONTEXT_CHUNK_SIZE = 500
 
@@ -106,6 +125,138 @@ class RenderConfigContextJob(JobRunner):
             rendered += updated
 
         return rendered
+
+
+#
+# Custom fields
+#
+
+
+def provision_custom_field(pk, object_type_pks):
+    """
+    Populate a new custom field's default value across the objects of the given types, then bring
+    the field live. Returns True if the field was brought live.
+
+    The backfill is committed in batches, so an interruption leaves the field provisioning with some
+    of its objects already updated. Running again completes it.
+
+    Args:
+        pk: The primary key of the CustomField to provision
+        object_type_pks: The primary keys of the object types to provision. Named explicitly, as
+            only the caller which deferred the work knows which of the field's assignments are the
+            new ones.
+    """
+    # Taken on the connection the field is written on, as CustomField.delete() takes it, so that
+    # the two are actually exclusive of one another.
+    using = router.db_for_write(CustomField)
+    with advisory_lock(CustomField.data_lock_key(pk), using=using):
+
+        # Rechecked now that the lock is held: where two jobs were enqueued for the same field,
+        # whichever arrived first has left it in a state the other no longer matches.
+        custom_field = CustomField.objects.filter(pk=pk, status=CustomFieldStatusChoices.STATUS_PROVISIONING).first()
+        if custom_field is None:
+            return False
+
+        # Restricted to the field's current assignments: a type unassigned since the job was
+        # enqueued must not be provisioned, its data having been removed by remove_data(). That
+        # method refuses an unassignment while the field is being provisioned, so this covers only
+        # a change made without it -- through the m2m table directly, which emits no signal.
+        object_types = custom_field.object_types.filter(pk__in=object_type_pks)
+        custom_field.populate_initial_data(object_types, commit_per_batch=True)
+
+        # Applied via the queryset so that bringing the field live does not record a change of its
+        # own, and cannot trip the guard in CustomField.clean().
+        activated = CustomField.objects.filter(
+            pk=pk, status=CustomFieldStatusChoices.STATUS_PROVISIONING
+        ).update(status=CustomFieldStatusChoices.STATUS_ACTIVE)
+        CustomField.objects.clear_cache()
+
+    return bool(activated)
+
+
+def purge_custom_field(pk):
+    """
+    Remove a deleted custom field's data from all applicable objects, then remove the field itself.
+    Returns True if the field was purged.
+
+    The row is dropped only once its data is gone: until then it reserves the field's name against a
+    new field which would otherwise inherit the orphaned values. The removal is committed in batches,
+    so an interruption leaves data behind for a later run to finish removing.
+
+    Args:
+        pk: The primary key of the CustomField to purge
+    """
+    # Taken on the connection the field is written on, as CustomField.delete() takes it, so that
+    # the two are actually exclusive of one another.
+    using = router.db_for_write(CustomField)
+    with advisory_lock(CustomField.data_lock_key(pk), using=using):
+
+        # Rechecked now that the lock is held: where two jobs were enqueued for the same field,
+        # whichever arrived first has left it in a state the other no longer matches.
+        custom_field = CustomField.objects.filter(pk=pk, status=CustomFieldStatusChoices.STATUS_DELETING).first()
+        if custom_field is None:
+            return False
+
+        custom_field.remove_stale_data(custom_field.object_types.all(), commit_per_batch=True)
+        custom_field._delete_row()
+
+    return True
+
+
+class CustomFieldDataJob(JobRunner):
+    """
+    Base class for the jobs which rewrite a custom field's stored data in bulk.
+
+    The field is passed by primary key rather than assigned to the job as its object. Job.clean()
+    permits only models with the jobs feature there, and granting CustomField that feature would
+    give it a cascading relation to its jobs -- so the purge job, whose last act is to remove the
+    row, would delete the record of its own execution as it ran.
+    """
+    @classmethod
+    def enqueue_for(cls, custom_field, **kwargs):
+        """
+        Enqueue this job for the given custom field, naming the field in the job's name and raising
+        its timeout from the default (see CUSTOMFIELD_JOB_TIMEOUT).
+        """
+        return cls.enqueue(
+            name=f'{cls.name}: {custom_field}',
+            custom_field_pk=custom_field.pk,
+            job_timeout=CUSTOMFIELD_JOB_TIMEOUT,
+            **kwargs,
+        )
+
+
+class CustomFieldProvisioningJob(CustomFieldDataJob):
+    """
+    Populate the default value of a newly created custom field.
+    """
+    class Meta:
+        name = 'Custom Field Provisioning'
+
+    def run(self, custom_field_pk, *args, object_type_pks, **kwargs):
+        if provision_custom_field(custom_field_pk, object_type_pks):
+            self.logger.info("Custom field provisioned")
+        else:
+            self.logger.info("Custom field is no longer awaiting provisioning; skipping")
+
+
+class CustomFieldPurgeJob(CustomFieldDataJob):
+    """
+    Purge the stored data of a deleted custom field, then delete the field.
+    """
+    class Meta:
+        name = 'Custom Field Purge'
+
+    def run(self, custom_field_pk, *args, **kwargs):
+        if purge_custom_field(custom_field_pk):
+            self.logger.info("Custom field data purged")
+        else:
+            self.logger.info("Custom field is no longer awaiting deletion; skipping")
+
+
+#
+# Scripts
+#
 
 
 class ScriptJob(JobRunner):

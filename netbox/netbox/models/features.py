@@ -222,12 +222,12 @@ class CustomFieldsMixin(models.Model):
     @cached_property
     def custom_fields(self):
         """
-        Return the QuerySet of CustomFields assigned to this model.
+        Return the list of CustomFields assigned to this model.
 
         ```python
         >>> tenant = Tenant.objects.first()
         >>> tenant.custom_fields
-        <RestrictedQuerySet [<CustomField: Primary site>, <CustomField: Customer ID>, <CustomField: Is active>]>
+        [<CustomField: Primary site>, <CustomField: Customer ID>, <CustomField: Is active>]
         ```
         """
         from extras.models import CustomField
@@ -277,9 +277,10 @@ class CustomFieldsMixin(models.Model):
         """
         from extras.models import CustomField
         groups = defaultdict(dict)
-        visible_custom_fields = CustomField.objects.get_for_model(self).exclude(
-            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
-        )
+        visible_custom_fields = [
+            cf for cf in CustomField.objects.get_for_model(self)
+            if cf.ui_visible != CustomFieldUIVisibleChoices.HIDDEN
+        ]
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
@@ -290,38 +291,43 @@ class CustomFieldsMixin(models.Model):
 
         return dict(groups)
 
-    def populate_custom_field_defaults(self):
-        """
-        Apply the default value for each custom field
-        """
-        for cf in self.custom_fields:
-            self.custom_field_data[cf.name] = cf.default
-    populate_custom_field_defaults.alters_data = True
-
     def clean(self):
         super().clean()
         from extras.models import CustomField
 
+        # Fields still being provisioned are fetched alongside the active ones, but are not live:
+        # their stored data belongs to the job acting on it, so it is neither validated below nor
+        # pruned as stale -- while remaining subject to the defaults applied in save(), which draws
+        # on this same set of statuses. Only active fields are validated or enforced as required.
+        assigned_fields = CustomField.objects.get_for_model(
+            self, statuses=CustomFieldStatusChoices.DATA_STATUSES
+        )
         custom_fields = {
-            cf.name: cf for cf in CustomField.objects.get_for_model(self)
+            cf.name: cf for cf in assigned_fields
+            if cf.status == CustomFieldStatusChoices.STATUS_ACTIVE
         }
 
         # Remove any stale custom field data
+        assigned_names = {cf.name for cf in assigned_fields}
         self.custom_field_data = {
-            k: v for k, v in self.custom_field_data.items() if k in custom_fields.keys()
+            k: v for k, v in self.custom_field_data.items() if k in assigned_names
         }
 
         # Validate all field values
         for field_name, value in self.custom_field_data.items():
+            if (cf := custom_fields.get(field_name)) is None:
+                # The field is not live; its value is left to the job which is provisioning it
+                continue
+
             try:
-                custom_fields[field_name].validate(value)
+                cf.validate(value)
             except ValidationError as e:
                 raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
                     name=field_name, error=e.message
                 ))
 
             # Validate uniqueness if enforced
-            if custom_fields[field_name].unique and value not in CUSTOMFIELD_EMPTY_VALUES:
+            if cf.unique and value not in CUSTOMFIELD_EMPTY_VALUES:
                 if self._meta.model.objects.exclude(pk=self.pk).filter(**{
                     f'custom_field_data__{field_name}': value
                 }).exists():
@@ -337,10 +343,13 @@ class CustomFieldsMixin(models.Model):
     def save(self, *args, **kwargs):
         from extras.models import CustomField
 
-        # Populate default values for custom fields not already present in the object data
-        for cf in CustomField.objects.get_for_model(self):
-            if cf.name not in self.custom_field_data and cf.default is not None:
-                self.custom_field_data[cf.name] = cf.default
+        # Populate default values for custom fields not already present in the object data. This
+        # covers fields still being provisioned as well as active ones, so that an object created
+        # while a new field is being backfilled does not miss its default (see
+        # CustomFieldManager.get_defaults_for_model()).
+        for name, default in CustomField.objects.get_defaults_for_model(self).items():
+            if name not in self.custom_field_data:
+                self.custom_field_data[name] = default
 
         super().save(*args, **kwargs)
 

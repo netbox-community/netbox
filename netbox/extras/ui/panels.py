@@ -126,6 +126,7 @@ class CustomFieldPanel(panels.ObjectAttributesPanel):
     title = _('Custom Field')
 
     name = attrs.TextAttr('name')
+    status = attrs.ChoiceAttr('status')
     type = attrs.TemplatedAttr('type', label=_('Type'), template_name='extras/customfield/attrs/type.html')
     label = attrs.TextAttr('label')
     group_name = attrs.TextAttr('group_name', label=_('Group name'))

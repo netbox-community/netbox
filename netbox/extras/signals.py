@@ -1,9 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import m2m_changed, post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete
 from django.dispatch import receiver
 
 from core.events import *
 from core.signals import job_end, job_start
+from extras.choices import CustomFieldStatusChoices
 from extras.events import EventContext, process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
@@ -33,26 +34,31 @@ def handle_cf_object_types_changed(instance, action, pk_set, reverse, **kwargs):
     Only the forward direction is handled: every action below operates on the CustomField, whereas
     the reverse of this relation (ContentType.custom_fields) reports the ContentType as the sender's
     instance. Nothing in NetBox assigns object types that way.
+
+    Both unassignment actions are handled before the fact, so that remove_data() refusing the change
+    precedes the removal of the assignments themselves. Django wraps each of these operations in a
+    transaction, so the refusal would roll the removal back in any case -- but only where the caller
+    left that transaction to it.
     """
-    if reverse or action not in ('pre_clear', 'post_add', 'post_remove'):
+    if reverse or action not in ('pre_clear', 'post_add', 'pre_remove'):
         return
 
     if action == 'pre_clear':
-        # clear() unassigns every object type at once. It must be handled before the fact: no
-        # pk_set is reported for a clear, so the assignments have to be read while they still
-        # exist. (Note that set() diffs via remove()/add() by default, so it does not land here.)
-        instance.remove_stale_data(instance.object_types.all())
+        # clear() unassigns every object type at once, and reports no pk_set, so the assignments
+        # have to be read while they still exist. (Note that set() diffs via remove()/add() by
+        # default, so it does not land here.)
+        instance.remove_data(instance.object_types.all())
         return
 
     object_types = ContentType.objects.filter(pk__in=pk_set)
 
     if action == 'post_add':
-        # Populate the field's default value (if any) on all existing objects
-        instance.populate_initial_data(object_types)
-
+        # Populate the field's default value (if any) on the existing objects of the types just
+        # assigned.
+        instance.provision_data(object_types)
     else:
-        # Remove the field's stored data from objects to which it no longer applies
-        instance.remove_stale_data(object_types)
+        # Remove the field's stored data from objects to which it no longer applies.
+        instance.remove_data(object_types)
 
 
 def handle_cf_renamed(instance, created, **kwargs):
@@ -66,13 +72,40 @@ def handle_cf_renamed(instance, created, **kwargs):
 def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
+
+    A field already marked for deletion is skipped: its data is too voluminous to purge inline, and
+    CustomFieldPurgeJob is removing it (see CustomField.delete()).
     """
-    instance.remove_stale_data(instance.object_types.all())
+    if instance.status != CustomFieldStatusChoices.STATUS_DELETING:
+        instance.remove_stale_data(instance.object_types.all())
+
+
+def handle_cf_cache_invalidation(action=None, **kwargs):
+    """
+    Discard the custom fields cached for the current request whenever one is created, modified,
+    deleted, or (un)assigned from an object type.
+
+    The cache spans the whole of a request -- and the whole of a script or job run, which share one
+    for their entire duration -- so without this a field created or changed partway through would be
+    served from what was read before it, to everything which followed.
+
+    A field's status is written via the queryset and so reaches none of these signals; the paths
+    which write it clear the cache themselves (see CustomFieldManager.clear_cache).
+    """
+    # m2m_changed fires either side of the change; clear once it has actually been applied.
+    if action is not None and not action.startswith('post_'):
+        return
+
+    CustomField.objects.clear_cache()
 
 
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
 m2m_changed.connect(handle_cf_object_types_changed, sender=CustomField.object_types.through)
+
+post_save.connect(handle_cf_cache_invalidation, sender=CustomField)
+post_delete.connect(handle_cf_cache_invalidation, sender=CustomField)
+m2m_changed.connect(handle_cf_cache_invalidation, sender=CustomField.object_types.through)
 
 
 #

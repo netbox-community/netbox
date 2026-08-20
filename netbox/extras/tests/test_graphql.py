@@ -6,9 +6,9 @@ from rest_framework import status
 from core.events import OBJECT_CREATED
 from core.models import ObjectType
 from dcim.models import Site
-from extras.choices import EventRuleActionChoices
+from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices, EventRuleActionChoices
 from extras.graphql.enums import EventRuleActionEnum
-from extras.models import EventRule, Webhook
+from extras.models import CustomField, EventRule, Webhook
 from utilities.testing import APITestCase
 
 
@@ -54,3 +54,31 @@ class EventRuleActionEnumTestCase(APITestCase):
         self.assertNotIn('errors', data)
         names = {rule['name'] for rule in data['data']['event_rule_list']}
         self.assertEqual(names, {'GraphQL Enum Webhook Rule'})
+
+
+class CustomFieldStatusFilterTestCase(APITestCase):
+    """A field which is not live is invisible everywhere else, so its status must be queryable."""
+
+    def test_filter_custom_fields_by_status(self):
+        site_type = ObjectType.objects.get_for_model(Site)
+        for name, status_ in (
+            ('graphql_active_field', CustomFieldStatusChoices.STATUS_ACTIVE),
+            ('graphql_provisioning_field', CustomFieldStatusChoices.STATUS_PROVISIONING),
+        ):
+            custom_field = CustomField.objects.create(type=CustomFieldTypeChoices.TYPE_TEXT, name=name)
+            custom_field.object_types.set([site_type])
+            # Applied via the queryset, as CustomField.status is not directly writable
+            CustomField.objects.filter(pk=custom_field.pk).update(status=status_)
+
+        self.add_permissions('extras.view_customfield')
+        url = reverse('graphql')
+        query = '{custom_field_list(filters: {status: {exact: STATUS_PROVISIONING}}) {name status}}'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            [(cf['name'], cf['status']) for cf in data['data']['custom_field_list']],
+            [('graphql_provisioning_field', CustomFieldStatusChoices.STATUS_PROVISIONING)]
+        )

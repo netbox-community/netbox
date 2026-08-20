@@ -20,6 +20,8 @@ The maximum number of rows to affect in a single SQL `UPDATE` statement when Net
 
 Must be a positive integer, or `None` to disable chunking and issue each bulk update as a single unbounded statement.
 
+This parameter also determines when a custom field operation is deferred to a background job: creating a field with a default value, or deleting a field, is performed within the request only where the field's assigned object types hold no more than this many objects in total (see [field status](../customization/custom-fields.md#field-status)). Setting it to `None` therefore defers every such operation which affects any object.
+
 ```python
 BULK_UPDATE_CHUNK_SIZE = 5000
 ```
