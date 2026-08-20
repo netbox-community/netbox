@@ -1,3 +1,5 @@
+from contextlib import nullcontext
+
 from django.conf import settings
 from django.db import router, transaction
 from django.db.models import Max, Prefetch, QuerySet
@@ -12,7 +14,7 @@ __all__ = (
 )
 
 
-def chunked_update(queryset, chunk_size=None, **kwargs):
+def chunked_update(queryset, chunk_size=None, commit_per_batch=False, **kwargs):
     """
     Perform a bulk UPDATE on the given queryset, optionally splitting it into batches of at most
     `chunk_size` rows. Bounding the number of rows touched by each statement avoids exceeding the
@@ -28,6 +30,12 @@ def chunked_update(queryset, chunk_size=None, **kwargs):
     :param queryset: The QuerySet identifying the rows to update
     :param chunk_size: The maximum number of rows to update per statement (defaults to
         settings.BULK_UPDATE_CHUNK_SIZE)
+    :param commit_per_batch: Commit each batch independently rather than wrapping them all in a
+        single transaction, forfeiting the atomicity described above. Postgres holds a row lock on
+        every row updated until the transaction commits, which for a long-running job spanning a
+        large table means blocking concurrent edits for its whole run, so such callers commit as
+        they go. Only for updates which can safely be resumed, and only outside an enclosing atomic
+        block, which owns the commit regardless.
     """
     if chunk_size is None:
         chunk_size = settings.BULK_UPDATE_CHUNK_SIZE
@@ -48,7 +56,7 @@ def chunked_update(queryset, chunk_size=None, **kwargs):
     # Upper bound on the PKs to process. Established lazily (see below) only once a second batch is
     # known to be needed, so the common single-batch case incurs no extra aggregate query.
     max_pk = None
-    with transaction.atomic(using=using):
+    with nullcontext() if commit_per_batch else transaction.atomic(using=using):
         while True:
             batch = queryset.using(using).filter(pk__gt=last_pk).order_by('pk')
             if max_pk is not None:

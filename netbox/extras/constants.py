@@ -6,6 +6,15 @@ from extras.choices import LogLevelChoices
 # Custom fields
 CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 
+# Timeout (in seconds) applied to the background jobs which provision and purge custom field data.
+# These jobs exist precisely because the work is too large for the request which triggered it, so
+# the default RQ timeout -- being of the same order as the request timeout being escaped -- would
+# reimpose the limit they were introduced to avoid. A timeout is recoverable, as each job commits
+# its batches independently and both are idempotent, but it leaves the field pending until the
+# housekeeping backstop next runs. Three hours is well beyond what a batched update of any real
+# table takes, while still releasing a worker blocked on an unresponsive database.
+CUSTOMFIELD_JOB_TIMEOUT = 10800
+
 # ImageAttachment
 IMAGE_ATTACHMENT_IMAGE_FORMATS = {
     'avif': 'image/avif',
