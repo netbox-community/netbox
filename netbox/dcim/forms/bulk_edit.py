@@ -989,7 +989,7 @@ class PowerFeedBulkEditForm(PrimaryModelBulkEditForm):
         FieldSet('power_panel', 'rack', 'status', 'type', 'mark_connected', 'description', 'tenant'),
         FieldSet('supply', 'phase', 'voltage', 'amperage', 'max_utilization', name=_('Power'))
     )
-    nullable_fields = ('location', 'tenant', 'description', 'comments')
+    nullable_fields = ('rack', 'tenant', 'description', 'comments')
 
 
 #
@@ -1013,6 +1013,10 @@ class ConsolePortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     type = forms.ChoiceField(
         label=_('Type'),
         choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
         required=False
     )
 
@@ -1247,6 +1251,11 @@ class ModuleBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         max_length=64,
         required=False
     )
+    position = forms.CharField(
+        label=_('Position'),
+        max_length=30,
+        required=False
+    )
     description = forms.CharField(
         label=_('Description'),
         required=False
@@ -1305,6 +1314,11 @@ class InventoryItemTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    part_id = forms.CharField(
+        label=_('Part ID'),
+        max_length=50,
         required=False
     )
 
