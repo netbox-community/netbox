@@ -220,7 +220,7 @@ class CustomFieldsMixin(models.Model):
         ```python
         >>> tenant = Tenant.objects.first()
         >>> tenant.custom_fields
-        <RestrictedQuerySet [<CustomField: Primary site>, <CustomField: Customer ID>, <CustomField: Is active>]>
+        [<CustomField: Primary site>, <CustomField: Customer ID>, <CustomField: Is active>]
         ```
         """
         from extras.models import CustomField
@@ -270,9 +270,10 @@ class CustomFieldsMixin(models.Model):
         """
         from extras.models import CustomField
         groups = defaultdict(dict)
-        visible_custom_fields = CustomField.objects.get_for_model(self).exclude(
-            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
-        )
+        visible_custom_fields = [
+            cf for cf in CustomField.objects.get_for_model(self)
+            if cf.ui_visible != CustomFieldUIVisibleChoices.HIDDEN
+        ]
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
@@ -330,10 +331,13 @@ class CustomFieldsMixin(models.Model):
     def save(self, *args, **kwargs):
         from extras.models import CustomField
 
-        # Populate default values for custom fields not already present in the object data
-        for cf in CustomField.objects.get_for_model(self):
-            if cf.name not in self.custom_field_data and cf.default is not None:
-                self.custom_field_data[cf.name] = cf.default
+        # Populate default values for custom fields not already present in the object data. This
+        # covers fields still being provisioned as well as active ones, so that an object created
+        # while a new field is being backfilled does not miss its default (see
+        # CustomFieldManager.get_defaults_for_model()).
+        for name, default in CustomField.objects.get_defaults_for_model(self).items():
+            if name not in self.custom_field_data:
+                self.custom_field_data[name] = default
 
         super().save(*args, **kwargs)
 

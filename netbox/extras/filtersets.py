@@ -176,7 +176,7 @@ class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         fields = (
             'id', 'name', 'label', 'group_name', 'required', 'unique', 'search_weight', 'filter_logic', 'ui_visible',
             'ui_editable', 'weight', 'is_cloneable', 'description', 'validation_minimum', 'validation_maximum',
-            'validation_regex',
+            'validation_regex', 'status',
         )
 
     def search(self, queryset, name, value):

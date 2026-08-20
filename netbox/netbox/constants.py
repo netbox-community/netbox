@@ -42,6 +42,9 @@ ADVISORY_LOCK_KEYS = {
 
     # Jobs
     'job-schedules': 110100,
+
+    # Custom field data
+    'custom-field-data': 115100,
 }
 
 # TODO: Remove in NetBox v4.7

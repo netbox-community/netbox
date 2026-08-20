@@ -45,7 +45,9 @@ class CustomFieldFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', name=_('Attributes')),
+        FieldSet(
+            'object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', 'status', name=_('Attributes')
+        ),
         FieldSet('choice_set_id', 'related_object_type_id', name=_('Type Options')),
         FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
         FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
@@ -65,6 +67,11 @@ class CustomFieldFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
         choices=CustomFieldTypeChoices,
         required=False,
         label=_('Field type')
+    )
+    status = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldStatusChoices),
+        required=False,
+        label=_('Status')
     )
     group_name = forms.CharField(
         label=_('Group name'),

@@ -12,7 +12,7 @@ from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.events import get_event_text
 from netbox.tables import BaseTable, NetBoxTable, PrimaryModelTable, columns
 
-from .columns import NotificationActionsColumn
+from .columns import CustomFieldStatusColumn, NotificationActionsColumn
 
 __all__ = (
     'BookmarkTable',
@@ -87,6 +87,9 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Validate Uniqueness'),
         false_mark=None
     )
+    status = CustomFieldStatusColumn(
+        verbose_name=_('Status')
+    )
     ui_visible = columns.ChoiceFieldColumn(
         verbose_name=_('Visible')
     )
@@ -136,10 +139,11 @@ class CustomFieldTable(NetBoxTable):
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'unique', 'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
             'is_cloneable', 'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'validation_schema', 'comments', 'created', 'last_updated',
+            'validation_regex', 'validation_schema', 'status', 'comments', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'unique', 'description',
+            'pk', 'name', 'status', 'object_types', 'label', 'group_name', 'type', 'required', 'unique',
+            'description',
         )
 
 

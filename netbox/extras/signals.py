@@ -4,6 +4,7 @@ from django.dispatch import receiver
 
 from core.events import *
 from core.signals import job_end, job_start
+from extras.choices import CustomFieldStatusChoices
 from extras.events import EventContext, process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
@@ -41,11 +42,11 @@ def handle_cf_object_types_changed(instance, action, pk_set, reverse, **kwargs):
     object_types = ContentType.objects.filter(pk__in=pk_set)
 
     if action == 'post_add':
-        # Populate the field's default value (if any) on all existing objects
-        instance.populate_initial_data(object_types)
-
+        # Populate the field's default value (if any) on the existing objects of the types just
+        # assigned.
+        instance.provision_data(object_types)
     else:
-        # Remove the field's stored data from objects to which it no longer applies
+        # Remove the field's stored data from objects to which it no longer applies.
         instance.remove_stale_data(object_types)
 
 
@@ -60,8 +61,12 @@ def handle_cf_renamed(instance, created, **kwargs):
 def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
+
+    A field already marked for deletion is skipped: its data is too voluminous to purge inline, and
+    CustomFieldPurgeJob is removing it (see CustomField.delete()).
     """
-    instance.remove_stale_data(instance.object_types.all())
+    if instance.status != CustomFieldStatusChoices.STATUS_DELETING:
+        instance.remove_stale_data(instance.object_types.all())
 
 
 post_save.connect(handle_cf_renamed, sender=CustomField)

@@ -1,29 +1,43 @@
 import datetime
 import json
+import uuid
 from collections import defaultdict
+from contextlib import contextmanager
 from decimal import Decimal
 from unittest.mock import patch
 
 import django_filters
 from django.core.exceptions import ValidationError
-from django.db import connection
+from django.db import DEFAULT_DB_ALIAS, connection, connections
 from django.db.models import QuerySet
-from django.test import tag
+from django.db.models.signals import pre_delete
+from django.test import RequestFactory, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import ObjectChange, ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.jobs import SystemHousekeepingJob
+from core.models import Job, ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from dcim.tables import SiteTable
 from extras.choices import *
+from extras.constants import CUSTOMFIELD_JOB_TIMEOUT
 from extras.filters import MissingKeyAwareFilterMixin, missing_key_aware_filter_factory
+from extras.jobs import (
+    CustomFieldProvisioningJob,
+    CustomFieldPurgeJob,
+    provision_custom_field,
+    purge_custom_field,
+)
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import query_cache
+from netbox.context_managers import event_tracking
+from utilities.exceptions import AbortRequest
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
@@ -643,6 +657,10 @@ class CustomFieldTestCase(TestCase):
         """
         Provisioning, renaming, and removing custom field data is applied in batches. Use a small
         batch size to ensure the data on every object is updated across multiple batches.
+
+        The batch size doubles as the threshold above which an update is handed to a background job,
+        so patching it this low also puts provisioning and removal onto the deferred path; the jobs
+        are run here in place of the worker which would ordinarily do so.
         """
         # The existing sites (created in setUpTestData) span multiple batches of size 2
         site_count = Site.objects.count()
@@ -655,12 +673,15 @@ class CustomFieldTestCase(TestCase):
             default='foo'
         )
         cf.object_types.set([self.object_type])
+        self.assertTrue(provision_custom_field(cf.pk))
         self.assertEqual(
             Site.objects.filter(custom_field_data__batched_field='foo').count(),
             site_count
         )
 
-        # Renaming: the key is renamed on every existing object, preserving its value
+        # Renaming: the key is renamed on every existing object, preserving its value. This is
+        # always applied inline, so no job is involved.
+        cf.refresh_from_db()
         cf.name = 'renamed_field'
         cf.save()
         self.assertEqual(
@@ -674,6 +695,7 @@ class CustomFieldTestCase(TestCase):
 
         # Removal: deleting the field strips the key from every existing object
         cf.delete()
+        self.assertTrue(purge_custom_field(cf.pk))
         self.assertEqual(
             Site.objects.filter(custom_field_data__has_key='renamed_field').count(),
             0
@@ -1121,24 +1143,69 @@ class CustomFieldManagerTestCase(TestCase):
         custom_field.object_types.set([object_type])
 
     def test_get_for_model(self):
-        self.assertEqual(CustomField.objects.get_for_model(Site).count(), 1)
-        self.assertEqual(CustomField.objects.get_for_model(VirtualMachine).count(), 0)
+        self.assertEqual(len(CustomField.objects.get_for_model(Site)), 1)
+        self.assertEqual(len(CustomField.objects.get_for_model(VirtualMachine)), 0)
 
     def test_get_for_model_caches_models_with_no_custom_fields(self):
         """
         A model with no custom fields assigned must be served from the request cache like any other.
-        An empty QuerySet is falsy, so testing the cached value for truthiness would treat it as a
-        miss and re-query on every call.
+        An empty list is falsy, so testing the cached value for truthiness would treat it as a miss
+        and re-query on every call.
         """
         token = query_cache.set(defaultdict(dict))
         self.addCleanup(query_cache.reset, token)
 
         # Site has one custom field assigned, VirtualMachine none
         for model in (Site, VirtualMachine):
-            # Prime the cache, iterating so that the QuerySet's own result cache is populated too
-            list(CustomField.objects.get_for_model(model))
+            CustomField.objects.get_for_model(model)  # Prime the cache
             with self.assertNumQueries(0):
-                list(CustomField.objects.get_for_model(model))
+                CustomField.objects.get_for_model(model)
+
+    def test_get_defaults_for_model_is_cached(self):
+        """
+        Every save of a custom-field-bearing object resolves the model's defaults, so the lookup
+        must be served from the request cache rather than re-queried each time. As above, a model
+        with no defaults caches an empty dict, which must not be mistaken for a miss.
+        """
+        token = query_cache.set(defaultdict(dict))
+        self.addCleanup(query_cache.reset, token)
+
+        # Site has a field with a default, VirtualMachine none
+        for model in (Site, VirtualMachine):
+            CustomField.objects.get_defaults_for_model(model)
+            with self.assertNumQueries(0):
+                CustomField.objects.get_defaults_for_model(model)
+
+    def test_get_defaults_for_model_shares_the_field_cache(self):
+        """
+        The two lookups differ only in the statuses they select, so resolving a model's defaults must
+        be served from the fields get_for_model() has already fetched rather than re-querying them.
+        """
+        token = query_cache.set(defaultdict(dict))
+        self.addCleanup(query_cache.reset, token)
+
+        CustomField.objects.get_for_model(Site)  # Prime the field cache
+
+        with self.assertNumQueries(0):
+            self.assertEqual(CustomField.objects.get_defaults_for_model(Site), {'text_field': 'foo'})
+
+    def test_repeated_saves_do_not_requery_custom_fields(self):
+        """
+        A bulk import creates thousands of objects within one request; resolving the defaults afresh
+        for each would add a query per object (see CustomFieldsMixin.save()).
+        """
+        token = query_cache.set(defaultdict(dict))
+        self.addCleanup(query_cache.reset, token)
+
+        Site.objects.create(name='Site 1', slug='site-1')  # Prime the caches
+
+        with CaptureQueriesContext(connection) as ctx:
+            for i in range(2, 5):
+                Site.objects.create(name=f'Site {i}', slug=f'site-{i}')
+
+        custom_field_queries = [q for q in ctx.captured_queries if 'extras_customfield' in q['sql']]
+        self.assertEqual(custom_field_queries, [])
+        self.assertEqual(Site.objects.filter(custom_field_data__text_field='foo').count(), 4)
 
 
 class CustomFieldAPITestCase(APITestCase):
@@ -2535,3 +2602,667 @@ class CustomFieldModelFilterTestCase(TestCase):
             3
         )
         self.assertEqual(self.filterset({'cf_cf12__empty': True}, self.queryset).qs.count(), 1)
+
+
+@contextmanager
+def hold_data_lock(custom_field):
+    """
+    Hold a custom field's data lock on a connection of its own, as a running background job does.
+
+    A separate connection is what makes the lock observable: it is held for the duration of a job,
+    which spans many transactions, so a test cannot take it on the connection it is testing.
+    """
+    lock_key = CustomField.data_lock_key(custom_field.pk)
+    connection = connections.create_connection(DEFAULT_DB_ALIAS)
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT pg_try_advisory_lock(%s, %s)', lock_key)
+            if not cursor.fetchone()[0]:
+                raise RuntimeError(f"Failed to acquire the data lock for {custom_field}")
+        yield
+    finally:
+        # Closing the session releases any advisory lock held on it
+        connection.close()
+
+
+@patch('extras.models.customfields.CUSTOMFIELD_DATA_BATCH_SIZE', 1)
+class DeferredCustomFieldDataTestCase(TestCase):
+    """
+    Where too many objects are affected to update within the request, provisioning and purging
+    custom field data is handed to a background job and the field is not live until it completes.
+
+    The batch size (which doubles as the threshold for deferral) is patched down so that the two
+    objects below force the deferred path. It cannot be patched to zero: that would also empty every
+    batch, so the jobs would update nothing.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create([
+            Site(name='Site A', slug='site-a'),
+            Site(name='Site B', slug='site-b'),
+        ])
+        cls.object_type = ObjectType.objects.get_for_model(Site)
+
+    def create_field(self, name='field1', **kwargs):
+        cf = CustomField.objects.create(name=name, type=CustomFieldTypeChoices.TYPE_TEXT, **kwargs)
+        cf.object_types.set([self.object_type])
+        cf.refresh_from_db()
+        return cf
+
+    #
+    # Provisioning
+    #
+
+    def test_provisioning_is_deferred(self):
+        cf = self.create_field(default='foo')
+
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_PROVISIONING)
+        # No object data has been written yet
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 0)
+
+    def test_field_is_not_live_while_provisioning(self):
+        cf = self.create_field(default='foo')
+        site = Site.objects.first()
+
+        self.assertNotIn(cf, CustomField.objects.get_for_model(Site))
+        self.assertNotIn('field1', site.cf)
+        self.assertNotIn('field1', {f.name for f in site.get_custom_fields()})
+
+        # It is still reachable where a caller asks for that status, as get_defaults_for_model() does
+        self.assertIn(cf, CustomField.objects.get_for_model(
+            Site, statuses=(CustomFieldStatusChoices.STATUS_PROVISIONING,)
+        ))
+
+    def test_new_objects_receive_default_while_provisioning(self):
+        """
+        A field is provisioned precisely because it carries a default, so an object created while
+        the backfill runs must still receive that default -- the job backfills only what predates
+        the field.
+        """
+        self.create_field(default='foo')
+
+        site = Site.objects.create(name='Site C', slug='site-c')
+
+        site.refresh_from_db()
+        self.assertEqual(site.custom_field_data['field1'], 'foo')
+
+    def test_provisioning_job_backfills_and_activates(self):
+        cf = self.create_field(default='foo')
+
+        self.assertTrue(provision_custom_field(cf.pk))
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(Site.objects.filter(custom_field_data__field1='foo').count(), 2)
+        self.assertIn(cf, CustomField.objects.get_for_model(Site))
+
+    def test_provisioning_job_commits_each_batch(self):
+        """
+        One transaction spanning the whole backfill would hold a row lock on every object it had
+        rewritten until it finished, for as long as CUSTOMFIELD_JOB_TIMEOUT allows the job to run
+        (see CustomField._update_object_data()).
+        """
+        cf = self.create_field(default='foo')
+
+        with patch.object(CustomField, '_update_object_data') as update:
+            provision_custom_field(cf.pk)
+
+        update.assert_called()
+        for call in update.call_args_list:
+            self.assertTrue(call.kwargs['commit_per_batch'])
+
+    def test_provisioning_job_is_idempotent(self):
+        cf = self.create_field(default='foo')
+        provision_custom_field(cf.pk)
+
+        # A second run finds the field no longer awaiting provisioning and does nothing
+        self.assertFalse(provision_custom_field(cf.pk))
+
+    def test_provisioning_job_overrides_the_default_timeout(self):
+        """
+        The job is enqueued precisely because the work exceeds what a request can absorb, so it must
+        not inherit RQ's default timeout, which is of the same order (see CUSTOMFIELD_JOB_TIMEOUT).
+        """
+        with patch.object(CustomFieldProvisioningJob, 'enqueue') as enqueue:
+            with self.captureOnCommitCallbacks(execute=True):
+                cf = self.create_field(default='foo')
+
+        enqueue.assert_called_once()
+        self.assertEqual(enqueue.call_args.kwargs['job_timeout'], CUSTOMFIELD_JOB_TIMEOUT)
+        self.assertEqual(enqueue.call_args.kwargs['custom_field_pk'], cf.pk)
+
+    def test_provisioning_job_is_enqueued(self):
+        """
+        The Job record itself must be valid: a custom field cannot be assigned to a Job as its
+        object, so the field is identified by primary key instead (see CustomFieldDataJob).
+        """
+        with patch('core.models.jobs.django_rq') as django_rq:
+            with self.captureOnCommitCallbacks(execute=True):
+                cf = self.create_field(default='foo')
+
+        job = Job.objects.get(name__startswith=CustomFieldProvisioningJob.name)
+        self.assertIsNone(job.object_type)
+        self.assertIn(str(cf), job.name)
+        self.assertEqual(
+            django_rq.get_queue.return_value.enqueue.call_args.kwargs['custom_field_pk'], cf.pk
+        )
+
+    def test_provisioning_is_scoped_to_the_new_object_types(self):
+        """
+        Assigning a further object type provisions only that type. The job cannot work this out for
+        itself once the assignment is made, so the types are carried to it.
+        """
+        cf = self.create_field()
+        cf.default = 'foo'
+        cf.save()
+        rack_type = ObjectType.objects.get_for_model(Rack)
+        site = Site.objects.first()
+        Rack.objects.bulk_create([
+            Rack(name='Rack 1', site=site),
+            Rack(name='Rack 2', site=site),
+        ])
+
+        with patch.object(CustomFieldProvisioningJob, 'enqueue') as enqueue:
+            with self.captureOnCommitCallbacks(execute=True):
+                cf.object_types.add(rack_type)
+
+        enqueue.assert_called_once()
+        self.assertEqual(enqueue.call_args.kwargs['object_type_pks'], [rack_type.pk])
+
+    def test_deferral_weighs_only_the_new_object_types(self):
+        """
+        A field already assigned to a large table stays inline when assigned a small one: the tables
+        provisioned previously are not rewritten, so their size is beside the point.
+        """
+        cf = self.create_field()
+        cf.default = 'foo'
+        cf.save()
+
+        # No racks exist, so there is nothing to defer even though the two sites exceed the limit
+        cf.object_types.add(ObjectType.objects.get_for_model(Rack))
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+
+    def test_housekeeping_provisions_every_assigned_type(self):
+        """
+        The backstop has no record of which types a deferred job was to provision, so it falls back
+        to all of them. It must still not disturb the values already stored.
+        """
+        cf = self.create_field(default='foo')
+        Site.objects.update(custom_field_data={'field1': 'bar'})
+
+        self.assertTrue(provision_custom_field(cf.pk))
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(Site.objects.filter(custom_field_data__field1='bar').count(), 2)
+
+    def test_field_without_default_is_not_deferred(self):
+        """
+        A field with no default has nothing to provision, so it goes live immediately regardless of
+        how many objects it applies to.
+        """
+        cf = self.create_field()
+
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+
+    def test_field_without_default_enqueues_nothing(self):
+        """
+        The decision rests with provision_data() rather than its caller, so a field with no default
+        must not reach the point of sizing its object types, let alone of handing a job the no-op of
+        writing a null to each of them.
+        """
+        cf = self.create_field()
+
+        with (
+            patch.object(CustomField, '_exceeds_inline_limit') as exceeds_limit,
+            patch.object(CustomFieldProvisioningJob, 'enqueue') as enqueue,
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                cf.provision_data([self.object_type])
+
+        exceeds_limit.assert_not_called()
+        enqueue.assert_not_called()
+
+    #
+    # Deletion
+    #
+
+    def test_deletion_is_deferred(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+
+        cf.delete()
+
+        cf = CustomField.objects.get(pk=cf.pk)
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_DELETING)
+        # The stored data is left for the purge job
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 2)
+
+    def test_deletion_is_deferred_even_without_stored_data(self):
+        """
+        The deferral decision weighs every row of the assigned types, not just those which hold a
+        value, so a field holding no data on an over-limit table is still deferred. Deliberate: the
+        probe cannot count the rows holding a key without a sequential scan (see
+        _exceeds_inline_limit()), and the purge job it hands off to has nothing to do.
+        """
+        cf = self.create_field()
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 0)
+
+        cf.delete()
+
+        cf = CustomField.objects.get(pk=cf.pk)
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_DELETING)
+        self.assertTrue(purge_custom_field(cf.pk))
+        self.assertFalse(CustomField.objects.filter(pk=cf.pk).exists())
+
+    def test_field_is_not_live_while_deleting(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+        cf.delete()
+
+        site = Site.objects.first()
+        self.assertNotIn(cf, CustomField.objects.get_for_model(Site))
+        self.assertNotIn('field1', site.cf)
+        self.assertNotIn('field1', {f.name for f in site.get_custom_fields()})
+
+    def test_purge_job_removes_data_and_field(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+        cf.delete()
+
+        self.assertTrue(purge_custom_field(cf.pk))
+
+        self.assertFalse(CustomField.objects.filter(pk=cf.pk).exists())
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 0)
+
+    def test_purge_job_commits_each_batch(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+        cf.delete()
+
+        with patch.object(CustomField, '_update_object_data') as update:
+            purge_custom_field(cf.pk)
+
+        update.assert_called()
+        for call in update.call_args_list:
+            self.assertTrue(call.kwargs['commit_per_batch'])
+
+    def test_purge_job_is_idempotent(self):
+        cf = self.create_field()
+        cf.delete()
+        purge_custom_field(cf.pk)
+
+        # A second run finds the field already gone and does nothing
+        self.assertFalse(purge_custom_field(cf.pk))
+
+    def test_deleting_twice_is_a_noop(self):
+        cf = self.create_field()
+        cf.delete()
+
+        cf.delete()
+
+        self.assertTrue(CustomField.objects.filter(pk=cf.pk).exists())
+
+    def test_aborted_deletion_leaves_the_field_intact(self):
+        """
+        A receiver rejecting the deletion (e.g. handle_deleted_object() raising AbortRequest for a
+        failed protection rule) must leave the field live, rather than marked for a purge which will
+        never be enqueued -- and which housekeeping would later complete, destroying the very data
+        the rule protected.
+        """
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+
+        def reject(sender, instance, **kwargs):
+            raise AbortRequest("Deletion is prevented by a protection rule")
+
+        pre_delete.connect(reject, sender=CustomField)
+        try:
+            with self.assertRaises(AbortRequest):
+                cf.delete()
+        finally:
+            pre_delete.disconnect(reject, sender=CustomField)
+
+        cf = CustomField.objects.get(pk=cf.pk)
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+        self.assertIn(cf, CustomField.objects.get_for_model(Site))
+        self.assertEqual(Site.objects.filter(custom_field_data__field1='foo').count(), 2)
+
+    def test_purge_job_overrides_the_default_timeout(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+
+        with patch.object(CustomFieldPurgeJob, 'enqueue') as enqueue:
+            with self.captureOnCommitCallbacks(execute=True):
+                cf.delete()
+
+        enqueue.assert_called_once()
+        self.assertEqual(enqueue.call_args.kwargs['job_timeout'], CUSTOMFIELD_JOB_TIMEOUT)
+        self.assertEqual(enqueue.call_args.kwargs['custom_field_pk'], cf.pk)
+
+    def test_purge_job_is_enqueued(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+
+        with patch('core.models.jobs.django_rq') as django_rq:
+            with self.captureOnCommitCallbacks(execute=True):
+                cf.delete()
+
+        job = Job.objects.get(name__startswith=CustomFieldPurgeJob.name)
+        self.assertIsNone(job.object_type)
+        self.assertIn(str(cf), job.name)
+        self.assertEqual(
+            django_rq.get_queue.return_value.enqueue.call_args.kwargs['custom_field_pk'], cf.pk
+        )
+
+    def test_deletion_records_a_change(self):
+        """
+        The change log must report the deletion where the user performed it, rather than when the
+        row is eventually removed in a worker (where there is no request to attribute it to).
+        """
+        cf = self.create_field()
+
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        with event_tracking(request):
+            cf.delete()
+
+        self.assertTrue(
+            ObjectChange.objects.filter(
+                changed_object_type=ObjectType.objects.get_for_model(CustomField),
+                changed_object_id=cf.pk,
+                action=ObjectChangeActionChoices.ACTION_DELETE,
+            ).exists()
+        )
+
+    def test_deletion_is_scoped_to_the_write_database(self):
+        """
+        The commit hook must be registered against the connection the marking was written on, or the
+        purge job can be enqueued before -- or without -- the field being durably marked.
+        """
+        cf = self.create_field()
+
+        with patch('extras.models.customfields.transaction.on_commit') as on_commit:
+            cf.delete()
+
+        on_commit.assert_called_once()
+        self.assertEqual(on_commit.call_args.kwargs['using'], DEFAULT_DB_ALIAS)
+
+    #
+    # Name reservation
+    #
+
+    def test_name_is_reserved_while_deleting(self):
+        """
+        A field pending deletion holds its name, so that a new field cannot inherit the values still
+        stored against it.
+        """
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+        cf.delete()
+
+        replacement = CustomField(name='field1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        with self.assertRaises(ValidationError):
+            replacement.full_clean()
+
+    def test_rename_onto_reserved_name_is_rejected(self):
+        cf = self.create_field()
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+        cf.delete()
+        other = self.create_field(name='field2')
+
+        other.name = 'field1'
+        with self.assertRaises(ValidationError):
+            other.full_clean()
+
+    def test_name_is_released_once_purged(self):
+        cf = self.create_field()
+        cf.delete()
+        purge_custom_field(cf.pk)
+
+        replacement = CustomField(name='field1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        replacement.full_clean()  # Should not raise
+
+    #
+    # Modification and deletion guards
+    #
+
+    def test_pending_field_cannot_be_modified(self):
+        cf = self.create_field(default='foo')
+
+        cf.label = 'Changed'
+        with self.assertRaises(ValidationError):
+            cf.full_clean()
+
+    def test_deletion_claims_the_data_lock_without_waiting(self):
+        """
+        A job holds the field's data lock for the duration of its bulk update, so a deletion which
+        waited on it would occupy a worker for as long as the job ran (see CUSTOMFIELD_JOB_TIMEOUT).
+        """
+        cf = self.create_field()
+
+        with CaptureQueriesContext(connection) as queries:
+            cf.delete()
+
+        self.assertTrue(
+            any('pg_try_advisory_lock' in query['sql'] for query in queries),
+            "Deletion did not claim the field's data lock without waiting"
+        )
+
+    def test_deletion_is_refused_while_a_job_holds_the_data_lock(self):
+        """
+        Failing to take the lock aborts the deletion cleanly, rather than surfacing a database error,
+        and must leave the field exactly as it was.
+        """
+        cf = self.create_field()
+
+        with hold_data_lock(cf):
+            with self.assertRaises(AbortRequest):
+                cf.delete()
+
+            cf.refresh_from_db()
+            self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+
+        cf.delete()  # Released: the deletion now proceeds
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_DELETING)
+
+    def test_job_skips_a_field_locked_by_another_job(self):
+        """
+        The backstop must not block a worker on a field the responsible job is still working through,
+        which may be hours from completing.
+        """
+        cf = self.create_field(default='foo')
+
+        with hold_data_lock(cf):
+            self.assertFalse(provision_custom_field(cf.pk, skip_locked=True))
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_PROVISIONING)
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 0)
+
+    def test_stranded_field_can_be_deleted(self):
+        """
+        The refusal is on the lock, not on the status: a field left mid-provisioning by a job which
+        never ran holds no lock, and must remain deletable without waiting for housekeeping.
+        """
+        cf = self.create_field(default='foo')
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_PROVISIONING)
+
+        cf.delete()
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_DELETING)
+
+    #
+    # Housekeeping backstop
+    #
+
+    def test_housekeeping_enqueues_pending_fields(self):
+        """
+        A field whose job never ran is picked up by the daily housekeeping job, so that it cannot
+        remain offline (or holding its name) indefinitely. The work is handed back to a dedicated
+        job rather than performed inline, where it would be subject to housekeeping's own timeout.
+        """
+        provisioning = self.create_field(name='field1', default='foo')
+        deleting = self.create_field(name='field2')
+        deleting.delete()
+
+        with (
+            patch.object(CustomFieldProvisioningJob, 'enqueue') as provision,
+            patch.object(CustomFieldPurgeJob, 'enqueue') as purge,
+        ):
+            SystemHousekeepingJob(Job()).finalize_custom_fields()
+
+        for enqueue, custom_field in ((provision, provisioning), (purge, deleting)):
+            enqueue.assert_called_once()
+            self.assertEqual(enqueue.call_args.kwargs['custom_field_pk'], custom_field.pk)
+            self.assertEqual(enqueue.call_args.kwargs['job_timeout'], CUSTOMFIELD_JOB_TIMEOUT)
+            self.assertTrue(enqueue.call_args.kwargs['skip_locked'])
+
+    def test_housekeeping_leaves_active_fields_alone(self):
+        self.create_field(name='field1')
+
+        with (
+            patch.object(CustomFieldProvisioningJob, 'enqueue') as provision,
+            patch.object(CustomFieldPurgeJob, 'enqueue') as purge,
+        ):
+            SystemHousekeepingJob(Job()).finalize_custom_fields()
+
+        provision.assert_not_called()
+        purge.assert_not_called()
+
+    def test_job_forwards_skip_locked(self):
+        """
+        The job enqueued by housekeeping must not wait on a field the responsible job still holds:
+        that job may be hours from completing, and blocking here occupies a worker for as long. So
+        the flag has to reach the lock, rather than being swallowed by run().
+        """
+        cf = self.create_field(default='foo')
+
+        with patch('extras.jobs.provision_custom_field') as provision:
+            CustomFieldProvisioningJob(Job()).run(custom_field_pk=cf.pk, skip_locked=True)
+
+        provision.assert_called_once_with(cf.pk, None, skip_locked=True)
+
+    def test_housekeeping_completes_pending_fields(self):
+        """
+        End to end: the jobs housekeeping enqueues bring a stranded field to a resolved state.
+        """
+        provisioning = self.create_field(name='field1', default='foo')
+        deleting = self.create_field(name='field2')
+        deleting.delete()
+
+        with patch('core.models.jobs.django_rq'):
+            SystemHousekeepingJob(Job()).finalize_custom_fields()
+        for custom_field, job_class in (
+            (provisioning, CustomFieldProvisioningJob),
+            (deleting, CustomFieldPurgeJob),
+        ):
+            job_class(Job()).run(custom_field_pk=custom_field.pk, skip_locked=True)
+
+        provisioning.refresh_from_db()
+        self.assertEqual(provisioning.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(Site.objects.filter(custom_field_data__field1='foo').count(), 2)
+        self.assertFalse(CustomField.objects.filter(pk=deleting.pk).exists())
+
+
+class InlineCustomFieldDataTestCase(TestCase):
+    """
+    Where few enough objects are affected, provisioning and purging remain synchronous: the field is
+    live (or gone) as soon as the request completes, with no background job involved.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Site A', slug='site-a')
+        cls.object_type = ObjectType.objects.get_for_model(Site)
+
+    def test_provisioning_is_inline(self):
+        cf = CustomField.objects.create(
+            name='field1', type=CustomFieldTypeChoices.TYPE_TEXT, default='foo'
+        )
+        cf.object_types.set([self.object_type])
+
+        cf.refresh_from_db()
+        self.assertEqual(cf.status, CustomFieldStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(Site.objects.filter(custom_field_data__field1='foo').count(), 1)
+
+    def test_inline_provisioning_is_atomic(self):
+        """
+        The request path answers to an enclosing transaction, which owns the commit: committing each
+        batch there would silently do nothing, and a failure part-way must leave nothing behind.
+        """
+        with patch.object(CustomField, '_update_object_data') as update:
+            cf = CustomField.objects.create(
+                name='field1', type=CustomFieldTypeChoices.TYPE_TEXT, default='foo'
+            )
+            cf.object_types.set([self.object_type])
+
+        update.assert_called()
+        for call in update.call_args_list:
+            self.assertFalse(call.kwargs['commit_per_batch'])
+
+    def test_default_added_later_is_not_backfilled(self):
+        """
+        A default added to a field which already exists is not backfilled, and assigning a further
+        object type must not backfill it either: only the newly assigned type is provisioned. The
+        sites below would otherwise acquire a value they were documented never to receive.
+        """
+        cf = CustomField.objects.create(name='field1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        cf.object_types.set([self.object_type])
+        self.assertEqual(Site.objects.first().custom_field_data, {})
+
+        cf.default = 'foo'
+        cf.save()
+        self.assertEqual(Site.objects.first().custom_field_data, {})
+
+        rack = Rack.objects.create(name='Rack 1', site=Site.objects.first())
+        cf.object_types.add(ObjectType.objects.get_for_model(Rack))
+
+        # The newly assigned type is provisioned; the one assigned before the default is not
+        rack.refresh_from_db()
+        self.assertEqual(rack.custom_field_data['field1'], 'foo')
+        self.assertEqual(Site.objects.first().custom_field_data, {})
+
+    def test_provisioning_preserves_existing_values(self):
+        """
+        Values stored against a type assigned previously must survive a further assignment.
+        """
+        cf = CustomField.objects.create(
+            name='field1', type=CustomFieldTypeChoices.TYPE_TEXT, default='foo'
+        )
+        cf.object_types.set([self.object_type])
+        Site.objects.update(custom_field_data={'field1': 'bar'})
+
+        cf.object_types.add(ObjectType.objects.get_for_model(Rack))
+
+        self.assertEqual(Site.objects.first().custom_field_data['field1'], 'bar')
+
+    def test_provisioning_preserves_cleared_values(self):
+        """
+        A cleared value is stored as a JSON null rather than an absent key, and must survive
+        reprovisioning just as a set value does.
+        """
+        cf = CustomField.objects.create(
+            name='field1', type=CustomFieldTypeChoices.TYPE_TEXT, default='foo'
+        )
+        cf.object_types.set([self.object_type])
+        Site.objects.update(custom_field_data={'field1': None})
+
+        cf.object_types.add(ObjectType.objects.get_for_model(Rack))
+
+        self.assertIsNone(Site.objects.first().custom_field_data['field1'])
+
+    def test_deletion_is_inline(self):
+        cf = CustomField.objects.create(name='field1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        cf.object_types.set([self.object_type])
+        Site.objects.update(custom_field_data={'field1': 'foo'})
+
+        cf.delete()
+
+        self.assertFalse(CustomField.objects.filter(pk=cf.pk).exists())
+        self.assertEqual(Site.objects.filter(custom_field_data__has_key='field1').count(), 0)

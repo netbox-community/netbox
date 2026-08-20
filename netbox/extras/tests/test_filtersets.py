@@ -141,6 +141,12 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'ui_editable': CustomFieldUIEditableChoices.YES}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_status(self):
+        params = {'status': CustomFieldStatusChoices.STATUS_ACTIVE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'status': CustomFieldStatusChoices.STATUS_DELETING}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_choice_set(self):
         params = {'choice_set': ['Choice Set 1', 'Choice Set 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

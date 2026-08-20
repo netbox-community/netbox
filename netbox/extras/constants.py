@@ -12,7 +12,21 @@ CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 # sits at the throughput "knee": benchmarking jsonb_set() across a 1M-row table showed throughput
 # plateaus by ~5K rows/statement (raising it further yields no meaningful speedup), while keeping
 # each statement orders of magnitude below a typical statement timeout.
+#
+# It doubles as the threshold below which such an update is applied inline, within the request which
+# triggered it, rather than being handed to a background job (see
+# CustomField._exceeds_inline_limit()): an update which fits within a single statement is
+# comfortably within any request timeout.
 CUSTOMFIELD_DATA_BATCH_SIZE = 5000
+
+# Timeout (in seconds) applied to the background jobs which provision and purge custom field data.
+# These jobs exist precisely because the work is too large for the request which triggered it, so
+# the default RQ timeout -- being of the same order as the request timeout being escaped -- would
+# reimpose the limit they were introduced to avoid. A timeout is recoverable, as each job commits
+# its batches independently and both are idempotent, but it leaves the field pending until the
+# housekeeping backstop next runs. Three hours is well beyond what a batched update of any real
+# table takes, while still releasing a worker blocked on an unresponsive database.
+CUSTOMFIELD_JOB_TIMEOUT = 10800
 
 # ImageAttachment
 IMAGE_ATTACHMENT_IMAGE_FORMATS = {

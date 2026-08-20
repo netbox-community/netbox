@@ -37,7 +37,28 @@ Unless the field has been assigned a default value, creating a custom field does
 
 This matters only if you query the underlying `custom_field_data` JSON directly, for example in a custom script. The field's key is absent from an object's data until a value is assigned to it, so read it with `obj.cf['field_name']` or `obj.custom_field_data.get('field_name')` rather than by direct subscript.
 
-Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
+Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
+
+### Field Status
+
+!!! info "This behavior was introduced in NetBox v4.6.9."
+
+Creating a custom field with a default value, and deleting a custom field which holds data, both require rewriting the stored data of every object the field applies to. Where a large number of objects is affected, this cannot be completed within the request, so it is handed to a background job instead and the field reports its status accordingly:
+
+| Status | Meaning |
+| ------ | ------- |
+| Active | The field is live and available for use. |
+| Provisioning | The field's default value is being written to existing objects. |
+| Deleting | The field's data is being removed from existing objects. |
+
+A field is live only while active. During provisioning or deletion it does not appear on objects, in forms, in filters, or in either API, and its data is neither read nor written; it becomes available (or disappears entirely) once the job completes. Objects created in the meantime are unaffected — a field being provisioned still supplies its default to new objects.
+
+A field pending deletion continues to occupy its name until its data has been removed, so that a new field cannot be created — and an existing field cannot be renamed — to a name whose old values are still present on objects.
+
+These operations require a running background worker (`rqworker`). A field left mid-operation, for example because no worker was running, is picked up by NetBox's daily housekeeping job.
+
+!!! note
+    Unassigning an object type from a custom field still removes the field's data from those objects immediately, and remains subject to the request timeout on very large tables. The same applies to renaming a custom field.
 
 ### Filtering
 

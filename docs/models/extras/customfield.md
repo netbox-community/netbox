@@ -12,6 +12,10 @@ Select the NetBox object type or types to which this custom field applies.
 
 The raw field name. This will be used in the database and API, and should consist only of alphanumeric characters and underscores. (Use the `label` field to designate a human-friendly name for the custom field.)
 
+### Status
+
+The field's lifecycle state: `active`, `provisioning`, or `deleting`. This is maintained by NetBox and cannot be set directly. A field is available for use only while active; see [field status](../../customization/custom-fields.md#field-status).
+
 ### Label
 
 An optional human-friendly name for the custom field. If not defined, the field's `name` attribute will be used.
