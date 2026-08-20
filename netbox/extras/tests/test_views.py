@@ -589,6 +589,24 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'as_attachment': True,
         }
 
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the template code inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        export_template = ExportTemplate.objects.first()
+        export_template.template_code = 'super-secret-password'
+        export_template.save()
+
+        self.add_permissions('extras.view_exporttemplate')
+        response = self.client.get(export_template.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the template code is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
 
 class ExportTemplateExportFlowTestCase(TestCase):
     """
@@ -852,6 +870,31 @@ class ConfigContextProfileTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{profiles[2].pk},New description",
         )
 
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the schema inline, which may have been synced from a data file
+        containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigContextProfile.objects.first()
+        instance.schema = {
+            'properties': {
+                'password': {
+                    'type': 'string',
+                    'default': 'super-secret-password',
+                }
+            }
+        }
+        instance.save()
+
+        self.add_permissions('extras.view_configcontextprofile')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the schema is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
 
 # TODO: Change base class to PrimaryObjectViewTestCase
 # Blocked by absence of standard create/edit, bulk create views
@@ -901,6 +944,24 @@ class ConfigContextTestCase(
             'is_active': False,
             'description': 'New description',
         }
+
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the data inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigContext.objects.first()
+        instance.data = {'password': 'super-secret-password'}
+        instance.save()
+
+        self.add_permissions('extras.view_configcontext')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
 
 
 class ConfigTemplateTestCase(
@@ -958,6 +1019,24 @@ class ConfigTemplateTestCase(
             'file_extension': 'html',
             'as_attachment': True,
         }
+
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the template code inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigTemplate.objects.first()
+        instance.template_code = 'super-secret-password'
+        instance.save()
+
+        self.add_permissions('extras.view_configtemplate')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the template code is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
 
 
 class JournalEntryTestCase(

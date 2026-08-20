@@ -9,9 +9,11 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpRespo
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.http import content_disposition_header
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 
 from core.choices import ManagedFileRootPathChoices
@@ -308,6 +310,7 @@ class ExportTemplateListView(generic.ObjectListView):
 
 
 @register_model_view(ExportTemplate)
+@method_decorator(never_cache, name='dispatch')
 class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
     template_name = 'generic/object.html'
@@ -994,6 +997,7 @@ class ConfigContextProfileListView(generic.ObjectListView):
 
 
 @register_model_view(ConfigContextProfile)
+@method_decorator(never_cache, name='dispatch')
 class ConfigContextProfileView(generic.ObjectView):
     queryset = ConfigContextProfile.objects.all()
     template_name = 'generic/object.html'
@@ -1069,6 +1073,7 @@ class ConfigContextListView(generic.ObjectListView):
 
 
 @register_model_view(ConfigContext)
+@method_decorator(never_cache, name='dispatch')
 class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
     template_name = 'generic/object.html'
@@ -1155,6 +1160,7 @@ class ConfigContextBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigContext.objects.all()
 
 
+@method_decorator(never_cache, name='dispatch')
 class ObjectConfigContextView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_configcontext.html'
@@ -1199,6 +1205,7 @@ class ConfigTemplateListView(generic.ObjectListView):
 
 
 @register_model_view(ConfigTemplate)
+@method_decorator(never_cache, name='dispatch')
 class ConfigTemplateView(generic.ObjectView):
     queryset = ConfigTemplate.objects.all()
     template_name = 'generic/object.html'
@@ -1260,6 +1267,7 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
     queryset = ConfigTemplate.objects.all()
 
 
+@method_decorator(never_cache, name='dispatch')
 class ObjectRenderConfigView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_render_config.html'

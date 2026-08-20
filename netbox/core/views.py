@@ -12,8 +12,10 @@ from django.db import DatabaseError, connection
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.http import content_disposition_header
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.generic import View
 from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import get_queues_list, get_queues_map
@@ -195,6 +197,7 @@ class DataFileListView(generic.ObjectListView):
 
 
 @register_model_view(DataFile)
+@method_decorator(never_cache, name='dispatch')
 class DataFileView(generic.ObjectView):
     queryset = DataFile.objects.all()
     actions = (DeleteObject,)
