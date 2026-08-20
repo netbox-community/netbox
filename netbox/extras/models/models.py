@@ -770,8 +770,6 @@ class ImageAttachment(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = ('object_type', 'object_id')
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
