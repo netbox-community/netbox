@@ -76,22 +76,17 @@ class SideNav {
       toggler.addEventListener('click', event => this.onMobileToggle(event));
     }
 
-    if (window.innerWidth > 1200) {
+    if (window.innerWidth >= 1200) {
       if (this.state.get('pinned')) {
         this.pin();
-      }
-
-      if (!this.state.get('pinned')) {
+      } else {
         this.unpin();
       }
-      window.addEventListener('resize', () => this.onResize());
-    }
-
-    if (window.innerWidth < 1200) {
+    } else {
       this.bodyRemove('hide');
       this.bodyAdd('hidden');
-      window.addEventListener('resize', () => this.onResize());
     }
+    window.addEventListener('resize', () => this.onResize());
 
     this.base.addEventListener('mouseenter', () => this.onEnter());
     this.base.addEventListener('mouseleave', () => this.onLeave());
