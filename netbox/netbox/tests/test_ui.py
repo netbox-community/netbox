@@ -15,7 +15,7 @@ from circuits.models import (
 )
 from core.models import ObjectType
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Interface, Site
+from dcim.models import Interface, Region, Site
 from netbox.ui import attrs
 from netbox.ui.panels import ObjectsTablePanel
 from netbox.ui.utils import build_coords_url
@@ -364,6 +364,41 @@ class RelatedObjectAttrTestCase(TestCase):
         attr = attrs.RelatedObjectAttr('site', linkify=True)
         context = attr.get_context(obj, 'site', site, {})
         self.assertTrue(context['linkify'])
+
+
+class NestedObjectAttrTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.root = Region.objects.create(name='Root', slug='root')
+        cls.parent = Region.objects.create(name='Parent', slug='parent', parent=cls.root)
+        cls.child = Region.objects.create(name='Child', slug='child', parent=cls.parent)
+
+    def test_get_context_includes_ancestors_and_self(self):
+        attr = attrs.NestedObjectAttr('region')
+        context = attr.get_context(SimpleNamespace(region=self.child), 'region', self.child, {})
+
+        # Without max_depth the MPTT queryset is passed through unmodified
+        self.assertEqual(list(context['nodes']), [self.root, self.parent, self.child])
+
+    def test_get_context_max_depth_keeps_closest_ancestors(self):
+        attr = attrs.NestedObjectAttr('region', max_depth=2)
+        context = attr.get_context(SimpleNamespace(region=self.child), 'region', self.child, {})
+
+        self.assertEqual(context['nodes'], [self.parent, self.child])
+
+    def test_get_context_null_value_yields_no_nodes(self):
+        attr = attrs.NestedObjectAttr('region')
+        context = attr.get_context(SimpleNamespace(region=None), 'region', None, {})
+
+        self.assertEqual(context['nodes'], [])
+
+    def test_get_context_linkify_and_colored(self):
+        attr = attrs.NestedObjectAttr('region', linkify=True, colored=True)
+        context = attr.get_context(SimpleNamespace(region=self.root), 'region', self.root, {})
+
+        self.assertTrue(context['linkify'])
+        self.assertTrue(context['colored'])
 
 
 class GenericForeignKeyAttrTestCase(TestCase):
