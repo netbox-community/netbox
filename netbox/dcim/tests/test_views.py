@@ -1763,6 +1763,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
         cls.bulk_edit_data = {
             'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'Foo bar',
         }
 
 
@@ -2027,6 +2028,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'position': 'A1',
         }
 
 
@@ -2108,6 +2110,7 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'part_id': 'PN-1',
         }
 
 

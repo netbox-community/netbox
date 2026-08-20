@@ -102,7 +102,7 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
             name=_('Validation')
         ),
     )
-    nullable_fields = ('group_name', 'description', 'choice_set', 'validation_schema')
+    nullable_fields = ('group_name', 'description', 'choice_set', 'validation_schema', 'owner', 'comments')
 
 
 class CustomFieldChoiceSetBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
@@ -300,6 +300,11 @@ class EventRuleBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    conditions = JSONField(
+        label=_('Conditions'),
+        required=False,
+        help_text=_('Enter conditions in <a href="https://json.org/">JSON</a> format.')
+    )
 
     nullable_fields = ('description', 'conditions')
 
@@ -367,7 +372,7 @@ class ConfigContextBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm)
     fieldsets = (
         FieldSet('weight', 'profile', 'is_active', 'description'),
     )
-    nullable_fields = ('profile', 'description')
+    nullable_fields = ('profile', 'description', 'owner')
 
 
 class ConfigTemplateBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
