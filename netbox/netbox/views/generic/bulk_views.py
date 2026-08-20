@@ -427,7 +427,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 return redirect(self.get_return_url(request))
 
             except (AbortTransaction, IntegrityError):
-                pass
+                clear_events.send(sender=self)
 
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
@@ -1218,6 +1218,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except (ProtectedError, RestrictedError) as e:
                     logger.warning(f"Caught {type(e)} while attempting to delete objects")
+                    clear_events.send(sender=self)
                     if is_background_request(request):
                         request.job.logger.error(
                             _("Deletion failed due to the presence of one or more dependent objects.")
@@ -1227,6 +1228,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except AbortRequest as e:
                     logger.debug(e.message)
+                    clear_events.send(sender=self)
                     if is_background_request(request):
                         request.job.logger.error(e.message)
                         raise JobFailed
