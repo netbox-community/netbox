@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-19 05:18+0000\n"
+"POT-Creation-Date: 2026-08-21 05:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2067,7 +2067,7 @@ msgid "Sync interval"
 msgstr ""
 
 #: netbox/core/forms/bulk_edit.py:33 netbox/extras/forms/model_forms.py:388
-#: netbox/extras/views.py:395 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:398 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:299
 #: netbox/vpn/forms/model_forms.py:320 netbox/vpn/forms/model_forms.py:336
@@ -2677,7 +2677,7 @@ msgstr ""
 msgid "Interval"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:51 netbox/core/views.py:272
+#: netbox/core/tables/jobs.py:51 netbox/core/views.py:275
 msgid "Log Entries"
 msgstr ""
 
@@ -2843,7 +2843,7 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:571
+#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:574
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr ""
@@ -2853,62 +2853,62 @@ msgstr ""
 msgid "Job {id} not found."
 msgstr ""
 
-#: netbox/core/views.py:136
+#: netbox/core/views.py:138
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr ""
 
-#: netbox/core/views.py:254 netbox/extras/forms/filtersets.py:184
+#: netbox/core/views.py:257 netbox/extras/forms/filtersets.py:184
 #: netbox/extras/forms/filtersets.py:385 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/filtersets.py:504 netbox/extras/forms/model_forms.py:784
 #: netbox/extras/ui/panels.py:381
 msgid "Data"
 msgstr ""
 
-#: netbox/core/views.py:265 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:268 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr ""
 
-#: netbox/core/views.py:507
+#: netbox/core/views.py:510
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr ""
 
-#: netbox/core/views.py:610
+#: netbox/core/views.py:613
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr ""
 
-#: netbox/core/views.py:612
+#: netbox/core/views.py:615
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr ""
 
-#: netbox/core/views.py:621
+#: netbox/core/views.py:624
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr ""
 
-#: netbox/core/views.py:630
+#: netbox/core/views.py:633
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr ""
 
-#: netbox/core/views.py:639
+#: netbox/core/views.py:642
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr ""
 
-#: netbox/core/views.py:641
+#: netbox/core/views.py:644
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr ""
 
-#: netbox/core/views.py:855
+#: netbox/core/views.py:858
 msgid "Plugins catalog could not be loaded"
 msgstr ""
 
-#: netbox/core/views.py:891
+#: netbox/core/views.py:894
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr ""
@@ -8285,7 +8285,7 @@ msgstr ""
 msgid "An error occurred while rendering the config template."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1307
+#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1315
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr ""
@@ -10482,8 +10482,8 @@ msgstr ""
 msgid "Attachment"
 msgstr ""
 
-#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:249
-#: netbox/extras/views.py:320
+#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:251
+#: netbox/extras/views.py:323
 msgid "Assigned Models"
 msgstr ""
 
@@ -10556,67 +10556,67 @@ msgstr ""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr ""
 
-#: netbox/extras/views.py:252
+#: netbox/extras/views.py:254
 msgid "Link Text"
 msgstr ""
 
-#: netbox/extras/views.py:253
+#: netbox/extras/views.py:255
 msgid "Link URL"
 msgstr ""
 
-#: netbox/extras/views.py:321 netbox/extras/views.py:1211
+#: netbox/extras/views.py:324 netbox/extras/views.py:1218
 msgid "Environment Parameters"
 msgstr ""
 
-#: netbox/extras/views.py:324 netbox/extras/views.py:1214
+#: netbox/extras/views.py:327 netbox/extras/views.py:1221
 msgid "Template"
 msgstr ""
 
-#: netbox/extras/views.py:488
+#: netbox/extras/views.py:491
 msgid "Table configurations must be created from an object list view."
 msgstr ""
 
-#: netbox/extras/views.py:773
+#: netbox/extras/views.py:776
 msgid "Additional Headers"
 msgstr ""
 
-#: netbox/extras/views.py:774
+#: netbox/extras/views.py:777
 msgid "Body Template"
 msgstr ""
 
-#: netbox/extras/views.py:843
+#: netbox/extras/views.py:846
 msgid "Conditions"
 msgstr ""
 
-#: netbox/extras/views.py:917
+#: netbox/extras/views.py:920
 msgid "Tagged Objects"
 msgstr ""
 
-#: netbox/extras/views.py:1009
+#: netbox/extras/views.py:1013
 msgid "JSON Schema"
 msgstr ""
 
-#: netbox/extras/views.py:1502
+#: netbox/extras/views.py:1510
 msgid "Your dashboard has been reset."
 msgstr ""
 
-#: netbox/extras/views.py:1548
+#: netbox/extras/views.py:1556
 msgid "Added widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1589
+#: netbox/extras/views.py:1597
 msgid "Updated widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1625
+#: netbox/extras/views.py:1633
 msgid "Deleted widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1627
+#: netbox/extras/views.py:1635
 msgid "Error deleting widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1743
+#: netbox/extras/views.py:1751
 msgid "Unable to run script: RQ worker process not running."
 msgstr ""
 
@@ -13450,8 +13450,8 @@ msgid "Updated {count} {object_type}"
 msgstr ""
 
 #: netbox/netbox/views/generic/bulk_views.py:971
-#: netbox/netbox/views/generic/bulk_views.py:1250
-#: netbox/netbox/views/generic/bulk_views.py:1298
+#: netbox/netbox/views/generic/bulk_views.py:1252
+#: netbox/netbox/views/generic/bulk_views.py:1300
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
@@ -13475,20 +13475,20 @@ msgstr ""
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1223
+#: netbox/netbox/views/generic/bulk_views.py:1224
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1311
+#: netbox/netbox/views/generic/bulk_views.py:1313
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1364
+#: netbox/netbox/views/generic/bulk_views.py:1366
 msgid "An integrity error occurred while creating components"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1376
+#: netbox/netbox/views/generic/bulk_views.py:1378
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr ""
