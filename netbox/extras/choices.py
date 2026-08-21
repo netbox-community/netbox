@@ -47,6 +47,25 @@ class CustomFieldTypeChoices(ChoiceSet):
     )
 
 
+class CustomFieldStatusChoices(ChoiceSet):
+    """
+    The lifecycle state of a CustomField.
+
+    A field participates in object data only while active. The remaining states indicate that a bulk
+    update of its stored data is pending or in progress, during which the field is not live but its
+    row continues to reserve the field's name.
+    """
+    STATUS_ACTIVE = 'active'
+    STATUS_PROVISIONING = 'provisioning'
+    STATUS_DELETING = 'deleting'
+
+    CHOICES = (
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PROVISIONING, _('Provisioning'), 'cyan'),
+        (STATUS_DELETING, _('Deleting'), 'red'),
+    )
+
+
 class CustomFieldFilterLogicChoices(ChoiceSet):
 
     FILTER_DISABLED = 'disabled'

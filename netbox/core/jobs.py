@@ -10,6 +10,9 @@ from django.utils import timezone
 from packaging import version
 
 from core.models import Job, ObjectChange
+from extras.choices import CustomFieldStatusChoices
+from extras.jobs import CustomFieldProvisioningJob, CustomFieldPurgeJob
+from extras.models import CustomField
 from netbox.config import Config
 from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
@@ -79,6 +82,7 @@ class SystemHousekeepingJob(JobRunner):
         self.clear_expired_sessions()
         self.prune_changelog()
         self.delete_expired_jobs()
+        self.finalize_custom_fields()
         self.check_for_new_releases()
 
     def send_census_report(self):
@@ -190,6 +194,26 @@ class SystemHousekeepingJob(JobRunner):
 
         count = Job.objects.filter(created__lt=cutoff).delete()[0]
         self.logger.info(f"Deleted {count} expired jobs")
+
+    def finalize_custom_fields(self):
+        """
+        Complete any pending custom field data operations.
+
+        Provisioning and purging are ordinarily performed by a dedicated job enqueued at the time
+        the field is created or deleted. This is a backstop for the cases where that job never ran
+        or failed: a field left mid-operation is not live, and a field left pending deletion holds
+        its name reserved, so neither can be allowed to persist indefinitely.
+        """
+        self.logger.info("Finalizing pending custom fields...")
+        jobs = {
+            CustomFieldStatusChoices.STATUS_PROVISIONING: CustomFieldProvisioningJob,
+            CustomFieldStatusChoices.STATUS_DELETING: CustomFieldPurgeJob,
+        }
+        count = 0
+        for custom_field in CustomField.objects.filter(status__in=jobs):
+            jobs[custom_field.status].enqueue_for(custom_field, skip_locked=True)
+            count += 1
+        self.logger.info(f"Enqueued {count} custom field jobs.")
 
     def check_for_new_releases(self):
         """

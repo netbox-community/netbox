@@ -8,18 +8,20 @@ import jsonschema
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
-from django.db import models
-from django.db.models import F, Func, Value
+from django.db import models, router, transaction
+from django.db.models import F, Func, Q, Value
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django_pg_utils import advisory_lock
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.choices import *
 from extras.data import CHOICE_SETS
 from extras.fields import ChoiceSetField
+from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.context import query_cache
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
@@ -27,6 +29,7 @@ from netbox.models.mixins import OwnerMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.datetime import datetime_from_timestamp
+from utilities.exceptions import AbortRequest
 from utilities.forms.fields import (
     CSVChoiceField,
     CSVModelChoiceField,
@@ -65,37 +68,71 @@ SEARCH_TYPES = {
 class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
     use_in_migrations = True
 
-    def get_for_model(self, model):
+    def get_for_model(self, model, statuses=(CustomFieldStatusChoices.STATUS_ACTIVE,)):
         """
-        Return all CustomFields assigned to the given model.
+        Return a list of the CustomFields assigned to the given model which hold one of the given
+        statuses.
+
+        Only active fields are returned by default: a field awaiting a bulk update of its stored data
+        is not live, and must be invisible to every consumer of custom field data until that work
+        completes (see CustomFieldStatusChoices). This is the sole entry point by which custom fields
+        are resolved for an object, so excluding them here excludes them everywhere.
+
+        Every assigned field is fetched and cached whichever statuses are asked for, so that callers
+        wanting different subsets share one query per model per request.
+
+        Args:
+            model: The model whose custom fields are to be returned
+            statuses: The statuses to select (active only by default)
         """
-        # Check the request cache before hitting the database. Test the cached value against None
-        # rather than for truthiness: a model with no custom fields caches an empty QuerySet, which
-        # would otherwise be treated as a miss and re-queried on every call.
         cache = query_cache.get()
-        if cache is not None:
-            if (custom_fields := cache['custom_fields'].get(model._meta.model)) is not None:
-                return custom_fields
 
-        content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type).select_related(
-            'related_object_type', 'choice_set'
-        )
+        # Check the request cache before hitting the database. Test the cached value against None
+        # rather than for truthiness: a model with no custom fields caches an empty list, which
+        # would otherwise be treated as a miss and re-queried on every call.
+        custom_fields = cache['custom_fields'].get(model._meta.model) if cache is not None else None
+        if custom_fields is None:
+            content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
+            custom_fields = list(
+                self.get_queryset().filter(object_types=content_type).select_related(
+                    'related_object_type', 'choice_set'
+                )
+            )
 
-        # Populate the request cache to avoid redundant lookups
-        if cache is not None:
-            cache['custom_fields'][model._meta.model] = custom_fields
+            # Populate the request cache to avoid redundant lookups
+            if cache is not None:
+                cache['custom_fields'][model._meta.model] = custom_fields
 
-        return custom_fields
+        return [cf for cf in custom_fields if cf.status in statuses]
 
     def get_defaults_for_model(self, model):
         """
         Return a dictionary of serialized default values for all CustomFields applicable to the given model.
+
+        Fields still being provisioned are included, unlike in get_for_model(). The provisioning job
+        backfills only the objects which predate the field, so an object created while it runs must
+        pick up the default here or never receive one at all.
         """
-        custom_fields = self.get_for_model(model).filter(default__isnull=False)
-        return {
-            cf.name: cf.default for cf in custom_fields
+        # Check the request cache before hitting the database. Test the cached value against None
+        # rather than for truthiness, as a model with no defaults caches an empty dict.
+        cache = query_cache.get()
+        if cache is not None:
+            if (defaults := cache['custom_field_defaults'].get(model._meta.model)) is not None:
+                return defaults
+
+        custom_fields = self.get_for_model(model, statuses=(
+            CustomFieldStatusChoices.STATUS_ACTIVE,
+            CustomFieldStatusChoices.STATUS_PROVISIONING,
+        ))
+        defaults = {
+            cf.name: cf.default for cf in custom_fields if cf.default is not None
         }
+
+        # Populate the request cache to avoid redundant lookups
+        if cache is not None:
+            cache['custom_field_defaults'][model._meta.model] = defaults
+
+        return defaults
 
 
 class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
@@ -136,6 +173,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 inverse_match=True
             ),
         )
+    )
+    status = models.CharField(
+        max_length=50,
+        choices=CustomFieldStatusChoices,
+        default=CustomFieldStatusChoices.STATUS_ACTIVE,
+        verbose_name=_('status'),
+        help_text=_("Operational state of the field"),
+        editable=False
     )
     label = models.CharField(
         verbose_name=_('label'),
@@ -315,6 +360,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return self.choice_set.choices
         return []
 
+    def get_status_color(self):
+        return CustomFieldStatusChoices.colors.get(self.status)
+
     def get_ui_visible_color(self):
         return CustomFieldUIVisibleChoices.colors.get(self.ui_visible)
 
@@ -345,24 +393,120 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return [{'value': v, 'label': self.get_choice_label(v)} for v in value]
         return value
 
-    def populate_initial_data(self, content_types):
+    @staticmethod
+    def data_lock_key(pk):
+        """
+        The advisory lock which serializes bulk updates of a field's stored data against one another
+        and against its deletion, keyed by primary key so that work on one field never waits on
+        another.
+
+        An advisory lock rather than a lock on the field's own row, because the jobs commit their
+        batches independently: a row lock would be released with the first of them, where a
+        session-scoped advisory lock spans them all.
+        """
+        return ADVISORY_LOCK_KEYS['custom-field-data'], pk
+
+    @staticmethod
+    def _update_object_data(model, filters=None, commit_per_batch=False, **update_kwargs):
+        """
+        Apply an UPDATE to the custom_field_data of every instance of the given model, in batches
+        of at most BULK_UPDATE_CHUNK_SIZE rows. Bounding the number of rows touched by each statement
+        keeps a very large table from exceeding the database statement timeout, as a JSONB update
+        rewrites each affected row in full.
+
+        :param filters: Optional Q object restricting which rows are updated. Negate it to address
+            the rows which do not match instead.
+        :param commit_per_batch: Commit each batch independently rather than wrapping them all in a
+            single transaction, so that a long-running job does not hold row locks for its whole
+            duration. Only for updates which can safely be resumed.
+        """
+        return chunked_update(
+            model.objects.filter(filters or Q()),
+            commit_per_batch=commit_per_batch,
+            **update_kwargs,
+        )
+
+    @staticmethod
+    def _exceeds_inline_limit(content_types):
+        """
+        Return True if a bulk update of custom field data across the given object types is too large
+        to perform within the request which triggered it, and must be handed to a background job
+        instead. The limit is BULK_UPDATE_CHUNK_SIZE objects across all of the given types: an
+        update which fits within a single statement is comfortably within any request timeout.
+
+        The rows are probed rather than counted: `COUNT(*)` reads the whole table, whereas counting
+        one primary key more than the limit costs the same on a table of ten million rows as on one
+        of ten thousand. Only the primary key is selected, and the model's default ordering cleared,
+        to keep the probe to an index-only scan.
+
+        On the deletion path this over-estimates, as every row of the type is counted where
+        remove_stale_data() would rewrite only those holding the field's key. Probing the key
+        instead would match the work exactly, but custom_field_data carries no index, so the LIMIT
+        could not bound the scan.
+        """
+        # Setting BULK_UPDATE_CHUNK_SIZE to None disables chunking, so the update would be issued
+        # as a single unbounded statement -- precisely what must not run inside a request. Treat any
+        # affected object as exceeding the limit, handing the work to the job, which issues that one
+        # statement under a timeout generous enough to survive it (see CUSTOMFIELD_JOB_TIMEOUT). A
+        # limit of zero leaves the probe below testing for a single row, so a field affecting no
+        # objects still needs no job.
+        limit = settings.BULK_UPDATE_CHUNK_SIZE
+        remaining = 0 if limit is None else limit
+
+        for ct in content_types:
+            if model := ct.model_class():
+                remaining -= model.objects.order_by().values_list('pk', flat=True)[:remaining + 1].count()
+                if remaining < 0:
+                    return True
+        return False
+
+    def provision_data(self, object_types):
+        """
+        Populate the field's default value across the existing objects of the given object types.
+
+        Where too many objects are affected to handle within the request, the field is taken offline
+        and the backfill handed to a background job: it does not go live until the job has finished
+        (see CustomFieldStatusChoices).
+        """
+        from extras.jobs import CustomFieldProvisioningJob
+
+        if self.default is None:
+            return
+
+        object_types = list(object_types)
+        if not self._exceeds_inline_limit(object_types):
+            self.populate_initial_data(object_types)
+            return
+
+        self.status = CustomFieldStatusChoices.STATUS_PROVISIONING
+        # Applied via the queryset so that taking the field offline does not itself record a change.
+        self.__class__.objects.filter(pk=self.pk).update(status=self.status)
+
+        # Deferred until commit so that the worker cannot observe the field before it is marked.
+        # The types are carried to the job, which cannot otherwise know which of the field's
+        # assignments are the new ones.
+        transaction.on_commit(
+            lambda: CustomFieldProvisioningJob.enqueue_for(
+                self, object_type_pks=[ct.pk for ct in object_types]
+            )
+        )
+
+    def populate_initial_data(self, content_types, commit_per_batch=False):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
         b) the assignment of an existing CustomField to new object types.
 
-        Only a non-null default is written. A field with no default has no value to record, and an
-        absent key is equivalent to a null one everywhere the data is read (see CustomFieldsMixin),
-        so materializing a JSON null on every object would be a very expensive no-op: on a large
-        table it can outlast the request. Objects without the key simply report no value until one
-        is assigned.
+        Objects which already hold a key for the field are left alone, making this idempotent -- as
+        a retried job requires, and as committing the backfill in batches relies on. (Note that a
+        cleared value is a JSON null rather than an absent key, and so is likewise preserved.)
         """
-        if self.default is None:
-            return
         value = Value(self.default, models.JSONField())
         for ct in content_types:
             if model := ct.model_class():
-                chunked_update(
-                    model.objects.all(),
+                self._update_object_data(
+                    model,
+                    filters=~Q(custom_field_data__has_key=self.name),
+                    commit_per_batch=commit_per_batch,
                     custom_field_data=Func(
                         F('custom_field_data'),
                         Value([self.name]),
@@ -371,19 +515,21 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                     )
                 )
 
-    def remove_stale_data(self, content_types):
+    def remove_stale_data(self, content_types, commit_per_batch=False):
         """
         Delete custom field data which is no longer relevant (either because the CustomField is
         no longer assigned to a model, or because it has been deleted).
 
-        Only objects which actually hold a value for the field are rewritten. Because keys are
-        materialized only when a value is set (see populate_initial_data()), this typically
-        excludes the bulk of the table.
+        Only objects which actually hold a value for the field are rewritten. That typically excludes
+        the bulk of the table, and makes this idempotent -- as committing the removal in batches
+        relies on -- since a row is dropped from the queryset by the update which removes its key.
         """
         for ct in content_types:
             if model := ct.model_class():
-                chunked_update(
-                    model.objects.filter(custom_field_data__has_key=self.name),
+                self._update_object_data(
+                    model,
+                    filters=Q(custom_field_data__has_key=self.name),
+                    commit_per_batch=commit_per_batch,
                     custom_field_data=F('custom_field_data') - self.name
                 )
 
@@ -394,8 +540,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         for ct in self.object_types.all():
             if model := ct.model_class():
-                chunked_update(
-                    model.objects.filter(custom_field_data__has_key=old_name),
+                self._update_object_data(
+                    model,
+                    filters=Q(custom_field_data__has_key=old_name),
                     custom_field_data=Func(
                         F('custom_field_data') - old_name,
                         Value([new_name]),
@@ -408,8 +555,92 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                         function='jsonb_set')
                 )
 
+    def delete(self, *args, **kwargs):
+        """
+        Delete the field, deferring the removal of its stored data to a background job where too
+        many objects are affected to handle within the request (see #22996).
+
+        Where the work is deferred, the row is retained until the job completes: `name` is unique, so
+        for as long as the row exists no other field can take this name and inherit the data still
+        awaiting removal.
+
+        The deletion signals are dispatched here rather than when the row is finally removed, so that
+        protection rules, the change log, event rules and the search index observe the deletion where
+        the user performed it. They run again in the worker, where every effect beyond the protection
+        rules is gated on there being a current request, making the replay a no-op.
+
+        The deletion is refused outright if a background job holds the field's data lock, rather than
+        queueing behind an update which may run for hours (see CUSTOMFIELD_JOB_TIMEOUT). A field
+        stranded in a pending state by a job which never ran holds no lock, and stays deletable.
+        """
+        if self.status == CustomFieldStatusChoices.STATUS_DELETING:
+            # Already pending deletion; the purge job will remove the row once its data is gone.
+            return 0, {}
+
+        from extras.jobs import CustomFieldPurgeJob
+
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+
+        # Taken outside the transaction below, and so released only once that transaction has ended:
+        # an advisory lock survives a rollback, and releasing it needs a connection in a usable
+        # state, which a transaction aborted by a failed statement is not.
+        with advisory_lock(self.data_lock_key(self.pk), wait=False, using=using) as acquired:
+            if not acquired:
+                raise AbortRequest(
+                    _("Custom field '{name}' is being updated by a background job and cannot be "
+                      "deleted until that job has completed.").format(name=self.name)
+                )
+
+            # Marking the field and dispatching the signals form a single unit of work: a receiver
+            # which raises -- handle_deleted_object() turning a failed deletion protection rule into
+            # AbortRequest, say -- must leave the field exactly as it was. Not every caller provides
+            # a transaction to roll the marking back: ObjectDeleteView deletes in autocommit, which
+            # would otherwise commit the marking and strand the field, unusable and awaiting a purge
+            # job which was never enqueued. Hence a transaction of our own rather than reliance on an
+            # enclosing one.
+            with transaction.atomic(using=using):
+
+                if not self._exceeds_inline_limit(self.object_types.all()):
+                    # Few enough objects to purge within the request: delete the row outright, its
+                    # stored data being removed by handle_cf_deleted().
+                    return super().delete(*args, **kwargs)
+
+                # Marked before the signals are dispatched, so that handle_cf_deleted() leaves the
+                # stored data to the purge job. Applied via the queryset to avoid emitting a
+                # spurious "updated" change record for a field which has, as far as every consumer
+                # is concerned, just been deleted.
+                self.status = CustomFieldStatusChoices.STATUS_DELETING
+                self.__class__.objects.using(using).filter(pk=self.pk).update(status=self.status)
+
+                models.signals.pre_delete.send(sender=self.__class__, instance=self, using=using, origin=self)
+                models.signals.post_delete.send(sender=self.__class__, instance=self, using=using, origin=self)
+
+                # Deferred until commit so that the worker cannot observe the field before it is
+                # marked, and is not enqueued at all if the deletion is aborted. The purge job takes
+                # this same lock, and waits on it where the deletion enqueued it rather than
+                # housekeeping, so it cannot be lost to the window between that commit and the
+                # release below.
+                transaction.on_commit(lambda: CustomFieldPurgeJob.enqueue_for(self), using=using)
+
+        return 1, {self._meta.label: 1}
+
+    def _delete_row(self):
+        """
+        Remove the row itself. Called by CustomFieldPurgeJob once the field's stored data has been
+        purged; nothing else should bypass delete().
+        """
+        return super().delete()
+
     def clean(self):
         super().clean()
+
+        # A field awaiting a bulk update of its stored data is not live, and its configuration must
+        # not change under the job which is acting on it.
+        if self.pk and self.status != CustomFieldStatusChoices.STATUS_ACTIVE:
+            raise ValidationError(
+                _("Custom field '{name}' cannot be modified while its stored data is being updated "
+                  "(status: {status}).").format(name=self.name, status=self.get_status_display().lower())
+            )
 
         # Validate the field's default value (if any)
         if self.default is not None:
