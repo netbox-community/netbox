@@ -103,8 +103,6 @@ class FHRPGroupAssignment(ChangeLoggedModel):
         )
     )
 
-    clone_fields = ('interface_type', 'interface_id')
-
     class Meta:
         ordering = ('-priority', 'pk')
         indexes = (
