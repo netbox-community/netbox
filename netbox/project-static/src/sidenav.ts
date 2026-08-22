@@ -1,10 +1,8 @@
-import { Collapse } from 'bootstrap';
 import { StateManager } from './state';
 import { getElements, isElement } from './util';
 
 type NavState = { pinned: boolean };
 type BodyAttr = 'show' | 'hide' | 'hidden' | 'pinned';
-type Section = [HTMLAnchorElement, InstanceType<typeof Collapse>];
 
 class SideNav {
   /**
@@ -17,16 +15,6 @@ class SideNav {
    */
   private state: StateManager<NavState>;
 
-  /**
-   * The currently active parent nav-link controlling a section.
-   */
-  private activeLink: Nullable<HTMLAnchorElement> = null;
-
-  /**
-   * All collapsible sections and their controlling nav-links.
-   */
-  private sections: Section[] = [];
-
   constructor(base: HTMLElement) {
     this.base = base;
     this.state = new StateManager<NavState>(
@@ -35,7 +23,6 @@ class SideNav {
     );
 
     this.init();
-    this.initSectionLinks();
     this.initLinks();
   }
 
@@ -114,7 +101,7 @@ class SideNav {
   }
 
   /**
-   * Hide the sidenav and collapse all active nav sections.
+   * Hide the sidenav and close any nested collapse elements.
    */
   private hide(): void {
     this.bodyAdd('hidden');
@@ -146,55 +133,8 @@ class SideNav {
   }
 
   /**
-   * When a section's controlling nav-link is clicked, update this instance's `activeLink`
-   * attribute and close all other sections.
-   */
-  private handleSectionClick(event: Event): void {
-    event.preventDefault();
-    const element = event.target as HTMLAnchorElement;
-    this.activeLink = element;
-    this.closeInactiveSections();
-  }
-
-  /**
-   * Close all sections that are not associated with the currently active link (`activeLink`).
-   */
-  private closeInactiveSections(): void {
-    for (const [link, collapse] of this.sections) {
-      if (link !== this.activeLink) {
-        link.classList.add('collapsed');
-        link.setAttribute('aria-expanded', 'false');
-        collapse.hide();
-      }
-    }
-  }
-
-  /**
-   * Initialize `bootstrap.Collapse` instances on all section collapse elements and add event
-   * listeners to the controlling nav-links.
-   */
-  private initSectionLinks(): void {
-    for (const section of getElements<HTMLAnchorElement>(
-      '.navbar-nav .nav-item .nav-link[data-bs-toggle]',
-    )) {
-      if (section.parentElement !== null) {
-        const collapse = section.parentElement.querySelector<HTMLDivElement>('.collapse');
-        if (collapse !== null) {
-          const collapseInstance = new Collapse(collapse, {
-            toggle: false, // Don't automatically open the collapse element on invocation.
-          });
-          this.sections.push([section, collapseInstance]);
-          section.addEventListener('click', event => this.handleSectionClick(event));
-        }
-      }
-    }
-  }
-
-  /**
-   * Starting from the bottom-most active link in the element tree, work backwards to determine the
-   * link's containing `.collapse` element and the `.collapse` element's containing `.nav-link`
-   * element. Once found, expand (or collapse) the `.collapse` element and add (or remove) the
-   * `.active` class to the the parent `.nav-link` element.
+   * Expand or collapse the `.dropdown-menu` containing an active link, and toggle the `active`
+   * class on the link and on its containing `.nav-item`.
    *
    * @param link Active nav link
    * @param action Expand or Collapse
@@ -233,7 +173,7 @@ class SideNav {
     for (const menuitem of this.base.querySelectorAll<HTMLDivElement>(
       'ul.navbar-nav .nav-item .dropdown-item',
     )) {
-      const link = menuitem.querySelector<HTMLAnchorElement>('a')
+      const link = menuitem.querySelector<HTMLAnchorElement>('a');
       if (link) {
         const href = new RegExp(link.href, 'gi');
         if (window.location.href.match(href)) {
@@ -244,7 +184,7 @@ class SideNav {
   }
 
   /**
-   * Show the sidenav and expand any active sections.
+   * Show the sidenav and expand any active menu groups.
    */
   private onEnter(): void {
     if (!this.bodyHas('pinned')) {
@@ -257,7 +197,7 @@ class SideNav {
   }
 
   /**
-   * Hide the sidenav and collapse any active sections.
+   * Hide the sidenav and collapse any active menu groups.
    */
   private onLeave(): void {
     if (!this.bodyHas('pinned')) {
