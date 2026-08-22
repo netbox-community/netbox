@@ -15,6 +15,7 @@ from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
+from extras.scripts import prepare_script_form
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -403,23 +404,45 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
-        if input_serializer.is_valid():
-            ScriptJob.enqueue(
-                instance=script,
-                user=request.user,
-                data=input_serializer.data['data'],
-                request=copy_safe_request(request),
-                commit=input_serializer.data['commit'],
-                job_timeout=script.python_class.job_timeout,
-                schedule_at=input_serializer.validated_data.get('schedule_at'),
-                interval=input_serializer.validated_data.get('interval'),
-                notifications=input_serializer.validated_data.get('notifications'),
+        if not input_serializer.is_valid():
+            return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        validated = input_serializer.validated_data
+
+        payload = validated.get('data')
+        if not isinstance(payload, dict):
+            raise ValidationError(
+                {'data': _('Invalid data payload; expected an object mapping variable names to values.')}
             )
-            serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
-            return Response(serializer.data)
+        script_class = script.python_class
+        if not script_class:
+            raise ValidationError({'script': _('Script class could not be loaded; cannot determine job timeout.')})
+        script_instance = script_class()
 
-        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        form = prepare_script_form(script_instance, payload, files=request.FILES)
+        if not form.is_valid():
+            # remove internal fields (_commit etc.) from API error message
+            errors = {k: v for k, v in form.errors.items() if not k.startswith('_')}
+            raise ValidationError(errors)
+
+        data = form.cleaned_data.copy()
+        for k in ('_commit', '_schedule_at', '_interval', '_notifications'):
+            data.pop(k, None)
+
+        ScriptJob.enqueue(
+            instance=script,
+            user=request.user,
+            data=data,
+            request=copy_safe_request(request),
+            commit=validated.get('commit'),
+            job_timeout=script_class.job_timeout,
+            schedule_at=validated.get('schedule_at'),
+            interval=validated.get('interval'),
+            notifications=validated.get('notifications'),
+        )
+        serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        return Response(serializer.data)
 
 
 #
