@@ -125,6 +125,103 @@ class LocationSiteChangeSignalTestCase(TestCase):
         # Should not raise — newly-created locations have no descendants.
         Location.objects.create(name='New', slug='new', site=self.site_a)
 
+    def _capture_propagation_updates(self, location):
+        """
+        Save the Location and return the UPDATE statements it issued against the tables this
+        handler propagates to. dcim_cabletermination and dcim_location are excluded: the
+        denormalized-field registry (netbox.denormalized) rewrites the former's _location on
+        every Location save, and the latter carries the saved row's own UPDATE, so neither
+        distinguishes a propagation from a plain save.
+        """
+        tables = ('dcim_rack', 'dcim_device', 'dcim_powerpanel', *(
+            model._meta.db_table for model in signals.COMPONENT_MODELS
+        ))
+
+        with CaptureQueriesContext(connection) as ctx:
+            location.save()
+
+        return {
+            table for table in tables
+            for q in ctx.captured_queries
+            if q['sql'].startswith(f'UPDATE "{table}"')
+        }
+
+    def _seed_location_with_children(self):
+        location = Location.objects.create(name='Parent', slug='parent', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            location=location,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        Rack.objects.create(name='Rack', site=self.site_a, location=location)
+        PowerPanel.objects.create(name='Panel', site=self.site_a, location=location)
+        return location
+
+    def test_unchanged_site_skips_propagation(self):
+        # Every value the handler writes is derived from the Location's site assignment, so a
+        # save which leaves it alone has nothing to propagate and must not rewrite a single
+        # descendant row. Rewriting them is not merely wasted work: PostgreSQL writes a new
+        # tuple version for every row an UPDATE matches, and holds a row lock on each for the
+        # remainder of the transaction.
+        location = self._seed_location_with_children()
+        location.description = 'updated'
+
+        self.assertEqual(self._capture_propagation_updates(location), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        updated_tables = self._capture_propagation_updates(location)
+
+        self.assertEqual(updated_tables, {'dcim_rack', 'dcim_device', 'dcim_powerpanel', *(
+            model._meta.db_table for model in signals.COMPONENT_MODELS
+        )})
+
+
+class LocationSiteChangeAutocommitTestCase(TransactionTestCase):
+    """
+    Exercise the autocommit save path, which TestCase cannot reach (it wraps every test in a
+    transaction). Outside an atomic block the pre-save read and the save's UPDATE run in
+    separate transactions, so the skip guard is disabled there: the stash is cleared and the
+    propagation runs unconditionally.
+
+    Note: TransactionTestCase teardown flushes all tables, which removes rows seeded by data
+    migrations from a --keepdb database (e.g. the dcim.0206 ModuleTypeProfiles). A fresh test
+    database restores them.
+    """
+
+    def test_autocommit_noop_save_always_propagates(self):
+        site = Site.objects.create(name='Site', slug='site')
+        other_site = Site.objects.create(name='Other Site', slug='other-site')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        device = Device.objects.create(
+            name='Device', site=site, location=location, device_type=device_type, role=device_role
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        # A transactional save first, so the instance carries a stash. The subsequent
+        # autocommit save must clear it rather than compare against a previous save's values.
+        with transaction.atomic():
+            location.save()
+
+        # Poison a cached column via a signal-less update; an unconditional propagation
+        # repairs it.
+        Interface.objects.filter(pk=interface.pk).update(_site=other_site)
+
+        location.save()  # Autocommit: no stash, unconditional propagation
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, site)
+
 
 class RackSiteChangeSignalTestCase(TestCase):
     """
