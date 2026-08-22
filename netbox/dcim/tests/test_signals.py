@@ -35,8 +35,33 @@ from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
+COMPONENT_TABLES = frozenset(model._meta.db_table for model in signals.COMPONENT_MODELS)
 
-class LocationSiteChangeSignalTestCase(TestCase):
+
+class ScopePropagationCaptureMixin:
+    """
+    Helper for asserting whether a save propagated to the tables its post_save handler
+    rewrites.
+
+    dcim_cabletermination is never among them: the denormalized-field registry
+    (netbox.denormalized) rewrites it on Location, Rack, and Device saves alike, so it
+    cannot distinguish a propagation from a plain save. Neither is the saved object's own
+    table, which carries the save's own UPDATE.
+    """
+    propagation_tables = frozenset()
+
+    def capture_propagation_updates(self, obj):
+        with CaptureQueriesContext(connection) as ctx:
+            obj.save()
+
+        return {
+            table for table in self.propagation_tables
+            for q in ctx.captured_queries
+            if q['sql'].startswith(f'UPDATE "{table}"')
+        }
+
+
+class LocationSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_location_site_change propagates a Location's new Site to
     every descendant Location, Rack, Device, PowerPanel, and component when the parent
@@ -125,12 +150,87 @@ class LocationSiteChangeSignalTestCase(TestCase):
         # Should not raise — newly-created locations have no descendants.
         Location.objects.create(name='New', slug='new', site=self.site_a)
 
+    propagation_tables = COMPONENT_TABLES | {'dcim_rack', 'dcim_device', 'dcim_powerpanel'}
 
-class RackSiteChangeSignalTestCase(TestCase):
+    def _seed_location_with_children(self):
+        location = Location.objects.create(name='Parent', slug='parent', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            location=location,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        Rack.objects.create(name='Rack', site=self.site_a, location=location)
+        PowerPanel.objects.create(name='Panel', site=self.site_a, location=location)
+        return location
+
+    def test_unchanged_site_skips_propagation(self):
+        # Every value the handler writes is derived from the Location's site assignment, so a
+        # save which leaves it alone has nothing to propagate and must not rewrite a single
+        # descendant row. Rewriting them is not merely wasted work: PostgreSQL writes a new
+        # tuple version for every row an UPDATE matches, and holds a row lock on each for the
+        # remainder of the transaction.
+        location = self._seed_location_with_children()
+        location.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(location), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(location), self.propagation_tables)
+
+
+class LocationSiteChangeAutocommitTestCase(TransactionTestCase):
+    """
+    Exercise the autocommit save path, which TestCase cannot reach (it wraps every test in a
+    transaction). Outside an atomic block the pre-save read and the save's UPDATE run in
+    separate transactions, so the skip guard is disabled there: the stash is cleared and the
+    propagation runs unconditionally.
+
+    Note: TransactionTestCase teardown flushes all tables, which removes rows seeded by data
+    migrations from a --keepdb database (e.g. the dcim.0206 ModuleTypeProfiles). A fresh test
+    database restores them.
+    """
+
+    def test_autocommit_noop_save_always_propagates(self):
+        site = Site.objects.create(name='Site', slug='site')
+        other_site = Site.objects.create(name='Other Site', slug='other-site')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        device = Device.objects.create(
+            name='Device', site=site, location=location, device_type=device_type, role=device_role
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        # A transactional save first, so the instance carries a stash. The subsequent
+        # autocommit save must clear it rather than compare against a previous save's values.
+        with transaction.atomic():
+            location.save()
+
+        # Poison a cached column via a signal-less update; an unconditional propagation
+        # repairs it.
+        Interface.objects.filter(pk=interface.pk).update(_site=other_site)
+
+        location.save()  # Autocommit: no stash, unconditional propagation
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, site)
+
+
+class RackSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_rack_site_change propagates a Rack's site/location to its
-    Devices and their components when the Rack is moved.
+    Devices and their components when the Rack is moved, and only then.
     """
+    propagation_tables = COMPONENT_TABLES | {'dcim_device'}
 
     @classmethod
     def setUpTestData(cls):
@@ -162,6 +262,45 @@ class RackSiteChangeSignalTestCase(TestCase):
         self.assertEqual(device.location, self.location_b)
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(interface._location, self.location_b)
+
+    def _seed_rack_with_devices(self):
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            rack=rack,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        return rack
+
+    def test_unchanged_scope_skips_propagation(self):
+        # Both values the handler writes are derived from the Rack's site and location
+        # assignments, so a save which leaves both alone must not rewrite a single device or
+        # component row.
+        rack = self._seed_rack_with_devices()
+        rack.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(rack), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        rack = self._seed_rack_with_devices()
+        rack.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(rack), self.propagation_tables)
+
+    def test_changed_location_propagates(self):
+        # Location moves within the same Site must propagate too: the guard covers both
+        # fields, not just the Site.
+        rack = self._seed_rack_with_devices()
+        rack.site = self.site_b
+        rack.save()
+        rack.location = self.location_b
+
+        self.assertEqual(self.capture_propagation_updates(rack), self.propagation_tables)
 
 
 class ScopeSignalConnectionTestCase(TestCase):
@@ -285,11 +424,12 @@ class ScopeSignalConnectionTestCase(TestCase):
         self.assertEqual(cluster._region, region)
 
 
-class DeviceSiteChangeSignalTestCase(TestCase):
+class DeviceSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_device_site_change propagates a Device's site/location/rack
-    to its components on save.
+    to its components on save, and only then.
     """
+    propagation_tables = COMPONENT_TABLES
 
     @classmethod
     def setUpTestData(cls):
@@ -314,6 +454,44 @@ class DeviceSiteChangeSignalTestCase(TestCase):
 
         interface.refresh_from_db()
         self.assertEqual(interface._site, self.site_b)
+
+    def _seed_device_with_components(self):
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        return device
+
+    def test_unchanged_scope_skips_propagation(self):
+        # Components repopulate _site/_location/_rack from their Device on their own save
+        # (see ComponentModel.save), so a Device save which moved the Device nowhere has
+        # nothing to push down and must not rewrite a single component row.
+        device = self._seed_device_with_components()
+        device.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(device), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        device = self._seed_device_with_components()
+        device.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(device), self.propagation_tables)
+
+    def test_changed_rack_propagates(self):
+        # A Rack assignment is the third guarded field, and the only one changed here: the
+        # Rack is deliberately left without a Location, so Device.save() does not inherit one
+        # and neither site nor location moves.
+        device = self._seed_device_with_components()
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        self.assertIsNone(rack.location)
+        device.rack = rack
+
+        self.assertEqual(self.capture_propagation_updates(device), self.propagation_tables)
 
 
 class VirtualChassisMasterSignalTestCase(TestCase):

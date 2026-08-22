@@ -53,12 +53,24 @@ COMPONENT_MODELS = (
     RearPort,
 )
 
+# The fields whose values each model propagates to related objects when saved. Stashed
+# before the write by cache_presave_scope_fields() so the post_save handlers below can tell
+# whether a save actually changed any of them, and skip the propagation when it did not.
+PROPAGATED_SCOPE_FIELDS = {
+    Site: ('region_id', 'group_id'),
+    Location: ('site_id',),
+    Rack: ('site_id', 'location_id'),
+    Device: ('site_id', 'location_id', 'rack_id'),
+}
+
 
 #
 # Location/rack/device assignment
 #
 
+@receiver(pre_save, sender=Device)
 @receiver(pre_save, sender=Location)
+@receiver(pre_save, sender=Rack)
 @receiver(pre_save, sender=Site)
 def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
     """
@@ -78,16 +90,38 @@ def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
     if not transaction.get_connection(using).in_atomic_block:
         instance._presave_scope_fields = None
         return
-    fields = ('region_id', 'group_id') if isinstance(instance, Site) else ('site_id',)
+    fields = PROPAGATED_SCOPE_FIELDS[instance.__class__]
     instance._presave_scope_fields = (
         instance.__class__.objects.using(using)
         .filter(pk=instance.pk)
+        # A single row is selected by primary key, so the model's default ordering is
+        # meaningless here — and must be cleared: ordering by a nullable foreign key (as
+        # Rack does) resolves through the related model's own ordering and adds a LEFT
+        # OUTER JOIN, which PostgreSQL refuses to lock ("FOR NO KEY UPDATE cannot be
+        # applied to the nullable side of an outer join").
+        .order_by()
         # no_key: serializes overlapping saves of this object without blocking foreign
         # key inserts that reference it
         .select_for_update(no_key=True)
         .values(*fields)
         .first()
     )
+
+
+def _scope_fields_unchanged(instance):
+    """
+    Return True when the values stashed immediately before this save show that it changed
+    none of the fields the instance propagates to its related objects, meaning the
+    propagation can be skipped in its entirety.
+
+    A missing stash means the values may have changed — the save was made outside a
+    transaction, where cache_presave_scope_fields() deliberately takes none — so the caller
+    must propagate unconditionally.
+    """
+    prev = getattr(instance, '_presave_scope_fields', None)
+    if prev is None:
+        return False
+    return all(value == getattr(instance, field) for field, value in prev.items())
 
 
 @receiver(post_save, sender=Location)
@@ -102,9 +136,19 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
     transaction opened here. For the same reason the new Site is assigned by ID: reading
     instance.site would fetch the related object over a router-selected connection whenever
     the save left it uncached (a rename, say).
+
+    When the values read from the database immediately before this save show that the Site
+    assignment is unchanged, the propagation is skipped: every value written below is
+    derived from it, so there is nothing for the descendants to pick up.
     """
     if created:
         return
+
+    # Skip the propagation when this save left the Site assignment untouched: everything
+    # written below is derived from it.
+    if _scope_fields_unchanged(instance):
+        return
+
     with transaction.atomic(using=using, savepoint=False):
         instance.get_descendants().using(using).update(site_id=instance.site_id)
         # Materialized once so every statement below sees the same membership, even if a
@@ -119,55 +163,53 @@ def handle_location_site_change(instance, created, using=None, **kwargs):
             model.objects.using(using).filter(device__location__in=locations).update(_site_id=instance.site_id)
 
         # Objects scoped to descendant Locations receive no post_save of their own from the
-        # queryset updates above, so their cached scope fields are updated here whenever the
-        # Site assignment has actually changed. (Objects scoped to this Location itself are
-        # recomputed by sync_cached_scope_fields on this same save.) Values are read fresh
-        # from the database rather than taken from the saved instance, whose cached site
-        # relation may be stale.
-        prev = getattr(instance, '_presave_scope_fields', None)
-        if prev is None or prev['site_id'] != instance.site_id:
-            # Lock the destination Site (without blocking FK inserts that reference it) so
-            # a concurrent scope change on that Site serializes against this move; an
-            # unlocked read could stamp region/group values from before that change.
-            site = (
-                Site.objects.using(using)
-                .filter(pk=instance.site_id)
-                .select_for_update(no_key=True)
-                .values('region_id', 'group_id')
-                .first()
-            )
-            if site is not None:
-                # Select rows through the authoritative scope rather than the cached
-                # _location, which may itself be stale; scope_id doubles as the correct
-                # _location value for Location-scoped rows.
-                # The content type is read on the saving connection as well, since its ID is
-                # fed straight into the pinned filter below; a router-selected read could
-                # return an ID which means something else on that connection.
-                location_ct = ContentType.objects.db_manager(using).get_for_model(Location)
-                for model in (Prefix, Cluster, WirelessLAN):
-                    model.objects.using(using).filter(scope_type=location_ct, scope_id__in=locations).update(
-                        _location_id=F('scope_id'),
-                        _site_id=instance.site_id,
-                        _region_id=site['region_id'],
-                        _site_group_id=site['group_id'],
-                    )
-
-                # CircuitTermination caches the same ancestry under its own generic
-                # termination field rather than CachedScopeMixin.scope, so it is invisible to
-                # both the loop above and sync_cached_scope_fields(). Its own rows are
-                # refreshed by the denormalized-field registry, but only their _site: _region
-                # and _site_group are mapped off the separate _site registration, which fires
-                # on a Site save. Rows scoped to descendant Locations get nothing at all, as
-                # the get_descendants() update above fires no post_save — which is why the
-                # include_self=True membership is load-bearing here.
-                CircuitTermination.objects.using(using).filter(
-                    termination_type=location_ct, termination_id__in=locations
-                ).update(
-                    _location_id=F('termination_id'),
+        # queryset updates above, so their cached scope fields are updated here. (Objects
+        # scoped to this Location itself are recomputed by sync_cached_scope_fields on this
+        # same save.) Values are read fresh from the database rather than taken from the
+        # saved instance, whose cached site relation may be stale.
+        #
+        # Lock the destination Site (without blocking FK inserts that reference it) so a
+        # concurrent scope change on that Site serializes against this move; an unlocked
+        # read could stamp region/group values from before that change.
+        site = (
+            Site.objects.using(using)
+            .filter(pk=instance.site_id)
+            .select_for_update(no_key=True)
+            .values('region_id', 'group_id')
+            .first()
+        )
+        if site is not None:
+            # Select rows through the authoritative scope rather than the cached
+            # _location, which may itself be stale; scope_id doubles as the correct
+            # _location value for Location-scoped rows.
+            # The content type is read on the saving connection as well, since its ID is
+            # fed straight into the pinned filter below; a router-selected read could
+            # return an ID which means something else on that connection.
+            location_ct = ContentType.objects.db_manager(using).get_for_model(Location)
+            for model in (Prefix, Cluster, WirelessLAN):
+                model.objects.using(using).filter(scope_type=location_ct, scope_id__in=locations).update(
+                    _location_id=F('scope_id'),
                     _site_id=instance.site_id,
                     _region_id=site['region_id'],
                     _site_group_id=site['group_id'],
                 )
+
+            # CircuitTermination caches the same ancestry under its own generic
+            # termination field rather than CachedScopeMixin.scope, so it is invisible to
+            # both the loop above and sync_cached_scope_fields(). Its own rows are
+            # refreshed by the denormalized-field registry, but only their _site: _region
+            # and _site_group are mapped off the separate _site registration, which fires
+            # on a Site save. Rows scoped to descendant Locations get nothing at all, as
+            # the get_descendants() update above fires no post_save — which is why the
+            # include_self=True membership is load-bearing here.
+            CircuitTermination.objects.using(using).filter(
+                termination_type=location_ct, termination_id__in=locations
+            ).update(
+                _location_id=F('termination_id'),
+                _site_id=instance.site_id,
+                _region_id=site['region_id'],
+                _site_group_id=site['group_id'],
+            )
 
 
 @receiver(post_save, sender=Rack)
@@ -176,18 +218,27 @@ def handle_rack_site_change(instance, created, using=None, **kwargs):
     Update child Devices if Site or Location assignment has changed. Queries are pinned to
     the connection the Rack was saved on, and the new values are assigned by ID so that no
     related object is fetched over a router-selected connection.
+
+    A save which changed neither assignment propagates nothing and is skipped.
     """
-    if not created:
-        Device.objects.using(using).filter(rack=instance).update(
-            site_id=instance.site_id,
-            location_id=instance.location_id,
+    if created:
+        return
+
+    # Skip the propagation when this save left the Site and Location assignments untouched:
+    # everything written below is derived from them.
+    if _scope_fields_unchanged(instance):
+        return
+
+    Device.objects.using(using).filter(rack=instance).update(
+        site_id=instance.site_id,
+        location_id=instance.location_id,
+    )
+    # Update component models for devices in this rack
+    for model in COMPONENT_MODELS:
+        model.objects.using(using).filter(device__rack=instance).update(
+            _site_id=instance.site_id,
+            _location_id=instance.location_id,
         )
-        # Update component models for devices in this rack
-        for model in COMPONENT_MODELS:
-            model.objects.using(using).filter(device__rack=instance).update(
-                _site_id=instance.site_id,
-                _location_id=instance.location_id,
-            )
 
 
 @receiver(post_save, sender=Device)
@@ -196,14 +247,23 @@ def handle_device_site_change(instance, created, using=None, **kwargs):
     Update child components to update the parent Site, Location, and Rack when a Device is saved.
     Queries are pinned to the connection the Device was saved on, and the new values are
     assigned by ID so that no related object is fetched over a router-selected connection.
+
+    A save which changed none of the three assignments propagates nothing and is skipped.
     """
-    if not created:
-        for model in COMPONENT_MODELS:
-            model.objects.using(using).filter(device=instance).update(
-                _site_id=instance.site_id,
-                _location_id=instance.location_id,
-                _rack_id=instance.rack_id,
-            )
+    if created:
+        return
+
+    # Skip the propagation when this save left the Site, Location, and Rack assignments
+    # untouched: everything written below is derived from them.
+    if _scope_fields_unchanged(instance):
+        return
+
+    for model in COMPONENT_MODELS:
+        model.objects.using(using).filter(device=instance).update(
+            _site_id=instance.site_id,
+            _location_id=instance.location_id,
+            _rack_id=instance.rack_id,
+        )
 
 
 #
@@ -385,19 +445,9 @@ def sync_cached_scope_fields(instance, created, using=None, **kwargs):
     else:
         return
 
-    # Skip the rebuild when this save changed no scope-relevant field. The pre-save values
-    # are read from the database by cache_presave_scope_fields() immediately before the
-    # write, with the row locked, so the comparison holds even when overlapping saves race
-    # on the same object. The stash exists only for saves made inside a transaction; when
-    # it's absent (autocommit saves), rebuild unconditionally.
-    prev = getattr(instance, '_presave_scope_fields', None)
-    if prev is not None:
-        if isinstance(instance, Site):
-            if prev['region_id'] == instance.region_id and prev['group_id'] == instance.group_id:
-                return
-        # The dispatch above ensures the instance can only be a Location here
-        elif prev['site_id'] == instance.site_id:
-            return
+    # Skip the rebuild when this save changed no scope-relevant field.
+    if _scope_fields_unchanged(instance):
+        return
 
     # These models are explicitly listed because they all subclass CachedScopeMixin
     # and therefore require their cached scope fields to be recomputed.
