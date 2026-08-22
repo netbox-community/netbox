@@ -69,3 +69,6 @@ yarn-error.log*
 /dist/
 /build/
 *.egg-info/
+
+# Ruff's locally generated cache
+.ruff_cache
