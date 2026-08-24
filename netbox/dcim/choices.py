@@ -1164,6 +1164,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
     TYPE_SUMMITSTACK256 = 'extreme-summitstack-256'
     TYPE_SUMMITSTACK512 = 'extreme-summitstack-512'
+    TYPE_HPE_SYNERGY_INTERCONNECT = 'hpe-synergy-interconnect-link'
 
     # Other
     TYPE_OTHER = 'other'
@@ -1522,6 +1523,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
                 (TYPE_SUMMITSTACK256, 'Extreme SummitStack-256'),
                 (TYPE_SUMMITSTACK512, 'Extreme SummitStack-512'),
+                (TYPE_HPE_SYNERGY_INTERCONNECT, 'HPE Synergy Interconnect Link'),
             )
         ),
         (
