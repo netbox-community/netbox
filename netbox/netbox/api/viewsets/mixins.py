@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import router, transaction
 from django.http import Http404
@@ -5,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from core.models import ObjectType
+from core.signals import clear_events
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 from netbox.api.serializers.bulk import get_bulk_update_serializer_class
@@ -16,7 +19,46 @@ __all__ = (
     'ExportTemplatesMixin',
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
+    'discard_events_on_rollback',
 )
+
+
+@contextmanager
+def discard_events_on_rollback(sender, using=None):
+    """
+    Discard any queued events if the transaction wrapping this block is rolled back.
+
+    The change logging signal receivers queue events eagerly, as the payload for a deleted object
+    must be captured while that object and its related rows are still reachable. The queue is not
+    flushed to the events pipeline until after the response has been rendered, however, so events
+    queued for writes which were subsequently rolled back would otherwise still be dispatched,
+    firing webhooks and event rules for changes that were never committed.
+
+    Bulk operations need this because they provisionally write every valid object in a batch and
+    then roll the entire batch back if any one object failed. Single-object writes need it because
+    a write can be undone after it has been saved (for instance by the object-level permission
+    check in perform_create()/perform_update(), or by a signal receiver raising AbortRequest). The
+    UI's views send the same signal when they abandon a transaction.
+
+    Must be entered *inside* the transaction whose rollback it guards, so that the rollback flag is
+    still set when this block exits.
+
+    Note that this discards the entire request's queue, not only the events queued within the
+    guarded block. Nesting is therefore safe only because every rollback guarded here aborts the
+    whole request, making the two equivalent: the bulk actions guard the whole batch while the
+    per-object perform_*() calls they make guard each write, and a failure in either case abandons
+    the request. Do not use this in a loop which catches a per-object failure and continues, as
+    the events for objects which were successfully written would be discarded as well.
+    """
+    try:
+        yield
+    except Exception:
+        # An exception escaping the block (e.g. AbortRequest raised by a signal receiver) rolls
+        # the transaction back just as an explicit set_rollback() does.
+        clear_events.send(sender=sender)
+        raise
+    if transaction.get_connection(using).needs_rollback:
+        clear_events.send(sender=sender)
 
 
 class CustomFieldsMixin:
@@ -61,7 +103,8 @@ class SequentialBulkCreatesMixin:
     appropriately.
     """
     def create(self, request, *args, **kwargs):
-        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             if not isinstance(request.data, list):
                 # Creating a single object
                 return super().create(request, *args, **kwargs)
@@ -122,7 +165,8 @@ class BulkUpdateModelMixin:
 
     def perform_bulk_update(self, objects, update_data, partial):
         updated_pks = []
-        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             for obj in objects:
                 data = update_data.get(obj.id)
                 if hasattr(obj, 'snapshot'):
@@ -185,7 +229,8 @@ class BulkDestroyModelMixin:
 
     def perform_bulk_destroy(self, objects, changelog_messages=None):
         changelog_messages = changelog_messages or {}
-        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
             for obj in objects:
                 if hasattr(obj, 'snapshot'):
                     obj.snapshot()
