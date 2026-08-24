@@ -4,6 +4,9 @@ import { getElements, isElement } from './util';
 type NavState = { pinned: boolean };
 type BodyAttr = 'show' | 'hide' | 'hidden' | 'pinned';
 
+// Keep in sync with Bootstrap's `lg` breakpoint and `navbar-expand-lg` in base/layout.html.
+const SIDENAV_DESKTOP_MEDIA = '(min-width: 992px)';
+
 class SideNav {
   /**
    * Sidenav container element.
@@ -63,7 +66,7 @@ class SideNav {
       toggler.addEventListener('click', event => this.onMobileToggle(event));
     }
 
-    if (window.innerWidth >= 1200) {
+    if (window.matchMedia(SIDENAV_DESKTOP_MEDIA).matches) {
       if (this.state.get('pinned')) {
         this.pin();
       } else {
