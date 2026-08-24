@@ -154,8 +154,6 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
         null=True
     )
 
-    clone_fields = ('object_type', 'object_id', 'role', 'priority')
-
     class Meta:
         ordering = ('contact', 'priority', 'role', 'pk')
         indexes = (
