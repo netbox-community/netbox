@@ -27,6 +27,8 @@ from extras.models import EventRule, Notification, Script, ScriptModule, Tag, We
 from extras.scripts import Script as ScriptBase
 from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
+from ipam.choices import IPAddressStatusChoices
+from ipam.models import IPAddress, Prefix
 from netbox.context_managers import event_tracking
 from netbox.event_rules import (
     EventRuleAction,
@@ -326,6 +328,38 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Device.objects.count(), 0)
+
+        # No task may be queued for a creation that was rolled back
+        self.assertEqual(self.queue.count, 0)
+
+    def test_available_objects_create_rollback_discards_events(self):
+        """
+        Check that creating an object via an available-objects endpoint (e.g. available-ips) queues
+        no background task when the object-level permission check rolls the transaction back.
+        """
+        prefix = Prefix.objects.create(prefix='192.0.2.0/24')
+
+        event_rule = EventRule.objects.get(name='Event Rule 1')
+        event_rule.object_types.set([ObjectType.objects.get_for_model(IPAddress)])
+
+        # Permit the creation of active IP addresses only. The new object is saved (queueing its
+        # event) before _validate_objects() rejects it and the transaction is rolled back.
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+            constraints={'status': IPAddressStatusChoices.STATUS_ACTIVE},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(IPAddress))
+        self.add_permissions('ipam.view_prefix')
+
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        data = {'status': IPAddressStatusChoices.STATUS_RESERVED}
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(IPAddress.objects.count(), 0)
 
         # No task may be queued for a creation that was rolled back
         self.assertEqual(self.queue.count, 0)

@@ -15,12 +15,12 @@ def get_counters_for_model(model):
     return registry['counter_fields'][model].items()
 
 
-def update_counter(model, pk, counter_name, value):
+def update_counter(model, pk, counter_name, value, using=None):
     """
     Increment or decrement a counter field on an object identified by its model and primary key (PK). Positive values
     will increment; negative values will decrement.
     """
-    model.objects.filter(pk=pk).update(
+    model.objects.using(using).filter(pk=pk).update(
         **{counter_name: F(counter_name) + value}
     )
 
@@ -47,7 +47,7 @@ def update_counts(model, field_name, related_query):
 # Signal handlers
 #
 
-def post_save_receiver(sender, instance, created, **kwargs):
+def post_save_receiver(sender, instance, created, using=None, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is created or modified.
     """
@@ -59,9 +59,9 @@ def post_save_receiver(sender, instance, created, **kwargs):
 
         # Update the counters on the old and/or new parents as needed
         if old_pk is not None:
-            update_counter(parent_model, old_pk, counter_name, -1)
+            update_counter(parent_model, old_pk, counter_name, -1, using=using)
         if new_pk is not None and (has_old_field or created):
-            update_counter(parent_model, new_pk, counter_name, 1)
+            update_counter(parent_model, new_pk, counter_name, 1, using=using)
 
 
 def _parent_is_being_deleted(origin, parent_model, parent_pk):
@@ -86,7 +86,7 @@ def _parent_is_being_deleted(origin, parent_model, parent_pk):
     return isinstance(origin, parent_model) and origin.pk == parent_pk
 
 
-def pre_delete_receiver(sender, instance, origin, **kwargs):
+def pre_delete_receiver(sender, instance, origin, using=None, **kwargs):
     """
     Before a tracked object is deleted, check whether its row has already been removed (e.g. by an
     earlier cascade) and, if so, flag it so post_delete_receiver skips the now-redundant counter
@@ -99,12 +99,12 @@ def pre_delete_receiver(sender, instance, origin, **kwargs):
         if parent_pk is None or _parent_is_being_deleted(origin, parent_model, parent_pk):
             continue
         # A tracked parent will survive this operation, so the double-delete guard is needed
-        if not sender.objects.filter(pk=instance.pk).exists():
+        if not sender.objects.using(using).filter(pk=instance.pk).exists():
             instance._previously_removed = True
         return
 
 
-def post_delete_receiver(sender, instance, origin, **kwargs):
+def post_delete_receiver(sender, instance, origin, using=None, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is deleted.
     """
@@ -117,7 +117,7 @@ def post_delete_receiver(sender, instance, origin, **kwargs):
 
         # Decrement the parent's counter by one, unless the parent is itself being deleted
         if parent_pk is not None and not _parent_is_being_deleted(origin, parent_model, parent_pk):
-            update_counter(parent_model, parent_pk, counter_name, -1)
+            update_counter(parent_model, parent_pk, counter_name, -1, using=using)
 
 
 #

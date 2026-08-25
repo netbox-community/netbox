@@ -1,7 +1,8 @@
 import logging
 
+from django.db import transaction
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -26,32 +27,199 @@ from .models.cables import trace_paths
 from .search import DeviceIndex
 from .utils import create_cablepaths, rebuild_cable_paths, rebuild_paths
 
+# The scope-relevant fields stashed before each model's save by cache_presave_scope_fields(),
+# so that the post_save handlers can tell whether the save actually changed any of them and
+# skip their work when it did not. Only the models whose cascades are still carried out in
+# Python are listed: the denormalized columns on device components, cable terminations, and
+# the CachedScopeMixin models are maintained by database triggers (see the
+# 'denormalization_triggers' migrations), which need no such stash.
+STASHED_SCOPE_FIELDS = {
+    Location: ('site_id',),
+    Rack: ('site_id', 'location_id'),
+}
+
+
 #
 # Location/rack/device assignment
 #
 
+def cache_presave_scope_fields(instance, raw=False, using=None, **kwargs):
+    """
+    Stash the scope-relevant field values currently in the database so that the post_save
+    handlers below can determine whether this save actually changed any of them. The read
+    locks the row, so overlapping saves of the same object serialize here and the
+    comparison always runs against the final committed state.
+
+    No stash is taken for a raw save, for a new instance, or outside a transaction: in
+    autocommit, this read and the subsequent UPDATE would run in separate transactions, so
+    the comparison could race a concurrent save. In each of those cases any stash left by a
+    previous save of the same instance is cleared, as it no longer reflects the current
+    database state. The post_save handlers treat a missing stash as "the values may have
+    changed" and rebuild or repair unconditionally — except on a raw save, which they skip
+    before consulting the stash at all, making the clearing there purely defensive.
+    """
+    if raw or instance.pk is None or not transaction.get_connection(using).in_atomic_block:
+        # Clear any stash left by a previous save of this instance.
+        instance._presave_scope_fields = None
+        return
+    fields = STASHED_SCOPE_FIELDS[instance.__class__]
+    instance._presave_scope_fields = (
+        instance.__class__.objects.using(using)
+        .filter(pk=instance.pk)
+        .order_by()  # Clear default ordering to avoid JOINs
+        .select_for_update(no_key=True)  # no_key: Avoid blocking foreign key inserts that reference this object
+        .values(*fields)
+        .first()
+    )
+
+
+for _model in STASHED_SCOPE_FIELDS:
+    pre_save.connect(cache_presave_scope_fields, sender=_model)
+
+
+# update_fields may name a foreign key by either its name ('site') or its attname
+# ('site_id') — Django accepts both — so deciding whether a save wrote a stashed field has
+# to test both forms. Derived from each model's own meta rather than written out, so the two
+# spellings cannot disagree.
+STASHED_FIELD_ALIASES = {
+    model: {
+        field.attname: frozenset((field.attname, field.name))
+        for field in model._meta.concrete_fields
+        if field.attname in fields
+    }
+    for model, fields in STASHED_SCOPE_FIELDS.items()
+}
+
+
+def _unwritten_scope_fields(instance, update_fields):
+    """
+    Return the scope-relevant fields listed for the instance's model which this save did
+    not write.
+    """
+    if update_fields is None:
+        return frozenset()
+    aliases = STASHED_FIELD_ALIASES[instance.__class__]
+    return frozenset(field for field, names in aliases.items() if names.isdisjoint(update_fields))
+
+
+def _scope_fields_unchanged(instance, update_fields=None):
+    """
+    Return True when the values stashed immediately before this save show that it changed
+    none of the scope-relevant fields listed for the instance's model, meaning the caller's
+    propagation or rebuild can be skipped in its entirety.
+    """
+    prev = getattr(instance, '_presave_scope_fields', None)
+    if prev is None:
+        return False
+    unwritten = _unwritten_scope_fields(instance, update_fields)
+    return all(value == getattr(instance, field) for field, value in prev.items() if field not in unwritten)
+
+
+def _scope_values(instance, update_fields, using):
+    """
+    Return the values the scope-relevant fields hold in the database once this save has
+    been applied, keyed by field name, for the propagation handlers to push down.
+
+    Must be called inside the transaction the propagation runs in: the fallback read below
+    locks the row for the remainder of it, so that no concurrent write can move the object
+    out from under the values being propagated.
+
+    Returns None when the row cannot be read at all, leaving the caller nothing to
+    propagate.
+    """
+    values = {field: getattr(instance, field) for field in STASHED_SCOPE_FIELDS[instance.__class__]}
+    unwritten = _unwritten_scope_fields(instance, update_fields)
+    if not unwritten:
+        return values
+    stashed = getattr(instance, '_presave_scope_fields', None)
+    if stashed is None:
+        stashed = (
+            instance.__class__.objects.using(using)
+            .filter(pk=instance.pk)
+            # Cleared for the same reason as in cache_presave_scope_fields().
+            .order_by()
+            .select_for_update(no_key=True)
+            .values(*unwritten)
+            .first()
+        )
+        # No row to read: it was deleted after this save committed, or was never inserted
+        # (an instance with a pre-assigned primary key).
+        if stashed is None:
+            return None
+    values.update({field: stashed[field] for field in unwritten})
+    return values
+
 
 @receiver(post_save, sender=Location)
-def handle_location_site_change(instance, created, **kwargs):
+def handle_location_site_change(instance, created, raw=False, using=None, update_fields=None, **kwargs):
     """
-    Cascade a Location's Site assignment down to the Racks, Devices, and PowerPanels it contains
-    (and to descendant Locations).
+    Cascade a Location's Site assignment down to the Racks, Devices, and PowerPanels it
+    contains (and to descendant Locations). All updates are queryset update() calls, which
+    fire no signals and generate no change records for the affected objects; the
+    denormalized columns on device components and cable terminations are refreshed by the
+    database triggers those updates fire in turn.
+
+    Each query is pinned to the connection the Location was saved on: on an installation
+    with database routers configured, letting the router pick the alias would both write to
+    a different database than the one being saved and leave the row locks below outside the
+    transaction opened here. For the same reason the new Site is assigned by ID: reading
+    instance.site would fetch the related object over a router-selected connection whenever
+    the save left it uncached (a rename, say).
+
+    When the values read from the database immediately before this save show that the Site
+    assignment is unchanged, the propagation is skipped: every value written below is
+    derived from it, so there is nothing for the descendants to pick up. A raw save is
+    skipped outright.
     """
-    if not created:
-        chunked_update(instance.get_descendants(), site=instance.site)
-        locations = instance.get_descendants(include_self=True).values_list('pk', flat=True)
-        chunked_update(Rack.objects.filter(location__in=locations), site=instance.site)
-        chunked_update(Device.objects.filter(location__in=locations), site=instance.site)
-        chunked_update(PowerPanel.objects.filter(location__in=locations), site=instance.site)
+    if created or raw:
+        return
+
+    # Skip the propagation when this save left the Site assignment untouched.
+    if _scope_fields_unchanged(instance, update_fields):
+        return
+
+    with transaction.atomic(using=using, savepoint=False):
+        scope = _scope_values(instance, update_fields, using)
+        if scope is None:
+            return
+        site_id = scope['site_id']
+        chunked_update(instance.get_descendants().using(using), site_id=site_id)
+        # Materialized once so every statement below sees the same membership, even if a
+        # concurrent commit renumbers the tree mid-handler.
+        locations = list(instance.get_descendants(include_self=True).using(using).values_list('pk', flat=True))
+        chunked_update(Rack.objects.using(using).filter(location__in=locations), site_id=site_id)
+        chunked_update(Device.objects.using(using).filter(location__in=locations), site_id=site_id)
+        chunked_update(PowerPanel.objects.using(using).filter(location__in=locations), site_id=site_id)
 
 
 @receiver(post_save, sender=Rack)
-def handle_rack_site_change(instance, created, **kwargs):
+def handle_rack_site_change(instance, created, raw=False, using=None, update_fields=None, **kwargs):
     """
-    Cascade a Rack's Site/Location assignment down to the Devices it contains.
+    Cascade a Rack's Site/Location assignment down to the Devices it contains; the
+    denormalized columns on those Devices' components and cable terminations are refreshed
+    by the database triggers the update fires in turn. Queries are pinned to the connection
+    the Rack was saved on, and the new values are assigned by ID so that no related object
+    is fetched over a router-selected connection.
+
+    A save which changed neither assignment propagates nothing and is skipped, as does a
+    raw save.
     """
-    if not created:
-        chunked_update(Device.objects.filter(rack=instance), site=instance.site, location=instance.location)
+    if created or raw:
+        return
+
+    # Skip the propagation when this save left the Site and Location assignments untouched.
+    if _scope_fields_unchanged(instance, update_fields):
+        return
+
+    with transaction.atomic(using=using, savepoint=False):
+        scope = _scope_values(instance, update_fields, using)
+        if scope is None:
+            return
+        chunked_update(
+            Device.objects.using(using).filter(rack=instance),
+            site_id=scope['site_id'],
+            location_id=scope['location_id'],
+        )
 
 
 #

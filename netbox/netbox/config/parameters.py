@@ -24,7 +24,7 @@ PARAMS = (
         description=_("Additional content to display on the login page"),
         field_kwargs={
             'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
+                attrs={'class': 'font-monospace'}
             ),
         },
     ),
@@ -35,7 +35,7 @@ PARAMS = (
         description=_('Additional content to display when in maintenance mode'),
         field_kwargs={
             'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
+                attrs={'class': 'font-monospace'}
             ),
         },
     ),
@@ -46,7 +46,7 @@ PARAMS = (
         description=_("Additional content to display at the top of every page"),
         field_kwargs={
             'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
+                attrs={'class': 'font-monospace'}
             ),
         },
     ),
@@ -57,7 +57,7 @@ PARAMS = (
         description=_("Additional content to display at the bottom of every page"),
         field_kwargs={
             'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
+                attrs={'class': 'font-monospace'}
             ),
         },
     ),

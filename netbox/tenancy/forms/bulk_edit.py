@@ -122,7 +122,7 @@ class ContactBulkEditForm(PrimaryModelBulkEditForm):
     )
 
     nullable_fields = (
-        'add_groups', 'remove_groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments'
+        'title', 'phone', 'email', 'address', 'link', 'description', 'comments'
     )
 
 

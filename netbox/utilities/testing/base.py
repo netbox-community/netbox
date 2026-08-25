@@ -125,6 +125,20 @@ class TestCase(_TestCase):
             err_message = f"Expected HTTP status {expected_status}; received {response.status_code}: {err}"
         self.assertEqual(response.status_code, expected_status, err_message)
 
+    def assertNotCacheable(self, response):
+        """
+        TestCase method. Assert that a response instructs the browser not to persist its content
+        to the local cache. Views which render potentially sensitive content (e.g. the contents of
+        a synced data file) must not be written to the browser's cache, where they would remain
+        readable after the session has ended.
+        """
+        cache_control = response.headers.get('Cache-Control', '')
+        self.assertIn(
+            'no-store',
+            cache_control,
+            f"Expected a no-store cache directive; received Cache-Control: '{cache_control}'"
+        )
+
 
 class ModelTestCase(TestCase):
     """

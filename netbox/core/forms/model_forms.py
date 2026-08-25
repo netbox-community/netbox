@@ -169,12 +169,6 @@ class ConfigRevisionForm(forms.ModelForm, metaclass=ConfigFormMetaclass):
         model = ConfigRevision
         fields = '__all__'
         widgets = {
-            'BANNER_LOGIN': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_MAINTENANCE': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_TOP': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_BOTTOM': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'CUSTOM_VALIDATORS': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'PROTECTION_RULES': forms.Textarea(attrs={'class': 'font-monospace'}),
             'comment': forms.Textarea(),
         }
 

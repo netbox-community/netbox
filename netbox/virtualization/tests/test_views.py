@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, MACAddress, Platform, Site
-from extras.models import ConfigTemplate
+from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import VLAN, VRF
 from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine, post_data
 from virtualization.choices import *
@@ -556,6 +556,54 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(url, {'config_template_id': override_template.pk})
         self.assertHttpStatus(response, 200)
         self.assertIn(b'Error rendering template', response.content)
+
+    def test_virtualmachine_configcontext_is_not_cacheable(self):
+        """
+        The config context tab renders the merged context data, which may contain sensitive
+        values, so the response must not be cached by the browser.
+        """
+        ConfigContext.objects.create(name='Config Context 1', data={'password': 'super-secret-password'})
+        vm = VirtualMachine.objects.first()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'extras.view_configcontext')
+        url = reverse('virtualization:virtualmachine_configcontext', kwargs={'pk': vm.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+    def test_virtualmachine_renderconfig_is_not_cacheable(self):
+        """
+        The render config tab renders the config template with context data substituted into it,
+        which may contain sensitive values, so the response must not be cached by the browser.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='enable secret super-secret-password'
+        )
+        vm = VirtualMachine.objects.first()
+        vm.config_template = configtemplate
+        vm.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'virtualization.render_config_virtualmachine')
+        url = reverse('virtualization:virtualmachine_render-config', kwargs={'pk': vm.pk})
+
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the rendered config is in fact present in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+        # The direct export of the rendered config must not be cached either
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'super-secret-password', response.content)
+        self.assertNotCacheable(response)
 
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):

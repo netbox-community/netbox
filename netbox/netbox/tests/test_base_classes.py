@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 from django.test import TestCase
 from django.utils.module_loading import import_string
 
@@ -135,6 +136,16 @@ class FormClassesTestCase(TestCase):
             return NetBoxModelFilterSetForm
         return None
 
+    @classmethod
+    def get_bulk_edit_form_for_model(cls, model):
+        """
+        Return the bulk edit form class for a given model, or None if it has none.
+        """
+        try:
+            return cls.get_form_for_model(model, prefix='BulkEdit')
+        except ImportError:
+            return None
+
     def test_model_form_base_classes(self):
         """
         Check that each model form inherits from the appropriate base class.
@@ -152,6 +163,68 @@ class FormClassesTestCase(TestCase):
             if base_class := self.get_bulk_edit_form_base_class(model):
                 form_class = self.get_form_for_model(model, prefix='BulkEdit')
                 self.assertTrue(issubclass(form_class, base_class), f"{form_class} does not inherit from {base_class}")
+
+    def test_bulk_edit_nullable_fields(self):
+        """
+        Check that every name in a bulk edit form's nullable_fields is a field on the form, and that no
+        name is listed twice. A name with no matching field is inert: neither the rendered form nor the
+        update handler acts on it.
+        """
+        for model in apps.get_models():
+            if (form_class := self.get_bulk_edit_form_for_model(model)) is None:
+                continue
+            # Read the class attribute, which excludes the fields added per instance at runtime
+            declared = tuple(form_class.nullable_fields)
+            for name in declared:
+                self.assertIn(
+                    name,
+                    form_class.base_fields,
+                    f"{form_class.__name__}.nullable_fields lists '{name}', which is not a field on the form",
+                )
+                # The update handler reads model_field.null when nullifying, so a form-only field crashes
+                try:
+                    model._meta.get_field(name)
+                except FieldDoesNotExist:
+                    self.fail(
+                        f"{form_class.__name__}.nullable_fields lists '{name}', "
+                        f"which is not a field on {model.__name__}"
+                    )
+            duplicates = sorted({name for name in declared if declared.count(name) > 1})
+            self.assertEqual(
+                duplicates,
+                [],
+                f"{form_class.__name__}.nullable_fields lists duplicate entries: {duplicates}",
+            )
+
+    def test_bulk_edit_hardcoded_nullable_fields(self):
+        """
+        Check that forms which declare fieldsets mark their owner and comments fields as nullable. The
+        bulk edit template renders a Set Null control for both outside the declared fieldsets, so a form
+        which omits them offers a control that does nothing.
+        """
+        for model in apps.get_models():
+            if (form_class := self.get_bulk_edit_form_for_model(model)) is None:
+                continue
+            if not getattr(form_class, 'fieldsets', None):
+                continue
+            # Instantiate so that fields added per instance by _extend_nullable_fields() are included
+            form = form_class({'pk': []}, initial={})
+            declared_in_fieldsets = {
+                item for fieldset in form_class.fieldsets for item in fieldset.items
+            }
+            for name in ('owner', 'comments'):
+                if name not in form.fields:
+                    continue
+                self.assertIn(
+                    name,
+                    form.nullable_fields,
+                    f"{form_class.__name__} renders a Set Null control for '{name}' without marking it nullable",
+                )
+                self.assertNotIn(
+                    name,
+                    declared_in_fieldsets,
+                    f"{form_class.__name__} lists '{name}' in a fieldset, which renders the field twice",
+                )
 
     def test_import_form_base_classes(self):
         """

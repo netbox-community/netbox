@@ -21,7 +21,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from dcim.views import DeviceTypeListView, ModuleTypeListView
-from extras.models import ConfigTemplate
+from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import (
     CSVDelimiterChoices,
@@ -1361,13 +1361,13 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
+        cls.profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
 
         module_types = ModuleType.objects.bulk_create([
             ModuleType(
                 model='Module Type 1',
                 manufacturer=manufacturers[0],
-                profile=profile,
+                profile=cls.profile,
                 attribute_data={'media': ['copper', 'qsfp28']},
             ),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
@@ -1375,8 +1375,6 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
-
-        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1395,7 +1393,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "manufacturer,model,part_number,end_of_life,comments,profile",
-            f"Manufacturer 1,fan0,generic-fan,2035-06-30,,{fan_module_type_profile.name}"
+            f"Manufacturer 1,Module Type 4,module-type-4,2035-06-30,,{cls.profile.name}",
         )
 
         cls.csv_update_data = (
@@ -1455,9 +1453,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         def verify_module_type_profile(scenario_name):
             # TODO: remove extra regression asserts once parent test supports testing all import fields
-            fan_module_type = ModuleType.objects.get(part_number='generic-fan')
-            fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
-            assert fan_module_type.profile == fan_module_type_profile
+            module_type = ModuleType.objects.get(part_number='module-type-4')
+            self.assertEqual(module_type.profile_id, self.profile.pk)
 
         # run base test
         super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
@@ -2049,6 +2046,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
         cls.bulk_edit_data = {
             'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'Foo bar',
         }
 
 
@@ -2313,6 +2311,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'position': 'A1',
         }
 
     @tag('regression')  # Issue #22961
@@ -2444,6 +2443,7 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'part_id': 'PN-1',
         }
 
 
@@ -2873,6 +2873,54 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(url, {'config_template_id': override_template.pk})
         self.assertHttpStatus(response, 200)
         self.assertIn(b'Error rendering template', response.content)
+
+    def test_device_configcontext_is_not_cacheable(self):
+        """
+        The config context tab renders the merged context data, which may contain sensitive
+        values, so the response must not be cached by the browser.
+        """
+        ConfigContext.objects.create(name='Config Context 1', data={'password': 'super-secret-password'})
+        device = Device.objects.first()
+
+        self.add_permissions('dcim.view_device', 'extras.view_configcontext')
+        url = reverse('dcim:device_configcontext', kwargs={'pk': device.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+    def test_device_renderconfig_is_not_cacheable(self):
+        """
+        The render config tab renders the config template with context data substituted into it,
+        which may contain sensitive values, so the response must not be cached by the browser.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='enable secret super-secret-password'
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the rendered config is in fact present in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+        # The direct export of the rendered config must not be cached either
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'super-secret-password', response.content)
+        self.assertNotCacheable(response)
 
     def test_device_role_display_colored(self):
         parent_role = DeviceRole.objects.create(name='Parent Role', slug='parent-role', color='111111')

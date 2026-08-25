@@ -517,6 +517,8 @@ class Module(TrackingModelMixin, PrimaryModel):
     def _save_new(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+        using = self._state.db
+
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
 
@@ -543,7 +545,9 @@ class Module(TrackingModelMixin, PrimaryModel):
             # Prefetch installed components
             installed_components = {
                 component.name: component
-                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+                for component in getattr(self.device, component_attribute).db_manager(using).filter(
+                    module__isnull=True
+                )
             }
 
             # Get the template for the module type.
@@ -579,21 +583,22 @@ class Module(TrackingModelMixin, PrimaryModel):
             # Bulk-create new instances. ModuleBay is ltree-backed: its parent is set
             # in ModuleBayTemplate.instantiate() (bulk_create bypasses ModuleBay.save()),
             # and the BEFORE INSERT trigger derives path/sort_path from parent_id per row.
-            component_model.objects.bulk_create(create_instances)
+            component_model.objects.using(using).bulk_create(create_instances)
 
             # Copy M2M module_bay_types from template to new ModuleBay instances.
             if component_model is ModuleBay:
                 for component in create_instances:
                     if src := getattr(component, '_source_template', None):
-                        component.module_bay_types.set(src.module_bay_types.all())
+                        component.module_bay_types.set(src.module_bay_types.db_manager(using).all())
 
+            # Emit the post_save signal for each newly created object
             for component in create_instances:
                 post_save.send(
                     sender=component_model,
                     instance=component,
                     created=True,
                     raw=False,
-                    using='default',
+                    using=using,
                     update_fields=None
                 )
 
@@ -608,16 +613,17 @@ class Module(TrackingModelMixin, PrimaryModel):
                     instance.parent = self.module_bay
                 update_fields = ['module', 'parent']
 
-            component_model.objects.bulk_update(
+            component_model.objects.using(using).bulk_update(
                 update_instances, update_fields, batch_size=settings.BULK_UPDATE_CHUNK_SIZE
             )
+            # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(
                     sender=component_model,
                     instance=component,
                     created=False,
                     raw=False,
-                    using='default',
+                    using=using,
                     update_fields=update_fields
                 )
 

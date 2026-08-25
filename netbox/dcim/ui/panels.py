@@ -179,7 +179,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     part_number = attrs.TextAttr('part_number')
-    default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
+    default_platform = attrs.NestedObjectAttr('default_platform', linkify=True, max_depth=3)
     description = attrs.TextAttr('description')
     height = attrs.TemplatedAttr('u_height', template_name='dcim/devicetype/attrs/height.html')
     exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')

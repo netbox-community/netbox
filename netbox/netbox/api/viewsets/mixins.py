@@ -258,9 +258,14 @@ def discard_events_on_rollback(sender, using=None):
     UI's views send the same signal when they abandon a transaction.
 
     Must be entered *inside* the transaction whose rollback it guards, so that the rollback flag is
-    still set when this block exits. Nesting is safe: the bulk actions guard the whole batch while
-    the per-object perform_*() calls they make guard each write, and clearing an already-empty
-    queue is a no-op.
+    still set when this block exits.
+
+    Note that this discards the entire request's queue, not only the events queued within the
+    guarded block. Nesting is therefore safe only because every rollback guarded here aborts the
+    whole request, making the two equivalent: the bulk actions guard the whole batch while the
+    per-object perform_*() calls they make guard each write, and a failure in either case abandons
+    the request. Do not use this in a loop which catches a per-object failure and continues, as
+    the events for objects which were successfully written would be discarded as well.
     """
     try:
         yield

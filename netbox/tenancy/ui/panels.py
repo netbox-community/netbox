@@ -4,7 +4,7 @@ from netbox.ui import attrs, panels
 
 
 class TenantPanel(panels.ObjectAttributesPanel):
-    group = attrs.RelatedObjectAttr('group', linkify=True)
+    group = attrs.NestedObjectAttr('group', linkify=True)
     description = attrs.TextAttr('description')
 
 

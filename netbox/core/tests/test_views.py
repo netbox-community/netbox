@@ -105,6 +105,25 @@ class DataFileTestCase(
         )
         DataFile.objects.bulk_create(data_files)
 
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders file content inline, which may include plaintext secrets, so the
+        response must instruct the browser not to persist it to its local cache.
+        """
+        datafile = DataFile.objects.first()
+        datafile.data = b'super-secret-password'
+        datafile.save()
+
+        self.add_permissions('core.view_datafile')
+        response = self.client.get(datafile.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the content is in fact rendered in the response
+        self.assertIn('super-secret-password', str(response.content))
+
+        # Confirm the response is not cacheable
+        self.assertNotCacheable(response)
+
 
 class JobTestCase(
     ViewTestCases.GetObjectViewTestCase,

@@ -42,8 +42,8 @@ class DataSourceBulkEditForm(PrimaryModelBulkEditForm):
 
     model = DataSource
     fieldsets = (
-        FieldSet('type', 'enabled', 'description', 'sync_interval', 'parameters', 'ignore_rules', 'comments'),
+        FieldSet('type', 'enabled', 'description', 'sync_interval', 'parameters', 'ignore_rules'),
     )
     nullable_fields = (
-        'description', 'description', 'sync_interval', 'parameters', 'parameters', 'ignore_rules' 'comments',
+        'description', 'sync_interval', 'parameters', 'ignore_rules', 'comments',
     )
