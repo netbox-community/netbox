@@ -220,28 +220,32 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         self.data = self.data_file.get_data()
     sync_data.alters_data = True
 
-    def get_affected_objects(self):
+    def get_affected_objects(self, using=None):
         """
         Return a (device_qs, vm_qs) tuple of all Devices and VirtualMachines that fall within this
         ConfigContext's scope. This is the inverse of ConfigContextQuerySet.get_for_object().
         Used to determine which pre-rendered context caches must be invalidated when this
         ConfigContext changes.
+
+        `using` pins every query (both the scope lookups and the returned querysets) to the given
+        database alias; None defers to the router, as an unpinned query would.
         """
         from dcim.models import Device
         from virtualization.models import VirtualMachine
 
-        device_q, vm_q = self._get_affected_object_filters()
+        device_q, vm_q = self._get_affected_object_filters(using=using)
         return (
-            Device.objects.filter(device_q),
-            VirtualMachine.objects.filter(vm_q),
+            Device.objects.using(using).filter(device_q),
+            VirtualMachine.objects.using(using).filter(vm_q),
         )
 
-    def _get_affected_object_filters(self):
+    def _get_affected_object_filters(self, using=None):
         """
         Build the Q expressions matching Devices and VirtualMachines in this context's scope.
         Returns (device_q, vm_q). Does NOT consider `is_active` — callers that need that should
         check it separately. For invalidation purposes, we want the scope set regardless of
         whether the context is currently active (toggling is_active also requires invalidation).
+        `using` pins the scope lookups to the given database alias.
         """
         from extras.models.tags import TaggedItem
 
@@ -251,7 +255,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
             # the forward `<object>__path__ancestor_or_equal` match in ConfigContextQuerySet: there
             # a CC's node must be an ancestor of the object's node; here the object's node must fall
             # within a CC node's subtree. Returns None if the m2m is empty (no scope restriction).
-            paths = list(m2m.values_list('path', flat=True))
+            paths = list(m2m.using(using).values_list('path', flat=True))
             if not paths:
                 return None
             q = Q()
@@ -260,7 +264,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
             return q
 
         def _direct_pks(m2m):
-            pks = list(m2m.values_list('pk', flat=True))
+            pks = list(m2m.using(using).values_list('pk', flat=True))
             return pks or None
 
         # Shared filters (applicable to both Device and VirtualMachine)
@@ -312,12 +316,12 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
             vm_q &= Q(pk__in=())
 
         if tag_pks is not None:
-            device_tagged = TaggedItem.objects.filter(
+            device_tagged = TaggedItem.objects.using(using).filter(
                 tag_id__in=tag_pks,
                 content_type__app_label='dcim',
                 content_type__model='device',
             ).values_list('object_id', flat=True)
-            vm_tagged = TaggedItem.objects.filter(
+            vm_tagged = TaggedItem.objects.using(using).filter(
                 tag_id__in=tag_pks,
                 content_type__app_label='virtualization',
                 content_type__model='virtualmachine',

@@ -6,7 +6,7 @@ funnels through this module, so the synchronous NULL-out and background job enqu
 expressed in exactly one place.
 """
 from django.apps import apps
-from django.db import transaction
+from django.db import router, transaction
 from django.db.models import F, Q
 
 from dcim.models import Device
@@ -16,7 +16,7 @@ from utilities.querysets import chunked_update
 from virtualization.models import VirtualMachine
 
 
-def invalidate_config_context_for_objects(model_label, pks):
+def invalidate_config_context_for_objects(model_label, pks, using=None):
     """
     Synchronously NULL the `_config_context_data` cache on the given objects (bumping the
     generation counter so an in-flight render can't overwrite the invalidation), then enqueue a
@@ -25,14 +25,31 @@ def invalidate_config_context_for_objects(model_label, pks):
     Args:
         model_label: 'dcim.device' or 'virtualization.virtualmachine'.
         pks: Any iterable of object PKs (queryset, list, set, generator). An empty iterable is a no-op.
+        using: The database alias to pin the invalidation to. Callers pass the alias supplied by the
+            signal which triggered the invalidation, so that the UPDATE lands in the same database
+            (and the same transaction) as the change which necessitated it. None defers to the
+            router, as an unpinned query would.
     """
     pks = list(pks)
     if not pks:
         return
 
     Model = apps.get_model(model_label)
+    # Resolve the alias once, so that the UPDATE below and the on_commit() callback which follows
+    # it are bound to the same database. Left as None the two would diverge: an unpinned queryset
+    # consults the router, but transaction.on_commit() does not -- it attaches to 'default' -- so
+    # on a deployment whose router writes elsewhere the callback would be registered against a
+    # connection other than the one being written.
+    #
+    # This also decides which connection's commit the enqueue waits on, so it is not strictly an
+    # improvement on the previous 'default' binding for every caller: one which passes no alias
+    # while holding a transaction opened on 'default' (rather than on the router's write alias)
+    # leaves no atomic block open on the resolved alias, and on_commit() then runs the callback
+    # immediately rather than deferring it. Every caller in NetBox supplies `using`, and the
+    # generic views open their atomic block on router.db_for_write(model), so the two agree there.
+    using = using or router.db_for_write(Model)
     updated = chunked_update(
-        Model.objects.filter(pk__in=pks),
+        Model.objects.using(using).filter(pk__in=pks),
         _config_context_data=None,
         _config_context_generation=F('_config_context_generation') + 1,
     )
@@ -53,22 +70,25 @@ def invalidate_config_context_for_objects(model_label, pks):
     # remain correct in the interim because get_config_context() renders on demand when the cache is
     # NULL; the sweep only restores the pre-rendered fast path.)
     transaction.on_commit(
-        lambda: RenderConfigContextJob.enqueue_once(instance=None)
+        lambda: RenderConfigContextJob.enqueue_once(instance=None),
+        using=using,
     )
 
 
-def invalidate_config_context_for_configcontext(configcontext):
+def invalidate_config_context_for_configcontext(configcontext, using=None):
     """
-    Invalidate caches for all objects currently in scope for the given ConfigContext.
+    Invalidate caches for all objects currently in scope for the given ConfigContext. `using` is
+    the database alias to pin every query to (see invalidate_config_context_for_objects()).
     """
-    for queryset in configcontext.get_affected_objects():
+    for queryset in configcontext.get_affected_objects(using=using):
         invalidate_config_context_for_objects(
             queryset.model._meta.label_lower,
             queryset.values_list('pk', flat=True),
+            using=using,
         )
 
 
-def invalidate_for_scope_delta(scope_field, scope_pks):
+def invalidate_for_scope_delta(scope_field, scope_pks, using=None):
     """
     Invalidate the cache of every Device/VirtualMachine that is matchable via the given scope
     items, regardless of which ConfigContext those items belong to. Used when items are removed
@@ -77,6 +97,7 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
 
     `scope_field` is the ConfigContext M2M attribute name ('sites', 'regions', 'tags', ...).
     `scope_pks` is the iterable of PKs of scope items that were removed/cleared.
+    `using` is the database alias to pin every query to (see invalidate_config_context_for_objects()).
     """
     scope_pks = list(scope_pks or ())
     if not scope_pks:
@@ -108,7 +129,7 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
         app, model_name, object_path = nested_attrs[scope_field]
         Model = apps.get_model(app, model_name)
         subtree_q = Q()
-        for path in Model.objects.filter(pk__in=scope_pks).values_list('path', flat=True):
+        for path in Model.objects.using(using).filter(pk__in=scope_pks).values_list('path', flat=True):
             subtree_q |= Q(**{f'{object_path}__descendant_or_equal': path})
         if not subtree_q:
             return
@@ -121,12 +142,12 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
         if scope_field != 'device_types':
             vm_q = Q(**{attr_path: scope_pks})
     elif scope_field == 'tags':
-        device_tagged = TaggedItem.objects.filter(
+        device_tagged = TaggedItem.objects.using(using).filter(
             tag_id__in=scope_pks,
             content_type__app_label='dcim',
             content_type__model='device',
         ).values_list('object_id', flat=True)
-        vm_tagged = TaggedItem.objects.filter(
+        vm_tagged = TaggedItem.objects.using(using).filter(
             tag_id__in=scope_pks,
             content_type__app_label='virtualization',
             content_type__model='virtualmachine',
@@ -138,9 +159,13 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
 
     if device_q is not None:
         invalidate_config_context_for_objects(
-            'dcim.device', Device.objects.filter(device_q).values_list('pk', flat=True)
+            'dcim.device',
+            Device.objects.using(using).filter(device_q).values_list('pk', flat=True),
+            using=using,
         )
     if vm_q is not None:
         invalidate_config_context_for_objects(
-            'virtualization.virtualmachine', VirtualMachine.objects.filter(vm_q).values_list('pk', flat=True)
+            'virtualization.virtualmachine',
+            VirtualMachine.objects.using(using).filter(vm_q).values_list('pk', flat=True),
+            using=using,
         )

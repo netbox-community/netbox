@@ -113,26 +113,26 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
 #
 
 @receiver(post_save, sender=ConfigContext)
-def invalidate_on_configcontext_save(sender, instance, **kwargs):
+def invalidate_on_configcontext_save(sender, instance, using=None, **kwargs):
     """
     Whenever a ConfigContext's scalar fields change (e.g. `data`, `weight`, `is_active`),
     invalidate the caches of all Devices/VMs currently in scope. M2M scope changes are handled
     separately by invalidate_on_configcontext_m2m_change().
     """
-    invalidate_config_context_for_configcontext(instance)
+    invalidate_config_context_for_configcontext(instance, using=using)
 
 
 @receiver(pre_delete, sender=ConfigContext)
-def invalidate_on_configcontext_delete(sender, instance, **kwargs):
+def invalidate_on_configcontext_delete(sender, instance, using=None, **kwargs):
     """
     Before a ConfigContext is deleted, invalidate the caches of all Devices/VMs currently in
     scope. The scope is still readable here (pre_delete fires before the row and its M2M rows
     are removed).
     """
-    invalidate_config_context_for_configcontext(instance)
+    invalidate_config_context_for_configcontext(instance, using=using)
 
 
-def invalidate_on_configcontext_m2m_change(sender, instance, action, pk_set, scope_field, **kwargs):
+def invalidate_on_configcontext_m2m_change(sender, instance, action, pk_set, scope_field, using=None, **kwargs):
     """
     Whenever a ConfigContext's scope M2M changes, invalidate the caches of all Devices/VMs that
     were or now are in scope.
@@ -149,11 +149,11 @@ def invalidate_on_configcontext_m2m_change(sender, instance, action, pk_set, sco
         return
 
     # Always invalidate based on the current (post-change) scope.
-    invalidate_config_context_for_configcontext(instance)
+    invalidate_config_context_for_configcontext(instance, using=using)
 
     # For post_remove, also invalidate devices/VMs that matched via the removed scope items.
     if action == 'post_remove' and pk_set:
-        invalidate_for_scope_delta(scope_field, pk_set)
+        invalidate_for_scope_delta(scope_field, pk_set, using=using)
 
 
 def _connect_configcontext_m2m_handlers():
@@ -166,13 +166,14 @@ def _connect_configcontext_m2m_handlers():
         field_name = m2m_field.name
         through = getattr(ConfigContext, field_name).through
 
-        def _handler(sender, instance, action, pk_set, _field=field_name, **kwargs):
+        def _handler(sender, instance, action, pk_set, using=None, _field=field_name, **kwargs):
             invalidate_on_configcontext_m2m_change(
                 sender=sender,
                 instance=instance,
                 action=action,
                 pk_set=pk_set,
                 scope_field=_field,
+                using=using,
                 **kwargs,
             )
 
@@ -204,11 +205,11 @@ def _changed_fields(instance, fields):
 def _make_object_save_handler(model_label):
     fields = CC_FIELDS_BY_MODEL[model_label]
 
-    def _handler(sender, instance, created, **kwargs):
+    def _handler(sender, instance, created, using=None, **kwargs):
         # On creation, enqueue a render so the new object's cache is warmed promptly (there is no
         # recurring sweep). On update, only invalidate when a scope-relevant field actually changed.
         if created or _changed_fields(instance, fields):
-            invalidate_config_context_for_objects(model_label, [instance.pk])
+            invalidate_config_context_for_objects(model_label, [instance.pk], using=using)
 
     return _handler
 
@@ -225,7 +226,7 @@ _connect_object_save_handlers()
 
 
 @receiver(m2m_changed, sender=TaggedItem)
-def invalidate_on_device_vm_tag_change(sender, instance, action, **kwargs):
+def invalidate_on_device_vm_tag_change(sender, instance, action, using=None, **kwargs):
     """
     When tags are added or removed on a Device/VM, invalidate that object's cache.
     """
@@ -235,9 +236,9 @@ def invalidate_on_device_vm_tag_change(sender, instance, action, **kwargs):
     from virtualization.models import VirtualMachine
 
     if isinstance(instance, Device):
-        invalidate_config_context_for_objects('dcim.device', [instance.pk])
+        invalidate_config_context_for_objects('dcim.device', [instance.pk], using=using)
     elif isinstance(instance, VirtualMachine):
-        invalidate_config_context_for_objects('virtualization.virtualmachine', [instance.pk])
+        invalidate_config_context_for_objects('virtualization.virtualmachine', [instance.pk], using=using)
 
 
 # Upstream object changes that affect ConfigContext matching even when the Device/VM itself is
@@ -251,7 +252,7 @@ def invalidate_on_device_vm_tag_change(sender, instance, action, **kwargs):
 
 
 def _make_direct_upstream_handler(fields, device_lookup, vm_lookup):
-    def _handler(sender, instance, created, **kwargs):
+    def _handler(sender, instance, created, using=None, **kwargs):
         if created or not _changed_fields(instance, fields):
             return
         from dcim.models import Device
@@ -260,19 +261,21 @@ def _make_direct_upstream_handler(fields, device_lookup, vm_lookup):
         if device_lookup:
             invalidate_config_context_for_objects(
                 'dcim.device',
-                Device.objects.filter(**{device_lookup: instance.pk}).values_list('pk', flat=True),
+                Device.objects.using(using).filter(**{device_lookup: instance.pk}).values_list('pk', flat=True),
+                using=using,
             )
         if vm_lookup:
             invalidate_config_context_for_objects(
                 'virtualization.virtualmachine',
-                VirtualMachine.objects.filter(**{vm_lookup: instance.pk}).values_list('pk', flat=True),
+                VirtualMachine.objects.using(using).filter(**{vm_lookup: instance.pk}).values_list('pk', flat=True),
+                using=using,
             )
 
     return _handler
 
 
 def _make_reparent_handler(device_attr, vm_attr):
-    def _handler(sender, instance, created, **kwargs):
+    def _handler(sender, instance, created, using=None, **kwargs):
         if created or not _changed_fields(instance, ('parent_id',)):
             return
         from dcim.models import Device
@@ -284,22 +287,24 @@ def _make_reparent_handler(device_attr, vm_attr):
         # (post-move) subtree. The set of node PKs is invariant under a move; only their paths
         # shift, so this matches the same Devices/VMs regardless of timing.
         model = type(instance)
-        node_path = model.objects.filter(pk=instance.pk).values_list('path', flat=True).first()
+        node_path = model.objects.using(using).filter(pk=instance.pk).values_list('path', flat=True).first()
         if node_path is None:
             return
         subtree_pks = list(
-            model.objects.filter(path__descendant_or_equal=node_path).values_list('pk', flat=True)
+            model.objects.using(using).filter(path__descendant_or_equal=node_path).values_list('pk', flat=True)
         )
 
         if device_attr:
             invalidate_config_context_for_objects(
                 'dcim.device',
-                Device.objects.filter(**{device_attr: subtree_pks}).values_list('pk', flat=True),
+                Device.objects.using(using).filter(**{device_attr: subtree_pks}).values_list('pk', flat=True),
+                using=using,
             )
         if vm_attr:
             invalidate_config_context_for_objects(
                 'virtualization.virtualmachine',
-                VirtualMachine.objects.filter(**{vm_attr: subtree_pks}).values_list('pk', flat=True),
+                VirtualMachine.objects.using(using).filter(**{vm_attr: subtree_pks}).values_list('pk', flat=True),
+                using=using,
             )
 
     return _handler
@@ -312,7 +317,9 @@ def _connect_upstream_handlers():
     direct_triggers = (
         ('dcim', 'Site', ('region_id', 'group_id'), 'site_id', 'site_id'),
         ('dcim', 'Location', ('site_id',), 'location_id', None),
-        ('virtualization', 'Cluster', ('type_id', 'group_id', 'site_id'), 'cluster_id', 'cluster_id'),
+        # Cluster's effective site is the cached `_site_id`, not a `site` FK; it is what
+        # virtualization.signals propagates to the cluster's VMs, shifting their site matching.
+        ('virtualization', 'Cluster', ('type_id', 'group_id', '_site_id'), 'cluster_id', 'cluster_id'),
         ('tenancy', 'Tenant', ('group_id',), 'tenant_id', 'tenant_id'),
     )
     for app, name, fields, device_lookup, vm_lookup in direct_triggers:
@@ -362,8 +369,8 @@ _connect_upstream_handlers()
 # whose FK is about to be nulled.
 
 def _make_upstream_delete_handler(scope_field):
-    def _handler(sender, instance, **kwargs):
-        invalidate_for_scope_delta(scope_field, [instance.pk])
+    def _handler(sender, instance, using=None, **kwargs):
+        invalidate_for_scope_delta(scope_field, [instance.pk], using=using)
 
     return _handler
 
