@@ -1,16 +1,22 @@
 from unittest import mock
 
-from django.db import connection
-from django.db.models import F
-from django.test import TestCase
+from django.db import connection, router
+from django.db.models import F, Q
+from django.test import TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
 from core.models import Job
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.cache import invalidate_config_context_for_objects
+from extras.cache import (
+    invalidate_config_context_for_configcontext,
+    invalidate_config_context_for_objects,
+    invalidate_for_scope_delta,
+)
 from extras.jobs import RenderConfigContextJob
 from extras.models import ConfigContext, Tag
+from extras.signals import _make_direct_upstream_handler, _make_reparent_handler
 from tenancy.models import Tenant, TenantGroup
+from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -490,6 +496,24 @@ class ConfigContextUpstreamChangeInvalidationTest(TestCase):
 
         self.assertIsNone(_get_cache(vm))
 
+    def test_direct_upstream_cluster_scope_change_invalidates_vm(self):
+        # A Cluster's effective site lives in the cached `_site_id`, which virtualization.signals
+        # propagates onto every VM in the cluster with a bulk UPDATE emitting no post_save. The
+        # VMs' site-based matching shifts with it, so the Cluster save must invalidate them.
+        ct = ClusterType.objects.create(name='CT', slug='ct')
+        site1 = Site.objects.create(name='Site 1', slug='site-1')
+        site2 = Site.objects.create(name='Site 2', slug='site-2')
+        cluster = Cluster.objects.create(name='Cluster', type=ct, scope=site1)
+        vm = VirtualMachine.objects.create(name='VM', role=self.role, cluster=cluster)
+        self.assertEqual(vm.site, site1)
+        _set_cache(vm, {'cached': True})
+
+        cluster.snapshot()
+        cluster.scope = site2
+        cluster.save()
+
+        self.assertIsNone(_get_cache(vm))
+
     def test_direct_upstream_tenant_group_change_invalidates_device(self):
         tg1 = TenantGroup.objects.create(name='TG1', slug='tg1')
         tg2 = TenantGroup.objects.create(name='TG2', slug='tg2')
@@ -707,3 +731,259 @@ class ConditionalConfigContextAnnotationTest(TestCase):
         self.assertEqual(rows[self.cold.pk], {'a': 1, 'b': 2})
         # A single query backs the whole page — no per-object fallback to get_for_object().
         self.assertEqual(len(ctx.captured_queries), 1)
+
+
+# Resolving a ConfigContext's affected object set reads every dimension of its scope, whether or
+# not that dimension is populated (see ConfigContext._get_affected_object_filters). A router which
+# named only Device and VirtualMachine would therefore leave those scope lookups unchecked, so the
+# ConfigContext-driven tests below name them all.
+CC_SCOPE_MODELS = (
+    Cluster,
+    ClusterGroup,
+    ClusterType,
+    DeviceRole,
+    DeviceType,
+    Location,
+    Platform,
+    Region,
+    Site,
+    SiteGroup,
+    Tag,
+    Tenant,
+    TenantGroup,
+)
+
+
+class ConfigContextInvalidationRoutingTest(TestCase):
+    """
+    Every query the invalidation makes must be issued against the connection the triggering object
+    was saved on — the alias the signal supplies as `using` — rather than being resolved anew by
+    DATABASE_ROUTERS. A router which resolved them elsewhere would read the affected PKs from, and
+    NULL the cache in, a database other than the one holding the triggering change.
+
+    PinnedConnectionRouter raises on any unpinned read or write of the models it is given. Each
+    test omits the model being saved or deleted, as Django routes that operation itself.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Mfr', slug='mfr')
+        cls.devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='DT', slug='dt')
+        cls.role = DeviceRole.objects.create(name='Role', slug='role')
+        cls.region = Region.objects.create(name='Region', slug='region')
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a', region=cls.region)
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        cls.platform = Platform.objects.create(name='Platform', slug='platform')
+        cls.location = Location.objects.create(name='Location', slug='location', site=cls.site_a)
+        cls.device = Device.objects.create(
+            name='Device',
+            device_type=cls.devicetype,
+            role=cls.role,
+            site=cls.site_a,
+            location=cls.location,
+            platform=cls.platform,
+        )
+        cls.cluster_type = ClusterType.objects.create(name='Cluster Type', slug='cluster-type')
+        cls.cluster = Cluster.objects.create(name='Cluster', type=cls.cluster_type, scope=cls.site_a)
+        cls.vm = VirtualMachine.objects.create(
+            name='VM', cluster=cls.cluster, role=cls.role, platform=cls.platform
+        )
+
+    def test_helper_pins_update_to_given_connection(self):
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine)]):
+            invalidate_config_context_for_objects('dcim.device', [self.device.pk], using='default')
+
+    def test_helper_resolves_one_alias_for_update_and_enqueue(self):
+        # Called without an alias, the UPDATE falls to the router but transaction.on_commit()
+        # would fall to 'default', which need not be the same database: the callback would then
+        # be attached to a connection other than the one being written, and could fire before
+        # the UPDATE it waits on. Both must be bound to the alias the router chooses.
+        with mock.patch('extras.cache.transaction.on_commit') as on_commit:
+            invalidate_config_context_for_objects('dcim.device', [self.device.pk])
+
+        self.assertEqual(on_commit.call_args.kwargs['using'], router.db_for_write(Device))
+
+    def test_location_site_change_pins_device_query(self):
+        location = Location.objects.get(pk=self.location.pk)
+        location.site_id = self.site_b.pk
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device)]):
+            location.save()
+
+    def test_cluster_scope_change_pins_vm_query(self):
+        # Snapshotted, so that the handler's watched-field check runs for real: absent a
+        # snapshot _changed_fields() returns True conservatively, and the query under test would
+        # be issued even if the trigger named a field the model does not have. Asserting the
+        # cache is cleared confirms the change was actually recognized as scope-relevant.
+        cluster = Cluster.objects.get(pk=self.cluster.pk)
+        _set_cache(self.vm, {'cached': True})
+        cluster.snapshot()
+        cluster.scope = self.site_b
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(VirtualMachine)]):
+            cluster.save()
+
+        self.assertIsNone(_get_cache(self.vm))
+
+    def test_region_reparent_pins_device_and_vm_queries(self):
+        parent = Region.objects.create(name='Parent', slug='parent')
+        region = Region.objects.get(pk=self.region.pk)
+        region.parent = parent
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine)]):
+            region.save()
+
+    def test_reparent_handler_pins_subtree_queries_to_given_connection(self):
+        # The reparent handler resolves the moved node's post-move path and the PKs of its
+        # subtree before it can name the affected objects, and both reads must follow the
+        # saving connection. The handler is invoked directly so that the reparented model can
+        # be named in the router: saving the Region under it would trip on the unpinned cycle
+        # check in the ltree base save, which this handler does not control.
+        parent = Region.objects.create(name='Parent', slug='parent')
+        region = Region.objects.get(pk=self.region.pk)
+        region.parent = parent
+        region.save()
+
+        handler = _make_reparent_handler('site__region__in', 'site__region__in')
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, Region)]):
+            handler(sender=Region, instance=region, created=False, using='default')
+
+    def test_configcontext_save_pins_device_and_vm_queries(self):
+        # Both a nested (ltree) and a direct scope dimension are populated, so that the path
+        # lookup and the PK lookup which resolve them are each exercised.
+        cc = ConfigContext.objects.create(name='CC', weight=100, data={'a': 1})
+        cc.sites.add(self.site_a)
+        cc.regions.add(self.region)
+        cc.data = {'a': 2}
+        with override_settings(
+            DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, *CC_SCOPE_MODELS)]
+        ):
+            cc.save()
+
+    def test_configcontext_delete_pins_device_and_vm_queries(self):
+        cc = ConfigContext.objects.create(name='CC', weight=100, data={'a': 1})
+        cc.sites.add(self.site_a)
+        cc.regions.add(self.region)
+        with override_settings(
+            DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, *CC_SCOPE_MODELS)]
+        ):
+            cc.delete()
+
+    def test_configcontext_m2m_add_pins_device_and_vm_queries(self):
+        cc = ConfigContext.objects.create(name='CC', weight=100, data={'a': 1})
+        with override_settings(
+            DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, *CC_SCOPE_MODELS)]
+        ):
+            cc.sites.add(self.site_a)
+
+    def test_configcontext_m2m_remove_pins_device_and_vm_queries(self):
+        # post_remove additionally resolves the removed scope items via
+        # invalidate_for_scope_delta(), which must be pinned too.
+        cc = ConfigContext.objects.create(name='CC', weight=100, data={'a': 1})
+        cc.sites.add(self.site_a)
+        with override_settings(
+            DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, *CC_SCOPE_MODELS)]
+        ):
+            cc.sites.remove(self.site_a)
+
+    def test_configcontext_nested_m2m_remove_pins_scope_delta_queries(self):
+        # A nested (ltree) scope dimension resolves the removed items' paths as well. Region is
+        # named so that read is checked rather than merely performed.
+        cc = ConfigContext.objects.create(name='CC', weight=100, data={'a': 1})
+        cc.regions.add(self.region)
+        with override_settings(
+            DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine, *CC_SCOPE_MODELS)]
+        ):
+            cc.regions.remove(self.region)
+
+    def test_upstream_delete_pins_device_and_vm_queries(self):
+        # Platform is a SET_NULL feeder on both Device and VirtualMachine.
+        platform = Platform.objects.create(name='Spare', slug='spare')
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device, VirtualMachine)]):
+            platform.delete()
+
+    def test_device_tag_change_pins_device_query(self):
+        tag = Tag.objects.create(name='Tag', slug='tag')
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(Device)]):
+            self.device.tags.add(tag)
+
+
+# An alias which is deliberately absent from DATABASES. Every query issued against it would raise
+# ConnectionDoesNotExist, so the tests below stop at the boundary where the alias is handed off
+# (the queryset's `_db`, or the `using` kwarg) rather than executing anything.
+OTHER_ALIAS = 'other'
+
+
+class ConfigContextInvalidationAliasThreadingTest(TestCase):
+    """
+    ConfigContextInvalidationRoutingTest establishes that no query in the invalidation path is left
+    for DATABASE_ROUTERS to resolve. That is only half of the requirement: a query pinned to the
+    wrong alias consults no router either. These tests close the other half by handing each entry
+    point an alias of their own choosing and asserting that *that* alias is what reaches the
+    queryset and the enqueue — which a hardcoded `.using('default')` would fail.
+
+    The alias names no real connection, so nothing here may execute a query against it. Each test
+    patches the boundary immediately below the code under test, leaving the querysets unevaluated.
+    """
+    def test_helper_pins_update_and_enqueue_to_supplied_alias(self):
+        with (
+            mock.patch('extras.cache.chunked_update', return_value=1) as chunked,
+            mock.patch('extras.cache.transaction.on_commit') as on_commit,
+        ):
+            invalidate_config_context_for_objects('dcim.device', [1], using=OTHER_ALIAS)
+
+        self.assertEqual(chunked.call_args.args[0]._db, OTHER_ALIAS)
+        self.assertEqual(on_commit.call_args.kwargs['using'], OTHER_ALIAS)
+
+    def test_helper_pins_update_to_the_alias_it_resolves(self):
+        # Called without an alias, the UPDATE and the enqueue must still agree: the alias the
+        # helper resolves for on_commit() (asserted by the routing test above) is the one the
+        # UPDATE has to carry, or the callback waits on a connection other than the one written.
+        with (
+            mock.patch('extras.cache.chunked_update', return_value=1) as chunked,
+            mock.patch('extras.cache.transaction.on_commit') as on_commit,
+        ):
+            invalidate_config_context_for_objects('dcim.device', [1])
+
+        self.assertEqual(chunked.call_args.args[0]._db, router.db_for_write(Device))
+        self.assertEqual(chunked.call_args.args[0]._db, on_commit.call_args.kwargs['using'])
+
+    def test_configcontext_helper_forwards_alias(self):
+        cc = ConfigContext(name='CC', weight=100, data={})
+        affected = (Device.objects.using(OTHER_ALIAS), VirtualMachine.objects.using(OTHER_ALIAS))
+        with (
+            mock.patch.object(ConfigContext, 'get_affected_objects', return_value=affected) as get_affected,
+            mock.patch('extras.cache.invalidate_config_context_for_objects') as invalidate,
+        ):
+            invalidate_config_context_for_configcontext(cc, using=OTHER_ALIAS)
+
+        self.assertEqual(get_affected.call_args.kwargs['using'], OTHER_ALIAS)
+        self.assertEqual([c.kwargs['using'] for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
+        self.assertEqual([c.args[1]._db for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
+
+    def test_scope_delta_pins_pk_selects_to_supplied_alias(self):
+        # 'sites' is a direct (non-nested, non-tag) scope dimension, so the function resolves it
+        # without a query of its own and the Device/VM PK selects are the only reads to check.
+        with mock.patch('extras.cache.invalidate_config_context_for_objects') as invalidate:
+            invalidate_for_scope_delta('sites', [1], using=OTHER_ALIAS)
+
+        self.assertEqual([c.kwargs['using'] for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
+        self.assertEqual([c.args[1]._db for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
+
+    def test_get_affected_objects_binds_querysets_to_supplied_alias(self):
+        cc = ConfigContext(name='CC', weight=100, data={})
+        with mock.patch.object(
+            ConfigContext, '_get_affected_object_filters', return_value=(Q(), Q())
+        ) as get_filters:
+            device_qs, vm_qs = cc.get_affected_objects(using=OTHER_ALIAS)
+
+        self.assertEqual(get_filters.call_args.kwargs['using'], OTHER_ALIAS)
+        self.assertEqual(device_qs._db, OTHER_ALIAS)
+        self.assertEqual(vm_qs._db, OTHER_ALIAS)
+
+    def test_upstream_handler_forwards_alias_to_helper(self):
+        # The receivers take their alias from the signal; the handler is invoked directly so that
+        # an alias other than the one the test connection would supply can be threaded through it.
+        handler = _make_direct_upstream_handler(('name',), 'platform_id', 'platform_id')
+        with mock.patch('extras.signals.invalidate_config_context_for_objects') as invalidate:
+            handler(sender=Platform, instance=Platform(pk=1, name='Platform'), created=False, using=OTHER_ALIAS)
+
+        self.assertEqual([c.kwargs['using'] for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
+        self.assertEqual([c.args[1]._db for c in invalidate.call_args_list], [OTHER_ALIAS, OTHER_ALIAS])
