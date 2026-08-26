@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.7.0-beta1",
+        "version": "4.7.0-beta2",
         "license": {
             "name": "Apache v2 License"
         }
@@ -159929,6 +159929,163 @@
                     },
                     {
                         "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "x-spec-enum-id": "0b370227c3205532",
+                            "enum": [
+                                "active",
+                                "deleting",
+                                "null",
+                                "provisioning"
+                            ]
+                        },
+                        "description": "Operational state of the field\n\n* `active` - Active\n* `provisioning` - Provisioning\n* `deleting` - Deleting"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__empty",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__ic",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__ie",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__iew",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__iregex",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__isw",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__n",
+                        "schema": {
+                            "type": "string",
+                            "x-spec-enum-id": "0b370227c3205532",
+                            "enum": [
+                                "active",
+                                "deleting",
+                                "null",
+                                "provisioning"
+                            ]
+                        },
+                        "description": "Operational state of the field\n\n* `active` - Active\n* `provisioning` - Provisioning\n* `deleting` - Deleting"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__nic",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__nie",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__niew",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__nisw",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status__regex",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "type",
                         "schema": {
                             "type": "array",
@@ -296459,6 +296616,30 @@
                         ],
                         "nullable": true
                     },
+                    "status": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "enum": [
+                                    "active",
+                                    "provisioning",
+                                    "deleting"
+                                ],
+                                "type": "string",
+                                "description": "* `active` - Active\n* `provisioning` - Provisioning\n* `deleting` - Deleting",
+                                "x-spec-enum-id": "0b370227c3205532"
+                            },
+                            "label": {
+                                "type": "string",
+                                "enum": [
+                                    "Active",
+                                    "Provisioning",
+                                    "Deleting"
+                                ]
+                            }
+                        },
+                        "readOnly": true
+                    },
                     "owner": {
                         "allOf": [
                             {
@@ -296492,6 +296673,7 @@
                     "last_updated",
                     "name",
                     "object_types",
+                    "status",
                     "type",
                     "url"
                 ]
