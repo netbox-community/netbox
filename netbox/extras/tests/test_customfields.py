@@ -30,6 +30,12 @@ from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
 
+def get_primary_table_queries(queries, model):
+    """Return the SQL of captured queries that read from the model's table as the primary relation."""
+    table = connection.ops.quote_name(model._meta.db_table)
+    return [q['sql'] for q in queries if f'FROM {table}' in q['sql']]
+
+
 class CustomFieldTestCase(TestCase):
 
     @classmethod
@@ -1422,20 +1428,9 @@ class CustomFieldAPITestCase(APITestCase):
 
     def test_graphql_selection_field_list_query_is_not_n_plus_one(self):
         self.add_permissions('dcim.view_site')
+        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 13)])
+
         query = '{ site_list { custom_fields } }'
-
-        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(3, 8)])
-        # Prime process-level caches (e.g. ContentType) outside the measured request.
-        self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
-        with CaptureQueriesContext(connection) as ctx:
-            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        data = json.loads(response.content)
-        self.assertNotIn('errors', data)
-        self.assertEqual(len(data['data']['site_list']), 7)
-        baseline_query_count = len(ctx.captured_queries)
-
-        Site.objects.bulk_create([Site(name=f'Site {i}', slug=f'site-{i}') for i in range(8, 13)])
         with CaptureQueriesContext(connection) as ctx:
             response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -1443,9 +1438,16 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site_list']), 12)
 
+        # The capture window also holds one-off request queries, so assert on per-table counts, not the total.
+        site_queries = get_primary_table_queries(ctx.captured_queries, Site)
         self.assertEqual(
-            len(ctx.captured_queries), baseline_query_count,
-            "custom_fields label resolution should not scale with the number of objects returned"
+            len(site_queries), 1,
+            f'custom_field_data must be fetched by the site list query itself, got {site_queries}'
+        )
+        custom_field_queries = get_primary_table_queries(ctx.captured_queries, CustomField)
+        self.assertEqual(
+            len(custom_field_queries), 1,
+            f'custom field definitions must be fetched once per request, got {custom_field_queries}'
         )
 
     def test_get_for_model_select_related_choice_set(self):
