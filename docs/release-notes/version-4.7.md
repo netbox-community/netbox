@@ -1,6 +1,6 @@
 # NetBox v4.7
 
-## v4.7.0-beta1 (2026-08-17)
+## v4.7.0-beta2 (2026-08-26)
 
 !!! danger "Not for Production Use"
     This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
@@ -34,6 +34,7 @@
 * Webhooks now support a configurable timeout. If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less, you must also set [`WEBHOOK_DEFAULT_TIMEOUT`](../configuration/miscellaneous.md#webhook_default_timeout) to a lower value; NetBox will refuse to start otherwise.
 * Specifying an email server under the [`EMAIL`](../configuration/system.md#email) configuration parameter is now mandatory in order to send mail: A deployment which does not define `EMAIL['SERVER']` will raise an `InvalidMailer` exception when attempting to send, rather than failing at the SMTP connection.
 * The upgrade script now runs the `rebuild_config_context_cache` management command to populate the new config context cache. This may extend the duration of the upgrade for deployments with a large number of devices and virtual machines.
+* Creating a custom field which has a default value, and deleting a custom field, are now deferred to a background job where the field's assigned object types hold more than [`BULK_UPDATE_CHUNK_SIZE`](../configuration/system.md#bulk_update_chunk_size) objects in total.
 * The obsolete `populate_custom_field_defaults()` method has been removed from `CustomFieldsMixin`.
 * `CustomField.objects.get_for_model()` and the `custom_fields` property of `CustomFieldsMixin` now return a list rather than a queryset, and `get_for_model()` returns only those fields which are active: Any whose stored data is being updated by a background job is omitted (see [field status](../customization/custom-fields.md#field-status)) unless selected via its `statuses` argument.
 * Removal of deprecated behavior
@@ -104,6 +105,7 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * [#22441](https://github.com/netbox-community/netbox/issues/22441) - Record and display the execution time of each background job
 * [#22446](https://github.com/netbox-community/netbox/issues/22446) - Introduce breadcrumbs support for declarative layouts
 * [#22486](https://github.com/netbox-community/netbox/issues/22486) - Support a configurable timeout for webhooks, with a new `WEBHOOK_DEFAULT_TIMEOUT` configuration parameter
+* [#22563](https://github.com/netbox-community/netbox/issues/22563) - Preserve the scroll position of the sidebar navigation when moving between pages
 * [#22595](https://github.com/netbox-community/netbox/issues/22595) - Introduce the [`BULK_UPDATE_CHUNK_SIZE`](../configuration/system.md#bulk_update_chunk_size) configuration parameter to bound the number of rows affected by a single bulk `UPDATE` statement
 * [#22604](https://github.com/netbox-community/netbox/issues/22604) - Document the experimental Python package installation and upgrade workflow
 * [#22607](https://github.com/netbox-community/netbox/issues/22607) - Sanitize the HTTP request passed to the template context when rendering custom links
@@ -111,6 +113,7 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * [#22757](https://github.com/netbox-community/netbox/issues/22757) - Support arbitrary help text on inline form fields
 * [#22786](https://github.com/netbox-community/netbox/issues/22786) - Publish NetBox releases to the production Python Package Index (PyPI)
 * [#22851](https://github.com/netbox-community/netbox/issues/22851) - Unpin `social-auth-core` to permit the installation of newer PyJWT versions
+* [#23010](https://github.com/netbox-community/netbox/issues/23010) - Defer the provisioning of default and purging of stale custom field data to a background job
 
 ### Performance Improvements
 
@@ -217,6 +220,7 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
     * Add optional decimal field `cooling_capacity`
 * `extras.CustomField`
     * Add boolean field `nulls_first`
+    * Add read-only choice field `status`
 * `extras.EventRule`
     * Add read-only boolean field `action_is_available`
     * The `action_object_type` field is now optional, and is no longer restricted to object types which support event rules
@@ -251,4 +255,5 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
 * The members of `ServiceProtocolEnum` have been renamed from `ROLE_TCP`, `ROLE_UDP`, and `ROLE_SCTP` to `TCP`, `UDP`, and `SCTP`
 * Interface & interface template types now expose the `channels` and `channel_id` fields
 * Device, device type, module type, rack, and rack type types now expose their new cooling fields, and new enums have been introduced for the cooling choice sets
+* The custom field type and filter now expose the new `status` field, with a corresponding `CustomFieldStatusEnum`
 * Plugins may now extend core output types and filters (see the [plugin GraphQL API documentation](../plugins/development/graphql-api.md))
