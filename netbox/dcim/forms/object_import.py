@@ -123,6 +123,12 @@ class CoolingOutflowTemplateImportForm(forms.ModelForm):
 
 
 class InterfaceTemplateImportForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        label=_('Parent'),
+        queryset=InterfaceTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     type = forms.ChoiceField(
         label=_('Type'),
         choices=InterfaceTypeChoices.CHOICES
@@ -146,9 +152,23 @@ class InterfaceTemplateImportForm(forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mgmt_only',
-            'description', 'poe_mode', 'poe_type', 'rf_role'
+            'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id', 'parent', 'enabled',
+            'mgmt_only', 'description', 'poe_mode', 'poe_type', 'rf_role',
         ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            parent = self.fields['parent']
+            parent.queryset = parent.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            parent = self.fields['parent']
+            parent.queryset = parent.queryset.filter(module_type=module_type)
+
+        return module_type
 
 
 class FrontPortTemplateImportForm(forms.ModelForm):

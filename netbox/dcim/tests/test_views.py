@@ -1181,6 +1181,75 @@ inventory-items:
 
         self.assertEqual(len(one_bay_queries), len(five_bay_queries))
 
+    def test_import_channelized_interfaces(self):
+        """
+        A channel subinterface template resolves its parent by name within the device type being imported.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-5000
+slug: test-5000
+u_height: 1
+interfaces:
+  - name: et-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+  - name: et-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: et-0/0/0
+  - name: et-0/0/0:2
+    type: channel
+    channel_id: 2
+    parent: et-0/0/0
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        # The name lookup runs through get(), so an unscoped queryset would raise MultipleObjectsReturned here
+        InterfaceTemplate.objects.create(
+            device_type=DeviceType.objects.get(model='Device Type 1'),
+            name='et-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+            'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        device_type = DeviceType.objects.get(model='TEST-5000')
+        self.assertEqual(device_type.interfacetemplates.count(), 3)
+
+        parent = device_type.interfacetemplates.get(name='et-0/0/0')
+        self.assertEqual(parent.channels, 4)
+
+        for i in range(1, 3):
+            channel = device_type.interfacetemplates.get(name=f'et-0/0/0:{i}')
+            self.assertEqual(channel.type, InterfaceTypeChoices.TYPE_CHANNEL)
+            self.assertEqual(channel.channel_id, i)
+            self.assertEqual(channel.parent, parent)
+
     def test_import_error_numbering(self):
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1799,6 +1868,196 @@ module-bays:
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
         self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+
+    def test_import_channelized_interfaces(self):
+        """
+        A channel subinterface template resolves its parent by name within the module type being imported.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-2000
+interfaces:
+  - name: xe-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+  - name: xe-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: xe-0/0/0
+  - name: xe-0/0/0:2
+    type: channel
+    channel_id: 2
+    parent: xe-0/0/0
+  - name: xe-0/0/0:3
+    type: channel
+    channel_id: 3
+    parent: xe-0/0/0
+  - name: xe-0/0/0:4
+    type: channel
+    channel_id: 4
+    parent: xe-0/0/0
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        # The name lookup runs through get(), so an unscoped queryset would raise MultipleObjectsReturned here
+        InterfaceTemplate.objects.create(
+            module_type=ModuleType.objects.get(model='Module Type 1'),
+            name='xe-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        module_type = ModuleType.objects.get(model='TEST-2000')
+        self.assertEqual(module_type.interfacetemplates.count(), 5)
+
+        parent = module_type.interfacetemplates.get(name='xe-0/0/0')
+        self.assertEqual(parent.type, InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS)
+        self.assertEqual(parent.channels, 4)
+        self.assertIsNone(parent.channel_id)
+
+        for i in range(1, 5):
+            channel = module_type.interfacetemplates.get(name=f'xe-0/0/0:{i}')
+            self.assertEqual(channel.type, InterfaceTypeChoices.TYPE_CHANNEL)
+            self.assertEqual(channel.channel_id, i)
+            self.assertIsNone(channel.channels)
+            self.assertEqual(channel.parent, parent)
+
+    def test_import_channel_before_parent(self):
+        """
+        A channel subinterface listed ahead of its parent reports a form error rather than a server error.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-2001
+interfaces:
+  - name: xe-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: xe-0/0/0
+  - name: xe-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(
+            response,
+            'Record 1 interfaces[1].parent: Select a valid choice. That choice is not one of the available choices.'
+        )
+        self.assertContains(
+            response,
+            'Record 1 interfaces[1].parent: A channel subinterface must be assigned to a parent interface.'
+        )
+        self.assertFalse(ModuleType.objects.filter(model='TEST-2001').exists())
+
+    def test_import_exported_channelized_module_type(self):
+        """
+        YAML produced by ModuleType.to_yaml() for a channelized module type can be imported again.
+        """
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='TEST-3000')
+        parent = InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='xe-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+        for i in range(1, 5):
+            InterfaceTemplate.objects.create(
+                module_type=module_type,
+                name=f'xe-0/0/0:{i}',
+                type=InterfaceTypeChoices.TYPE_CHANNEL,
+                parent=parent,
+                channel_id=i,
+            )
+
+        # The importer saves each entry in list order, so the export must place a parent ahead of its channels
+        exported = yaml.safe_load(module_type.to_yaml())
+        self.assertEqual(
+            [interface['name'] for interface in exported['interfaces']],
+            ['xe-0/0/0', 'xe-0/0/0:1', 'xe-0/0/0:2', 'xe-0/0/0:3', 'xe-0/0/0:4'],
+        )
+
+        # Re-import under a different model so it does not collide with the source
+        exported['model'] = 'TEST-3001'
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': yaml.dump(exported),
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        imported = ModuleType.objects.get(model='TEST-3001')
+        self.assertEqual(imported.interfacetemplates.count(), 5)
+
+        imported_parent = imported.interfacetemplates.get(name='xe-0/0/0')
+        self.assertEqual(imported_parent.channels, 4)
+        for i in range(1, 5):
+            channel = imported.interfacetemplates.get(name=f'xe-0/0/0:{i}')
+            self.assertEqual(channel.channel_id, i)
+            self.assertEqual(channel.parent, imported_parent)
 
     def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
         """Compares an unprefetched to_yaml() call per instance against export_yaml() (which
