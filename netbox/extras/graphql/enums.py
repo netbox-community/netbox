@@ -10,6 +10,7 @@ __all__ = (
     'CustomFieldChoiceColorEnum',
     'CustomFieldChoiceSetBaseEnum',
     'CustomFieldFilterLogicEnum',
+    'CustomFieldStatusEnum',
     'CustomFieldTypeEnum',
     'CustomFieldUIEditableEnum',
     'CustomFieldUIVisibleEnum',
@@ -23,6 +24,7 @@ __all__ = (
 CustomFieldChoiceColorEnum = strawberry.enum(CustomFieldChoiceColorChoices.as_enum())
 CustomFieldChoiceSetBaseEnum = strawberry.enum(CustomFieldChoiceSetBaseChoices.as_enum())
 CustomFieldFilterLogicEnum = strawberry.enum(CustomFieldFilterLogicChoices.as_enum(prefix='filter'))
+CustomFieldStatusEnum = strawberry.enum(CustomFieldStatusChoices.as_enum(prefix='status'))
 CustomFieldTypeEnum = strawberry.enum(CustomFieldTypeChoices.as_enum(prefix='type'))
 CustomFieldUIEditableEnum = strawberry.enum(CustomFieldUIEditableChoices.as_enum())
 CustomFieldUIVisibleEnum = strawberry.enum(CustomFieldUIVisibleChoices.as_enum())

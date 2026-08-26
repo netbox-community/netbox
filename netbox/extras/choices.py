@@ -47,6 +47,32 @@ class CustomFieldTypeChoices(ChoiceSet):
     )
 
 
+class CustomFieldStatusChoices(ChoiceSet):
+    """
+    The lifecycle state of a CustomField.
+
+    A field participates in object data only while active. The remaining states indicate that a bulk
+    update of its stored data is pending or in progress, during which the field is not live but its
+    row continues to reserve the field's name.
+    """
+    STATUS_ACTIVE = 'active'
+    STATUS_PROVISIONING = 'provisioning'
+    STATUS_DELETING = 'deleting'
+
+    CHOICES = (
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PROVISIONING, _('Provisioning'), 'cyan'),
+        (STATUS_DELETING, _('Deleting'), 'red'),
+    )
+
+    # The statuses in which the field's stored object data is its own: an active field's data is
+    # live, and a provisioning field's is being written by the job which will bring it live. Data
+    # held for a field in one of these statuses is left alone when an object is saved, and its
+    # default is populated on objects which lack it. A deleting field's data is on its way out, and
+    # so is excluded (see CustomFieldsMixin.clean() and get_defaults_for_model()).
+    DATA_STATUSES = (STATUS_ACTIVE, STATUS_PROVISIONING)
+
+
 class CustomFieldFilterLogicChoices(ChoiceSet):
 
     FILTER_DISABLED = 'disabled'

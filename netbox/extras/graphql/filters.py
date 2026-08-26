@@ -149,6 +149,9 @@ class CustomFieldFilter(ChangeLoggedModelFilter):
         strawberry_django.filter_field()
     )
     name: StrFilterLookup | None = strawberry_django.filter_field()
+    status: BaseFilterLookup[Annotated['CustomFieldStatusEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
     label: StrFilterLookup | None = strawberry_django.filter_field()
     group_name: StrFilterLookup | None = strawberry_django.filter_field()
     description: StrFilterLookup | None = strawberry_django.filter_field()

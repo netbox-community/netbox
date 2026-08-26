@@ -34,6 +34,8 @@
 * Webhooks now support a configurable timeout. If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less, you must also set [`WEBHOOK_DEFAULT_TIMEOUT`](../configuration/miscellaneous.md#webhook_default_timeout) to a lower value; NetBox will refuse to start otherwise.
 * Specifying an email server under the [`EMAIL`](../configuration/system.md#email) configuration parameter is now mandatory in order to send mail: A deployment which does not define `EMAIL['SERVER']` will raise an `InvalidMailer` exception when attempting to send, rather than failing at the SMTP connection.
 * The upgrade script now runs the `rebuild_config_context_cache` management command to populate the new config context cache. This may extend the duration of the upgrade for deployments with a large number of devices and virtual machines.
+* The obsolete `populate_custom_field_defaults()` method has been removed from `CustomFieldsMixin`.
+* `CustomField.objects.get_for_model()` and the `custom_fields` property of `CustomFieldsMixin` now return a list rather than a queryset, and `get_for_model()` returns only those fields which are active: Any whose stored data is being updated by a background job is omitted (see [field status](../customization/custom-fields.md#field-status)) unless selected via its `statuses` argument.
 * Removal of deprecated behavior
     * The `housekeeping` management command has been removed. (Its constituent tasks are performed by the individual management commands introduced in NetBox v4.6.)
     * NetBox's custom `querystring` template tag has been removed in favor of Django's built-in tag of the same name.
