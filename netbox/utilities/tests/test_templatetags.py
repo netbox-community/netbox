@@ -106,6 +106,74 @@ class StaticWithParamsTestCase(TestCase):
                 self.assertIn('v=new_version', result)
                 self.assertNotIn('v=old_version', result)
 
+    @override_settings(STATIC_URL='https://s3.example.com/netbox/static/')
+    def test_static_with_params_sigv4_presigned_url(self):
+        """Test that parameters are not appended to an AWS signature v4 presigned URL."""
+        signed_url = (
+            'https://s3.example.com/netbox/static/test.js'
+            '?X-Amz-Algorithm=AWS4-HMAC-SHA256'
+            '&X-Amz-Credential=ABC123%2F20260827%2Fus-east-1%2Fs3%2Faws4_request'
+            '&X-Amz-Date=20260827T141543Z'
+            '&X-Amz-Expires=3600'
+            '&X-Amz-SignedHeaders=host'
+            '&X-Amz-Signature=7a5af16a67d2bc7dc15b77fab733cafdc1344414d884fcf2e0b997b0b78dabca'
+        )
+        with patch('utilities.templatetags.builtins.tags.static') as mock_static:
+            mock_static.return_value = signed_url
+
+            result = static_with_params('test.js', v='1.0.0')
+
+            # The signed URL must be returned verbatim: appending a parameter would be included in
+            # the signature calculation performed by the storage backend, invalidating the signature.
+            self.assertEqual(result, signed_url)
+            self.assertNotIn('v=1.0.0', result)
+
+    @override_settings(STATIC_URL='https://s3.example.com/netbox/static/')
+    def test_static_with_params_sigv2_presigned_url(self):
+        """Test that parameters are not appended to an AWS signature v2 presigned URL."""
+        signed_url = (
+            'https://s3.example.com/netbox/static/test.js'
+            '?AWSAccessKeyId=ABC123&Signature=hR9%2F5pRTOWo%3D&Expires=1748635659'
+        )
+        with patch('utilities.templatetags.builtins.tags.static') as mock_static:
+            mock_static.return_value = signed_url
+
+            result = static_with_params('test.js', v='1.0.0')
+
+            self.assertEqual(result, signed_url)
+            self.assertNotIn('v=1.0.0', result)
+
+    @override_settings(STATIC_URL='https://storage.example.com/netbox/static/')
+    def test_static_with_params_gcs_presigned_url(self):
+        """Test that parameters are not appended to a Google Cloud Storage v4 signed URL."""
+        signed_url = (
+            'https://storage.example.com/netbox/static/test.js'
+            '?X-Goog-Algorithm=GOOG4-RSA-SHA256'
+            '&X-Goog-Credential=netbox%40example.iam.gserviceaccount.com%2F20260827%2Fauto%2Fstorage'
+            '%2Fgoog4_request'
+            '&X-Goog-Date=20260827T141543Z'
+            '&X-Goog-Expires=3600'
+            '&X-Goog-SignedHeaders=host'
+            '&X-Goog-Signature=4bd3a1f0'
+        )
+        with patch('utilities.templatetags.builtins.tags.static') as mock_static:
+            mock_static.return_value = signed_url
+
+            result = static_with_params('test.js', v='1.0.0')
+
+            self.assertEqual(result, signed_url)
+            self.assertNotIn('v=1.0.0', result)
+
+    @override_settings(STATIC_URL='https://s3.example.com/netbox/static/')
+    def test_static_with_params_unsigned_s3_url(self):
+        """Test that parameters are appended to an unsigned (public bucket) S3 URL."""
+        with patch('utilities.templatetags.builtins.tags.static') as mock_static:
+            mock_static.return_value = 'https://s3.example.com/netbox/static/test.js'
+
+            result = static_with_params('test.js', v='1.0.0')
+
+            self.assertEqual(result, 'https://s3.example.com/netbox/static/test.js?v=1.0.0')
+
 
 class BadgeTestCase(TestCase):
     """
