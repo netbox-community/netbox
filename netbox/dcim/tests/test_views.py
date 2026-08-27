@@ -20,7 +20,7 @@ from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
-from users.models import ObjectPermission, User
+from users.models import ObjectPermission, Owner, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -3240,6 +3240,8 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
+        owner = Owner.objects.create(name='Owner 1')
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -3250,6 +3252,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -3261,6 +3264,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
