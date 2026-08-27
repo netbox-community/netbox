@@ -183,19 +183,26 @@ class FrontPortFormMixin(forms.Form):
     def clean(self):
         super().clean()
 
-        # Check that the total number of FrontPorts and positions matches the selected number of RearPort:position
-        # mappings. Note that `name` will be a list under FrontPortCreateForm, in which cases we multiply the number of
-        # FrontPorts being creation by the number of positions.
-        positions = self.cleaned_data['positions']
-        frontport_count = len(self.cleaned_data['name']) if type(self.cleaned_data['name']) is list else 1
-        rearport_count = len(self.cleaned_data['rear_ports'])
-        if frontport_count * positions != rearport_count:
+        # All three are required fields, so bail out if any of them failed its own validation
+        positions = self.cleaned_data.get('positions')
+        name = self.cleaned_data.get('name')
+        rear_ports = self.cleaned_data.get('rear_ports')
+        if not (positions and name and rear_ports):
+            return
+
+        # `name` is a list under FrontPortCreateForm, and each generated FrontPort consumes `positions` mappings
+        frontport_count = len(name) if isinstance(name, list) else 1
+        frontport_position_count = frontport_count * positions
+        rearport_count = len(rear_ports)
+
+        # {frontport_count} receives the position total. Its name is unchanged to keep existing translations valid.
+        if frontport_position_count != rearport_count:
             raise forms.ValidationError({
                 'rear_ports': _(
                     "The total number of front port positions ({frontport_count}) must match the selected number of "
                     "rear port positions ({rearport_count})."
                 ).format(
-                    frontport_count=frontport_count,
+                    frontport_count=frontport_position_count,
                     rearport_count=rearport_count
                 )
             })
