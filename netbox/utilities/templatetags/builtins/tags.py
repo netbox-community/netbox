@@ -197,8 +197,8 @@ def static_with_params(path, **params):
     # the signature and the request would be rejected by the storage backend.
     if signature_params := [p for p in existing_params if p.lower() in SIGNED_URL_PARAMS]:
         logger.debug(
-            f"Static URL '{static_url}' is signed ({', '.join(signature_params)}); "
-            f"omitting parameters {tuple(params)}"
+            "Static URL '%s' is signed (%s); omitting parameters %s",
+            static_url, ', '.join(signature_params), tuple(params)
         )
         return static_url
 
