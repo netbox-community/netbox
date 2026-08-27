@@ -78,6 +78,10 @@ class ModuleBayType(PrimaryModel):
         verbose_name_plural = _('module bay types')
 
     def __str__(self):
+        return self.name
+
+    @property
+    def full_name(self):
         if self.manufacturer:
             return f'{self.manufacturer} {self.name}'
         return self.name
