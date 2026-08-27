@@ -1,0 +1,37 @@
+name: Enforce milestone on close
+
+on:
+  issues:
+    types:
+      - closed
+
+permissions:
+  issues: write
+
+jobs:
+  check-milestone:
+    name: Check Milestone
+    if: github.repository == 'netbox-community/netbox' && github.event.issue.state_reason == 'completed'
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Reopen issues completed without a milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          # Grace period, in case the milestone is assigned immediately after closure
+          sleep 90
+
+          # Re-check the issue: bail out if it has been reopened or a milestone has since been set
+          DATA=$(gh issue view "$ISSUE" --json state,milestone)
+          STATE=$(jq -r '.state' <<< "$DATA")
+          MILESTONE=$(jq -r '.milestone.title // ""' <<< "$DATA")
+          if [ "$STATE" != "CLOSED" ] || [ -n "$MILESTONE" ]; then
+            echo "Nothing to do (state=$STATE, milestone=${MILESTONE:-none})"
+            exit 0
+          fi
+
+          gh issue reopen "$ISSUE" --comment \
+            "This issue was closed as completed without a milestone assigned, and has been reopened automatically. Please assign the milestone for the upcoming release, then close the issue again."
