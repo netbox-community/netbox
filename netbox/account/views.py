@@ -75,12 +75,12 @@ class LoginView(View):
         saml_idps = get_saml_idps()
         # The login page is re-rendered by post() when authentication fails, in which case the
         # post-login URL is found in the POST data (as with redirect_to_next() below).
-        data = request.POST if request.method == 'POST' else request.GET
+        request_data = request.POST if request.method == 'POST' else request.GET
 
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
             url = reverse('social:begin', args=[name])
             params = {}
-            if next := data.get('next'):
+            if next := request_data.get('next'):
                 params['next'] = next
             if name.lower() == 'saml' and saml_idps:
                 for idp in saml_idps:

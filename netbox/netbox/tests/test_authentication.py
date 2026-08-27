@@ -863,7 +863,7 @@ class SSOLoginButtonTestCase(DjangoTestCase):
         """
         begin_url = reverse('social:begin', args=['google-oauth2'])
         match = re.search(
-            rf'<form action="{re.escape(begin_url)}" method="post">(.*?)</form>',
+            rf'<form[^>]*action="{re.escape(begin_url)}"[^>]*>(.*?)</form>',
             response.content.decode(),
             flags=re.DOTALL,
         )
@@ -917,21 +917,38 @@ class SSOLoginButtonTestCase(DjangoTestCase):
             self.get_sso_form(response)
         )
 
-    def test_saml_idp_params(self):
+    def get_saml_auth_backends(self, request, backends):
         """
-        Each SAML IdP must be assigned its own `idp` form field. (The SAML backend cannot be loaded
-        here, as python3-saml is an optional dependency.)
+        Return the auth backends for the given request, with two SAML IdPs configured. (The SAML
+        backend cannot be loaded here, as python3-saml is an optional dependency.)
         """
-        request = RequestFactory().get(reverse('login'))
-
         with (
-            patch('account.views.load_backends', return_value={'saml': MagicMock()}),
+            patch('account.views.load_backends', return_value={name: MagicMock() for name in backends}),
             patch('account.views.get_saml_idps', return_value=['idp1', 'idp2']),
         ):
-            auth_backends = LoginView().get_auth_backends(request)
+            return LoginView().get_auth_backends(request)
+
+    def test_saml_idp_params(self):
+        """
+        Each SAML IdP must be assigned its own `idp` form field.
+        """
+        request = RequestFactory().get(reverse('login'))
+        auth_backends = self.get_saml_auth_backends(request, ['saml'])
 
         self.assertEqual(len(auth_backends), 2)
         self.assertEqual([b['params'] for b in auth_backends], [{'idp': 'idp1'}, {'idp': 'idp2'}])
+
+    def test_next_retained_for_backends_after_saml(self):
+        """
+        Every backend must convey `next`, including those enumerated after SAML (which contributes
+        one entry per configured IdP).
+        """
+        request = RequestFactory().get(reverse('login'), {'next': '/dcim/sites/'})
+        auth_backends = self.get_saml_auth_backends(request, ['saml', 'google-oauth2'])
+
+        self.assertEqual(len(auth_backends), 3)
+        for auth_backend in auth_backends:
+            self.assertEqual(auth_backend['params'].get('next'), '/dcim/sites/')
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):
