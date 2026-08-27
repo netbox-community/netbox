@@ -54,15 +54,16 @@ class ScopedForm(forms.Form):
 
         scope = self.cleaned_data.get('scope')
         scope_type = self.cleaned_data.get('scope_type')
+
+        # Assign the scope before validating, so a rejected pair leaves no stale scope on the instance
+        self.instance.scope = scope
+
         if scope_type and not scope:
             raise ValidationError({
                 'scope': _(
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type.model_class()._meta.model_name)
             })
-
-        # Assign the selected scope (if any)
-        self.instance.scope = scope
 
     def _set_scoped_values(self):
         if scope_type_id := get_field_value(self, 'scope_type'):

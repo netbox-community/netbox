@@ -100,13 +100,16 @@ class VLANGroup(OrganizationalModel):
         verbose_name_plural = _('VLAN groups')
 
     def clean(self):
-        super().clean()
-
-        # Validate scope assignment
+        # Validate the scope pair first, since BaseModel.clean() keys its errors to scope_id, which forms omit
         if self.scope_type and not self.scope_id:
-            raise ValidationError(_("Cannot set scope_type without scope_id."))
+            scope_type = self.scope_type.model_class()
+            raise ValidationError(
+                _("Please select a {scope_type}.").format(scope_type=scope_type._meta.model_name)
+            )
         if self.scope_id and not self.scope_type:
-            raise ValidationError(_("Cannot set scope_id without scope_type."))
+            raise ValidationError({'scope_type': _("Please select a scope type.")})
+
+        super().clean()
 
         # Validate VID ranges
         for vid_range in self.vid_ranges:
