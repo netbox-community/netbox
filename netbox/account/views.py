@@ -13,7 +13,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
@@ -67,7 +66,8 @@ class LoginView(View):
             'display_name': display_name,
             'icon_name': icon_name,
             'icon_img': icon_img,
-            'url': f'{url}?{urlencode(params)}',
+            'url': url,
+            'params': dict(params),
         }
 
     def get_auth_backends(self, request):

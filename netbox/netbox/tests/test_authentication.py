@@ -11,6 +11,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from social_core.exceptions import AuthFailed
 
+from account.views import LoginView
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile, ObjectType
 from dcim.models import Rack, Site
@@ -833,6 +834,69 @@ class ObjectPermissionProxyModelTestCase(TestCase):
         self._grant_scriptmodule_permission()
         with self.assertLogs('netbox.auth.ObjectPermissionBackend', level='WARNING'):
             self.assertFalse(self.user.has_perm('extras.change_nosuchmodel', self.script_module))
+
+
+class SSOLoginButtonTestCase(TestCase):
+    """
+    Verify that the SSO buttons on the login page initiate authentication via POST. The social auth
+    begin view accepts only POST requests, so rendering these as plain links yields an HTTP 405
+    (see #23042).
+    """
+    SSO_BACKENDS = [
+        'social_core.backends.google.GoogleOAuth2',
+        'netbox.authentication.ObjectPermissionBackend',
+    ]
+
+    def setUp(self):
+        self.client = Client()
+
+        # load_backends() caches the discovered backends in a module-level dict, so isolate the
+        # backends overridden below from the remainder of the test suite.
+        cache_patcher = patch.dict('social_core.backends.utils.BACKENDSCACHE', {}, clear=True)
+        cache_patcher.start()
+        self.addCleanup(cache_patcher.stop)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_sso_button_submits_post(self):
+        """
+        Each SSO button must be rendered as a POST form (including a CSRF token) rather than a link.
+        """
+        begin_url = reverse('social:begin', args=['google-oauth2'])
+        response = self.client.get(reverse('login'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'action="{begin_url}" method="post"')
+        self.assertContains(response, 'csrfmiddlewaretoken')
+        # A GET request to the begin view returns an HTTP 405
+        self.assertNotContains(response, f'href="{begin_url}"')
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_next_passed_as_form_field(self):
+        """
+        The post-login redirect URL must be conveyed as a form field: the begin view reads `next`
+        only from the POST data, so a query string parameter would be ignored.
+        """
+        request = RequestFactory().get(reverse('login'), {'next': '/dcim/sites/'})
+        auth_backends = LoginView().get_auth_backends(request)
+
+        self.assertEqual(len(auth_backends), 1)
+        self.assertEqual(auth_backends[0]['url'], reverse('social:begin', args=['google-oauth2']))
+        self.assertEqual(auth_backends[0]['params'], {'next': '/dcim/sites/'})
+
+    def test_saml_idp_params(self):
+        """
+        Each SAML IdP must be assigned its own `idp` form field.
+        """
+        request = RequestFactory().get(reverse('login'))
+
+        with (
+            patch('account.views.load_backends', return_value={'saml': MagicMock()}),
+            patch('account.views.get_saml_idps', return_value=['idp1', 'idp2']),
+        ):
+            auth_backends = LoginView().get_auth_backends(request)
+
+        self.assertEqual(len(auth_backends), 2)
+        self.assertEqual([b['params'] for b in auth_backends], [{'idp': 'idp1'}, {'idp': 'idp2'}])
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):

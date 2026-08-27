@@ -86,11 +86,18 @@
             <div class="row">
               {% for backend in auth_backends %}
                 <div class="col">
-                  <a href="{{ backend.url }}" class="btn w-100">
-                    {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>
-                    {% elif backend.icon_img %}<img src="{{ backend.icon_img }}" height="24"{% if backend.display_name %}class="me-2 sso-icon" {% endif %}/>{% endif %}
-                    {{ backend.display_name }}
-                  </a>
+                  {# The social auth begin view accepts only POST requests #}
+                  <form action="{{ backend.url }}" method="post">
+                    {% csrf_token %}
+                    {% for param, value in backend.params.items %}
+                      <input type="hidden" name="{{ param }}" value="{{ value }}" />
+                    {% endfor %}
+                    <button type="submit" class="btn w-100">
+                      {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>
+                      {% elif backend.icon_img %}<img src="{{ backend.icon_img }}" height="24"{% if backend.display_name %} class="me-2 sso-icon"{% endif %}/>{% endif %}
+                      {{ backend.display_name }}
+                    </button>
+                  </form>
                 </div>
               {% endfor %}
             </div>
