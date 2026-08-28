@@ -412,6 +412,31 @@ class RunScriptTestCase(TestCase):
 
         self.assertEqual(enqueue.call_args.kwargs['user'], self.user)
 
+    def test_invalid_meta_raises_command_error(self):
+        """
+        A script with an invalid Meta value must fail with a clean CommandError rather than an unhandled
+        exception (#22872).
+        """
+        class BadMetaScript(Script):
+            class Meta:
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit):
+                return None
+
+        script_obj = SimpleNamespace(python_class=BadMetaScript)
+
+        # Note: ScriptJob.enqueue is intentionally NOT mocked here, so validate_meta() runs and raises.
+        with (
+            patch(
+                'extras.management.commands.runscript.get_module_and_script',
+                return_value=(None, script_obj),
+            ),
+            patch('extras.management.commands.runscript.logging.getLogger'),
+        ):
+            with self.assertRaises(CommandError):
+                call_command('runscript', 'test.Script', user='admin', stdout=StringIO())
+
 
 class WebhookReceiverTestCase(TestCase):
     def test_starts_http_server(self):

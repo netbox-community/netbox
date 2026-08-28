@@ -46,6 +46,9 @@ __all__ = (
     'get_module_and_script',
 )
 
+# Sentinel distinguishing "argument not supplied" from an explicit None in validate_meta().
+_UNSET = object()
+
 
 #
 # Script variables
@@ -407,15 +410,20 @@ class BaseScript:
         return getattr(self.Meta, 'notifications_default', JobNotificationChoices.NOTIFICATION_ALWAYS)
 
     @classmethod
-    def validate_meta(cls):
+    def validate_meta(cls, job_timeout=_UNSET, notifications=_UNSET):
         """
-        Validate the script's execution-related Meta parameters. Raises a ValidationError if any value is invalid, so
-        that a misconfigured script surfaces an actionable error rather than an unhandled exception when the job is
-        enqueued (see #22872). Unset values fall back to valid defaults and are not rejected.
+        Validate the execution parameters used to run this script. Raises a ValidationError if any value is invalid,
+        so that a misconfigured script surfaces an actionable error rather than an unhandled exception when the job is
+        enqueued (see #22872).
+
+        The values actually enqueued are validated, not the raw Meta values: a caller may supply an explicit
+        `job_timeout` or `notifications` (e.g. via the REST API), in which case that value is checked. When a caller
+        omits a value, the corresponding Meta default is validated instead. Unset values fall back to valid defaults
+        and are not rejected.
         """
         errors = {}
 
-        job_timeout = cls.job_timeout
+        job_timeout = cls.job_timeout if job_timeout is _UNSET else job_timeout
         if job_timeout is not None:
             # parse_timeout() is what RQ applies to the timeout downstream. It raises TimeoutFormatError for
             # malformed duration strings, but a job_timeout of an unexpected type (e.g. a list) instead raises
@@ -434,12 +442,14 @@ class BaseScript:
                     "Invalid job_timeout value '{value}': must be a positive duration."
                 ).format(value=job_timeout)
 
-        notifications_default = cls.notifications_default
-        if notifications_default not in JobNotificationChoices.values():
+        # A caller may pass notifications=None to mean "use the script's default"; treat that as unset.
+        if notifications is _UNSET or notifications is None:
+            notifications = cls.notifications_default
+        if notifications not in JobNotificationChoices.values():
             valid = ', '.join(JobNotificationChoices.values())
             errors['notifications_default'] = _(
-                "Invalid notifications_default value '{value}': must be one of {valid}."
-            ).format(value=notifications_default, valid=valid)
+                "Invalid notifications value '{value}': must be one of {valid}."
+            ).format(value=notifications, valid=valid)
 
         if errors:
             raise ValidationError(errors)

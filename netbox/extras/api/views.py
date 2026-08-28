@@ -418,10 +418,10 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
                     notifications=input_serializer.validated_data.get('notifications'),
                 )
             except DjangoValidationError as e:
-                # The script's Meta configuration is invalid (see #22872). Surface it as a 400 rather than allowing the
-                # exception to bubble up as an HTTP 500. These are script-level config errors, not request-field errors,
-                # so report them as non-field errors.
-                raise ValidationError(e.messages)
+                # The script's execution configuration is invalid (see #22872). Surface it as a 400 rather than
+                # allowing the exception to bubble up as an HTTP 500. These are script-level config errors, not
+                # request-field errors, so report them under the non-field "detail" key.
+                raise ValidationError({'detail': e.messages}) from e
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
             return Response(serializer.data)

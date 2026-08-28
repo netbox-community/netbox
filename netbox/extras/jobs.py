@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from core.signals import clear_events
 from dcim.models import Device
 from extras.models import Script as ScriptModel
+from extras.scripts import _UNSET
 from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
 from netbox.registry import registry
@@ -28,18 +29,24 @@ class ScriptJob(JobRunner):
         name = 'Run Script'
 
     @classmethod
-    def enqueue(cls, instance, *args, **kwargs):
+    def enqueue(cls, *args, instance=None, **kwargs):
         """
-        Validate the script's Meta parameters before enqueueing. This is the single choke point through which every
-        script execution passes (interactive runs, the REST API, the runscript command, event-rule actions, and
+        Validate the script's execution parameters before enqueueing. This is the single choke point through which
+        every script execution passes (interactive runs, the REST API, the runscript command, event-rule actions, and
         recurring reschedules), so validating here surfaces a misconfigured script as an actionable error rather than
         an unhandled exception at enqueue time (see #22872).
+
+        The values actually being enqueued are validated, not just the script's Meta defaults, so an explicit
+        job_timeout or notifications supplied by the caller is checked too.
         """
         script_class = getattr(instance, 'python_class', None)
         if script_class is not None:
-            script_class.validate_meta()
+            script_class.validate_meta(
+                job_timeout=kwargs.get('job_timeout', _UNSET),
+                notifications=kwargs.get('notifications', _UNSET),
+            )
 
-        return super().enqueue(instance, *args, **kwargs)
+        return super().enqueue(*args, instance=instance, **kwargs)
 
     def run_script(self, script, request, data, commit):
         """
