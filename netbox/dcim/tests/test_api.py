@@ -2711,6 +2711,8 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
             VirtualDeviceContext(name='VDC 2', identifier=2, device=device)
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
+        for interface in interfaces:
+            interface.vdcs.set(vdcs)
 
         vlans = (
             VLAN(name='VLAN 1', vid=1),

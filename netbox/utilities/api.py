@@ -13,12 +13,13 @@ from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import BasePermission
+from rest_framework.relations import ManyRelatedField
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.views import get_view_name as drf_get_view_name
 
 from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
-from netbox.api.fields import RelatedObjectCountField
+from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.registry import registry
 
 from .query import count_related, dict_to_filter_params
@@ -134,6 +135,13 @@ def _get_nested_serializer(serializer_field):
     if isinstance(serializer_field, ListSerializer):
         serializer_field = serializer_field.child
 
+    # DRF wraps a many-valued related field, keeping the original field on child_relation
+    if isinstance(serializer_field, ManyRelatedField):
+        serializer_field = serializer_field.child_relation
+
+    if isinstance(serializer_field, SerializedPKRelatedField):
+        return serializer_field.serializer(nested=serializer_field.nested)
+
     if isinstance(serializer_field, Serializer) and hasattr(serializer_field, 'nested'):
         return serializer_field
 
@@ -151,7 +159,7 @@ def _get_serializer_fields(serializer: Serializer):
     return [field_name for field_name in fields if field_name not in omit]
 
 
-def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
+def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _serializer_states=None):
     """
     Compile and return a list of fields which should be prefetched on the queryset for a serializer.
     """
@@ -163,11 +171,18 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
     # If fields are not specified, default to all
     fields_to_include = fields or serializer_class.Meta.fields
     fields_to_omit = omit or []
+    effective_fields = tuple(name for name in fields_to_include if name not in fields_to_omit)
+
+    # Break reference cycles on the current path. The field set is in the key because re-entry at a
+    # narrower depth is finite, and the states are copied per frame to keep sibling fields independent.
+    serializer_states = set(_serializer_states or ())
+    serializer_state = (serializer_class, effective_fields)
+    if serializer_state in serializer_states:
+        return []
+    serializer_states.add(serializer_state)
 
     prefetch_fields = []
-    for field_name in fields_to_include:
-        if field_name in fields_to_omit:
-            continue
+    for field_name in effective_fields:
         serializer_field = serializer_class._declared_fields.get(field_name)
 
         # Determine the name of the model field referenced by the serializer field
@@ -188,7 +203,9 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
         # constraints set on that serializer field instance.
         if nested_serializer := _get_nested_serializer(serializer_field):
             subfields = _get_serializer_fields(nested_serializer)
-            for subfield in get_prefetches_for_serializer(type(nested_serializer), fields=subfields):
+            for subfield in get_prefetches_for_serializer(
+                type(nested_serializer), fields=subfields, _serializer_states=serializer_states
+            ):
                 prefetch_fields.append(f'{field.name}__{subfield}')
 
     return prefetch_fields
