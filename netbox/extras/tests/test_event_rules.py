@@ -1018,7 +1018,9 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         script = Script.objects.create(module=module, name='Bad Meta Script', is_executable=True)
         script_type = ObjectType.objects.get_for_model(Script)
 
-        site_type = ObjectType.objects.get_for_model(Site)
+        # Trigger on Manufacturer rather than Site: the class-level event rules all target Site, so a Site-based rule
+        # here would collide with them and perturb other tests' queue expectations.
+        manufacturer_type = ObjectType.objects.get_for_model(Manufacturer)
         event_rule = EventRule.objects.create(
             name='Bad Meta Script Rule',
             event_types=[OBJECT_UPDATED],
@@ -1026,11 +1028,11 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             action_object_type=script_type,
             action_object_id=script.pk,
         )
-        event_rule.object_types.set([site_type])
+        event_rule.object_types.set([manufacturer_type])
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        self.add_permissions('dcim.change_site')
-        url = reverse('dcim-api:site-detail', kwargs={'pk': site.pk})
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        self.add_permissions('dcim.change_manufacturer')
+        url = reverse('dcim-api:manufacturer-detail', kwargs={'pk': manufacturer.pk})
 
         # python_class is a property returning the script class; patch it to return our bad-Meta class so validate_meta
         # (a classmethod on it) is exercised the way production reads it.
@@ -1042,10 +1044,11 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
         # The triggering object change succeeds despite the misconfigured script
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        site.refresh_from_db()
-        self.assertEqual(site.description, 'updated')
+        manufacturer.refresh_from_db()
+        self.assertEqual(manufacturer.description, 'updated')
 
-        # No script job was enqueued, and the misconfiguration was logged
+        # No script job was enqueued (nothing queued, no Job record), and the misconfiguration was logged
+        self.assertEqual(self.queue.count, 0)
         self.assertEqual(Job.objects.filter(name=BadMetaScript.Meta.name).count(), 0)
         self.assertTrue(any('Bad Meta Script Rule' in line for line in captured.output))
 
