@@ -66,20 +66,32 @@ class SideNav {
       toggler.addEventListener('click', event => this.onMobileToggle(event));
     }
 
-    if (window.matchMedia(SIDENAV_DESKTOP_MEDIA).matches) {
-      if (this.state.get('pinned')) {
-        this.pin();
-      } else {
-        this.unpin();
-      }
-    } else {
-      this.bodyRemove('hide');
-      this.bodyAdd('hidden');
-    }
+    const desktopMedia = window.matchMedia(SIDENAV_DESKTOP_MEDIA);
+    this.setResponsiveState(desktopMedia.matches);
+    desktopMedia.addEventListener('change', event => {
+      this.setResponsiveState(event.matches);
+      this.initLinks();
+    });
+
     window.addEventListener('resize', () => this.onResize());
 
     this.base.addEventListener('mouseenter', () => this.onEnter());
     this.base.addEventListener('mouseleave', () => this.onLeave());
+  }
+
+  /**
+   * Apply the appropriate sidenav state for the current responsive layout.
+   */
+  private setResponsiveState(isDesktop: boolean): void {
+    this.bodyRemove('hide');
+
+    if (isDesktop && this.state.get('pinned')) {
+      this.bodyRemove('hidden');
+      this.bodyAdd('show', 'pinned');
+    } else {
+      this.bodyRemove('show', 'pinned');
+      this.bodyAdd('hidden');
+    }
   }
 
   /**
@@ -153,12 +165,14 @@ class SideNav {
         switch (action) {
           case 'expand':
             groupLink.setAttribute('aria-expanded', 'true');
+            groupLink.classList.add('show');
             groupItem.classList.add('active');
             dropdownMenu.classList.add('show');
             link.classList.add('active');
             break;
           case 'collapse':
             groupLink.setAttribute('aria-expanded', 'false');
+            groupLink.classList.remove('show');
             groupItem.classList.remove('active');
             dropdownMenu.classList.remove('show');
             link.classList.remove('active');
