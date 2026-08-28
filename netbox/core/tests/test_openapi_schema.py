@@ -131,7 +131,7 @@ class OpenAPISchemaTestCase(TestCase):
         for component, field, ref in (
             ('Site', 'asns', 'BriefASN'),
             ('ConfigContext', 'sites', 'BriefSite'),
-            ('ASN', 'sites', 'BriefASNSite'),
+            ('Interface', 'tagged_vlans', 'BriefVLAN'),
         ):
             with self.subTest(component=component, field=field):
                 self.assertEqual(
@@ -144,6 +144,28 @@ class OpenAPISchemaTestCase(TestCase):
             set(components['BriefASN']['properties']),
             {'id', 'url', 'display', 'asn', 'description'}
         )
+
+    def test_ref_name_exempts_serializer_from_brief_prefix(self):
+        """
+        A serializer which declares an explicit Meta.ref_name keeps that name when nested, rather than
+        acquiring a Brief prefix. These serializers are brief by design and have no complete form in the
+        schema, so prefixing them would rename an existing component to no purpose.
+
+        Refs: #22989
+        """
+        components = self.schema['components']['schemas']
+
+        for component, field, ref in (
+            ('ASN', 'sites', 'ASNSite'),
+            ('ObjectPermission', 'groups', 'NestedGroup'),
+            ('ObjectPermission', 'users', 'NestedUser'),
+        ):
+            with self.subTest(component=component, field=field):
+                self.assertEqual(
+                    components[component]['properties'][field]['items']['$ref'],
+                    f'#/components/schemas/{ref}'
+                )
+                self.assertNotIn(f'Brief{ref}', components)
 
     def test_non_nested_related_fields_reference_full_components(self):
         """

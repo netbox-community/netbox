@@ -215,8 +215,10 @@ class NetBoxAutoSchema(AutoSchema):
     def _get_serializer_name(self, serializer, direction, bypass_extensions=False) -> str:
         name = super()._get_serializer_name(serializer, direction, bypass_extensions)
 
-        # If this serializer is nested, prepend its name with "Brief"
-        if getattr(serializer, 'nested', False):
+        # If this serializer is nested, prepend its name with "Brief". Serializers which declare an explicit
+        # Meta.ref_name are exempt: those are brief by design and have no complete form in the schema, so the
+        # prefix would only rename an existing component to no purpose. See #22989.
+        if getattr(serializer, 'nested', False) and not getattr(getattr(serializer, 'Meta', None), 'ref_name', None):
             name = f'Brief{name}'
 
         return name
