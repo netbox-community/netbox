@@ -16,7 +16,7 @@ from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
 from netbox.plugins import register_serializer_resolver
 from netbox.registry import registry
-from users.models import ObjectPermission
+from users.models import Group, ObjectPermission
 from utilities.api import (
     get_prefetches_for_serializer,
     get_serializer_for_model,
@@ -752,6 +752,41 @@ class GetPrefetchesForSerializerTestCase(TestCase):
         self.assertListEqual(
             get_prefetches_for_serializer(RegionSerializer),
             ['parent', 'parent__sites', 'children', 'children__sites'],
+        )
+
+    def test_reverse_many_to_many_relation_is_prefetched(self):
+        class ObjectPermissionSerializer(BaseModelSerializer):
+            class Meta:
+                model = ObjectPermission
+                fields = ('groups',)
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(ObjectPermissionSerializer),
+            ['groups'],
+        )
+
+    def test_reverse_many_to_many_serialized_related_field_is_prefetched(self):
+        class GroupSerializer(BaseModelSerializer):
+            class Meta:
+                model = Group
+                fields = ('id', 'name')
+
+        class ObjectPermissionSerializer(BaseModelSerializer):
+            groups = SerializedPKRelatedField(
+                queryset=Group.objects.all(),
+                serializer=GroupSerializer,
+                nested=True,
+                required=False,
+                many=True
+            )
+
+            class Meta:
+                model = ObjectPermission
+                fields = ('id', 'groups')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(ObjectPermissionSerializer),
+            ['groups'],
         )
 
 

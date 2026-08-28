@@ -1,7 +1,7 @@
 {
   "group:api_list_objects": 10,
   "group:list_objects_with_permission": 16,
-  "objectpermission:api_list_objects": 14,
+  "objectpermission:api_list_objects": 12,
   "objectpermission:list_objects_with_permission": 17,
   "owner:api_list_objects": 11,
   "owner:list_objects_with_permission": 18,
