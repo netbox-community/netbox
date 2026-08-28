@@ -5,8 +5,7 @@ Refs: #20638
 """
 import json
 
-from django.test import TestCase
-from rest_framework import serializers
+from django.test import SimpleTestCase, TestCase
 
 from core.api.schema import FixSerializedPKRelatedField
 from dcim.api.serializers import SiteSerializer
@@ -17,11 +16,17 @@ from netbox.api.fields import SerializedPKRelatedField
 class OpenAPISchemaTestCase(TestCase):
     """Tests for OpenAPI schema generation."""
 
-    def setUp(self):
-        """Fetch schema via API endpoint."""
-        response = self.client.get('/api/schema/', {'format': 'json'})
-        self.assertEqual(response.status_code, 200)
-        self.schema = json.loads(response.content)
+    @classmethod
+    def setUpClass(cls):
+        """
+        Fetch the schema via the API endpoint. Schema generation is expensive and its output is
+        immutable across these tests, so do this once for the class rather than per test method.
+        """
+        super().setUpClass()
+
+        response = cls.client_class().get('/api/schema/', {'format': 'json'})
+        assert response.status_code == 200, f'Failed to generate OpenAPI schema (HTTP {response.status_code})'
+        cls.schema = json.loads(response.content)
 
     def test_post_operation_documents_single_or_array(self):
         """
@@ -174,30 +179,26 @@ class OpenAPISchemaTestCase(TestCase):
                 self.assertEqual(components[component]['properties'][field]['items']['type'], 'integer')
 
 
-class SerializedPKRelatedFieldSchemaTestCase(TestCase):
+class SerializedPKRelatedFieldSchemaTestCase(SimpleTestCase):
     """Tests for the schema extension which maps SerializedPKRelatedField."""
 
-    class PlainSerializer(serializers.ModelSerializer):
-        """A serializer which does not derive from BaseModelSerializer, as a plugin might employ."""
+    class DummyComponent:
+        ref = {'$ref': '#/components/schemas/Dummy'}
 
-        class Meta:
-            model = Site
-            fields = ('id', 'name')
+    class DummyAutoSchema:
+        """Records the serializer resolved by the extension, in place of generating a component."""
 
-    def resolve_serializer(self, field):
-        """Invoke the schema extension for a field, returning the serializer instance it resolved."""
-        resolved = []
+        def __init__(self):
+            self.resolved = []
 
-        class DummyAutoSchema:
-            def resolve_serializer(self, serializer, direction):
-                resolved.append(serializer)
+        def resolve_serializer(self, serializer, direction):
+            self.resolved.append(serializer)
+            return SerializedPKRelatedFieldSchemaTestCase.DummyComponent
 
-        FixSerializedPKRelatedField(field).map_serializer_field(DummyAutoSchema(), 'response')
-        return resolved[0]
-
-    def test_nested_flag_is_passed_to_netbox_serializers(self):
+    def test_nested_flag_is_passed_to_serializer(self):
         """
-        A serializer derived from BaseModelSerializer must be instantiated with the field's nested setting.
+        The field's serializer must be instantiated with the field's nested setting, so that the
+        component matching the rendered representation is referenced.
 
         Refs: #22989
         """
@@ -208,16 +209,25 @@ class SerializedPKRelatedFieldSchemaTestCase(TestCase):
                     queryset=Site.objects.all(),
                     nested=nested
                 )
-                serializer = self.resolve_serializer(field)
+                auto_schema = self.DummyAutoSchema()
+
+                schema = FixSerializedPKRelatedField(field).map_serializer_field(auto_schema, 'response')
+
+                serializer = auto_schema.resolved[0]
                 self.assertIsInstance(serializer, SiteSerializer)
                 self.assertEqual(serializer.nested, nested)
+                self.assertEqual(schema, self.DummyComponent.ref)
 
-    def test_serializer_without_nested_support(self):
+    def test_request_schema_is_an_integer(self):
         """
-        A serializer which does not accept the nested kwarg must still resolve, rather than breaking
-        generation of the entire schema.
+        Request schemas must document an integer primary key, regardless of the nested setting.
 
         Refs: #22989
         """
-        field = SerializedPKRelatedField(serializer=self.PlainSerializer, queryset=Site.objects.all())
-        self.assertIsInstance(self.resolve_serializer(field), self.PlainSerializer)
+        field = SerializedPKRelatedField(serializer=SiteSerializer, queryset=Site.objects.all(), nested=True)
+        auto_schema = self.DummyAutoSchema()
+
+        schema = FixSerializedPKRelatedField(field).map_serializer_field(auto_schema, 'request')
+
+        self.assertEqual(schema['type'], 'integer')
+        self.assertEqual(auto_schema.resolved, [])

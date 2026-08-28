@@ -1,4 +1,3 @@
-import inspect
 import re
 import typing
 from collections import OrderedDict
@@ -18,7 +17,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import Direction, OpenApiParameter
 
 from netbox.api.fields import ChoiceField
-from netbox.api.serializers import BaseModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import WritableNestedSerializer
 from netbox.api.viewsets import NetBoxModelViewSet
 
 # see netbox.api.routers.NetBoxRouter
@@ -391,15 +390,9 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
     def map_serializer_field(self, auto_schema, direction):
         if direction == "response":
             # Resolve an instance of the serializer carrying the field's nested setting, so that the brief
-            # component is referenced wherever the field renders a brief representation. Serializers which
-            # don't derive from BaseModelSerializer (e.g. a plain ModelSerializer employed by a plugin) don't
-            # accept the nested kwarg, so instantiate those without it.
-            serializer = self.target.serializer
-            if inspect.isclass(serializer):
-                if issubclass(serializer, BaseModelSerializer):
-                    serializer = serializer(nested=self.target.nested)
-                else:
-                    serializer = serializer()
+            # component is referenced wherever the field renders a brief representation. (The field's
+            # to_representation() passes nested in the same manner.) See #22989.
+            serializer = self.target.serializer(nested=self.target.nested)
             component = auto_schema.resolve_serializer(serializer, direction)
             return component.ref if component else None
         return build_basic_type(OpenApiTypes.INT)
