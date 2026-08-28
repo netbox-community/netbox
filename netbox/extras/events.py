@@ -2,6 +2,7 @@ import logging
 from collections import UserDict, defaultdict
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
@@ -261,8 +262,18 @@ def process_event_rules(event_rules, object_type, event):
             if 'request' in event:
                 params['request'] = copy_safe_request(event['request'], include_files=False)
 
-            # Enqueue the job
-            ScriptJob.enqueue(**params)
+            # Enqueue the job. If the script's Meta configuration is invalid (see #22872), log the error and skip this
+            # action rather than allowing the exception to abort the event pipeline (and, since events are processed
+            # in-request, the originating object change). Note this is intentionally asymmetric with the webhook
+            # branch above, which lets enqueue failures propagate: script Meta is validated eagerly at enqueue and a
+            # misconfigured script must not take down an unrelated object change.
+            try:
+                ScriptJob.enqueue(**params)
+            except ValidationError as e:
+                logger.error(
+                    "Skipping script action for event rule %s: invalid script configuration: %s",
+                    event_rule, '; '.join(e.messages)
+                )
 
         # Notification groups
         elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:

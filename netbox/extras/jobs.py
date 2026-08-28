@@ -27,6 +27,20 @@ class ScriptJob(JobRunner):
     class Meta:
         name = 'Run Script'
 
+    @classmethod
+    def enqueue(cls, instance, *args, **kwargs):
+        """
+        Validate the script's Meta parameters before enqueueing. This is the single choke point through which every
+        script execution passes (interactive runs, the REST API, the runscript command, event-rule actions, and
+        recurring reschedules), so validating here surfaces a misconfigured script as an actionable error rather than
+        an unhandled exception at enqueue time (see #22872).
+        """
+        script_class = getattr(instance, 'python_class', None)
+        if script_class is not None:
+            script_class.validate_meta()
+
+        return super().enqueue(instance, *args, **kwargs)
+
     def run_script(self, script, request, data, commit):
         """
         Core script execution task. We capture this within a method to allow for conditionally wrapping it with the

@@ -1347,6 +1347,63 @@ class ScriptValidationErrorTestCase(TestCase):
         self.assertEqual(len(messages), 0)
 
 
+class ScriptMetaValidationViewTestCase(TestCase):
+    """
+    A script whose Meta declares an invalid job_timeout or notifications_default must surface an actionable error on
+    the run view rather than returning an HTTP 500 (#22872).
+    """
+    user_permissions = ['extras.view_script', 'extras.run_script']
+
+    class BadTimeoutScript(PythonClass):
+        class Meta:
+            name = 'Bad Timeout'
+            job_timeout = 'not-a-timeout'
+
+        def run(self, data, commit):
+            return "Complete"
+
+    class BadNotificationsScript(PythonClass):
+        class Meta:
+            name = 'Bad Notifications'
+            notifications_default = 'on_error'
+
+        def run(self, data, commit):
+            return "Complete"
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='bad_meta.py',
+            )
+        cls.script = Script.objects.create(module=module, name='Bad meta', is_executable=True)
+
+    def _run_and_assert(self, python_class):
+        url = reverse('extras:script', kwargs={'pk': self.script.pk})
+        with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
+            mock_python_class.return_value = python_class
+            with patch('extras.views.any_workers_for_queue', return_value=True):
+                with self.captureOnCommitCallbacks(execute=True):
+                    # Quick-run style: omit _notifications
+                    response = self.client.post(url, {'_commit': 'true'})
+
+        # Re-render with an error message, not a 500, and no Job enqueued
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 1)
+        self.assertIn('Unable to run script', str(messages[0]))
+        self.assertEqual(Job.objects.count(), 0)
+
+    @tag('regression')
+    def test_invalid_job_timeout_shows_error(self):
+        self._run_and_assert(self.BadTimeoutScript)
+
+    @tag('regression')
+    def test_invalid_notifications_default_shows_error(self):
+        self._run_and_assert(self.BadNotificationsScript)
+
+
 class ScriptDefaultValuesTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 

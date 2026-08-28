@@ -5,9 +5,10 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 from pathlib import Path
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.translation import gettext_lazy as _
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -147,26 +148,46 @@ class JobRunner(ABC):
                     **kwargs,
                 )
 
-                if cls in registry['system_jobs']:
-                    # System jobs are also scheduled by `enqueue_once()` at worker startup,
-                    # which races with this finally block and can produce duplicate schedules
-                    # (see #22232). Acquire the same advisory lock used by `enqueue_once()`
-                    # and skip rescheduling if a successor is already enqueued.
-                    #
-                    # This branch is limited to system jobs because generic recurring jobs
-                    # (e.g. scheduled scripts) may have multiple legitimate schedules sharing
-                    # the same runner/object/interval but differing in their runtime kwargs.
-                    with advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']):
-                        successor_exists = Job.objects.filter(
-                            name=cls.name,
-                            object_id__isnull=True,
-                            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
-                            interval=job.interval,
-                        ).exclude(pk=job.pk).exists()
-                        if not successor_exists:
-                            cls.enqueue(**enqueue_kwargs)
-                else:
-                    cls.enqueue(**enqueue_kwargs)
+                # Reschedule the next occurrence. If the object's configuration has become invalid since this run was
+                # scheduled (e.g. a script's Meta.job_timeout was edited to an invalid value, see #22872), the enqueue
+                # will raise a ValidationError. Record it on this job and decline to reschedule rather than allowing an
+                # unhandled exception to escape the worker's finally block.
+                try:
+                    if cls in registry['system_jobs']:
+                        # System jobs are also scheduled by `enqueue_once()` at worker startup,
+                        # which races with this finally block and can produce duplicate schedules
+                        # (see #22232). Acquire the same advisory lock used by `enqueue_once()`
+                        # and skip rescheduling if a successor is already enqueued.
+                        #
+                        # This branch is limited to system jobs because generic recurring jobs
+                        # (e.g. scheduled scripts) may have multiple legitimate schedules sharing
+                        # the same runner/object/interval but differing in their runtime kwargs.
+                        with advisory_lock(ADVISORY_LOCK_KEYS['job-schedules']):
+                            successor_exists = Job.objects.filter(
+                                name=cls.name,
+                                object_id__isnull=True,
+                                status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+                                interval=job.interval,
+                            ).exclude(pk=job.pk).exists()
+                            if not successor_exists:
+                                cls.enqueue(**enqueue_kwargs)
+                    else:
+                        cls.enqueue(**enqueue_kwargs)
+                except ValidationError as e:
+                    # The successor could not be scheduled because the object's configuration is now invalid. Record
+                    # this against the (already-terminated) job without overwriting the outcome of the run that just
+                    # completed — re-running terminate() here would clobber a successful run's status and fire a
+                    # duplicate notification (see #22872).
+                    error = _("Recurring job not rescheduled due to invalid configuration: {error}").format(
+                        error='; '.join(e.messages)
+                    )
+                    logger.error(f"Job {job}: {error}")
+                    job.log(logging.makeLogRecord({
+                        'levelno': logging.ERROR,
+                        'levelname': 'ERROR',
+                        'msg': error,
+                    }))
+                    job.save()
 
     @classmethod
     def get_jobs(cls, instance=None):

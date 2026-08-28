@@ -1,5 +1,13 @@
 # NetBox v4.6
 
+## v4.6.10
+
+### Bug Fixes
+
+* [#22872](https://github.com/netbox-community/netbox/issues/22872) - Report an actionable error instead of a server error when a custom script declares an invalid `job_timeout` or `notifications_default` in its `Meta` class
+
+---
+
 ## v4.6.9 (2026-08-25)
 
 ### Enhancements
