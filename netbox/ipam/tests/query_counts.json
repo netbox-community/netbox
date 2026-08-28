@@ -32,6 +32,6 @@
   "vlantranslationpolicy:list_objects_with_permission": 17,
   "vlantranslationrule:api_list_objects": 12,
   "vlantranslationrule:list_objects_with_permission": 18,
-  "vrf:api_list_objects": 14,
+  "vrf:api_list_objects": 20,
   "vrf:list_objects_with_permission": 17
 }

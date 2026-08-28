@@ -224,12 +224,26 @@ class VRFTestCase(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
+
+        route_targets = (
+            RouteTarget(name='65000:1001', tenant=tenant),
+            RouteTarget(name='65000:1002', tenant=tenant),
+            RouteTarget(name='65000:1003', tenant=tenant),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
         vrfs = (
             VRF(name='VRF 1', rd='65000:1'),
             VRF(name='VRF 2', rd='65000:2'),
             VRF(name='VRF 3'),  # No RD
         )
         VRF.objects.bulk_create(vrfs)
+
+        # Assigned so the query count baseline covers the non-nested route target expansion.
+        for vrf in vrfs:
+            vrf.import_targets.set(route_targets)
+            vrf.export_targets.set(route_targets)
 
 
 class RouteTargetTestCase(APIViewTestCases.APIViewTestCase):
