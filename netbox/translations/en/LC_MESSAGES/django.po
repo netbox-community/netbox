@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-28 07:31+0000\n"
+"POT-Creation-Date: 2026-08-29 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13242,71 +13242,71 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:893
+#: netbox/netbox/settings.py:894
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:894
+#: netbox/netbox/settings.py:895
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:895
+#: netbox/netbox/settings.py:896
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:896
+#: netbox/netbox/settings.py:897
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:897
+#: netbox/netbox/settings.py:898
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:898
+#: netbox/netbox/settings.py:899
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:899
+#: netbox/netbox/settings.py:900
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:900
+#: netbox/netbox/settings.py:901
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:901
+#: netbox/netbox/settings.py:902
 msgid "Korean"
 msgstr ""
 
-#: netbox/netbox/settings.py:902
+#: netbox/netbox/settings.py:903
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:903
+#: netbox/netbox/settings.py:904
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:904
+#: netbox/netbox/settings.py:905
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:905
+#: netbox/netbox/settings.py:906
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:906
+#: netbox/netbox/settings.py:907
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:907
+#: netbox/netbox/settings.py:908
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:908
+#: netbox/netbox/settings.py:909
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:909
+#: netbox/netbox/settings.py:910
 msgid "Chinese"
 msgstr ""
 
@@ -16397,24 +16397,24 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
-#: netbox/utilities/api.py:251
+#: netbox/utilities/api.py:268
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:254
+#: netbox/utilities/api.py:271
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:266
+#: netbox/utilities/api.py:283
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr ""
 
-#: netbox/utilities/api.py:275
+#: netbox/utilities/api.py:292
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
