@@ -85,7 +85,7 @@ class Command(BaseCommand):
         cleaned_data = form.cleaned_data.copy()
         notifications = cleaned_data.pop('_notifications')
         for key in EXEC_PARAM_FIELDS:
-            cleaned_data.pop(key, None)    
+            cleaned_data.pop(key, None)
 
         # Execute the script.
         job = ScriptJob.enqueue(
