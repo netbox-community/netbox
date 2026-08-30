@@ -24,7 +24,7 @@ class ClusterPanel(panels.ObjectAttributesPanel):
 
 class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
-    default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
+    default_platform = attrs.NestedObjectAttr('default_platform', linkify=True, max_depth=3)
     default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
     default_memory = attrs.TemplatedAttr(
         'default_memory',
@@ -44,7 +44,7 @@ class VirtualMachinePanel(panels.ObjectAttributesPanel):
     virtual_machine_type = attrs.RelatedObjectAttr('virtual_machine_type', linkify=True, label=_('Type'))
     status = attrs.ChoiceAttr('status')
     start_on_boot = attrs.ChoiceAttr('start_on_boot')
-    role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
+    role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3, colored=True)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
     description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)

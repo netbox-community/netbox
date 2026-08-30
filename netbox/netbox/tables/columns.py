@@ -6,7 +6,7 @@ import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import DateField, DateTimeField
+from django.db.models import DateField, DateTimeField, Q
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
@@ -522,8 +522,45 @@ class CustomFieldColumn(tables.Column):
             CustomFieldTypeChoices.TYPE_MULTIOBJECT
         ):
             kwargs['orderable'] = False
+        else:
+            kwargs.setdefault('order_by', (
+                self.unset_alias,
+                f'custom_field_data__{customfield.name}',
+            ))
 
         super().__init__(*args, **kwargs)
+
+    @property
+    def unset_alias(self):
+        """
+        Return the name of the annotation which groups together the objects holding no value for
+        this field (see get_ordering_annotation()).
+
+        The annotation is named for the custom field so that ordering by two custom field columns
+        cannot produce a duplicate alias. Field names are validated to contain only alphanumerics
+        and underscores, so the alias is always a legal identifier.
+        """
+        return f'_cf_{self.customfield.name}_unset'
+
+    def get_ordering_annotation(self):
+        """
+        Return the annotation by which objects holding no value for this field are sorted together,
+        as the leading sort key for the column. (BaseTable applies it to the queryset when ordering
+        by this column.)
+
+        An object can lack a value either by storing a JSON null or by carrying no key for the
+        field at all -- the latter being the normal state for objects which predate it, as data is
+        no longer provisioned onto existing objects (see CustomField.populate_initial_data()).
+        Postgres sorts those two apart: a JSON null is the lowest jsonb value, whereas a missing
+        key yields SQL NULL and sorts last, so the "empty" rows would otherwise land at both ends
+        of the same column. This key (the `empty` lookup covers both states) groups them at one
+        end, matching how SQL NULLs are ordered for an ordinary column: last when ascending, first
+        when descending. The column's second sort key then orders by the raw value, so that numeric
+        and date fields still sort by type rather than lexically.
+        """
+        return {
+            self.unset_alias: Q(**{f'custom_field_data__{self.customfield.name}__empty': True})
+        }
 
     @staticmethod
     def _linkify_item(item):
@@ -623,7 +660,9 @@ class CustomLinkColumn(tables.Column):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
             error_text = _('Error')
-            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
+            return format_html(
+                '<span class="text-danger" title="{}"><i class="mdi mdi-alert"></i> {}</span>', e, error_text
+            )
         return ''
 
     def value(self, record, table, **kwargs):

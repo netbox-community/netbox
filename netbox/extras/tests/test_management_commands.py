@@ -7,11 +7,13 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 
+from core.choices import JobNotificationChoices
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.management.commands import renaturalize, webhook_receiver
 from extras.management.commands.webhook_receiver import WebhookHandler
 from extras.models import ImageAttachment
+from extras.scripts import Script, StringVar
 from extras.tests.test_models import OverwriteStyleMemoryStorage, UnreadableSizeMemoryStorage
 from users.models import User
 from utilities.fields import NaturalOrderingField
@@ -255,20 +257,14 @@ class RunScriptTestCase(TestCase):
         )
 
     def test_enqueues_script_job(self):
-        class TestScript:
-            full_name = 'test.Script'
+        class TestScript(Script):
+            value = StringVar()
 
-            def as_form(self, data, files):
-                form = MagicMock()
-                form.is_valid.return_value = True
-                form.cleaned_data = {
-                    '_schedule_at': None,
-                    '_interval': None,
-                    '_commit': None,
-                    'name': data['name'],
-                }
-                form.errors.get_json_data.return_value = {}
-                return form
+            class Meta:
+                notifications_default = JobNotificationChoices.NOTIFICATION_ON_FAILURE
+
+            def run(self, data, commit):
+                return None
 
         script_obj = SimpleNamespace(python_class=TestScript)
         job = SimpleNamespace(duration='0 seconds')
@@ -288,7 +284,7 @@ class RunScriptTestCase(TestCase):
                 'runscript',
                 'test.Script',
                 user='admin',
-                data='{"name": "test"}',
+                data='{"value": "test"}',
                 stdout=StringIO(),
             )
 
@@ -298,8 +294,9 @@ class RunScriptTestCase(TestCase):
         self.assertEqual(kwargs['instance'], script_obj)
         self.assertEqual(kwargs['user'], self.user)
         self.assertTrue(kwargs['immediate'])
-        self.assertEqual(kwargs['data'], {'name': 'test'})
+        self.assertEqual(kwargs['data'], {'value': 'test'})
         self.assertFalse(kwargs['commit'])
+        self.assertEqual(kwargs['notifications'], JobNotificationChoices.NOTIFICATION_ON_FAILURE)
 
     def test_invalid_script_data_raises_error_without_enqueueing_job(self):
         class TestScript:
@@ -351,6 +348,7 @@ class RunScriptTestCase(TestCase):
                     '_schedule_at': None,
                     '_interval': None,
                     '_commit': None,
+                    '_notifications': JobNotificationChoices.NOTIFICATION_ALWAYS,
                 }
                 form.errors.get_json_data.return_value = {}
                 return form
@@ -391,6 +389,7 @@ class RunScriptTestCase(TestCase):
                     '_schedule_at': None,
                     '_interval': None,
                     '_commit': None,
+                    '_notifications': JobNotificationChoices.NOTIFICATION_ALWAYS,
                 }
                 form.errors.get_json_data.return_value = {}
                 return form

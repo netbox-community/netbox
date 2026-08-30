@@ -1,9 +1,10 @@
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from circuits.models import *
 from core.models import ObjectType
@@ -15,6 +16,7 @@ from ipam.models import Prefix
 from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
+from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 
 
@@ -2923,3 +2925,124 @@ class PowerPortDrawTestCase(TestCase):
         self.assertEqual(legs_by_name['A']['maximum'], 200)
         self.assertEqual(legs_by_name['B']['allocated'], 0)
         self.assertEqual(legs_by_name['C']['allocated'], 0)
+
+
+class ComponentInstantiationConnectionTestCase(TestCase):
+    """
+    Verify that component instantiation issues its queries against the connection the
+    parent object was written to, rather than letting DATABASE_ROUTERS select one. On an
+    installation with routers configured (e.g. netbox_branching), a routed query reads or
+    writes the component in the wrong database.
+
+    Where a path instantiates components, PinnedConnectionRouter cannot be used: Django's
+    own forward-relation descriptor consults the router when a related object is assigned
+    to an unsaved instance. Those paths are checked by capturing the alias handed to the
+    call instead.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        cls.device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+
+    def _record_module_bay_save_aliases(self):
+        """
+        Patch ModuleBay.save() to record the database alias passed to each call.
+        """
+        aliases = []
+        original_save = ModuleBay.save
+
+        def record_alias(instance, *args, **kwargs):
+            aliases.append(kwargs.get('using'))
+            return original_save(instance, *args, **kwargs)
+
+        return aliases, patch.object(ModuleBay, 'save', record_alias)
+
+    def test_module_bay_tree_id_lookup_pinned_to_saving_connection(self):
+        """
+        Inserting a root ModuleBay looks up the highest existing tree ID, which must be
+        read from the connection the bay is being written to.
+        """
+        device = Device.objects.create(
+            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+        )
+        # Instantiate outside the router, as assigning the Device consults it.
+        module_bay = ModuleBay(device=device, name='Module Bay 1')
+
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(ModuleBay)]):
+            module_bay.save(using='default')
+
+        self.assertTrue(ModuleBay.objects.filter(pk=module_bay.pk).exists())
+
+    def test_device_module_bays_receive_saving_connection(self):
+        """
+        ModuleBays are instantiated individually (rather than in bulk) to maintain the MPTT
+        tree, so each save() must be given the Device's connection.
+        """
+        ModuleBayTemplate.objects.create(device_type=self.device_type, name='Module Bay 1')
+
+        device = Device(
+            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+        )
+        aliases, spy = self._record_module_bay_save_aliases()
+        with spy:
+            device.save()
+
+        self.assertEqual(aliases, [device._state.db])
+        self.assertEqual(ModuleBay.objects.filter(device=device).count(), 1)
+
+    def test_module_module_bays_receive_saving_connection(self):
+        """
+        Replicated MPTT components are likewise saved individually, and must be given the
+        Module's connection.
+        """
+        ModuleBayTemplate.objects.create(module_type=self.module_type, name='Module Bay 1')
+
+        device = Device.objects.create(
+            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+        )
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
+
+        module = Module(device=device, module_bay=parent_bay, module_type=self.module_type)
+        aliases, spy = self._record_module_bay_save_aliases()
+        with spy:
+            module.save()
+
+        self.assertEqual(aliases, [module._state.db])
+        self.assertEqual(ModuleBay.objects.filter(module=module).count(), 1)
+
+    def test_module_component_rebuild_uses_saving_connection(self):
+        """
+        Adopting existing components assigns them to the Module via bulk_update(), which
+        bypasses save() and so requires an explicit MPTT tree rebuild. That rebuild must
+        run on the Module's connection.
+        """
+        ModuleBayTemplate.objects.create(module_type=self.module_type, name='Module Bay 1')
+
+        device = Device.objects.create(
+            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+        )
+        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
+        child_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+
+        aliases = []
+        manager_class = type(ModuleBay.objects)
+        original_rebuild = manager_class.rebuild
+
+        def record_alias(manager, *args, **kwargs):
+            # Manager.db falls back to the router, so the private attribute is the only
+            # indication of whether an alias was set explicitly.
+            aliases.append(manager._db)
+            return original_rebuild(manager, *args, **kwargs)
+
+        module = Module(device=device, module_bay=parent_bay, module_type=self.module_type)
+        module._adopt_components = True
+        module._disable_replication = True
+        with patch.object(manager_class, 'rebuild', record_alias):
+            module.save()
+
+        child_bay.refresh_from_db()
+        self.assertEqual(child_bay.module, module)
+        self.assertEqual(aliases, [module._state.db])

@@ -81,11 +81,11 @@ class Command(BaseCommand):
                     logger.error(f'\t{field}: {error.get("message")}')
             raise CommandError()
 
-        # Remove exec-parameter fields from ScriptForm before passing data to the script.
-        # (Previously missed '_notifications', which leaked into the script's own data.)
+        # Remove exec-parameter fields from ScriptForm before passing data to the script
         cleaned_data = form.cleaned_data.copy()
+        notifications = cleaned_data.pop('_notifications')
         for key in EXEC_PARAM_FIELDS:
-            cleaned_data.pop(key, None)
+            cleaned_data.pop(key, None)    
 
         # Execute the script.
         job = ScriptJob.enqueue(
@@ -93,6 +93,7 @@ class Command(BaseCommand):
             user=user,
             immediate=True,
             data=cleaned_data,
+            notifications=notifications,
             request=NetBoxFakeRequest({
                 'META': {},
                 'COOKIES': {},

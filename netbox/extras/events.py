@@ -253,6 +253,8 @@ def process_event_rules(event_rules, object_type, event):
                 'name': script.name,
                 'user': event['user'],
                 'data': event_data,
+                'notifications': script.notifications_default,
+                'job_timeout': script.job_timeout,
             }
             if 'snapshots' in event:
                 params['snapshots'] = event['snapshots']

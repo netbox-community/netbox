@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages import get_messages
 from django.test import tag
 from django.urls import reverse
+from django.utils.html import escape
 
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.events import *
@@ -244,6 +245,30 @@ class CustomLinkRenderingTestCase(TestCase):
         response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(f'FOO {site.name} BAR', str(response.content))
+
+    def test_list_view_custom_link_column_escapes_render_error(self):
+        # Jinja2 includes the invalid key verbatim in UndefinedError; this test intentionally depends on that format.
+        payload = '" ></span><script>alert(1)</script>'
+        customlink = CustomLink(
+            name='Test',
+            link_text=f"{{{{ ''['{payload}'] + 1 }}}}",
+            link_url='http://example.com/',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+
+        # The error element must be present, but the payload must appear only in escaped form
+        self.assertIn('<span class="text-danger" title="', content)
+        self.assertNotIn(payload, content)
+        self.assertIn(escape(payload), content)
 
 
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -564,6 +589,24 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'as_attachment': True,
         }
 
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the template code inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        export_template = ExportTemplate.objects.first()
+        export_template.template_code = 'super-secret-password'
+        export_template.save()
+
+        self.add_permissions('extras.view_exporttemplate')
+        response = self.client.get(export_template.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the template code is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
 
 class ExportTemplateExportFlowTestCase(TestCase):
     """
@@ -827,6 +870,31 @@ class ConfigContextProfileTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{profiles[2].pk},New description",
         )
 
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the schema inline, which may have been synced from a data file
+        containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigContextProfile.objects.first()
+        instance.schema = {
+            'properties': {
+                'password': {
+                    'type': 'string',
+                    'default': 'super-secret-password',
+                }
+            }
+        }
+        instance.save()
+
+        self.add_permissions('extras.view_configcontextprofile')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the schema is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
 
 # TODO: Change base class to PrimaryObjectViewTestCase
 # Blocked by absence of standard create/edit, bulk create views
@@ -876,6 +944,24 @@ class ConfigContextTestCase(
             'is_active': False,
             'description': 'New description',
         }
+
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the data inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigContext.objects.first()
+        instance.data = {'password': 'super-secret-password'}
+        instance.save()
+
+        self.add_permissions('extras.view_configcontext')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
 
 
 class ConfigTemplateTestCase(
@@ -933,6 +1019,24 @@ class ConfigTemplateTestCase(
             'file_extension': 'html',
             'as_attachment': True,
         }
+
+    def test_content_is_not_cacheable(self):
+        """
+        The detail view renders the template code inline, which may have been synced from a data
+        file containing sensitive values, so the response must not be cached by the browser.
+        """
+        instance = ConfigTemplate.objects.first()
+        instance.template_code = 'super-secret-password'
+        instance.save()
+
+        self.add_permissions('extras.view_configtemplate')
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the template code is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
 
 
 class JournalEntryTestCase(

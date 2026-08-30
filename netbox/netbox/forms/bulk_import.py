@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -69,6 +70,31 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
                     cleaned[name] = None
 
         return cleaned
+
+    def _update_errors(self, errors):
+        """Convert errors for fields absent from the form to prefixed non-field errors."""
+        if hasattr(errors, 'error_dict'):
+            remapped = []
+            passthrough = {}
+            for field, error_list in errors.error_dict.items():
+                if field == NON_FIELD_ERRORS or field in self.fields:
+                    passthrough[field] = error_list
+                else:
+                    for error in error_list:
+                        message = next(iter(error))
+                        if error.params:
+                            message = message.replace('%', '%%')
+                        remapped.append(ValidationError(
+                            '{field}: {message}'.format(field=field, message=message),
+                            code=error.code,
+                            params=error.params,
+                        ))
+            if passthrough:
+                super()._update_errors(ValidationError(passthrough))
+            for error in remapped:
+                self.add_error(None, error)
+        else:
+            super()._update_errors(errors)
 
 
 class OwnerCSVMixin(forms.Form):

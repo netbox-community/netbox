@@ -20,7 +20,7 @@ from ipam.utils import AvailableIPSpace
 from ipam.views import AggregatePrefixesView, PrefixPrefixesView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
-from users.models import Group, ObjectPermission
+from users.models import Group, ObjectPermission, Owner
 from utilities.testing import ViewTestCases, create_tags
 
 
@@ -2561,6 +2561,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         IPAddress.objects.bulk_create(ip_addresses)
 
+        owner = Owner.objects.create(name='Owner 1')
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -2571,6 +2573,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ports': '104,105',
             'ipaddresses': [],
             'description': 'A new service',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 

@@ -1,7 +1,9 @@
 import json
 
 from django.conf import settings
+from django.db import connection
 from django.test import tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -9,6 +11,7 @@ from rest_framework import status
 from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
+from dcim.graphql.types import _CABLE_TERMINATION_MODELS
 from dcim.models import *
 from extras.models import ConfigTemplate, Tag
 from ipam.choices import VLANQinQRoleChoices
@@ -2708,6 +2711,8 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
             VirtualDeviceContext(name='VDC 2', identifier=2, device=device)
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
+        for interface in interfaces:
+            interface.vdcs.set(vdcs)
 
         vlans = (
             VLAN(name='VLAN 1', vid=1),
@@ -3592,6 +3597,115 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
                 self.assertEqual(len(ids), len(set(ids)), f'Duplicate cables returned for: {inner_filter}')
 
                 self.assertSetEqual(set(ids), expected)
+
+    def test_graphql_cable_terminations_query_count(self):
+        """
+        Resolving CableType.a_terminations and CableType.b_terminations must take a constant number
+        of queries, regardless of how many cables (and hence terminations) are returned.
+
+        Also exercises selecting both cable ends in a single query: each end must be prefetched
+        under its own attribute, as two prefetches of the same relation cannot be merged.
+        """
+        self.add_permissions(
+            'dcim.view_cable',
+            'dcim.view_device',
+            'dcim.view_devicerole',
+            'dcim.view_devicetype',
+            'dcim.view_interface',
+            'dcim.view_platform',
+        )
+
+        # Reuse existing fixtures from setUpTestData()
+        site = Site.objects.get(slug='site-1')
+        devicetype = DeviceType.objects.get(slug='device-type-1')
+        role = DeviceRole.objects.get(slug='device-role-1')
+
+        # Create an isolated topology of cables between two devices
+        devices = (
+            Device(device_type=devicetype, role=role, name='GQL Count Device A', site=site),
+            Device(device_type=devicetype, role=role, name='GQL Count Device B', site=site),
+        )
+        Device.objects.bulk_create(devices)
+
+        interfaces = []
+        for device in devices:
+            for i in range(0, 8):
+                interfaces.append(
+                    Interface(device=device, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name=f'gql{i}')
+                )
+        Interface.objects.bulk_create(interfaces)
+
+        expected_terminations = {}
+        for i in range(0, 8):
+            cable = Cable(
+                a_terminations=[interfaces[i]],
+                b_terminations=[interfaces[i + 8]],
+                label=f'GQL Count Cable {i}',
+            )
+            cable.save()
+            expected_terminations[str(cable.pk)] = (interfaces[i].pk, interfaces[i + 8].pk)
+
+        url = reverse('graphql')
+        termination_fields = """
+            ... on InterfaceType {
+              id
+              name
+              device { id name platform { id } role { id } device_type { id } }
+            }
+        """
+
+        def build_query(limit):
+            return f"""{{
+              cable_list(
+                filters: {{ label: {{ contains: "GQL Count Cable " }} }},
+                pagination: {{ limit: {limit} }}
+              ) {{
+                id
+                a_terminations {{ {termination_fields} }}
+                b_terminations {{ {termination_fields} }}
+              }}
+            }}"""
+
+        # Warm per-process caches (e.g. ContentType) so they are not counted below
+        self.client.post(url, data={'query': build_query(1)}, format='json', **self.header)
+
+        query_counts = {}
+        for limit in (2, 8):
+            with CaptureQueriesContext(connection) as queries:
+                response = self.client.post(
+                    url, data={'query': build_query(limit)}, format='json', **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = response.json()
+            self.assertNotIn('errors', data)
+
+            rows = data['data']['cable_list']
+            self.assertEqual(len(rows), limit)
+
+            # Both ends must resolve to the expected interfaces
+            for row in rows:
+                interface_a, interface_b = expected_terminations[row['id']]
+                self.assertEqual([t['id'] for t in row['a_terminations']], [str(interface_a)])
+                self.assertEqual([t['id'] for t in row['b_terminations']], [str(interface_b)])
+
+            query_counts[limit] = len(queries.captured_queries)
+
+        self.assertEqual(
+            query_counts[2],
+            query_counts[8],
+            f"Query count scales with the number of cables returned: {query_counts}"
+        )
+
+    def test_graphql_cable_termination_models(self):
+        """
+        The GraphQL prefetch hint for a cable termination enumerates the terminating models
+        explicitly; a model missing from that list silently falls back to an unoptimized query
+        rather than raising, so guard against drift from CABLE_TERMINATION_MODELS.
+        """
+        self.assertSetEqual(
+            {(model._meta.app_label, model._meta.model_name) for model in _CABLE_TERMINATION_MODELS},
+            {(ot.app_label, ot.model) for ot in ObjectType.objects.filter(CABLE_TERMINATION_MODELS)},
+        )
 
 
 class CableTerminationTestCase(

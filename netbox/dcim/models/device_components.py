@@ -4,7 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, router
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -1432,7 +1432,8 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         # root insert (NB-2800). Children still go through MPTT, which keeps
         # siblings in name order via the same order_insertion_by setting.
         if self._state.adding and self.parent_id is None and not self.lft and not self.rght:
-            max_tree_id = ModuleBay._objects_raw.aggregate(
+            using = kwargs.get('using') or router.db_for_write(ModuleBay, instance=self)
+            max_tree_id = ModuleBay._objects_raw.using(using).aggregate(
                 models.Max('tree_id')
             )['tree_id__max'] or 0
             self.tree_id = max_tree_id + 1

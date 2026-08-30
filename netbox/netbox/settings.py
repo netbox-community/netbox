@@ -413,6 +413,7 @@ CACHES = {
         'LOCATION': CACHING_REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'USERNAME': CACHING_REDIS_USERNAME,
             'PASSWORD': CACHING_REDIS_PASSWORD,
         }
     }
@@ -634,10 +635,6 @@ SERIALIZATION_MODULES = {
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'utilities.debug.show_toolbar',
-    # The GraphiQL integration provided by strawberry-django locates the toolbar via
-    # document.getElementById('djDebug'), which fails when the toolbar is rendered inside a
-    # shadow root (the default as of django-debug-toolbar v7.0).
-    'USE_SHADOW_DOM': False,
 }
 
 

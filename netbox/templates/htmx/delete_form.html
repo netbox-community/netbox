@@ -24,31 +24,38 @@
       </p>
       <div class="accordion mb-3" id="deleteAccordion">
         {% for model, instances in dependent_objects.items %}
-          <div class="accordion-item">
-            <h2 class="accordion-header h4" id="deleteheading{{ forloop.counter }}">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
-                {% with object_count=instances|length %}
-                  {{ object_count }}
-                  {% if object_count == 1 %}
-                    {{ model|meta:"verbose_name" }}
-                  {% else %}
-                    {{ model|meta:"verbose_name_plural" }}
-                  {% endif %}
-                {% endwith %}
-              </button>
-            </h2>
-            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="deleteheading{{ forloop.counter }}" data-bs-parent="#deleteAccordion">
-              <div class="accordion-body p-0">
-                <div class="list-group list-group-flush">
-                  {% for instance in instances %}
-                    {% with url=instance.get_absolute_url %}
-                      <a {% if url %}href="{{ url }}" {% endif %}class="list-group-item list-group-item-action">{{ instance }}</a>
-                    {% endwith %}
-                  {% endfor %}
+          {% with object_count=instances|length %}
+            <div class="accordion-item">
+              <h2 class="accordion-header h4" id="deleteheading{{ forloop.counter }}">
+                {# High-cardinality relations (e.g. jobs) are summarized by count and are not #}
+                {# expandable, since their instances are intentionally not loaded (see #22812). #}
+                {% if instances.count_only %}
+                  <div class="accordion-button collapsed" style="cursor: default;">
+                    {{ object_count }}
+                    {% if object_count == 1 %}{{ model|meta:"verbose_name" }}{% else %}{{ model|meta:"verbose_name_plural" }}{% endif %}
+                  </div>
+                {% else %}
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                    {{ object_count }}
+                    {% if object_count == 1 %}{{ model|meta:"verbose_name" }}{% else %}{{ model|meta:"verbose_name_plural" }}{% endif %}
+                  </button>
+                {% endif %}
+              </h2>
+              {% if not instances.count_only %}
+                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="deleteheading{{ forloop.counter }}" data-bs-parent="#deleteAccordion">
+                  <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                      {% for instance in instances %}
+                        {% with url=instance.get_absolute_url %}
+                          <a {% if url %}href="{{ url }}" {% endif %}class="list-group-item list-group-item-action">{{ instance }}</a>
+                        {% endwith %}
+                      {% endfor %}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              {% endif %}
             </div>
-          </div>
+          {% endwith %}
         {% endfor %}
       </div>
     {% endif %}

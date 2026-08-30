@@ -1,4 +1,4 @@
-from django.test import Client, TestCase, override_settings, tag
+from django.test import Client, RequestFactory, TestCase, override_settings, tag
 from django.urls import reverse
 from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
@@ -11,12 +11,19 @@ from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.api.serializers import VLANSerializer
 from ipam.models import VLAN
+from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
 from netbox.plugins import register_serializer_resolver
 from netbox.registry import registry
 from users.models import ObjectPermission
-from utilities.api import get_prefetches_for_serializer, get_serializer_for_model, get_view_name
+from utilities.api import (
+    get_prefetches_for_serializer,
+    get_serializer_for_model,
+    get_view_name,
+    is_api_request,
+    is_graphql_request,
+)
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -575,6 +582,178 @@ class GetPrefetchesForSerializerTestCase(TestCase):
             ['region', 'region__parent'],
         )
 
+    def test_serialized_pk_related_field(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent', 'sites')
+                brief_fields = ('id', 'parent')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=RegionSerializer,
+                nested=True,
+            )
+
+            class Meta:
+                model = Site
+                fields = ('id', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_many_serialized_pk_related_field(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region', 'group')
+                brief_fields = ('id', 'region')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SerializedPKRelatedField(
+                queryset=Site.objects.all(),
+                serializer=SiteSerializer,
+                nested=True,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer, fields=('id',)),
+            [],
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer, omit=('sites',)),
+            [],
+        )
+
+    def test_many_serialized_pk_related_field_not_nested(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region', 'group')
+                brief_fields = ('id', 'region')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SerializedPKRelatedField(
+                queryset=Site.objects.all(),
+                serializer=SiteSerializer,
+                nested=False,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region', 'sites__group'],
+        )
+
+    def test_self_referential_serialized_pk_related_field(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'parent', 'children')
+
+        # The field can only name its own serializer once the class exists.
+        RegionSerializer._declared_fields['children'] = SerializedPKRelatedField(
+            queryset=Region.objects.all(),
+            serializer=RegionSerializer,
+            many=True,
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['parent', 'children'],
+        )
+
+    def test_self_referential_serialized_pk_related_field_with_brief_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites', 'children')
+                brief_fields = ('id', 'sites')
+
+        RegionSerializer._declared_fields['children'] = SerializedPKRelatedField(
+            queryset=Region.objects.all(),
+            serializer=RegionSerializer,
+            nested=True,
+            many=True,
+        )
+
+        # Re-entering the serializer at brief depth is not a cycle, so brief_fields must expand.
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'children', 'children__sites'],
+        )
+
+    def test_mutually_referential_serialized_pk_related_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=RegionSerializer,
+            )
+
+            class Meta:
+                model = Site
+                fields = ('id', 'region')
+
+        RegionSerializer._declared_fields['sites'] = SerializedPKRelatedField(
+            queryset=Site.objects.all(),
+            serializer=SiteSerializer,
+            many=True,
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+    def test_serializer_class_reused_on_sibling_fields(self):
+        class TargetRegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        class RegionSerializer(BaseModelSerializer):
+            parent = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=TargetRegionSerializer,
+            )
+            children = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=TargetRegionSerializer,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'parent', 'children')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['parent', 'parent__sites', 'children', 'children__sites'],
+        )
+
 
 class _ResolvedSerializerA(Serializer):
     pass
@@ -715,3 +894,49 @@ class APITrailingSlashTestCase(APITestCase):
             response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
         self.assertTrue(Site.objects.filter(pk=self.site.pk).exists())
+
+
+class IsApiRequestTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_returns_true_for_api_path(self):
+        request = self.factory.get(reverse('api-root'))
+        self.assertTrue(is_api_request(request))
+
+    def test_returns_false_for_non_api_path(self):
+        request = self.factory.get('/dcim/interfaces/')
+        self.assertFalse(is_api_request(request))
+
+    def test_returns_false_for_path_merely_containing_api(self):
+        """
+        A path that contains 'api' as a substring, but does not start with the
+        API root, must not be classified as an API request.
+        """
+        request = self.factory.get('/dcim/api-widget/')
+        self.assertFalse(is_api_request(request))
+
+
+class IsGraphqlRequestTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_returns_true_for_graphql_json_request(self):
+        request = self.factory.post(
+            reverse('graphql'),
+            data='{"query": "{ __typename }"}',
+            content_type='application/json',
+        )
+        self.assertTrue(is_graphql_request(request))
+
+    def test_returns_false_for_graphql_non_json_request(self):
+        """
+        The GraphiQL browser UI hits the same path with a non-JSON content
+        type; it must not be classified as a GraphQL API request.
+        """
+        request = self.factory.get(reverse('graphql'))
+        self.assertFalse(is_graphql_request(request))
+
+    def test_returns_false_for_non_graphql_path(self):
+        request = self.factory.get(reverse('api-root'))
+        self.assertFalse(is_graphql_request(request))

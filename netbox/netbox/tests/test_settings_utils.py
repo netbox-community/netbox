@@ -132,6 +132,52 @@ class LoadConfigurationTest(SimpleTestCase):
             finally:
                 sys.path[:] = saved
 
+    def test_import_from_path_reuses_module_loaded_from_same_path(self):
+        """A repeated load of the same path returns the first module and runs the file only once."""
+        with tempfile.TemporaryDirectory() as root:
+            marker = os.path.join(root, 'executions')
+            path = os.path.join(root, 'cached_cfg.py')
+            with open(path, 'w') as handle:
+                handle.write(f'with open({marker!r}, "a") as handle:\n    handle.write("x")\n')
+            self.addCleanup(sys.modules.pop, 'netbox_test_cached_cfg', None)
+            first = settings_utils._import_from_path('netbox_test_cached_cfg', path)
+            second = settings_utils._import_from_path('netbox_test_cached_cfg', path)
+            self.assertIs(second, first)
+            with open(marker) as handle:
+                self.assertEqual(handle.read(), 'x')
+
+    def test_import_from_path_replaces_module_loaded_from_another_path(self):
+        """The same module name at a different path is loaded fresh, not served from the cache."""
+        with tempfile.TemporaryDirectory() as root:
+            first_path = os.path.join(root, 'first_cfg.py')
+            second_path = os.path.join(root, 'second_cfg.py')
+            with open(first_path, 'w') as handle:
+                handle.write('ALLOWED_HOSTS = ["first"]\n')
+            with open(second_path, 'w') as handle:
+                handle.write('ALLOWED_HOSTS = ["second"]\n')
+            self.addCleanup(sys.modules.pop, 'netbox_test_switched_cfg', None)
+            settings_utils._import_from_path('netbox_test_switched_cfg', first_path)
+            module = settings_utils._import_from_path('netbox_test_switched_cfg', second_path)
+            self.assertEqual(module.ALLOWED_HOSTS, ['second'])
+            self.assertIs(sys.modules['netbox_test_switched_cfg'], module)
+
+    def test_import_from_path_restores_previous_module_on_failure(self):
+        """A failed replacement does not evict the previously loaded module."""
+        with tempfile.TemporaryDirectory() as root:
+            module_name = 'netbox_test_restore_cfg'
+            first_path = os.path.join(root, 'first_cfg.py')
+            broken_path = os.path.join(root, 'broken_cfg.py')
+            with open(first_path, 'w') as handle:
+                handle.write('ALLOWED_HOSTS = ["first"]\n')
+            with open(broken_path, 'w') as handle:
+                handle.write('raise RuntimeError("Simulated configuration error")\n')
+            self.addCleanup(sys.modules.pop, module_name, None)
+            first = settings_utils._import_from_path(module_name, first_path)
+            with self.assertRaisesMessage(RuntimeError, 'Simulated configuration error'):
+                settings_utils._import_from_path(module_name, broken_path)
+            self.assertIs(sys.modules[module_name], first)
+            self.assertIs(settings_utils._import_from_path(module_name, first_path), first)
+
     def test_wheel_both_configs_present_warns_and_prefers_conf(self):
         with tempfile.TemporaryDirectory() as root:
             conf = os.path.join(root, 'conf')
@@ -220,6 +266,16 @@ class LoadLdapConfigTest(SimpleTestCase):
             module = settings_utils.load_ldap_config(conf_dir)
             self.assertEqual(module.AUTH_LDAP_SERVER_URI, 'ldaps://example')
             self.assertIs(sys.modules['netbox.ldap_config'], module)
+
+    def test_repeated_calls_reuse_the_sibling_module(self):
+        """Two calls with an unchanged sibling ldap_config.py return the same module object."""
+        with tempfile.TemporaryDirectory() as conf_dir:
+            with open(os.path.join(conf_dir, 'ldap_config.py'), 'w') as handle:
+                handle.write('AUTH_LDAP_SERVER_URI = "ldaps://example"\n')
+            self.addCleanup(sys.modules.pop, 'netbox.ldap_config', None)
+            first = settings_utils.load_ldap_config(conf_dir)
+            second = settings_utils.load_ldap_config(conf_dir)
+            self.assertIs(second, first)
 
     def test_legacy_fallback_loads_historical_module_with_warning(self):
         legacy = ModuleType('netbox.ldap_config')

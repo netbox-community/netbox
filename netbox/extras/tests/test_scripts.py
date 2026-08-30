@@ -439,3 +439,33 @@ class ScriptModuleLoadingTestCase(TestCase):
         # The real circuits app must be untouched and remain an importable package
         self.assertIs(sys.modules['circuits'], circuits)
         self.assertTrue(hasattr(circuits, '__path__'))
+
+    def test_script_logger_uses_public_module_name(self):
+        """
+        A dynamically loaded script logs to the public netbox.scripts.<module>.<class> namespace.
+        """
+        script_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class TestScript(Script):\n    pass\n"
+        )
+
+        class _Storage:
+            def open(self, name, mode='rb'):
+                return io.BytesIO(script_content)
+
+        module = ScriptModule(file_root='scripts', file_path='example.py')
+        namespaced_key = f'{SCRIPT_MODULE_NAME_PREFIX}example'
+        self.addCleanup(lambda: sys.modules.pop(namespaced_key, None))
+
+        with patch('extras.models.mixins.storages') as mock_storages:
+            mock_storages.__getitem__.return_value = _Storage()
+            script_class = module.get_module().TestScript
+
+        # This is the name runscript and ScriptJob attach their handlers to
+        logger_name = f'netbox.scripts.{script_class.full_name}'
+        script = script_class()
+        self.assertEqual(script.logger.name, logger_name)
+
+        with self.assertLogs(logger_name, 'INFO') as captured:
+            script.log_success('Start')
+        self.assertIn('Start', captured.output[0])

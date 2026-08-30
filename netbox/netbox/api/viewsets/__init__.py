@@ -7,6 +7,7 @@ from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -86,6 +87,13 @@ class BaseViewSet(GenericViewSet):
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
+
+        # Reject any method for which no action has been declared, rather than proceeding against an
+        # unrestricted QuerySet. (A method mapped to None, e.g. OPTIONS, is permitted: it needs no
+        # restriction.) This is the same 405 DRF would return when resolving the handler for an unmapped
+        # method, but it also covers a handler bound to such a method (e.g. @action(methods=['trace'])).
+        if request.method not in HTTP_ACTIONS:
+            raise MethodNotAllowed(request.method)
 
         # Restrict the view's QuerySet to allow only the permitted objects
         if request.user.is_authenticated:
@@ -252,8 +260,9 @@ class NetBoxModelViewSet(
         logger.info(f"Creating new {model._meta.verbose_name}")
 
         # Enforce object-level permissions on save()
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
@@ -291,8 +300,9 @@ class NetBoxModelViewSet(
         logger.info(f"Updating {model._meta.verbose_name} {serializer.instance} (PK: {serializer.instance.pk})")
 
         # Enforce object-level permissions on save()
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
                 # between the initial check in update() and the actual write.
                 if self._get_if_match(self.request):
@@ -325,8 +335,9 @@ class NetBoxModelViewSet(
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
+        using = router.db_for_write(model)
         try:
-            with transaction.atomic(using=router.db_for_write(model)):
+            with transaction.atomic(using=using), mixins.discard_events_on_rollback(self, using=using):
                 # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
                 # between the initial check in destroy() and the actual delete.
                 if self._get_if_match(self.request):

@@ -3,14 +3,16 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, transaction
-from django.test import SimpleTestCase, TestCase, TransactionTestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from dcim import signals
 from dcim.choices import CableEndChoices, CableProfileChoices, LinkStatusChoices
 from dcim.models import (
     Cable,
     CablePath,
+    CableTermination,
     Device,
     DeviceRole,
     DeviceType,
@@ -29,16 +31,48 @@ from dcim.models import (
     VirtualChassis,
 )
 from ipam.models import Prefix
+from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
+COMPONENT_TABLES = frozenset(model._meta.db_table for model in signals.COMPONENT_MODELS)
 
-class LocationSiteChangeSignalTestCase(TestCase):
+
+class ScopePropagationCaptureMixin:
+    """
+    Helper for asserting whether a save propagated to the tables its post_save handler
+    rewrites.
+
+    dcim_cabletermination is never among them: the denormalized-field registry
+    (netbox.denormalized) rewrites it on Location, Rack, and Device saves alike, so it
+    cannot distinguish a propagation from a plain save. Neither is the saved object's own
+    table, which carries the save's own UPDATE.
+    """
+    propagation_tables = frozenset()
+
+    def capture_propagation_updates(self, obj, raw=False, update_fields=None):
+        with CaptureQueriesContext(connection) as ctx:
+            if raw:
+                obj.save_base(raw=True)
+            elif update_fields is not None:
+                obj.save(update_fields=update_fields)
+            else:
+                obj.save()
+
+        return {
+            table for table in self.propagation_tables
+            for q in ctx.captured_queries
+            if q['sql'].startswith(f'UPDATE "{table}"')
+        }
+
+
+class LocationSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_location_site_change propagates a Location's new Site to
     every descendant Location, Rack, Device, PowerPanel, and component when the parent
     Location's site assignment changes.
     """
+    propagation_tables = COMPONENT_TABLES | {'dcim_rack', 'dcim_device', 'dcim_powerpanel'}
 
     @classmethod
     def setUpTestData(cls):
@@ -76,16 +110,203 @@ class LocationSiteChangeSignalTestCase(TestCase):
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(power_panel.site, self.site_b)
 
+    def test_changing_location_site_updates_circuittermination_caches(self):
+        # CircuitTermination caches its scope ancestry under termination_type/termination_id
+        # rather than under CachedScopeMixin's scope field, so sync_cached_scope_fields does
+        # not cover it and the denormalized-field registry refreshes only _site. Both the
+        # moved Location's own terminations and those of its descendants must be repaired
+        # here, region and site group included. Origin and destination Sites are given
+        # distinct regions and groups so a value left stale is distinguishable from one that
+        # was never set.
+        origin_region = Region.objects.create(name='Region C', slug='region-c')
+        origin_group = SiteGroup.objects.create(name='Group C', slug='group-c')
+        origin = Site.objects.create(
+            name='Site C', slug='site-c', region=origin_region, group=origin_group
+        )
+        region = Region.objects.create(name='Region D', slug='region-d')
+        group = SiteGroup.objects.create(name='Group D', slug='group-d')
+        site = Site.objects.create(name='Site D', slug='site-d', region=region, group=group)
+        parent_location = Location.objects.create(name='Parent', slug='parent', site=origin)
+        child_location = Location.objects.create(name='Child', slug='child', site=origin, parent=parent_location)
+        provider = Provider.objects.create(name='Provider', slug='provider')
+        circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
+        circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+        termination_a = CircuitTermination.objects.create(
+            circuit=circuit, term_side='A', termination=parent_location
+        )
+        termination_z = CircuitTermination.objects.create(
+            circuit=circuit, term_side='Z', termination=child_location
+        )
+        for termination in (termination_a, termination_z):
+            self.assertEqual(termination._site, origin)
+            self.assertEqual(termination._region, origin_region)
+            self.assertEqual(termination._site_group, origin_group)
+
+        parent_location.site = site
+        parent_location.save()
+
+        for termination, location in ((termination_a, parent_location), (termination_z, child_location)):
+            termination.refresh_from_db()
+            self.assertEqual(termination._location, location)
+            self.assertEqual(termination._site, site)
+            self.assertEqual(termination._region, region)
+            self.assertEqual(termination._site_group, group)
+
     def test_creating_location_does_not_attempt_to_propagate(self):
         # Should not raise — newly-created locations have no descendants.
         Location.objects.create(name='New', slug='new', site=self.site_a)
 
+    def _seed_location_with_children(self):
+        location = Location.objects.create(name='Parent', slug='parent', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            location=location,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        Rack.objects.create(name='Rack', site=self.site_a, location=location)
+        PowerPanel.objects.create(name='Panel', site=self.site_a, location=location)
+        return location
 
-class RackSiteChangeSignalTestCase(TestCase):
+    def test_unchanged_site_skips_propagation(self):
+        # Every value the handler writes is derived from the Location's site assignment, so a
+        # save which leaves it alone has nothing to propagate and must not rewrite a single
+        # descendant row. Rewriting them is not merely wasted work: PostgreSQL writes a new
+        # tuple version for every row an UPDATE matches, and holds a row lock on each for the
+        # remainder of the transaction.
+        location = self._seed_location_with_children()
+        location.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(location), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(location), self.propagation_tables)
+
+    def test_raw_save_skips_propagation(self):
+        # raw=True is set only by Django's loaddata pathway, whose fixture already carries the
+        # denormalized values for every object it loads, so the propagation would rewrite each
+        # matched row with what it already holds. netbox.denormalized.update_denormalized_fields()
+        # returns early on raw for the same reason.
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(location, raw=True), set())
+
+    def test_stale_partial_save_does_not_propagate_an_unwritten_site(self):
+        # A save passing update_fields writes only the fields it names, so an omitted field
+        # keeps whatever the database holds no matter what the instance carries. This instance
+        # was loaded before the move below, so its in-memory site is one the database no longer
+        # holds and this save does not write: propagating it would push every descendant back
+        # to a site the Location itself has left.
+        location = self._seed_location_with_children()
+        stale = Location.objects.get(pk=location.pk)
+        self.assertEqual(stale.site, self.site_a)
+
+        location.site = self.site_b
+        location.save()
+
+        stale.description = 'updated'
+        self.assertEqual(
+            self.capture_propagation_updates(stale, update_fields=['description']), set()
+        )
+
+        # Nothing beneath the Location was dragged back to site_a.
+        self.assertEqual(Rack.objects.get(location=location).site, self.site_b)
+        device = Device.objects.get(location=location)
+        self.assertEqual(device.site, self.site_b)
+        self.assertEqual(Interface.objects.get(device=device)._site, self.site_b)
+
+    def test_partial_save_naming_the_field_still_propagates(self):
+        # The converse of the test above: a save which really did write the site must still
+        # propagate. update_fields may name a foreign key by its field name...
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        self.assertEqual(
+            self.capture_propagation_updates(location, update_fields=['site']),
+            self.propagation_tables,
+        )
+
+    def test_partial_save_naming_the_attname_still_propagates(self):
+        # ...or by its attname, which Django accepts equally. Deciding whether a guarded field
+        # was written has to recognise both spellings, or a real move named this way would be
+        # mistaken for an unwritten field and silently skipped.
+        location = self._seed_location_with_children()
+        location.site = self.site_b
+
+        self.assertEqual(
+            self.capture_propagation_updates(location, update_fields=['site_id']),
+            self.propagation_tables,
+        )
+
+    def test_raw_save_does_not_reuse_a_previous_saves_stash(self):
+        # A raw save takes no stash of its own, so it must clear the one left by the previous
+        # save of the same instance: comparing against a snapshot of the database as it stood
+        # before an earlier write can report the propagated fields as unchanged when they are
+        # not. The raw guard above means no handler consults the stash on this save, making the
+        # clearing defensive — but it keeps the invariant that a stash never outlives its save,
+        # so a later reader cannot be handed a stale one.
+        location = self._seed_location_with_children()
+        location.save()
+        self.assertIsNotNone(location._presave_scope_fields)
+
+        location.save_base(raw=True)
+
+        self.assertIsNone(location._presave_scope_fields)
+
+
+class LocationSiteChangeAutocommitTestCase(TransactionTestCase):
+    """
+    Exercise the autocommit save path, which TestCase cannot reach (it wraps every test in a
+    transaction). Outside an atomic block the pre-save read and the save's UPDATE run in
+    separate transactions, so the skip guard is disabled there: the stash is cleared and the
+    propagation runs unconditionally.
+
+    Note: TransactionTestCase teardown flushes all tables, which removes rows seeded by data
+    migrations from a --keepdb database (e.g. the dcim.0206 ModuleTypeProfiles). A fresh test
+    database restores them.
+    """
+
+    def test_autocommit_noop_save_always_propagates(self):
+        site = Site.objects.create(name='Site', slug='site')
+        other_site = Site.objects.create(name='Other Site', slug='other-site')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        device = Device.objects.create(
+            name='Device', site=site, location=location, device_type=device_type, role=device_role
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        # A transactional save first, so the instance carries a stash. The subsequent
+        # autocommit save must clear it rather than compare against a previous save's values.
+        with transaction.atomic():
+            location.save()
+
+        # Poison a cached column via a signal-less update; an unconditional propagation
+        # repairs it.
+        Interface.objects.filter(pk=interface.pk).update(_site=other_site)
+
+        location.save()  # Autocommit: no stash, unconditional propagation
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, site)
+
+
+class RackSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_rack_site_change propagates a Rack's site/location to its
-    Devices and their components when the Rack is moved.
+    Devices and their components when the Rack is moved, and only then.
     """
+    propagation_tables = COMPONENT_TABLES | {'dcim_device'}
 
     @classmethod
     def setUpTestData(cls):
@@ -118,12 +339,261 @@ class RackSiteChangeSignalTestCase(TestCase):
         self.assertEqual(interface._site, self.site_b)
         self.assertEqual(interface._location, self.location_b)
 
+    def _seed_rack_with_devices(self):
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            rack=rack,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        return rack
 
-class DeviceSiteChangeSignalTestCase(TestCase):
+    def test_unchanged_scope_skips_propagation(self):
+        # Both values the handler writes are derived from the Rack's site and location
+        # assignments, so a save which leaves both alone must not rewrite a single device or
+        # component row.
+        rack = self._seed_rack_with_devices()
+        rack.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(rack), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        rack = self._seed_rack_with_devices()
+        rack.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(rack), self.propagation_tables)
+
+    def test_changed_location_propagates(self):
+        # Location moves within the same Site must propagate too: the guard covers both
+        # fields, not just the Site.
+        rack = self._seed_rack_with_devices()
+        rack.site = self.site_b
+        rack.save()
+        rack.location = self.location_b
+
+        self.assertEqual(self.capture_propagation_updates(rack), self.propagation_tables)
+
+    def test_raw_save_skips_propagation(self):
+        # raw=True is set only by Django's loaddata pathway, whose fixture already carries the
+        # denormalized values for every object it loads, so the propagation would rewrite each
+        # matched row with what it already holds.
+        rack = self._seed_rack_with_devices()
+        rack.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(rack, raw=True), set())
+
+    def test_stale_partial_save_does_not_propagate_an_unwritten_scope(self):
+        # As for Location: this instance was loaded before the move below, so neither of its
+        # in-memory scope values is one this save writes, and neither may be propagated.
+        rack = self._seed_rack_with_devices()
+        stale = Rack.objects.get(pk=rack.pk)
+
+        rack.site = self.site_b
+        rack.location = self.location_b
+        rack.save()
+
+        stale.description = 'updated'
+        self.assertEqual(
+            self.capture_propagation_updates(stale, update_fields=['description']), set()
+        )
+
+        device = Device.objects.get(rack=rack)
+        self.assertEqual(device.site, self.site_b)
+        self.assertEqual(device.location, self.location_b)
+        interface = Interface.objects.get(device=device)
+        self.assertEqual(interface._site, self.site_b)
+        self.assertEqual(interface._location, self.location_b)
+
+
+class StashedScopeFieldsRegistrationTestCase(TestCase):
+    """
+    Verify cache_presave_scope_fields() is connected for every model in
+    signals.STASHED_SCOPE_FIELDS, and that each entry's fields resolve. An entry whose
+    receiver was never connected would leave the post_save handlers reading its stash
+    finding none, and doing their work unconditionally on every save.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.instances = {}
+        site = Site.objects.create(name='Site', slug='site')
+        location = Location.objects.create(name='Location', slug='location', site=site)
+        rack = Rack.objects.create(name='Rack', site=site, location=location)
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.instances = {
+            Site: site,
+            Location: location,
+            Rack: rack,
+            Device: Device.objects.create(
+                name='Device',
+                site=site,
+                location=location,
+                rack=rack,
+                device_type=DeviceType.objects.create(manufacturer=manufacturer, model='Device Type'),
+                role=DeviceRole.objects.create(name='Device Role', slug='device-role'),
+            ),
+        }
+
+    def test_every_mapped_model_stashes_its_fields_on_save(self):
+        # TestCase wraps each test in a transaction, so every save below takes a stash.
+        self.assertEqual(set(self.instances), set(signals.STASHED_SCOPE_FIELDS))
+
+        for model, fields in signals.STASHED_SCOPE_FIELDS.items():
+            with self.subTest(model=model.__name__):
+                instance = self.instances[model]
+                instance.save()
+
+                self.assertEqual(instance._presave_scope_fields.keys(), set(fields))
+
+    def test_every_mapped_field_resolves_to_both_spellings(self):
+        # STASHED_FIELD_ALIASES is derived from the model meta, so a field name which stopped
+        # resolving would drop out of it silently — and a field missing from it is one that
+        # update_fields can never mark as written, permanently skipping its propagation.
+        self.assertEqual(set(signals.STASHED_FIELD_ALIASES), set(signals.STASHED_SCOPE_FIELDS))
+
+        for model, fields in signals.STASHED_SCOPE_FIELDS.items():
+            with self.subTest(model=model.__name__):
+                aliases = signals.STASHED_FIELD_ALIASES[model]
+                self.assertEqual(set(aliases), set(fields))
+                for attname, names in aliases.items():
+                    # Both the field name and its attname, which update_fields may use
+                    # interchangeably.
+                    field = model._meta.get_field(attname.removesuffix('_id'))
+                    self.assertEqual(names, frozenset((field.name, field.attname)))
+
+
+class ScopeSignalConnectionTestCase(TestCase):
+    """
+    Verify the scope-propagation handlers issue every query against the connection the
+    saved object was written to, rather than letting DATABASE_ROUTERS select one. On an
+    installation with routers configured (e.g. netbox_branching), a routed query both
+    writes to the wrong database and falls outside the transaction opened by the handler,
+    which makes the handler's select_for_update() raise.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        cls.device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+
+    def test_location_save_pins_queries_to_saving_connection(self):
+        parent = Location.objects.create(name='Parent', slug='parent', site=self.site_a)
+        child = Location.objects.create(name='Child', slug='child', site=self.site_a, parent=parent)
+        rack = Rack.objects.create(name='Rack', site=self.site_a, location=parent)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            location=parent,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+        power_panel = PowerPanel.objects.create(name='Panel', site=self.site_a, location=parent)
+        cluster_type = ClusterType.objects.create(name='Cluster Type', slug='cluster-type')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=child)
+
+        # Re-fetch and assign the new Site by ID, leaving the site relation uncached: a
+        # handler which reads instance.site rather than instance.site_id would fetch it
+        # over a routed connection, which is what the Site entry below catches.
+        parent = Location.objects.get(pk=parent.pk)
+        parent.site_id = self.site_b.pk
+        router = PinnedConnectionRouter(
+            CableTermination,
+            CircuitTermination,
+            Cluster,
+            Device,
+            Interface,
+            PowerPanel,
+            Prefix,
+            Rack,
+            Site,
+            WirelessLAN,
+        )
+        with override_settings(DATABASE_ROUTERS=[router]):
+            parent.save()
+
+        for obj in (child, rack, device, power_panel):
+            obj.refresh_from_db()
+            self.assertEqual(obj.site, self.site_b)
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, self.site_b)
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site, self.site_b)
+
+    def test_rack_save_pins_queries_to_saving_connection(self):
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            rack=rack,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        rack = Rack.objects.get(pk=rack.pk)
+        rack.site_id = self.site_b.pk
+        router = PinnedConnectionRouter(CableTermination, Device, Interface, Site)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            rack.save()
+
+        device.refresh_from_db()
+        interface.refresh_from_db()
+        self.assertEqual(device.site, self.site_b)
+        self.assertEqual(interface._site, self.site_b)
+
+    def test_device_save_pins_queries_to_saving_connection(self):
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+
+        device = Device.objects.get(pk=device.pk)
+        device.site_id = self.site_b.pk
+        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(CableTermination, Interface, Site)]):
+            device.save()
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, self.site_b)
+
+    def test_site_save_pins_scope_resync_to_saving_connection(self):
+        region = Region.objects.create(name='Region', slug='region')
+        cluster_type = ClusterType.objects.create(name='Cluster Type', slug='cluster-type')
+        # Scope the Cluster to a Location rather than to the Site itself: the rebuild then
+        # has to resolve the Location behind the object's generic scope, which is the read
+        # that must follow the connection the Site was saved on.
+        location = Location.objects.create(name='Location', slug='location', site=self.site_a)
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=location)
+
+        site = Site.objects.get(pk=self.site_a.pk)
+        site.region = region
+        # Region is included to catch the Location's site.region read made while rebuilding
+        # the cached fields; Site itself cannot be, as Django routes the save under test.
+        router = PinnedConnectionRouter(CircuitTermination, Cluster, Location, Prefix, Region, WirelessLAN)
+        with override_settings(DATABASE_ROUTERS=[router]):
+            site.save()
+
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._region, region)
+
+
+class DeviceSiteChangeSignalTestCase(ScopePropagationCaptureMixin, TestCase):
     """
     Verify dcim.signals.handle_device_site_change propagates a Device's site/location/rack
-    to its components on save.
+    to its components on save, and only then.
     """
+    propagation_tables = COMPONENT_TABLES
 
     @classmethod
     def setUpTestData(cls):
@@ -148,6 +618,99 @@ class DeviceSiteChangeSignalTestCase(TestCase):
 
         interface.refresh_from_db()
         self.assertEqual(interface._site, self.site_b)
+
+    def _seed_device_with_components(self):
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        Interface.objects.create(device=device, name='Interface 1')
+        return device
+
+    def test_unchanged_scope_skips_propagation(self):
+        # Components repopulate _site/_location/_rack from their Device on their own save
+        # (see ComponentModel.save), so a Device save which moved the Device nowhere has
+        # nothing to push down and must not rewrite a single component row.
+        device = self._seed_device_with_components()
+        device.description = 'updated'
+
+        self.assertEqual(self.capture_propagation_updates(device), set())
+
+    def test_changed_site_propagates(self):
+        # Counterpart to the test above, which would pass vacuously if these UPDATEs stopped
+        # being issued (or their tables were renamed) rather than merely being skipped.
+        device = self._seed_device_with_components()
+        device.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(device), self.propagation_tables)
+
+    def test_changed_rack_propagates(self):
+        # A Rack assignment is the third guarded field, and the only one changed here: the
+        # Rack is deliberately left without a Location, so Device.save() does not inherit one
+        # and neither site nor location moves.
+        device = self._seed_device_with_components()
+        rack = Rack.objects.create(name='Rack', site=self.site_a)
+        self.assertIsNone(rack.location)
+        device.rack = rack
+
+        self.assertEqual(self.capture_propagation_updates(device), self.propagation_tables)
+
+    def test_raw_save_skips_propagation(self):
+        # raw=True is set only by Django's loaddata pathway, whose fixture already carries the
+        # denormalized values for every object it loads, so the propagation would rewrite each
+        # matched row with what it already holds.
+        device = self._seed_device_with_components()
+        device.site = self.site_b
+
+        self.assertEqual(self.capture_propagation_updates(device, raw=True), set())
+
+    def test_stale_partial_save_does_not_propagate_an_unwritten_scope(self):
+        # As for Location and Rack: this instance was loaded before the move below, so its
+        # in-memory site is not one this save writes and must not reach the components.
+        device = self._seed_device_with_components()
+        stale = Device.objects.get(pk=device.pk)
+
+        device.site = self.site_b
+        device.save()
+
+        stale.description = 'updated'
+        self.assertEqual(
+            self.capture_propagation_updates(stale, update_fields=['description']), set()
+        )
+
+        self.assertEqual(Interface.objects.get(device=device)._site, self.site_b)
+
+    def test_stale_partial_save_propagates_written_field_with_database_values(self):
+        # The mixed case, which the skip cannot cover: one guarded field is written, so the
+        # propagation must run — and the two fields the save did not write have to be taken
+        # from the database, not from the stale instance. Assigning the rack alone leaves the
+        # site and location columns untouched, so the components must end up at site_b (where
+        # the device actually is) rather than site_a (which the instance still carries).
+        device = self._seed_device_with_components()
+        stale = Device.objects.get(pk=device.pk)
+
+        device.site = self.site_b
+        device.save()
+
+        # A rack in site_b with no location, so Device.save() inherits no location from it.
+        rack = Rack.objects.create(name='Rack', site=self.site_b)
+        self.assertIsNone(rack.location)
+        stale.rack = rack
+
+        self.assertEqual(
+            self.capture_propagation_updates(stale, update_fields=['rack']),
+            self.propagation_tables,
+        )
+
+        interface = Interface.objects.get(device=device)
+        self.assertEqual(interface._site, self.site_b)
+        self.assertEqual(interface._rack, rack)
+        self.assertIsNone(interface._location)
+        # The device's own site column was never rewritten by the partial save either.
+        device.refresh_from_db()
+        self.assertEqual(device.site, self.site_b)
 
 
 class VirtualChassisMasterSignalTestCase(TestCase):
@@ -797,6 +1360,50 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
             q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')
         ]
         self.assertEqual(len(cluster_updates), 1)
+
+    def test_stale_partial_save_skips_resync(self):
+        # A save passing update_fields writes only the fields it names, so an omitted scope
+        # field cannot have changed and the rebuild has nothing to recompute.
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', group=group_a)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        cluster = Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
+
+        stale = Site.objects.get(pk=site.pk)
+        site.group = group_b
+        site.save()
+
+        stale.description = 'updated'
+        with CaptureQueriesContext(connection) as ctx:
+            stale.save(update_fields=['description'])
+
+        self.assertEqual(
+            [q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')],
+            [],
+        )
+        cluster.refresh_from_db()
+        self.assertEqual(cluster._site_group, group_b)
+
+    def test_raw_save_skips_resync(self):
+        # raw=True is set only by Django's loaddata pathway, whose fixture already carries the
+        # cached scope fields for every object it loads, so the rebuild would recompute the
+        # values the rows already hold.
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', group=group_a)
+        cluster_type = ClusterType.objects.create(name='CT', slug='ct')
+        Cluster.objects.create(name='Cluster', type=cluster_type, scope=site)
+
+        site.group = group_b  # A real scope change, which a non-raw save would resync
+
+        with CaptureQueriesContext(connection) as ctx:
+            site.save_base(raw=True)
+
+        self.assertEqual(
+            [q for q in ctx.captured_queries if q['sql'].startswith('UPDATE "virtualization_cluster"')],
+            [],
+        )
 
 
 class SyncCachedScopeFieldsAutocommitTestCase(TransactionTestCase):

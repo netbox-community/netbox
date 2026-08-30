@@ -28,7 +28,7 @@ def register(model, field_name, mappings):
 
 
 @receiver(post_save)
-def update_denormalized_fields(sender, instance, created, raw, **kwargs):
+def update_denormalized_fields(sender, instance, created, raw, using=None, **kwargs):
     """
     Check if the sender has denormalized fields registered, and update them as necessary.
     """
@@ -52,6 +52,9 @@ def update_denormalized_fields(sender, instance, created, raw, **kwargs):
         }
 
         # TODO: Improve efficiency here by placing conditions on the query?
-        # Update all the denormalized fields with the triggering object's new values
-        count = model.objects.filter(**filter_params).update(**update_params)
+        # Update all the denormalized fields with the triggering object's new values. The
+        # update is pinned to the connection the instance was saved on: letting a database
+        # router select one could write these values to a different database than the one
+        # holding the change which triggered them.
+        count = model.objects.using(using).filter(**filter_params).update(**update_params)
         logger.debug(f'Updated {count} rows')

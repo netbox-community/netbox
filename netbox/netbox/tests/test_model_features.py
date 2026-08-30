@@ -1,5 +1,6 @@
 from unittest import skipIf
 
+from django.apps import apps
 from django.conf import settings
 from django.test import TestCase
 from taggit.models import Tag
@@ -8,7 +9,8 @@ from core.models import AutoSyncRecord, DataSource
 from dcim.models import Site
 from extras.models import CustomLink
 from ipam.models import Prefix
-from netbox.models.features import get_model_features, has_feature, model_is_public
+from netbox.constants import CORE_APPS
+from netbox.models.features import CloningMixin, get_model_features, has_feature, model_is_public
 
 
 class ModelFeaturesTestCase(TestCase):
@@ -61,6 +63,23 @@ class ModelFeaturesTestCase(TestCase):
         features = get_model_features(CustomLink)
         self.assertIn('cloning', features)
         self.assertNotIn('bookmarks', features)
+
+    def test_clone_fields_requires_cloning_support(self):
+        """
+        Check that only models which support the cloning feature declare clone_fields.
+        """
+        declaring = [
+            model for model in apps.get_models()
+            if model._meta.app_label in CORE_APPS and hasattr(model, 'clone_fields')
+        ]
+
+        # Sanity checking
+        self.assertIn(Prefix, declaring, "Invalid test?")
+
+        offenders = sorted(
+            model._meta.label for model in declaring if not issubclass(model, CloningMixin)
+        )
+        self.assertEqual(offenders, [], "clone_fields is inert on models which do not inherit CloningMixin")
 
     def test_cloningmixin_injects_gfk_attribute(self):
         """

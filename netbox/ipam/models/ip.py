@@ -399,7 +399,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         lookup = 'net_contains_or_equals' if include_self else 'net_contains'
         return Prefix.objects.filter(**{
-            'vrf': self.vrf,
+            'vrf_id': self.vrf_id,
             f'prefix__{lookup}': self.prefix
         })
 
@@ -409,7 +409,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         lookup = 'net_contained_or_equal' if include_self else 'net_contained'
         return Prefix.objects.filter(**{
-            'vrf': self.vrf,
+            'vrf_id': self.vrf_id,
             f'prefix__{lookup}': self.prefix
         })
 

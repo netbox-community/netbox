@@ -334,16 +334,18 @@ class Module(TrackingModelMixin, PrimaryModel):
         old_module_bay_id = None
 
         if not is_new:
-            old_module_bay_id = Module.objects.filter(pk=self.pk).values_list(
+            old_module_bay_id = Module.objects.using(self._state.db).filter(pk=self.pk).values_list(
                 'module_bay_id', flat=True
             ).first()
 
         super().save(*args, **kwargs)
 
+        using = self._state.db
+
         if old_module_bay_id is not None and old_module_bay_id != self.module_bay_id:
-            for child_bay in self.modulebays.select_related('module__module_bay'):
+            for child_bay in self.modulebays.db_manager(using).select_related('module__module_bay'):
                 child_bay.snapshot()
-                child_bay.save()
+                child_bay.save(using=using)
 
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
@@ -370,7 +372,9 @@ class Module(TrackingModelMixin, PrimaryModel):
             # Prefetch installed components
             installed_components = {
                 component.name: component
-                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
+                for component in getattr(self.device, component_attribute).db_manager(using).filter(
+                    module__isnull=True
+                )
             }
 
             # Get the template for the module type.
@@ -404,7 +408,7 @@ class Module(TrackingModelMixin, PrimaryModel):
 
             # we handle create and update separately - this is for create
             if not issubclass(component_model, MPTTModel):
-                component_model.objects.bulk_create(create_instances)
+                component_model.objects.using(using).bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object
                 for component in create_instances:
                     post_save.send(
@@ -412,18 +416,18 @@ class Module(TrackingModelMixin, PrimaryModel):
                         instance=component,
                         created=True,
                         raw=False,
-                        using='default',
+                        using=using,
                         update_fields=None
                     )
             else:
                 # MPTT models must be saved individually to maintain tree structure
                 for instance in create_instances:
-                    instance.save()
+                    instance.save(using=using)
 
             update_fields = ['module']
 
             # we handle create and update separately - this is for update
-            component_model.objects.bulk_update(update_instances, update_fields)
+            component_model.objects.using(using).bulk_update(update_instances, update_fields)
             # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(
@@ -431,13 +435,14 @@ class Module(TrackingModelMixin, PrimaryModel):
                     instance=component,
                     created=False,
                     raw=False,
-                    using='default',
+                    using=using,
                     update_fields=update_fields
                 )
 
             # Rebuild MPTT tree if needed (bulk_update bypasses model save)
             if issubclass(component_model, MPTTModel) and update_instances:
-                component_model.objects.rebuild()
+                # db_manager() is used in place of using(), as rebuild() is a manager method
+                component_model.objects.db_manager(using).rebuild()
 
         # Replicate any front/rear port mappings from the ModuleType
         create_port_mappings(self.device, self.module_type, self)

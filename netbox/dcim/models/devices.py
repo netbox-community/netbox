@@ -987,6 +987,7 @@ class Device(
                          (default). Otherwise, save() will be called on each instance individually.
         """
         model = queryset.model.component_model
+        using = self._state.db
 
         if bulk_create:
             components = [obj.instantiate(device=self) for obj in queryset]
@@ -1005,7 +1006,7 @@ class Device(
                 component._site = self.site
                 component._location = self.location
                 component._rack = self.rack
-            components = model.objects.bulk_create(components)
+            components = model.objects.using(using).bulk_create(components)
             # Prefetch related objects to minimize queries needed during post_save
             prefetch_fields = get_prefetchable_fields(model)
             prefetch_related_objects(components, *prefetch_fields)
@@ -1016,7 +1017,7 @@ class Device(
                     instance=component,
                     created=True,
                     raw=False,
-                    using='default',
+                    using=using,
                     update_fields=None
                 )
         else:
@@ -1031,7 +1032,7 @@ class Device(
                 # Set default values for any applicable custom fields
                 if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                     component.custom_field_data = cf_defaults
-                component.save()
+                component.save(using=using)
 
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)

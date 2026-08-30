@@ -197,3 +197,30 @@ def get_random_string(length, charset=None):
     """
     characters = string.ascii_letters + string.digits  # a-z, A-Z, 0-9
     return ''.join(random.choice(characters) for __ in range(length))
+
+
+#
+# Database routing
+#
+
+class UnpinnedQuery(Exception):
+    """Raised when a query which should have been pinned to a connection is routed instead."""
+
+
+class PinnedConnectionRouter:
+    """
+    Fails any read or write of the given models which is not pinned to an explicit database
+    alias. Django consults DATABASE_ROUTERS only for queries which name no connection, so a
+    signal handler which threads through the alias supplied by the signal never reaches
+    this router. Each test leaves out the model being saved, as Django routes that save
+    itself.
+    """
+    def __init__(self, *models):
+        self.models = models
+
+    def _check(self, model, **hints):
+        if model in self.models:
+            raise UnpinnedQuery(f"{model.__name__} query was routed rather than pinned to a connection")
+
+    db_for_read = _check
+    db_for_write = _check

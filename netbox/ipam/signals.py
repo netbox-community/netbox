@@ -7,47 +7,49 @@ from virtualization.models import VirtualMachine
 from .models import IPAddress, Prefix
 
 
-def update_parents_children(prefix):
+def update_parents_children(prefix, using=None):
     """
     Update depth on prefix & containing prefixes
     """
-    parents = prefix.get_parents(include_self=True).annotate_hierarchy()
+    parents = prefix.get_parents(include_self=True).using(using).annotate_hierarchy()
     for parent in parents:
         parent._children = parent.hierarchy_children
-    Prefix.objects.bulk_update(parents, ['_children'], batch_size=100)
+    Prefix.objects.using(using).bulk_update(parents, ['_children'], batch_size=100)
 
 
-def update_children_depth(prefix):
+def update_children_depth(prefix, using=None):
     """
     Update children count on prefix & contained prefixes
     """
-    children = prefix.get_children(include_self=True).annotate_hierarchy()
+    children = prefix.get_children(include_self=True).using(using).annotate_hierarchy()
     for child in children:
         child._depth = child.hierarchy_depth
-    Prefix.objects.bulk_update(children, ['_depth'], batch_size=100)
+    Prefix.objects.using(using).bulk_update(children, ['_depth'], batch_size=100)
 
 
 @receiver(post_save, sender=Prefix)
-def handle_prefix_saved(instance, created, **kwargs):
-
+def handle_prefix_saved(instance, created, using=None, **kwargs):
+    """
+    Recompute the cached hierarchy counters for the prefixes surrounding this one.
+    """
     # Prefix has changed (or new instance has been created)
     if created or instance.vrf_id != instance._vrf_id or instance.prefix != instance._prefix:
 
-        update_parents_children(instance)
-        update_children_depth(instance)
+        update_parents_children(instance, using)
+        update_children_depth(instance, using)
 
         # If this is not a new prefix, clean up parent/children of previous prefix
         if not created:
             old_prefix = Prefix(vrf_id=instance._vrf_id, prefix=instance._prefix)
-            update_parents_children(old_prefix)
-            update_children_depth(old_prefix)
+            update_parents_children(old_prefix, using)
+            update_children_depth(old_prefix, using)
 
 
 @receiver(post_delete, sender=Prefix)
-def handle_prefix_deleted(instance, **kwargs):
+def handle_prefix_deleted(instance, using=None, **kwargs):
 
-    update_parents_children(instance)
-    update_children_depth(instance)
+    update_parents_children(instance, using)
+    update_children_depth(instance, using)
 
 
 @receiver(pre_delete, sender=IPAddress)

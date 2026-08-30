@@ -74,3 +74,10 @@ CENSOR_TOKEN_CHANGED = '***CHANGED***'
 
 # Placeholder text for empty tables
 EMPTY_TABLE_TEXT = 'No results found'
+
+# Batch size for deleting a JobsMixin object's associated jobs during cascade deletion. Job
+# cannot be fast-deleted (a global pre_delete receiver forces per-instance signals), so deleting
+# in chunks bounds the work per delete cycle rather than building one huge collection and running
+# one long DELETE. 1000 matches EXPORT_CHUNK_SIZE and, in benchmarking a 200k-job deletion, was
+# the fastest of 100/1000/5000 while keeping peak memory flat. See #22812.
+JOB_DELETE_BATCH_SIZE = 1000

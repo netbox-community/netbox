@@ -1027,6 +1027,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CXP = '100gbase-x-cxp'
     TYPE_100GE_CPAK = '100gbase-x-cpak'
     TYPE_100GE_DSFP = '100gbase-x-dsfp'
+    TYPE_100GE_SFP112 = '100gbase-x-sfp112'
     TYPE_100GE_SFP_DD = '100gbase-x-sfpdd'
     TYPE_100GE_QSFP28 = '100gbase-x-qsfp28'
     TYPE_100GE_QSFP_DD = '100gbase-x-qsfpdd'
@@ -1102,7 +1103,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_64GFC_SFP_PLUS = '64gfc-sfpp'
     TYPE_128GFC_QSFP28 = '128gfc-qsfp28'
 
-    # InfiniBand
+    # InfiniBand 1X
     TYPE_INFINIBAND_SDR = 'infiniband-sdr'
     TYPE_INFINIBAND_DDR = 'infiniband-ddr'
     TYPE_INFINIBAND_QDR = 'infiniband-qdr'
@@ -1112,6 +1113,17 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_INFINIBAND_HDR = 'infiniband-hdr'
     TYPE_INFINIBAND_NDR = 'infiniband-ndr'
     TYPE_INFINIBAND_XDR = 'infiniband-xdr'
+
+    # InfiniBand 4X
+    TYPE_INFINIBAND_SDR_4X = 'infiniband-sdr-4x'
+    TYPE_INFINIBAND_DDR_4X = 'infiniband-ddr-4x'
+    TYPE_INFINIBAND_QDR_4X = 'infiniband-qdr-4x'
+    TYPE_INFINIBAND_FDR10_4X = 'infiniband-fdr10-4x'
+    TYPE_INFINIBAND_FDR_4X = 'infiniband-fdr-4x'
+    TYPE_INFINIBAND_EDR_4X = 'infiniband-edr-4x'
+    TYPE_INFINIBAND_HDR_4X = 'infiniband-hdr-4x'
+    TYPE_INFINIBAND_NDR_4X = 'infiniband-ndr-4x'
+    TYPE_INFINIBAND_XDR_4X = 'infiniband-xdr-4x'
 
     # Serial
     TYPE_T1 = 't1'
@@ -1152,6 +1164,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_SUMMITSTACK128 = 'extreme-summitstack-128'
     TYPE_SUMMITSTACK256 = 'extreme-summitstack-256'
     TYPE_SUMMITSTACK512 = 'extreme-summitstack-512'
+    TYPE_HPE_SYNERGY_INTERCONNECT = 'hpe-synergy-interconnect-link'
 
     # Other
     TYPE_OTHER = 'other'
@@ -1339,6 +1352,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_DSFP, 'DSFP (100GE)'),
                 (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
                 (TYPE_100GE_QSFP_DD, 'QSFP-DD (100GE)'),
+                (TYPE_100GE_SFP112, 'SFP112 (100GE)'),
                 (TYPE_100GE_SFP_DD, 'SFP-DD (100GE)'),
                 (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
@@ -1429,7 +1443,7 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
-            'InfiniBand',
+            'InfiniBand 1X',
             (
                 (TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'),
                 (TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'),
@@ -1439,7 +1453,21 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'),
                 (TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
                 (TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
-                (TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'),
+                (TYPE_INFINIBAND_XDR, 'XDR (200 Gbps)'),
+            )
+        ),
+        (
+            'InfiniBand 4X',
+            (
+                (TYPE_INFINIBAND_SDR_4X, 'SDR 4X (8 Gbps)'),
+                (TYPE_INFINIBAND_DDR_4X, 'DDR 4X (16 Gbps)'),
+                (TYPE_INFINIBAND_QDR_4X, 'QDR 4X (32 Gbps)'),
+                (TYPE_INFINIBAND_FDR10_4X, 'FDR10 4X (40 Gbps)'),
+                (TYPE_INFINIBAND_FDR_4X, 'FDR 4X (56 Gbps)'),
+                (TYPE_INFINIBAND_EDR_4X, 'EDR 4X (100 Gbps)'),
+                (TYPE_INFINIBAND_HDR_4X, 'HDR 4X (200 Gbps)'),
+                (TYPE_INFINIBAND_NDR_4X, 'NDR 4X (400 Gbps)'),
+                (TYPE_INFINIBAND_XDR_4X, 'XDR 4X (800 Gbps)'),
             )
         ),
         (
@@ -1495,6 +1523,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
                 (TYPE_SUMMITSTACK256, 'Extreme SummitStack-256'),
                 (TYPE_SUMMITSTACK512, 'Extreme SummitStack-512'),
+                (TYPE_HPE_SYNERGY_INTERCONNECT, 'HPE Synergy Interconnect Link'),
             )
         ),
         (

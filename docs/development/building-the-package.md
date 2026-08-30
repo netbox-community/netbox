@@ -53,6 +53,12 @@ Check the built artifacts for valid package metadata and README rendering:
 twine check dist/*
 ```
 
+The wheel and sdist deliberately use Core Metadata 2.4, the lowest version required by NetBox's current project metadata. Both build targets pin this format as `core-metadata-version` in `pyproject.toml`, and CI verifies the emitted `METADATA` and `PKG-INFO` values against those pins (`verify_wheel_metadata.py` and `verify_sdist_contents.py`).
+
+The release workflow's build job pins `twine` and `packaging` to the versions bundled by the pinned `pypa/gh-action-pypi-publish` revision (its `requirements/runtime.txt`), so the pre-publication check uses the same Core Metadata validator as the publisher. Hatchling remains lower-bounded rather than pinned. The explicit Core Metadata setting prevents changes to its default from changing the artifact format.
+
+Review these settings together when updating the packaging toolchain. Keep the `twine` and `packaging` pins aligned with the publishing action, but change the Core Metadata version only when NetBox needs a newer format and the complete publishing path supports it.
+
 Confirm the wheel's version, dependency metadata, and extras match `netbox/release.yaml`, the pinned `requirements.txt`, and the declared optional-dependency groups:
 
 ```no-highlight

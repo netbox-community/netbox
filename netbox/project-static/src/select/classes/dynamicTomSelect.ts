@@ -1,5 +1,5 @@
 import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
-import { addClasses } from 'tom-select/src/vanilla.ts';
+import { addClasses, removeClasses } from 'tom-select/src/vanilla.ts';
 import queryString from 'query-string';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
@@ -18,6 +18,18 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   private readonly staticParams: QueryFilter = new Map();
   private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
   private readonly pathValues: PathFilter = new Map();
+
+  // Incremented on every load() call. Lets us detect and discard stale responses: if a
+  // newer load() has started (e.g. because two dependencies changed in quick succession)
+  // before an older request's response arrives, the older response is out of date and
+  // must not be allowed to overwrite state set by the newer one.
+  private loadSequence = 0;
+
+  // Tracks a previous selection that still needs to be restored once a settled request wins.
+  // Stored on the instance rather than only as a `load()` parameter -- if the request carrying
+  // it is itself superseded by a later cascading load() call before it resolves, the value
+  // isn't lost; whichever request's response ultimately wins can still attempt to restore it.
+  private pendingRestoreValue?: string | string[];
 
   /**
    * Overrides
@@ -74,6 +86,28 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   load(value: string, preserveValue?: string | string[]) {
     const self = this;
 
+    // Record which request this is. Incremented unconditionally, before any early return
+    // below, so that an already-in-flight request from a previous call is always correctly
+    // invalidated by any newer call to load() -- even one that itself aborts early (e.g. no
+    // valid URL). If another load() call starts before this one's response comes back,
+    // `self.loadSequence` will have moved on and this response is stale -- it must be
+    // discarded rather than applied.
+    self.loadSequence += 1;
+    const sequence = self.loadSequence;
+
+    // Remember any value that still needs to be restored, without erasing a value captured
+    // by an earlier, still-in-flight call. If this particular call has nothing new to
+    // preserve (e.g. its dependency was already cleared by a cascaded change), an earlier
+    // call's pending value should still get a chance to be restored by whichever request
+    // ends up winning. An empty array (e.g. a multi-select cleared by clear()) doesn't count
+    // as something worth preserving.
+    const hasValue = Array.isArray(preserveValue)
+      ? preserveValue.length > 0
+      : preserveValue !== undefined;
+    if (hasValue) {
+      self.pendingRestoreValue = preserveValue;
+    }
+
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
     self.clearOptions();
@@ -83,9 +117,12 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       self.addOption(self.nullOption);
     }
 
-    // Get the API request URL. If none is provided, abort as no request can be made.
+    // Get the API request URL. If none is provided, abort as no request can be made. No
+    // options can be shown for this field under its current (invalid) filter, so any
+    // pending value carried from an earlier call is no longer relevant to restore here.
     const url = self.getRequestUrl(value);
     if (!url) {
+      self.pendingRestoreValue = undefined;
       return;
     }
 
@@ -106,17 +143,32 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       })
       // Pass the options to the callback function
       .then(options => {
+        // A newer load() has since been issued (e.g. two dependencies changed in quick
+        // succession). This response is stale; applying it now would risk clobbering
+        // state already set by the newer, still-in-flight or already-resolved request.
+        if (sequence !== self.loadSequence) {
+          self.finalizeStaleLoad();
+          return;
+        }
         self.loadCallback(options, []);
         // Restore the previous selection if it is still valid under the new filter.
-        if (preserveValue !== undefined) {
-          const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
+        if (self.pendingRestoreValue !== undefined) {
+          const values = Array.isArray(self.pendingRestoreValue)
+            ? self.pendingRestoreValue
+            : [self.pendingRestoreValue];
           const validValues = values.filter(v => v !== '' && v in self.options);
           if (validValues.length > 0) {
             self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
           }
+          self.pendingRestoreValue = undefined;
         }
       })
       .catch(() => {
+        if (sequence !== self.loadSequence) {
+          self.finalizeStaleLoad();
+          return;
+        }
+        self.pendingRestoreValue = undefined;
         self.loadCallback([], []);
       });
   }
@@ -124,6 +176,17 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   /**
    * Custom methods
    */
+
+  // Finalizes Tom Select's loading state after a superseded (stale) response settles: clears
+  // the loading counter and, once it reaches zero, removes the wrapper's loading class and
+  // refreshes the dropdown to drop any stale loading indicator rendered internally.
+  private finalizeStaleLoad(): void {
+    this.loading = Math.max(this.loading - 1, 0);
+    if (!this.loading) {
+      removeClasses(this.wrapper, this.settings.loadingClass);
+      this.refreshOptions(false);
+    }
+  }
 
   // Formulate and return the complete URL for an API request, including any query parameters.
   getRequestUrl(search: string): string {

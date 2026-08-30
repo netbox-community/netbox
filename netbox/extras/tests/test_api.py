@@ -8,13 +8,14 @@ from unittest.mock import MagicMock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
 
 from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
-from core.models import DataFile, DataSource, ObjectType
+from core.models import DataFile, DataSource, Job, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.choices import *
 from extras.models import *
@@ -23,7 +24,7 @@ from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
-from utilities.testing import APITestCase, APIViewTestCases
+from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
 
 
 class AppTestCase(APITestCase):
@@ -295,6 +296,36 @@ class CustomFieldChoiceSetTestCase(APIViewTestCases.APIViewTestCase):
 
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(response.status_code, 400)
+
+    def test_null_base_choices(self):
+        """
+        A null value for base_choices should be accepted, as returned by the API for a choice set which defines
+        only extra choices.
+        """
+        self.add_permissions('extras.add_customfieldchoiceset', 'extras.change_customfieldchoiceset')
+        data = {
+            'name': 'test',
+            'base_choices': None,
+            'extra_choices': [
+                ['choice1', 'Choice 1'],
+            ],
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertIsNone(response.data['base_choices'])
+        choice_set = CustomFieldChoiceSet.objects.get(pk=response.data['id'])
+        self.assertIsNone(choice_set.base_choices)
+
+        # A choice set with base choices assigned can be reverted to null
+        choice_set.base_choices = CustomFieldChoiceSetBaseChoices.IATA
+        choice_set.save()
+        response = self.client.patch(
+            self._get_detail_url(choice_set), {'base_choices': None}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        choice_set.refresh_from_db()
+        self.assertIsNone(choice_set.base_choices)
 
     def test_invalid_choice_color(self):
         self.add_permissions('extras.add_customfieldchoiceset')
@@ -1373,6 +1404,34 @@ class ScriptTestCase(APITestCase):
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
 
+    def test_list_scripts(self):
+        """
+        The list route is served by BaseViewSet, which resolves the QuerySet's prefetches & annotations (and
+        any fields/omit request parameters) from the serializer.
+        """
+        url = reverse('extras-api:script-list')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['name'], self.TestScriptClass.Meta.name)
+
+        response = self.client.get(f'{url}?fields=id,name', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(sorted(response.data['results'][0]), ['id', 'name'])
+
+    def test_get_script_by_module_and_name(self):
+        """
+        A script may also be identified by its module & name, e.g. /api/extras/scripts/example.MyReport/.
+        """
+        script = Script.objects.first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': f'script.{script.name}'})
+
+        response = self.client.get(url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], script.pk)
+
     def test_schedule_script_past_time_rejected(self):
         """
         Scheduling with past schedule_at should fail.
@@ -1442,6 +1501,203 @@ class ScriptTestCase(APITestCase):
         finally:
             # Restore the original setting for other tests
             self.TestScriptClass.Meta.scheduling_enabled = original
+
+    def test_run_script_without_permission(self):
+        """
+        A user permitted to view a script but not to run it must not be able to enqueue it. (The script is
+        excluded from the restricted QuerySet, so the request yields a 404.)
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # setUp() grants only extras.view_script
+        with disable_warnings('django.request'):
+            response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(Job.objects.exists())
+
+        # Granting the run permission permits the same request
+        self.add_permissions('extras.run_script')
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(Job.objects.exists())
+
+    @override_settings(LOGIN_REQUIRED=False, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_run_script_anonymous(self):
+        """
+        An unauthenticated user must be told that running a script is not permitted, rather than that the
+        script does not exist.
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        with disable_warnings('django.request'):
+            response = self.client.post(self.url, payload, format='json')
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Job.objects.exists())
+
+    def test_run_script_read_only_token(self):
+        """
+        Running a script is a write operation and must be rejected for a read-only token.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # A write-disabled token should be rejected
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        response = self.client.post(self.url, payload, format='json', **ro_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # The default (write-enabled) token should succeed
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_run_script_read_only_token_without_permission(self):
+        """
+        A read-only token is rejected before the script is resolved, so an insufficient token is reported as
+        such regardless of the user's permission to run the script.
+        """
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # setUp() grants only extras.view_script
+        ro_token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
+        response = self.client.post(self.url, payload, format='json', **ro_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+    def test_run_script_not_executable(self):
+        """
+        A script whose Python class cannot be resolved must be rejected, not raise an exception.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # Simulate a script whose class can no longer be found in its module
+        class_patch = patch.object(Script, 'python_class', None)
+        class_patch.start()
+        self.addCleanup(class_patch.stop)
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Job.objects.exists())
+
+    def test_run_script_by_module_and_name(self):
+        """
+        A script identified by its module & name (rather than by its PK) must also be runnable.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+        script = Script.objects.first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': f'script.{script.name}'})
+
+        response = self.client.post(url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], script.pk)
+        self.assertTrue(Job.objects.exists())
+
+    def test_run_script_format_suffix(self):
+        """
+        The format-suffix variants of the detail route (e.g. /1.json) must dispatch to run().
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+        script = Script.objects.first()
+        lookups = (script.pk, f'script.{script.name}')
+
+        for lookup in lookups:
+            with self.subTest(lookup=lookup):
+                url = reverse('extras-api:script-detail', kwargs={'pk': lookup, 'format': 'json'})
+
+                response = self.client.post(url, payload, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(response.data['id'], script.pk)
+
+        self.assertEqual(Job.objects.count(), len(lookups))
+
+    def test_modify_script_methods_disabled(self):
+        """
+        Individual scripts are created, modified, and deleted through their module, so PUT/PATCH/DELETE on
+        the script endpoint are not supported (even for a user holding the corresponding permissions).
+        """
+        self.add_permissions('extras.change_script', 'extras.delete_script')
+        script = Script.objects.first()
+
+        for method in ('put', 'patch', 'delete'):
+            with self.subTest(method=method):
+                with disable_warnings('django.request'):
+                    response = getattr(self.client, method)(self.url, {}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        # The script must remain untouched
+        self.assertTrue(Script.objects.filter(pk=script.pk).exists())
+
+    def test_create_script_disabled(self):
+        """
+        Scripts cannot be created via the API: POST is mapped only on the detail route (to run a script),
+        and must be neither permitted nor advertised on the list route.
+        """
+        self.add_permissions('extras.add_script')
+        list_url = reverse('extras-api:script-list')
+
+        with disable_warnings('django.request'):
+            response = self.client.post(list_url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        # OPTIONS must not advertise a create action for the list route
+        response = self.client.options(list_url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn('POST', response.data.get('actions', {}))
+
+    def test_options_detail_route(self):
+        """
+        POST on the detail route runs a script, so its OPTIONS metadata must describe the run input
+        rather than the Script model's own fields.
+        """
+        self.add_permissions('extras.run_script')
+
+        response = self.client.options(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        post_fields = response.data['actions']['POST']
+        self.assertIn('data', post_fields)
+        self.assertIn('commit', post_fields)
+        self.assertNotIn('module', post_fields)
+        self.assertNotIn('name', post_fields)
+
+    def test_options_detail_route_dynamic_fields(self):
+        """
+        The run input serializer does not support the fields/omit query parameters, but their presence must
+        not break the generation of OPTIONS metadata.
+        """
+        self.add_permissions('extras.run_script')
+
+        for query in ('fields=id', 'omit=id'):
+            with self.subTest(query=query):
+                response = self.client.options(f'{self.url}?{query}', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertIn('data', response.data['actions']['POST'])
+
+    def test_unsupported_method(self):
+        """
+        A request using an HTTP method which maps to no action must be rejected with a 405.
+        """
+        with disable_warnings('django.request'):
+            response = self.client.trace(self.url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_script_invalid_pk(self):
+        """
+        A PK which cannot be cast to an integer must yield a 404, not a server error. This covers numeric (but
+        non-decimal) characters, as well as a decimal value too long for Python to convert.
+        """
+        for pk in ('½', '1' * 5000):
+            with self.subTest(pk=pk[:10]):
+                url = reverse('extras-api:script-detail', kwargs={'pk': pk})
+
+                with disable_warnings('django.request'):
+                    response = self.client.get(url, **self.header)
+                self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class ScriptRunExecutionTestCase(APITestCase):

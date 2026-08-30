@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-30 05:52+0000\n"
+"POT-Creation-Date: 2026-08-25 05:09+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Japanese (https://app.transifex.com/netbox-community/teams/178115/ja/)\n"
@@ -46,9 +46,9 @@ msgstr "パスワードは正常に変更されました。"
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:204
-#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:1973
-#: netbox/dcim/choices.py:2031 netbox/dcim/choices.py:2098
-#: netbox/dcim/choices.py:2120 netbox/virtualization/choices.py:20
+#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:2002
+#: netbox/dcim/choices.py:2060 netbox/dcim/choices.py:2127
+#: netbox/dcim/choices.py:2149 netbox/virtualization/choices.py:20
 #: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 #: netbox/vpn/choices.py:281
 msgid "Planned"
@@ -62,8 +62,8 @@ msgstr "プロビジョニング"
 #: netbox/core/tables/tasks.py:23 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:103 netbox/dcim/choices.py:155
 #: netbox/dcim/choices.py:203 netbox/dcim/choices.py:256
-#: netbox/dcim/choices.py:2030 netbox/dcim/choices.py:2097
-#: netbox/dcim/choices.py:2119 netbox/extras/tables/tables.py:648
+#: netbox/dcim/choices.py:2059 netbox/dcim/choices.py:2126
+#: netbox/dcim/choices.py:2148 netbox/extras/tables/tables.py:648
 #: netbox/extras/ui/panels.py:441 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
 #: netbox/ipam/choices.py:154 netbox/users/forms/bulk_edit.py:41
@@ -74,8 +74,8 @@ msgid "Active"
 msgstr "アクティブ"
 
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:202
-#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:2029
-#: netbox/dcim/choices.py:2099 netbox/dcim/choices.py:2118
+#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:2058
+#: netbox/dcim/choices.py:2128 netbox/dcim/choices.py:2147
 #: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr "オフライン"
@@ -88,7 +88,7 @@ msgstr "デプロビジョニング"
 msgid "Decommissioned"
 msgstr "廃止"
 
-#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2042
+#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2071
 #: netbox/dcim/tables/devices.py:1238
 #: netbox/templates/dcim/interface/attrs/mac_address.html:3
 #: netbox/tenancy/choices.py:17
@@ -235,30 +235,30 @@ msgstr "ASN"
 
 #: netbox/circuits/filtersets.py:107 netbox/circuits/filtersets.py:137
 #: netbox/circuits/filtersets.py:175 netbox/circuits/filtersets.py:365
-#: netbox/circuits/filtersets.py:436 netbox/circuits/filtersets.py:517
-#: netbox/circuits/filtersets.py:596 netbox/ipam/filtersets.py:284
+#: netbox/circuits/filtersets.py:441 netbox/circuits/filtersets.py:522
+#: netbox/circuits/filtersets.py:601 netbox/ipam/filtersets.py:284
 msgid "Provider (ID)"
 msgstr "プロバイダ (ID)"
 
 #: netbox/circuits/filtersets.py:114 netbox/circuits/filtersets.py:144
 #: netbox/circuits/filtersets.py:182 netbox/circuits/filtersets.py:372
-#: netbox/circuits/filtersets.py:524 netbox/circuits/filtersets.py:603
+#: netbox/circuits/filtersets.py:529 netbox/circuits/filtersets.py:608
 #: netbox/ipam/filtersets.py:290
 msgid "Provider (slug)"
 msgstr "プロバイダ (slug)"
 
-#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:530
-#: netbox/circuits/filtersets.py:609
+#: netbox/circuits/filtersets.py:188 netbox/circuits/filtersets.py:535
+#: netbox/circuits/filtersets.py:614
 msgid "Provider account (ID)"
 msgstr "プロバイダアカウント (ID)"
 
-#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:537
-#: netbox/circuits/filtersets.py:616
+#: netbox/circuits/filtersets.py:195 netbox/circuits/filtersets.py:542
+#: netbox/circuits/filtersets.py:621
 msgid "Provider account (account)"
 msgstr "プロバイダーアカウント (アカウント)"
 
-#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:542
-#: netbox/circuits/filtersets.py:622
+#: netbox/circuits/filtersets.py:200 netbox/circuits/filtersets.py:547
+#: netbox/circuits/filtersets.py:627
 msgid "Provider network (ID)"
 msgstr "プロバイダネットワーク (ID)"
 
@@ -294,7 +294,7 @@ msgid "Termination A (ID)"
 msgstr "終端A (ID)"
 
 #: netbox/circuits/filtersets.py:295 netbox/circuits/filtersets.py:405
-#: netbox/circuits/filtersets.py:580 netbox/core/filtersets.py:91
+#: netbox/circuits/filtersets.py:585 netbox/core/filtersets.py:91
 #: netbox/core/filtersets.py:179 netbox/core/filtersets.py:205
 #: netbox/core/filtersets.py:248 netbox/dcim/filtersets.py:926
 #: netbox/dcim/filtersets.py:1760 netbox/dcim/filtersets.py:3041
@@ -348,43 +348,43 @@ msgstr "ロケーション (slug)"
 msgid "ProviderNetwork (ID)"
 msgstr "プロバイダネットワーク (ID)"
 
-#: netbox/circuits/filtersets.py:411
+#: netbox/circuits/filtersets.py:416
 msgid "Circuit (CID)"
 msgstr "回線 (CID)"
 
-#: netbox/circuits/filtersets.py:416
+#: netbox/circuits/filtersets.py:421
 msgid "Circuit (ID)"
 msgstr "回線 (ID)"
 
-#: netbox/circuits/filtersets.py:421
+#: netbox/circuits/filtersets.py:426
 msgid "Virtual circuit (CID)"
 msgstr "仮想回線 (CID)"
 
-#: netbox/circuits/filtersets.py:426 netbox/dcim/filtersets.py:2336
+#: netbox/circuits/filtersets.py:431 netbox/dcim/filtersets.py:2336
 msgid "Virtual circuit (ID)"
 msgstr "仮想回線 (ID)"
 
-#: netbox/circuits/filtersets.py:431
+#: netbox/circuits/filtersets.py:436
 msgid "Provider (name)"
 msgstr "プロバイダ (名前)"
 
-#: netbox/circuits/filtersets.py:441
+#: netbox/circuits/filtersets.py:446
 msgid "Circuit group (ID)"
 msgstr "回路グループ (ID)"
 
-#: netbox/circuits/filtersets.py:448
+#: netbox/circuits/filtersets.py:453
 msgid "Circuit group (slug)"
 msgstr "回線グループ (slug)"
 
-#: netbox/circuits/filtersets.py:547
+#: netbox/circuits/filtersets.py:552
 msgid "Virtual circuit type (ID)"
 msgstr "仮想回線タイプ (ID)"
 
-#: netbox/circuits/filtersets.py:554
+#: netbox/circuits/filtersets.py:559
 msgid "Virtual circuit type (slug)"
 msgstr "仮想回線タイプ (スラッグ)"
 
-#: netbox/circuits/filtersets.py:585 netbox/circuits/forms/bulk_edit.py:316
+#: netbox/circuits/filtersets.py:590 netbox/circuits/forms/bulk_edit.py:316
 #: netbox/circuits/forms/bulk_import.py:248
 #: netbox/circuits/forms/filtersets.py:384
 #: netbox/circuits/forms/filtersets.py:390
@@ -394,7 +394,7 @@ msgstr "仮想回線タイプ (スラッグ)"
 msgid "Virtual circuit"
 msgstr "仮想回線"
 
-#: netbox/circuits/filtersets.py:628 netbox/dcim/filtersets.py:1572
+#: netbox/circuits/filtersets.py:633 netbox/dcim/filtersets.py:1572
 #: netbox/dcim/filtersets.py:2061 netbox/ipam/filtersets.py:680
 #: netbox/vpn/filtersets.py:117 netbox/vpn/filtersets.py:445
 msgid "Interface (ID)"
@@ -506,7 +506,7 @@ msgstr "色"
 #: netbox/extras/forms/bulk_import.py:48 netbox/extras/tables/tables.py:427
 #: netbox/extras/tables/tables.py:515 netbox/extras/tables/tables.py:584
 #: netbox/extras/ui/panels.py:128 netbox/extras/ui/panels.py:377
-#: netbox/netbox/tables/tables.py:390
+#: netbox/netbox/tables/tables.py:453
 #: netbox/templates/core/htmx/system_db_schema.html:70
 #: netbox/templates/dcim/panels/interface_connection.html:68
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:16
@@ -719,7 +719,7 @@ msgstr "サービス情報"
 #: netbox/dcim/forms/filtersets.py:1924 netbox/dcim/forms/filtersets.py:1942
 #: netbox/dcim/forms/filtersets.py:1962 netbox/dcim/forms/filtersets.py:1978
 #: netbox/dcim/forms/filtersets.py:2024 netbox/dcim/forms/filtersets.py:2060
-#: netbox/dcim/tables/modules.py:25 netbox/dcim/views.py:1774
+#: netbox/dcim/tables/modules.py:25 netbox/dcim/views.py:1780
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/filtersets.py:48
 #: netbox/extras/forms/filtersets.py:152 netbox/extras/forms/filtersets.py:231
 #: netbox/extras/forms/filtersets.py:248 netbox/extras/forms/filtersets.py:280
@@ -729,7 +729,7 @@ msgstr "サービス情報"
 #: netbox/ipam/forms/filtersets.py:351 netbox/ipam/forms/filtersets.py:434
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/forms/filtersets.py:546
 #: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:643
-#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:406
+#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:469
 #: netbox/virtualization/forms/filtersets.py:56
 #: netbox/virtualization/forms/filtersets.py:114
 #: netbox/virtualization/forms/filtersets.py:166
@@ -833,7 +833,7 @@ msgstr "接続済みにする"
 
 #: netbox/circuits/forms/bulk_edit.py:220
 #: netbox/circuits/forms/model_forms.py:211 netbox/circuits/ui/panels.py:85
-#: netbox/dcim/views.py:3579 netbox/dcim/views.py:3681
+#: netbox/dcim/views.py:3585 netbox/dcim/views.py:3687
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:43
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:59
 #: netbox/templates/dcim/panels/interface_connection.html:92
@@ -1001,8 +1001,8 @@ msgstr "運用上のロール"
 #: netbox/dcim/forms/model_forms.py:1372 netbox/dcim/forms/model_forms.py:1641
 #: netbox/dcim/forms/model_forms.py:1822 netbox/dcim/forms/model_forms.py:1857
 #: netbox/dcim/forms/model_forms.py:1982 netbox/dcim/tables/connections.py:66
-#: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3571
-#: netbox/dcim/views.py:3675 netbox/ipam/forms/bulk_import.py:330
+#: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3577
+#: netbox/dcim/views.py:3681 netbox/ipam/forms/bulk_import.py:330
 #: netbox/ipam/forms/model_forms.py:316 netbox/ipam/forms/model_forms.py:325
 #: netbox/ipam/tables/fhrp.py:61 netbox/ipam/tables/ip.py:328
 #: netbox/ipam/tables/vlans.py:149
@@ -1289,7 +1289,7 @@ msgstr "グループ割当"
 #: netbox/dcim/models/device_components.py:664
 #: netbox/dcim/models/device_components.py:1251
 #: netbox/dcim/models/device_components.py:1299
-#: netbox/dcim/models/device_components.py:1541
+#: netbox/dcim/models/device_components.py:1542
 #: netbox/dcim/models/devices.py:395 netbox/dcim/models/racks.py:254
 #: netbox/extras/models/tags.py:30
 msgid "color"
@@ -1317,8 +1317,8 @@ msgstr "一意な回線 ID"
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:93
 #: netbox/dcim/models/device_components.py:635
-#: netbox/dcim/models/device_components.py:1580
-#: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1264
+#: netbox/dcim/models/device_components.py:1581
+#: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1265
 #: netbox/dcim/models/modules.py:269 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:329 netbox/dcim/models/racks.py:713
 #: netbox/dcim/models/sites.py:187 netbox/dcim/models/sites.py:311
@@ -1422,10 +1422,10 @@ msgstr "パッチパネル ID とポート番号"
 #: netbox/dcim/models/device_components.py:68 netbox/dcim/models/racks.py:730
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:98
 #: netbox/extras/models/configs.py:289
-#: netbox/extras/models/customfields.py:153 netbox/extras/models/models.py:73
-#: netbox/extras/models/models.py:182 netbox/extras/models/models.py:435
-#: netbox/extras/models/models.py:503 netbox/extras/models/models.py:587
-#: netbox/extras/models/models.py:730
+#: netbox/extras/models/customfields.py:154 netbox/extras/models/models.py:79
+#: netbox/extras/models/models.py:188 netbox/extras/models/models.py:471
+#: netbox/extras/models/models.py:539 netbox/extras/models/models.py:623
+#: netbox/extras/models/models.py:766
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
 #: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
@@ -1453,25 +1453,25 @@ msgstr "回路終端は終端オブジェクトに接続する必要がありま
 #: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:55
 #: netbox/dcim/models/device_component_templates.py:56
 #: netbox/dcim/models/device_components.py:57
-#: netbox/dcim/models/devices.py:543 netbox/dcim/models/devices.py:1184
-#: netbox/dcim/models/devices.py:1259 netbox/dcim/models/modules.py:37
+#: netbox/dcim/models/devices.py:543 netbox/dcim/models/devices.py:1185
+#: netbox/dcim/models/devices.py:1260 netbox/dcim/models/modules.py:37
 #: netbox/dcim/models/power.py:39 netbox/dcim/models/power.py:90
 #: netbox/dcim/models/racks.py:290 netbox/dcim/models/sites.py:175
 #: netbox/extras/models/configs.py:40 netbox/extras/models/configs.py:82
 #: netbox/extras/models/configs.py:285
-#: netbox/extras/models/customfields.py:120 netbox/extras/models/models.py:68
-#: netbox/extras/models/models.py:177 netbox/extras/models/models.py:325
-#: netbox/extras/models/models.py:431 netbox/extras/models/models.py:493
-#: netbox/extras/models/models.py:583 netbox/extras/models/models.py:725
+#: netbox/extras/models/customfields.py:121 netbox/extras/models/models.py:74
+#: netbox/extras/models/models.py:183 netbox/extras/models/models.py:361
+#: netbox/extras/models/models.py:467 netbox/extras/models/models.py:529
+#: netbox/extras/models/models.py:619 netbox/extras/models/models.py:761
 #: netbox/extras/models/notifications.py:127
-#: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
+#: netbox/extras/models/scripts.py:30 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:63
 #: netbox/ipam/models/services.py:91 netbox/ipam/models/vlans.py:42
 #: netbox/ipam/models/vlans.py:231 netbox/ipam/models/vlans.py:380
 #: netbox/ipam/models/vrfs.py:20 netbox/ipam/models/vrfs.py:78
 #: netbox/netbox/models/__init__.py:180 netbox/netbox/models/__init__.py:228
 #: netbox/tenancy/models/contacts.py:85 netbox/tenancy/models/tenants.py:19
-#: netbox/tenancy/models/tenants.py:45 netbox/users/models/owners.py:19
+#: netbox/tenancy/models/tenants.py:63 netbox/users/models/owners.py:19
 #: netbox/users/models/owners.py:38 netbox/users/models/permissions.py:23
 #: netbox/users/models/users.py:36 netbox/virtualization/models/clusters.py:52
 #: netbox/virtualization/models/virtualmachines.py:40
@@ -1491,10 +1491,10 @@ msgstr "プロバイダのフルネーム"
 
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
 #: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:182
-#: netbox/extras/models/models.py:498 netbox/ipam/models/asns.py:24
+#: netbox/extras/models/models.py:534 netbox/ipam/models/asns.py:24
 #: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
-#: netbox/tenancy/models/tenants.py:50
+#: netbox/tenancy/models/tenants.py:68
 #: netbox/virtualization/models/virtualmachines.py:44
 #: netbox/vpn/models/l2vpn.py:26 netbox/wireless/models.py:60
 msgid "slug"
@@ -1598,7 +1598,7 @@ msgstr "仮想回線終端"
 #: netbox/ipam/tables/services.py:16 netbox/ipam/tables/services.py:38
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
-#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:376
+#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:439
 #: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54
@@ -1859,7 +1859,7 @@ msgstr "完了"
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:21 netbox/core/tables/tasks.py:35
 #: netbox/dcim/choices.py:206 netbox/dcim/choices.py:259
-#: netbox/dcim/choices.py:2032 netbox/dcim/choices.py:2122
+#: netbox/dcim/choices.py:2061 netbox/dcim/choices.py:2151
 #: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr "失敗"
@@ -1989,7 +1989,7 @@ msgstr "情報"
 msgid "Warning"
 msgstr "警告"
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:625
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:662
 msgid "Error"
 msgstr "エラー"
 
@@ -2060,7 +2060,7 @@ msgid "User name"
 msgstr "ユーザ名"
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:47
-#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2080
+#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2109
 #: netbox/dcim/forms/bulk_edit.py:1151 netbox/dcim/forms/bulk_edit.py:1255
 #: netbox/dcim/forms/bulk_edit.py:1278 netbox/dcim/forms/bulk_edit.py:1442
 #: netbox/dcim/forms/filtersets.py:1687 netbox/dcim/forms/filtersets.py:1780
@@ -2091,7 +2091,7 @@ msgid "Sync interval"
 msgstr "同期間隔"
 
 #: netbox/core/forms/bulk_edit.py:33 netbox/extras/forms/model_forms.py:388
-#: netbox/extras/views.py:395 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:398 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:299
 #: netbox/vpn/forms/model_forms.py:320 netbox/vpn/forms/model_forms.py:336
@@ -2242,7 +2242,7 @@ msgstr "同期するファイルをアップロードするか、データファ
 msgid "Rack Elevations"
 msgstr "ラック図"
 
-#: netbox/core/forms/model_forms.py:151 netbox/dcim/choices.py:1951
+#: netbox/core/forms/model_forms.py:151 netbox/dcim/choices.py:1980
 #: netbox/dcim/forms/bulk_edit.py:990 netbox/dcim/forms/bulk_edit.py:1396
 #: netbox/dcim/forms/bulk_edit.py:1417 netbox/dcim/tables/racks.py:172
 #: netbox/netbox/navigation/menu.py:324 netbox/netbox/navigation/menu.py:328
@@ -2300,16 +2300,16 @@ msgstr "その他"
 msgid "Config Revision"
 msgstr "設定履歴"
 
-#: netbox/core/forms/model_forms.py:203
+#: netbox/core/forms/model_forms.py:197
 msgid "This parameter has been defined statically and cannot be modified."
 msgstr "このパラメータは静的に定義されており、変更できません。"
 
-#: netbox/core/forms/model_forms.py:211
+#: netbox/core/forms/model_forms.py:205
 #, python-brace-format
 msgid "Current value: <strong>{value}</strong>"
 msgstr "現在の値: <strong>{value}</strong>"
 
-#: netbox/core/forms/model_forms.py:213
+#: netbox/core/forms/model_forms.py:207
 msgid " (default)"
 msgstr " (デフォルト)"
 
@@ -2356,9 +2356,9 @@ msgstr "このオブジェクトタイプ ({type}) では変更ログはサポ�
 
 #: netbox/core/models/config.py:22 netbox/core/models/data.py:290
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:938 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:972 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
-#: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
+#: netbox/netbox/models/features.py:63 netbox/users/models/tokens.py:51
 msgid "created"
 msgstr "作成"
 
@@ -2406,7 +2406,7 @@ msgstr "設定履歴 #{id}"
 #: netbox/dcim/models/device_components.py:859
 #: netbox/dcim/models/device_components.py:1246
 #: netbox/dcim/models/device_components.py:1294
-#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:106
+#: netbox/dcim/models/power.py:101 netbox/extras/models/customfields.py:107
 #: netbox/extras/models/search.py:42
 #: netbox/virtualization/models/clusters.py:57
 #: netbox/virtualization/models/virtualmachines.py:121
@@ -2415,7 +2415,7 @@ msgid "type"
 msgstr "タイプ"
 
 #: netbox/core/models/data.py:50 netbox/core/ui/panels.py:17
-#: netbox/extras/choices.py:37 netbox/extras/models/models.py:188
+#: netbox/extras/choices.py:37 netbox/extras/models/models.py:194
 #: netbox/extras/tables/tables.py:860 netbox/templates/core/plugin.html:66
 msgid "URL"
 msgstr "URL"
@@ -2426,9 +2426,9 @@ msgstr "URL"
 #: netbox/dcim/models/device_component_templates.py:784
 #: netbox/dcim/models/device_components.py:696
 #: netbox/dcim/models/device_components.py:1379
-#: netbox/dcim/models/device_components.py:1480
-#: netbox/extras/models/models.py:82 netbox/extras/models/models.py:330
-#: netbox/extras/models/models.py:518 netbox/extras/models/models.py:602
+#: netbox/dcim/models/device_components.py:1481
+#: netbox/extras/models/models.py:88 netbox/extras/models/models.py:366
+#: netbox/extras/models/models.py:554 netbox/extras/models/models.py:638
 #: netbox/users/models/permissions.py:32 netbox/users/models/tokens.py:65
 msgid "enabled"
 msgstr "有効"
@@ -2445,7 +2445,7 @@ msgstr "ignoreルール"
 msgid "Patterns (one per line) matching files or paths to ignore when syncing"
 msgstr "同期時に無視するファイルまたはパスに一致するパターン (1 行に 1 つ)"
 
-#: netbox/core/models/data.py:75 netbox/extras/models/models.py:526
+#: netbox/core/models/data.py:75 netbox/extras/models/models.py:562
 msgid "parameters"
 msgstr "パラメータ"
 
@@ -2482,7 +2482,7 @@ msgid ""
 msgstr "バックエンドの初期化中にエラーが発生しました。依存関係をインストールする必要があります。 "
 
 #: netbox/core/models/data.py:294 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:68
+#: netbox/netbox/models/features.py:69
 msgid "last updated"
 msgstr "最終更新日時"
 
@@ -2572,7 +2572,7 @@ msgstr "開始日時"
 msgid "completed"
 msgstr "完了日時"
 
-#: netbox/core/models/jobs.py:101 netbox/extras/models/models.py:113
+#: netbox/core/models/jobs.py:101 netbox/extras/models/models.py:119
 msgid "data"
 msgstr "データ"
 
@@ -2627,7 +2627,7 @@ msgstr "enqueue () は schedule_at と immediate の両方の値を指定して�
 msgid "object type"
 msgstr "オブジェクトタイプ"
 
-#: netbox/core/models/object_types.py:205 netbox/extras/models/models.py:64
+#: netbox/core/models/object_types.py:205 netbox/extras/models/models.py:70
 msgid "object types"
 msgstr "オブジェクトタイプ"
 
@@ -2652,7 +2652,7 @@ msgstr "フルネーム"
 #: netbox/extras/tables/tables.py:518 netbox/extras/tables/tables.py:589
 #: netbox/extras/tables/tables.py:762 netbox/extras/tables/tables.py:803
 #: netbox/extras/tables/tables.py:857 netbox/extras/ui/panels.py:378
-#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:394
+#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:457
 #: netbox/tenancy/tables/contacts.py:87 netbox/vpn/tables/l2vpn.py:64
 msgid "Object"
 msgstr "オブジェクト"
@@ -2692,7 +2692,7 @@ msgstr "最終更新日"
 #: netbox/core/tables/jobs.py:14 netbox/core/tables/tasks.py:77
 #: netbox/dcim/tables/devicetypes.py:168 netbox/extras/tables/tables.py:264
 #: netbox/extras/tables/tables.py:579 netbox/extras/tables/tables.py:828
-#: netbox/netbox/tables/tables.py:252
+#: netbox/netbox/tables/tables.py:315
 #: netbox/templates/dcim/virtualchassis_edit.html:64
 #: netbox/utilities/forms/forms.py:119
 #: netbox/wireless/tables/wirelesslink.py:16
@@ -2703,7 +2703,7 @@ msgstr "ID"
 msgid "Interval"
 msgstr "間隔"
 
-#: netbox/core/tables/jobs.py:51 netbox/core/views.py:272
+#: netbox/core/tables/jobs.py:51 netbox/core/views.py:275
 msgid "Log Entries"
 msgstr "ログエントリ"
 
@@ -2870,7 +2870,7 @@ msgstr "スケジューリング"
 msgid "Change"
 msgstr "変更"
 
-#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:571
+#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:574
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr "ジョブ {job_id} が見つかりません"
@@ -2880,62 +2880,62 @@ msgstr "ジョブ {job_id} が見つかりません"
 msgid "Job {id} not found."
 msgstr "ジョブ {id} が見つかりません。"
 
-#: netbox/core/views.py:136
+#: netbox/core/views.py:138
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr "キューに入っているジョブ #{id} 同期するには {datasource}"
 
-#: netbox/core/views.py:254 netbox/extras/forms/filtersets.py:184
+#: netbox/core/views.py:257 netbox/extras/forms/filtersets.py:184
 #: netbox/extras/forms/filtersets.py:385 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/filtersets.py:504
 #: netbox/extras/forms/model_forms.py:784 netbox/extras/ui/panels.py:381
 msgid "Data"
 msgstr "データ"
 
-#: netbox/core/views.py:265 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:268 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr "ログ"
 
-#: netbox/core/views.py:507
+#: netbox/core/views.py:510
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr "復元された設定リビジョン #{id}"
 
-#: netbox/core/views.py:610
+#: netbox/core/views.py:613
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr "ジョブ {id} が削除されました。"
 
-#: netbox/core/views.py:612
+#: netbox/core/views.py:615
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr "ジョブの削除中にエラーが発生しました {id}: {error}"
 
-#: netbox/core/views.py:621
+#: netbox/core/views.py:624
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr "ジョブ {id} が再追加されました。"
 
-#: netbox/core/views.py:630
+#: netbox/core/views.py:633
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr "ジョブ {id} が追加されました。"
 
-#: netbox/core/views.py:639
+#: netbox/core/views.py:642
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr "ジョブ {id} が停止されました。"
 
-#: netbox/core/views.py:641
+#: netbox/core/views.py:644
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr "ジョブを停止できませんでした {id}"
 
-#: netbox/core/views.py:855
+#: netbox/core/views.py:858
 msgid "Plugins catalog could not be loaded"
 msgstr "プラグインカタログを読み込めませんでした"
 
-#: netbox/core/views.py:891
+#: netbox/core/views.py:894
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr "プラグイン {name} が見つかりません"
@@ -3018,8 +3018,8 @@ msgid "Staging"
 msgstr "ステージング"
 
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:208
-#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:1974
-#: netbox/dcim/choices.py:2123 netbox/virtualization/choices.py:23
+#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:2003
+#: netbox/dcim/choices.py:2152 netbox/virtualization/choices.py:23
 #: netbox/virtualization/choices.py:49 netbox/vpn/choices.py:282
 msgid "Decommissioning"
 msgstr "廃止"
@@ -3085,7 +3085,7 @@ msgstr "廃止済"
 msgid "Millimeters"
 msgstr "ミリメートル"
 
-#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1996
+#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:2025
 msgid "Inches"
 msgstr "インチ"
 
@@ -3121,7 +3121,7 @@ msgstr "古い"
 #: netbox/dcim/tables/devices.py:1082 netbox/dcim/tables/devices.py:1235
 #: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:817
 #: netbox/ipam/tables/fhrp.py:56 netbox/ipam/tables/ip.py:334
-#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:380
+#: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:443
 #: netbox/netbox/ui/panels.py:230 netbox/tenancy/forms/bulk_edit.py:33
 #: netbox/tenancy/forms/bulk_edit.py:62 netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -3157,7 +3157,7 @@ msgid "Rear"
 msgstr "背面"
 
 #: netbox/dcim/choices.py:205 netbox/dcim/choices.py:258
-#: netbox/dcim/choices.py:2121 netbox/virtualization/choices.py:47
+#: netbox/dcim/choices.py:2150 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr "検証"
 
@@ -3190,7 +3190,7 @@ msgid "Top to bottom"
 msgstr "上から下へ"
 
 #: netbox/dcim/choices.py:235 netbox/dcim/choices.py:280
-#: netbox/dcim/choices.py:1592
+#: netbox/dcim/choices.py:1621
 msgid "Passive"
 msgstr "パッシブ"
 
@@ -3219,8 +3219,8 @@ msgid "Proprietary"
 msgstr "独自規格"
 
 #: netbox/dcim/choices.py:606 netbox/dcim/choices.py:853
-#: netbox/dcim/choices.py:1501 netbox/dcim/choices.py:1503
-#: netbox/dcim/choices.py:1752 netbox/dcim/choices.py:1754
+#: netbox/dcim/choices.py:1530 netbox/dcim/choices.py:1532
+#: netbox/dcim/choices.py:1781 netbox/dcim/choices.py:1783
 #: netbox/netbox/navigation/menu.py:219
 msgid "Other"
 msgstr "その他"
@@ -3233,11 +3233,11 @@ msgstr "ITA/International"
 msgid "Physical"
 msgstr "物理"
 
-#: netbox/dcim/choices.py:884 netbox/dcim/choices.py:1163
+#: netbox/dcim/choices.py:884 netbox/dcim/choices.py:1176
 msgid "Virtual"
 msgstr "仮想"
 
-#: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1378
+#: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1392
 #: netbox/dcim/forms/bulk_edit.py:1602 netbox/dcim/forms/filtersets.py:1645
 #: netbox/dcim/forms/filtersets.py:1771 netbox/dcim/forms/model_forms.py:1189
 #: netbox/dcim/forms/model_forms.py:1653 netbox/dcim/ui/panels.py:556
@@ -3245,11 +3245,11 @@ msgstr "仮想"
 msgid "Wireless"
 msgstr "無線"
 
-#: netbox/dcim/choices.py:1161
+#: netbox/dcim/choices.py:1174
 msgid "Virtual interfaces"
 msgstr "仮想インタフェース"
 
-#: netbox/dcim/choices.py:1164 netbox/dcim/forms/bulk_edit.py:1455
+#: netbox/dcim/choices.py:1177 netbox/dcim/forms/bulk_edit.py:1455
 #: netbox/dcim/forms/bulk_import.py:966 netbox/dcim/forms/model_forms.py:1171
 #: netbox/dcim/tables/devices.py:761
 #: netbox/virtualization/forms/bulk_edit.py:231
@@ -3258,333 +3258,333 @@ msgstr "仮想インタフェース"
 msgid "Bridge"
 msgstr "ブリッジ"
 
-#: netbox/dcim/choices.py:1165
+#: netbox/dcim/choices.py:1178
 msgid "Link Aggregation Group (LAG)"
 msgstr "リンクアグリゲーション (LAG)"
 
-#: netbox/dcim/choices.py:1169
+#: netbox/dcim/choices.py:1182
 msgid "FastEthernet (100 Mbps)"
 msgstr "ファストイーサネット (100 Mbps)"
 
-#: netbox/dcim/choices.py:1178
+#: netbox/dcim/choices.py:1191
 msgid "GigabitEthernet (1 Gbps)"
 msgstr "ギガビットイーサネット (1 Gbps)"
 
-#: netbox/dcim/choices.py:1196
+#: netbox/dcim/choices.py:1209
 msgid "2.5/5 Gbps Ethernet"
 msgstr "2.5/5 ギガビット/秒イーサネット"
 
-#: netbox/dcim/choices.py:1203
+#: netbox/dcim/choices.py:1216
 msgid "10 Gbps Ethernet"
 msgstr "10 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1219
+#: netbox/dcim/choices.py:1232
 msgid "25 Gbps Ethernet"
 msgstr "25 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1229
+#: netbox/dcim/choices.py:1242
 msgid "40 Gbps Ethernet"
 msgstr "40 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1240
+#: netbox/dcim/choices.py:1253
 msgid "50 Gbps Ethernet"
 msgstr "50 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1250
+#: netbox/dcim/choices.py:1263
 msgid "100 Gbps Ethernet"
 msgstr "100 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1271
+#: netbox/dcim/choices.py:1284
 msgid "200 Gbps Ethernet"
 msgstr "200 ギガビット/秒イーサネット"
 
-#: netbox/dcim/choices.py:1285
+#: netbox/dcim/choices.py:1298
 msgid "400 Gbps Ethernet"
 msgstr "400 ギガビットイーサネット"
 
-#: netbox/dcim/choices.py:1303
+#: netbox/dcim/choices.py:1316
 msgid "800 Gbps Ethernet"
 msgstr "800 ギガビット/秒イーサネット"
 
-#: netbox/dcim/choices.py:1312
+#: netbox/dcim/choices.py:1325
 msgid "1.6 Tbps Ethernet"
 msgstr "1.6 Tbps イーサネット"
 
-#: netbox/dcim/choices.py:1320
+#: netbox/dcim/choices.py:1333
 msgid "Pluggable transceivers"
 msgstr "プラガブルトランシーバー"
 
-#: netbox/dcim/choices.py:1361
+#: netbox/dcim/choices.py:1375
 msgid "Backplane Ethernet"
 msgstr "バックプレーンイーサネット"
 
-#: netbox/dcim/choices.py:1394
+#: netbox/dcim/choices.py:1408
 msgid "Cellular"
 msgstr "セルラー"
 
-#: netbox/dcim/choices.py:1446 netbox/dcim/forms/filtersets.py:442
+#: netbox/dcim/choices.py:1474 netbox/dcim/forms/filtersets.py:442
 #: netbox/dcim/forms/filtersets.py:951 netbox/dcim/forms/filtersets.py:1163
 #: netbox/dcim/forms/filtersets.py:1998
 #: netbox/templates/dcim/virtualchassis_edit.html:66
 msgid "Serial"
 msgstr "シリアル"
 
-#: netbox/dcim/choices.py:1461
+#: netbox/dcim/choices.py:1489
 msgid "Coaxial"
 msgstr "同軸"
 
-#: netbox/dcim/choices.py:1482
+#: netbox/dcim/choices.py:1510
 msgid "Stacking"
 msgstr "スタック"
 
-#: netbox/dcim/choices.py:1537
+#: netbox/dcim/choices.py:1566
 msgid "Half"
 msgstr "半二重"
 
-#: netbox/dcim/choices.py:1538
+#: netbox/dcim/choices.py:1567
 msgid "Full"
 msgstr "全二重"
 
-#: netbox/dcim/choices.py:1539 netbox/netbox/preferences.py:32
+#: netbox/dcim/choices.py:1568 netbox/netbox/preferences.py:32
 #: netbox/wireless/choices.py:480
 msgid "Auto"
 msgstr "自動"
 
-#: netbox/dcim/choices.py:1551
+#: netbox/dcim/choices.py:1580
 msgid "Access"
 msgstr "アクセス"
 
-#: netbox/dcim/choices.py:1552 netbox/ipam/tables/vlans.py:152
+#: netbox/dcim/choices.py:1581 netbox/ipam/tables/vlans.py:152
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "タグ付き"
 
-#: netbox/dcim/choices.py:1553
+#: netbox/dcim/choices.py:1582
 msgid "Tagged (All)"
 msgstr "タグ付き (全て)"
 
-#: netbox/dcim/choices.py:1554 netbox/templates/ipam/vlan_edit.html:30
+#: netbox/dcim/choices.py:1583 netbox/templates/ipam/vlan_edit.html:30
 msgid "Q-in-Q (802.1ad)"
 msgstr "Q-in-Q (802.1ad)"
 
-#: netbox/dcim/choices.py:1583
+#: netbox/dcim/choices.py:1612
 msgid "IEEE Standard"
 msgstr "IEEE スタンダード"
 
-#: netbox/dcim/choices.py:1594
+#: netbox/dcim/choices.py:1623
 msgid "Passive 24V (2-pair)"
 msgstr "パッシブ 24V (2ペア)"
 
-#: netbox/dcim/choices.py:1595
+#: netbox/dcim/choices.py:1624
 msgid "Passive 24V (4-pair)"
 msgstr "パッシブ 24V (4ペア)"
 
-#: netbox/dcim/choices.py:1596
+#: netbox/dcim/choices.py:1625
 msgid "Passive 48V (2-pair)"
 msgstr "パッシブ 48V (2ペア)"
 
-#: netbox/dcim/choices.py:1597
+#: netbox/dcim/choices.py:1626
 msgid "Passive 48V (4-pair)"
 msgstr "パッシブ 48V (4ペア)"
 
-#: netbox/dcim/choices.py:1675
+#: netbox/dcim/choices.py:1704
 msgid "Copper"
 msgstr "カッパー"
 
-#: netbox/dcim/choices.py:1698
+#: netbox/dcim/choices.py:1727
 msgid "Fiber Optic"
 msgstr "光ファイバー"
 
-#: netbox/dcim/choices.py:1739 netbox/dcim/choices.py:1957
+#: netbox/dcim/choices.py:1768 netbox/dcim/choices.py:1986
 msgid "USB"
 msgstr "USB"
 
-#: netbox/dcim/choices.py:1797
+#: netbox/dcim/choices.py:1826
 msgid "Single"
 msgstr "シングル"
 
-#: netbox/dcim/choices.py:1799
+#: netbox/dcim/choices.py:1828
 msgid "1C1P"
 msgstr "1CP"
 
-#: netbox/dcim/choices.py:1800
+#: netbox/dcim/choices.py:1829
 msgid "1C2P"
 msgstr "C2P"
 
-#: netbox/dcim/choices.py:1801
+#: netbox/dcim/choices.py:1830
 msgid "1C4P"
 msgstr "1CP"
 
-#: netbox/dcim/choices.py:1802
+#: netbox/dcim/choices.py:1831
 msgid "1C6P"
 msgstr "16CP"
 
-#: netbox/dcim/choices.py:1803
+#: netbox/dcim/choices.py:1832
 msgid "1C8P"
 msgstr "18CP"
 
-#: netbox/dcim/choices.py:1804
+#: netbox/dcim/choices.py:1833
 msgid "1C12P"
 msgstr "12P"
 
-#: netbox/dcim/choices.py:1805
+#: netbox/dcim/choices.py:1834
 msgid "1C16P"
 msgstr "1C16P"
 
-#: netbox/dcim/choices.py:1809
+#: netbox/dcim/choices.py:1838
 msgid "Trunk"
 msgstr "トランク"
 
-#: netbox/dcim/choices.py:1811
+#: netbox/dcim/choices.py:1840
 msgid "2C1P trunk"
 msgstr "2C1P トランク"
 
-#: netbox/dcim/choices.py:1812
+#: netbox/dcim/choices.py:1841
 msgid "2C2P trunk"
 msgstr "2C2P トランク"
 
-#: netbox/dcim/choices.py:1813
+#: netbox/dcim/choices.py:1842
 msgid "2C4P trunk"
 msgstr "2C4P トランク"
 
-#: netbox/dcim/choices.py:1814
+#: netbox/dcim/choices.py:1843
 msgid "2C4P trunk (shuffle)"
 msgstr "2C4P トランク (シャッフル)"
 
-#: netbox/dcim/choices.py:1815
+#: netbox/dcim/choices.py:1844
 msgid "2C6P trunk"
 msgstr "26CP トランク"
 
-#: netbox/dcim/choices.py:1816
+#: netbox/dcim/choices.py:1845
 msgid "2C8P trunk"
 msgstr "28CP トランク"
 
-#: netbox/dcim/choices.py:1817
+#: netbox/dcim/choices.py:1846
 msgid "2C12P trunk"
 msgstr "2C12P トランク"
 
-#: netbox/dcim/choices.py:1818
+#: netbox/dcim/choices.py:1847
 msgid "4C1P trunk"
 msgstr "4C1P トランク"
 
-#: netbox/dcim/choices.py:1819
+#: netbox/dcim/choices.py:1848
 msgid "4C2P trunk"
 msgstr "4C2P トランク"
 
-#: netbox/dcim/choices.py:1820
+#: netbox/dcim/choices.py:1849
 msgid "4C4P trunk"
 msgstr "4C4P トランク"
 
-#: netbox/dcim/choices.py:1821
+#: netbox/dcim/choices.py:1850
 msgid "4C4P trunk (shuffle)"
 msgstr "4C4P トランク (シャッフル)"
 
-#: netbox/dcim/choices.py:1822
+#: netbox/dcim/choices.py:1851
 msgid "4C6P trunk"
 msgstr "4C6P トランク"
 
-#: netbox/dcim/choices.py:1823
+#: netbox/dcim/choices.py:1852
 msgid "4C8P trunk"
 msgstr "4C8P トランク"
 
-#: netbox/dcim/choices.py:1824
+#: netbox/dcim/choices.py:1853
 msgid "8C4P trunk"
 msgstr "8C4P トランク"
 
-#: netbox/dcim/choices.py:1828
+#: netbox/dcim/choices.py:1857
 msgid "Breakout"
 msgstr "ブレイクアウト"
 
-#: netbox/dcim/choices.py:1830
+#: netbox/dcim/choices.py:1859
 msgid "1C2P:2C1P breakout"
 msgstr "1C2P: 2C1P ブレークアウト"
 
-#: netbox/dcim/choices.py:1831
+#: netbox/dcim/choices.py:1860
 msgid "1C4P:4C1P breakout"
 msgstr "1C4P: 4C1P ブレークアウト"
 
-#: netbox/dcim/choices.py:1832
+#: netbox/dcim/choices.py:1861
 msgid "1C6P:6C1P breakout"
 msgstr "1C6P: 6C1P ブレークアウト"
 
-#: netbox/dcim/choices.py:1833
+#: netbox/dcim/choices.py:1862
 msgid "1C8P:8C1P breakout"
 msgstr "1C8P: 8C1P ブレークアウト"
 
-#: netbox/dcim/choices.py:1834
+#: netbox/dcim/choices.py:1863
 msgid "2C4P:8C1P breakout (shuffle)"
 msgstr "2C4P: 8C1P ブレークアウト (シャッフル)"
 
-#: netbox/dcim/choices.py:1892
+#: netbox/dcim/choices.py:1921
 msgid "Copper - Twisted Pair (UTP/STP)"
 msgstr "銅線-ツイストペア (UTP/STP)"
 
-#: netbox/dcim/choices.py:1906
+#: netbox/dcim/choices.py:1935
 msgid "Copper - Twinax (DAC)"
 msgstr "銅-トワイナックス (DAC)"
 
-#: netbox/dcim/choices.py:1913
+#: netbox/dcim/choices.py:1942
 msgid "Copper - Coaxial"
 msgstr "銅-同軸"
 
-#: netbox/dcim/choices.py:1928
+#: netbox/dcim/choices.py:1957
 msgid "Fiber - Multimode"
 msgstr "ファイバ-マルチモード"
 
-#: netbox/dcim/choices.py:1939
+#: netbox/dcim/choices.py:1968
 msgid "Fiber - Single-mode"
 msgstr "ファイバ-シングルモード"
 
-#: netbox/dcim/choices.py:1947
+#: netbox/dcim/choices.py:1976
 msgid "Fiber - Other"
 msgstr "ファイバー-その他"
 
-#: netbox/dcim/choices.py:1972 netbox/dcim/forms/filtersets.py:1470
+#: netbox/dcim/choices.py:2001 netbox/dcim/forms/filtersets.py:1470
 msgid "Connected"
 msgstr "接続済"
 
-#: netbox/dcim/choices.py:1991 netbox/netbox/choices.py:177
+#: netbox/dcim/choices.py:2020 netbox/netbox/choices.py:177
 msgid "Kilometers"
 msgstr "キロメートル"
 
-#: netbox/dcim/choices.py:1992 netbox/netbox/choices.py:178
-#: netbox/templates/dcim/cable_trace.html:65
+#: netbox/dcim/choices.py:2021 netbox/netbox/choices.py:178
+#: netbox/templates/dcim/cable_trace.html:67
 msgid "Meters"
 msgstr "メートル"
 
-#: netbox/dcim/choices.py:1993
+#: netbox/dcim/choices.py:2022
 msgid "Centimeters"
 msgstr "センチメートル"
 
-#: netbox/dcim/choices.py:1994 netbox/netbox/choices.py:179
+#: netbox/dcim/choices.py:2023 netbox/netbox/choices.py:179
 msgid "Miles"
 msgstr "マイル"
 
-#: netbox/dcim/choices.py:1995 netbox/netbox/choices.py:180
-#: netbox/templates/dcim/cable_trace.html:66
+#: netbox/dcim/choices.py:2024 netbox/netbox/choices.py:180
+#: netbox/templates/dcim/cable_trace.html:68
 msgid "Feet"
 msgstr "フィート"
 
-#: netbox/dcim/choices.py:2043
+#: netbox/dcim/choices.py:2072
 msgid "Redundant"
 msgstr "冗長"
 
-#: netbox/dcim/choices.py:2064
+#: netbox/dcim/choices.py:2093
 msgid "Single phase"
 msgstr "単相"
 
-#: netbox/dcim/choices.py:2065
+#: netbox/dcim/choices.py:2094
 msgid "Three-phase"
 msgstr "三相"
 
-#: netbox/dcim/choices.py:2081 netbox/extras/choices.py:53
+#: netbox/dcim/choices.py:2110 netbox/extras/choices.py:53
 #: netbox/netbox/preferences.py:45 netbox/netbox/preferences.py:70
 #: netbox/templates/extras/customfield/attrs/search_weight.html:1
 #: netbox/vpn/choices.py:20 netbox/wireless/choices.py:27
 msgid "Disabled"
 msgstr "無効"
 
-#: netbox/dcim/choices.py:2082
+#: netbox/dcim/choices.py:2111
 msgid "Faulty"
 msgstr "不良"
 
@@ -3880,8 +3880,8 @@ msgstr "奥行きをすべて使う"
 
 #: netbox/dcim/filtersets.py:1394 netbox/dcim/forms/filtersets.py:960
 #: netbox/dcim/forms/filtersets.py:1702 netbox/dcim/forms/filtersets.py:2067
-#: netbox/dcim/forms/model_forms.py:1979 netbox/dcim/models/devices.py:1362
-#: netbox/dcim/models/devices.py:1386 netbox/dcim/ui/panels.py:383
+#: netbox/dcim/forms/model_forms.py:1979 netbox/dcim/models/devices.py:1363
+#: netbox/dcim/models/devices.py:1387 netbox/dcim/ui/panels.py:383
 #: netbox/dcim/ui/panels.py:518 netbox/virtualization/filtersets.py:282
 #: netbox/virtualization/filtersets.py:370
 #: netbox/virtualization/forms/filtersets.py:247
@@ -4224,7 +4224,7 @@ msgstr "電源盤 (ID)"
 #: netbox/extras/forms/model_forms.py:694
 #: netbox/extras/forms/model_forms.py:779
 #: netbox/extras/forms/model_forms.py:831 netbox/extras/ui/panels.py:103
-#: netbox/netbox/forms/bulk_import.py:27 netbox/netbox/forms/mixins.py:135
+#: netbox/netbox/forms/bulk_import.py:28 netbox/netbox/forms/mixins.py:135
 #: netbox/netbox/tables/columns.py:503
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:29
@@ -4354,7 +4354,7 @@ msgstr "取り付け奥行き"
 #: netbox/dcim/forms/model_forms.py:277 netbox/dcim/forms/model_forms.py:363
 #: netbox/dcim/tables/devicetypes.py:110 netbox/dcim/tables/modules.py:55
 #: netbox/dcim/tables/racks.py:95 netbox/dcim/tables/racks.py:190
-#: netbox/dcim/views.py:977 netbox/dcim/views.py:1105
+#: netbox/dcim/views.py:983 netbox/dcim/views.py:1111
 #: netbox/extras/forms/bulk_edit.py:57 netbox/extras/forms/bulk_edit.py:144
 #: netbox/extras/forms/bulk_edit.py:198 netbox/extras/forms/bulk_edit.py:226
 #: netbox/extras/forms/bulk_edit.py:322 netbox/extras/forms/bulk_edit.py:348
@@ -4390,7 +4390,7 @@ msgstr "外形寸法"
 
 #: netbox/dcim/forms/bulk_edit.py:311 netbox/dcim/forms/model_forms.py:278
 #: netbox/dcim/forms/model_forms.py:364 netbox/dcim/ui/panels.py:138
-#: netbox/dcim/views.py:971 netbox/dcim/views.py:1103
+#: netbox/dcim/views.py:977 netbox/dcim/views.py:1109
 #: netbox/extras/tables/tables.py:282
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:3
 #: netbox/templates/extras/panels/imageattachment_file.html:14
@@ -4399,7 +4399,7 @@ msgstr "寸法"
 
 #: netbox/dcim/forms/bulk_edit.py:313 netbox/dcim/forms/filtersets.py:347
 #: netbox/dcim/forms/filtersets.py:372 netbox/dcim/forms/model_forms.py:280
-#: netbox/dcim/views.py:976 netbox/dcim/views.py:1104
+#: netbox/dcim/views.py:982 netbox/dcim/views.py:1110
 #: netbox/templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "ナンバリング"
@@ -4492,7 +4492,7 @@ msgid "Device Type"
 msgstr "デバイスタイプ"
 
 #: netbox/dcim/forms/bulk_edit.py:566 netbox/dcim/forms/model_forms.py:457
-#: netbox/dcim/views.py:1684 netbox/extras/forms/model_forms.py:689
+#: netbox/dcim/views.py:1690 netbox/extras/forms/model_forms.py:689
 msgid "Schema"
 msgstr "スキーマ"
 
@@ -4517,7 +4517,7 @@ msgstr "プロフィール"
 #: netbox/dcim/forms/model_forms.py:1184 netbox/dcim/forms/model_forms.py:1205
 #: netbox/dcim/forms/model_forms.py:1245 netbox/dcim/forms/model_forms.py:1263
 #: netbox/dcim/forms/object_create.py:120 netbox/dcim/tables/modules.py:52
-#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2958
+#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2964
 msgid "Module Type"
 msgstr "モジュールタイプ"
 
@@ -5495,7 +5495,7 @@ msgid "Power Panel"
 msgstr "電源盤"
 
 #: netbox/dcim/forms/connections.py:68 netbox/dcim/forms/model_forms.py:942
-#: netbox/dcim/views.py:3215
+#: netbox/dcim/views.py:3221
 msgid "Power Feed"
 msgstr "電源タップ"
 
@@ -5524,7 +5524,7 @@ msgid "Function"
 msgstr "機能"
 
 #: netbox/dcim/forms/filtersets.py:478 netbox/dcim/forms/model_forms.py:386
-#: netbox/dcim/tables/racks.py:217 netbox/dcim/views.py:1254
+#: netbox/dcim/tables/racks.py:217 netbox/dcim/views.py:1260
 msgid "Reservation"
 msgstr "予約"
 
@@ -5632,7 +5632,7 @@ msgid "Transmit power (dBm)"
 msgstr "送信出力 (dBm)"
 
 #: netbox/dcim/forms/filtersets.py:1819 netbox/dcim/forms/filtersets.py:1863
-#: netbox/dcim/tables/devices.py:344 netbox/templates/dcim/cable_trace.html:46
+#: netbox/dcim/tables/devices.py:344 netbox/templates/dcim/cable_trace.html:48
 #: netbox/templates/dcim/htmx/cable_edit.html:53
 #: netbox/templates/dcim/inc/connection_endpoints.html:4
 #: netbox/templates/dcim/panels/connection.html:14
@@ -5861,19 +5861,19 @@ msgid "Rear port template"
 msgstr "背面ポートテンプレート"
 
 #: netbox/dcim/forms/model_forms.py:1373 netbox/dcim/forms/model_forms.py:1858
-#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3124
-#: netbox/dcim/views.py:3573
+#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3130
+#: netbox/dcim/views.py:3579
 msgid "Console Port"
 msgstr "コンソールポート"
 
 #: netbox/dcim/forms/model_forms.py:1374 netbox/dcim/forms/model_forms.py:1859
-#: netbox/dcim/views.py:3033 netbox/dcim/views.py:3572
+#: netbox/dcim/views.py:3039 netbox/dcim/views.py:3578
 msgid "Console Server Port"
 msgstr "コンソールサーバポート"
 
 #: netbox/dcim/forms/model_forms.py:1375 netbox/dcim/forms/model_forms.py:1860
-#: netbox/dcim/views.py:3035 netbox/dcim/views.py:3125
-#: netbox/dcim/views.py:3574 netbox/dcim/views.py:3676
+#: netbox/dcim/views.py:3041 netbox/dcim/views.py:3131
+#: netbox/dcim/views.py:3580 netbox/dcim/views.py:3682
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:41
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:57
 #: netbox/templates/dcim/panels/interface_connection.html:86
@@ -5882,8 +5882,8 @@ msgid "Front Port"
 msgstr "前面ポート"
 
 #: netbox/dcim/forms/model_forms.py:1376 netbox/dcim/forms/model_forms.py:1861
-#: netbox/dcim/views.py:3036 netbox/dcim/views.py:3126
-#: netbox/dcim/views.py:3575 netbox/dcim/views.py:3677
+#: netbox/dcim/views.py:3042 netbox/dcim/views.py:3132
+#: netbox/dcim/views.py:3581 netbox/dcim/views.py:3683
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:42
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:58
 #: netbox/templates/dcim/panels/front_port_mappings.html:10
@@ -5893,12 +5893,12 @@ msgstr "背面ポート"
 
 #: netbox/dcim/forms/model_forms.py:1377 netbox/dcim/forms/model_forms.py:1862
 #: netbox/dcim/tables/connections.py:47 netbox/dcim/tables/devices.py:539
-#: netbox/dcim/views.py:3303 netbox/dcim/views.py:4835
+#: netbox/dcim/views.py:3309 netbox/dcim/views.py:4841
 msgid "Power Port"
 msgstr "電源ポート"
 
 #: netbox/dcim/forms/model_forms.py:1378 netbox/dcim/forms/model_forms.py:1863
-#: netbox/dcim/views.py:3214
+#: netbox/dcim/views.py:3220
 msgid "Power Outlet"
 msgstr "電源コンセント"
 
@@ -6030,7 +6030,7 @@ msgstr "プロフィール"
 #: netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/device_component_templates.py:64
 #: netbox/dcim/models/device_components.py:62
-#: netbox/extras/models/customfields.py:139
+#: netbox/extras/models/customfields.py:140
 msgid "label"
 msgstr "ラベル"
 
@@ -6135,23 +6135,23 @@ msgstr "ケーブル経路"
 msgid "cable paths"
 msgstr "ケーブル経路"
 
-#: netbox/dcim/models/cables.py:858
+#: netbox/dcim/models/cables.py:862
 msgid "All originating terminations must be attached to the same link"
 msgstr "元の端子はすべて同じリンクに接続する必要があります"
 
-#: netbox/dcim/models/cables.py:876
+#: netbox/dcim/models/cables.py:880
 msgid "All mid-span terminations must have the same termination type"
 msgstr "ミッドスパン終端はすべて同じ終端タイプでなければなりません"
 
-#: netbox/dcim/models/cables.py:884
+#: netbox/dcim/models/cables.py:888
 msgid "All mid-span terminations must have the same parent object"
 msgstr "すべてのミッドスパン終端には同じ親オブジェクトが必要です"
 
-#: netbox/dcim/models/cables.py:914
+#: netbox/dcim/models/cables.py:918
 msgid "All links must be cable or wireless"
 msgstr "すべてのリンクはケーブルまたはワイヤレスでなければなりません"
 
-#: netbox/dcim/models/cables.py:916
+#: netbox/dcim/models/cables.py:920
 msgid "All links must match first link type"
 msgstr "すべてのリンクは最初のリンクタイプと一致する必要があります"
 
@@ -6361,12 +6361,12 @@ msgstr ""
 "デバイスベイを許可するためには、デバイスタイプ ({device_type}) のサブデバイスロールを「parent」に設定する必要があります。"
 
 #: netbox/dcim/models/device_component_templates.py:863
-#: netbox/dcim/models/device_components.py:1601
+#: netbox/dcim/models/device_components.py:1602
 msgid "part ID"
 msgstr "パーツ ID"
 
 #: netbox/dcim/models/device_component_templates.py:865
-#: netbox/dcim/models/device_components.py:1603
+#: netbox/dcim/models/device_components.py:1604
 msgid "Manufacturer-assigned part identifier"
 msgstr "メーカ指定の部品識別子"
 
@@ -6731,87 +6731,87 @@ msgstr "モジュールベイ"
 msgid "A module bay cannot belong to a module installed within it."
 msgstr "モジュールベイは、その中に取り付けられているモジュールに属することはできません。"
 
-#: netbox/dcim/models/device_components.py:1487
+#: netbox/dcim/models/device_components.py:1488
 msgid "device bay"
 msgstr "デバイスベイ"
 
-#: netbox/dcim/models/device_components.py:1488
+#: netbox/dcim/models/device_components.py:1489
 msgid "device bays"
 msgstr "デバイスベイ"
 
-#: netbox/dcim/models/device_components.py:1495
+#: netbox/dcim/models/device_components.py:1496
 #, python-brace-format
 msgid "This type of device ({device_type}) does not support device bays."
 msgstr "このタイプ ({device_type}) のデバイスは、デバイスベイをサポートしていません。"
 
-#: netbox/dcim/models/device_components.py:1506
+#: netbox/dcim/models/device_components.py:1507
 msgid "Cannot install a device in a disabled device bay."
 msgstr "無効になっているデバイスベイにはデバイスをインストールできません。"
 
-#: netbox/dcim/models/device_components.py:1511
+#: netbox/dcim/models/device_components.py:1512
 msgid "Cannot install a device into itself."
 msgstr "デバイスをそれ自体に挿入することはできません。"
 
-#: netbox/dcim/models/device_components.py:1519
+#: netbox/dcim/models/device_components.py:1520
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
 msgstr "指定されたデバイスは取付できません。デバイスは既に {bay} に取付られています 。"
 
-#: netbox/dcim/models/device_components.py:1547
+#: netbox/dcim/models/device_components.py:1548
 msgid "inventory item role"
 msgstr "在庫品目ロール"
 
-#: netbox/dcim/models/device_components.py:1548
+#: netbox/dcim/models/device_components.py:1549
 msgid "inventory item roles"
 msgstr "在庫品目ロール"
 
-#: netbox/dcim/models/device_components.py:1607
+#: netbox/dcim/models/device_components.py:1608
 #: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:277
 #: netbox/dcim/models/racks.py:345
 #: netbox/virtualization/models/virtualmachines.py:221
 msgid "serial number"
 msgstr "シリアル番号"
 
-#: netbox/dcim/models/device_components.py:1615
+#: netbox/dcim/models/device_components.py:1616
 #: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:284
 #: netbox/dcim/models/racks.py:352
 msgid "asset tag"
 msgstr "アセットタグ"
 
-#: netbox/dcim/models/device_components.py:1616
+#: netbox/dcim/models/device_components.py:1617
 msgid "A unique tag used to identify this item"
 msgstr "この部品を識別するために使用される一意のタグ"
 
-#: netbox/dcim/models/device_components.py:1619
+#: netbox/dcim/models/device_components.py:1620
 msgid "discovered"
 msgstr "自動検出"
 
-#: netbox/dcim/models/device_components.py:1621
+#: netbox/dcim/models/device_components.py:1622
 msgid "This item was automatically discovered"
 msgstr "このアイテムは自動的に検出されました"
 
-#: netbox/dcim/models/device_components.py:1639
+#: netbox/dcim/models/device_components.py:1640
 msgid "inventory item"
 msgstr "在庫品目"
 
-#: netbox/dcim/models/device_components.py:1640
+#: netbox/dcim/models/device_components.py:1641
 msgid "inventory items"
 msgstr "在庫品目"
 
-#: netbox/dcim/models/device_components.py:1648
+#: netbox/dcim/models/device_components.py:1649
 msgid "Cannot assign self as parent."
 msgstr "自分を親として割り当てることはできません。"
 
-#: netbox/dcim/models/device_components.py:1656
+#: netbox/dcim/models/device_components.py:1657
 msgid "Parent inventory item does not belong to the same device."
 msgstr "親在庫品目は同じデバイスに属していません。"
 
-#: netbox/dcim/models/device_components.py:1662
+#: netbox/dcim/models/device_components.py:1663
 msgid "Cannot move an inventory item with dependent children"
 msgstr "子を持つ在庫品目は移動できません"
 
-#: netbox/dcim/models/device_components.py:1670
+#: netbox/dcim/models/device_components.py:1671
 msgid "Cannot assign inventory item to component on another device"
 msgstr "在庫品目を別のデバイスの構成要素に割り当てることはできません"
 
@@ -6974,12 +6974,12 @@ msgstr "ポジション (U)"
 msgid "rack face"
 msgstr "ラックフェイス"
 
-#: netbox/dcim/models/devices.py:617 netbox/dcim/models/devices.py:1280
+#: netbox/dcim/models/devices.py:617 netbox/dcim/models/devices.py:1281
 #: netbox/virtualization/models/virtualmachines.py:190
 msgid "primary IPv4"
 msgstr "プライマリ IPv4"
 
-#: netbox/dcim/models/devices.py:625 netbox/dcim/models/devices.py:1288
+#: netbox/dcim/models/devices.py:625 netbox/dcim/models/devices.py:1289
 #: netbox/virtualization/models/virtualmachines.py:198
 msgid "primary IPv6"
 msgstr "プライマリ IPv6"
@@ -7137,21 +7137,21 @@ msgstr "デバイスを仮想シャーシから削除できない {virtual_chass
 msgid "Component name conflict after resolving {{vc_position}}: {names}"
 msgstr "解決後のコンポーネント名の競合 {{vc_position}}: {names}"
 
-#: netbox/dcim/models/devices.py:1189
+#: netbox/dcim/models/devices.py:1190
 msgid "domain"
 msgstr "ドメイン"
 
-#: netbox/dcim/models/devices.py:1205 netbox/dcim/models/devices.py:1206
+#: netbox/dcim/models/devices.py:1206 netbox/dcim/models/devices.py:1207
 msgid "virtual chassis"
 msgstr "バーチャルシャーシ"
 
-#: netbox/dcim/models/devices.py:1218
+#: netbox/dcim/models/devices.py:1219
 #, python-brace-format
 msgid ""
 "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr "選択したマスター ({master}) はこの仮想シャーシに割り当てられていません。"
 
-#: netbox/dcim/models/devices.py:1234
+#: netbox/dcim/models/devices.py:1235
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {virtual_chassis}. One or more member "
@@ -7159,49 +7159,49 @@ msgid ""
 msgstr ""
 "バーチャルシャーシを削除できません {virtual_chassis}。1 つ以上のメンバーインターフェイスがシャーシ間の LAG を形成します。"
 
-#: netbox/dcim/models/devices.py:1269 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1270 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr "識別子"
 
-#: netbox/dcim/models/devices.py:1270
+#: netbox/dcim/models/devices.py:1271
 msgid "Numeric identifier unique to the parent device"
 msgstr "親デバイスに固有の数値識別子"
 
-#: netbox/dcim/models/devices.py:1298 netbox/extras/models/customfields.py:264
-#: netbox/extras/models/models.py:119 netbox/extras/models/models.py:898
+#: netbox/dcim/models/devices.py:1299 netbox/extras/models/customfields.py:265
+#: netbox/extras/models/models.py:125 netbox/extras/models/models.py:932
 #: netbox/netbox/models/__init__.py:154 netbox/netbox/models/__init__.py:193
 #: netbox/netbox/models/__init__.py:243
 msgid "comments"
 msgstr "コメント"
 
-#: netbox/dcim/models/devices.py:1317
+#: netbox/dcim/models/devices.py:1318
 msgid "virtual device context"
 msgstr "仮想デバイスコンテキスト"
 
-#: netbox/dcim/models/devices.py:1318
+#: netbox/dcim/models/devices.py:1319
 msgid "virtual device contexts"
 msgstr "仮想デバイスコンテキスト"
 
-#: netbox/dcim/models/devices.py:1346
+#: netbox/dcim/models/devices.py:1347
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr "{ip}は IPv{family}アドレスではありません。"
 
-#: netbox/dcim/models/devices.py:1352
+#: netbox/dcim/models/devices.py:1353
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr "プライマリ IP アドレスは、割当デバイスのインタフェースに属している必要があります。"
 
-#: netbox/dcim/models/devices.py:1387
+#: netbox/dcim/models/devices.py:1388
 msgid "MAC addresses"
 msgstr "MAC アドレス"
 
-#: netbox/dcim/models/devices.py:1419
+#: netbox/dcim/models/devices.py:1420
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an"
 " object"
 msgstr "オブジェクトのプライマリ MAC として指定されている間は、MAC アドレスの割り当てを解除できません"
 
-#: netbox/dcim/models/devices.py:1423
+#: netbox/dcim/models/devices.py:1424
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an"
 " object"
@@ -7628,11 +7628,11 @@ msgstr "構成要素を追加"
 msgid "Disconnect Selected"
 msgstr "選択したものを抜線"
 
-#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4342
+#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4348
 msgid "Termination A"
 msgstr "終端 A"
 
-#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4346
+#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4352
 msgid "Termination B"
 msgstr "終端 B"
 
@@ -7768,8 +7768,8 @@ msgid "Power outlets"
 msgstr "電源コンセント"
 
 #: netbox/dcim/tables/devices.py:254 netbox/dcim/tables/devices.py:1204
-#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1518
-#: netbox/dcim/views.py:1872 netbox/dcim/views.py:2759
+#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1524
+#: netbox/dcim/views.py:1878 netbox/dcim/views.py:2765
 #: netbox/netbox/navigation/menu.py:104 netbox/netbox/navigation/menu.py:269
 #: netbox/templates/dcim/buttons/bulk_add_components.html:38
 #: netbox/templates/dcim/device/base.html:37
@@ -7813,7 +7813,7 @@ msgstr "モジュールベイ"
 
 #: netbox/dcim/tables/devices.py:335 netbox/dcim/tables/devicetypes.py:53
 #: netbox/dcim/tables/devicetypes.py:147 netbox/dcim/ui/panels.py:416
-#: netbox/dcim/views.py:1593 netbox/dcim/views.py:2845
+#: netbox/dcim/views.py:1599 netbox/dcim/views.py:2851
 #: netbox/netbox/navigation/menu.py:113
 #: netbox/templates/dcim/buttons/bulk_add_components.html:66
 #: netbox/templates/dcim/device/base.html:52
@@ -7842,7 +7842,7 @@ msgstr "最大電力 (W)"
 msgid "Allocated draw (W)"
 msgstr "割当電力 (W)"
 
-#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3402
+#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3408
 #: netbox/ipam/forms/model_forms.py:834 netbox/ipam/tables/fhrp.py:28
 #: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:924
 #: netbox/ipam/views.py:1052 netbox/netbox/navigation/menu.py:175
@@ -7854,7 +7854,7 @@ msgstr "IP アドレス"
 msgid "Primary MAC"
 msgstr "プライマリ MAC"
 
-#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3408
+#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3414
 #: netbox/netbox/navigation/menu.py:120
 msgid "MAC Addresses"
 msgstr "MAC アドレス"
@@ -7948,7 +7948,7 @@ msgstr "ラックタイプ"
 msgid "Device Types"
 msgstr "デバイスタイプ"
 
-#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1690
+#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1696
 #: netbox/netbox/navigation/menu.py:96
 msgid "Module Types"
 msgstr "モジュールタイプ"
@@ -7971,8 +7971,8 @@ msgstr "奥行きをすべて利用する"
 msgid "Device Count"
 msgstr "デバイス数"
 
-#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1458
-#: netbox/dcim/views.py:1812 netbox/dcim/views.py:2694
+#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1464
+#: netbox/dcim/views.py:1818 netbox/dcim/views.py:2700
 #: netbox/netbox/navigation/menu.py:107
 #: netbox/templates/dcim/buttons/bulk_add_components.html:10
 #: netbox/templates/dcim/device/base.html:25
@@ -7982,8 +7982,8 @@ msgstr "デバイス数"
 msgid "Console Ports"
 msgstr "コンソールポート"
 
-#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1473
-#: netbox/dcim/views.py:1827 netbox/dcim/views.py:2710
+#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1479
+#: netbox/dcim/views.py:1833 netbox/dcim/views.py:2716
 #: netbox/netbox/navigation/menu.py:108
 #: netbox/templates/dcim/buttons/bulk_add_components.html:17
 #: netbox/templates/dcim/device/base.html:28
@@ -7993,8 +7993,8 @@ msgstr "コンソールポート"
 msgid "Console Server Ports"
 msgstr "コンソールサーバポート"
 
-#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1488
-#: netbox/dcim/views.py:1842 netbox/dcim/views.py:2726
+#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1494
+#: netbox/dcim/views.py:1848 netbox/dcim/views.py:2732
 #: netbox/netbox/navigation/menu.py:109
 #: netbox/templates/dcim/buttons/bulk_add_components.html:24
 #: netbox/templates/dcim/device/base.html:31
@@ -8004,8 +8004,8 @@ msgstr "コンソールサーバポート"
 msgid "Power Ports"
 msgstr "電源ポート"
 
-#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1503
-#: netbox/dcim/views.py:1857 netbox/dcim/views.py:2742
+#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1509
+#: netbox/dcim/views.py:1863 netbox/dcim/views.py:2748
 #: netbox/netbox/navigation/menu.py:110
 #: netbox/templates/dcim/buttons/bulk_add_components.html:31
 #: netbox/templates/dcim/device/base.html:34
@@ -8015,8 +8015,8 @@ msgstr "電源ポート"
 msgid "Power Outlets"
 msgstr "電源コンセント"
 
-#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1533
-#: netbox/dcim/views.py:1887 netbox/dcim/views.py:2781
+#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1539
+#: netbox/dcim/views.py:1893 netbox/dcim/views.py:2787
 #: netbox/netbox/navigation/menu.py:105
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -8025,8 +8025,8 @@ msgstr "電源コンセント"
 msgid "Front Ports"
 msgstr "前面ポート"
 
-#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1548
-#: netbox/dcim/views.py:1902 netbox/dcim/views.py:2797
+#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1554
+#: netbox/dcim/views.py:1908 netbox/dcim/views.py:2803
 #: netbox/netbox/navigation/menu.py:106
 #: netbox/templates/dcim/buttons/bulk_add_components.html:45
 #: netbox/templates/dcim/device/base.html:43
@@ -8036,16 +8036,16 @@ msgstr "前面ポート"
 msgid "Rear Ports"
 msgstr "背面ポート"
 
-#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1578
-#: netbox/dcim/views.py:2829 netbox/netbox/navigation/menu.py:112
+#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1584
+#: netbox/dcim/views.py:2835 netbox/netbox/navigation/menu.py:112
 #: netbox/templates/dcim/buttons/bulk_add_components.html:52
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
 msgstr "デバイスベイ"
 
-#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1563
-#: netbox/dcim/views.py:1917 netbox/dcim/views.py:2813
+#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1569
+#: netbox/dcim/views.py:1923 netbox/dcim/views.py:2819
 #: netbox/netbox/navigation/menu.py:111
 #: netbox/templates/dcim/buttons/bulk_add_components.html:59
 #: netbox/templates/dcim/device/base.html:46
@@ -8217,110 +8217,110 @@ msgstr ""
 msgid "Disconnected {count} {type}"
 msgstr "切断されました {count} {type}"
 
-#: netbox/dcim/views.py:258
+#: netbox/dcim/views.py:264
 msgid "Child Regions"
 msgstr "子リージョン"
 
-#: netbox/dcim/views.py:391 netbox/tenancy/views.py:59
+#: netbox/dcim/views.py:397 netbox/tenancy/views.py:59
 #: netbox/tenancy/views.py:232 netbox/wireless/views.py:54
 msgid "Child Groups"
 msgstr "子・グループ"
 
-#: netbox/dcim/views.py:551 netbox/dcim/views.py:693 netbox/dcim/views.py:1180
+#: netbox/dcim/views.py:557 netbox/dcim/views.py:699 netbox/dcim/views.py:1186
 msgid "Non-Racked Devices"
 msgstr "ラック搭載でないデバイス"
 
-#: netbox/dcim/views.py:678
+#: netbox/dcim/views.py:684
 msgid "Child Locations"
 msgstr "子ロケーション"
 
-#: netbox/dcim/views.py:1161 netbox/netbox/navigation/menu.py:53
+#: netbox/dcim/views.py:1167 netbox/netbox/navigation/menu.py:53
 msgid "Reservations"
 msgstr "予約"
 
-#: netbox/dcim/views.py:2444
+#: netbox/dcim/views.py:2450
 msgid "Child Device Roles"
 msgstr "子デバイスロール"
 
-#: netbox/dcim/views.py:2545
+#: netbox/dcim/views.py:2551
 msgid "Child Platforms"
 msgstr "子プラットフォーム"
 
-#: netbox/dcim/views.py:2637 netbox/netbox/navigation/menu.py:223
+#: netbox/dcim/views.py:2643 netbox/netbox/navigation/menu.py:223
 #: netbox/virtualization/views.py:493
 msgid "Application Services"
 msgstr "アプリケーションサービス"
 
-#: netbox/dcim/views.py:2858 netbox/extras/forms/filtersets.py:407
+#: netbox/dcim/views.py:2864 netbox/extras/forms/filtersets.py:407
 #: netbox/extras/forms/model_forms.py:789 netbox/extras/ui/panels.py:435
 #: netbox/virtualization/forms/model_forms.py:278
 #: netbox/virtualization/views.py:569
 msgid "Config Context"
 msgstr "コンフィグコンテキスト"
 
-#: netbox/dcim/views.py:2869 netbox/virtualization/views.py:580
+#: netbox/dcim/views.py:2875 netbox/virtualization/views.py:580
 msgid "Render Config"
 msgstr "レンダーコンフィグ"
 
-#: netbox/dcim/views.py:2882 netbox/extras/tables/tables.py:735
+#: netbox/dcim/views.py:2888 netbox/extras/tables/tables.py:735
 #: netbox/netbox/navigation/menu.py:266 netbox/netbox/navigation/menu.py:268
 #: netbox/virtualization/views.py:278
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
-#: netbox/dcim/views.py:3389 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/views.py:3395 netbox/netbox/navigation/menu.py:89
 msgid "Virtual Device Contexts"
 msgstr "仮想デバイスコンテキスト"
 
-#: netbox/dcim/views.py:3414 netbox/ipam/forms/filtersets.py:469
+#: netbox/dcim/views.py:3420 netbox/ipam/forms/filtersets.py:469
 #: netbox/ipam/models/vlans.py:308 netbox/ipam/tables/ip.py:121
 #: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1386
 #: netbox/netbox/navigation/menu.py:210 netbox/netbox/navigation/menu.py:212
 msgid "VLANs"
 msgstr "VLAN"
 
-#: netbox/dcim/views.py:3416
+#: netbox/dcim/views.py:3422
 msgid "LAG Members"
 msgstr "LAG メンバー"
 
-#: netbox/dcim/views.py:3417 netbox/virtualization/ui/panels.py:112
+#: netbox/dcim/views.py:3423 netbox/virtualization/ui/panels.py:112
 #: netbox/virtualization/views.py:680
 msgid "VLAN Translation"
 msgstr "VLAN トランスレーション"
 
-#: netbox/dcim/views.py:3418
+#: netbox/dcim/views.py:3424
 msgid "Bridged Interfaces"
 msgstr "ブリッジインターフェイス"
 
-#: netbox/dcim/views.py:3419 netbox/virtualization/views.py:681
+#: netbox/dcim/views.py:3425 netbox/virtualization/views.py:681
 msgid "Child Interfaces"
 msgstr "チャイルドインターフェース"
 
-#: netbox/dcim/views.py:3892
+#: netbox/dcim/views.py:3898
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "インストール済みデバイス {device} イン・ベイ {device_bay}。"
 
-#: netbox/dcim/views.py:3933
+#: netbox/dcim/views.py:3939
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "削除されたデバイス {device} ベイから {device_bay}。"
 
-#: netbox/dcim/views.py:4055 netbox/ipam/tables/ip.py:184
+#: netbox/dcim/views.py:4061 netbox/ipam/tables/ip.py:184
 msgid "Children"
 msgstr "子ども"
 
-#: netbox/dcim/views.py:4625
+#: netbox/dcim/views.py:4631
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "メンバー追加 <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:4670
+#: netbox/dcim/views.py:4676
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "マスターデバイスを削除できません {device} バーチャルシャーシから。"
 
-#: netbox/dcim/views.py:4681
+#: netbox/dcim/views.py:4687
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "削除済み {device} バーチャルシャーシから {chassis}"
@@ -8351,7 +8351,7 @@ msgstr "このオブジェクトの設定テンプレートは解決できませ
 msgid "An error occurred while rendering the config template."
 msgstr "設定テンプレートをレンダリング中にエラーが発生しました。"
 
-#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1307
+#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1315
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr "ID 付きの構成テンプレート {id} 見つかりません。"
@@ -8371,7 +8371,7 @@ msgstr "レンダリングするコンフィグテンプレートのオプショ
 msgid "The rendered template output."
 msgstr "レンダリングされたテンプレート出力。"
 
-#: netbox/extras/api/serializers_/customfields.py:79
+#: netbox/extras/api/serializers_/customfields.py:80
 msgid "Changing the type of custom fields is not supported."
 msgstr "カスタムフィールドのタイプの変更はサポートされていません。"
 
@@ -8411,6 +8411,22 @@ msgstr "このスクリプトではスケジューリングが有効になって
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr "予定時刻は将来の時刻でなければなりません。"
+
+#: netbox/extras/api/views.py:370
+msgid "The script has been enqueued for execution."
+msgstr "スクリプトは実行用のキューに登録されました。"
+
+#: netbox/extras/api/views.py:383
+msgid "This token does not permit write operations (running a script)."
+msgstr "このトークンは書き込み操作 (スクリプトの実行) を許可しません。"
+
+#: netbox/extras/api/views.py:388
+msgid "This user does not have permission to run this script."
+msgstr "このユーザーには、このスクリプトを実行する権限がありません。"
+
+#: netbox/extras/api/views.py:398
+msgid "This script is not currently executable."
+msgstr "このスクリプトは現在実行できません。"
 
 #: netbox/extras/choices.py:30 netbox/extras/forms/misc.py:14
 msgid "Text"
@@ -8732,12 +8748,12 @@ msgstr "未保存のイベントはキューに登録できません {app_label}
 msgid "Ignoring invalid action_data on event rule \"{rule}\" (got {data_type})"
 msgstr "イベントルールの無効な action_data を無視します」{rule}「(知った) {data_type})"
 
-#: netbox/extras/events.py:276
+#: netbox/extras/events.py:278
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr "イベントルールのアクションタイプが不明です: {action_type}"
 
-#: netbox/extras/events.py:319
+#: netbox/extras/events.py:321
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr "イベントパイプラインをインポートできません {name} エラー: {error}"
@@ -8811,13 +8827,13 @@ msgstr "一意でなければならない"
 
 #: netbox/extras/forms/bulk_edit.py:65 netbox/extras/forms/bulk_import.py:66
 #: netbox/extras/forms/filtersets.py:99
-#: netbox/extras/models/customfields.py:248 netbox/extras/ui/panels.py:155
+#: netbox/extras/models/customfields.py:249 netbox/extras/ui/panels.py:155
 msgid "UI visible"
 msgstr "UI で表示される"
 
 #: netbox/extras/forms/bulk_edit.py:70 netbox/extras/forms/bulk_import.py:72
 #: netbox/extras/forms/filtersets.py:104
-#: netbox/extras/models/customfields.py:255 netbox/extras/ui/panels.py:156
+#: netbox/extras/models/customfields.py:256 netbox/extras/ui/panels.py:156
 msgid "UI editable"
 msgstr "UI で編集可能"
 
@@ -8885,7 +8901,7 @@ msgid "Shared"
 msgstr "共有"
 
 #: netbox/extras/forms/bulk_edit.py:258 netbox/extras/forms/filtersets.py:325
-#: netbox/extras/models/models.py:198 netbox/extras/ui/panels.py:338
+#: netbox/extras/models/models.py:205 netbox/extras/ui/panels.py:338
 msgid "HTTP method"
 msgstr "HTTP メソッド"
 
@@ -8894,7 +8910,7 @@ msgstr "HTTP メソッド"
 msgid "Payload URL"
 msgstr "ペイロード URL"
 
-#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:240
+#: netbox/extras/forms/bulk_edit.py:267 netbox/extras/models/models.py:247
 #: netbox/extras/ui/panels.py:347
 msgid "SSL verification"
 msgstr "SSL 検証"
@@ -9003,11 +9019,11 @@ msgstr "カラーマッピング 'が無効です{line}'。フォーマット値
 msgid "Duplicate color mapping defined for choice '{value}'."
 msgstr "選択肢 'に重複したカラーマッピングが定義されています{value}'。"
 
-#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:352
+#: netbox/extras/forms/bulk_import.py:161 netbox/extras/models/models.py:388
 msgid "button class"
 msgstr "ボタンクラス"
 
-#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:356
+#: netbox/extras/forms/bulk_import.py:164 netbox/extras/models/models.py:392
 msgid ""
 "The class of the first link in a group will be used for the dropdown button"
 msgstr "グループ内の最初のリンクのクラスがドロップダウンボタンに使用されます"
@@ -9070,8 +9086,8 @@ msgid "The classification of entry"
 msgstr "エントリの分類"
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
-#: netbox/netbox/tables/tables.py:346 netbox/netbox/tables/tables.py:361
-#: netbox/netbox/tables/tables.py:384 netbox/netbox/ui/panels.py:243
+#: netbox/netbox/tables/tables.py:409 netbox/netbox/tables/tables.py:424
+#: netbox/netbox/tables/tables.py:447 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:110
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -9139,7 +9155,7 @@ msgstr "レンダリング"
 msgid "Content types"
 msgstr "コンテンツタイプ"
 
-#: netbox/extras/forms/filtersets.py:315 netbox/extras/models/models.py:203
+#: netbox/extras/forms/filtersets.py:315 netbox/extras/models/models.py:210
 #: netbox/extras/ui/panels.py:340
 msgid "HTTP content type"
 msgstr "HTTP content type"
@@ -9229,7 +9245,7 @@ msgid "Specify query parameters as a JSON object."
 msgstr "クエリパラメータを JSON オブジェクトとして指定します。"
 
 #: netbox/extras/forms/model_forms.py:82
-#: netbox/extras/models/customfields.py:234
+#: netbox/extras/models/customfields.py:235
 msgid "A JSON schema definition for validating the custom field value"
 msgstr "カスタムフィールド値を検証するための JSON スキーマ定義"
 
@@ -9471,8 +9487,8 @@ msgstr "設定コンテキストプロファイル"
 msgid "config context profiles"
 msgstr "設定コンテキストプロファイル"
 
-#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:342
-#: netbox/extras/models/models.py:514 netbox/extras/models/models.py:598
+#: netbox/extras/models/configs.py:94 netbox/extras/models/models.py:378
+#: netbox/extras/models/models.py:550 netbox/extras/models/models.py:634
 #: netbox/extras/models/search.py:49 netbox/extras/models/tags.py:45
 #: netbox/ipam/models/ip.py:200 netbox/netbox/models/mixins.py:32
 msgid "weight"
@@ -9529,93 +9545,93 @@ msgstr "テンプレート: {name}"
 msgid "Line: {lineno}"
 msgstr "ライン: {lineno}"
 
-#: netbox/extras/models/customfields.py:103
+#: netbox/extras/models/customfields.py:104
 msgid "The object(s) to which this field applies."
 msgstr "このフィールドが適用されるオブジェクト。"
 
-#: netbox/extras/models/customfields.py:110
+#: netbox/extras/models/customfields.py:111
 msgid "The type of data this custom field holds"
 msgstr "このカスタムフィールドが保持するデータのタイプ"
 
-#: netbox/extras/models/customfields.py:117
+#: netbox/extras/models/customfields.py:118
 msgid "The type of NetBox object this field maps to (for object fields)"
 msgstr "このフィールドがマップされる NetBox オブジェクトのタイプ (オブジェクトフィールド用)"
 
-#: netbox/extras/models/customfields.py:123
+#: netbox/extras/models/customfields.py:124
 msgid "Internal field name"
 msgstr "内部フィールド名"
 
-#: netbox/extras/models/customfields.py:127
+#: netbox/extras/models/customfields.py:128
 msgid "Only alphanumeric characters and underscores are allowed."
 msgstr "英数字とアンダースコアのみ使用できます。"
 
-#: netbox/extras/models/customfields.py:132
+#: netbox/extras/models/customfields.py:133
 msgid "Double underscores are not permitted in custom field names."
 msgstr "カスタムフィールド名には二重アンダースコアを使用できません。"
 
-#: netbox/extras/models/customfields.py:143
+#: netbox/extras/models/customfields.py:144
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
 msgstr "表示されるフィールド名 (指定しない場合は、フィールド名が使用されます)"
 
-#: netbox/extras/models/customfields.py:147 netbox/extras/models/models.py:346
+#: netbox/extras/models/customfields.py:148 netbox/extras/models/models.py:382
 msgid "group name"
 msgstr "グループ名"
 
-#: netbox/extras/models/customfields.py:150
+#: netbox/extras/models/customfields.py:151
 msgid "Custom fields within the same group will be displayed together"
 msgstr "同じグループ内のカスタムフィールドは一緒に表示されます"
 
-#: netbox/extras/models/customfields.py:158
+#: netbox/extras/models/customfields.py:159
 msgid "required"
 msgstr "必須"
 
-#: netbox/extras/models/customfields.py:160
+#: netbox/extras/models/customfields.py:161
 msgid ""
 "This field is required when creating new objects or editing an existing "
 "object."
 msgstr "このフィールドは、オブジェクトを作成・編集に必要です。"
 
-#: netbox/extras/models/customfields.py:163
+#: netbox/extras/models/customfields.py:164
 msgid "must be unique"
 msgstr "ユニークでなければならない"
 
-#: netbox/extras/models/customfields.py:165
+#: netbox/extras/models/customfields.py:166
 msgid "The value of this field must be unique for the assigned object"
 msgstr "このフィールドの値は、割当オブジェクトで一意である必要があります"
 
-#: netbox/extras/models/customfields.py:168
+#: netbox/extras/models/customfields.py:169
 msgid "search weight"
 msgstr "検索優先度"
 
-#: netbox/extras/models/customfields.py:171
+#: netbox/extras/models/customfields.py:172
 msgid ""
 "Weighting for search. Lower values are considered more important. Fields "
 "with a search weight of zero will be ignored."
 msgstr "検索用の重み付け。値が小さいほど優先されます。検索優先度が 0 のフィールドは無視されます。"
 
-#: netbox/extras/models/customfields.py:176
+#: netbox/extras/models/customfields.py:177
 msgid "filter logic"
 msgstr "フィルタロジック"
 
-#: netbox/extras/models/customfields.py:180
+#: netbox/extras/models/customfields.py:181
 msgid ""
 "Loose matches any instance of a given string; exact matches the entire "
 "field."
 msgstr "Loose は指定した文字列が含まれる場合に一致し、exact はフィールド全体と一致します。"
 
-#: netbox/extras/models/customfields.py:183
+#: netbox/extras/models/customfields.py:184
 msgid "default"
 msgstr "デフォルト"
 
-#: netbox/extras/models/customfields.py:187
+#: netbox/extras/models/customfields.py:188
 msgid ""
 "Default value for the field (must be a JSON value). Encapsulate strings with"
 " double quotes (e.g. \"Foo\")."
 msgstr "フィールドのデフォルト値 (JSON 値である必要があります)。文字列を二重引用符で囲みます (例:「Foo」)。"
 
-#: netbox/extras/models/customfields.py:194
+#: netbox/extras/models/customfields.py:195
 msgid ""
 "Filter the object selection choices using a query_params dict (must be a "
 "JSON value).Encapsulate strings with double quotes (e.g. \"Foo\")."
@@ -9623,35 +9639,35 @@ msgstr ""
 "query_params dict (JSON 値である必要があります) "
 "を使用してオブジェクト選択の選択肢をフィルタリングします。文字列を二重引用符で囲みます (例:「Foo」)。"
 
-#: netbox/extras/models/customfields.py:200
+#: netbox/extras/models/customfields.py:201
 msgid "display weight"
 msgstr "表示優先度"
 
-#: netbox/extras/models/customfields.py:201
+#: netbox/extras/models/customfields.py:202
 msgid "Fields with higher weights appear lower in a form."
 msgstr "値が大きいフィールドは、フォームの下に表示されます。"
 
-#: netbox/extras/models/customfields.py:208
+#: netbox/extras/models/customfields.py:209
 msgid "minimum value"
 msgstr "最小値"
 
-#: netbox/extras/models/customfields.py:209
+#: netbox/extras/models/customfields.py:210
 msgid "Minimum allowed value (for numeric fields)"
 msgstr "最小許容値 (数値フィールド用)"
 
-#: netbox/extras/models/customfields.py:216
+#: netbox/extras/models/customfields.py:217
 msgid "maximum value"
 msgstr "最大値"
 
-#: netbox/extras/models/customfields.py:217
+#: netbox/extras/models/customfields.py:218
 msgid "Maximum allowed value (for numeric fields)"
 msgstr "最大許容値 (数値フィールド用)"
 
-#: netbox/extras/models/customfields.py:223
+#: netbox/extras/models/customfields.py:224
 msgid "validation regex"
 msgstr "検証正規表現"
 
-#: netbox/extras/models/customfields.py:225
+#: netbox/extras/models/customfields.py:226
 #, python-brace-format
 msgid ""
 "Regular expression to enforce on text field values. Use ^ and $ to force "
@@ -9661,222 +9677,222 @@ msgstr ""
 "テキストフィールド値に適用する正規表現。^ と $ を使用して文字列全体を強制的に一致させます。例えば、 <code>^ "
 "[A-Z]{3}$</code> は値を3 字の大文字に制限します。"
 
-#: netbox/extras/models/customfields.py:233
+#: netbox/extras/models/customfields.py:234
 msgid "validation schema"
 msgstr "検証スキーマ"
 
-#: netbox/extras/models/customfields.py:240
+#: netbox/extras/models/customfields.py:241
 msgid "choice set"
 msgstr "選択肢"
 
-#: netbox/extras/models/customfields.py:249
+#: netbox/extras/models/customfields.py:250
 msgid "Specifies whether the custom field is displayed in the UI"
 msgstr "カスタムフィールドを UI に表示するかどうかを指定します"
 
-#: netbox/extras/models/customfields.py:256
+#: netbox/extras/models/customfields.py:257
 msgid "Specifies whether the custom field value can be edited in the UI"
 msgstr "カスタムフィールド値を UI で編集できるかどうかを指定します"
 
-#: netbox/extras/models/customfields.py:260
+#: netbox/extras/models/customfields.py:261
 msgid "is cloneable"
 msgstr "複製可能"
 
-#: netbox/extras/models/customfields.py:261
+#: netbox/extras/models/customfields.py:262
 msgid "Replicate this value when cloning objects"
 msgstr "オブジェクトの複製時にこの値を複製する"
 
-#: netbox/extras/models/customfields.py:281
+#: netbox/extras/models/customfields.py:282
 msgid "custom field"
 msgstr "カスタムフィールド"
 
-#: netbox/extras/models/customfields.py:282
+#: netbox/extras/models/customfields.py:283
 msgid "custom fields"
 msgstr "カスタムフィールド"
 
-#: netbox/extras/models/customfields.py:420
+#: netbox/extras/models/customfields.py:440
 #, python-brace-format
 msgid "Invalid default value \"{value}\": {error}"
 msgstr "デフォルト値が無効です \"{value}\": {error}"
 
-#: netbox/extras/models/customfields.py:427
+#: netbox/extras/models/customfields.py:447
 msgid "A minimum value may be set only for numeric fields"
 msgstr "最小値は数値フィールドにのみ設定できます"
 
-#: netbox/extras/models/customfields.py:429
+#: netbox/extras/models/customfields.py:449
 msgid "A maximum value may be set only for numeric fields"
 msgstr "最大値は数値フィールドにのみ設定できます"
 
-#: netbox/extras/models/customfields.py:439
+#: netbox/extras/models/customfields.py:459
 msgid ""
 "Regular expression validation is supported only for text and URL fields"
 msgstr "正規表現の検証は、テキストフィールドと URL フィールドでのみサポートされます。"
 
-#: netbox/extras/models/customfields.py:445
+#: netbox/extras/models/customfields.py:465
 msgid "JSON schema validation is supported only for JSON fields"
 msgstr "JSON スキーマの検証は JSON フィールドでのみサポートされています"
 
-#: netbox/extras/models/customfields.py:451
+#: netbox/extras/models/customfields.py:471
 msgid "Uniqueness cannot be enforced for boolean fields"
 msgstr "ブーリアン型フィールドには一意性を強制できない"
 
-#: netbox/extras/models/customfields.py:461
+#: netbox/extras/models/customfields.py:481
 msgid "Selection fields must specify a set of choices."
 msgstr "選択フィールドには選択肢のセットを指定する必要があります。"
 
-#: netbox/extras/models/customfields.py:465
+#: netbox/extras/models/customfields.py:485
 msgid "Choices may be set only on selection fields."
 msgstr "選択肢は選択フィールドにのみ設定できます。"
 
-#: netbox/extras/models/customfields.py:472
+#: netbox/extras/models/customfields.py:492
 msgid "Object fields must define an object type."
 msgstr "オブジェクトフィールドはオブジェクトタイプを定義する必要があります。"
 
-#: netbox/extras/models/customfields.py:476
+#: netbox/extras/models/customfields.py:496
 #, python-brace-format
 msgid "{type} fields may not define an object type."
 msgstr "{type} フィールドはオブジェクトタイプを定義できません。"
 
-#: netbox/extras/models/customfields.py:483
+#: netbox/extras/models/customfields.py:503
 msgid "A related object filter can be defined only for object fields."
 msgstr "関連オブジェクトフィルターはオブジェクトフィールドにのみ定義できます。"
 
-#: netbox/extras/models/customfields.py:487
+#: netbox/extras/models/customfields.py:507
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr "フィルタは、属性を値にマッピングするディクショナリとして定義する必要があります。"
 
-#: netbox/extras/models/customfields.py:576
+#: netbox/extras/models/customfields.py:596
 msgid "True"
 msgstr "真"
 
-#: netbox/extras/models/customfields.py:577
+#: netbox/extras/models/customfields.py:597
 msgid "False"
 msgstr "偽"
 
-#: netbox/extras/models/customfields.py:630
-#: netbox/extras/models/customfields.py:683
+#: netbox/extras/models/customfields.py:650
+#: netbox/extras/models/customfields.py:703
 #, python-brace-format
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr "値は次の正規表現とマッチする必要があります。 <code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:785
-#: netbox/extras/models/customfields.py:792
+#: netbox/extras/models/customfields.py:813
+#: netbox/extras/models/customfields.py:820
 msgid "Value must be a string."
 msgstr "値は文字列でなければなりません。"
 
-#: netbox/extras/models/customfields.py:787
-#: netbox/extras/models/customfields.py:794
+#: netbox/extras/models/customfields.py:815
+#: netbox/extras/models/customfields.py:822
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "値は正規表現 '{regex}'と一致する必要があります"
 
-#: netbox/extras/models/customfields.py:799
+#: netbox/extras/models/customfields.py:827
 msgid "Value must be an integer."
 msgstr "値は整数でなければなりません。"
 
-#: netbox/extras/models/customfields.py:802
-#: netbox/extras/models/customfields.py:817
+#: netbox/extras/models/customfields.py:830
+#: netbox/extras/models/customfields.py:845
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "値は {minimum} 以上でなければなりません"
 
-#: netbox/extras/models/customfields.py:806
-#: netbox/extras/models/customfields.py:821
+#: netbox/extras/models/customfields.py:834
+#: netbox/extras/models/customfields.py:849
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "値は {maximum} を超えてはいけません"
 
-#: netbox/extras/models/customfields.py:814
+#: netbox/extras/models/customfields.py:842
 msgid "Value must be a decimal."
 msgstr "値は実数でなければなりません。"
 
-#: netbox/extras/models/customfields.py:826
+#: netbox/extras/models/customfields.py:854
 msgid "Value must be true or false."
 msgstr "値は true または false でなければなりません。"
 
-#: netbox/extras/models/customfields.py:834
+#: netbox/extras/models/customfields.py:862
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "日付値は ISO 8601 フォーマット (YYYY-MM-DD) である必要があります。"
 
-#: netbox/extras/models/customfields.py:843
+#: netbox/extras/models/customfields.py:871
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr "日付と時刻の値は ISO 8601 フォーマット (YYYY-MM-DD HH:MM:SS) である必要があります。"
 
-#: netbox/extras/models/customfields.py:850
+#: netbox/extras/models/customfields.py:878
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "{value}は選択肢 {choiceset} に含まれていません。"
 
-#: netbox/extras/models/customfields.py:860
+#: netbox/extras/models/customfields.py:888
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "{value}は選択肢 {choiceset} に含まれていません。"
 
-#: netbox/extras/models/customfields.py:869
+#: netbox/extras/models/customfields.py:897
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "{type}ではなく、オブジェクトIDを指定してください"
 
-#: netbox/extras/models/customfields.py:875
+#: netbox/extras/models/customfields.py:903
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "{type} ではなくオブジェクト ID のリストを入力してください"
 
-#: netbox/extras/models/customfields.py:879
+#: netbox/extras/models/customfields.py:907
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "無効なオブジェクト ID が見つかりました: {id}"
 
-#: netbox/extras/models/customfields.py:888
+#: netbox/extras/models/customfields.py:916
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr "値が割り当てられたスキーマに準拠していません: {error}"
 
-#: netbox/extras/models/customfields.py:892
+#: netbox/extras/models/customfields.py:920
 msgid "Required field cannot be empty."
 msgstr "必須フィールドを空にすることはできません。"
 
-#: netbox/extras/models/customfields.py:912
+#: netbox/extras/models/customfields.py:940
 msgid "Base set of predefined choices (optional)"
 msgstr "定義済みの選択肢の基本セット (オプション)"
 
-#: netbox/extras/models/customfields.py:924
+#: netbox/extras/models/customfields.py:952
 msgid "Choices are automatically ordered alphabetically"
 msgstr "選択肢は自動的にアルファベット順に並べられます"
 
-#: netbox/extras/models/customfields.py:931
+#: netbox/extras/models/customfields.py:959
 msgid "custom field choice set"
 msgstr "カスタムフィールド選択肢"
 
-#: netbox/extras/models/customfields.py:932
+#: netbox/extras/models/customfields.py:960
 msgid "custom field choice sets"
 msgstr "カスタムフィールド選択肢"
 
-#: netbox/extras/models/customfields.py:992
+#: netbox/extras/models/customfields.py:1020
 msgid "Must define base or extra choices."
 msgstr "基本選択肢または追加選択肢を定義する必要があります。"
 
-#: netbox/extras/models/customfields.py:998
+#: netbox/extras/models/customfields.py:1026
 msgid "Color mappings must be defined as a JSON object."
 msgstr "カラーマッピングは JSON オブジェクトとして定義する必要があります。"
 
-#: netbox/extras/models/customfields.py:1010
+#: netbox/extras/models/customfields.py:1038
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr "値が重複しています '{value}'はその他の選択肢で見つかりました。"
 
-#: netbox/extras/models/customfields.py:1027
+#: netbox/extras/models/customfields.py:1055
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
 "{values}."
 msgstr "カラーマッピングは既存の選択肢値を参照する必要があります。値が無効です: {values}。"
 
-#: netbox/extras/models/customfields.py:1034
+#: netbox/extras/models/customfields.py:1062
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr "色の値が無効です: {colors}。サポートされている名前の付いた色を使用してください。"
 
-#: netbox/extras/models/customfields.py:1057
+#: netbox/extras/models/customfields.py:1085
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -9962,53 +9978,54 @@ msgid ""
 "{allowed}"
 msgstr "値が無効です」{value}「パラメータ用」{key}」。指定できる値は以下のとおりです。 {allowed}"
 
-#: netbox/extras/models/models.py:65
+#: netbox/extras/models/models.py:71
 msgid "The object(s) to which this rule applies."
 msgstr "このルールが適用されるオブジェクト。"
 
-#: netbox/extras/models/models.py:79
+#: netbox/extras/models/models.py:85
 msgid "The types of event which will trigger this rule."
 msgstr "このルールをトリガーするイベントのタイプ。"
 
-#: netbox/extras/models/models.py:86
+#: netbox/extras/models/models.py:92
 msgid "conditions"
 msgstr "条件"
 
-#: netbox/extras/models/models.py:89
+#: netbox/extras/models/models.py:95
 msgid ""
 "A set of conditions which determine whether the event will be generated."
 msgstr "イベントを生成するかどうかを決定する一連の条件。"
 
-#: netbox/extras/models/models.py:97
+#: netbox/extras/models/models.py:103
 msgid "action type"
 msgstr "アクションタイプ"
 
-#: netbox/extras/models/models.py:116
+#: netbox/extras/models/models.py:122
 msgid "Additional data to pass to the action object"
 msgstr "アクションオブジェクトに渡す追加データ"
 
-#: netbox/extras/models/models.py:128
+#: netbox/extras/models/models.py:134
 msgid "event rule"
 msgstr "イベントルール"
 
-#: netbox/extras/models/models.py:129
+#: netbox/extras/models/models.py:135
 msgid "event rules"
 msgstr "イベントルール"
 
-#: netbox/extras/models/models.py:149
+#: netbox/extras/models/models.py:155
 msgid "Action data must be a JSON object or null."
 msgstr "アクションデータは JSON オブジェクトまたは null でなければなりません。"
 
-#: netbox/extras/models/models.py:190
+#: netbox/extras/models/models.py:196
 msgid ""
 "This URL will be called using the HTTP method defined when the webhook is "
-"called. Jinja2 template processing is supported with the same context as the"
-" request body."
+"called. Must be http:// or https://. Jinja2 template processing is supported"
+" (with the same context as the request body) for part or all of the URL."
 msgstr ""
-"この URL は、Webhook が呼び出されたときに定義された HTTP メソッドを使用して呼び出されます。Jinja2 "
-"テンプレート処理はリクエストボディと同じコンテキストでサポートされています。"
+"この URL は、Webhook が呼び出されたときに定義された HTTP メソッドを使用して呼び出されます。http://または "
+"https://でなければなりません。URL の一部またはすべてで Jinja2 テンプレート処理が (リクエスト本文と同じコンテキストで) "
+"サポートされています。"
 
-#: netbox/extras/models/models.py:205
+#: netbox/extras/models/models.py:212
 msgid ""
 "The complete list of official content types is available <a "
 "href=\"https://www.iana.org/assignments/media-types/media-"
@@ -10017,11 +10034,11 @@ msgstr ""
 "公式コンテンツタイプの完全なリストが利用可能です <a href=\"https://www.iana.org/assignments/media-"
 "types/media-types.xhtml\">ここに</a>。"
 
-#: netbox/extras/models/models.py:210
+#: netbox/extras/models/models.py:217
 msgid "additional headers"
 msgstr "追加ヘッダー"
 
-#: netbox/extras/models/models.py:213
+#: netbox/extras/models/models.py:220
 msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
 "HTTP content type. Headers should be defined in the format <code>Name: "
@@ -10037,11 +10054,11 @@ msgstr ""
 "<code>ヘッダーセーフ</code> HTTP ヘッダインジェクションを防ぐためのフィルタ、例えば <code>X-Object: {{データ名 |"
 " ヘッダーセーフ}}</code>。"
 
-#: netbox/extras/models/models.py:221
+#: netbox/extras/models/models.py:228
 msgid "body template"
 msgstr "ボディテンプレート"
 
-#: netbox/extras/models/models.py:224
+#: netbox/extras/models/models.py:231
 msgid ""
 "Jinja2 template for a custom request body. If blank, a JSON object "
 "representing the change will be included. Available context data includes: "
@@ -10053,11 +10070,11 @@ msgstr ""
 "<code>model</code>, <code>timestamp</code>, <code>username</code>, "
 "<code>request_id</code>, and <code>data</code>."
 
-#: netbox/extras/models/models.py:230
+#: netbox/extras/models/models.py:237
 msgid "secret"
 msgstr "シークレット"
 
-#: netbox/extras/models/models.py:234
+#: netbox/extras/models/models.py:241
 msgid ""
 "When provided, the request will include a <code>X-Hook-Signature</code> "
 "header containing a HMAC hex digest of the payload body using the secret as "
@@ -10066,186 +10083,190 @@ msgstr ""
 "提供された場合、リクエストにはシークレットをキーとして使用したペイロード本体のHMAC 16 進ダイジェストを含む<code>X-Hook-"
 "Signature </code>ヘッダー が含まれます 。シークレットはリクエストでは送信されません。"
 
-#: netbox/extras/models/models.py:241
+#: netbox/extras/models/models.py:248
 msgid "Enable SSL certificate verification. Disable with caution!"
 msgstr "SSL 証明書検証を有効にします。注意して無効にしてください。"
 
-#: netbox/extras/models/models.py:247
+#: netbox/extras/models/models.py:254
 msgid "CA File Path"
 msgstr "CA ファイルパス"
 
-#: netbox/extras/models/models.py:249
+#: netbox/extras/models/models.py:256
 msgid ""
 "The specific CA certificate file to use for SSL verification. Leave blank to"
 " use the system defaults."
 msgstr "SSL 検証に使用する特定の CA 証明書ファイル。システムデフォルトを使用するには空白のままにしておきます。"
 
-#: netbox/extras/models/models.py:260
+#: netbox/extras/models/models.py:267
 msgid "webhook"
 msgstr "ウェブフック"
 
-#: netbox/extras/models/models.py:261
+#: netbox/extras/models/models.py:268
 msgid "webhooks"
 msgstr "ウェブフック"
 
-#: netbox/extras/models/models.py:279
+#: netbox/extras/models/models.py:287
 msgid "Do not specify a CA certificate file if SSL verification is disabled."
 msgstr "SSL 検証が無効になっている場合は、CA 証明書ファイルを指定しないでください。"
 
-#: netbox/extras/models/models.py:322
+#: netbox/extras/models/models.py:298 netbox/extras/models/models.py:313
+msgid "Enter a valid URL, beginning with http:// or https://."
+msgstr "http://または https://で始まる有効な URL を入力してください。"
+
+#: netbox/extras/models/models.py:358
 msgid "The object type(s) to which this link applies."
 msgstr "このリンクが適用されるオブジェクトタイプ。"
 
-#: netbox/extras/models/models.py:334
+#: netbox/extras/models/models.py:370
 msgid "link text"
 msgstr "リンクテキスト"
 
-#: netbox/extras/models/models.py:335
+#: netbox/extras/models/models.py:371
 msgid "Jinja2 template code for link text"
 msgstr "リンクテキストの Jinja2 テンプレートコード"
 
-#: netbox/extras/models/models.py:338
+#: netbox/extras/models/models.py:374
 msgid "link URL"
 msgstr "リンク URL"
 
-#: netbox/extras/models/models.py:339
+#: netbox/extras/models/models.py:375
 msgid "Jinja2 template code for link URL"
 msgstr "リンク URL の Jinja2 テンプレートコード"
 
-#: netbox/extras/models/models.py:349
+#: netbox/extras/models/models.py:385
 msgid "Links with the same group will appear as a dropdown menu"
 msgstr "同じグループのリンクはドロップダウンメニューとして表示されます"
 
-#: netbox/extras/models/models.py:359
+#: netbox/extras/models/models.py:395
 msgid "new window"
 msgstr "新しいウィンドウ"
 
-#: netbox/extras/models/models.py:361
+#: netbox/extras/models/models.py:397
 msgid "Force link to open in a new window"
 msgstr "リンクを強制的に新しいウィンドウで開く"
 
-#: netbox/extras/models/models.py:373
+#: netbox/extras/models/models.py:409
 msgid "custom link"
 msgstr "カスタムリンク"
 
-#: netbox/extras/models/models.py:374
+#: netbox/extras/models/models.py:410
 msgid "custom links"
 msgstr "カスタムリンク"
 
-#: netbox/extras/models/models.py:428
+#: netbox/extras/models/models.py:464
 msgid "The object type(s) to which this template applies."
 msgstr "このテンプレートが適用されるオブジェクトタイプ。"
 
-#: netbox/extras/models/models.py:449
+#: netbox/extras/models/models.py:485
 msgid "export template"
 msgstr "エクスポートテンプレート"
 
-#: netbox/extras/models/models.py:450
+#: netbox/extras/models/models.py:486
 msgid "export templates"
 msgstr "エクスポートテンプレート"
 
-#: netbox/extras/models/models.py:467
+#: netbox/extras/models/models.py:503
 #, python-brace-format
 msgid "\"{name}\" is a reserved name. Please choose a different name."
 msgstr "\"{name}\"は予約されています。別の名前を選択してください。"
 
-#: netbox/extras/models/models.py:490
+#: netbox/extras/models/models.py:526
 msgid "The object type(s) to which this filter applies."
 msgstr "このフィルタが適用されるオブジェクトタイプ。"
 
-#: netbox/extras/models/models.py:522 netbox/extras/models/models.py:606
+#: netbox/extras/models/models.py:558 netbox/extras/models/models.py:642
 msgid "shared"
 msgstr "共有した"
 
-#: netbox/extras/models/models.py:540
+#: netbox/extras/models/models.py:576
 msgid "saved filter"
 msgstr "保存済みフィルタ"
 
-#: netbox/extras/models/models.py:541
+#: netbox/extras/models/models.py:577
 msgid "saved filters"
 msgstr "保存済みフィルタ"
 
-#: netbox/extras/models/models.py:559
+#: netbox/extras/models/models.py:595
 msgid "Filter parameters must be stored as a dictionary of keyword arguments."
 msgstr "フィルタパラメータは、キーワード引数の辞書として保存する必要があります。"
 
-#: netbox/extras/models/models.py:576
+#: netbox/extras/models/models.py:612
 msgid "The table's object type"
 msgstr "テーブルのオブジェクトタイプ"
 
-#: netbox/extras/models/models.py:579
+#: netbox/extras/models/models.py:615
 msgid "table"
 msgstr "テーブル"
 
-#: netbox/extras/models/models.py:627
+#: netbox/extras/models/models.py:663
 msgid "table config"
 msgstr "テーブル構成"
 
-#: netbox/extras/models/models.py:628
+#: netbox/extras/models/models.py:664
 msgid "table configs"
 msgstr "テーブル構成"
 
-#: netbox/extras/models/models.py:670
+#: netbox/extras/models/models.py:706
 #, python-brace-format
 msgid "Unknown table: {name}"
 msgstr "不明なテーブル: {name}"
 
-#: netbox/extras/models/models.py:681 netbox/extras/models/models.py:688
+#: netbox/extras/models/models.py:717 netbox/extras/models/models.py:724
 #, python-brace-format
 msgid "Unknown column: {name}"
 msgstr "不明な列: {name}"
 
-#: netbox/extras/models/models.py:711
+#: netbox/extras/models/models.py:747
 msgid "image height"
 msgstr "画像高さ"
 
-#: netbox/extras/models/models.py:714
+#: netbox/extras/models/models.py:750
 msgid "image width"
 msgstr "画像幅"
 
-#: netbox/extras/models/models.py:720
+#: netbox/extras/models/models.py:756
 msgid "image size"
 msgstr "画像サイズ"
 
-#: netbox/extras/models/models.py:766
+#: netbox/extras/models/models.py:800
 msgid "image attachment"
 msgstr "添付画像"
 
-#: netbox/extras/models/models.py:767
+#: netbox/extras/models/models.py:801
 msgid "image attachments"
 msgstr "添付画像"
 
-#: netbox/extras/models/models.py:781
+#: netbox/extras/models/models.py:815
 #, python-brace-format
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr "このオブジェクトタイプ ({type})には添付画像を割り当てることができません。"
 
-#: netbox/extras/models/models.py:892
+#: netbox/extras/models/models.py:926
 msgid "kind"
 msgstr "種類"
 
-#: netbox/extras/models/models.py:907
+#: netbox/extras/models/models.py:941
 msgid "journal entry"
 msgstr "ジャーナルエントリ"
 
-#: netbox/extras/models/models.py:908
+#: netbox/extras/models/models.py:942
 msgid "journal entries"
 msgstr "ジャーナルエントリ"
 
-#: netbox/extras/models/models.py:926
+#: netbox/extras/models/models.py:960
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr "このオブジェクトタイプ({type})ではジャーナリングはサポートされていません 。"
 
-#: netbox/extras/models/models.py:969
+#: netbox/extras/models/models.py:1003
 msgid "bookmark"
 msgstr "ブックマーク"
 
-#: netbox/extras/models/models.py:970
+#: netbox/extras/models/models.py:1004
 msgid "bookmarks"
 msgstr "ブックマーク"
 
-#: netbox/extras/models/models.py:986
+#: netbox/extras/models/models.py:1020
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr "このオブジェクトタイプ ({type})にはブックマークを割り当てられません。"
@@ -10294,23 +10315,23 @@ msgstr "サブスクリプション"
 msgid "subscriptions"
 msgstr "サブスクリプション"
 
-#: netbox/extras/models/scripts.py:41
+#: netbox/extras/models/scripts.py:42
 msgid "is executable"
 msgstr "実行可能"
 
-#: netbox/extras/models/scripts.py:66
+#: netbox/extras/models/scripts.py:67
 msgid "script"
 msgstr "スクリプト"
 
-#: netbox/extras/models/scripts.py:67
+#: netbox/extras/models/scripts.py:68
 msgid "scripts"
 msgstr "スクリプト"
 
-#: netbox/extras/models/scripts.py:113
+#: netbox/extras/models/scripts.py:114
 msgid "script module"
 msgstr "スクリプトモジュール"
 
-#: netbox/extras/models/scripts.py:114
+#: netbox/extras/models/scripts.py:115
 msgid "script modules"
 msgstr "スクリプトモジュール"
 
@@ -10422,8 +10443,8 @@ msgstr "検証スキーマ"
 #: netbox/extras/tables/tables.py:535 netbox/extras/tables/tables.py:565
 #: netbox/extras/tables/tables.py:656 netbox/extras/tables/tables.py:712
 #: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
-#: netbox/netbox/tables/tables.py:343 netbox/netbox/tables/tables.py:358
-#: netbox/netbox/tables/tables.py:373 netbox/templates/generic/object.html:61
+#: netbox/netbox/tables/tables.py:406 netbox/netbox/tables/tables.py:421
+#: netbox/netbox/tables/tables.py:436 netbox/templates/generic/object.html:61
 #: netbox/users/forms/model_forms.py:556
 msgid "Owner"
 msgstr "オーナー"
@@ -10499,7 +10520,6 @@ msgid "Auto Sync Enabled"
 msgstr "自動同期有効"
 
 #: netbox/extras/tables/tables.py:720 netbox/netbox/navigation/menu.py:86
-#: netbox/templates/dcim/devicerole.html:8
 msgid "Device Roles"
 msgstr "デバイスロール"
 
@@ -10570,8 +10590,8 @@ msgstr "使用者"
 msgid "Attachment"
 msgstr "アタッチメント"
 
-#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:249
-#: netbox/extras/views.py:320
+#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:251
+#: netbox/extras/views.py:323
 msgid "Assigned Models"
 msgstr "割当モデル"
 
@@ -10644,67 +10664,67 @@ msgstr "属性が無効です」{name}「」（リクエスト用）"
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr "{model}において{name}属性は無効です"
 
-#: netbox/extras/views.py:252
+#: netbox/extras/views.py:254
 msgid "Link Text"
 msgstr "リンクテキスト"
 
-#: netbox/extras/views.py:253
+#: netbox/extras/views.py:255
 msgid "Link URL"
 msgstr "リンク URL"
 
-#: netbox/extras/views.py:321 netbox/extras/views.py:1211
+#: netbox/extras/views.py:324 netbox/extras/views.py:1218
 msgid "Environment Parameters"
 msgstr "環境パラメータ"
 
-#: netbox/extras/views.py:324 netbox/extras/views.py:1214
+#: netbox/extras/views.py:327 netbox/extras/views.py:1221
 msgid "Template"
 msgstr "テンプレート"
 
-#: netbox/extras/views.py:488
+#: netbox/extras/views.py:491
 msgid "Table configurations must be created from an object list view."
 msgstr "テーブル設定はオブジェクトリストビューから作成する必要があります。"
 
-#: netbox/extras/views.py:773
+#: netbox/extras/views.py:776
 msgid "Additional Headers"
 msgstr "その他のヘッダー"
 
-#: netbox/extras/views.py:774
+#: netbox/extras/views.py:777
 msgid "Body Template"
 msgstr "ボディテンプレート"
 
-#: netbox/extras/views.py:843
+#: netbox/extras/views.py:846
 msgid "Conditions"
 msgstr "条件"
 
-#: netbox/extras/views.py:917
+#: netbox/extras/views.py:920
 msgid "Tagged Objects"
 msgstr "タグ付きオブジェクト"
 
-#: netbox/extras/views.py:1009
+#: netbox/extras/views.py:1013
 msgid "JSON Schema"
 msgstr "JSON スキーマ"
 
-#: netbox/extras/views.py:1502
+#: netbox/extras/views.py:1510
 msgid "Your dashboard has been reset."
 msgstr "ダッシュボードがリセットされました。"
 
-#: netbox/extras/views.py:1548
+#: netbox/extras/views.py:1556
 msgid "Added widget: "
 msgstr "ウィジェットの追加: "
 
-#: netbox/extras/views.py:1589
+#: netbox/extras/views.py:1597
 msgid "Updated widget: "
 msgstr "ウィジェットの更新: "
 
-#: netbox/extras/views.py:1625
+#: netbox/extras/views.py:1633
 msgid "Deleted widget: "
 msgstr "削除したウィジェット: "
 
-#: netbox/extras/views.py:1627
+#: netbox/extras/views.py:1635
 msgid "Error deleting widget: "
 msgstr "ウィジェットの削除中にエラーが発生しました: "
 
-#: netbox/extras/views.py:1743
+#: netbox/extras/views.py:1751
 msgid "Unable to run script: RQ worker process not running."
 msgstr "スクリプトを実行できません:RQ ワーカープロセスが実行されていません。"
 
@@ -10726,7 +10746,7 @@ msgstr "有効な IPv4 または IPv6 プレフィックスとマスクを CIDR 
 msgid "Invalid IP prefix format: {data}"
 msgstr "IP プレフィックス形式が無効です: {data}"
 
-#: netbox/ipam/api/views.py:384
+#: netbox/ipam/api/views.py:385
 msgid ""
 "Insufficient space is available to accommodate the requested prefix size(s)"
 msgstr "要求されたプレフィックスサイズを収容するにはスペースが足りません"
@@ -10937,7 +10957,7 @@ msgstr "FHRP グループ (ID)"
 msgid "IP address (ID)"
 msgstr "IP アドレス (ID)"
 
-#: netbox/ipam/filtersets.py:1280 netbox/ipam/models/ip.py:1030
+#: netbox/ipam/filtersets.py:1280 netbox/ipam/models/ip.py:1035
 msgid "IP address"
 msgstr "IP アドレス"
 
@@ -11534,11 +11554,11 @@ msgstr "FHRP グループ"
 msgid "FHRP groups"
 msgstr "FHRP グループ"
 
-#: netbox/ipam/models/fhrp.py:120
+#: netbox/ipam/models/fhrp.py:118
 msgid "FHRP group assignment"
 msgstr "FHRP グループ割当"
 
-#: netbox/ipam/models/fhrp.py:121
+#: netbox/ipam/models/fhrp.py:119
 msgid "FHRP group assignments"
 msgstr "FHRP グループ割当"
 
@@ -11632,12 +11652,12 @@ msgstr "プレフィックス"
 msgid "Cannot create prefix with /0 mask."
 msgstr "/0 マスクではプレフィックスを作成できません。"
 
-#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1120
+#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1125
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr "VRF {vrf}"
 
-#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1120
+#: netbox/ipam/models/ip.py:324 netbox/ipam/models/ip.py:1125
 msgid "global table"
 msgstr "グローバルテーブル"
 
@@ -11736,48 +11756,48 @@ msgstr "このアドレスが「アウトサイド」IPであるIP"
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr "ホスト名または FQDN (大文字と小文字は区別されません)"
 
-#: netbox/ipam/models/ip.py:1031 netbox/ipam/models/services.py:97
+#: netbox/ipam/models/ip.py:1036 netbox/ipam/models/services.py:97
 msgid "IP addresses"
 msgstr "IP アドレス"
 
-#: netbox/ipam/models/ip.py:1091
+#: netbox/ipam/models/ip.py:1096
 msgid "Cannot create IP address with /0 mask."
 msgstr "/0 マスクで IP アドレスを作成することはできません。"
 
-#: netbox/ipam/models/ip.py:1097
+#: netbox/ipam/models/ip.py:1102
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr "{ip} はネットワーク ID のため、インタフェースに割り当てることはできません。"
 
-#: netbox/ipam/models/ip.py:1108
+#: netbox/ipam/models/ip.py:1113
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
 msgstr "{ip} はブロードキャストアドレスのため、インタフェースに割り当てることはできません。"
 
-#: netbox/ipam/models/ip.py:1122
+#: netbox/ipam/models/ip.py:1127
 #, python-brace-format
 msgid "Duplicate IP address found in {table}: {ipaddress}"
 msgstr "重複した IP アドレスが見つかりました {table}: {ipaddress}"
 
-#: netbox/ipam/models/ip.py:1138
+#: netbox/ipam/models/ip.py:1143
 #, python-brace-format
 msgid "Cannot create IP address {ip} inside range {range}."
 msgstr "レンジ {range}内のIP アドレス{ip}を作成できません。"
 
-#: netbox/ipam/models/ip.py:1159
+#: netbox/ipam/models/ip.py:1164
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
 msgstr "親オブジェクトのプライマリ IP として指定されている間は IP アドレスを再割り当てできません"
 
-#: netbox/ipam/models/ip.py:1166
+#: netbox/ipam/models/ip.py:1171
 msgid ""
 "Cannot reassign IP address while it is designated as the OOB IP for the "
 "parent object"
 msgstr "親オブジェクトの OOB IP として指定されている間は IP アドレスを再割り当てできません"
 
-#: netbox/ipam/models/ip.py:1172
+#: netbox/ipam/models/ip.py:1177
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr "SLAAC ステータスを割り当てることができるのは IPv6 アドレスのみです"
 
@@ -12628,13 +12648,13 @@ msgstr "タグを追加"
 msgid "Remove tags"
 msgstr "タグを削除"
 
-#: netbox/netbox/forms/bulk_import.py:31
+#: netbox/netbox/forms/bulk_import.py:32
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. "
 "\"tag1,tag2,tag3\")"
 msgstr "二重引用符で囲んだカンマ区切りのタグslug (例:\"tag1,tag2,tag3\")"
 
-#: netbox/netbox/forms/bulk_import.py:79
+#: netbox/netbox/forms/bulk_import.py:105
 msgid "Name of the object's owner"
 msgstr "オブジェクトの所有者の名前"
 
@@ -12653,8 +12673,8 @@ msgstr "保存済みフィルタ"
 msgid "Owner group"
 msgstr "オーナーグループ"
 
-#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:339
-#: netbox/netbox/tables/tables.py:354 netbox/netbox/tables/tables.py:369
+#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:402
+#: netbox/netbox/tables/tables.py:417 netbox/netbox/tables/tables.py:432
 #: netbox/users/forms/model_forms.py:544
 msgid "Owner Group"
 msgstr "オーナーグループ"
@@ -12691,53 +12711,53 @@ msgstr "検索"
 msgid "Single sign-on failed. Please try again or contact your administrator."
 msgstr "シングルサインオンが失敗しました。もう一度試すか、管理者に問い合わせてください。"
 
-#: netbox/netbox/models/deletion.py:76
+#: netbox/netbox/models/deletion.py:142
 #, python-brace-format
 msgid ""
 "{object_name} object can't be deleted because its {pk_attname} attribute is "
 "set to None."
 msgstr "{object_name} オブジェクトは次の理由で削除できません {pk_attname} 属性は None に設定されています。"
 
-#: netbox/netbox/models/features.py:311
+#: netbox/netbox/models/features.py:312
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr "カスタムフィールドの値が無効です。'{name}': {error}"
 
-#: netbox/netbox/models/features.py:320
+#: netbox/netbox/models/features.py:321
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr "カスタムフィールド '{name}'には一意の値が必要です。"
 
-#: netbox/netbox/models/features.py:327
+#: netbox/netbox/models/features.py:328
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr "必須カスタムフィールド'{name}'が見つかりません。"
 
-#: netbox/netbox/models/features.py:524
+#: netbox/netbox/models/features.py:565
 msgid "Remote data source"
 msgstr "リモートデータソース"
 
-#: netbox/netbox/models/features.py:534
+#: netbox/netbox/models/features.py:575
 msgid "data path"
 msgstr "データパス"
 
-#: netbox/netbox/models/features.py:538
+#: netbox/netbox/models/features.py:579
 msgid "Path to remote file (relative to data source root)"
 msgstr "リモートファイルへのパス (データソースルートからの相対パス)"
 
-#: netbox/netbox/models/features.py:541
+#: netbox/netbox/models/features.py:582
 msgid "auto sync enabled"
 msgstr "自動同期が有効"
 
-#: netbox/netbox/models/features.py:543
+#: netbox/netbox/models/features.py:584
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr "データファイルの更新時にデータの自動同期を有効にする"
 
-#: netbox/netbox/models/features.py:546
+#: netbox/netbox/models/features.py:587
 msgid "date synced"
 msgstr "同期日付"
 
-#: netbox/netbox/models/features.py:639
+#: netbox/netbox/models/features.py:680
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} はsync_data () メソッドを実装する必要があります。"
@@ -13150,7 +13170,7 @@ msgstr "編集"
 #: netbox/templates/generic/bulk_delete.html:21
 #: netbox/templates/generic/bulk_delete.html:79
 #: netbox/templates/generic/object_delete.html:19
-#: netbox/templates/htmx/delete_form.html:70
+#: netbox/templates/htmx/delete_form.html:77
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:48
 #: netbox/templates/ipam/panels/fhrp_groups.html:34
 #: netbox/users/ui/panels.py:59 netbox/utilities/templatetags/buttons.py:146
@@ -13443,17 +13463,17 @@ msgstr "アクション"
 msgid "Toggle Dropdown"
 msgstr "ドロップダウンを切り替え"
 
-#: netbox/netbox/tables/tables.py:62
+#: netbox/netbox/tables/tables.py:63
 #, python-brace-format
 msgid "No {model_name} found"
 msgstr "{model_name} が見つかりません"
 
-#: netbox/netbox/tables/tables.py:399
+#: netbox/netbox/tables/tables.py:462
 #: netbox/templates/generic/bulk_import.html:148
 msgid "Field"
 msgstr "フィールド"
 
-#: netbox/netbox/tables/tables.py:402
+#: netbox/netbox/tables/tables.py:465
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:9
 msgid "Value"
 msgstr "値"
@@ -13556,8 +13576,8 @@ msgid "Updated {count} {object_type}"
 msgstr "更新されました {count} {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:971
-#: netbox/netbox/views/generic/bulk_views.py:1250
-#: netbox/netbox/views/generic/bulk_views.py:1298
+#: netbox/netbox/views/generic/bulk_views.py:1252
+#: netbox/netbox/views/generic/bulk_views.py:1300
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "いいえ {object_type} が選ばれました。"
@@ -13581,20 +13601,20 @@ msgstr "一括削除 {count} {object_type}"
 msgid "Deleted {count} {object_type}"
 msgstr "削除済み {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1223
+#: netbox/netbox/views/generic/bulk_views.py:1224
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr "1 つ以上の依存オブジェクトが存在するため、削除できませんでした。"
 
-#: netbox/netbox/views/generic/bulk_views.py:1311
+#: netbox/netbox/views/generic/bulk_views.py:1313
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr "一括追加 {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1364
+#: netbox/netbox/views/generic/bulk_views.py:1366
 msgid "An integrity error occurred while creating components"
 msgstr "コンポーネントの作成中に整合性エラーが発生しました"
 
-#: netbox/netbox/views/generic/bulk_views.py:1376
+#: netbox/netbox/views/generic/bulk_views.py:1378
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr "追加しました {count} {component} に {parent_count} {parent}。"
@@ -13725,8 +13745,8 @@ msgstr "パスワードを変更"
 #: netbox/templates/generic/bulk_rename.html:101
 #: netbox/templates/generic/confirmation_form.html:19
 #: netbox/templates/generic/object_edit.html:74
-#: netbox/templates/htmx/delete_form.html:66
-#: netbox/templates/htmx/delete_form.html:68
+#: netbox/templates/htmx/delete_form.html:73
+#: netbox/templates/htmx/delete_form.html:75
 #: netbox/templates/htmx/quick_add.html:21
 #: netbox/templates/ipam/ipaddress_assign.html:28
 #: netbox/templates/users/token_edit.html:32
@@ -13780,7 +13800,7 @@ msgstr "[選択] %(name)s"
 
 #: netbox/templates/account/preferences.html:71
 #: netbox/templates/core/system.html:118
-#: netbox/templates/dcim/cable_trace.html:113
+#: netbox/templates/dcim/cable_trace.html:115
 #: netbox/templates/extras/object_configcontext.html:43
 msgid "None found"
 msgstr "何も見つかりませんでした"
@@ -14449,60 +14469,60 @@ msgstr "これらを切断してもよろしいですか %(count)s %(obj_type_pl
 msgid "Cable Trace for %(object_type)s %(object)s"
 msgstr "用ケーブルトレース %(object_type)s %(object)s"
 
-#: netbox/templates/dcim/cable_trace.html:24
+#: netbox/templates/dcim/cable_trace.html:25
 #: netbox/templates/dcim/inc/rack_elevation.html:18
 msgid "Download SVG"
 msgstr "SVG をダウンロード"
 
-#: netbox/templates/dcim/cable_trace.html:30
+#: netbox/templates/dcim/cable_trace.html:32
 msgid "Asymmetric Path"
 msgstr "非対称パス"
 
-#: netbox/templates/dcim/cable_trace.html:31
+#: netbox/templates/dcim/cable_trace.html:33
 msgid "The nodes below have no links and result in an asymmetric path"
 msgstr "以下のノードにはリンクがなく、パスが非対称になっています"
 
-#: netbox/templates/dcim/cable_trace.html:38
+#: netbox/templates/dcim/cable_trace.html:40
 msgid "Path split"
 msgstr "パススプリット"
 
-#: netbox/templates/dcim/cable_trace.html:39
+#: netbox/templates/dcim/cable_trace.html:41
 msgid "Select a node below to continue"
 msgstr "続行するには以下のノードを選択してください"
 
-#: netbox/templates/dcim/cable_trace.html:55
+#: netbox/templates/dcim/cable_trace.html:57
 msgid "Trace Completed"
 msgstr "トレース完了"
 
-#: netbox/templates/dcim/cable_trace.html:58
+#: netbox/templates/dcim/cable_trace.html:60
 msgid "Total segments"
 msgstr "合計セグメント"
 
-#: netbox/templates/dcim/cable_trace.html:62
+#: netbox/templates/dcim/cable_trace.html:64
 msgid "Total length"
 msgstr "全長"
 
-#: netbox/templates/dcim/cable_trace.html:77
+#: netbox/templates/dcim/cable_trace.html:79
 msgid "No paths found"
 msgstr "パスが見つかりません"
 
-#: netbox/templates/dcim/cable_trace.html:85
+#: netbox/templates/dcim/cable_trace.html:87
 msgid "Related Paths"
 msgstr "関連パス"
 
-#: netbox/templates/dcim/cable_trace.html:89
+#: netbox/templates/dcim/cable_trace.html:91
 msgid "Origin"
 msgstr "オリジン"
 
-#: netbox/templates/dcim/cable_trace.html:90
+#: netbox/templates/dcim/cable_trace.html:92
 msgid "Destination"
 msgstr "目的地"
 
-#: netbox/templates/dcim/cable_trace.html:91
+#: netbox/templates/dcim/cable_trace.html:93
 msgid "Segments"
 msgstr "セグメント"
 
-#: netbox/templates/dcim/cable_trace.html:104
+#: netbox/templates/dcim/cable_trace.html:106
 msgid "Incomplete"
 msgstr "不完全"
 
@@ -14584,8 +14604,8 @@ msgstr "住む"
 msgid "Bay"
 msgstr "ベイ"
 
-#: netbox/templates/dcim/devicerole.html:14
-#: netbox/templates/dcim/platform.html:17
+#: netbox/templates/dcim/devicerole.html:17
+#: netbox/templates/dcim/platform.html:20
 msgid "Add Device"
 msgstr "デバイスを追加"
 
@@ -16064,15 +16084,15 @@ msgstr "接触"
 msgid "contacts"
 msgstr "連絡先"
 
-#: netbox/tenancy/models/contacts.py:171
+#: netbox/tenancy/models/contacts.py:169
 msgid "contact assignment"
 msgstr "連絡先割り当て"
 
-#: netbox/tenancy/models/contacts.py:172
+#: netbox/tenancy/models/contacts.py:170
 msgid "contact assignments"
 msgstr "連絡先の割り当て"
 
-#: netbox/tenancy/models/contacts.py:188
+#: netbox/tenancy/models/contacts.py:186
 #, python-brace-format
 msgid "Contacts cannot be assigned to this object type ({type})."
 msgstr "このオブジェクトタイプには連絡先を割り当てられません ({type})。"
@@ -16085,19 +16105,29 @@ msgstr "テナントグループ"
 msgid "tenant groups"
 msgstr "テナントグループ"
 
-#: netbox/tenancy/models/tenants.py:71
+#: netbox/tenancy/models/tenants.py:48
+#, python-brace-format
+msgid ""
+"Unable to delete tenant group {tenant_group}. Ungrouping its tenants, "
+"including those of any nested groups, would create duplicate tenant names or"
+" slugs."
+msgstr ""
+"テナントグループを削除できません "
+"{tenant_group}。ネストされたグループのテナントを含め、そのテナントをグループ解除すると、テナント名やスラッグが重複することになります。"
+
+#: netbox/tenancy/models/tenants.py:89
 msgid "Tenant name must be unique per group."
 msgstr "テナント名はグループごとに一意である必要があります。"
 
-#: netbox/tenancy/models/tenants.py:81
+#: netbox/tenancy/models/tenants.py:99
 msgid "Tenant slug must be unique per group."
 msgstr "テナントslugはグループごとにユニークでなければなりません。"
 
-#: netbox/tenancy/models/tenants.py:89
+#: netbox/tenancy/models/tenants.py:107
 msgid "tenant"
 msgstr "テナント"
 
-#: netbox/tenancy/models/tenants.py:90
+#: netbox/tenancy/models/tenants.py:108
 msgid "tenants"
 msgstr "テナント"
 
@@ -16940,6 +16970,11 @@ msgstr "静的クエリパラメータに必要な値が見つかりません:'{
 #: netbox/utilities/forms/widgets/modifiers.py:155
 msgid "(automatically set)"
 msgstr "(自動設定)"
+
+#: netbox/utilities/jinja2.py:157
+#, python-brace-format
+msgid "Invalid template: {error}"
+msgstr "テンプレートが無効です: {error}"
 
 #: netbox/utilities/jobs.py:42
 #, python-brace-format

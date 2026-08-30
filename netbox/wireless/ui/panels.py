@@ -9,7 +9,7 @@ class WirelessLANGroupPanel(panels.NestedGroupObjectPanel):
 
 class WirelessLANPanel(panels.ObjectAttributesPanel):
     ssid = attrs.TextAttr('ssid', label=_('SSID'))
-    group = attrs.RelatedObjectAttr('group', linkify=True)
+    group = attrs.NestedObjectAttr('group', linkify=True)
     status = attrs.ChoiceAttr('status')
     scope = attrs.GenericForeignKeyAttr('scope', linkify=True, nested=True, max_depth=3)
     description = attrs.TextAttr('description')

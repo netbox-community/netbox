@@ -1,5 +1,69 @@
 # NetBox v4.6
 
+## v4.6.9 (2026-08-25)
+
+### Enhancements
+
+* [#21387](https://github.com/netbox-community/netbox/issues/21387) - Add InfiniBand 4X interface types
+* [#22660](https://github.com/netbox-community/netbox/issues/22660) - Add an interface type for HPE Synergy interconnect links
+* [#22716](https://github.com/netbox-community/netbox/issues/22716) - Restrict images in rendered Markdown to HTTP(S) and relative URLs
+* [#22998](https://github.com/netbox-community/netbox/issues/22998) - Add a 100GBase-X-SFP112 interface type
+
+### Performance Improvements
+
+* [#23000](https://github.com/netbox-community/netbox/issues/23000) - Prefetch cable terminations to avoid N+1 queries when fetching cables via the GraphQL API
+
+### Bug Fixes
+
+* [#22683](https://github.com/netbox-community/netbox/issues/22683) - Prevent a server error when bulk import validation raises an error referencing a field omitted from the import data
+* [#22812](https://github.com/netbox-community/netbox/issues/22812) - Avoid loading all associated jobs into memory when deleting a custom script or other job-bearing object
+* [#22889](https://github.com/netbox-community/netbox/issues/22889) - Restore the monospace font for text areas on the config revision form
+* [#22922](https://github.com/netbox-community/netbox/issues/22922) - Honor the saving database connection in the scope propagation signal handlers
+* [#22923](https://github.com/netbox-community/netbox/issues/22923) - Clear `current_request` and the query cache when an exception is raised within an `event_tracking()` block
+* [#22929](https://github.com/netbox-community/netbox/issues/22929) - Avoid initializing a second `SideNav` instance for the top header
+* [#22930](https://github.com/netbox-community/netbox/issues/22930) - Fix sidebar navigation initialization at a viewport width of exactly 1200 pixels
+* [#22934](https://github.com/netbox-community/netbox/issues/22934) - Discard queued events when a write performed by a UI view is rolled back
+* [#22944](https://github.com/netbox-community/netbox/issues/22944) - Display the complete role hierarchy in the virtual machine info panel
+* [#22953](https://github.com/netbox-community/netbox/issues/22953) - Restore custom script log messages in the output of the `runscript` management command
+* [#22954](https://github.com/netbox-community/netbox/issues/22954) - Display nested group and platform hierarchies in several info panels
+* [#22957](https://github.com/netbox-community/netbox/issues/22957) - Include ancestors in the breadcrumbs for device roles, platforms, and power panels
+* [#22963](https://github.com/netbox-community/netbox/issues/22963) - Honor the saving database connection in the counter cache signal handlers
+* [#22967](https://github.com/netbox-community/netbox/issues/22967) - Update the cached scope fields of circuit terminations when a location is moved to a different site
+* [#22978](https://github.com/netbox-community/netbox/issues/22978) - Discard queued events when a write performed via the REST API is rolled back
+* [#22985](https://github.com/netbox-community/netbox/issues/22985) - Exempt data file content from browser caching
+* [#22990](https://github.com/netbox-community/netbox/issues/22990) - Correct inconsistent field declarations which prevented certain fields from being edited or cleared via bulk edit
+* [#23007](https://github.com/netbox-community/netbox/issues/23007) - Align the sidebar navigation JavaScript breakpoint with that of the responsive layout
+* [#23013](https://github.com/netbox-community/netbox/issues/23013) - Avoid propagating a location's site assignment to descendant objects when the site has not changed
+
+---
+
+## v4.6.8 (2026-08-11)
+
+### Performance Improvements
+
+* [#22787](https://github.com/netbox-community/netbox/issues/22787) - Avoid N+1 queries when resolving generic relations (e.g. assigned objects) via the GraphQL API
+* [#22835](https://github.com/netbox-community/netbox/issues/22835) - Improve performance when provisioning new custom fields
+* [#22837](https://github.com/netbox-community/netbox/issues/22837) - Omit implicit pagination when prefetching to-one relations via the GraphQL API
+* [#22877](https://github.com/netbox-community/netbox/issues/22877) - Improve caching logic when retrieving custom fields via `get_for_model()`
+
+### Bug Fixes
+
+* [#22694](https://github.com/netbox-community/netbox/issues/22694) - Clear a device's stale rack assignment when changing its site
+* [#22745](https://github.com/netbox-community/netbox/issues/22745) - Enforce object permissions on custom script write operations via the REST API
+* [#22805](https://github.com/netbox-community/netbox/issues/22805) - Avoid re-executing the LDAP configuration file on every permission check
+* [#22821](https://github.com/netbox-community/netbox/issues/22821) - Prevent the deletion of a tenant group from creating duplicate tenant names or slugs
+* [#22825](https://github.com/netbox-community/netbox/issues/22825) - Fix cable path tracing for paths which originate from a circuit termination and traverse only pass-through ports
+* [#22828](https://github.com/netbox-community/netbox/issues/22828) - Validate that a webhook's payload URL is a valid URL or Jinja2 template when saving
+* [#22844](https://github.com/netbox-community/netbox/issues/22844) - Allow a null value for `base_choices` when creating a custom field choice set via the REST API
+* [#22848](https://github.com/netbox-community/netbox/issues/22848) - Ensure deterministic ordering of duplicate IP addresses to avoid repeating an object across paginated REST API results
+* [#22852](https://github.com/netbox-community/netbox/issues/22852) - Honor a custom script's `notifications_default` setting when the script is run from an event rule
+* [#22865](https://github.com/netbox-community/netbox/issues/22865) - Reference the appropriate component template types on the GraphQL type for inventory item templates
+* [#22879](https://github.com/netbox-community/netbox/issues/22879) - Improve the contrast of unselected radio buttons and checkboxes in dark mode
+* [#22882](https://github.com/netbox-community/netbox/issues/22882) - Fix support for the `DISTINCT` filter on nested GraphQL list fields
+* [#22894](https://github.com/netbox-community/netbox/issues/22894) - Sanitize the error message rendered when an exception occurs in `CustomLinkColumn`
+
+---
+
 ## v4.6.7 (2026-07-30)
 
 ### Performance Improvements

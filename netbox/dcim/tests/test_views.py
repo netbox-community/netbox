@@ -16,11 +16,11 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.models import ConfigTemplate
+from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
-from users.models import ObjectPermission, User
+from users.models import ObjectPermission, Owner, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -1248,13 +1248,13 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
-        profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
+        cls.profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
 
         module_types = ModuleType.objects.bulk_create([
             ModuleType(
                 model='Module Type 1',
                 manufacturer=manufacturers[0],
-                profile=profile,
+                profile=cls.profile,
                 attribute_data={'media': ['copper', 'qsfp28']},
             ),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
@@ -1262,8 +1262,6 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
-
-        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
@@ -1280,7 +1278,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "manufacturer,model,part_number,comments,profile",
-            f"Manufacturer 1,fan0,generic-fan,,{fan_module_type_profile.name}"
+            f"Manufacturer 1,Module Type 4,module-type-4,,{cls.profile.name}",
         )
 
         cls.csv_update_data = (
@@ -1334,9 +1332,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         def verify_module_type_profile(scenario_name):
             # TODO: remove extra regression asserts once parent test supports testing all import fields
-            fan_module_type = ModuleType.objects.get(part_number='generic-fan')
-            fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
-            assert fan_module_type.profile == fan_module_type_profile
+            module_type = ModuleType.objects.get(part_number='module-type-4')
+            self.assertEqual(module_type.profile_id, self.profile.pk)
 
         # run base test
         super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
@@ -1766,6 +1763,7 @@ class ConsolePortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
 
         cls.bulk_edit_data = {
             'type': ConsolePortTypeChoices.TYPE_RJ45,
+            'description': 'Foo bar',
         }
 
 
@@ -2030,6 +2028,7 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'position': 'A1',
         }
 
 
@@ -2111,6 +2110,7 @@ class InventoryItemTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
 
         cls.bulk_edit_data = {
             'description': 'Foo bar',
+            'part_id': 'PN-1',
         }
 
 
@@ -2540,6 +2540,54 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(url, {'config_template_id': override_template.pk})
         self.assertHttpStatus(response, 200)
         self.assertIn(b'Error rendering template', response.content)
+
+    def test_device_configcontext_is_not_cacheable(self):
+        """
+        The config context tab renders the merged context data, which may contain sensitive
+        values, so the response must not be cached by the browser.
+        """
+        ConfigContext.objects.create(name='Config Context 1', data={'password': 'super-secret-password'})
+        device = Device.objects.first()
+
+        self.add_permissions('dcim.view_device', 'extras.view_configcontext')
+        url = reverse('dcim:device_configcontext', kwargs={'pk': device.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the context data is in fact rendered in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+    def test_device_renderconfig_is_not_cacheable(self):
+        """
+        The render config tab renders the config template with context data substituted into it,
+        which may contain sensitive values, so the response must not be cached by the browser.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='enable secret super-secret-password'
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+
+        # Confirm the rendered config is in fact present in the response
+        self.assertIn(b'super-secret-password', response.content)
+
+        self.assertNotCacheable(response)
+
+        # The direct export of the rendered config must not be cached either
+        response = self.client.get(url, {'export': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'super-secret-password', response.content)
+        self.assertNotCacheable(response)
 
     def test_device_role_display_colored(self):
         parent_role = DeviceRole.objects.create(name='Parent Role', slug='parent-role', color='111111')
@@ -3192,6 +3240,8 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
+        owner = Owner.objects.create(name='Owner 1')
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -3202,6 +3252,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -3213,6 +3264,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -3463,6 +3515,38 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_import_omitted_field_validation_error(self):
+        """Surface omitted-field validation errors during bulk updates."""
+        device = Device.objects.first()
+        wireless_interface = Interface.objects.create(
+            device=device,
+            name='Wireless-22683',
+            type=InterfaceTypeChoices.TYPE_80211AC,
+            rf_channel_width=Decimal('20.0'),
+        )
+        self.add_permissions('dcim.add_interface', 'dcim.change_interface')
+        csv_data = '\n'.join([
+            'id,type',
+            f'{wireless_interface.pk},{InterfaceTypeChoices.TYPE_1GE_GBIC}',
+        ])
+        response = self.client.post(
+            self._get_url('bulk_import'),
+            data={
+                'data': csv_data,
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
+            },
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertContains(
+            response,
+            'rf_channel_width: Channel width may be set only on wireless interfaces.',
+        )
+        wireless_interface.refresh_from_db()
+        self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
+        self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
@@ -3577,6 +3661,43 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertFalse(FrontPort.objects.filter(name='Front Port 10').exists())
+
+    def test_create_multiple_objects_with_multiple_positions(self):
+        """
+        Check that bulk creation gives each generated front port its own slice of the selected mappings.
+        """
+        device = Device.objects.get(name='Device 1')
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 7', positions=2),
+            RearPort(device=device, name='Rear Port 8', positions=2),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        self.add_permissions('dcim.add_frontport')
+
+        response = self.client.post(self._get_url('add'), post_data({
+            'device': device.pk,
+            'name': 'Multi Port [1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [
+                f'{rear_ports[0].pk}:1',
+                f'{rear_ports[0].pk}:2',
+                f'{rear_ports[1].pk}:1',
+                f'{rear_ports[1].pk}:2',
+            ],
+        }))
+
+        self.assertHttpStatus(response, 302)
+        for front_port_name, rear_port in (('Multi Port 1', rear_ports[0]), ('Multi Port 2', rear_ports[1])):
+            front_port = FrontPort.objects.get(device=device, name=front_port_name)
+            self.assertEqual(front_port.positions, 2)
+            self.assertEqual(
+                [
+                    (m.front_port_position, m.rear_port_id, m.rear_port_position)
+                    for m in front_port.mappings.order_by('front_port_position')
+                ],
+                [(1, rear_port.pk, 1), (2, rear_port.pk, 2)]
+            )
 
     def test_trace(self):
         self.add_permissions(

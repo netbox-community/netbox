@@ -780,18 +780,22 @@ class CablePath(models.Model):
 
         super().save(*args, **kwargs)
 
-        # Record a direct reference to this CablePath on its originating object(s)
+        # Record a direct reference to this CablePath on its originating object(s). Only PathEndpoint
+        # subclasses carry the denormalized `_path` back-reference; other valid origins (e.g.
+        # CircuitTermination) do not, so skip the update for them.
         origin_model = self.origin_type.model_class()
-        origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-        origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
+        if issubclass(origin_model, PathEndpoint):
+            origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
+            origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
 
     def delete(self, *args, **kwargs):
         # Mirror save() - clear _path on origins to prevent stale references
-        # in table views that render _path.destinations
+        # in table views that render _path.destinations. Only PathEndpoint subclasses carry `_path`.
         if self.path:
             origin_model = self.origin_type.model_class()
-            origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-            origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
+            if issubclass(origin_model, PathEndpoint):
+                origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
+                origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
 
         super().delete(*args, **kwargs)
 

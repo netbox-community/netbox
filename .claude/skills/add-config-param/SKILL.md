@@ -43,7 +43,7 @@ ConfigParam(
     field=forms.BooleanField,   # or IntegerField, CharField, JSONField, SimpleArrayField
     # field_kwargs only when extra widget/validation config is needed:
     field_kwargs={
-        'widget': forms.Textarea(attrs={'class': 'vLargeTextField'}),
+        'widget': forms.Textarea(attrs={'class': 'font-monospace'}),
     },
 ),
 ```
