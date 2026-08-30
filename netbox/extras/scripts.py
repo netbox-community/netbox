@@ -41,8 +41,12 @@ __all__ = (
     'StringVar',
     'TextVar',
     'get_module_and_script',
-    'prepare_script_form',
 )
+
+# Internal ScriptForm fields used to carry execution parameters (see ScriptForm in
+# extras/forms/scripts.py). These are validated/sourced separately from the script's own
+# declared variables and must never be treated as script data or surfaced as script errors.
+EXEC_PARAM_FIELDS = ('_commit', '_schedule_at', '_interval', '_notifications')
 
 
 #
@@ -664,7 +668,17 @@ def prepare_script_form(script_instance, data, files=None):
     declared variable's `default` value into `data` when the caller omitted it.
 
     Used by both the UI (extras/views.py) and the REST API (extras/api/views.py) so the
-    two entry points share one contract and can't drift apart again.
+    two entry points share one contract and can't drift apart again. `runscript` deliberately
+    stays on the plain `as_form()` call, since its own test suite exercises it with bare
+    script doubles that only implement `as_form()`, not the full Script/`_get_vars()` API.
+
+    Note: `script_instance` must already be an *instance* (e.g. `script.python_class()`),
+    not the class itself.
+
+    `data` is copied via `.copy()` rather than coerced with `dict(...)`, so a QueryDict
+    (as submitted by the UI form) keeps its multi-value semantics -- collapsing it to a
+    plain dict would silently drop all but the last value for a MultiObjectVar's
+    multi-select field.
     """
     data = data.copy() if data is not None else {}
     for name, var in script_instance._get_vars().items():

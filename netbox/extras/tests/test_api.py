@@ -1447,11 +1447,11 @@ class ScriptTestCase(APITestCase):
 class ScriptRunExecutionTestCase(APITestCase):
     """
     Exercises ScriptViewSet.post() end-to-end (real request -> real serializer -> real
-    form -> real ScriptJob.enqueue() call), covering the regressions raised in review of
-    PR #22861: execution parameters must be taken from the validated request rather than
-    the form's own defaults, ObjectVar/MultiObjectVar values must be converted from raw
-    IDs to model instances/querysets, and declared defaults must be back-filled for
-    variables the client omits.
+    form -> real ScriptJob.enqueue() call): execution parameters (commit, schedule_at,
+    interval, notifications) must be taken from the validated request rather than the
+    form's own defaults; ObjectVar/MultiObjectVar values must be converted from raw IDs
+    to model instances/querysets (see #22750); and declared defaults must be back-filled
+    for variables the client omits.
     """
 
     class TestScriptClass(PythonClass):
@@ -1486,8 +1486,11 @@ class ScriptRunExecutionTestCase(APITestCase):
         super().setUp()
         self.add_permissions('extras.run_script')
 
-        # Monkey-patch the Script model to return our TestScriptClass above
-        Script.python_class = self.TestScriptClass
+        # Monkey-patch the Script model to return our TestScriptClass above, restoring
+        # the real property afterwards so later tests aren't left with our stub.
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
 
         # The script-run endpoint gates on a live RQ worker. Tests run without one, so
         # bypass the check to exercise validation and the enqueue path.
@@ -1527,6 +1530,25 @@ class ScriptRunExecutionTestCase(APITestCase):
         )
 
     @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_forwards_schedule_at_and_interval(self, mock_enqueue):
+        # Regression: schedule_at/interval were likewise read from the form (always
+        # absent there) instead of the validated request
+        schedule_at = now() + datetime.timedelta(hours=1)
+        payload = {
+            'data': {'site': self.sites[0].pk},
+            'commit': True,
+            'schedule_at': schedule_at,
+            'interval': 60,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        kwargs = mock_enqueue.call_args.kwargs
+        self.assertEqual(kwargs['schedule_at'], schedule_at)
+        self.assertEqual(kwargs['interval'], 60)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_converts_objectvar_and_multiobjectvar_ids(self, mock_enqueue):
         payload = {
             'data': {
@@ -1564,6 +1586,19 @@ class ScriptRunExecutionTestCase(APITestCase):
         response = self.client.post(self.url, payload, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_rejects_nonexistent_object_id(self, mock_enqueue):
+        # This is the primary new failure mode introduced by converting raw IDs to model
+        # instances: a PK that doesn't resolve must 400 cleanly, not enqueue a broken job
+        # or raise an unhandled DoesNotExist.
+        nonexistent_pk = Site.objects.order_by('-pk').first().pk + 1000
+        payload = {'data': {'site': nonexistent_pk}, 'commit': True}
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        mock_enqueue.assert_not_called()
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):

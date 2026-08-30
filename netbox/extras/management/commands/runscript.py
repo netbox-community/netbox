@@ -6,7 +6,7 @@ import uuid
 from django.core.management.base import BaseCommand, CommandError
 
 from extras.jobs import ScriptJob
-from extras.scripts import get_module_and_script
+from extras.scripts import EXEC_PARAM_FIELDS, get_module_and_script
 from users.models import User
 from utilities.request import NetBoxFakeRequest
 
@@ -81,17 +81,18 @@ class Command(BaseCommand):
                     logger.error(f'\t{field}: {error.get("message")}')
             raise CommandError()
 
-        # Remove extra fields from ScriptForm before passing data to script
-        form.cleaned_data.pop('_schedule_at')
-        form.cleaned_data.pop('_interval')
-        form.cleaned_data.pop('_commit')
+        # Remove exec-parameter fields from ScriptForm before passing data to the script.
+        # (Previously missed '_notifications', which leaked into the script's own data.)
+        cleaned_data = form.cleaned_data.copy()
+        for key in EXEC_PARAM_FIELDS:
+            cleaned_data.pop(key, None)
 
         # Execute the script.
         job = ScriptJob.enqueue(
             instance=script_obj,
             user=user,
             immediate=True,
-            data=form.cleaned_data,
+            data=cleaned_data,
             request=NetBoxFakeRequest({
                 'META': {},
                 'COOKIES': {},

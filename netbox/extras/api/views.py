@@ -1,8 +1,8 @@
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
@@ -16,7 +16,7 @@ from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from extras.scripts import prepare_script_form
+from extras.scripts import EXEC_PARAM_FIELDS, prepare_script_form
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -367,8 +367,7 @@ class ScriptViewSet(ModelViewSet):
         if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
-        if not input_serializer.is_valid():
-            return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        input_serializer.is_valid(raise_exception=True)
 
         validated = input_serializer.validated_data
 
@@ -380,17 +379,26 @@ class ScriptViewSet(ModelViewSet):
 
         script_class = script.python_class
         if not script_class:
-            raise ValidationError({'script': _('Script class could not be loaded; cannot determine job timeout.')})
+            raise ValidationError({'script': _('Unable to load the script class.')})
         script_instance = script_class()
 
         form = prepare_script_form(script_instance, payload, files=request.FILES)
         if not form.is_valid():
-            # remove internal fields (_commit etc.) from API error message
-            errors = {k: v for k, v in form.errors.items() if not k.startswith('_')}
-            raise ValidationError(errors)
+            # Exec params (_commit etc.) are validated separately via ScriptInputSerializer;
+            # exclude them explicitly rather than via a '_' prefix, which would also strip
+            # Django's NON_FIELD_ERRORS key ('__all__') and any script var legitimately
+            # named with a leading underscore.
+            errors = {k: v for k, v in form.errors.items() if k not in EXEC_PARAM_FIELDS}
+            if not errors:
+                # Only a non-field error remains (e.g. ScriptForm.clean()'s "Scheduled
+                # time must be in the future."). Surface it instead of an empty body.
+                errors = {NON_FIELD_ERRORS: form.errors.get(NON_FIELD_ERRORS, [_('Invalid script input.')])}
+            # Nest under 'data' so script-variable errors can't collide with the
+            # serializer's own top-level fields (commit, schedule_at, interval, ...).
+            raise ValidationError({'data': errors})
 
         data = form.cleaned_data.copy()
-        for k in ('_commit', '_schedule_at', '_interval', '_notifications'):
+        for k in EXEC_PARAM_FIELDS:
             data.pop(k, None)
 
         ScriptJob.enqueue(
