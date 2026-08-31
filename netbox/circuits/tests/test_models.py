@@ -76,6 +76,28 @@ class CircuitTerminationTestCase(TestCase):
         # New circuit's cache should be populated
         self.assertEqual(self.circuits[1].termination_a, termination)
 
+    def test_circuit_termination_circuit_change_with_generator_update_fields(self):
+        """
+        A one-shot iterable passed as update_fields must still reach the database, so the
+        circuit change is persisted and both caches are updated.
+        """
+        termination = CircuitTermination.objects.create(
+            circuit=self.circuits[0],
+            term_side='A',
+            termination=self.sites[0],
+        )
+
+        termination.circuit = self.circuits[1]
+        termination.save(update_fields=(field for field in ('circuit',)))
+
+        termination.refresh_from_db()
+        self.circuits[0].refresh_from_db()
+        self.circuits[1].refresh_from_db()
+
+        self.assertEqual(termination.circuit, self.circuits[1])
+        self.assertIsNone(self.circuits[0].termination_a)
+        self.assertEqual(self.circuits[1].termination_a, termination)
+
     def test_circuit_termination_term_side_change_clears_old_cache(self):
         """
         When a CircuitTermination's term_side is changed, the old side's cache should be cleared

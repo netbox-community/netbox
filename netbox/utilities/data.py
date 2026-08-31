@@ -14,6 +14,7 @@ __all__ = (
     'get_config_value_ci',
     'get_inclusive_integer_range_bounds',
     'normalize_integer_range',
+    'normalize_update_fields',
     'ranges_to_string',
     'ranges_to_string_list',
     'resolve_attr_path',
@@ -113,6 +114,19 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
             removed[key] = src_val
 
     return added, removed
+
+
+def normalize_update_fields(kwargs):
+    """
+    Replace `kwargs['update_fields']` with a frozenset and return it, so a save() override can
+    run membership tests without consuming a one-shot iterable. `None` and an absent key are
+    left alone.
+    """
+    update_fields = kwargs.get('update_fields')
+    if update_fields is not None:
+        update_fields = frozenset(update_fields)
+        kwargs['update_fields'] = update_fields
+    return update_fields
 
 
 #

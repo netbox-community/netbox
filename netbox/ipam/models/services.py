@@ -8,7 +8,7 @@ from ipam.choices import *
 from ipam.constants import *
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
-from utilities.data import array_to_string
+from utilities.data import array_to_string, normalize_update_fields
 
 __all__ = (
     'Service',
@@ -42,9 +42,9 @@ class ServiceBase(models.Model):
     def save(self, *args, **kwargs):
         # On saving find the smallest port and save for default ordering
         self._ports_lowest = min(self.ports) if self.ports else None
-        update_fields = kwargs.get('update_fields')
-        if update_fields is not None and '_ports_lowest' not in update_fields:
-            kwargs['update_fields'] = list(update_fields) + ['_ports_lowest']
+        update_fields = normalize_update_fields(kwargs)
+        if update_fields is not None and 'ports' in update_fields:
+            kwargs['update_fields'] = update_fields | {'_ports_lowest'}
         super().save(*args, **kwargs)
 
     def __str__(self):
