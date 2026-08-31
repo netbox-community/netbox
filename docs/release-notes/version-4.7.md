@@ -242,6 +242,8 @@ Event rule conditions can now inspect the pre-change and post-change snapshots c
     * The `token` field is now read-only; a plaintext value can no longer be specified on creation
 * `virtualization.VirtualMachine`
     * Add read-only JSON field `config_context` (previously available only via `VirtualMachineWithConfigContextSerializer`)
+* `virtualization.VMInterface`
+    * The `mac_address` field is now writable, and creates or updates the interface's primary MAC address
 
 ### GraphQL API Changes
 
