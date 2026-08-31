@@ -17,6 +17,7 @@ from netbox.models.features import (
     TagsMixin,
 )
 from netbox.models.mixins import DistanceMixin
+from utilities.data import normalize_update_fields
 from utilities.string import title
 
 from .base import BaseCircuitType
@@ -382,7 +383,7 @@ class CircuitTermination(
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding
-        update_fields = kwargs.get('update_fields')
+        update_fields = normalize_update_fields(kwargs)
 
         # Only consider circuit/term_side changes if those fields
         # are actually being persisted

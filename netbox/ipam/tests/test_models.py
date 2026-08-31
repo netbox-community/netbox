@@ -1799,6 +1799,20 @@ class VLANGroupTestCase(TestCase):
         self.assertEqual(vlangroup.vid_ranges, [NumericRange(100, 101, bounds='[)')])
         self.assertEqual(vlangroup.total_vlan_ids, 1)
 
+    def test_total_vlan_ids_with_generator_update_fields(self):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group Generator Update Fields',
+            slug='vlan-group-generator-update-fields',
+            vid_ranges=[NumericRange(100, 200, bounds='[)')],
+        )
+
+        vlangroup.vid_ranges = [NumericRange(100, 100, bounds='[]')]
+        vlangroup.save(update_fields=(field for field in ('vid_ranges',)))
+        vlangroup.refresh_from_db()
+
+        self.assertEqual(vlangroup.vid_ranges, [NumericRange(100, 101, bounds='[)')])
+        self.assertEqual(vlangroup.total_vlan_ids, 1)
+
     def test_annotate_utilization_with_zero_total_vlan_ids(self):
         vlangroup = VLANGroup.objects.create(
             name='VLAN Group Zero Total',
@@ -1956,6 +1970,46 @@ class ServiceTemplateTestCase(TestCase):
         template.full_clean()
         template.save()
         self.assertEqual(template._ports_lowest, 53)
+
+    def test_servicetemplate_lowest_port_with_generator_update_fields(self):
+        """
+        A one-shot iterable in update_fields must still persist the ports change
+        alongside the derived _ports_lowest.
+        """
+        template = ServiceTemplate(
+            name='Template 4',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80, 443],
+        )
+        template.full_clean()
+        template.save()
+
+        template.ports = [22, 8080]
+        template.save(update_fields=(field for field in ('ports',)))
+        template.refresh_from_db()
+
+        self.assertEqual(template.ports, [22, 8080])
+        self.assertEqual(template._ports_lowest, 22)
+
+    def test_servicetemplate_unrelated_update_fields_leaves_ports_alone(self):
+        """
+        A save naming an unrelated field must not persist _ports_lowest derived from an
+        in-memory ports change that is not itself being written.
+        """
+        template = ServiceTemplate.objects.create(
+            name='Template 5',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80, 443],
+        )
+
+        template.ports = [22]
+        template.name = 'Template 5 renamed'
+        template.save(update_fields=['name'])
+        template.refresh_from_db()
+
+        self.assertEqual(template.name, 'Template 5 renamed')
+        self.assertEqual(template.ports, [80, 443])
+        self.assertEqual(template._ports_lowest, 80)
 
     def test_servicetemplate_empty_ports(self):
         """
