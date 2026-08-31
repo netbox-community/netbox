@@ -2,17 +2,18 @@ import uuid
 from datetime import timedelta
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
-from core.choices import JobStatusChoices
+from core.choices import JobIntervalChoices, JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
 from utilities.testing import disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
-from ..jobs import _INSTALL_ROOT
+from ..jobs import _INSTALL_ROOT, STALE_RUNNING_JOB_GRACE_SECONDS
 
 
 class TestJobRunner(JobRunner):
@@ -33,8 +34,18 @@ class TestSystemJobRunner(JobRunner):
         pass
 
 
-@system_job(interval=1)
-class TestShortIntervalSystemJobRunner(JobRunner):
+class TestClassTimeoutJobRunner(JobRunner):
+    job_timeout = 3600
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+class TestPropertyTimeoutJobRunner(JobRunner):
+    # Mirrors plugins (e.g. netbox-branching) that expose job_timeout as an instance property.
+    @property
+    def job_timeout(self):
+        return 7200
 
     def run(self, *args, **kwargs):
         pass
@@ -394,7 +405,7 @@ class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
     """
 
     def test_reconcile_terminates_orphaned_running_job(self):
-        """A running system job whose `started` is older than the grace window is an
+        """A running system job whose `started` predates the run timeout window is an
         orphan (its worker died) and must be moved to `errored`."""
         orphan = Job.objects.create(
             name=TestSystemJobRunner.name,
@@ -413,8 +424,8 @@ class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
         self.assertEqual(orphan.error, "Worker terminated before job completed")
 
     def test_reconcile_preserves_recently_started_running_job(self):
-        """A running system job that started recently (within the grace window) is a
-        legitimately in-flight job and must NOT be reaped."""
+        """A running system job that started recently (within the run timeout window) is a
+        legitimately in-flight job and must NOT be reaped, regardless of its interval."""
         live = Job.objects.create(
             name=TestSystemJobRunner.name,
             status=JobStatusChoices.STATUS_RUNNING,
@@ -429,58 +440,42 @@ class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
         live.refresh_from_db()
         self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
 
-    def test_reconcile_grace_window_scales_with_interval(self):
-        """The grace window is max(interval, floor). A job whose interval exceeds the floor
-        gets the longer window: a 60-minute-interval job started 45 minutes ago is past the
-        30-minute floor but still within its own interval, so it must be preserved."""
-        within_interval = Job.objects.create(
+    def test_reconcile_window_is_run_timeout_not_interval(self):
+        """The window is keyed on the RQ run timeout, not the recurrence interval, so a
+        long-interval job whose worker was just killed is recovered promptly. A daily job
+        started well past its run timeout (but far short of a day) must be reaped."""
+        grace = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        orphan = Job.objects.create(
             name=TestSystemJobRunner.name,
             status=JobStatusChoices.STATUS_RUNNING,
-            interval=60,
-            scheduled=timezone.now() - timedelta(minutes=45),
-            started=timezone.now() - timedelta(minutes=45),
+            interval=JobIntervalChoices.INTERVAL_DAILY,
+            scheduled=timezone.now() - timedelta(seconds=grace + 60),
+            started=timezone.now() - timedelta(seconds=grace + 60),
             job_id=uuid.uuid4(),
         )
 
-        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
-
-        within_interval.refresh_from_db()
-        self.assertEqual(within_interval.status, JobStatusChoices.STATUS_RUNNING)
-
-    def test_reconcile_grace_floor_protects_short_interval_job(self):
-        """For a job whose interval is shorter than the floor, the floor governs the window.
-        A 1-minute-interval job started 20 minutes ago is well past its interval but within
-        the 30-minute floor, so it must NOT be reaped."""
-        within_floor = Job.objects.create(
-            name=TestShortIntervalSystemJobRunner.name,
-            status=JobStatusChoices.STATUS_RUNNING,
-            interval=1,
-            scheduled=timezone.now() - timedelta(minutes=20),
-            started=timezone.now() - timedelta(minutes=20),
-            job_id=uuid.uuid4(),
-        )
-
-        reconcile_stale_system_jobs(TestShortIntervalSystemJobRunner, 1)
-
-        within_floor.refresh_from_db()
-        self.assertEqual(within_floor.status, JobStatusChoices.STATUS_RUNNING)
-
-    def test_reconcile_grace_floor_reaps_short_interval_orphan(self):
-        """A 1-minute-interval job started 40 minutes ago is past the 30-minute floor and is
-        an orphan, so it must be reaped despite its short interval."""
-        orphan = Job.objects.create(
-            name=TestShortIntervalSystemJobRunner.name,
-            status=JobStatusChoices.STATUS_RUNNING,
-            interval=1,
-            scheduled=timezone.now() - timedelta(minutes=40),
-            started=timezone.now() - timedelta(minutes=40),
-            job_id=uuid.uuid4(),
-        )
-
-        reconcile_stale_system_jobs(TestShortIntervalSystemJobRunner, 1)
+        reconcile_stale_system_jobs(TestSystemJobRunner, JobIntervalChoices.INTERVAL_DAILY)
 
         orphan.refresh_from_db()
         self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+
+    def test_reconcile_preserves_job_within_run_timeout(self):
+        """A job started just inside the run timeout window is still legitimately running
+        and must be preserved."""
+        grace = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        live = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=JobIntervalChoices.INTERVAL_DAILY,
+            scheduled=timezone.now() - timedelta(seconds=grace - 60),
+            started=timezone.now() - timedelta(seconds=grace - 60),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, JobIntervalChoices.INTERVAL_DAILY)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
 
     def test_reconcile_ignores_instance_bound_job(self):
         """The sweep targets object-less system jobs only. An instance-bound job of the
@@ -529,3 +524,43 @@ class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
             status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
         )
         self.assertEqual(enqueued.count(), 1)
+
+    def test_reconcile_honors_longer_per_job_timeout(self):
+        """A runner that declares a large `job_timeout` gets a proportionally longer window. A
+        job started past the default window but within its own declared timeout must be preserved,
+        so a legitimately long run (e.g. a bulk branch archival) is not reaped."""
+        interval = JobIntervalChoices.INTERVAL_DAILY
+        default_window = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        # Older than the default window, but well within this runner's 3600s job_timeout.
+        started = timezone.now() - timedelta(seconds=default_window + 120)
+        live = Job.objects.create(
+            name=TestClassTimeoutJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=interval,
+            scheduled=started,
+            started=started,
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestClassTimeoutJobRunner, interval)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
+
+
+class ResolveJobTimeoutTestCase(BaseJobRunnerTestCase):
+    """
+    Test resolution of a runner's RQ run timeout across the ad-hoc conventions (#22714).
+    """
+
+    def test_falls_back_to_rq_default(self):
+        job = Job(name=TestSystemJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestSystemJobRunner, job), settings.RQ_DEFAULT_TIMEOUT)
+
+    def test_reads_class_attribute(self):
+        job = Job(name=TestClassTimeoutJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestClassTimeoutJobRunner, job), 3600)
+
+    def test_reads_instance_property(self):
+        job = Job(name=TestPropertyTimeoutJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestPropertyTimeoutJobRunner, job), 7200)

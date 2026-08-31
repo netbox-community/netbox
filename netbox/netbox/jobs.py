@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 from pathlib import Path
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.functional import classproperty
@@ -22,6 +23,7 @@ __all__ = (
     'AsyncViewJob',
     'JobRunner',
     'reconcile_stale_system_jobs',
+    'resolve_job_timeout',
     'system_job',
 )
 
@@ -30,10 +32,11 @@ __all__ = (
 # jobs.py lives at <root>/netbox/netbox/jobs.py, so parents[2] is the root.
 _INSTALL_ROOT = str(Path(__file__).resolve().parents[2]) + os.sep
 
-# Floor for the grace period before a "running" system job is treated as stranded. The window
-# is max(interval, this floor), so a short-interval job still gets time to finish a legitimate
-# run. See reconcile_stale_system_jobs() and issue #22714.
-STALE_RUNNING_JOB_GRACE_MINUTES = 30
+# Margin added to a job's run timeout before a "running" system job is treated as stranded. A
+# job still running this long past its RQ timeout can no longer be executing legitimately (its
+# worker was killed), so the window is keyed on run duration rather than the recurrence interval.
+# See reconcile_stale_system_jobs() and issue #22714.
+STALE_RUNNING_JOB_GRACE_SECONDS = 600
 
 
 def system_job(interval):
@@ -52,6 +55,17 @@ def system_job(interval):
     return _wrapper
 
 
+def resolve_job_timeout(job_class, job):
+    """
+    Return the RQ run timeout (in seconds) a `JobRunner` runs under, falling back to
+    `RQ_DEFAULT_TIMEOUT` when it declares none. There is no single timeout contract across job
+    types: scripts expose `Meta.job_timeout` (class-level), some plugin runners expose an instance
+    `@property`, and the base class declares nothing. Instantiate the runner so an instance property
+    resolves correctly regardless of what it reads.
+    """
+    return getattr(job_class(job), 'job_timeout', None) or settings.RQ_DEFAULT_TIMEOUT
+
+
 @advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
 def reconcile_stale_system_jobs(job_class, interval):
     """
@@ -59,21 +73,31 @@ def reconcile_stale_system_jobs(job_class, interval):
     that was killed mid-run (issue #22714). Such a row is never reset, and because "running" is
     an enqueued state, `enqueue_once()` mistakes it for a live schedule and never re-arms it.
 
-    A running job is treated as stranded once its `started` timestamp is older than
-    `max(interval, STALE_RUNNING_JOB_GRACE_MINUTES)`. RQ is not consulted: a killed job's RQ
-    entry can outlive the worker, and the schedule may be recovered with RQ state wiped.
+    A running job is treated as stranded once its `started` timestamp is older than the job's own
+    RQ run timeout plus a margin: past that point the run can no longer be executing legitimately.
+    Keying on run duration rather than the recurrence `interval` lets recovery fire on the common
+    case (a worker killed and restarted moments later) while still tolerating a legitimately long
+    run that declares a large timeout. RQ is not consulted: a killed job's RQ entry can outlive the
+    worker, and the schedule may be recovered with RQ state wiped.
     """
-    grace = max(interval, STALE_RUNNING_JOB_GRACE_MINUTES)
-    cutoff = timezone.now() - timedelta(minutes=grace)
-
-    orphaned = Job.objects.filter(
-        name=job_class.name,
-        object_id__isnull=True,
-        interval=interval,
-        status=JobStatusChoices.STATUS_RUNNING,
-        started__lte=cutoff,
+    running = list(
+        Job.objects.filter(
+            name=job_class.name,
+            object_id__isnull=True,
+            interval=interval,
+            status=JobStatusChoices.STATUS_RUNNING,
+        )
     )
-    for job in orphaned:
+    if not running:
+        return
+
+    # The timeout is a property of the runner, not the individual job, so resolve it once.
+    grace = resolve_job_timeout(job_class, running[0]) + STALE_RUNNING_JOB_GRACE_SECONDS
+    cutoff = timezone.now() - timedelta(seconds=grace)
+
+    for job in running:
+        if not job.started or job.started > cutoff:
+            continue
         # STATUS_ERRORED (not FAILED) records an unexpected fault rather than a self-declared
         # failure, as handle() does for an unhandled exception. For an object-less, userless
         # system job, terminate() sends no notification and triggers no event rule.
