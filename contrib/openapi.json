@@ -341573,6 +341573,18 @@
                             "minLength": 1
                         }
                     },
+                    "protocol": {
+                        "enum": [
+                            "tcp",
+                            "udp",
+                            "sctp",
+                            null
+                        ],
+                        "type": "string",
+                        "description": "Deprecated; use port_mappings. Reported only for single-protocol services.",
+                        "x-spec-enum-id": "e4b15bec749a2a32",
+                        "nullable": true
+                    },
                     "ports": {
                         "type": "array",
                         "items": {
@@ -341639,6 +341651,18 @@
                             "type": "string",
                             "minLength": 1
                         }
+                    },
+                    "protocol": {
+                        "enum": [
+                            "tcp",
+                            "udp",
+                            "sctp",
+                            null
+                        ],
+                        "type": "string",
+                        "description": "Deprecated; use port_mappings. Reported only for single-protocol services.",
+                        "x-spec-enum-id": "e4b15bec749a2a32",
+                        "nullable": true
                     },
                     "ports": {
                         "type": "array",
@@ -366195,6 +366219,18 @@
                             "minLength": 1
                         }
                     },
+                    "protocol": {
+                        "enum": [
+                            "tcp",
+                            "udp",
+                            "sctp",
+                            null
+                        ],
+                        "type": "string",
+                        "description": "Deprecated; use port_mappings. Reported only for single-protocol services.",
+                        "x-spec-enum-id": "e4b15bec749a2a32",
+                        "nullable": true
+                    },
                     "ports": {
                         "type": "array",
                         "items": {
@@ -366266,6 +366302,18 @@
                             "type": "string",
                             "minLength": 1
                         }
+                    },
+                    "protocol": {
+                        "enum": [
+                            "tcp",
+                            "udp",
+                            "sctp",
+                            null
+                        ],
+                        "type": "string",
+                        "description": "Deprecated; use port_mappings. Reported only for single-protocol services.",
+                        "x-spec-enum-id": "e4b15bec749a2a32",
+                        "nullable": true
                     },
                     "ports": {
                         "type": "array",

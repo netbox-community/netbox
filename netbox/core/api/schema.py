@@ -1,7 +1,9 @@
+import copy
 import re
 import typing
 from collections import OrderedDict
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
@@ -16,6 +18,8 @@ from drf_spectacular.plumbing import (
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import Direction, OpenApiParameter, OpenApiResponse
+from rest_framework.fields import ReadOnlyField
+from rest_framework.utils import model_meta
 
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import BulkOperationErrorSerializer, WritableNestedSerializer
@@ -339,6 +343,36 @@ class NetBoxAutoSchema(AutoSchema):
                 ref_name = ref_name[: -len('Serializer')]
         return ref_name
 
+    @staticmethod
+    def _rebuilds_as_writable(serializer, field_name):
+        """
+        Return True if DRF would rebuild the named field in writable form if the field declared on
+        the serializer class were removed (see get_writable_class()).
+
+        This defers to ModelSerializer.build_field(), which is what get_fields() itself calls for
+        any field not explicitly declared on the class -- rather than testing the model for a field
+        of that name, which is a weaker condition. A name backed only by a model property, by a
+        non-editable model field, or by a generic foreign key (which lives in Meta.private_fields
+        and so is absent from DRF's field info) is rebuilt read-only, and is then dropped from the
+        request body altogether.
+        """
+        model = getattr(getattr(serializer, 'Meta', None), 'model', None)
+        if model is None or not hasattr(serializer, 'build_field'):
+            return False
+
+        depth = getattr(serializer.Meta, 'depth', 0)
+        try:
+            field_class, field_kwargs = serializer.build_field(
+                field_name, model_meta.get_field_info(model), model, depth
+            )
+        except ImproperlyConfigured:
+            # build_unknown_field(): the model has nothing of this name at all
+            return False
+
+        if isinstance(field_class, type) and issubclass(field_class, ReadOnlyField):
+            return False
+        return not field_kwargs.get('read_only', False)
+
     def get_writable_class(self, serializer):
         properties = {}
         fields = {} if hasattr(serializer, 'child') else serializer.fields
@@ -352,7 +386,19 @@ class NetBoxAutoSchema(AutoSchema):
             if 'read_only' in dir(child) and child.read_only:
                 remove_fields.append(child_name)
             if isinstance(child, (ChoiceField, WritableNestedSerializer)):
-                properties[child_name] = None
+                if child.read_only or self._rebuilds_as_writable(serializer, child_name):
+                    properties[child_name] = None
+                else:
+                    # DRF cannot rebuild this one writably: it is backed by a read-only property
+                    # (e.g. Service.protocol, derived from port_mappings). Nulling it would leave
+                    # DRF to rebuild it as a ReadOnlyField, which is then omitted from the request
+                    # body altogether -- silently dropping a field the serializer does accept on
+                    # write. Keep the declared field instead; ChoiceFieldFix already renders it
+                    # correctly for the request direction. The copy leaves the bound original
+                    # untouched (Field.__deepcopy__ returns an unbound field built from the same
+                    # arguments), and keeps `properties` non-empty so the writable variant is still
+                    # generated rather than collapsing to None below.
+                    properties[child_name] = copy.deepcopy(child)
 
         if not properties:
             return None
