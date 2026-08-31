@@ -21,6 +21,7 @@ from utilities.request import apply_request_processors
 __all__ = (
     'AsyncViewJob',
     'JobRunner',
+    'reconcile_stale_system_jobs',
     'system_job',
 )
 
@@ -28,6 +29,11 @@ __all__ = (
 # prefixes from traceback file paths before recording them in the job log.
 # jobs.py lives at <root>/netbox/netbox/jobs.py, so parents[2] is the root.
 _INSTALL_ROOT = str(Path(__file__).resolve().parents[2]) + os.sep
+
+# Floor for the grace period before a "running" system job is treated as stranded. The window
+# is max(interval, this floor), so a short-interval job still gets time to finish a legitimate
+# run. See reconcile_stale_system_jobs() and issue #22714.
+STALE_RUNNING_JOB_GRACE_MINUTES = 30
 
 
 def system_job(interval):
@@ -44,6 +50,37 @@ def system_job(interval):
         return cls
 
     return _wrapper
+
+
+@advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
+def reconcile_stale_system_jobs(job_class, interval):
+    """
+    Fail any object-less system job of this class left stranded in "running" status by a worker
+    that was killed mid-run (issue #22714). Such a row is never reset, and because "running" is
+    an enqueued state, `enqueue_once()` mistakes it for a live schedule and never re-arms it.
+
+    A running job is treated as stranded once its `started` timestamp is older than
+    `max(interval, STALE_RUNNING_JOB_GRACE_MINUTES)`. RQ is not consulted: a killed job's RQ
+    entry can outlive the worker, and the schedule may be recovered with RQ state wiped.
+    """
+    grace = max(interval, STALE_RUNNING_JOB_GRACE_MINUTES)
+    cutoff = timezone.now() - timedelta(minutes=grace)
+
+    orphaned = Job.objects.filter(
+        name=job_class.name,
+        object_id__isnull=True,
+        interval=interval,
+        status=JobStatusChoices.STATUS_RUNNING,
+        started__lte=cutoff,
+    )
+    for job in orphaned:
+        # STATUS_ERRORED (not FAILED) records an unexpected fault rather than a self-declared
+        # failure, as handle() does for an unhandled exception. For an object-less, userless
+        # system job, terminate() sends no notification and triggers no event rule.
+        job.terminate(
+            status=JobStatusChoices.STATUS_ERRORED,
+            error="Worker terminated before job completed",
+        )
 
 
 class JobLogHandler(logging.Handler):
@@ -223,7 +260,11 @@ class JobRunner(ABC):
             # Redis restart) and must be replaced rather than reused, even though its parameters match.
             # Running/pending jobs are exempt from this check: their `scheduled` timestamp is expected to be
             # in the past (or unset) once they've started, and that must not be mistaken for staleness.
-            is_stale = job.status == JobStatusChoices.STATUS_SCHEDULED and job.scheduled <= timezone.now()
+            is_stale = (
+                job.status == JobStatusChoices.STATUS_SCHEDULED and
+                job.scheduled and
+                job.scheduled <= timezone.now()
+            )
             if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()

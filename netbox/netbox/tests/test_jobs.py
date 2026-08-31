@@ -33,6 +33,13 @@ class TestSystemJobRunner(JobRunner):
         pass
 
 
+@system_job(interval=1)
+class TestShortIntervalSystemJobRunner(JobRunner):
+
+    def run(self, *args, **kwargs):
+        pass
+
+
 class BaseJobRunnerTestCase(RQQueueTestMixin, TestCase):
 
     @staticmethod
@@ -379,3 +386,146 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 2)
+
+
+class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
+    """
+    Test recovery of system jobs stranded in "running" status by a killed worker (#22714).
+    """
+
+    def test_reconcile_terminates_orphaned_running_job(self):
+        """A running system job whose `started` is older than the grace window is an
+        orphan (its worker died) and must be moved to `errored`."""
+        orphan = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertIsNotNone(orphan.completed)
+        self.assertEqual(orphan.error, "Worker terminated before job completed")
+
+    def test_reconcile_preserves_recently_started_running_job(self):
+        """A running system job that started recently (within the grace window) is a
+        legitimately in-flight job and must NOT be reaped."""
+        live = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=1),
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_grace_window_scales_with_interval(self):
+        """The grace window is max(interval, floor). A job whose interval exceeds the floor
+        gets the longer window: a 60-minute-interval job started 45 minutes ago is past the
+        30-minute floor but still within its own interval, so it must be preserved."""
+        within_interval = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=45),
+            started=timezone.now() - timedelta(minutes=45),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        within_interval.refresh_from_db()
+        self.assertEqual(within_interval.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_grace_floor_protects_short_interval_job(self):
+        """For a job whose interval is shorter than the floor, the floor governs the window.
+        A 1-minute-interval job started 20 minutes ago is well past its interval but within
+        the 30-minute floor, so it must NOT be reaped."""
+        within_floor = Job.objects.create(
+            name=TestShortIntervalSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=1,
+            scheduled=timezone.now() - timedelta(minutes=20),
+            started=timezone.now() - timedelta(minutes=20),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestShortIntervalSystemJobRunner, 1)
+
+        within_floor.refresh_from_db()
+        self.assertEqual(within_floor.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_grace_floor_reaps_short_interval_orphan(self):
+        """A 1-minute-interval job started 40 minutes ago is past the 30-minute floor and is
+        an orphan, so it must be reaped despite its short interval."""
+        orphan = Job.objects.create(
+            name=TestShortIntervalSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=1,
+            scheduled=timezone.now() - timedelta(minutes=40),
+            started=timezone.now() - timedelta(minutes=40),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestShortIntervalSystemJobRunner, 1)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+
+    def test_reconcile_ignores_instance_bound_job(self):
+        """The sweep targets object-less system jobs only. An instance-bound job of the
+        same runner class must be left alone even if it looks stale."""
+        instance = DataSource.objects.create(name='test-ds-reconcile', type='local')
+        bound = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            object=instance,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        bound.refresh_from_db()
+        self.assertEqual(bound.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_then_enqueue_once_rearms(self):
+        """After a stranded job is reconciled to `errored`, the startup `enqueue_once()`
+        call must re-arm a fresh scheduled successor."""
+        orphan = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        # Mirror rqworker startup: reconcile stale jobs, then enqueue_once.
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+        successor = TestSystemJobRunner.enqueue_once(interval=60)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertNotEqual(successor.pk, orphan.pk)
+        self.assertIn(successor.status, JobStatusChoices.ENQUEUED_STATE_CHOICES)
+
+        # Exactly one live (enqueued) successor should remain.
+        enqueued = Job.objects.filter(
+            name=TestSystemJobRunner.name,
+            object_id__isnull=True,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+        )
+        self.assertEqual(enqueued.count(), 1)
