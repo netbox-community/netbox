@@ -14,6 +14,15 @@
 !!! warning "Redis 6.0 or Later Required"
     This release of NetBox drops support for Redis 5.x.
 
+!!! warning "Extended Upgrade Duration"
+    Two steps in this upgrade scale with the size of the database, and may take considerably longer than a typical NetBox upgrade.
+
+    The migration which replaces django-mptt with `ltree` backfills each hierarchical table in a single statement, holding a row-exclusive lock on the table for its duration. On a large deployment this can block writes to the table for several minutes. The table most likely to be affected is `dcim_inventoryitem`, which can hold millions of rows; the others (region, sitegroup, location, devicerole, platform, modulebay, inventoryitemtemplate, tenantgroup, contactgroup, and wirelesslangroup) are typically far smaller.
+
+    The upgrade script then runs the `rebuild_config_context_cache` management command, which issues one `UPDATE` per device and virtual machine.
+
+    Plan a maintenance window accordingly, and note that these migrations are not reversible in practice: Reversing them restores the MPTT columns but does not repopulate them.
+
 ### Breaking Changes
 
 * PostgreSQL 14 is no longer supported. NetBox now requires PostgreSQL 15 or later: The upgrade script will abort when connected to an earlier release. (NetBox v4.6 reported this as a warning.)
@@ -36,7 +45,7 @@
 * Webhooks now support a configurable timeout. If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less, you must also set [`WEBHOOK_DEFAULT_TIMEOUT`](../configuration/miscellaneous.md#webhook_default_timeout) to a lower value; NetBox will refuse to start otherwise.
 * Specifying an email server under the [`EMAIL`](../configuration/system.md#email) configuration parameter is now mandatory in order to send mail: A deployment which does not define `EMAIL['SERVER']` will raise an `InvalidMailer` exception when attempting to send, rather than failing at the SMTP connection.
 * NetBox now populates Django's `MAILERS` setting rather than the individual `EMAIL_*` settings which it supersedes. `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_SSL`, `EMAIL_USE_TLS`, `EMAIL_TIMEOUT`, `EMAIL_SSL_CERTFILE`, and `EMAIL_SSL_KEYFILE` are no longer defined, and `EMAIL_BACKEND` is no longer consulted. Plugin code which reads any of these, or which calls `django.core.mail.get_connection()` with an explicit backend (now raising a `RuntimeError`), must be updated. The `EMAIL` configuration parameter itself is unchanged.
-* The upgrade script now runs the `rebuild_config_context_cache` management command to populate the new config context cache. This may extend the duration of the upgrade for deployments with a large number of devices and virtual machines.
+* The upgrade script now runs the `rebuild_config_context_cache` management command to populate the new config context cache. This issues one `UPDATE` per device and virtual machine, and may extend the duration of the upgrade considerably for deployments with a large number of either. The command skips objects whose cache is already populated, so it is safe to interrupt and re-run; it may also be deferred until after NetBox is back online, as any object whose cache is empty falls back to rendering its config context on demand.
 * Creating a custom field which has a default value, and deleting a custom field, are now deferred to a background job where the field's assigned object types hold more than [`BULK_UPDATE_CHUNK_SIZE`](../configuration/system.md#bulk_update_chunk_size) objects in total.
 * The obsolete `populate_custom_field_defaults()` method has been removed from `CustomFieldsMixin`.
 * `CustomField.objects.get_for_model()` and the `custom_fields` property of `CustomFieldsMixin` now return a list rather than a queryset, and `get_for_model()` returns only those fields which are active: Any whose stored data is being updated by a background job is omitted (see [field status](../customization/custom-fields.md#field-status)) unless selected via its `statuses` argument.
