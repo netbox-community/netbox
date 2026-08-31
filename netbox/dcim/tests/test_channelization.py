@@ -854,6 +854,21 @@ class ChannelizedInterfaceTestCase(TestCase):
         self.assertEqual(self.parent.name, 'et0')  # Not persisted
         self.assertEqual(child.name, 'et0:1')  # Not cascaded
 
+    def test_generator_update_fields_cascades_rename(self):
+        # A one-shot iterable naming 'name' must still persist the rename and cascade it.
+        child = Interface.objects.create(
+            device=self.device, name='et0:1', type=InterfaceTypeChoices.TYPE_CHANNEL, parent=self.parent, channel_id=1
+        )
+
+        self.parent.name = 'et1'
+        with self.captureOnCommitCallbacks(execute=True):
+            self.parent.save(update_fields=(field for field in ('name',)))
+
+        self.parent.refresh_from_db()
+        child.refresh_from_db()
+        self.assertEqual(self.parent.name, 'et1')
+        self.assertEqual(child.name, 'et1:1')
+
     def test_update_fields_excluding_name_does_not_desync_later_full_rename(self):
         # A later full save() must still correctly cascade, proving the earlier partial save didn't refresh
         # _original_name to its unpersisted in-memory value.

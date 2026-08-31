@@ -14,6 +14,7 @@ from utilities.conversion import (
     to_liters_per_minute,
     to_millimeters,
 )
+from utilities.data import normalize_update_fields
 
 __all__ = (
     'CachedScopeMixin',
@@ -276,7 +277,7 @@ class InterfaceChannelRenameMixin:
         self._original_channels = self.__dict__.get('channels')
 
     def save(self, *args, **kwargs):
-        update_fields = kwargs.get('update_fields')
+        update_fields = normalize_update_fields(kwargs)
         # A save() whose update_fields excludes 'name'/'channels' won't actually persist that attribute, so the
         # cascade decision below can't treat self.name/self.channels as current in that case -- fall back to the
         # last known persisted value instead. Without this, e.g. clearing self.channels in memory and saving
