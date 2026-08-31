@@ -1,7 +1,7 @@
 {
   "aggregate:api_list_objects": 13,
   "aggregate:list_objects_with_permission": 21,
-  "asn:api_list_objects": 17,
+  "asn:api_list_objects": 16,
   "asn:list_objects_with_permission": 28,
   "asnrange:api_list_objects": 14,
   "asnrange:list_objects_with_permission": 19,

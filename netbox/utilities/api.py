@@ -8,7 +8,7 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     ValidationError,
 )
-from django.db.models.fields.related import ManyToOneRel, RelatedField
+from django.db.models.fields.related import ManyToManyRel, ManyToOneRel, RelatedField
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -193,7 +193,7 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _ser
         # If the serializer field does not map to a discrete model field, skip it.
         try:
             field = model._meta.get_field(model_field_name)
-            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+            if isinstance(field, (RelatedField, ManyToOneRel, ManyToManyRel, GenericForeignKey)):
                 prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
