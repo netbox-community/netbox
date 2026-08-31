@@ -23,6 +23,7 @@ from django.utils.translation import gettext_lazy as _
 # finishes initializing, so a package-relative import would fail the attribute lookup
 # on the partially-initialized `netbox.models` package (circular import).
 from netbox.models.lookups import Ancestor, AncestorOrEqual, Descendant, DescendantOrEqual
+from utilities.data import normalize_update_fields
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -387,7 +388,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         # the new parent_id, so the trigger does not fire and _loaded_parent_id
         # must not advance — otherwise a subsequent full save() would mis-detect
         # the (real) parent change as already-applied and leave path stale.
-        update_fields = kwargs.get('update_fields')
+        update_fields = normalize_update_fields(kwargs)
         parent_written = update_fields is None or 'parent' in update_fields or 'parent_id' in update_fields
         parent_changed = (not is_insert) and parent_written and self.parent_id != self._loaded_parent_id
 

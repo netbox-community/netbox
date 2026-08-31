@@ -354,13 +354,46 @@ class AddRelatedCountTests(TestCase):
 
 
 class SaveUpdateFieldsTests(TestCase):
-    """
-    Regression: when save(update_fields=...) excludes parent, _loaded_parent_id
-    must not advance, otherwise a subsequent full save() will mis-detect the
-    parent change as already-applied and leave path stale in memory.
-    """
+    """Verify partial saves honor Django's update_fields contract."""
+
+    def test_generator_update_fields_persists_named_field(self):
+        """A one-shot iterable naming only 'name' still reaches the database."""
+        region = Region.objects.create(name='Original', slug='obj-uf-gen')
+
+        region.name = 'Updated'
+        region.save(update_fields=(field for field in ('name',)))
+
+        db = Region.objects.values('name', 'sort_path').get(pk=region.pk)
+        self.assertEqual(db['name'], 'Updated')
+        self.assertEqual(db['sort_path'], 'Updated')
+        self.assertEqual(region.sort_path, db['sort_path'])
+
+    def test_generator_update_fields_reparent_refreshes_path(self):
+        """A one-shot iterable naming 'parent' persists the move and refreshes path."""
+        parent = Region.objects.create(name='P', slug='p-uf-gen')
+        child = Region.objects.create(name='C', slug='c-uf-gen')
+
+        child.parent = parent
+        child.save(update_fields=(field for field in ('parent',)))
+
+        db_path = Region.objects.values_list('path', flat=True).get(pk=child.pk)
+        self.assertEqual(db_path, _path(parent.pk, child.pk))
+        self.assertEqual(child.path, db_path)
+
+    def test_empty_generator_update_fields_skips_save(self):
+        """An empty iterable is a no-op save, per Django's update_fields contract."""
+        region = Region.objects.create(name='Original', slug='empty-uf-gen')
+
+        region.name = 'Updated'
+        region.save(update_fields=(field for field in ()))
+
+        self.assertEqual(Region.objects.values_list('name', flat=True).get(pk=region.pk), 'Original')
 
     def test_partial_save_then_full_save_refreshes_path(self):
+        """
+        Excluding parent must not advance _loaded_parent_id, otherwise a later
+        full save can leave the in-memory path stale.
+        """
         r1 = Region.objects.create(name='R1', slug='r1-uf')
         r2 = Region.objects.create(name='R2', slug='r2-uf')
         obj = Region.objects.create(name='Obj', slug='obj-uf')

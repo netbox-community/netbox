@@ -529,6 +529,20 @@ class ModuleMoveSaveContractTestCase(TestCase):
         self.module.refresh_from_db()
         self.assertEqual(self.module.module_bay, self.bay_b)
 
+    def test_generator_update_fields_excluding_module_bay_saves_without_moving(self):
+        self.module.module_bay = self.bay_b
+        self.module.serial = 'ABC123'
+        self.module.save(update_fields=(field for field in ('serial',)))
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.serial, 'ABC123')
+        self.assertEqual(self.module.module_bay, self.bay_a)
+
+    def test_generator_update_fields_including_placement_moves(self):
+        self.module.module_bay = self.bay_b
+        self.module.save(update_fields=(field for field in ('device', 'module_bay')))
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.module_bay, self.bay_b)
+
     def test_deadlock_is_translated_to_abort_request(self):
         deadlock = OperationalError('Simulated deadlock error')
         deadlock.__cause__ = type('FakeDeadlock', (Exception,), {'sqlstate': '40P01'})()

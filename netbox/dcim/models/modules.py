@@ -15,6 +15,7 @@ from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
 from utilities.jsonschema import validate_schema
@@ -505,11 +506,13 @@ class Module(TrackingModelMixin, PrimaryModel):
             module = module_module_bay.module if module_module_bay else None
 
     def save(self, *args, **kwargs):
+        # Normalize before the pk branch so _save_new() and _save_existing() forward a re-iterable value.
+        update_fields = normalize_update_fields(kwargs)
+
         if self.pk is None:
             self._save_new(*args, **kwargs)
             return
 
-        update_fields = kwargs.get('update_fields')
         placement_fields = {'device', 'device_id', 'module_bay', 'module_bay_id'}
         if update_fields is not None and placement_fields.isdisjoint(update_fields):
             # Placement columns cannot be written by this save, so no move can occur.

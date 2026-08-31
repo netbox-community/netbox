@@ -7,6 +7,7 @@ from utilities.data import (
     get_config_value_ci,
     get_inclusive_integer_range_bounds,
     normalize_integer_range,
+    normalize_update_fields,
     ranges_to_string,
     ranges_to_string_list,
     string_to_ranges,
@@ -229,3 +230,33 @@ class GetConfigValueCITestCase(TestCase):
     def test_empty_dict(self):
         self.assertIsNone(get_config_value_ci({}, 'any.key'))
         self.assertEqual(get_config_value_ci({}, 'any.key', default=[]), [])
+
+
+class NormalizeUpdateFieldsTestCase(TestCase):
+
+    def test_none_is_passed_through(self):
+        kwargs = {'update_fields': None}
+        self.assertIsNone(normalize_update_fields(kwargs))
+        self.assertIsNone(kwargs['update_fields'])
+
+    def test_absent_key_is_not_added(self):
+        kwargs = {}
+        self.assertIsNone(normalize_update_fields(kwargs))
+        self.assertNotIn('update_fields', kwargs)
+
+    def test_generator_is_materialized_in_place(self):
+        kwargs = {'update_fields': (field for field in ('name', 'description'))}
+        update_fields = normalize_update_fields(kwargs)
+
+        self.assertEqual(update_fields, frozenset({'name', 'description'}))
+        self.assertEqual(kwargs['update_fields'], frozenset({'name', 'description'}))
+
+    def test_empty_generator_normalizes_to_empty_frozenset(self):
+        kwargs = {'update_fields': (field for field in ())}
+        self.assertEqual(normalize_update_fields(kwargs), frozenset())
+        self.assertEqual(kwargs['update_fields'], frozenset())
+
+    def test_list_is_normalized(self):
+        kwargs = {'update_fields': ['name']}
+        self.assertEqual(normalize_update_fields(kwargs), frozenset({'name'}))
+        self.assertEqual(kwargs['update_fields'], frozenset({'name'}))
