@@ -15,7 +15,7 @@ class CablePathTestCase(BaseCablePathTestCase):
     Tests are numbered as follows:
         1XX: Test direct connections using each profile
         2XX: Topology tests replicated from the legacy test case and adapted to use profiles
-        3XX: Dynamic port mapping and termination changes
+        3XX: Dynamic port mapping, profile and termination changes
     """
 
     def test_101_cable_profile_single_1c1p(self):
@@ -2511,4 +2511,277 @@ class CablePathTestCase(BaseCablePathTestCase):
             (interface4, cable4, rearport2, frontport2, cable2, interface2),
             is_complete=True,
             is_active=True
+        )
+
+    def test_307_change_cable_profile_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [IF2]
+
+        Applying a profile to an existing cable rebuilds its paths.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+
+        # Create cable 1 without a profile
+        cable1 = Cable(
+            a_terminations=[interfaces[0]],
+            b_terminations=[interfaces[1]],
+        )
+        cable1.clean()
+        cable1.save()
+
+        self.assertPathExists(
+            (interfaces[0], cable1, interfaces[1]),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interfaces[1], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True
+        )
+
+        # Reload so _terminations_modified starts False, as it does in a bulk edit
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.profile = CableProfileChoices.SINGLE_1C1P
+        cable1.full_clean()
+        cable1.save()
+
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, interfaces[1]),
+            is_complete=True,
+            is_active=True
+        )
+        path2 = self.assertPathExists(
+            (interfaces[1], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interfaces[0].refresh_from_db()
+        interfaces[1].refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)
+
+    def test_308_change_cable_profile_regroups_trunk_paths(self):
+        """
+        [IF1] --C1-- [IF3]
+        [IF2]        [IF4]
+
+        Applying a trunk profile to an existing cable regroups its paths by connector, and
+        clearing it again collapses them.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+            Interface.objects.create(device=self.device, name='Interface 3'),
+            Interface.objects.create(device=self.device, name='Interface 4'),
+        ]
+
+        # Create cable 1 without a profile
+        cable1 = Cable(
+            a_terminations=[interfaces[0], interfaces[1]],
+            b_terminations=[interfaces[2], interfaces[3]],
+        )
+        cable1.clean()
+        cable1.save()
+
+        # Without a profile both terminations on each end share a single path
+        self.assertPathExists(
+            ((interfaces[0], interfaces[1]), cable1, (interfaces[2], interfaces[3])),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            ((interfaces[2], interfaces[3]), cable1, (interfaces[0], interfaces[1])),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Reload so _terminations_modified starts False, as it does in a bulk edit
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.profile = CableProfileChoices.TRUNK_2C1P
+        cable1.full_clean()
+        cable1.save()
+
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, interfaces[2]),
+            is_complete=True,
+            is_active=True
+        )
+        path2 = self.assertPathExists(
+            (interfaces[1], cable1, interfaces[3]),
+            is_complete=True,
+            is_active=True
+        )
+        path3 = self.assertPathExists(
+            (interfaces[2], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True
+        )
+        path4 = self.assertPathExists(
+            (interfaces[3], cable1, interfaces[1]),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 4)
+
+        for interface in interfaces:
+            interface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)
+        self.assertPathIsSet(interfaces[2], path3)
+        self.assertPathIsSet(interfaces[3], path4)
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[1].cable_connector, 2)
+        self.assertEqual(interfaces[2].cable_connector, 1)
+        self.assertEqual(interfaces[3].cable_connector, 2)
+        for interface in interfaces:
+            self.assertEqual(interface.cable_positions, [1])
+
+        # Clearing the profile is a bulk-edit action in its own right
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.profile = ''
+        cable1.full_clean()
+        cable1.save()
+
+        path5 = self.assertPathExists(
+            ((interfaces[0], interfaces[1]), cable1, (interfaces[2], interfaces[3])),
+            is_complete=True,
+            is_active=True
+        )
+        path6 = self.assertPathExists(
+            ((interfaces[2], interfaces[3]), cable1, (interfaces[0], interfaces[1])),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        for interface in interfaces:
+            interface.refresh_from_db()
+            self.assertIsNone(interface.cable_connector)
+        self.assertPathIsSet(interfaces[0], path5)
+        self.assertPathIsSet(interfaces[1], path5)
+        self.assertPathIsSet(interfaces[2], path6)
+        self.assertPathIsSet(interfaces[3], path6)
+
+    def test_309_change_midspan_cable_profile_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [FP1][RP1] --C3-- [RP2][FP2] --C2-- [IF2]
+
+        Applying a profile to a cable which terminates on pass-through ports rebuilds the
+        paths traversing it. The rear ports are not path origins, so a missing rebuild
+        truncates those paths rather than deleting them.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name='Rear Port 1'),
+            RearPort.objects.create(device=self.device, name='Rear Port 2'),
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name='Front Port 1'),
+            FrontPort.objects.create(device=self.device, name='Front Port 2'),
+        ]
+        for front_port, rear_port in zip(front_ports, rear_ports):
+            PortMapping.objects.create(
+                device=self.device,
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1
+            )
+
+        cable1 = Cable(a_terminations=[interfaces[0]], b_terminations=[front_ports[0]])
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(a_terminations=[front_ports[1]], b_terminations=[interfaces[1]])
+        cable2.clean()
+        cable2.save()
+
+        # Create the mid-span cable without a profile
+        cable3 = Cable(a_terminations=[rear_ports[0]], b_terminations=[rear_ports[1]])
+        cable3.clean()
+        cable3.save()
+
+        nodes_a_to_b = (
+            interfaces[0], cable1, front_ports[0], rear_ports[0], cable3, rear_ports[1], front_ports[1], cable2,
+            interfaces[1],
+        )
+        nodes_b_to_a = (
+            interfaces[1], cable2, front_ports[1], rear_ports[1], cable3, rear_ports[0], front_ports[0], cable1,
+            interfaces[0],
+        )
+        self.assertPathExists(nodes_a_to_b, is_complete=True, is_active=True)
+        self.assertPathExists(nodes_b_to_a, is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Reload so _terminations_modified starts False, as it does in a bulk edit
+        cable3 = Cable.objects.get(pk=cable3.pk)
+        cable3.profile = CableProfileChoices.SINGLE_1C1P
+        cable3.full_clean()
+        cable3.save()
+
+        path1 = self.assertPathExists(nodes_a_to_b, is_complete=True, is_active=True)
+        path2 = self.assertPathExists(nodes_b_to_a, is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        for interface in interfaces:
+            interface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)
+
+    def test_310_repeat_save_does_not_recreate_paths(self):
+        """
+        [IF1] --C1-- [IF2]
+
+        Saving an unchanged cable again leaves its terminations and paths untouched.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+
+        cable1 = Cable(
+            a_terminations=[interfaces[0]],
+            b_terminations=[interfaces[1]],
+        )
+        cable1.clean()
+        cable1.save()
+
+        path_pks = set(CablePath.objects.values_list('pk', flat=True))
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertEqual(len(path_pks), 2)
+        self.assertEqual(len(termination_pks), 2)
+
+        # Saving the same instance again must not duplicate its paths
+        cable1.save()
+        self.assertEqual(set(CablePath.objects.values_list('pk', flat=True)), path_pks)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+            termination_pks
+        )
+
+        # Reload so _terminations_modified starts False, as it does in a bulk edit
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.profile = CableProfileChoices.SINGLE_1C1P
+        cable1.full_clean()
+        cable1.save()
+
+        path_pks = set(CablePath.objects.values_list('pk', flat=True))
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertEqual(len(path_pks), 2)
+        self.assertEqual(len(termination_pks), 2)
+
+        # The profile change is applied once, so a second save must not recreate anything
+        cable1.save()
+        self.assertEqual(set(CablePath.objects.values_list('pk', flat=True)), path_pks)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+            termination_pks
         )

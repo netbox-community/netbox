@@ -796,8 +796,7 @@ class CableSignalTestCase(TestCase):
         cable.save()
         self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
 
-        # Reload the cable so _orig_status reflects the persisted value and
-        # _terminations_modified resets to False.
+        # Reload to exercise status tracking on a freshly loaded instance, as a request does
         cable = Cable.objects.get(pk=cable.pk)
         cable.status = LinkStatusChoices.STATUS_PLANNED
         cable.save()
@@ -819,6 +818,42 @@ class CableSignalTestCase(TestCase):
         cable.status = LinkStatusChoices.STATUS_CONNECTED
         cable.save()
 
+        self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
+
+    def test_toggling_cable_status_on_one_instance_reactivates_paths(self):
+        interface_a = Interface.objects.create(device=self.device, name='Interface A')
+        interface_b = Interface.objects.create(device=self.device, name='Interface B')
+        cable = Cable(a_terminations=[interface_a], b_terminations=[interface_b])
+        cable.save()
+
+        # Reuse the same instance for both changes, as a script would
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.status = LinkStatusChoices.STATUS_PLANNED
+        cable.save()
+        self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+
+        cable.status = LinkStatusChoices.STATUS_CONNECTED
+        cable.save()
+        self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
+
+    def test_partial_save_does_not_consume_an_unwritten_status_change(self):
+        interface_a = Interface.objects.create(device=self.device, name='Interface A')
+        interface_b = Interface.objects.create(device=self.device, name='Interface B')
+        cable = Cable(
+            a_terminations=[interface_a],
+            b_terminations=[interface_b],
+            status=LinkStatusChoices.STATUS_PLANNED,
+        )
+        cable.save()
+        self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+
+        # A save that excludes status must not advance the status snapshot
+        cable.status = LinkStatusChoices.STATUS_CONNECTED
+        cable.save(update_fields=['label'])
+        self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+
+        # _orig_status was not advanced, so the change must still be detected
+        cable.save()
         self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
 
     def test_deleting_cable_retraces_paths(self):

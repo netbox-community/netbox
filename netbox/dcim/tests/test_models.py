@@ -2133,6 +2133,33 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    def test_partial_save_does_not_apply_an_unwritten_profile(self):
+        """
+        A save excluding profile must leave the terminations alone but keep the change pending.
+        """
+        cable = Cable.objects.first()
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        termination_pks = set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True))
+
+        cable.profile = CableProfileChoices.SINGLE_1C1P
+        cable.save(update_fields=['label'])
+
+        interface1.refresh_from_db()
+        # Requery rather than refresh, so the pending profile stays on the instance under test
+        self.assertEqual(Cable.objects.get(pk=cable.pk).profile, '')
+        self.assertIsNone(interface1.cable_connector)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True)),
+            termination_pks
+        )
+
+        # _orig_profile was not advanced, so the pending change still applies here
+        cable.save()
+
+        interface1.refresh_from_db()
+        self.assertEqual(Cable.objects.get(pk=cable.pk).profile, CableProfileChoices.SINGLE_1C1P)
+        self.assertEqual(interface1.cable_connector, 1)
+
     def test_cable_profile_change_preserves_terminations(self):
         """
         When a Cable's profile is changed via save() without explicitly setting terminations (as happens during
