@@ -38,6 +38,12 @@ _INSTALL_ROOT = str(Path(__file__).resolve().parents[2]) + os.sep
 # See reconcile_stale_system_jobs() and issue #22714.
 STALE_RUNNING_JOB_GRACE_SECONDS = 600
 
+# How long past its scheduled time a job in "scheduled" status must be before enqueue_once() treats
+# it as stranded (its RQ-side scheduler entry was lost) rather than merely waiting its turn in the
+# queue. This is queue latency, not run duration, so it's a separate margin from the running-job
+# grace above. See enqueue_once() and issue #22714.
+STALE_SCHEDULED_JOB_GRACE_SECONDS = 600
+
 
 def system_job(interval):
     """
@@ -280,14 +286,16 @@ class JobRunner(ABC):
         if job:
             # If the job parameters haven't changed, don't schedule a new job and keep the current schedule.
             # Otherwise, delete the existing job and schedule a new job instead. A job still in "scheduled"
-            # status whose time has already passed is stale (its RQ-side scheduler entry was lost, e.g. by a
-            # Redis restart) and must be replaced rather than reused, even though its parameters match.
-            # Running/pending jobs are exempt from this check: their `scheduled` timestamp is expected to be
-            # in the past (or unset) once they've started, and that must not be mistaken for staleness.
+            # status well past its scheduled time is stale (its RQ-side scheduler entry was lost, e.g. by a
+            # Redis restart) and must be replaced rather than reused, even though its parameters match. The
+            # grace margin avoids mistaking a job that is merely waiting its turn in the queue (still
+            # "scheduled" with a just-passed timestamp) for a stranded one. Running/pending jobs are exempt:
+            # their `scheduled` timestamp is expected to be in the past (or unset) once they've started.
+            stale_before = timezone.now() - timedelta(seconds=STALE_SCHEDULED_JOB_GRACE_SECONDS)
             is_stale = (
                 job.status == JobStatusChoices.STATUS_SCHEDULED and
                 job.scheduled and
-                job.scheduled <= timezone.now()
+                job.scheduled <= stale_before
             )
             if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job

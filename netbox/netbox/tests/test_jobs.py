@@ -192,6 +192,25 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs().count(), 1)
 
+    def test_enqueue_once_reuses_recently_scheduled_job(self):
+        """
+        A job whose scheduled time has only just passed is waiting its turn in the queue, not
+        stranded. Within the grace margin it must be reused, not deleted and re-enqueued — a
+        concurrent enqueue_once() (e.g. a DataSource save) must not disrupt a due-but-queued job.
+        """
+        queued = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(seconds=30),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, queued)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
     def test_enqueue_once_reuses_pending_job_with_no_schedule(self):
         """
         A pending job (not yet picked up by a worker) has no `scheduled` timestamp at all.
