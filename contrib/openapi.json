@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.6.9",
+        "version": "4.6.10",
         "license": {
             "name": "Apache v2 License"
         }
@@ -21350,7 +21350,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21369,7 +21370,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21381,7 +21383,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21393,7 +21396,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21405,7 +21409,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21417,7 +21422,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21429,7 +21435,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21441,7 +21448,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21453,7 +21461,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21465,7 +21474,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21477,7 +21487,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -21489,7 +21500,8 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "type": "string",
+                                "x-spec-enum-id": "97ed937d7f0040be"
                             }
                         },
                         "explode": true,
@@ -177111,15 +177123,27 @@
                         "in": "query",
                         "name": "cluster",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
                         "name": "cluster_group",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -177575,8 +177599,14 @@
                         "in": "query",
                         "name": "location",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -177881,22 +177911,40 @@
                         "in": "query",
                         "name": "rack",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
                         "name": "rack_group",
                         "schema": {
-                            "type": "number"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
                         "name": "region",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -178011,15 +178059,27 @@
                         "in": "query",
                         "name": "site",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
                         "name": "site_group",
                         "schema": {
-                            "type": "integer"
-                        }
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -240113,6 +240173,42 @@
                     "user"
                 ]
             },
+            "BriefASN": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "asn": {
+                        "type": "integer",
+                        "maximum": 4294967295,
+                        "minimum": 1,
+                        "format": "int64",
+                        "description": "16- or 32-bit autonomous system number"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "asn",
+                    "display",
+                    "id",
+                    "url"
+                ]
+            },
             "BriefCable": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -240786,6 +240882,57 @@
                     "url"
                 ]
             },
+            "BriefContactGroup": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from NestedGroupModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "slug": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "pattern": "^[-a-zA-Z0-9_]+$"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "contact_count": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "default": 0
+                    },
+                    "_depth": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "title": " depth"
+                    }
+                },
+                "required": [
+                    "_depth",
+                    "contact_count",
+                    "display",
+                    "id",
+                    "name",
+                    "slug",
+                    "url"
+                ]
+            },
             "BriefContactRequest": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -241301,6 +241448,39 @@
                     "protocol"
                 ]
             },
+            "BriefGroup": {
+                "type": "object",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 150
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "display",
+                    "id",
+                    "name",
+                    "url"
+                ]
+            },
             "BriefIKEPolicy": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -241350,6 +241530,39 @@
                 },
                 "required": [
                     "name"
+                ]
+            },
+            "BriefIKEProposal": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "display",
+                    "id",
+                    "name",
+                    "url"
                 ]
             },
             "BriefIPAddress": {
@@ -241576,6 +241789,39 @@
                 },
                 "required": [
                     "name"
+                ]
+            },
+            "BriefIPSecProposal": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "display",
+                    "id",
+                    "name",
+                    "url"
                 ]
             },
             "BriefInterface": {
@@ -242367,6 +242613,58 @@
                 "required": [
                     "manufacturer",
                     "model"
+                ]
+            },
+            "BriefObjectPermission": {
+                "type": "object",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "object_types": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "actions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "maxLength": 30
+                        },
+                        "description": "The list of actions granted by this permission"
+                    }
+                },
+                "required": [
+                    "actions",
+                    "display",
+                    "id",
+                    "name",
+                    "object_types",
+                    "url"
                 ]
             },
             "BriefOwner": {
@@ -243386,6 +243684,40 @@
                     "slug"
                 ]
             },
+            "BriefRouteTarget": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Route target value (formatted in accordance with RFC 4360)",
+                        "maxLength": 21
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "display",
+                    "id",
+                    "name",
+                    "url"
+                ]
+            },
             "BriefSite": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -244327,6 +244659,49 @@
                     "slug"
                 ]
             },
+            "BriefVirtualDeviceContext": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "maxLength": 64
+                    },
+                    "device": {
+                        "$ref": "#/components/schemas/BriefDevice"
+                    },
+                    "identifier": {
+                        "type": "integer",
+                        "maximum": 32767,
+                        "minimum": 0,
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "device",
+                    "display",
+                    "id",
+                    "name",
+                    "url"
+                ]
+            },
             "BriefVirtualMachine": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -244440,6 +244815,39 @@
                 "required": [
                     "name",
                     "slug"
+                ]
+            },
+            "BriefWirelessLAN": {
+                "type": "object",
+                "description": "Base serializer class for models inheriting from PrimaryModel.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true
+                    },
+                    "display": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "ssid": {
+                        "type": "string",
+                        "maxLength": 32
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    }
+                },
+                "required": [
+                    "display",
+                    "id",
+                    "ssid",
+                    "url"
                 ]
             },
             "BriefWirelessLANGroup": {
@@ -260400,73 +260808,73 @@
                     "regions": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Region"
+                            "$ref": "#/components/schemas/BriefRegion"
                         }
                     },
                     "site_groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/SiteGroup"
+                            "$ref": "#/components/schemas/BriefSiteGroup"
                         }
                     },
                     "sites": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Site"
+                            "$ref": "#/components/schemas/BriefSite"
                         }
                     },
                     "locations": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Location"
+                            "$ref": "#/components/schemas/BriefLocation"
                         }
                     },
                     "device_types": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/DeviceType"
+                            "$ref": "#/components/schemas/BriefDeviceType"
                         }
                     },
                     "roles": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/DeviceRole"
+                            "$ref": "#/components/schemas/BriefDeviceRole"
                         }
                     },
                     "platforms": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Platform"
+                            "$ref": "#/components/schemas/BriefPlatform"
                         }
                     },
                     "cluster_types": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ClusterType"
+                            "$ref": "#/components/schemas/BriefClusterType"
                         }
                     },
                     "cluster_groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ClusterGroup"
+                            "$ref": "#/components/schemas/BriefClusterGroup"
                         }
                     },
                     "clusters": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Cluster"
+                            "$ref": "#/components/schemas/BriefCluster"
                         }
                     },
                     "tenant_groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/TenantGroup"
+                            "$ref": "#/components/schemas/BriefTenantGroup"
                         }
                     },
                     "tenants": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Tenant"
+                            "$ref": "#/components/schemas/BriefTenant"
                         }
                     },
                     "owner": {
@@ -262167,7 +262575,7 @@
                     "groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ContactGroup"
+                            "$ref": "#/components/schemas/BriefContactGroup"
                         }
                     },
                     "name": {
@@ -267920,7 +268328,7 @@
                     "permissions": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ObjectPermission"
+                            "$ref": "#/components/schemas/BriefObjectPermission"
                         }
                     },
                     "user_count": {
@@ -268036,7 +268444,7 @@
                     "proposals": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/IKEProposal"
+                            "$ref": "#/components/schemas/BriefIKEProposal"
                         }
                     },
                     "preshared_key": {
@@ -269192,7 +269600,7 @@
                     "proposals": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/IPSecProposal"
+                            "$ref": "#/components/schemas/BriefIPSecProposal"
                         }
                     },
                     "pfs_group": {
@@ -269977,7 +270385,7 @@
                     "vdcs": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/VirtualDeviceContext"
+                            "$ref": "#/components/schemas/BriefVirtualDeviceContext"
                         }
                     },
                     "module": {
@@ -271132,7 +271540,7 @@
                     "tagged_vlans": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/VLAN"
+                            "$ref": "#/components/schemas/BriefVLAN"
                         }
                     },
                     "qinq_svlan": {
@@ -271199,7 +271607,7 @@
                     "wireless_lans": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/WirelessLAN"
+                            "$ref": "#/components/schemas/BriefWirelessLAN"
                         }
                     },
                     "vrf": {
@@ -274131,13 +274539,13 @@
                     "import_targets": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/RouteTarget"
+                            "$ref": "#/components/schemas/BriefRouteTarget"
                         }
                     },
                     "export_targets": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/RouteTarget"
+                            "$ref": "#/components/schemas/BriefRouteTarget"
                         }
                     },
                     "description": {
@@ -277305,13 +277713,13 @@
                     "groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Group"
+                            "$ref": "#/components/schemas/BriefGroup"
                         }
                     },
                     "users": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/User"
+                            "$ref": "#/components/schemas/BriefUser"
                         }
                     }
                 },
@@ -277768,13 +278176,13 @@
                     "user_groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Group"
+                            "$ref": "#/components/schemas/BriefGroup"
                         }
                     },
                     "users": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/User"
+                            "$ref": "#/components/schemas/BriefUser"
                         }
                     }
                 },
@@ -310992,7 +311400,7 @@
                     "asns": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ASN"
+                            "$ref": "#/components/schemas/BriefASN"
                         }
                     },
                     "tags": {
@@ -315135,7 +315543,7 @@
                     "ipaddresses": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/IPAddress"
+                            "$ref": "#/components/schemas/BriefIPAddress"
                         }
                     },
                     "description": {
@@ -315584,7 +315992,7 @@
                     "asns": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ASN"
+                            "$ref": "#/components/schemas/BriefASN"
                         }
                     },
                     "tags": {
@@ -317736,13 +318144,13 @@
                     "groups": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Group"
+                            "$ref": "#/components/schemas/BriefGroup"
                         }
                     },
                     "permissions": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ObjectPermission"
+                            "$ref": "#/components/schemas/BriefObjectPermission"
                         }
                     }
                 },
@@ -318649,7 +319057,7 @@
                     "tagged_vlans": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/VLAN"
+                            "$ref": "#/components/schemas/BriefVLAN"
                         }
                     },
                     "qinq_svlan": {
