@@ -1,7 +1,10 @@
+import logging
+
 from django.apps import apps
 from django.core.cache import cache
 from django.core.checks import Error, Tags, register
-from django.db import NotSupportedError, connection
+from django.core.exceptions import ImproperlyConfigured
+from django.db import DatabaseError, NotSupportedError, OperationalError, connections
 from django.db.models import Index, UniqueConstraint
 
 __all__ = (
@@ -9,6 +12,14 @@ __all__ = (
     'check_postgresql_version',
     'check_redis_version',
 )
+
+# The minimum major version of PostgreSQL required by NetBox. `SHOW server_version_num` reports the
+# server version as a single integer of the form MMmmmm (e.g. 150004 for PostgreSQL 15.4), so the
+# major version is scaled by 10000 when comparing against it.
+POSTGRESQL_MIN_VERSION = 15
+POSTGRESQL_VERSION_MULTIPLIER = 10000
+
+logger = logging.getLogger('netbox.core.checks')
 
 
 @register(Tags.models)
@@ -46,43 +57,72 @@ def check_duplicate_indexes(app_configs, **kwargs):
 
 
 @register(Tags.database)
-def check_postgresql_version(app_configs, **kwargs):
+def check_postgresql_version(app_configs, databases=None, **kwargs):
     """
-    Report an error if the PostgreSQL version is less than 15.
+    Report an error if the PostgreSQL version is less than POSTGRESQL_MIN_VERSION.
     """
     errors = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('SHOW server_version_num')
-            row = cursor.fetchone()
-            pg_version = int(row[0])
-    except NotSupportedError:
-        # Django's own backend check rejects the connection outright when the server predates the
-        # minimum version Django supports (BaseDatabaseWrapper.init_connection_state()), so the query
-        # above never runs. Report the requirement here rather than letting the raw exception surface
-        # as a traceback: management commands run system checks with databases=None, which skips
-        # Django's equivalent check, so this is the only opportunity to report it cleanly.
-        errors.append(
-            Error(
-                'The configured PostgreSQL version is not supported. NetBox requires PostgreSQL 15 or later.',
-                hint='Please upgrade to PostgreSQL 15 or later.',
-                id='netbox.E001',
-            )
-        )
-    except Exception:
-        # The database may be unreachable (e.g. when running checks before it has been provisioned).
-        # Leave the version unverified rather than reporting a spurious error.
-        pass
-    else:
-        if pg_version < 150000:
-            major_version = pg_version // 10000
+
+    # Validate only those database aliases which Django has asked us to check. A value of None means
+    # that no database may be touched during this run, so there is nothing to validate: commands which
+    # do intend to use a connection declare its alias (e.g. `migrate` passes the value of --database).
+    # This mirrors Django's own database checks; see checks.database.check_database_backends().
+    if databases is None:
+        return errors
+
+    for alias in databases:
+        connection = connections[alias]
+
+        # A plugin may register a connection to some other type of database; only PostgreSQL
+        # connections are subject to NetBox's minimum version requirement.
+        if connection.vendor != 'postgresql':
+            continue
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('SHOW server_version_num')
+                row = cursor.fetchone()
+        except NotSupportedError:
+            # Django refuses to use the connection at all when the server predates the minimum version
+            # which Django itself supports (BaseDatabaseWrapper.check_database_version_supported()), so
+            # the query above never runs. The PostgreSQL backend registers no validation checks of its
+            # own, so report the requirement here rather than letting the raw exception surface as a
+            # traceback the first time something touches the database.
             errors.append(
                 Error(
-                    f'PostgreSQL {major_version} is not supported. NetBox requires PostgreSQL 15 or later.',
-                    hint='Please upgrade to PostgreSQL 15 or later.',
+                    f"Database '{alias}': The configured PostgreSQL version is not supported. NetBox "
+                    f"requires PostgreSQL {POSTGRESQL_MIN_VERSION} or later.",
+                    hint=f'Please upgrade to PostgreSQL {POSTGRESQL_MIN_VERSION} or later.',
                     id='netbox.E001',
                 )
             )
+            continue
+        except (ImproperlyConfigured, OperationalError):
+            # The database is unreachable or has yet to be provisioned. Leave the version unverified
+            # rather than reporting a spurious error.
+            continue
+        except DatabaseError:
+            # The server is reachable but rejected the query (e.g. a connection pooler which intercepts
+            # SHOW). Record why the version could not be determined rather than failing silently.
+            logger.warning(f"Database '{alias}': Failed to determine the PostgreSQL version.", exc_info=True)
+            continue
+
+        if not row:
+            logger.warning(f"Database '{alias}': `SHOW server_version_num` returned no result.")
+            continue
+
+        pg_version = int(row[0])
+        if pg_version < POSTGRESQL_MIN_VERSION * POSTGRESQL_VERSION_MULTIPLIER:
+            major_version = pg_version // POSTGRESQL_VERSION_MULTIPLIER
+            errors.append(
+                Error(
+                    f"Database '{alias}': PostgreSQL {major_version} is not supported. NetBox requires "
+                    f"PostgreSQL {POSTGRESQL_MIN_VERSION} or later.",
+                    hint=f'Please upgrade to PostgreSQL {POSTGRESQL_MIN_VERSION} or later.',
+                    id='netbox.E001',
+                )
+            )
+
     return errors
 
 
