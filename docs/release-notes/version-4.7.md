@@ -17,7 +17,7 @@
 !!! warning "Extended Upgrade Duration"
     Two steps in this upgrade scale with the size of the database, and may take considerably longer than a typical NetBox upgrade.
 
-    The migration which replaces django-mptt with `ltree` backfills each hierarchical table in a single statement, holding a row-exclusive lock on the table for its duration. On a large deployment this can block writes to the table for several minutes. The table most likely to be affected is `dcim_inventoryitem`, which can hold millions of rows; the others (region, sitegroup, location, devicerole, platform, modulebay, inventoryitemtemplate, tenantgroup, contactgroup, and wirelesslangroup) are typically far smaller.
+    The migration which replaces django-mptt with `ltree` adds and alters columns on each hierarchical table before backfilling it in a single statement. The schema changes hold an `ACCESS EXCLUSIVE` lock, which blocks reads as well as writes for their duration; the backfill which follows locks every row it updates, blocking concurrent writes to those rows until it commits. On a large deployment this can last several minutes. The table most likely to be affected is `dcim_inventoryitem`, which can hold millions of rows; the others (region, sitegroup, location, devicerole, platform, modulebay, inventoryitemtemplate, tenantgroup, contactgroup, and wirelesslangroup) are typically far smaller.
 
     The upgrade script then runs the `rebuild_config_context_cache` management command, which issues one `UPDATE` per device and virtual machine.
 

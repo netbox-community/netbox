@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from django.db import NotSupportedError, OperationalError, ProgrammingError
+from django.db import InterfaceError, NotSupportedError, OperationalError, ProgrammingError
 from django.test import TestCase
 
 from core.checks import POSTGRESQL_MIN_VERSION, POSTGRESQL_VERSION_MULTIPLIER, check_postgresql_version
@@ -90,6 +90,27 @@ class PostgreSQLVersionCheckTestCase(TestCase):
             with self.assertLogs('netbox.core.checks', level='WARNING') as cm:
                 self.assertEqual(check_postgresql_version(None, databases=['default']), [])
         self.assertIn('Failed to determine the PostgreSQL version', cm.output[0])
+
+    def test_connection_unusable(self):
+        """
+        An unusable connection leaves the version unverified rather than raising out of the check.
+        InterfaceError descends from Error rather than DatabaseError, so it is handled explicitly.
+        """
+        exception = InterfaceError('connection already closed')
+        with self.mock_connections(default=self.mock_connection(exception=exception)):
+            self.assertEqual(check_postgresql_version(None, databases=['default']), [])
+
+    def test_version_unparseable(self):
+        """
+        A version which cannot be parsed as an integer (e.g. as reported by an intervening connection
+        pooler) leaves the version unverified, but logs why.
+        """
+        connection = self.mock_connection(SUPPORTED_VERSION)
+        connection.cursor.return_value.__enter__.return_value.fetchone.return_value = ('15.4',)
+        with self.mock_connections(default=connection):
+            with self.assertLogs('netbox.core.checks', level='WARNING') as cm:
+                self.assertEqual(check_postgresql_version(None, databases=['default']), [])
+        self.assertIn('Unable to parse the PostgreSQL version', cm.output[0])
 
     def test_version_query_empty(self):
         """

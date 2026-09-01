@@ -4,7 +4,7 @@ from django.apps import apps
 from django.core.cache import cache
 from django.core.checks import Error, Tags, register
 from django.core.exceptions import ImproperlyConfigured
-from django.db import DatabaseError, NotSupportedError, OperationalError, connections
+from django.db import DatabaseError, InterfaceError, NotSupportedError, OperationalError, connections
 from django.db.models import Index, UniqueConstraint
 
 __all__ = (
@@ -97,9 +97,10 @@ def check_postgresql_version(app_configs, databases=None, **kwargs):
                 )
             )
             continue
-        except (ImproperlyConfigured, OperationalError):
-            # The database is unreachable or has yet to be provisioned. Leave the version unverified
-            # rather than reporting a spurious error.
+        except (ImproperlyConfigured, InterfaceError, OperationalError):
+            # The database is unreachable, has yet to be provisioned, or the connection is no longer
+            # usable. (InterfaceError is a sibling of DatabaseError, not a subclass, so it must be
+            # named explicitly.) Leave the version unverified rather than reporting a spurious error.
             continue
         except DatabaseError:
             # The server is reachable but rejected the query (e.g. a connection pooler which intercepts
@@ -111,7 +112,15 @@ def check_postgresql_version(app_configs, databases=None, **kwargs):
             logger.warning(f"Database '{alias}': `SHOW server_version_num` returned no result.")
             continue
 
-        pg_version = int(row[0])
+        try:
+            pg_version = int(row[0])
+        except (TypeError, ValueError):
+            # `SHOW server_version_num` reports an integer, but a pooler which answers the statement
+            # itself may report a dotted version instead. Leave the version unverified rather than
+            # raising out of the check and aborting the calling command.
+            logger.warning(f"Database '{alias}': Unable to parse the PostgreSQL version from {row[0]!r}.")
+            continue
+
         if pg_version < POSTGRESQL_MIN_VERSION * POSTGRESQL_VERSION_MULTIPLIER:
             major_version = pg_version // POSTGRESQL_VERSION_MULTIPLIER
             errors.append(

@@ -36,9 +36,9 @@ python3 netbox/manage.py populate_image_sizes
 
 ## rebuild_config_context_cache
 
-Pre-render and cache the merged config context data for all devices and virtual machines. The [upgrade script](../installation/upgrading.md) runs this automatically, so it is not usually necessary to invoke it by hand. It is useful to complete an interrupted run, or to repair the cache after a bulk write which bypassed NetBox's change handling (cache invalidation is driven by model signals, which a direct `queryset.update()` does not emit).
+Pre-render and cache the merged config context data for all devices and virtual machines. The [upgrade script](../installation/upgrading.md) runs this automatically, so it is not usually necessary to invoke it by hand. It is useful to complete an interrupted run, or (with `--force`) to repair the cache after a bulk write which bypassed NetBox's change handling (cache invalidation is driven by model signals, which a direct `queryset.update()` does not emit).
 
-By default, only those objects whose cache is empty are rendered, so the command is safe to interrupt and re-run; pass `--force` to re-render every object. Either form may be run on a live system, as any object whose cache is empty falls back to rendering its config context on demand. See [Context Data](../features/context-data.md) for details.
+By default, only those objects whose cache is empty are rendered, so the command is safe to interrupt and re-run. This also means that a default run will not correct a cache which is populated but stale, as a write which bypassed cache invalidation leaves it: Pass `--force` to re-render every object regardless of its current cache. Either form may be run on a live system, as any object whose cache is empty falls back to rendering its config context on demand. See [Context Data](../features/context-data.md) for details.
 
 ```
 python3 netbox/manage.py rebuild_config_context_cache [--force]
