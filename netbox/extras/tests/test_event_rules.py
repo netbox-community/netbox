@@ -3,7 +3,7 @@ import logging
 import uuid
 from io import BytesIO
 from unittest import skipIf
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, PropertyMock, patch
 
 import django_rq
 from django.conf import settings
@@ -994,6 +994,63 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         script_job.refresh_from_db()
         self.assertEqual(script_job.status, "completed")
         self.assertEqual(script_job.data.get('output', ''), "finished successfully")
+
+    @tag('regression')  # Issue #22872
+    def test_eventrule_script_action_invalid_meta_does_not_abort_change(self):
+        """
+        A Script event-rule action whose Meta configuration is invalid must be logged and skipped without aborting
+        the triggering object change or raising an HTTP 500 (#22872). Because event rules are processed in-request,
+        an unhandled ValidationError here would fail the originating request.
+        """
+        class BadMetaScript(ScriptBase):
+            class Meta:
+                name = "Bad Meta Script"
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit=True):
+                return "never reached"
+
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='bad_meta_script.py',
+            )
+        script = Script.objects.create(module=module, name='Bad Meta Script', is_executable=True)
+        script_type = ObjectType.objects.get_for_model(Script)
+
+        # Trigger on Manufacturer rather than Site: the class-level event rules all target Site, so a Site-based rule
+        # here would collide with them and perturb other tests' queue expectations.
+        manufacturer_type = ObjectType.objects.get_for_model(Manufacturer)
+        event_rule = EventRule.objects.create(
+            name='Bad Meta Script Rule',
+            event_types=[OBJECT_UPDATED],
+            action_type=EventRuleActionChoices.SCRIPT,
+            action_object_type=script_type,
+            action_object_id=script.pk,
+        )
+        event_rule.object_types.set([manufacturer_type])
+
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        self.add_permissions('dcim.change_manufacturer')
+        url = reverse('dcim-api:manufacturer-detail', kwargs={'pk': manufacturer.pk})
+
+        # python_class is a property returning the script class; patch it to return our bad-Meta class so validate_meta
+        # (a classmethod on it) is exercised the way production reads it.
+        with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock:
+            mock.return_value = BadMetaScript
+            with self.captureOnCommitCallbacks(execute=True):
+                with self.assertLogs('netbox.events_processor', 'ERROR') as captured:
+                    response = self.client.patch(url, {'description': 'updated'}, format='json', **self.header)
+
+        # The triggering object change succeeds despite the misconfigured script
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        manufacturer.refresh_from_db()
+        self.assertEqual(manufacturer.description, 'updated')
+
+        # No script job was enqueued (nothing queued, no Job record), and the misconfiguration was logged
+        self.assertEqual(self.queue.count, 0)
+        self.assertEqual(Job.objects.filter(name=BadMetaScript.Meta.name).count(), 0)
+        self.assertTrue(any('Bad Meta Script Rule' in line for line in captured.output))
 
     @tag('regression')  # Issue #22852
     def test_eventrule_script_action_honors_script_defaults(self):

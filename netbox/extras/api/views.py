@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -404,17 +405,23 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            ScriptJob.enqueue(
-                instance=script,
-                user=request.user,
-                data=input_serializer.data['data'],
-                request=copy_safe_request(request),
-                commit=input_serializer.data['commit'],
-                job_timeout=script.python_class.job_timeout,
-                schedule_at=input_serializer.validated_data.get('schedule_at'),
-                interval=input_serializer.validated_data.get('interval'),
-                notifications=input_serializer.validated_data.get('notifications'),
-            )
+            try:
+                ScriptJob.enqueue(
+                    instance=script,
+                    user=request.user,
+                    data=input_serializer.data['data'],
+                    request=copy_safe_request(request),
+                    commit=input_serializer.data['commit'],
+                    job_timeout=script.python_class.job_timeout,
+                    schedule_at=input_serializer.validated_data.get('schedule_at'),
+                    interval=input_serializer.validated_data.get('interval'),
+                    notifications=input_serializer.validated_data.get('notifications'),
+                )
+            except DjangoValidationError as e:
+                # The script's execution configuration is invalid (see #22872). Surface it as a 400 rather than
+                # allowing the exception to bubble up as an HTTP 500. These are script-level config errors, not
+                # request-field errors, so report them under the non-field "detail" key.
+                raise ValidationError({'detail': e.messages}) from e
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
             return Response(serializer.data)

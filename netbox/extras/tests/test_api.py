@@ -3,7 +3,7 @@ import hashlib
 import io
 import json
 from contextlib import contextmanager
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -1614,6 +1614,54 @@ class ScriptTestCase(APITestCase):
                 self.assertEqual(response.data['id'], script.pk)
 
         self.assertEqual(Job.objects.count(), len(lookups))
+
+    def test_run_script_invalid_job_timeout(self):
+        """
+        A script whose Meta.job_timeout is invalid must be rejected with a 400, not raise an unhandled exception
+        (#22872).
+        """
+        self.add_permissions('extras.run_script')
+
+        class BadTimeoutScript(PythonClass):
+            class Meta:
+                name = 'Bad Timeout'
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit=True):
+                pass
+
+        payload = {'data': {}, 'commit': True}
+        with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
+            mock_python_class.return_value = BadTimeoutScript
+            with disable_warnings('django.request'):
+                response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Job.objects.exists())
+
+    def test_run_script_invalid_notifications_default(self):
+        """
+        A script whose Meta.notifications_default is invalid must be rejected with a 400, not raise an unhandled
+        exception (#22872).
+        """
+        self.add_permissions('extras.run_script')
+
+        class BadNotificationsScript(PythonClass):
+            class Meta:
+                name = 'Bad Notifications'
+                notifications_default = 'on_error'
+
+            def run(self, data, commit=True):
+                pass
+
+        payload = {'data': {}, 'commit': True}
+        with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
+            mock_python_class.return_value = BadNotificationsScript
+            with disable_warnings('django.request'):
+                response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Job.objects.exists())
 
     def test_modify_script_methods_disabled(self):
         """

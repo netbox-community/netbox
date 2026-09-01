@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
@@ -1751,19 +1752,25 @@ class ScriptView(BaseScriptView):
             messages.error(request, _("Unable to run script: RQ worker process not running."))
         elif form.is_valid():
             ScriptJob = import_string("extras.jobs.ScriptJob")
-            job = ScriptJob.enqueue(
-                instance=script,
-                user=request.user,
-                schedule_at=form.cleaned_data.pop('_schedule_at'),
-                interval=form.cleaned_data.pop('_interval'),
-                notifications=form.cleaned_data.pop('_notifications'),
-                data=form.cleaned_data,
-                request=copy_safe_request(request),
-                job_timeout=script.python_class.job_timeout,
-                commit=form.cleaned_data.pop('_commit'),
-            )
-
-            return redirect('extras:script_result', job_pk=job.pk)
+            try:
+                job = ScriptJob.enqueue(
+                    instance=script,
+                    user=request.user,
+                    schedule_at=form.cleaned_data.pop('_schedule_at'),
+                    interval=form.cleaned_data.pop('_interval'),
+                    notifications=form.cleaned_data.pop('_notifications'),
+                    data=form.cleaned_data,
+                    request=copy_safe_request(request),
+                    job_timeout=script.python_class.job_timeout,
+                    commit=form.cleaned_data.pop('_commit'),
+                )
+            except ValidationError as e:
+                # The script's Meta configuration is invalid (see #22872). Surface it as a form error rather than
+                # allowing the exception to bubble up as an HTTP 500.
+                for msg in e.messages:
+                    messages.error(request, _("Unable to run script: {error}").format(error=msg))
+            else:
+                return redirect('extras:script_result', job_pk=job.pk)
         else:
             fieldset_fields = {field for _, fields in script_class.get_fieldsets() for field in fields}
             hidden_errors = {
