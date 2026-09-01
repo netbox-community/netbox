@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.translation import gettext_lazy as _
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -22,8 +23,6 @@ from utilities.request import apply_request_processors
 __all__ = (
     'AsyncViewJob',
     'JobRunner',
-    'reconcile_stale_system_jobs',
-    'resolve_job_timeout',
     'system_job',
 )
 
@@ -112,7 +111,7 @@ def reconcile_stale_system_jobs(job_class, interval):
         # system job, terminate() sends no notification and triggers no event rule.
         job.terminate(
             status=JobStatusChoices.STATUS_ERRORED,
-            error="Worker terminated before job completed",
+            error=_("Worker terminated before job completed"),
         )
 
 

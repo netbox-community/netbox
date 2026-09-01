@@ -13,7 +13,12 @@ from utilities.testing import disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
-from ..jobs import _INSTALL_ROOT, STALE_RUNNING_JOB_GRACE_SECONDS
+from ..jobs import (
+    _INSTALL_ROOT,
+    STALE_RUNNING_JOB_GRACE_SECONDS,
+    reconcile_stale_system_jobs,
+    resolve_job_timeout,
+)
 
 
 class TestJobRunner(JobRunner):
