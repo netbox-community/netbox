@@ -29,7 +29,7 @@ class ScriptJob(JobRunner):
         name = 'Run Script'
 
     @classmethod
-    def enqueue(cls, *args, instance=None, **kwargs):
+    def enqueue(cls, *args, **kwargs):
         """
         Validate the script's execution parameters before enqueueing. This is the single choke point through which
         every script execution passes (interactive runs, the REST API, the runscript command, event-rule actions, and
@@ -39,6 +39,10 @@ class ScriptJob(JobRunner):
         The values actually being enqueued are validated, not just the script's Meta defaults, so an explicit
         job_timeout or notifications supplied by the caller is checked too.
         """
+        # The instance may be passed positionally (JobRunner.enqueue() forwards it to Job.enqueue()'s first argument)
+        # or by keyword. Resolve it for validation without consuming it, so the original arguments are forwarded to
+        # super() unchanged and the inherited calling contract is preserved.
+        instance = args[0] if args else kwargs.get('instance')
         script_class = getattr(instance, 'python_class', None)
         if script_class is not None:
             script_class.validate_meta(
@@ -46,7 +50,7 @@ class ScriptJob(JobRunner):
                 notifications=kwargs.get('notifications', _UNSET),
             )
 
-        return super().enqueue(*args, instance=instance, **kwargs)
+        return super().enqueue(*args, **kwargs)
 
     def run_script(self, script, request, data, commit):
         """

@@ -654,6 +654,41 @@ class ScriptJobEnqueueValidationTestCase(TestCase):
         self.assertIsNotNone(job)
         self.assertEqual(Job.objects.count(), 1)
 
+    def test_enqueue_positional_instance_is_validated_and_forwarded(self):
+        """
+        The instance may be passed positionally (JobRunner.enqueue() forwards it to Job.enqueue()'s first argument).
+        The override must validate it without breaking that inherited calling contract (#22872).
+        """
+        class BadTimeout(Script):
+            class Meta:
+                name = 'Bad Timeout Positional'
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(BadTimeout)
+        # Passed positionally, not instance=... — must still be validated and rejected.
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaises(ValidationError):
+                ScriptJob.enqueue(script, user=self.user, data={}, commit=True)
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_enqueue_positional_instance_valid_meta_creates_job(self):
+        """A valid script passed positionally must enqueue cleanly, i.e. the override forwards args unchanged."""
+        class GoodScript(Script):
+            class Meta:
+                name = 'Good Positional'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(GoodScript)
+        with self.captureOnCommitCallbacks(execute=True):
+            job = ScriptJob.enqueue(script, user=self.user, data={}, commit=True)
+        self.assertIsNotNone(job)
+        self.assertEqual(Job.objects.count(), 1)
+
     def test_reschedule_with_invalid_meta_preserves_completed_run(self):
         """
         If a recurring script's Meta.job_timeout becomes invalid between runs, the occurrence that just ran to
