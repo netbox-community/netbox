@@ -646,7 +646,10 @@ class ScriptJobEnqueueValidationTestCase(TestCase):
                 pass
 
         script = self._make_script(GoodScript)
-        with self.captureOnCommitCallbacks(execute=True):
+        # Do not execute the on_commit callback: the Job row is created by Job.enqueue() before the RQ push is
+        # registered, so asserting the row exists needs no real enqueue. Executing it would leave a job in the shared
+        # Redis queue that races other tests under the parallel runner (see #22872).
+        with self.captureOnCommitCallbacks():
             job = ScriptJob.enqueue(
                 instance=script, user=self.user, job_timeout=GoodScript.job_timeout,
                 notifications=GoodScript.notifications_default, data={}, commit=True,
@@ -684,7 +687,9 @@ class ScriptJobEnqueueValidationTestCase(TestCase):
                 pass
 
         script = self._make_script(GoodScript)
-        with self.captureOnCommitCallbacks(execute=True):
+        # Do not execute the on_commit callback (see the note in test_enqueue_accepts_valid_meta): asserting the Job
+        # row exists needs no real RQ push, and executing it would leak a job into the shared queue (see #22872).
+        with self.captureOnCommitCallbacks():
             job = ScriptJob.enqueue(script, user=self.user, data={}, commit=True)
         self.assertIsNotNone(job)
         self.assertEqual(Job.objects.count(), 1)
