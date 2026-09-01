@@ -23,6 +23,7 @@ from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
+from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
@@ -321,6 +322,11 @@ class Cable(PrimaryModel):
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         _created = self.pk is None
+        save_kwargs = {
+            'using': using,
+            'update_fields': update_fields,
+        }
+        update_fields = normalize_update_fields(save_kwargs)
 
         # Store the given length (if any) in meters for use in database ordering
         if self.length is not None and self.length_unit:
@@ -332,23 +338,34 @@ class Cable(PrimaryModel):
         if self.length is None:
             self.length_unit = None
 
+        # A field counts as changed only when this save actually writes it
+        status_written = update_fields is None or 'status' in update_fields
+        profile_written = update_fields is None or 'profile' in update_fields
+
         # If this is a new Cable, save it before attempting to create its CableTerminations
         if self._state.adding:
-            super().save(*args, force_insert=True, using=using, update_fields=update_fields)
+            super().save(*args, force_insert=True, **save_kwargs)
             # Update the private PK used in __str__()
             self._pk = self.pk
 
-        if self._orig_profile != self.profile:
+        if profile_written and self._orig_profile != self.profile:
             self.update_terminations(force=True)
         elif self._terminations_modified:
             self.update_terminations()
 
-        super().save(*args, force_update=True, using=using, update_fields=update_fields)
+        super().save(*args, force_update=True, **save_kwargs)
 
         try:
             trace_paths.send(Cable, instance=self, created=_created)
         except UnsupportedCablePath as e:
             raise AbortRequest(e)
+
+        # Reset change tracking for the next save of this instance
+        if status_written:
+            self._orig_status = self.status
+        if profile_written:
+            self._orig_profile = self.profile
+        self._terminations_modified = False
 
     def delete(self, *args, **kwargs):
         # Track this Cable as being deleted so the post_delete signal handler
@@ -476,6 +493,9 @@ class Cable(PrimaryModel):
                 self._a_terminations = list(a_terminations.keys())
             if not hasattr(self, '_b_terminations'):
                 self._b_terminations = list(b_terminations.keys())
+
+            # Recreating terminations invalidates existing paths, even when the endpoints are unchanged
+            self._terminations_modified = True
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
