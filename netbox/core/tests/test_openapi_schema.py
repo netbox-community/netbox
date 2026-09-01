@@ -7,6 +7,10 @@ import json
 
 from django.test import TestCase
 
+from core.api.schema import NetBoxAutoSchema
+from ipam.api.serializers import ServiceSerializer
+from netbox.api.serializers import BulkOperationErrorSerializer
+
 
 class OpenAPISchemaTestCase(TestCase):
     """Tests for OpenAPI schema generation."""
@@ -218,3 +222,65 @@ class OpenAPISchemaTestCase(TestCase):
                         schema.get('$ref'), '#/components/schemas/BulkOperationError',
                         f"{method.upper()} {path} ({code}) should not reference the bulk error body"
                     )
+
+    def test_service_request_documents_legacy_protocol_and_ports(self):
+        """
+        The deprecated protocol/ports pair remains writable on application services (the serializer
+        translates it into port_mappings), so both must appear in the request body alongside
+        port_mappings. protocol is backed by a read-only model property rather than a model field,
+        which previously caused it to be dropped from the generated writable variant.
+
+        Refs: #20285
+        """
+        for path in ('/api/ipam/services/', '/api/ipam/service-templates/'):
+            with self.subTest(path=path):
+                schema = self.schema['paths'][path]['post']['requestBody']['content']['application/json']['schema']
+                ref = schema['oneOf'][0]['$ref'].split('/')[-1]
+                properties = self.schema['components']['schemas'][ref]['properties']
+
+                for field in ('port_mappings', 'protocol', 'ports'):
+                    self.assertIn(field, properties, f"{ref} should document the '{field}' field")
+
+
+class WritableFieldRebuildTestCase(TestCase):
+    """
+    Tests for NetBoxAutoSchema._rebuilds_as_writable(), which decides whether a declared
+    ChoiceField/WritableNestedSerializer can be nulled out on the generated writable variant and
+    left for DRF to rebuild from the model. Getting this wrong drops the field from the request
+    body silently, so the predicate must match DRF's own build_field() behavior rather than merely
+    testing the model for a field of that name.
+
+    Refs: #23083
+    """
+
+    def test_rebuildable_fields(self):
+        """Fields DRF can rebuild writably should be reported as such."""
+        serializer = ServiceSerializer()
+
+        for field_name in ('name', 'description', 'ipaddresses'):
+            with self.subTest(field_name=field_name):
+                self.assertTrue(NetBoxAutoSchema._rebuilds_as_writable(serializer, field_name))
+
+    def test_non_rebuildable_fields(self):
+        """
+        Fields DRF rebuilds as read-only (or cannot rebuild at all) must be reported as not
+        rebuildable, so that the declared field is retained instead.
+        """
+        serializer = ServiceSerializer()
+        cases = {
+            'protocol': "backed by a read-only model property, not a model field",
+            'parent': "a GenericForeignKey, absent from DRF's field info",
+            'created': "a non-editable model field",
+            'no_such_field': "not present on the model at all",
+        }
+
+        for field_name, reason in cases.items():
+            with self.subTest(field_name=field_name):
+                self.assertFalse(
+                    NetBoxAutoSchema._rebuilds_as_writable(serializer, field_name),
+                    f"'{field_name}' should not be considered rebuildable ({reason})"
+                )
+
+    def test_serializer_without_model(self):
+        """A serializer with no Meta.model has nothing to rebuild from."""
+        self.assertFalse(NetBoxAutoSchema._rebuilds_as_writable(BulkOperationErrorSerializer(), 'id'))
