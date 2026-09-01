@@ -97,7 +97,10 @@ def reconcile_stale_system_jobs(job_class, interval):
     if not running:
         return
 
-    # The timeout is a property of the runner, not the individual job, so resolve it once.
+    # The timeout is a property of the runner, not the individual job, so resolve it once. Because
+    # the window sits past the job's own RQ timeout (the deadline at which RQ itself would kill a
+    # live run), a job still inside it is effectively never a live one, so this can't race a running
+    # worker's own terminate() under normal operation.
     grace = resolve_job_timeout(job_class, running[0]) + STALE_RUNNING_JOB_GRACE_SECONDS
     cutoff = timezone.now() - timedelta(seconds=grace)
 
