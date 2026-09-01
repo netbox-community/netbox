@@ -501,6 +501,23 @@ class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
         live.refresh_from_db()
         self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
 
+    def test_reconcile_ignores_running_job_without_started(self):
+        """A running row with no `started` timestamp can't be aged against the window. It must
+        be left untouched rather than raising when compared against the cutoff."""
+        no_started = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=None,
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        no_started.refresh_from_db()
+        self.assertEqual(no_started.status, JobStatusChoices.STATUS_RUNNING)
+
     def test_reconcile_ignores_instance_bound_job(self):
         """The sweep targets object-less system jobs only. An instance-bound job of the
         same runner class must be left alone even if it looks stale."""
