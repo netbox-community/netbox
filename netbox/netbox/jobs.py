@@ -5,9 +5,11 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 from pathlib import Path
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.translation import gettext_lazy as _
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -29,6 +31,18 @@ __all__ = (
 # jobs.py lives at <root>/netbox/netbox/jobs.py, so parents[2] is the root.
 _INSTALL_ROOT = str(Path(__file__).resolve().parents[2]) + os.sep
 
+# Margin added to a job's run timeout before a "running" system job is treated as stranded. A
+# job still running this long past its RQ timeout can no longer be executing legitimately (its
+# worker was killed), so the window is keyed on run duration rather than the recurrence interval.
+# See reconcile_stale_system_jobs() and issue #22714.
+STALE_RUNNING_JOB_GRACE_SECONDS = 600
+
+# How long past its scheduled time a job in "scheduled" status must be before enqueue_once() treats
+# it as stranded (its RQ-side scheduler entry was lost) rather than merely waiting its turn in the
+# queue. This is queue latency, not run duration, so it's a separate margin from the running-job
+# grace above. See enqueue_once() and issue #22714.
+STALE_SCHEDULED_JOB_GRACE_SECONDS = 600
+
 
 def system_job(interval):
     """
@@ -44,6 +58,61 @@ def system_job(interval):
         return cls
 
     return _wrapper
+
+
+def resolve_job_timeout(job_class, job):
+    """
+    Return the RQ run timeout (in seconds) a `JobRunner` runs under, falling back to
+    `RQ_DEFAULT_TIMEOUT` when it declares none. There is no single timeout contract across job
+    types: scripts expose `Meta.job_timeout` (class-level), some plugin runners expose an instance
+    `@property`, and the base class declares nothing. Instantiate the runner so an instance property
+    resolves correctly regardless of what it reads.
+    """
+    return getattr(job_class(job), 'job_timeout', None) or settings.RQ_DEFAULT_TIMEOUT
+
+
+@advisory_lock(ADVISORY_LOCK_KEYS['job-schedules'])
+def reconcile_stale_system_jobs(job_class, interval):
+    """
+    Fail any object-less system job of this class left stranded in "running" status by a worker
+    that was killed mid-run (issue #22714). Such a row is never reset, and because "running" is
+    an enqueued state, `enqueue_once()` mistakes it for a live schedule and never re-arms it.
+
+    A running job is treated as stranded once its `started` timestamp is older than the job's own
+    RQ run timeout plus a margin: past that point the run can no longer be executing legitimately.
+    Keying on run duration rather than the recurrence `interval` lets recovery fire on the common
+    case (a worker killed and restarted moments later) while still tolerating a legitimately long
+    run that declares a large timeout. RQ is not consulted: a killed job's RQ entry can outlive the
+    worker, and the schedule may be recovered with RQ state wiped.
+    """
+    running = list(
+        Job.objects.filter(
+            name=job_class.name,
+            object_id__isnull=True,
+            interval=interval,
+            status=JobStatusChoices.STATUS_RUNNING,
+        )
+    )
+    if not running:
+        return
+
+    # The timeout is a property of the runner, not the individual job, so resolve it once. Because
+    # the window sits past the job's own RQ timeout (the deadline at which RQ itself would kill a
+    # live run), a job still inside it is effectively never a live one, so this can't race a running
+    # worker's own terminate() under normal operation.
+    grace = resolve_job_timeout(job_class, running[0]) + STALE_RUNNING_JOB_GRACE_SECONDS
+    cutoff = timezone.now() - timedelta(seconds=grace)
+
+    for job in running:
+        if not job.started or job.started > cutoff:
+            continue
+        # STATUS_ERRORED (not FAILED) records an unexpected fault rather than a self-declared
+        # failure, as handle() does for an unhandled exception. For an object-less, userless
+        # system job, terminate() sends no notification and triggers no event rule.
+        job.terminate(
+            status=JobStatusChoices.STATUS_ERRORED,
+            error=_("Worker terminated before job completed"),
+        )
 
 
 class JobLogHandler(logging.Handler):
@@ -217,9 +286,20 @@ class JobRunner(ABC):
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
-            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
-            # delete the existing job and schedule a new job instead.
-            if (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
+            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule.
+            # Otherwise, delete the existing job and schedule a new job instead. A job still in "scheduled"
+            # status well past its scheduled time is stale (its RQ-side scheduler entry was lost, e.g. by a
+            # Redis restart) and must be replaced rather than reused, even though its parameters match. The
+            # grace margin avoids mistaking a job that is merely waiting its turn in the queue (still
+            # "scheduled" with a just-passed timestamp) for a stranded one. Running/pending jobs are exempt:
+            # their `scheduled` timestamp is expected to be in the past (or unset) once they've started.
+            stale_before = timezone.now() - timedelta(seconds=STALE_SCHEDULED_JOB_GRACE_SECONDS)
+            is_stale = (
+                job.status == JobStatusChoices.STATUS_SCHEDULED and
+                job.scheduled and
+                job.scheduled <= stale_before
+            )
+            if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 

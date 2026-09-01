@@ -209,6 +209,28 @@ class RQWorkerTestCase(TestCase):
             with self.assertRaisesMessage(TypeError, 'System job must specify an interval'):
                 call_command('rqworker', stdout=StringIO(), stderr=StringIO())
 
+    def test_reconciles_stale_jobs_before_scheduling(self):
+        # Recovery of jobs stranded by a killed worker (#22714) must run before enqueue_once(),
+        # so a stale row can't be mistaken for a live schedule and block re-arming.
+        job = MagicMock()
+        job.name = 'TestJob'
+        manager = MagicMock()
+
+        with (
+            patch('core.management.commands.rqworker.registry', {'system_jobs': {job: {'interval': 5}}}),
+            patch('core.management.commands.rqworker.reconcile_stale_system_jobs') as reconcile,
+            patch('core.management.commands.rqworker._Command.handle'),
+        ):
+            manager.attach_mock(reconcile, 'reconcile')
+            manager.attach_mock(job.enqueue_once, 'enqueue_once')
+            call_command('rqworker', stdout=StringIO(), stderr=StringIO())
+
+        reconcile.assert_called_once_with(job, 5)
+        self.assertEqual(
+            [name for name, _, _ in manager.mock_calls],
+            ['reconcile', 'enqueue_once'],
+        )
+
 
 class SyncDataSourceTestCase(TestCase):
     class FakeDataSource:

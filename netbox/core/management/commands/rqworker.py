@@ -2,6 +2,7 @@ import logging
 
 from django_rq.management.commands.rqworker import Command as _Command
 
+from netbox.jobs import reconcile_stale_system_jobs
 from netbox.registry import registry
 
 DEFAULT_QUEUES = ('high', 'default', 'low')
@@ -21,6 +22,9 @@ class Command(_Command):
                 interval = kwargs['interval']
             except KeyError:
                 raise TypeError("System job must specify an interval (in minutes).")
+            # Recover jobs stranded by a killed worker before scheduling, so a stale row
+            # isn't mistaken for a live schedule (see #22714).
+            reconcile_stale_system_jobs(job, interval)
             logger.debug(f"Scheduling system job {job.name} (interval={interval})")
             job.enqueue_once(**kwargs)
 

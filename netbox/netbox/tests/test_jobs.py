@@ -2,17 +2,23 @@ import uuid
 from datetime import timedelta
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
-from core.choices import JobStatusChoices
+from core.choices import JobIntervalChoices, JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
 from utilities.testing import disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
-from ..jobs import _INSTALL_ROOT
+from ..jobs import (
+    _INSTALL_ROOT,
+    STALE_RUNNING_JOB_GRACE_SECONDS,
+    reconcile_stale_system_jobs,
+    resolve_job_timeout,
+)
 
 
 class TestJobRunner(JobRunner):
@@ -28,6 +34,23 @@ class TestJobRunner(JobRunner):
 
 @system_job(interval=60)
 class TestSystemJobRunner(JobRunner):
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+class TestClassTimeoutJobRunner(JobRunner):
+    job_timeout = 3600
+
+    def run(self, *args, **kwargs):
+        pass
+
+
+class TestPropertyTimeoutJobRunner(JobRunner):
+    # Mirrors plugins (e.g. netbox-branching) that expose job_timeout as an instance property.
+    @property
+    def job_timeout(self):
+        return 7200
 
     def run(self, *args, **kwargs):
         pass
@@ -151,6 +174,87 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertEqual(job2.interval, 60)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
+
+    def test_enqueue_once_replaces_stale_scheduled_job(self):
+        """
+        A job still in "scheduled" status whose time has already passed is stale (its RQ-side
+        scheduler entry was lost, e.g. by a Redis restart between backup and restore — see
+        #22714) and must be replaced, even though its recorded interval matches.
+        """
+        stale = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        # Mirrors how rqworker.py calls enqueue_once() for system jobs at startup: no
+        # schedule_at, only the registered interval.
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertNotEqual(job, stale)
+        self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_recently_scheduled_job(self):
+        """
+        A job whose scheduled time has only just passed is waiting its turn in the queue, not
+        stranded. Within the grace margin it must be reused, not deleted and re-enqueued — a
+        concurrent enqueue_once() (e.g. a DataSource save) must not disrupt a due-but-queued job.
+        """
+        queued = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(seconds=30),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, queued)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_pending_job_with_no_schedule(self):
+        """
+        A pending job (not yet picked up by a worker) has no `scheduled` timestamp at all.
+        That must not be mistaken for a stale schedule and must not raise when compared
+        against the current time.
+        """
+        pending = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_PENDING,
+            interval=60,
+            scheduled=None,
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, pending)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_running_job_with_past_schedule(self):
+        """
+        Once a job starts, its `scheduled` timestamp is left in the past (that's normal —
+        `start()` doesn't clear it) while status moves to "running". A concurrent
+        enqueue_once() call (e.g. a second worker starting up mid-run) must not mistake
+        that for staleness and delete an in-flight job out from under itself.
+        """
+        running = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=5),
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, running)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
 
     def test_enqueue_once_with_enqueue(self):
         instance = DataSource()
@@ -317,3 +421,187 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 2)
+
+
+class ReconcileStaleJobsTestCase(BaseJobRunnerTestCase):
+    """
+    Test recovery of system jobs stranded in "running" status by a killed worker (#22714).
+    """
+
+    def test_reconcile_terminates_orphaned_running_job(self):
+        """A running system job whose `started` predates the run timeout window is an
+        orphan (its worker died) and must be moved to `errored`."""
+        orphan = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertIsNotNone(orphan.completed)
+        self.assertEqual(orphan.error, "Worker terminated before job completed")
+
+    def test_reconcile_preserves_recently_started_running_job(self):
+        """A running system job that started recently (within the run timeout window) is a
+        legitimately in-flight job and must NOT be reaped, regardless of its interval."""
+        live = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=1),
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_window_is_run_timeout_not_interval(self):
+        """The window is keyed on the RQ run timeout, not the recurrence interval, so a
+        long-interval job whose worker was just killed is recovered promptly. A daily job
+        started well past its run timeout (but far short of a day) must be reaped."""
+        grace = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        orphan = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=JobIntervalChoices.INTERVAL_DAILY,
+            scheduled=timezone.now() - timedelta(seconds=grace + 60),
+            started=timezone.now() - timedelta(seconds=grace + 60),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, JobIntervalChoices.INTERVAL_DAILY)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+
+    def test_reconcile_preserves_job_within_run_timeout(self):
+        """A job started just inside the run timeout window is still legitimately running
+        and must be preserved."""
+        grace = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        live = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=JobIntervalChoices.INTERVAL_DAILY,
+            scheduled=timezone.now() - timedelta(seconds=grace - 60),
+            started=timezone.now() - timedelta(seconds=grace - 60),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, JobIntervalChoices.INTERVAL_DAILY)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_ignores_running_job_without_started(self):
+        """A running row with no `started` timestamp can't be aged against the window. It must
+        be left untouched rather than raising when compared against the cutoff."""
+        no_started = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=None,
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        no_started.refresh_from_db()
+        self.assertEqual(no_started.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_ignores_instance_bound_job(self):
+        """The sweep targets object-less system jobs only. An instance-bound job of the
+        same runner class must be left alone even if it looks stale."""
+        instance = DataSource.objects.create(name='test-ds-reconcile', type='local')
+        bound = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            object=instance,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+
+        bound.refresh_from_db()
+        self.assertEqual(bound.status, JobStatusChoices.STATUS_RUNNING)
+
+    def test_reconcile_then_enqueue_once_rearms(self):
+        """After a stranded job is reconciled to `errored`, the startup `enqueue_once()`
+        call must re-arm a fresh scheduled successor."""
+        orphan = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(hours=2),
+            started=timezone.now() - timedelta(hours=2),
+            job_id=uuid.uuid4(),
+        )
+
+        # Mirror rqworker startup: reconcile stale jobs, then enqueue_once.
+        reconcile_stale_system_jobs(TestSystemJobRunner, 60)
+        successor = TestSystemJobRunner.enqueue_once(interval=60)
+
+        orphan.refresh_from_db()
+        self.assertEqual(orphan.status, JobStatusChoices.STATUS_ERRORED)
+        self.assertNotEqual(successor.pk, orphan.pk)
+        self.assertIn(successor.status, JobStatusChoices.ENQUEUED_STATE_CHOICES)
+
+        # Exactly one live (enqueued) successor should remain.
+        enqueued = Job.objects.filter(
+            name=TestSystemJobRunner.name,
+            object_id__isnull=True,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+        )
+        self.assertEqual(enqueued.count(), 1)
+
+    def test_reconcile_honors_longer_per_job_timeout(self):
+        """A runner that declares a large `job_timeout` gets a proportionally longer window. A
+        job started past the default window but within its own declared timeout must be preserved,
+        so a legitimately long run (e.g. a bulk branch archival) is not reaped."""
+        interval = JobIntervalChoices.INTERVAL_DAILY
+        default_window = settings.RQ_DEFAULT_TIMEOUT + STALE_RUNNING_JOB_GRACE_SECONDS
+        # Older than the default window, but well within this runner's 3600s job_timeout.
+        started = timezone.now() - timedelta(seconds=default_window + 120)
+        live = Job.objects.create(
+            name=TestClassTimeoutJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=interval,
+            scheduled=started,
+            started=started,
+            job_id=uuid.uuid4(),
+        )
+
+        reconcile_stale_system_jobs(TestClassTimeoutJobRunner, interval)
+
+        live.refresh_from_db()
+        self.assertEqual(live.status, JobStatusChoices.STATUS_RUNNING)
+
+
+class ResolveJobTimeoutTestCase(BaseJobRunnerTestCase):
+    """
+    Test resolution of a runner's RQ run timeout across the ad-hoc conventions (#22714).
+    """
+
+    def test_falls_back_to_rq_default(self):
+        job = Job(name=TestSystemJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestSystemJobRunner, job), settings.RQ_DEFAULT_TIMEOUT)
+
+    def test_reads_class_attribute(self):
+        job = Job(name=TestClassTimeoutJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestClassTimeoutJobRunner, job), 3600)
+
+    def test_reads_instance_property(self):
+        job = Job(name=TestPropertyTimeoutJobRunner.name)
+        self.assertEqual(resolve_job_timeout(TestPropertyTimeoutJobRunner, job), 7200)
