@@ -54,6 +54,7 @@ class ASNSiteSerializer(PrimaryModelSerializer):
         model = Site
         fields = ('id', 'url', 'display', 'name', 'description', 'slug')
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
+        ref_name = 'ASNSite'
 
 
 class ASNSerializer(PrimaryModelSerializer):

@@ -215,8 +215,10 @@ class NetBoxAutoSchema(AutoSchema):
     def _get_serializer_name(self, serializer, direction, bypass_extensions=False) -> str:
         name = super()._get_serializer_name(serializer, direction, bypass_extensions)
 
-        # If this serializer is nested, prepend its name with "Brief"
-        if getattr(serializer, 'nested', False):
+        # If this serializer is nested, prepend its name with "Brief". Serializers which declare an explicit
+        # Meta.ref_name are exempt: those are brief by design and have no complete form in the schema, so the
+        # prefix would only rename an existing component to no purpose. See #22989.
+        if getattr(serializer, 'nested', False) and not getattr(getattr(serializer, 'Meta', None), 'ref_name', None):
             name = f'Brief{name}'
 
         return name
@@ -389,7 +391,11 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
 
     def map_serializer_field(self, auto_schema, direction):
         if direction == "response":
-            component = auto_schema.resolve_serializer(self.target.serializer, direction)
+            # Resolve an instance of the serializer carrying the field's nested setting, so that the brief
+            # component is referenced wherever the field renders a brief representation. (The field's
+            # to_representation() passes nested in the same manner.) See #22989.
+            serializer = self.target.serializer(nested=self.target.nested)
+            component = auto_schema.resolve_serializer(serializer, direction)
             return component.ref if component else None
         return build_basic_type(OpenApiTypes.INT)
 

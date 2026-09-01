@@ -15,6 +15,7 @@ class NestedGroupSerializer(WritableNestedSerializer):
     class Meta:
         model = models.Group
         fields = ['id', 'url', 'display_url', 'display', 'name']
+        ref_name = 'NestedGroup'
 
 
 class NestedUserSerializer(WritableNestedSerializer):
@@ -22,6 +23,7 @@ class NestedUserSerializer(WritableNestedSerializer):
     class Meta:
         model = models.User
         fields = ['id', 'url', 'display_url', 'display', 'username']
+        ref_name = 'NestedUser'
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):

@@ -5,17 +5,28 @@ Refs: #20638
 """
 import json
 
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
+
+from core.api.schema import FixSerializedPKRelatedField
+from dcim.api.serializers import SiteSerializer
+from dcim.models import Site
+from netbox.api.fields import SerializedPKRelatedField
 
 
 class OpenAPISchemaTestCase(TestCase):
     """Tests for OpenAPI schema generation."""
 
-    def setUp(self):
-        """Fetch schema via API endpoint."""
-        response = self.client.get('/api/schema/', {'format': 'json'})
-        self.assertEqual(response.status_code, 200)
-        self.schema = json.loads(response.content)
+    @classmethod
+    def setUpClass(cls):
+        """
+        Fetch the schema via the API endpoint. Schema generation is expensive and its output is
+        immutable across these tests, so do this once for the class rather than per test method.
+        """
+        super().setUpClass()
+
+        response = cls.client_class().get('/api/schema/', {'format': 'json'})
+        assert response.status_code == 200, f'Failed to generate OpenAPI schema (HTTP {response.status_code})'
+        cls.schema = json.loads(response.content)
 
     def test_post_operation_documents_single_or_array(self):
         """
@@ -107,3 +118,138 @@ class OpenAPISchemaTestCase(TestCase):
         self.assertNotIn('oneOf', request_schema, "DELETE should NOT have oneOf")
         self.assertEqual(request_schema['type'], 'array', "DELETE should require array")
         self.assertIn('items', request_schema, "DELETE array should have items")
+
+    def test_nested_related_fields_reference_brief_components(self):
+        """
+        A SerializedPKRelatedField declared with nested=True must reference the brief component in
+        response schemas, as that is what the API returns.
+
+        Refs: #22989
+        """
+        components = self.schema['components']['schemas']
+
+        for component, field, ref in (
+            ('Site', 'asns', 'BriefASN'),
+            ('ConfigContext', 'sites', 'BriefSite'),
+            ('Interface', 'tagged_vlans', 'BriefVLAN'),
+        ):
+            with self.subTest(component=component, field=field):
+                self.assertEqual(
+                    components[component]['properties'][field]['items']['$ref'],
+                    f'#/components/schemas/{ref}'
+                )
+
+        # The brief component must advertise only the serializer's brief fields
+        self.assertEqual(
+            set(components['BriefASN']['properties']),
+            {'id', 'url', 'display', 'asn', 'description'}
+        )
+
+    def test_ref_name_exempts_serializer_from_brief_prefix(self):
+        """
+        A serializer which declares an explicit Meta.ref_name keeps that name when nested, rather than
+        acquiring a Brief prefix. These serializers are brief by design and have no complete form in the
+        schema, so prefixing them would rename an existing component to no purpose.
+
+        Refs: #22989
+        """
+        components = self.schema['components']['schemas']
+
+        for component, field, ref in (
+            ('ASN', 'sites', 'ASNSite'),
+            ('ObjectPermission', 'groups', 'NestedGroup'),
+            ('ObjectPermission', 'users', 'NestedUser'),
+        ):
+            with self.subTest(component=component, field=field):
+                self.assertEqual(
+                    components[component]['properties'][field]['items']['$ref'],
+                    f'#/components/schemas/{ref}'
+                )
+                self.assertNotIn(f'Brief{ref}', components)
+
+    def test_non_nested_related_fields_reference_full_components(self):
+        """
+        A SerializedPKRelatedField declared without nested=True must continue to reference the
+        complete component.
+
+        Refs: #22989
+        """
+        components = self.schema['components']['schemas']
+
+        for field in ('import_targets', 'export_targets'):
+            with self.subTest(field=field):
+                self.assertEqual(
+                    components['VRF']['properties'][field]['items']['$ref'],
+                    '#/components/schemas/RouteTarget'
+                )
+
+    def test_nested_related_fields_accept_pks_on_write(self):
+        """
+        Request schemas for a SerializedPKRelatedField must continue to accept an array of integer
+        primary keys.
+
+        Refs: #22989
+        """
+        components = self.schema['components']['schemas']
+
+        for component, field in (
+            ('SiteRequest', 'asns'),
+            ('ConfigContextRequest', 'sites'),
+            ('ASNRequest', 'sites'),
+        ):
+            with self.subTest(component=component, field=field):
+                self.assertEqual(components[component]['properties'][field]['items']['type'], 'integer')
+
+
+class SerializedPKRelatedFieldSchemaTestCase(SimpleTestCase):
+    """Tests for the schema extension which maps SerializedPKRelatedField."""
+
+    class DummyComponent:
+        ref = {'$ref': '#/components/schemas/Dummy'}
+
+    class DummyAutoSchema:
+        """Records the serializer resolved by the extension, in place of generating a component."""
+
+        def __init__(self):
+            self.resolved = []
+
+        def resolve_serializer(self, serializer, direction):
+            self.resolved.append(serializer)
+            return SerializedPKRelatedFieldSchemaTestCase.DummyComponent
+
+    def test_nested_flag_is_passed_to_serializer(self):
+        """
+        The field's serializer must be instantiated with the field's nested setting, so that the
+        component matching the rendered representation is referenced.
+
+        Refs: #22989
+        """
+        for nested in (True, False):
+            with self.subTest(nested=nested):
+                field = SerializedPKRelatedField(
+                    serializer=SiteSerializer,
+                    queryset=Site.objects.all(),
+                    nested=nested
+                )
+                auto_schema = self.DummyAutoSchema()
+
+                schema = FixSerializedPKRelatedField(field).map_serializer_field(auto_schema, 'response')
+
+                serializer = auto_schema.resolved[0]
+                self.assertIsInstance(serializer, SiteSerializer)
+                self.assertEqual(serializer.nested, nested)
+                self.assertEqual(schema, self.DummyComponent.ref)
+
+    def test_request_schema_is_an_integer(self):
+        """
+        Request schemas must document an integer primary key, regardless of the nested setting.
+
+        Refs: #22989
+        """
+        field = SerializedPKRelatedField(serializer=SiteSerializer, queryset=Site.objects.all(), nested=True)
+        auto_schema = self.DummyAutoSchema()
+
+        schema = FixSerializedPKRelatedField(field).map_serializer_field(auto_schema, 'request')
+
+        self.assertEqual(schema['type'], 'integer')
+        self.assertEqual(auto_schema.resolved, [])
