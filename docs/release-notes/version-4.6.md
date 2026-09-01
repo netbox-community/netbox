@@ -1,5 +1,29 @@
 # NetBox v4.6
 
+## v4.6.10 (2026-09-01)
+
+### Performance Improvements
+
+* [#22988](https://github.com/netbox-community/netbox/issues/22988) - Prefetch the related fields of nested serializers referenced by `SerializedPKRelatedField`
+* [#23060](https://github.com/netbox-community/netbox/issues/23060) - Include reverse many-to-many relationships when determining REST API prefetches
+
+### Bug Fixes
+
+* [#22671](https://github.com/netbox-community/netbox/issues/22671) - Support the selection of multiple values when filtering VLAN groups by scope (e.g. by site group)
+* [#22872](https://github.com/netbox-community/netbox/issues/22872) - Gracefully handle invalid values assigned to a custom script's `Meta` attributes
+* [#22989](https://github.com/netbox-community/netbox/issues/22989) - Reference brief components in the OpenAPI response schemas for nested `SerializedPKRelatedField` fields
+* [#23035](https://github.com/netbox-community/netbox/issues/23035) - Expand the active navigation menu section when resizing from a mobile to a desktop viewport
+* [#23038](https://github.com/netbox-community/netbox/issues/23038) - Omit the cache-busting query parameter from signed static file URLs (e.g. when using S3 storage)
+* [#23040](https://github.com/netbox-community/netbox/issues/23040) - Fix the validation error raised when removing the scope assigned to a VLAN group
+* [#23043](https://github.com/netbox-community/netbox/issues/23043) - Correct the validation of front port positions when creating front ports in bulk
+* [#23052](https://github.com/netbox-community/netbox/issues/23052) - Fix the duplicated `owner` field on the power outlet and service forms
+* [#23066](https://github.com/netbox-community/netbox/issues/23066) - Include the configured Redis username in the default Django cache settings
+* [#23072](https://github.com/netbox-community/netbox/issues/23072) - Retain cable paths when applying a cable profile via bulk edit
+* [#23078](https://github.com/netbox-community/netbox/issues/23078) - Normalize `update_fields` to avoid consuming a generator in `VLANGroup.save()` and `CircuitTermination.save()`
+* [#23090](https://github.com/netbox-community/netbox/issues/23090) - Fix the filtering of background jobs by user in the UI
+
+---
+
 ## v4.6.9 (2026-08-25)
 
 ### Enhancements

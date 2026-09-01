@@ -637,6 +637,13 @@ class FrontPortTestCase(TestCase):
             RearPort(name='RearPort4', device=cls.device, type=PortTypeChoices.TYPE_8P8C),
         )
         RearPort.objects.bulk_create(cls.rear_ports)
+        cls.rear_port_templates = (
+            RearPortTemplate(name='RearPort1', device_type=cls.device.device_type, type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(name='RearPort2', device_type=cls.device.device_type, type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(name='RearPort3', device_type=cls.device.device_type, type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(name='RearPort4', device_type=cls.device.device_type, type=PortTypeChoices.TYPE_8P8C),
+        )
+        RearPortTemplate.objects.bulk_create(cls.rear_port_templates)
 
     def test_front_port_label_count_valid(self):
         """
@@ -665,6 +672,124 @@ class FrontPortTestCase(TestCase):
             'type': PortTypeChoices.TYPE_8P8C,
             'positions': 1,
             'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+        }
+        form = FrontPortCreateForm(bad_front_port_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('label', form.errors)
+
+    def test_front_port_position_count_valid(self):
+        """
+        Test that generating front ports with multiple positions each passes form validation.
+        """
+        front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+        }
+        form = FrontPortCreateForm(front_port_data)
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_front_port_position_count_mismatch(self):
+        """
+        Check that the mismatch error reports the total number of front port positions, not the port count.
+        """
+        bad_front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports[:2]],
+        }
+        form = FrontPortCreateForm(bad_front_port_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'The total number of front port positions (4) must match the selected number of rear port '
+            'positions (2).',
+            form.errors['rear_ports']
+        )
+
+    def test_front_port_template_position_count_mismatch(self):
+        """
+        Check that the front port template form reports the same corrected position total.
+        """
+        bad_front_port_template_data = {
+            'device_type': self.device.device_type.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [f'{rear_port_template.pk}:1' for rear_port_template in self.rear_port_templates[:2]],
+        }
+        form = FrontPortTemplateCreateForm(bad_front_port_template_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'The total number of front port positions (4) must match the selected number of rear port '
+            'positions (2).',
+            form.errors['rear_ports']
+        )
+
+    def test_front_port_missing_rear_ports(self):
+        """
+        Check that omitting the rear port selection reports a field error rather than raising an exception.
+        """
+        bad_front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 1,
+        }
+        form = FrontPortCreateForm(bad_front_port_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('rear_ports', form.errors)
+
+    def test_front_port_invalid_positions(self):
+        """
+        Check that a non-numeric position count reports a field error rather than raising an exception.
+        """
+        bad_front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 'two',
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports[:2]],
+        }
+        form = FrontPortCreateForm(bad_front_port_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('positions', form.errors)
+
+    def test_front_port_template_missing_rear_ports(self):
+        """
+        Check that the front port template form also reports a field error rather than raising an exception.
+        """
+        bad_front_port_template_data = {
+            'device_type': self.device.device_type.pk,
+            'name': 'FrontPort[1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 1,
+        }
+        form = FrontPortTemplateCreateForm(bad_front_port_template_data)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('rear_ports', form.errors)
+
+    def test_front_port_invalid_label_range(self):
+        """
+        Check that an inverted label range reports a field error rather than raising an exception.
+        """
+        bad_front_port_data = {
+            'device': self.device.pk,
+            'name': 'FrontPort[1-2]',
+            'label': 'Port[2-1]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 1,
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports[:2]],
         }
         form = FrontPortCreateForm(bad_front_port_data)
 

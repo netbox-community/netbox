@@ -22,6 +22,14 @@ __all__ = (
 
 register = template.Library()
 
+# Query parameters which indicate that a URL has been cryptographically signed by the storage
+# backend. Parameters must not be appended to such URLs, as doing so invalidates the signature.
+SIGNED_URL_PARAMS = (
+    'signature',         # AWS signature v2; Google Cloud Storage v2
+    'x-amz-signature',   # AWS signature v4 (also MinIO, Ceph, Garage, Cloudflare R2, et al.)
+    'x-goog-signature',  # Google Cloud Storage v4
+)
+
 
 @register.inclusion_tag('builtins/tag.html')
 def tag(value, viewname=None):
@@ -168,6 +176,11 @@ def static_with_params(path, **params):
     parameter conflicts. A warning will be logged if any of the provided parameters
     conflict with existing parameters in the URL.
 
+    URLs which have been cryptographically signed by the storage backend (e.g. S3 presigned
+    URLs) are returned unmodified, as appending parameters to them would invalidate their
+    signature. Such URLs embed an expiration and are regenerated on each request, so they
+    require no cache-busting parameters.
+
     Args:
         path: The static file path (e.g., 'setmode.js')
         **params: Query parameters to append (e.g., v='4.3.1')
@@ -179,6 +192,8 @@ def static_with_params(path, **params):
         If any provided parameters conflict with existing URL parameters, a warning
         will be logged and the new parameter value will override the existing one.
     """
+    logger = logging.getLogger('netbox.utilities.templatetags.tags')
+
     # Get the base static URL
     static_url = static(path)
 
@@ -186,8 +201,17 @@ def static_with_params(path, **params):
     parsed = urlparse(static_url)
     existing_params = parse_qs(parsed.query)
 
+    # If the storage backend has signed the URL, return it as-is. Signature schemes such as AWS
+    # signature v4 cover the entire query string, so appending a parameter here would invalidate
+    # the signature and the request would be rejected by the storage backend.
+    if signature_params := [p for p in existing_params if p.lower() in SIGNED_URL_PARAMS]:
+        logger.debug(
+            "Static URL '%s' is signed (%s); omitting parameters %s",
+            static_url, ', '.join(signature_params), tuple(params)
+        )
+        return static_url
+
     # Check for duplicate parameters and log warnings
-    logger = logging.getLogger('netbox.utilities.templatetags.tags')
     for key, value in params.items():
         if key in existing_params:
             logger.warning(

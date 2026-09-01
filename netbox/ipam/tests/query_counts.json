@@ -1,7 +1,7 @@
 {
   "aggregate:api_list_objects": 13,
   "aggregate:list_objects_with_permission": 21,
-  "asn:api_list_objects": 17,
+  "asn:api_list_objects": 16,
   "asn:list_objects_with_permission": 28,
   "asnrange:api_list_objects": 14,
   "asnrange:list_objects_with_permission": 19,
@@ -32,6 +32,6 @@
   "vlantranslationpolicy:list_objects_with_permission": 17,
   "vlantranslationrule:api_list_objects": 12,
   "vlantranslationrule:list_objects_with_permission": 18,
-  "vrf:api_list_objects": 14,
+  "vrf:api_list_objects": 20,
   "vrf:list_objects_with_permission": 17
 }

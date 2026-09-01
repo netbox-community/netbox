@@ -5,7 +5,19 @@ from netaddr import IPNetwork
 
 from circuits.models import Provider
 from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
+from dcim.models import (
+    Device,
+    DeviceRole,
+    DeviceType,
+    Interface,
+    Location,
+    Manufacturer,
+    Rack,
+    RackGroup,
+    Region,
+    Site,
+    SiteGroup,
+)
 from ipam.choices import *
 from ipam.filtersets import *
 from ipam.models import *
@@ -1764,32 +1776,104 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
-        params = {'region': Region.objects.first().pk}
+        regions = (
+            Region.objects.get(slug='region-1'),
+            Region.objects.create(name='Region 2', slug='region-2'),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=regions[1])
+
+        params = {'region': [regions[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'region': [regions[0].pk, regions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site_group(self):
-        params = {'site_group': SiteGroup.objects.first().pk}
+        site_groups = (
+            SiteGroup.objects.get(slug='site-group-1'),
+            SiteGroup.objects.create(name='Site Group 2', slug='site-group-2'),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=site_groups[1])
+
+        params = {'site_group': [site_groups[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'site_group': [site_groups[0].pk, site_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_site(self):
-        params = {'site': Site.objects.first().pk}
+        sites = (
+            Site.objects.get(slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=sites[1])
+
+        params = {'site': [sites[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'site': [sites[0].pk, sites[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_location(self):
-        params = {'location': Location.objects.first().pk}
+        site = Site.objects.get(slug='site-1')
+        locations = (
+            Location.objects.get(slug='location-1'),
+            Location.objects.create(name='Location 2', slug='location-2', site=site),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=locations[1])
+
+        params = {'location': [locations[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'location': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack_group(self):
+        rack_groups = (
+            RackGroup.objects.create(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup.objects.create(name='Rack Group 2', slug='rack-group-2'),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=rack_groups[0])
+        VLANGroup.objects.create(name='VLAN Group 10', slug='vlan-group-10', scope=rack_groups[1])
+
+        params = {'rack_group': [rack_groups[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'rack_group': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_rack(self):
-        params = {'rack': Rack.objects.first().pk}
+        site = Site.objects.get(slug='site-1')
+        racks = (
+            Rack.objects.get(name='Rack 1'),
+            Rack.objects.create(name='Rack 2', site=site),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=racks[1])
+
+        params = {'rack': [racks[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'rack': [racks[0].pk, racks[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster_group(self):
-        params = {'cluster_group': ClusterGroup.objects.first().pk}
+        cluster_groups = (
+            ClusterGroup.objects.get(slug='cluster-group-1'),
+            ClusterGroup.objects.create(name='Cluster Group 2', slug='cluster-group-2'),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=cluster_groups[1])
+
+        params = {'cluster_group': [cluster_groups[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'cluster_group': [cluster_groups[0].pk, cluster_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_cluster(self):
-        params = {'cluster': Cluster.objects.first().pk}
+        cluster_type = ClusterType.objects.get(slug='cluster-type-1')
+        clusters = (
+            Cluster.objects.get(name='Cluster 1'),
+            Cluster.objects.create(name='Cluster 2', type=cluster_type),
+        )
+        VLANGroup.objects.create(name='VLAN Group 9', slug='vlan-group-9', scope=clusters[1])
+
+        params = {'cluster': [clusters[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'cluster': [clusters[0].pk, clusters[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]

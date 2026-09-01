@@ -895,7 +895,7 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'service_template', 'name', 'port_mappings', 'ipaddresses', 'description',
+            'service_template', 'name', 'port_mappings', 'ipaddresses', 'description', 'owner',
             'comments', 'tags',
         ]
 

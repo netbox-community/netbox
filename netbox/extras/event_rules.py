@@ -1,3 +1,6 @@
+import logging
+
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_rq import get_queue
@@ -16,6 +19,8 @@ __all__ = (
     'ScriptAction',
     'WebhookAction',
 )
+
+logger = logging.getLogger('netbox.events_processor')
 
 
 class WebhookAction(EventRuleAction):
@@ -79,8 +84,18 @@ class ScriptAction(EventRuleAction):
         if 'request' in event_context:
             params['request'] = copy_safe_request(event_context['request'], include_files=False)
 
-        # Enqueue the job
-        ScriptJob.enqueue(**params)
+        # Enqueue the job. If the script's Meta configuration is invalid (see #22872), log the error and skip this
+        # action rather than allowing the exception to abort the event pipeline (and, since events are processed
+        # in-request, the originating object change). Note this is intentionally asymmetric with the webhook
+        # action, which lets enqueue failures propagate: script Meta is validated eagerly at enqueue and a
+        # misconfigured script must not take down an unrelated object change.
+        try:
+            ScriptJob.enqueue(**params)
+        except ValidationError as e:
+            logger.error(
+                "Skipping script action for event rule %s: invalid script configuration: %s",
+                event_rule, '; '.join(e.messages)
+            )
 
     def resolve_import_object(self, value):
         from extras.scripts import get_module_and_script

@@ -75,7 +75,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type_id', 'status', 'queue_name', 'user', name=_('Attributes')),
+        FieldSet('object_type_id', 'status', 'queue_name', 'user_id', name=_('Attributes')),
         FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', name=_('Scheduling')
@@ -136,7 +136,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         widget=DateTimePicker()
     )
-    user = DynamicModelMultipleChoiceField(
+    user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         label=_('User')

@@ -11,11 +11,12 @@ from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.api.serializers import VLANSerializer
 from ipam.models import VLAN
+from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
 from netbox.plugins import register_serializer_resolver
 from netbox.registry import registry
-from users.models import ObjectPermission
+from users.models import Group, ObjectPermission
 from utilities.api import (
     get_prefetches_for_serializer,
     get_serializer_for_model,
@@ -579,6 +580,213 @@ class GetPrefetchesForSerializerTestCase(TestCase):
         self.assertListEqual(
             get_prefetches_for_serializer(SiteSerializer),
             ['region', 'region__parent'],
+        )
+
+    def test_serialized_pk_related_field(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent', 'sites')
+                brief_fields = ('id', 'parent')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=RegionSerializer,
+                nested=True,
+            )
+
+            class Meta:
+                model = Site
+                fields = ('id', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_many_serialized_pk_related_field(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region', 'group')
+                brief_fields = ('id', 'region')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SerializedPKRelatedField(
+                queryset=Site.objects.all(),
+                serializer=SiteSerializer,
+                nested=True,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer, fields=('id',)),
+            [],
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer, omit=('sites',)),
+            [],
+        )
+
+    def test_many_serialized_pk_related_field_not_nested(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region', 'group')
+                brief_fields = ('id', 'region')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SerializedPKRelatedField(
+                queryset=Site.objects.all(),
+                serializer=SiteSerializer,
+                nested=False,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region', 'sites__group'],
+        )
+
+    def test_self_referential_serialized_pk_related_field(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'parent', 'children')
+
+        # The field can only name its own serializer once the class exists.
+        RegionSerializer._declared_fields['children'] = SerializedPKRelatedField(
+            queryset=Region.objects.all(),
+            serializer=RegionSerializer,
+            many=True,
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['parent', 'children'],
+        )
+
+    def test_self_referential_serialized_pk_related_field_with_brief_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites', 'children')
+                brief_fields = ('id', 'sites')
+
+        RegionSerializer._declared_fields['children'] = SerializedPKRelatedField(
+            queryset=Region.objects.all(),
+            serializer=RegionSerializer,
+            nested=True,
+            many=True,
+        )
+
+        # Re-entering the serializer at brief depth is not a cycle, so brief_fields must expand.
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'children', 'children__sites'],
+        )
+
+    def test_mutually_referential_serialized_pk_related_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=RegionSerializer,
+            )
+
+            class Meta:
+                model = Site
+                fields = ('id', 'region')
+
+        RegionSerializer._declared_fields['sites'] = SerializedPKRelatedField(
+            queryset=Site.objects.all(),
+            serializer=SiteSerializer,
+            many=True,
+        )
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+    def test_serializer_class_reused_on_sibling_fields(self):
+        class TargetRegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'sites')
+
+        class RegionSerializer(BaseModelSerializer):
+            parent = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=TargetRegionSerializer,
+            )
+            children = SerializedPKRelatedField(
+                queryset=Region.objects.all(),
+                serializer=TargetRegionSerializer,
+                many=True,
+            )
+
+            class Meta:
+                model = Region
+                fields = ('id', 'parent', 'children')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['parent', 'parent__sites', 'children', 'children__sites'],
+        )
+
+    def test_reverse_many_to_many_relation_is_prefetched(self):
+        class ObjectPermissionSerializer(BaseModelSerializer):
+            class Meta:
+                model = ObjectPermission
+                fields = ('groups',)
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(ObjectPermissionSerializer),
+            ['groups'],
+        )
+
+    def test_reverse_many_to_many_serialized_related_field_is_prefetched(self):
+        class GroupSerializer(BaseModelSerializer):
+            class Meta:
+                model = Group
+                fields = ('id', 'name')
+
+        class ObjectPermissionSerializer(BaseModelSerializer):
+            groups = SerializedPKRelatedField(
+                queryset=Group.objects.all(),
+                serializer=GroupSerializer,
+                nested=True,
+                required=False,
+                many=True
+            )
+
+            class Meta:
+                model = ObjectPermission
+                fields = ('id', 'groups')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(ObjectPermissionSerializer),
+            ['groups'],
         )
 
 

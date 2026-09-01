@@ -5,13 +5,15 @@ from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
-from ipam.constants import SERVICE_PORT_MAX
+from ipam.choices import PrefixStatusChoices
+from ipam.constants import SERVICE_PORT_MAX, VLANGROUP_SCOPE_TYPES
 from ipam.filtersets import ServiceFilterSet, ServiceTemplateFilterSet
-from ipam.forms import PrefixForm, VLANIDBulkCreateForm
+from ipam.forms import PrefixForm, VLANGroupBulkEditForm, VLANGroupForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
 from ipam.forms.fields import PortMappingField
 from ipam.forms.filtersets import ServiceFilterForm, ServiceTemplateFilterForm
 from ipam.forms.widgets import PortMappingWidget
+from ipam.models import Prefix, VLANGroup
 
 
 class PrefixFormTestCase(TestCase):
@@ -59,6 +61,26 @@ class PrefixFormTestCase(TestCase):
                 'scope_object_id': case.pk,
             })
             assert 'data-dynamic-params' not in form.fields['vlan'].widget.attrs
+
+    def test_scope_type_change_without_scope(self):
+        """Changing the scope type without selecting a scope is reported on the scope field."""
+        prefix = Prefix.objects.create(
+            prefix='10.0.0.0/24',
+            scope_type=ContentType.objects.get_for_model(Site),
+            scope_id=self.site.pk,
+        )
+        form = PrefixForm(
+            data={
+                'prefix': '10.0.0.0/24',
+                'status': PrefixStatusChoices.STATUS_ACTIVE,
+                'scope_content_type': ContentType.objects.get_for_model(Location).pk,
+                'scope_object_id': '',
+            },
+            instance=prefix,
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('scope', form.errors)
 
 
 class IPAddressImportFormTestCase(TestCase):
@@ -452,3 +474,76 @@ class ServiceFilterFormTestCase(TestCase):
                 form = form_class(data={'port_mappings': 'tcp/80'})
                 self.assertTrue(form.is_valid(), form.errors)
                 self.assertEqual(form.cleaned_data['port_mappings'], 'tcp/80')
+
+
+class VLANGroupFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.site_type = ContentType.objects.get_for_model(Site)
+        cls.location_type = ContentType.objects.get_for_model(Location)
+        cls.vlan_group = VLANGroup.objects.create(
+            name='VLAN Group 1',
+            slug='vlan-group-1',
+            scope=cls.site,
+        )
+
+    def test_scope_can_be_cleared(self):
+        """Clearing scope type and scope on an existing group nulls the assignment."""
+        form = VLANGroupForm(
+            data=self.get_form_data(scope_content_type='', scope_object_id=''),
+            instance=VLANGroup.objects.get(pk=self.vlan_group.pk),
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        vlan_group = form.save()
+        vlan_group.refresh_from_db()
+        self.assertIsNone(vlan_group.scope_type_id)
+        self.assertIsNone(vlan_group.scope_id)
+
+    def test_scope_required_with_scope_type(self):
+        """A scope type without a scope is reported on the scope field."""
+        forms = {
+            'existing group': VLANGroupForm(
+                data=self.get_form_data(scope_object_id=''),
+                instance=VLANGroup.objects.get(pk=self.vlan_group.pk),
+            ),
+            'new group': VLANGroupForm(
+                data=self.get_form_data(name='VLAN Group 2', slug='vlan-group-2', scope_object_id=''),
+            ),
+            'retyped group': VLANGroupForm(
+                data=self.get_form_data(scope_content_type=self.location_type.pk, scope_object_id=''),
+                instance=VLANGroup.objects.get(pk=self.vlan_group.pk),
+            ),
+        }
+        for case, form in forms.items():
+            with self.subTest(case=case):
+                self.assertFalse(form.is_valid())
+                self.assertIn('scope', form.errors)
+
+    def test_scope_initial_retained_for_new_group(self):
+        """A prepopulated scope survives instantiation of an unsaved group."""
+        form = VLANGroupForm(initial={'scope': self.site})
+
+        self.assertEqual(form.initial['scope'], self.site)
+
+    def test_scope_type_choices(self):
+        """Both VLAN group forms offer every VLAN group scope type."""
+        for form_class in (VLANGroupForm, VLANGroupBulkEditForm):
+            with self.subTest(form=form_class.__name__):
+                form = form_class()
+                models = set(
+                    form.fields['scope'].content_type_queryset.values_list('model', flat=True)
+                )
+                self.assertEqual(models, set(VLANGROUP_SCOPE_TYPES))
+
+    def get_form_data(self, **overrides):
+        return {
+            'name': self.vlan_group.name,
+            'slug': self.vlan_group.slug,
+            'vid_ranges': '1-4094',
+            'scope_content_type': self.site_type.pk,
+            'scope_object_id': self.site.pk,
+            **overrides,
+        }

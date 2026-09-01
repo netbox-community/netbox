@@ -31,7 +31,7 @@ from netbox.choices import (
     WeightUnitChoices,
 )
 from tenancy.models import Tenant
-from users.models import ObjectPermission, User
+from users.models import ObjectPermission, Owner, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -3832,6 +3832,8 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         PowerOutlet.objects.bulk_create(power_outlets)
 
+        owner = Owner.objects.create(name='Owner 1')
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -3842,6 +3844,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -3853,6 +3856,7 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'power_port': powerports[1].pk,
             'feed_leg': PowerOutletFeedLegChoices.FEED_LEG_B,
             'description': 'A power outlet',
+            'owner': owner.pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -4369,6 +4373,43 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertFalse(FrontPort.objects.filter(name='Front Port 10').exists())
+
+    def test_create_multiple_objects_with_multiple_positions(self):
+        """
+        Check that bulk creation gives each generated front port its own slice of the selected mappings.
+        """
+        device = Device.objects.get(name='Device 1')
+        rear_ports = (
+            RearPort(device=device, name='Rear Port 7', positions=2),
+            RearPort(device=device, name='Rear Port 8', positions=2),
+        )
+        RearPort.objects.bulk_create(rear_ports)
+        self.add_permissions('dcim.add_frontport')
+
+        response = self.client.post(self._get_url('add'), post_data({
+            'device': device.pk,
+            'name': 'Multi Port [1-2]',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'positions': 2,
+            'rear_ports': [
+                f'{rear_ports[0].pk}:1',
+                f'{rear_ports[0].pk}:2',
+                f'{rear_ports[1].pk}:1',
+                f'{rear_ports[1].pk}:2',
+            ],
+        }))
+
+        self.assertHttpStatus(response, 302)
+        for front_port_name, rear_port in (('Multi Port 1', rear_ports[0]), ('Multi Port 2', rear_ports[1])):
+            front_port = FrontPort.objects.get(device=device, name=front_port_name)
+            self.assertEqual(front_port.positions, 2)
+            self.assertEqual(
+                [
+                    (m.front_port_position, m.rear_port_id, m.rear_port_position)
+                    for m in front_port.mappings.order_by('front_port_position')
+                ],
+                [(1, rear_port.pk, 1), (2, rear_port.pk, 2)]
+            )
 
     def test_trace(self):
         self.add_permissions(

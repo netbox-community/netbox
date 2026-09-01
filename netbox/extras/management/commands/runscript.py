@@ -3,6 +3,7 @@ import logging
 import sys
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 
 from extras.jobs import ScriptJob
@@ -88,24 +89,29 @@ class Command(BaseCommand):
         notifications = form.cleaned_data.pop('_notifications')
 
         # Execute the script.
-        job = ScriptJob.enqueue(
-            instance=script_obj,
-            user=user,
-            immediate=True,
-            data=form.cleaned_data,
-            notifications=notifications,
-            request=NetBoxFakeRequest({
-                'META': {},
-                'COOKIES': {},
-                'POST': data,
-                'GET': {},
-                'FILES': {},
-                'user': user,
-                'method': 'POST',
-                'path': '',
-                'id': uuid.uuid4()
-            }),
-            commit=commit,
-        )
+        try:
+            job = ScriptJob.enqueue(
+                instance=script_obj,
+                user=user,
+                immediate=True,
+                data=form.cleaned_data,
+                notifications=notifications,
+                request=NetBoxFakeRequest({
+                    'META': {},
+                    'COOKIES': {},
+                    'POST': data,
+                    'GET': {},
+                    'FILES': {},
+                    'user': user,
+                    'method': 'POST',
+                    'path': '',
+                    'id': uuid.uuid4()
+                }),
+                commit=commit,
+            )
+        except ValidationError as e:
+            # The script's Meta configuration is invalid (see #22872). Report it as a clean command error rather than
+            # an unhandled traceback.
+            raise CommandError('; '.join(e.messages))
 
         logger.info(f"Script completed in {job.duration}")

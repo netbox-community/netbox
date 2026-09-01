@@ -4,11 +4,14 @@ import os
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.files.storage import storages
 from django.core.validators import RegexValidator
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
+from rq.exceptions import TimeoutFormatError
+from rq.utils import parse_timeout
 
 from core.choices import JobNotificationChoices
 from extras.choices import LogLevelChoices
@@ -42,6 +45,9 @@ __all__ = (
     'TextVar',
     'get_module_and_script',
 )
+
+# Sentinel distinguishing "argument not supplied" from an explicit None in validate_meta().
+_UNSET = object()
 
 
 #
@@ -402,6 +408,51 @@ class BaseScript:
     @classproperty
     def notifications_default(self):
         return getattr(self.Meta, 'notifications_default', JobNotificationChoices.NOTIFICATION_ALWAYS)
+
+    @classmethod
+    def validate_meta(cls, job_timeout=_UNSET, notifications=_UNSET):
+        """
+        Validate the execution parameters used to run this script. Raises a ValidationError if any value is invalid,
+        so that a misconfigured script surfaces an actionable error rather than an unhandled exception when the job is
+        enqueued (see #22872).
+
+        The values actually enqueued are validated, not the raw Meta values: a caller may supply an explicit
+        `job_timeout` or `notifications` (e.g. via the REST API), in which case that value is checked. When a caller
+        omits a value, the corresponding Meta default is validated instead. Unset values fall back to valid defaults
+        and are not rejected.
+        """
+        errors = {}
+
+        job_timeout = cls.job_timeout if job_timeout is _UNSET else job_timeout
+        if job_timeout is not None:
+            # parse_timeout() is what RQ applies to the timeout downstream. It raises TimeoutFormatError for
+            # malformed duration strings, but a job_timeout of an unexpected type (e.g. a list) instead raises
+            # TypeError/ValueError/AssertionError from its internal int()/assert. Catch them all so any invalid value
+            # surfaces as an actionable error rather than an unhandled 500.
+            try:
+                parsed_timeout = parse_timeout(job_timeout)
+            except (TimeoutFormatError, TypeError, ValueError, AssertionError):
+                parsed_timeout = None
+                errors['job_timeout'] = _(
+                    "Invalid job_timeout value '{value}': must be an integer (seconds) or a duration string such as "
+                    "'1h' or '30m'."
+                ).format(value=job_timeout)
+            if parsed_timeout is not None and parsed_timeout <= 0:
+                errors['job_timeout'] = _(
+                    "Invalid job_timeout value '{value}': must be a positive duration."
+                ).format(value=job_timeout)
+
+        # A caller may pass notifications=None to mean "use the script's default"; treat that as unset.
+        if notifications is _UNSET or notifications is None:
+            notifications = cls.notifications_default
+        if notifications not in JobNotificationChoices.values():
+            valid = ', '.join(JobNotificationChoices.values())
+            errors['notifications_default'] = _(
+                "Invalid notifications value '{value}': must be one of {valid}."
+            ).format(value=notifications, valid=valid)
+
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def filename(self):

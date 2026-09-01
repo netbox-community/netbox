@@ -1,15 +1,22 @@
 import io
 import sys
+import uuid
 from datetime import UTC, date, datetime
 from decimal import Decimal
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from netaddr import IPAddress, IPNetwork
 
+from core.choices import JobNotificationChoices, JobStatusChoices, ManagedFileRootPathChoices
+from core.models import Job
 from dcim.models import DeviceRole
 from extras.constants import SCRIPT_MODULE_NAME_PREFIX
+from extras.jobs import ScriptJob
+from extras.models import Script as ScriptModel
 from extras.models import ScriptModule
 from extras.scripts import *
 
@@ -469,3 +476,268 @@ class ScriptModuleLoadingTestCase(TestCase):
         with self.assertLogs(logger_name, 'INFO') as captured:
             script.log_success('Start')
         self.assertIn('Start', captured.output[0])
+
+
+class ScriptMetaValidationTestCase(TestCase):
+    """
+    Tests for BaseScript.validate_meta() (#22872): invalid execution-related Meta values must raise an actionable
+    ValidationError, while unset/valid values must not.
+    """
+
+    def test_valid_meta_passes(self):
+        class TestScript(Script):
+            class Meta:
+                job_timeout = 600
+                notifications_default = JobNotificationChoices.NOTIFICATION_ON_FAILURE
+
+            def run(self, data, commit):
+                pass
+
+        TestScript.validate_meta()  # should not raise
+
+    def test_job_timeout_duration_string_passes(self):
+        class TestScript(Script):
+            class Meta:
+                job_timeout = '1h'
+
+            def run(self, data, commit):
+                pass
+
+        TestScript.validate_meta()  # should not raise
+
+    def test_unset_meta_passes(self):
+        class TestScript(Script):
+            def run(self, data, commit):
+                pass
+
+        # job_timeout defaults to None and notifications_default to ALWAYS; neither should be rejected
+        TestScript.validate_meta()
+
+    def test_all_notification_choices_pass(self):
+        for choice in JobNotificationChoices.values():
+            class TestScript(Script):
+                class Meta:
+                    notifications_default = choice
+
+                def run(self, data, commit):
+                    pass
+
+            TestScript.validate_meta()  # should not raise
+
+    def test_invalid_job_timeout_raises(self):
+        class TestScript(Script):
+            class Meta:
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit):
+                pass
+
+        with self.assertRaises(ValidationError) as cm:
+            TestScript.validate_meta()
+        self.assertIn('job_timeout', cm.exception.message_dict)
+
+    def test_invalid_notifications_default_raises(self):
+        class TestScript(Script):
+            class Meta:
+                notifications_default = 'on_error'
+
+            def run(self, data, commit):
+                pass
+
+        with self.assertRaises(ValidationError) as cm:
+            TestScript.validate_meta()
+        self.assertIn('notifications_default', cm.exception.message_dict)
+
+    def test_non_string_job_timeout_raises(self):
+        # A job_timeout of an unexpected type must surface as a ValidationError, not an unhandled TypeError.
+        class TestScript(Script):
+            class Meta:
+                job_timeout = [60]
+
+            def run(self, data, commit):
+                pass
+
+        with self.assertRaises(ValidationError) as cm:
+            TestScript.validate_meta()
+        self.assertIn('job_timeout', cm.exception.message_dict)
+
+    def test_non_positive_job_timeout_raises(self):
+        # parse_timeout() accepts 0 and negatives, but a non-positive timeout is nonsensical and must be rejected.
+        for value in (0, -30):
+            class TestScript(Script):
+                class Meta:
+                    job_timeout = value
+
+                def run(self, data, commit):
+                    pass
+
+            with self.assertRaises(ValidationError) as cm:
+                TestScript.validate_meta()
+            self.assertIn('job_timeout', cm.exception.message_dict)
+
+
+class ScriptJobEnqueueValidationTestCase(TestCase):
+    """
+    Tests that ScriptJob.enqueue() validates Meta before creating a Job (#22872). This is the choke point exercised by
+    event-rule actions and recurring reschedules, which have no request layer to catch the error.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user('scriptrunner')
+
+    def _make_script(self, python_class):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path=f'meta_validation_{id(python_class)}.py',
+            )
+        script = ScriptModel.objects.create(module=module, name=python_class.Meta.name, is_executable=True)
+        # Return the raw python_class regardless of on-disk module state
+        patcher = patch.object(ScriptModel, 'python_class', property(lambda self, pc=python_class: pc))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return script
+
+    def test_enqueue_rejects_invalid_job_timeout(self):
+        class BadTimeout(Script):
+            class Meta:
+                name = 'Bad Timeout'
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(BadTimeout)
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaises(ValidationError):
+                ScriptJob.enqueue(
+                    instance=script, user=self.user, job_timeout=BadTimeout.job_timeout,
+                    notifications=BadTimeout.notifications_default, data={}, commit=True,
+                )
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_enqueue_rejects_invalid_notifications_default(self):
+        class BadNotifications(Script):
+            class Meta:
+                name = 'Bad Notifications'
+                notifications_default = 'on_error'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(BadNotifications)
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaises(ValidationError):
+                ScriptJob.enqueue(
+                    instance=script, user=self.user, job_timeout=BadNotifications.job_timeout,
+                    notifications=BadNotifications.notifications_default, data={}, commit=True,
+                )
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_enqueue_accepts_valid_meta(self):
+        class GoodScript(Script):
+            class Meta:
+                name = 'Good Script'
+                job_timeout = '1h'
+                notifications_default = JobNotificationChoices.NOTIFICATION_ALWAYS
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(GoodScript)
+        # Do not execute the on_commit callback: the Job row is created by Job.enqueue() before the RQ push is
+        # registered, so asserting the row exists needs no real enqueue. Executing it would leave a job in the shared
+        # Redis queue that races other tests under the parallel runner (see #22872).
+        with self.captureOnCommitCallbacks():
+            job = ScriptJob.enqueue(
+                instance=script, user=self.user, job_timeout=GoodScript.job_timeout,
+                notifications=GoodScript.notifications_default, data={}, commit=True,
+            )
+        self.assertIsNotNone(job)
+        self.assertEqual(Job.objects.count(), 1)
+
+    def test_enqueue_positional_instance_is_validated_and_forwarded(self):
+        """
+        The instance may be passed positionally (JobRunner.enqueue() forwards it to Job.enqueue()'s first argument).
+        The override must validate it without breaking that inherited calling contract (#22872).
+        """
+        class BadTimeout(Script):
+            class Meta:
+                name = 'Bad Timeout Positional'
+                job_timeout = 'not-a-timeout'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(BadTimeout)
+        # Passed positionally, not instance=... — must still be validated and rejected.
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaises(ValidationError):
+                ScriptJob.enqueue(script, user=self.user, data={}, commit=True)
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_enqueue_positional_instance_valid_meta_creates_job(self):
+        """A valid script passed positionally must enqueue cleanly, i.e. the override forwards args unchanged."""
+        class GoodScript(Script):
+            class Meta:
+                name = 'Good Positional'
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(GoodScript)
+        # Do not execute the on_commit callback (see the note in test_enqueue_accepts_valid_meta): asserting the Job
+        # row exists needs no real RQ push, and executing it would leak a job into the shared queue (see #22872).
+        with self.captureOnCommitCallbacks():
+            job = ScriptJob.enqueue(script, user=self.user, data={}, commit=True)
+        self.assertIsNotNone(job)
+        self.assertEqual(Job.objects.count(), 1)
+
+    def test_reschedule_with_invalid_meta_preserves_completed_run(self):
+        """
+        If a recurring script's Meta.job_timeout becomes invalid between runs, the occurrence that just ran to
+        completion must keep its COMPLETED status and not be re-terminated as ERRORED, no successor may be scheduled,
+        and the reschedule failure must be recorded on the job (#22872).
+        """
+        class RecurringScript(Script):
+            class Meta:
+                name = 'Recurring'
+                # No custom job_timeout at schedule time: valid.
+
+            def run(self, data, commit):
+                pass
+
+        script = self._make_script(RecurringScript)
+
+        # Create a completed, recurring job as if a scheduled occurrence had just finished successfully.
+        job = Job.objects.create(
+            object=script,
+            name='Recurring',
+            status=JobStatusChoices.STATUS_COMPLETED,
+            user=self.user,
+            interval=60,
+            job_id=uuid.uuid4(),
+        )
+
+        # The script's Meta is edited to an invalid job_timeout before the reschedule fires.
+        class RecurringScriptBadTimeout(RecurringScript):
+            class Meta(RecurringScript.Meta):
+                job_timeout = 'not-a-timeout'
+
+        with patch.object(ScriptModel, 'python_class', new_callable=PropertyMock) as mock_pc:
+            mock_pc.return_value = RecurringScriptBadTimeout
+            with self.captureOnCommitCallbacks(execute=True):
+                # handle() runs the script (which succeeds) and then reschedules in its finally block; the reschedule
+                # enqueue is what fails validation here.
+                ScriptJob.handle(job, data={}, commit=False)
+
+        job.refresh_from_db()
+        # The completed run's status is preserved (not flipped to ERRORED)
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        # No successor was scheduled
+        self.assertEqual(
+            Job.objects.filter(name='Recurring').exclude(pk=job.pk).count(), 0
+        )
+        # The reschedule failure was recorded on the job
+        self.assertTrue(any('not rescheduled' in entry.get('message', '') for entry in job.log_entries))

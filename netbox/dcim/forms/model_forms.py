@@ -1953,7 +1953,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'mark_connected',
-            'description', 'owner', 'tags',
+            'description', 'tags',
         ),
     )
 
@@ -1961,7 +1961,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
         model = PowerOutlet
         fields = [
             'device', 'module', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ]
 
 
