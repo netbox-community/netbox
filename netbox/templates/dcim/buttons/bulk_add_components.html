@@ -32,6 +32,20 @@
         </button>
       </li>
     {% endif %}
+    {% if perms.dcim.add_coolingintake %}
+      <li>
+        <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_coolingintake' %}{% if url_params %}?{{ url_params.urlencode }}{% endif %}" class="dropdown-item">
+          {% trans "Cooling Intakes" %}
+        </button>
+      </li>
+    {% endif %}
+    {% if perms.dcim.add_coolingoutflow %}
+      <li>
+        <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_coolingoutflow' %}{% if url_params %}?{{ url_params.urlencode }}{% endif %}" class="dropdown-item">
+          {% trans "Cooling Outflows" %}
+        </button>
+      </li>
+    {% endif %}
     {% if perms.dcim.add_interface %}
       <li>
           <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_interface' %}{% if url_params %}?{{ url_params.urlencode }}{% endif %}" class="dropdown-item">

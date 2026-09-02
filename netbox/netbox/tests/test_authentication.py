@@ -1,4 +1,5 @@
 import datetime
+import re
 import sys
 from types import ModuleType
 from unittest.mock import MagicMock, patch
@@ -6,11 +7,13 @@ from unittest.mock import MagicMock, patch
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import Client, RequestFactory, SimpleTestCase
+from django.test import TestCase as DjangoTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
 from social_core.exceptions import AuthFailed
 
+from account.views import LoginView
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile, ObjectType
 from dcim.models import Rack, Site
@@ -833,6 +836,119 @@ class ObjectPermissionProxyModelTestCase(TestCase):
         self._grant_scriptmodule_permission()
         with self.assertLogs('netbox.auth.ObjectPermissionBackend', level='WARNING'):
             self.assertFalse(self.user.has_perm('extras.change_nosuchmodel', self.script_module))
+
+
+class SSOLoginButtonTestCase(DjangoTestCase):
+    """
+    Verify that the SSO buttons on the login page initiate authentication via POST. The social auth
+    begin view accepts only POST requests, so rendering these as plain links yields an HTTP 405
+    (see #23042).
+    """
+    SSO_BACKENDS = [
+        'social_core.backends.google.GoogleOAuth2',
+        'netbox.authentication.ObjectPermissionBackend',
+    ]
+
+    def setUp(self):
+        # load_backends() caches the discovered backends in a module-level dict, so isolate the
+        # backends overridden below from the remainder of the test suite.
+        cache_patcher = patch.dict('social_core.backends.utils.BACKENDSCACHE', {}, clear=True)
+        cache_patcher.start()
+        self.addCleanup(cache_patcher.stop)
+
+    def get_sso_form(self, response):
+        """
+        Return the body of the rendered SSO form. The password login form renders its own hidden
+        `next` field, so assertions about the SSO parameters must be scoped to this form.
+        """
+        begin_url = reverse('social:begin', args=['google-oauth2'])
+        match = re.search(
+            rf'<form[^>]*action="{re.escape(begin_url)}"[^>]*>(.*?)</form>',
+            response.content.decode(),
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(match, "No SSO form found on the login page")
+
+        return match.group(1)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_sso_button_submits_post(self):
+        """
+        Each SSO button must be rendered as a POST form (including a CSRF token) rather than a link.
+        """
+        begin_url = reverse('social:begin', args=['google-oauth2'])
+        response = self.client.get(reverse('login'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'action="{begin_url}" method="post"')
+        self.assertContains(response, 'csrfmiddlewaretoken')
+        # A GET request to the begin view returns an HTTP 405
+        self.assertNotContains(response, f'href="{begin_url}"')
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_next_rendered_as_hidden_field(self):
+        """
+        The post-login redirect URL must be rendered as a form field: the begin view reads `next`
+        only from the POST data, so a query string parameter would be ignored.
+        """
+        response = self.client.get(reverse('login'), {'next': '/dcim/sites/'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertInHTML(
+            '<input type="hidden" name="next" value="/dcim/sites/" />',
+            self.get_sso_form(response)
+        )
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_next_retained_after_failed_login(self):
+        """
+        The login page is re-rendered as the response to a POST when authentication fails, at which
+        point `next` must still be conveyed to the SSO forms.
+        """
+        response = self.client.post(reverse('login'), {
+            'username': 'nonexistentuser',
+            'password': 'wrongpassword',
+            'next': '/dcim/sites/',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertInHTML(
+            '<input type="hidden" name="next" value="/dcim/sites/" />',
+            self.get_sso_form(response)
+        )
+
+    def get_saml_auth_backends(self, request, backends):
+        """
+        Return the auth backends for the given request, with two SAML IdPs configured. (The SAML
+        backend cannot be loaded here, as python3-saml is an optional dependency.)
+        """
+        with (
+            patch('account.views.load_backends', return_value={name: MagicMock() for name in backends}),
+            patch('account.views.get_saml_idps', return_value=['idp1', 'idp2']),
+        ):
+            return LoginView().get_auth_backends(request)
+
+    def test_saml_idp_params(self):
+        """
+        Each SAML IdP must be assigned its own `idp` form field.
+        """
+        request = RequestFactory().get(reverse('login'))
+        auth_backends = self.get_saml_auth_backends(request, ['saml'])
+
+        self.assertEqual(len(auth_backends), 2)
+        self.assertEqual([b['params'] for b in auth_backends], [{'idp': 'idp1'}, {'idp': 'idp2'}])
+
+    def test_next_retained_for_backends_after_saml(self):
+        """
+        Every backend must convey `next`, including those enumerated after SAML (which contributes
+        one entry per configured IdP).
+        """
+        request = RequestFactory().get(reverse('login'), {'next': '/dcim/sites/'})
+        auth_backends = self.get_saml_auth_backends(request, ['saml', 'google-oauth2'])
+
+        self.assertEqual(len(auth_backends), 3)
+        for auth_backend in auth_backends:
+            self.assertEqual(auth_backend['params'].get('next'), '/dcim/sites/')
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):

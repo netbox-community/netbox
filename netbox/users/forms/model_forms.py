@@ -19,6 +19,7 @@ from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
 from users.utils import user_may_grant_token
+from utilities.choices import Choice
 from utilities.data import flatten_dict
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField,
@@ -326,7 +327,7 @@ def get_object_types_choices():
 
         model_class = ot.model_class()
         model_name = model_class._meta.verbose_name if model_class else ot.model
-        choices_by_app[app_label].append((ot.pk, title(model_name)))
+        choices_by_app[app_label].append(Choice(ot.pk, title(model_name)))
 
     return list(choices_by_app.items())
 

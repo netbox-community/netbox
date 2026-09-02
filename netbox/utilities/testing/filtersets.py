@@ -6,28 +6,26 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel, OneToOneRel
 from django.utils.module_loading import import_string
-from mptt.models import MPTTModel
 from taggit.managers import TaggableManager
 
 from extras.filters import TagFilter
+from netbox.models.ltree import LtreeModel
 from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 
 __all__ = (
-    'BaseFilterSetTests',
-    'ChangeLoggedFilterSetTests',
+    'BaseFilterSetTestMixin',
+    'ChangeLoggedFilterSetTestMixin',
 )
 
 EXEMPT_MODEL_FIELDS = (
     'comments',
     'custom_field_data',
-    'level',    # MPTT
-    'lft',      # MPTT
-    'rght',     # MPTT
-    'tree_id',  # MPTT
+    'path',      # ltree, trigger-maintained
+    'sort_path',  # ltree, trigger-maintained
 )
 
 
-class BaseFilterSetTests:
+class BaseFilterSetTestMixin:
     queryset = None
     filterset = None
     ignore_fields = tuple()
@@ -59,8 +57,8 @@ class BaseFilterSetTests:
             if field.related_model is ContentType:
                 return [(None, None)]
 
-            # ForeignKey to an MPTT-enabled model
-            if issubclass(field.related_model, MPTTModel) and field.model is not field.related_model:
+            # ForeignKey to an ltree-backed hierarchical model
+            if issubclass(field.related_model, LtreeModel) and field.model is not field.related_model:
                 return [(f'{filter_name}_id', TreeNodeMultipleChoiceFilter)]
 
             return [(f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter)]
@@ -152,7 +150,7 @@ class BaseFilterSetTests:
                     )
 
 
-class ChangeLoggedFilterSetTests(BaseFilterSetTests):
+class ChangeLoggedFilterSetTestMixin(BaseFilterSetTestMixin):
 
     def test_created(self):
         pk_list = self.queryset.values_list('pk', flat=True)[:2]

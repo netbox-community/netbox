@@ -28,12 +28,20 @@ python3 netbox/manage.py nbshell
 
 ## populate_image_sizes
 
-!!! info "This command was introduced in NetBox v4.6.4."
-
 Populate the cached file size for image attachments that predate the `image_size` field. Running this once after upgrading is recommended for deployments with many existing attachments on a remote storage backend (such as S3). It is safe to run on a live system and may be re-run; any file that cannot be read is skipped and retried on the next run.
 
 ```
 python3 netbox/manage.py populate_image_sizes
+```
+
+## rebuild_config_context_cache
+
+Pre-render and cache the merged config context data for all devices and virtual machines. The [upgrade script](../installation/upgrading.md) runs this automatically, so it is not usually necessary to invoke it by hand. It is useful to complete an interrupted run, or (with `--force`) to repair the cache after a bulk write which bypassed NetBox's change handling (cache invalidation is driven by model signals, which a direct `queryset.update()` does not emit).
+
+By default, only those objects whose cache is empty are rendered, so the command is safe to interrupt and re-run. This also means that a default run will not correct a cache which is populated but stale, as a write which bypassed cache invalidation leaves it: Pass `--force` to re-render every object regardless of its current cache. Either form may be run on a live system, as any object whose cache is empty falls back to rendering its config context on demand. See [Context Data](../features/context-data.md) for details.
+
+```
+python3 netbox/manage.py rebuild_config_context_cache [--force]
 ```
 
 ## rebuild_prefixes
@@ -61,6 +69,9 @@ python3 netbox/manage.py renaturalize [app_label.ModelName ...]
 ```
 
 ## runscript
+
+!!! warning "Deprecation Warning"
+    The custom scripts functionality has been deprecated beginning in NetBox v4.7, and is scheduled for removal in NetBox v5.0. This command will be removed along with it.
 
 Run a [custom script](../customization/custom-scripts.md) from the command line, outside the web UI or API.
 

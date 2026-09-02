@@ -118,10 +118,14 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `events_pipeline`     | A list of handlers to add to [`EVENTS_PIPELINE`](../../configuration/miscellaneous.md#events_pipeline), identified by dotted paths |
 | `search_indexes`      | The dotted path to the list of search index classes (default: `search.indexes`)                                                    |
 | `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                                     |
+| `event_rule_actions`  | The dotted path to the list of event rule action classes (default: `event_rules.event_rule_actions`)                               |
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)                        |
+| `jinja_filters`       | The dotted path to a dict of custom Jinja filter functions for use in config templates (default: `jinja_env.filters`)              |
 | `menu`                | The dotted path to a top-level navigation menu provided by the plugin (default: `navigation.menu`)                                 |
 | `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                                |
 | `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                           |
+| `graphql_type_extensions` | The dotted path to the list of GraphQL output-type extension classes, if any (default: `graphql_extensions.type_extensions`)   |
+| `graphql_filter_extensions` | The dotted path to the list of GraphQL filter extension classes, if any (default: `graphql_extensions.filter_extensions`)    |
 | `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`)           |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.

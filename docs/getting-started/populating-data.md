@@ -26,7 +26,9 @@ When viewing the CSV import form for an object type, you'll notice that the head
 
 <!-- TODO: Screenshot -->
 
-If an "id" field is added the data will be used to update existing records instead of importing new objects.
+If an "id" field is added the data will be used to update existing records instead of importing new objects. When updating, only the columns present in the data are applied; all others are left unchanged. Note that some columns are interdependent: for example, updating a cable's terminations requires that the columns identifying their type and parent object be included as well.
+
+Some columns accept multiple values, separated by commas. Because the comma also serves as the CSV field delimiter, such a value must be enclosed in double quotes, e.g. `"tag1,tag2,tag3"`. (When importing JSON- or YAML-formatted data, these columns accept a native list instead.) An object whose name itself contains a comma cannot be referenced by a multi-value column, as there is no way to distinguish it from a separator.
 
 Note that some models (namely device types and module types) do not support CSV import. Instead, they accept YAML-formatted data to facilitate the import of both the parent object as well as child components.
 

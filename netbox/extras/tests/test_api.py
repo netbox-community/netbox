@@ -17,10 +17,13 @@ from core.choices import ManagedFileRootPathChoices
 from core.events import *
 from core.models import DataFile, DataSource, Job, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
+from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
+from netbox.event_rules import EventRuleAction, register_event_rule_action
+from netbox.registry import registry
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
@@ -44,6 +47,7 @@ class WebhookTestCase(APIViewTestCases.APIViewTestCase):
         {
             'name': 'Webhook 4',
             'payload_url': 'http://example.com/?4',
+            'timeout': 15,
         },
         {
             'name': 'Webhook 5',
@@ -157,6 +161,129 @@ class EventRuleTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class EventRuleActionAPITestCase(APITestCase):
+    """
+    REST API tests for EventRule's registry-driven action_type.
+    """
+
+    def test_create_event_rule_with_unregistered_action_type_fails(self):
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API Bad Action Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': 'this.is.not.registered',
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_type', response.data)
+
+    def test_update_unrelated_field_on_unavailable_action_rule_fails(self):
+        """PATCHing a rule with an unavailable action_type is rejected, even for an unrelated field."""
+        rule = EventRule.objects.create(
+            name='API Unavailable Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='some.plugin.not_installed',
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        self.add_permissions('extras.change_eventrule')
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': rule.pk})
+        response = self.client.patch(url, {'enabled': False}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_type', response.data)
+
+        rule.refresh_from_db()
+        self.assertTrue(rule.enabled)
+
+    def test_action_is_available_exposed_via_api(self):
+        """action_is_available is exposed as a read-only field, so unavailable rules can be found in bulk."""
+        available_rule = EventRule.objects.create(
+            name='API Available Rule', event_types=[OBJECT_CREATED], action_type='webhook',
+        )
+        available_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        unavailable_rule = EventRule.objects.create(
+            name='API Unavailable Flag Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='some.plugin.not_installed_flag_test',
+        )
+        unavailable_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        self.add_permissions('extras.view_eventrule')
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': available_rule.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(response.data['action_is_available'])
+
+        url = reverse('extras-api:eventrule-detail', kwargs={'pk': unavailable_rule.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertFalse(response.data['action_is_available'])
+
+    def test_create_event_rule_with_runtime_registered_action(self):
+        """An action registered after this serializer's module was imported must still be a valid action_type."""
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.api_no_object_action'
+            label = 'API No-Object Action'
+
+        register_event_rule_action(NoObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, NoObjectAction.slug, None)
+
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API No-Object Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': NoObjectAction.slug,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        rule = EventRule.objects.get(pk=response.data['id'])
+        self.assertEqual(rule.action_type, NoObjectAction.slug)
+        self.assertIsNone(rule.action_object_type)
+        self.assertIsNone(rule.action_object_id)
+
+    def test_create_event_rule_with_object_for_no_object_action_fails(self):
+        """An action with no object_model must reject a target object rather than storing it."""
+        class NoObjectAction(EventRuleAction):
+            slug = 'test.api_no_object_action'
+            label = 'API No-Object Action'
+
+        register_event_rule_action(NoObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, NoObjectAction.slug, None)
+
+        site = Site.objects.create(name='Action Object Site', slug='action-object-site')
+
+        self.add_permissions('extras.add_eventrule')
+        url = reverse('extras-api:eventrule-list')
+        data = {
+            'name': 'API Bogus Object Rule',
+            'object_types': ['dcim.site'],
+            'event_types': [OBJECT_CREATED],
+            'action_type': NoObjectAction.slug,
+            'action_object_type': 'dcim.site',
+            'action_object_id': site.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('action_object_id', response.data)
+        self.assertFalse(EventRule.objects.filter(name='API Bogus Object Rule').exists())
+
+    def test_action_object_type_field_accepts_any_content_type(self):
+        """action_object_type's queryset must not be restricted to the with_feature('event_rules') set."""
+        field = EventRuleSerializer().fields['action_object_type']
+        user_ct = ObjectType.objects.get_for_model(User)
+        self.assertFalse(
+            ObjectType.objects.with_feature('event_rules').filter(pk=user_ct.pk).exists(),
+            "auth.user must not support event_rules for this test to be meaningful; pick another type.",
+        )
+        self.assertIn(user_ct, field.queryset)
+
+
 class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomField
     brief_fields = ['description', 'display', 'id', 'name', 'url']
@@ -179,6 +306,7 @@ class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+        'nulls_first': False,
     }
     update_data = {
         'object_types': ['dcim.device'],
@@ -197,7 +325,8 @@ class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
             ),
             CustomField(
                 name='cf2',
-                type='integer'
+                type='integer',
+                nulls_first=False
             ),
             CustomField(
                 name='cf3',
@@ -1563,6 +1692,19 @@ class ScriptTestCase(APITestCase):
         ro_header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{ro_token.key}.{ro_token.token}'}
         response = self.client.post(self.url, payload, format='json', **ro_header)
         self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+    def test_run_script_session_auth(self):
+        """
+        The token write-ability check applies only to token authentication. Session-authenticated requests
+        (where request.auth is not a Token) must still be permitted to run scripts.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {'data': {'var1': 'hello', 'var2': 1, 'var3': False}, 'commit': True}
+
+        # Authenticate via session rather than a token; request.auth is None
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url, payload, format='json')
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
     def test_run_script_not_executable(self):
         """

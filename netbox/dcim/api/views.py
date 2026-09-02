@@ -16,8 +16,7 @@ from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
-from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
+from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.api import get_serializer_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -95,7 +94,7 @@ class PassThroughPortMixin:
 # Regions
 #
 
-class RegionViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class RegionViewSet(NetBoxModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -111,7 +110,7 @@ class RegionViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 # Site groups
 #
 
-class SiteGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class SiteGroupViewSet(NetBoxModelViewSet):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
         Site,
@@ -137,7 +136,7 @@ class SiteViewSet(NetBoxModelViewSet):
 # Locations
 #
 
-class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class LocationViewSet(NetBoxModelViewSet):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
             Location.objects.all(),
@@ -286,6 +285,12 @@ class DeviceTypeViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceTypeFilterSet
 
 
+class ModuleBayTypeViewSet(NetBoxModelViewSet):
+    queryset = ModuleBayType.objects.all()
+    serializer_class = serializers.ModuleBayTypeSerializer
+    filterset_class = filtersets.ModuleBayTypeFilterSet
+
+
 class ModuleTypeProfileViewSet(NetBoxModelViewSet):
     queryset = ModuleTypeProfile.objects.all()
     serializer_class = serializers.ModuleTypeProfileSerializer
@@ -293,7 +298,7 @@ class ModuleTypeProfileViewSet(NetBoxModelViewSet):
 
 
 class ModuleTypeViewSet(NetBoxModelViewSet):
-    queryset = ModuleType.objects.all()
+    queryset = ModuleType.objects.prefetch_related('module_bay_types__manufacturer')
     serializer_class = serializers.ModuleTypeSerializer
     filterset_class = filtersets.ModuleTypeFilterSet
 
@@ -326,6 +331,18 @@ class PowerOutletTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.PowerOutletTemplateFilterSet
 
 
+class CoolingIntakeTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntakeTemplate.objects.all()
+    serializer_class = serializers.CoolingIntakeTemplateSerializer
+    filterset_class = filtersets.CoolingIntakeTemplateFilterSet
+
+
+class CoolingOutflowTemplateViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflowTemplate.objects.all()
+    serializer_class = serializers.CoolingOutflowTemplateSerializer
+    filterset_class = filtersets.CoolingOutflowTemplateFilterSet
+
+
 class InterfaceTemplateViewSet(NetBoxModelViewSet):
     queryset = InterfaceTemplate.objects.all()
     serializer_class = serializers.InterfaceTemplateSerializer
@@ -345,7 +362,7 @@ class RearPortTemplateViewSet(NetBoxModelViewSet):
 
 
 class ModuleBayTemplateViewSet(NetBoxModelViewSet):
-    queryset = ModuleBayTemplate.objects.all()
+    queryset = ModuleBayTemplate.objects.prefetch_related('module_bay_types__manufacturer')
     serializer_class = serializers.ModuleBayTemplateSerializer
     filterset_class = filtersets.ModuleBayTemplateFilterSet
 
@@ -356,7 +373,7 @@ class DeviceBayTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
-class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class InventoryItemTemplateViewSet(NetBoxModelViewSet):
     queryset = InventoryItemTemplate.objects.all()
     serializer_class = serializers.InventoryItemTemplateSerializer
     filterset_class = filtersets.InventoryItemTemplateFilterSet
@@ -388,7 +405,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class PlatformViewSet(NetBoxModelViewSet):
     queryset = Platform.objects.add_related_count(
         Platform.objects.add_related_count(
             Platform.objects.all(),
@@ -410,34 +427,14 @@ class PlatformViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(
-    SequentialBulkCreatesMixin,
-    ConfigContextQuerySetMixin,
-    RenderConfigMixin,
-    NetBoxModelViewSet
-):
+class DeviceViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
     )
+    serializer_class = serializers.DeviceSerializer
     filterset_class = filtersets.DeviceFilterSet
     pagination_class = StripCountAnnotationsPaginator
-
-    def get_serializer_class(self):
-        """
-        Select the specific serializer based on the request context.
-
-        If the `brief` query param equates to True, return the NestedDeviceSerializer
-
-        If the `exclude` query param includes `config_context` as a value, return the DeviceSerializer
-
-        Else, return the DeviceWithConfigContextSerializer
-        """
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
-            return serializers.DeviceSerializer
-
-        return serializers.DeviceWithConfigContextSerializer
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):
@@ -447,7 +444,10 @@ class VirtualDeviceContextViewSet(NetBoxModelViewSet):
 
 
 class ModuleViewSet(NetBoxModelViewSet):
-    queryset = Module.objects.all()
+    queryset = Module.objects.prefetch_related(
+        'module_bay__module_bay_types',
+        'module_type__module_bay_types',
+    )
     serializer_class = serializers.ModuleSerializer
     filterset_class = filtersets.ModuleFilterSet
 
@@ -486,6 +486,18 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
+
+
+class CoolingIntakeViewSet(NetBoxModelViewSet):
+    queryset = CoolingIntake.objects.all()
+    serializer_class = serializers.CoolingIntakeSerializer
+    filterset_class = filtersets.CoolingIntakeFilterSet
+
+
+class CoolingOutflowViewSet(NetBoxModelViewSet):
+    queryset = CoolingOutflow.objects.all()
+    serializer_class = serializers.CoolingOutflowSerializer
+    filterset_class = filtersets.CoolingOutflowFilterSet
 
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
@@ -532,7 +544,10 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
-    queryset = ModuleBay.objects.all()
+    queryset = ModuleBay.objects.prefetch_related(
+        'module_bay_types__manufacturer',
+        'installed_module__module_type__module_bay_types',
+    )
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
 
@@ -543,7 +558,7 @@ class DeviceBayViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceBayFilterSet
 
 
-class InventoryItemViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class InventoryItemViewSet(NetBoxModelViewSet):
     queryset = InventoryItem.objects.all()
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet
@@ -627,6 +642,26 @@ class PowerFeedViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.PowerFeedSerializer
     filterset_class = filtersets.PowerFeedFilterSet
+
+
+#
+# Cooling sources
+#
+
+class CoolingSourceViewSet(NetBoxModelViewSet):
+    queryset = CoolingSource.objects.all()
+    serializer_class = serializers.CoolingSourceSerializer
+    filterset_class = filtersets.CoolingSourceFilterSet
+
+
+#
+# Cooling feeds
+#
+
+class CoolingFeedViewSet(NetBoxModelViewSet):
+    queryset = CoolingFeed.objects.all()
+    serializer_class = serializers.CoolingFeedSerializer
+    filterset_class = filtersets.CoolingFeedFilterSet
 
 
 #

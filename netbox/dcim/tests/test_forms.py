@@ -4,15 +4,19 @@ from django import forms
 from django.test import TestCase
 
 from dcim.choices import (
+    CableEndChoices,
+    CableProfileChoices,
     DeviceFaceChoices,
     DeviceStatusChoices,
     InterfaceModeChoices,
     InterfaceTypeChoices,
+    LinkStatusChoices,
     PortTypeChoices,
     PowerOutletStatusChoices,
 )
 from dcim.forms import *
 from dcim.models import *
+from dcim.tests.test_module_moves import fail_after
 from ipam.models import ASN, RIR, VLAN
 from utilities.exceptions import AbortRequest
 from utilities.forms.rendering import M2MAddRemoveFields
@@ -223,6 +227,320 @@ class ModuleTypeFormTestCase(TestCase):
 
             module_type = form.save()
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
+
+
+class ModuleBayTemplateImportFormTestCase(TestCase):
+
+    def test_module_bay_types_prefers_manufacturer_specific_match_over_global(self):
+        """A name shared by a global and a manufacturer-scoped type resolves to the scoped one."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        scoped_type = ModuleBayType.objects.create(
+            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
+        )
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(
+            list(module_bay_template.module_bay_types.all()), [scoped_type],
+        )
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+    def test_module_bay_types_unknown_name_raises_error(self):
+        device_type = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['Nonexistent'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+    def test_module_bay_types_prefers_manufacturer_specific_match_over_global_for_module_type(self):
+        """Same disambiguation, but for a module bay template nested under a ModuleType."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        scoped_type = ModuleBayType.objects.create(
+            name='SFP28', slug='sfp28-scoped', manufacturer=manufacturer,
+        )
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+
+        form = ModuleBayTemplateImportForm({
+            'module_type': module_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        module_bay_template = form.save()
+        self.assertEqual(
+            list(module_bay_template.module_bay_types.all()), [scoped_type],
+        )
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+    def test_enabled_honors_explicit_false(self):
+        device_type = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1'),
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'enabled': False,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.save().enabled)
+
+    def test_import_export_round_trip_preserves_module_bay_types(self):
+        """to_yaml() then re-import through this form preserves module bay types."""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1',
+        )
+        original = ModuleBayTemplate.objects.create(device_type=device_type, name='Module Bay 1')
+        original.module_bay_types.set([bay_type_a, bay_type_b])
+
+        exported = original.to_yaml()
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': exported['module_bay_types'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+        reimported = form.save()
+        self.assertEqual(
+            set(reimported.module_bay_types.values_list('name', flat=True)),
+            set(original.module_bay_types.values_list('name', flat=True)),
+        )
+
+    def test_module_bay_types_name_belonging_only_to_other_manufacturers_is_unresolvable(self):
+        """
+        A name that exists only for manufacturers other than the device type's own (and isn't
+        global) must not resolve at all -- module_bay_types is scoped to the device type's own
+        manufacturer plus global types, with no cross-manufacturer fallback.
+        """
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        form = ModuleBayTemplateImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+    def test_module_bay_types_resolution_is_independent_of_field_order(self):
+        """
+        Resolution must not depend on the parent type having been cleaned first, so declaring
+        module_bay_types ahead of device_type/module_type must not change the outcome.
+        """
+        class ReorderedImportForm(ModuleBayTemplateImportForm):
+            class Meta(ModuleBayTemplateImportForm.Meta):
+                fields = [
+                    'module_bay_types', 'device_type', 'module_type', 'name', 'label', 'position',
+                    'enabled', 'description',
+                ]
+
+        self.assertEqual(list(ReorderedImportForm().fields)[0], 'module_bay_types')
+
+        juniper = Manufacturer.objects.create(name='Juniper', slug='juniper')
+        cisco = Manufacturer.objects.create(name='Cisco', slug='cisco')
+        global_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-global')
+        juniper_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28-juniper', manufacturer=juniper)
+        cisco_type = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28-cisco', manufacturer=cisco)
+        device_type = DeviceType.objects.create(
+            manufacturer=juniper, model='Juniper Device Type', slug='juniper-device-type',
+        )
+
+        # The device type's own manufacturer still wins over the global type of the same name
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 1',
+            'module_bay_types': ['SFP28'],
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        module_bay_template = form.save()
+        self.assertEqual(list(module_bay_template.module_bay_types.all()), [juniper_type])
+        self.assertNotIn(global_type, module_bay_template.module_bay_types.all())
+
+        # ...and another manufacturer's bay type is still rejected rather than resolved to
+        form = ReorderedImportForm({
+            'device_type': device_type.pk,
+            'name': 'Module Bay 2',
+            'module_bay_types': [cisco_type.name],
+        })
+        self.assertFalse(form.is_valid())
+        self.assertEqual(
+            form.errors.as_data()['module_bay_types'][0].code, 'invalid_choice',
+        )
+
+
+class ModuleFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Module Form Device A')
+        cls.device_b = create_test_device('Module Form Device B')
+        cls.bay_a = ModuleBay.objects.create(device=cls.device, name='Bay A')
+        cls.bay_b = ModuleBay.objects.create(device=cls.device, name='Bay B')
+        cls.bay_c = ModuleBay.objects.create(device=cls.device_b, name='Bay C')
+        manufacturer = Manufacturer.objects.create(
+            name='Module Form Manufacturer', slug='module-form-manufacturer'
+        )
+        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Form Type')
+        cls.module = Module.objects.create(
+            device=cls.device, module_bay=cls.bay_a, module_type=cls.module_type
+        )
+
+    def test_module_device_is_editable_on_edit(self):
+        form = ModuleForm(instance=self.module)
+        self.assertFalse(form.fields['device'].disabled)
+        self.assertTrue(form.fields['replicate_components'].disabled)
+        self.assertTrue(form.fields['adopt_components'].disabled)
+
+    def test_module_form_moves_module_to_empty_bay(self):
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.module_bay, self.bay_b)
+
+    def test_module_form_rejects_occupied_bay(self):
+        Module.objects.create(device=self.device, module_bay=self.bay_b, module_type=self.module_type)
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('module_bay', form.errors)
+
+    def test_module_form_moves_module_to_different_device(self):
+        interface = Interface.objects.create(
+            device=self.device, module=self.module, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        form = ModuleForm(
+            data={
+                'device': self.device_b.pk,
+                'module_bay': self.bay_c.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+            },
+            instance=self.module,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.module.refresh_from_db()
+        self.assertEqual(self.module.device, self.device_b)
+        self.assertEqual(self.module.module_bay, self.bay_c)
+        interface.refresh_from_db()
+        self.assertEqual(interface.device, self.device_b)
+
+    def test_module_create_into_cyclic_hierarchy_is_rejected(self):
+        # CREATE into a cyclic hierarchy (bypassing clean() via .update()) must be a form error.
+        other_module = Module.objects.create(
+            device=self.device, module_bay=self.bay_b, module_type=self.module_type
+        )
+        child_bay_1 = ModuleBay.objects.create(device=self.device, module=self.module, name='Child Bay 1')
+        child_bay_2 = ModuleBay.objects.create(device=self.device, module=other_module, name='Child Bay 2')
+        Module.objects.filter(pk=self.module.pk).update(module_bay=child_bay_2)
+        Module.objects.filter(pk=other_module.pk).update(module_bay=child_bay_1)
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': child_bay_1.pk,
+                'module_type': self.module_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+            },
+        )
+        with fail_after(15):
+            self.assertFalse(form.is_valid())
+        self.assertIn('contains a cycle', str(form.errors))
+
+    def test_module_form_reports_conflicting_cooling_component(self):
+        """
+        A cooling component name collision must surface as a form error rather than an
+        IntegrityError raised from the replication insert. See netbox#15289.
+        """
+        cooled_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Cooled Form Type'
+        )
+        CoolingIntakeTemplate.objects.create(module_type=cooled_type, name='Intake 1')
+        CoolingOutflowTemplate.objects.create(module_type=cooled_type, name='Outflow 1')
+        CoolingIntake.objects.create(device=self.device, name='Intake 1')
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': cooled_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+            },
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('Intake 1', str(form.errors))
+
+    def test_module_form_adopts_existing_cooling_component(self):
+        cooled_type = ModuleType.objects.create(
+            manufacturer=self.module_type.manufacturer, model='Adoptable Cooled Type'
+        )
+        CoolingIntakeTemplate.objects.create(module_type=cooled_type, name='Intake 1')
+        intake = CoolingIntake.objects.create(device=self.device, name='Intake 1')
+        form = ModuleForm(
+            data={
+                'device': self.device.pk,
+                'module_bay': self.bay_b.pk,
+                'module_type': cooled_type.pk,
+                'status': 'active',
+                'replicate_components': True,
+                'adopt_components': True,
+            },
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        module = form.save()
+        intake.refresh_from_db()
+        self.assertEqual(intake.module, module)
 
 
 class VCPositionTokenFormTestCase(TestCase):
@@ -678,11 +996,372 @@ class InterfaceTestCase(TestCase):
 
 class CableTestCase(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.device_a = create_test_device('Device A', site=cls.site)
+        cls.device_b = create_test_device('Device B', site=cls.site)
+        cls.device_c = create_test_device('Device C', site=cls.site)
+
+        cls.interfaces_a = (
+            Interface(device=cls.device_a, name='et-0/0/0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_a, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        cls.interfaces_b = (
+            Interface(device=cls.device_b, name='et-0/0/0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_b, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=cls.device_b, name='et-0/0/2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        cls.interface_c = Interface(device=cls.device_c, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Interface.objects.bulk_create([*cls.interfaces_a, *cls.interfaces_b, cls.interface_c])
+
+        cls.power_panel = PowerPanel.objects.create(site=cls.site, name='Power Panel 1')
+        cls.power_feeds = (
+            PowerFeed(power_panel=cls.power_panel, name='Power Feed 1'),
+            PowerFeed(power_panel=cls.power_panel, name='Power Feed 2'),
+        )
+        PowerFeed.objects.bulk_create(cls.power_feeds)
+        cls.power_ports = (
+            PowerPort(device=cls.device_b, name='Power Port 1'),
+            PowerPort(device=cls.device_b, name='Power Port 2'),
+        )
+        PowerPort.objects.bulk_create(cls.power_ports)
+
     def test_invalid_side_designation_raises_value_error(self):
         """_clean_side rejects a side other than 'a' or 'b' with ValueError."""
         form = CableImportForm.__new__(CableImportForm)
         with self.assertRaisesMessage(ValueError, "Invalid side designation: c"):
             form._clean_side('c')
+
+    def test_import_single_termination_cable(self):
+        """A single-value cell per side resolves one termination per side."""
+        form = CableImportForm(data={
+            'side_a_site': 'Site 1',
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_site': 'Site 1',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, [self.interfaces_a[0]])
+        self.assertEqual(cable.b_terminations, [self.interfaces_b[0]])
+
+    def test_import_multiple_terminations_single_parent(self):
+        """A single parent value is reused for all comma-separated termination names."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1, et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, [self.interfaces_a[0]])
+        self.assertEqual(cable.b_terminations, [self.interfaces_b[1], self.interfaces_b[2]])
+
+    def test_import_multiple_terminations_multiple_parents_preserves_order(self):
+        """Pairwise parent/name lists resolve in submitted order, driving connector assignment."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device C,Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.b_terminations, [self.interface_c, self.interfaces_b[1]])
+
+        cable_terminations = CableTermination.objects.filter(
+            cable=cable, cable_end=CableEndChoices.SIDE_B
+        ).order_by('connector')
+        self.assertEqual([ct.termination for ct in cable_terminations], [self.interface_c, self.interfaces_b[1]])
+        self.assertEqual([ct.connector for ct in cable_terminations], [1, 2])
+
+    def test_import_multiple_terminations_parent_count_mismatch(self):
+        """A parent list that is neither one value nor one per termination name is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device C',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Must specify either one device', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_duplicate_termination(self):
+        """The same termination cannot be listed twice on one cable end."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Duplicate termination', str(form.errors.get('side_b_name')))
+
+    def test_import_terminations_exceeding_profile_capacity(self):
+        """A side carrying more terminations than its profile permits reports against that side's column."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('only 2 are permitted', str(form.errors.get('side_b_name')))
+
+    def test_import_terminations_exceeding_profile_capacity_side_a(self):
+        """The same applies to side A, whose profile capacity is often lower than side B's."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0,et-0/0/1',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('only 1 are permitted', str(form.errors.get('side_a_name')))
+
+    def test_import_multiple_terminations_empty_name(self):
+        """A trailing comma produces an empty termination name and is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Empty termination names', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_connected_termination(self):
+        """An already-cabled termination in a multi-value list is rejected."""
+        cable = Cable(a_terminations=[self.interfaces_a[1]], b_terminations=[self.interfaces_b[1]])
+        cable.save()
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('already connected', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_power_feeds(self):
+        """Multiple power feeds import from a single broadcast power panel."""
+        form = CableImportForm(data={
+            'side_a_power_panel': 'Power Panel 1',
+            'side_a_type': 'dcim.powerfeed',
+            'side_a_name': 'Power Feed 1,Power Feed 2',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.powerport',
+            'side_b_name': 'Power Port 1,Power Port 2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.a_terminations, list(self.power_feeds))
+        self.assertEqual(cable.b_terminations, list(self.power_ports))
+
+    def test_import_multiple_terminations_repeated_parent_values(self):
+        """A repeated parent in a pairwise list resolves per position, not deduplicated."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device C,Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(
+            cable.b_terminations,
+            [self.interfaces_b[1], self.interface_c, self.interfaces_b[2]]
+        )
+
+    def test_import_multiple_terminations_native_lists(self):
+        """Native list values (JSON/YAML import) resolve like comma-separated cells."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': ['Device C', 'Device B'],
+            'side_b_type': 'dcim.interface',
+            'side_b_name': ['et-0/0/1', 'et-0/0/1'],
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        cable = form.save()
+        self.assertEqual(cable.b_terminations, [self.interface_c, self.interfaces_b[1]])
+
+    def test_import_multiple_terminations_unknown_parent(self):
+        """An unknown parent in a multi-value cell errors on the parent field only."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B,Device X',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Object not found: Device X', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_missing_parent(self):
+        """A device component termination type without a device value is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/2',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Must specify a device', str(form.errors.get('side_b_name')))
+
+    def test_import_unsupported_termination_type(self):
+        """Termination types without a supported parent field are rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'circuits.circuittermination',
+            'side_b_name': 'Termination X',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Bulk import does not support', str(form.errors.get('side_b_name')))
+
+    def test_import_unknown_termination_type(self):
+        """An unresolvable termination type errors on the type field only."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.nosuchmodel',
+            'side_b_name': 'et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side_b_type', form.errors)
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_unknown_name(self):
+        """An unknown termination name in a multi-value list is rejected."""
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device B',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/9',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side termination not found', str(form.errors.get('side_b_name')))
+
+    def test_import_multiple_terminations_ambiguous_parent(self):
+        """A parent name matching multiple objects errors on the parent field."""
+        site_2 = Site.objects.create(name='Site 2', slug='site-2')
+        create_test_device('Device D', site=self.site)
+        create_test_device('Device D', site=site_2)
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'Device D',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('is not a unique value', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_multiple_terminations_site_filtered_parent_queryset(self):
+        """Parent resolution honors side_x_site queryset filtering for multi-value parents."""
+        site_2 = Site.objects.create(name='Site 2', slug='site-2')
+        device_x = create_test_device('Device X', site=site_2)
+        Interface.objects.create(device=device_x, name='et-0/0/1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+
+        form = CableImportForm(data={
+            'side_a_site': 'Site 1',
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_site': 'Site 1',
+            'side_b_device': 'Device B,Device X',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'et-0/0/1,et-0/0/1',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Object not found: Device X', str(form.errors.get('side_b_device')))
+        self.assertNotIn('side_b_name', form.errors)
+
+    def test_import_ambiguous_vc_component(self):
+        """A component name found on multiple VC members produces a form error."""
+        vc = VirtualChassis.objects.create(name='Virtual Chassis 1')
+        master = create_test_device('VC Master', site=self.site, virtual_chassis=vc, vc_position=1)
+        member_2 = create_test_device('VC Member 2', site=self.site, virtual_chassis=vc, vc_position=2)
+        member_3 = create_test_device('VC Member 3', site=self.site, virtual_chassis=vc, vc_position=3)
+        vc.master = master
+        vc.save()
+        Interface.objects.create(device=member_2, name='vc-eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Interface.objects.create(device=member_3, name='vc-eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+
+        form = CableImportForm(data={
+            'side_a_device': 'Device A',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'et-0/0/0',
+            'side_b_device': 'VC Master',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'vc-eth0',
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('side termination not unique', str(form.errors.get('side_b_name')))
 
 
 class SiteFormTestCase(TestCase):

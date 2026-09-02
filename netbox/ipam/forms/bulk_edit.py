@@ -6,20 +6,21 @@ from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
+from ipam.forms.fields import PortMappingField
 from ipam.models import *
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField,
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    NumericArrayField,
+    GenericObjectChoiceField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import BulkEditNullBooleanSelect, HTMXSelect
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ASNBulkEditForm',
@@ -203,7 +204,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(PrefixStatusChoices),
         required=False
@@ -228,7 +229,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
         FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
     nullable_fields = (
@@ -247,7 +248,7 @@ class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPRangeStatusChoices),
         required=False
@@ -294,12 +295,12 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False
     )
-    role = forms.ChoiceField(
+    role = ChoiceField(
         label=_('Role'),
         choices=add_blank_choice(IPAddressRoleChoices),
         required=False
@@ -321,7 +322,7 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
+    protocol = ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(FHRPGroupProtocolChoices),
         required=False
@@ -331,7 +332,7 @@ class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label=_('Group ID')
     )
-    auth_type = forms.ChoiceField(
+    auth_type = ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
         label=_('Authentication type')
@@ -355,13 +356,13 @@ class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('auth_type', 'auth_key', 'name', 'description', 'comments')
 
 
-class VLANGroupBulkEditForm(ScopedBulkEditForm, OrganizationalModelBulkEditForm):
-    # Override ScopedBulkEditForm.scope_type to set custom queryset
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
+class VLANGroupBulkEditForm(GenericObjectFormMixin, OrganizationalModelBulkEditForm):
+    scope = GenericObjectChoiceField(
+        label=_('Scope'),
+        content_type_queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
-        label=_('Scope type')
+        selector=True,
+        hx_method='post',
     )
     vid_ranges = NumericRangeArrayField(
         label=_('VLAN ID ranges'),
@@ -376,7 +377,7 @@ class VLANGroupBulkEditForm(ScopedBulkEditForm, OrganizationalModelBulkEditForm)
     model = VLANGroup
     fieldsets = (
         FieldSet('site', 'vid_ranges', 'description'),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = ('description', 'scope', 'comments')
@@ -415,7 +416,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VLANStatusChoices),
         required=False
@@ -425,7 +426,7 @@ class VLANBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
-    qinq_role = forms.ChoiceField(
+    qinq_role = ChoiceField(
         label=_('Q-in-Q role'),
         choices=add_blank_choice(VLANQinQRoleChoices),
         required=False
@@ -475,23 +476,20 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
-    protocol = forms.ChoiceField(
-        label=_('Protocol'),
-        choices=add_blank_choice(ServiceProtocolChoices),
-        required=False
+    add_port_mappings = PortMappingField(
+        label=_('Add port mappings'),
+        required=False,
+        help_text=_("Port mappings to add to each selected object"),
     )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
-        ),
-        required=False
+    remove_port_mappings = PortMappingField(
+        label=_('Remove port mappings'),
+        required=False,
+        help_text=_("Port mappings to remove from each selected object (if present)"),
     )
 
     model = ServiceTemplate
     fieldsets = (
-        FieldSet('protocol', 'ports', 'description'),
+        FieldSet('add_port_mappings', 'remove_port_mappings', 'description'),
     )
     nullable_fields = ('description', 'comments')
 

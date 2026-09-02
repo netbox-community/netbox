@@ -7,6 +7,7 @@ from unittest.mock import patch
 from django.conf import settings as django_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
+from rq.queue import Queue
 
 from netbox import settings_utils
 
@@ -255,6 +256,75 @@ class SecretKeyHintTest(SimpleTestCase):
             settings_utils.secret_key_hint('checkout', '/repo/netbox'),
             'python /repo/netbox/generate_secret_key.py',
         )
+
+
+class ParseJobTimeoutTest(SimpleTestCase):
+    """parse_job_timeout() normalizes RQ_DEFAULT_TIMEOUT to a comparable number of seconds."""
+
+    def test_integer_is_returned_unchanged(self):
+        self.assertEqual(settings_utils.parse_job_timeout(300), 300)
+
+    def test_numeric_string_is_coerced(self):
+        self.assertEqual(settings_utils.parse_job_timeout('300'), 300)
+
+    def test_duration_string_is_normalized(self):
+        self.assertEqual(settings_utils.parse_job_timeout('1h'), 3600)
+        self.assertEqual(settings_utils.parse_job_timeout('30m'), 1800)
+        self.assertEqual(settings_utils.parse_job_timeout('45s'), 45)
+
+    def test_absent_or_zero_timeout_falls_back_to_queue_default(self):
+        # RQ does not treat a null or zero default timeout as unlimited: Queue substitutes its own
+        # default, which remains a real ceiling on job execution.
+        for value in (None, 0, '0'):
+            with self.subTest(value=value):
+                self.assertEqual(settings_utils.parse_job_timeout(value), Queue.DEFAULT_TIMEOUT)
+
+    def test_negative_timeout_is_unbounded(self):
+        # -1 is RQ's documented infinite timeout; it disables the death penalty, so there is no
+        # ceiling to compare against.
+        self.assertIsNone(settings_utils.parse_job_timeout(-1))
+        self.assertIsNone(settings_utils.parse_job_timeout('-1'))
+
+    def test_invalid_value_raises(self):
+        for value in ('1x', 'abc', [300]):
+            with self.subTest(value=value):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'RQ_DEFAULT_TIMEOUT'):
+                    settings_utils.parse_job_timeout(value)
+
+
+class ValidateWebhookDefaultTimeoutTest(SimpleTestCase):
+    """validate_webhook_default_timeout() is the startup check applied to WEBHOOK_DEFAULT_TIMEOUT."""
+
+    def test_valid_timeout_below_job_timeout(self):
+        settings_utils.validate_webhook_default_timeout(60, 300)
+
+    def test_timeout_at_or_above_job_timeout_raises(self):
+        for timeout in (300, 301):
+            with self.subTest(timeout=timeout):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'must be less than RQ_DEFAULT_TIMEOUT'):
+                    settings_utils.validate_webhook_default_timeout(timeout, 300)
+
+    def test_normalized_job_timeout_is_enforced(self):
+        # A duration string such as "1h" must be normalized by the caller and enforced like any other value.
+        job_timeout = settings_utils.parse_job_timeout('1h')
+        with self.assertRaises(ImproperlyConfigured):
+            settings_utils.validate_webhook_default_timeout(3600, job_timeout)
+        settings_utils.validate_webhook_default_timeout(3599, job_timeout)
+
+    def test_unbounded_job_timeout_skips_comparison(self):
+        settings_utils.validate_webhook_default_timeout(3600, None)
+
+    def test_out_of_range_timeout_raises(self):
+        for timeout in (0, 3601):
+            with self.subTest(timeout=timeout):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'between 1 and 3600'):
+                    settings_utils.validate_webhook_default_timeout(timeout, None)
+
+    def test_non_integer_timeout_raises(self):
+        for timeout in ('60', 60.5, None):
+            with self.subTest(timeout=timeout):
+                with self.assertRaisesMessage(ImproperlyConfigured, 'must be an integer'):
+                    settings_utils.validate_webhook_default_timeout(timeout, 300)
 
 
 class LoadLdapConfigTest(SimpleTestCase):

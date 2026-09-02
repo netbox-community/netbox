@@ -18,6 +18,7 @@ DATABASES = {
 
 PLUGINS = [
     'netbox.tests.dummy_plugin',
+    'netbox.tests.dummy_plugin_b',
 ]
 
 RQ = {

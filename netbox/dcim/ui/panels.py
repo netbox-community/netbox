@@ -4,6 +4,30 @@ from django.utils.translation import gettext_lazy as _
 from netbox.ui import actions, attrs, panels
 
 
+class BayTypeIncompatibilityPanel(panels.Panel):
+    """
+    Renders a warning banner when a Module is incompatibly installed (its type's bay type set and
+    the bay's bay type set are both non-empty and share no common members).
+    Silently omitted when the installation is compatible or unconstrained.
+    """
+    template_name = 'dcim/panels/bay_type_incompatibility.html'
+
+    def should_render(self, context):
+        from dcim.models import Module, ModuleBay
+        obj = context.get('object')
+        if isinstance(obj, Module):
+            return not obj.is_bay_compatible
+        if isinstance(obj, ModuleBay):
+            return not obj.is_module_compatible
+        return False
+
+    def get_context(self, context):
+        from dcim.models import Module
+        ctx = super().get_context(context)
+        ctx['is_module_view'] = isinstance(context.get('object'), Module)
+        return ctx
+
+
 class SitePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('region', linkify=True)
     group = attrs.NestedObjectAttr('group', linkify=True)
@@ -55,6 +79,8 @@ class RackPanel(panels.ObjectAttributesPanel):
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     airflow = attrs.ChoiceAttr('airflow')
+    cooling_capability = attrs.ChoiceAttr('cooling_capability')
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
     space_utilization = attrs.UtilizationAttr('get_utilization')
     power_utilization = attrs.UtilizationAttr('get_power_utilization')
 
@@ -82,6 +108,8 @@ class RackTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     description = attrs.TextAttr('description')
+    cooling_capability = attrs.ChoiceAttr('cooling_capability')
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
 
 
 class DevicePanel(panels.ObjectAttributesPanel):
@@ -94,6 +122,7 @@ class DevicePanel(panels.ObjectAttributesPanel):
     gps_coordinates = attrs.GPSCoordinatesAttr()
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
+    cooling_method = attrs.ChoiceAttr('cooling_method')
     airflow = attrs.ChoiceAttr('airflow')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
@@ -157,7 +186,9 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     full_depth = attrs.BooleanAttr('is_full_depth')
     weight = attrs.WeightAttr('weight')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
+    cooling_method = attrs.ChoiceAttr('cooling_method')
     airflow = attrs.ChoiceAttr('airflow')
+    end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
     front_image = attrs.ImageAttr('front_image')
     rear_image = attrs.ImageAttr('rear_image')
 
@@ -172,6 +203,14 @@ class ModulePanel(panels.ObjectAttributesPanel):
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
 
 
+class ModuleBayTypePanel(panels.ObjectAttributesPanel):
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    name = attrs.TextAttr('name')
+    color = attrs.ColorAttr('color')
+    description = attrs.TextAttr('description')
+    module_types = attrs.RelatedObjectListAttr('module_types', label=_('Compatible Module Types'), linkify=True)
+
+
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
@@ -183,8 +222,13 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     model = attrs.TextAttr('model', label=_('Model name'))
     part_number = attrs.TextAttr('part_number')
     description = attrs.TextAttr('description')
+    cooling_method = attrs.ChoiceAttr('cooling_method')
     airflow = attrs.ChoiceAttr('airflow')
     weight = attrs.WeightAttr('weight')
+    end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
+    module_bay_types = attrs.RelatedObjectListAttr(
+        'module_bay_types', label=_('Bay Type Compatibility'), linkify=True
+    )
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):
@@ -236,6 +280,29 @@ class PowerOutletPanel(panels.ObjectAttributesPanel):
     feed_leg = attrs.ChoiceAttr('feed_leg')
 
 
+class CoolingIntakePanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    diameter = attrs.DiameterAttr('diameter')
+    max_flow = attrs.FlowRateAttr('max_flow')
+    cooling_outflow = attrs.RelatedObjectAttr('cooling_outflow', linkify=True)
+    description = attrs.TextAttr('description')
+
+
+class CoolingOutflowPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    diameter = attrs.DiameterAttr('diameter')
+    cooling_intake = attrs.RelatedObjectAttr('cooling_intake', linkify=True)
+    description = attrs.TextAttr('description')
+
+
 class FrontPortPanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
     module = attrs.RelatedObjectAttr('module', linkify=True)
@@ -265,6 +332,7 @@ class ModuleBayPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     position = attrs.TextAttr('position')
     description = attrs.TextAttr('description')
+    module_bay_types = attrs.RelatedObjectListAttr('module_bay_types', label=_('Bay Type Compatibility'), linkify=True)
 
 
 class InstalledModulePanel(panels.ObjectAttributesPanel):
@@ -359,6 +427,31 @@ class PowerFeedElectricalPanel(panels.ObjectAttributesPanel):
     amperage = attrs.TextAttr('amperage', format_string='{}A')
     phase = attrs.ChoiceAttr('phase')
     max_utilization = attrs.TextAttr('max_utilization', format_string='{}%')
+
+
+class CoolingSourcePanel(panels.ObjectAttributesPanel):
+    site = attrs.RelatedObjectAttr('site', linkify=True)
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    fluid_type = attrs.ChoiceAttr('fluid_type')
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
+    description = attrs.TextAttr('description')
+
+
+class CoolingFeedPanel(panels.ObjectAttributesPanel):
+    cooling_source = attrs.RelatedObjectAttr('cooling_source', linkify=True)
+    rack = attrs.RelatedObjectAttr('rack', linkify=True)
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+
+
+class CoolingFeedCharacteristicsPanel(panels.ObjectAttributesPanel):
+    title = _('Cooling Characteristics')
+
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
+    max_flow = attrs.FlowRateAttr('max_flow')
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):
@@ -485,6 +578,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
+    channels = attrs.NumericAttr('channels')
     speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
     duplex = attrs.ChoiceAttr('duplex')
     mtu = attrs.NumericAttr('mtu', label=_('MTU'))
@@ -505,6 +599,7 @@ class RelatedInterfacesPanel(panels.ObjectAttributesPanel):
     title = _('Related Interfaces')
 
     parent = attrs.RelatedObjectAttr('parent', linkify=True)
+    channel_id = attrs.NumericAttr('channel_id', label=_('Channel ID'))
     bridge = attrs.RelatedObjectAttr('bridge', linkify=True)
     lag = attrs.RelatedObjectAttr('lag', linkify=True, label=_('LAG'))
 

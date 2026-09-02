@@ -1,14 +1,15 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, has_feature
+from netbox.models.ltree import LtreeManager
 from tenancy.choices import *
-from utilities.mptt import TreeManager
 
 __all__ = (
     'Contact',
@@ -18,39 +19,39 @@ __all__ = (
 )
 
 
-class ContactGroupManager(TreeManager):
+class ContactGroupManager(LtreeManager):
 
     def annotate_contacts(self):
         """
         Annotate the total number of Contacts belonging to each ContactGroup.
 
-        This returns both direct children and children of child groups. Raw SQL is used here to avoid double-counting
-        contacts which are assigned to multiple child groups of the parent.
+        Counts contacts assigned to the group itself or any descendant group (via the
+        ltree `<@` operator on the path column). DISTINCT avoids double-counting
+        contacts which are assigned to multiple groups in the subtree.
         """
         return self.annotate(
             contact_count=RawSQL(
                 "SELECT COUNT(DISTINCT m2m.contact_id)"
                 " FROM tenancy_contact_groups m2m"
                 " INNER JOIN tenancy_contactgroup cg ON m2m.contactgroup_id = cg.id"
-                " WHERE cg.tree_id = tenancy_contactgroup.tree_id"
-                " AND cg.lft >= tenancy_contactgroup.lft"
-                " AND cg.lft <= tenancy_contactgroup.rght",
+                " WHERE cg.path <@ tenancy_contactgroup.path",
                 ()
             )
         )
 
 
-class ContactGroup(NestedGroupModel):
+class ContactGroup(NestedLtreeGroupModel):
     """
     An arbitrary collection of Contacts.
     """
     objects = ContactGroupManager()
 
     class Meta:
-        ordering = ['name']
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='tenancy_contactgroup_path_gist'),
+            models.Index(fields=['sort_path'], name='tenancy_cg_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),

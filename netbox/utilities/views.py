@@ -32,6 +32,7 @@ __all__ = (
     'ViewTab',
     'get_action_url',
     'get_default_template',
+    'get_view',
     'get_viewname',
     'register_model_view',
 )
@@ -389,3 +390,18 @@ def register_model_view(model, name='', path=None, detail=True, kwargs=None):
         return cls
 
     return _wrapper
+
+
+def get_view(model, name=''):
+    """
+    Return the view class registered for a model under the given name, or None if no matching view is registered.
+
+    Args:
+        model: A model class or instance whose registered view should be returned.
+        name: The name under which the view was registered (see `register_model_view()`). Defaults to the
+            model's base (detail) view.
+    """
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+    views = registry['views'].get(app_label, {}).get(model_name, [])
+    return next((v['view'] for v in views if v['name'] == name), None)

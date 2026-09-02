@@ -75,9 +75,23 @@ The numeric weight of the module, including a unit designation (e.g. 3 kilograms
 
 The direction in which air circulates through the device chassis for cooling.
 
+### Cooling Method
+
+The cooling method employed by modules of this type (air, liquid, hybrid, or immersion). This is useful for liquid-cooled modules such as direct-to-chip accelerator (OAM) modules or liquid-cooled line cards.
+
+### End of Life
+
+The date after which this module type is no longer supported by its manufacturer. This can be used to identify modules approaching or past their support horizon to aid in hardware lifecycle planning.
+
 ### Profile
 
 The assigned [profile](./moduletypeprofile.md) for the type of module. Profiles can be used to classify module types by function (e.g. power supply, hard disk, etc.), and they support the addition of user-configurable attributes on module types. The assignment of a module type to a profile is optional.
+
+### Bay Types
+
+Zero or more [module bay types](./modulebaytype.md) that this module type is compatible with. When at least one bay type is set, the module type may only be installed into bays that share a common type. Leave empty to allow installation into any bay.
+
+Bay types are included, by name, in a module type's exported YAML definition, but are not currently importable back through it; re-importing an exported definition leaves this field unset.
 
 ### Attributes
 

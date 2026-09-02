@@ -5,6 +5,7 @@ from django.db.models.signals import post_delete, post_save, pre_delete
 from netbox.registry import registry
 
 from .fields import CounterCacheField
+from .querysets import chunked_update
 
 
 def get_counters_for_model(model):
@@ -37,7 +38,7 @@ def update_counts(model, field_name, related_query):
     subquery = Subquery(
         model.objects.filter(pk=OuterRef('pk')).annotate(_count=Count(related_query)).values('_count')
     )
-    return model.objects.update(**{
+    return chunked_update(model.objects.all(), **{
         field_name: subquery
     })
 

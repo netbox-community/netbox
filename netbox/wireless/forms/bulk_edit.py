@@ -8,7 +8,7 @@ from netbox.choices import *
 from netbox.forms import NestedGroupModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import DynamicModelChoiceField
+from utilities.forms.fields import ChoiceField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
@@ -36,7 +36,7 @@ class WirelessLANGroupBulkEditForm(NestedGroupModelBulkEditForm):
 
 
 class WirelessLANBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(WirelessLANStatusChoices),
         required=False
@@ -61,12 +61,12 @@ class WirelessLANBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    auth_type = forms.ChoiceField(
+    auth_type = ChoiceField(
         label=_('Authentication type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
-    auth_cipher = forms.ChoiceField(
+    auth_cipher = ChoiceField(
         label=_('Authentication cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
@@ -79,7 +79,7 @@ class WirelessLANBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('group', 'ssid', 'status', 'vlan', 'tenant', 'description'),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     nullable_fields = (
@@ -93,7 +93,7 @@ class WirelessLinkBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label=_('SSID')
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(LinkStatusChoices),
         required=False
@@ -103,12 +103,12 @@ class WirelessLinkBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    auth_type = forms.ChoiceField(
+    auth_type = ChoiceField(
         label=_('Authentication type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
-    auth_cipher = forms.ChoiceField(
+    auth_cipher = ChoiceField(
         label=_('Authentication cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
@@ -122,7 +122,7 @@ class WirelessLinkBulkEditForm(PrimaryModelBulkEditForm):
         min_value=0,
         required=False
     )
-    distance_unit = forms.ChoiceField(
+    distance_unit = ChoiceField(
         label=_('Distance unit'),
         choices=add_blank_choice(DistanceUnitChoices),
         required=False,

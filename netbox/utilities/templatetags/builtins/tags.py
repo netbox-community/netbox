@@ -7,6 +7,7 @@ from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
+from utilities.validators import url_scheme_is_allowed
 
 __all__ = (
     'badge',
@@ -56,6 +57,8 @@ def customfield_value(customfield, value):
     """
     color = None
     value_has_colors = False
+    # Determines whether a URL value may be rendered as a clickable link
+    url_allowed = False
 
     if value:
         if customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
@@ -66,11 +69,17 @@ def customfield_value(customfield, value):
             value_has_colors = any(choice_color for _, choice_color in value)
             if not value_has_colors:
                 value = [choice_label for choice_label, _ in value]
+        elif customfield.type == CustomFieldTypeChoices.TYPE_URL:
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES. This guards against
+            # dangerous schemes (e.g. javascript:) in values stored before validation was enforced or via
+            # paths which bypass model validation. A schemeless (relative) value is considered safe.
+            url_allowed = url_scheme_is_allowed(value)
     return {
         'customfield': customfield,
         'value': value,
         'color': color,
         'value_has_colors': value_has_colors,
+        'url_allowed': url_allowed,
     }
 
 
@@ -225,3 +234,31 @@ def render(context, component):
     Render a UI component (e.g. a Panel) by calling its render() method and passing the current template context.
     """
     return mark_safe(component.render(context))
+
+
+@register.simple_tag(takes_context=True)
+def render_breadcrumbs(context):
+    """
+    Render the breadcrumb trail for the current object. The trail comprises a default root breadcrumb
+    (a link to the object's list view) followed by any breadcrumbs defined on the layout of the object's
+    base (detail) view. Resolving the trail from the base view—rather than the view currently rendering—
+    ensures that an object's detail view and all of its peer/tabbed views render the same trail. A layout
+    may suppress the default root breadcrumb (e.g. to substitute its own) via `root_breadcrumb=False`.
+    """
+    from netbox.ui.breadcrumbs import get_root_breadcrumb
+    from utilities.views import get_view
+
+    obj = context.get('object')
+    # The object on some pages (e.g. RQ workers/tasks) is not a model instance and has no associated view
+    if obj is None or not hasattr(obj, '_meta'):
+        return ''
+
+    # Pull the breadcrumbs from the layout of the object's base (detail) view
+    layout = getattr(get_view(obj), 'layout', None)
+    breadcrumbs = list(getattr(layout, 'breadcrumbs', None) or [])
+
+    # Prepend the default root breadcrumb unless the layout opts out
+    if getattr(layout, 'root_breadcrumb', True):
+        breadcrumbs.insert(0, get_root_breadcrumb(obj))
+
+    return mark_safe(''.join(breadcrumb.render(context) for breadcrumb in breadcrumbs))

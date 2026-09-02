@@ -6,10 +6,10 @@ from django.utils.timezone import make_aware
 from core.models import ObjectType
 from users import filtersets
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
-from utilities.testing import BaseFilterSetTests
+from utilities.testing import BaseFilterSetTestMixin
 
 
-class UserTestCase(TestCase, BaseFilterSetTests):
+class UserTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     ignore_fields = ('config', 'dashboard', 'password', 'user_permissions')
@@ -114,7 +114,7 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class GroupTestCase(TestCase, BaseFilterSetTests):
+class GroupTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Group.objects.all()
     filterset = filtersets.GroupFilterSet
     ignore_fields = ('permissions',)
@@ -168,7 +168,7 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
+class ObjectPermissionTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
     ignore_fields = ('actions', 'constraints')
@@ -263,7 +263,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class TokenTestCase(TestCase, BaseFilterSetTests):
+class TokenTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Token.objects.all()
     filterset = filtersets.TokenFilterSet
     ignore_fields = ('plaintext', 'hmac_digest', 'allowed_ips')
@@ -359,7 +359,7 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class OwnerGroupTestCase(TestCase, BaseFilterSetTests):
+class OwnerGroupTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = OwnerGroup.objects.all()
     filterset = filtersets.OwnerGroupFilterSet
 
@@ -386,7 +386,7 @@ class OwnerGroupTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class OwnerTestCase(TestCase, BaseFilterSetTests):
+class OwnerTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Owner.objects.all()
     filterset = filtersets.OwnerFilterSet
 

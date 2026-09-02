@@ -220,7 +220,9 @@ class DataSource(JobsMixin, PrimaryModel):
                     continue
 
             # Bulk update modified files
-            updated_count = DataFile.objects.bulk_update(updated_files, ('last_updated', 'size', 'hash', 'data'))
+            updated_count = DataFile.objects.bulk_update(
+                updated_files, ('last_updated', 'size', 'hash', 'data'), batch_size=settings.BULK_UPDATE_CHUNK_SIZE
+            )
             logger.debug(f"Updated {updated_count} files")
 
             # Bulk delete deleted files

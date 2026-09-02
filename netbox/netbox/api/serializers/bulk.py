@@ -1,11 +1,14 @@
 import copy
 import functools
 
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from .features import ChangeLogMessageSerializer
 
 __all__ = (
+    'BulkOperationEntryErrorSerializer',
+    'BulkOperationErrorSerializer',
     'BulkOperationSerializer',
     'BulkPartialUpdateSchemaMixin',
     'BulkUpdateSchemaMixin',
@@ -15,6 +18,60 @@ __all__ = (
 
 class BulkOperationSerializer(ChangeLogMessageSerializer):
     id = serializers.IntegerField()
+
+
+# The two serializers below are schema-only: they are never used to validate or render data. The
+# bulk actions in netbox.api.viewsets.mixins assemble these payloads directly; these exist so that
+# their error responses are a documented part of the OpenAPI schema rather than an untyped body.
+# Note that a class docstring becomes the component's description in the published schema, so keep
+# it user-facing.
+class BulkOperationEntryErrorSerializer(serializers.Serializer):
+    """
+    The failure of a single object within a bulk operation.
+    """
+    id = serializers.IntegerField(
+        required=False,
+        help_text=_(
+            "The ID of the object which failed. Present once the entry has been matched to an "
+            "object; mutually exclusive with `index`."
+        )
+    )
+    index = serializers.IntegerField(
+        required=False,
+        help_text=_(
+            "The zero-based position of the entry within the submitted list. Used where no object "
+            "has been identified for the entry: always for creations, and for updates and deletions "
+            "where the entry itself could not be interpreted (e.g. a missing or non-numeric `id`). "
+            "Mutually exclusive with `id`."
+        )
+    )
+    errors = serializers.DictField(
+        help_text=_(
+            "The errors for this entry, keyed by field name. Values are ordinarily arrays of "
+            "messages. Errors which pertain to no particular field -- model validation, protection "
+            "rules, restricted tags, object-level permissions, or the shape of the entry itself -- "
+            "all appear under the single key `__all__`."
+        )
+    )
+
+
+class BulkOperationErrorSerializer(serializers.Serializer):
+    """
+    The body returned when a bulk operation fails, correlating each failure with the object
+    responsible for it.
+    """
+    detail = serializers.CharField(
+        help_text=_('A summary of the failure, e.g. "1 of 3 objects could not be updated."')
+    )
+    errors = BulkOperationEntryErrorSerializer(
+        many=True,
+        required=False,
+        help_text=_(
+            "One entry per object which failed; objects which would have succeeded are omitted, as "
+            "a bulk operation is all-or-none. Absent where the request could not be attributed to "
+            "individual entries at all (e.g. a request body which is not a list)."
+        )
+    )
 
 
 class BulkUpdateSchemaMixin:

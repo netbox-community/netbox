@@ -13,10 +13,11 @@ from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.forms import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
+from rq.queue import Queue
 
 from core.events import OBJECT_CREATED
 from core.models import AutoSyncRecord, DataSource, ObjectType
@@ -1270,7 +1271,7 @@ class JinjaEnvFilterTestCase(TestCase):
             self.assertEqual(output, 'secret')
 
     def test_user_defined_filter_overrides_default(self):
-        with self.settings(JINJA2_FILTERS={'env': lambda name: 'overridden'}):
+        with self.settings(JINJA_FILTERS={'env': lambda name: 'overridden'}):
             output = render_jinja2("{{ 'NETBOX_TEST_TOKEN' | env }}", {})
             self.assertEqual(output, 'overridden')
 
@@ -1303,7 +1304,7 @@ class SanitizeHTTPHeaderFilterTestCase(TestCase):
 
     def test_render_filters_take_precedence_over_user_config(self):
         # A per-render filter cannot be shadowed by a user-configured filter of the same name
-        with self.settings(JINJA2_FILTERS={'header_safe': lambda v: 'shadowed'}):
+        with self.settings(JINJA_FILTERS={'header_safe': lambda v: 'shadowed'}):
             output = render_jinja2(
                 "{{ value | header_safe }}",
                 {'value': 'a\r\nb'},
@@ -1581,7 +1582,7 @@ class ExportTemplateRenderTestCase(TestCase):
         self.assertEqual(response.content.decode(), 'Site A\nSite B\nSite C\n')
 
 
-class WebhookTestCase(TestCase):
+class WebhookPayloadUrlValidationTestCase(TestCase):
     """Tests for Webhook.clean()'s validation of payload_url (#22828)."""
 
     def test_payload_url_accepts_literal_url(self):
@@ -1676,8 +1677,16 @@ class EventRuleTestCase(TestCase):
         """
         clean() should accept a JSON object (or null) as action_data.
         """
+        webhook = Webhook.objects.create(name='Action Data Test Webhook', payload_url='http://localhost:9000/')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
         for value in ({'key': 'value'}, None):
-            rule = EventRule(name='test', event_types=[OBJECT_CREATED], action_data=value)
+            rule = EventRule(
+                name='test',
+                event_types=[OBJECT_CREATED],
+                action_data=value,
+                action_object_type=webhook_type,
+                action_object_id=webhook.pk,
+            )
             rule.clean()
 
     def test_action_data_clean_rejects_non_dict(self):
@@ -1887,3 +1896,70 @@ class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
         # ConfigTemplate always forces autoescape off (#22652).
         template = self._make_template({})
         self.assertEqual(template.get_environment_params(), {'autoescape': False})
+
+
+@override_settings(RQ_DEFAULT_TIMEOUT=300)
+class WebhookTestCase(TestCase):
+
+    def test_timeout_must_be_less_than_job_timeout(self):
+        """
+        A timeout at or above RQ_DEFAULT_TIMEOUT leaves no room for the request's own timeout to apply, and
+        is rejected.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
+
+        for timeout in (300, 301):
+            webhook.timeout = timeout
+            with self.assertRaises(ValidationError):
+                webhook.full_clean()
+
+    def test_timeout_below_job_timeout_is_valid(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=299)
+        webhook.full_clean()
+
+    def test_null_timeout_is_valid(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/')
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT='1h')
+    def test_job_timeout_duration_string_is_validated(self):
+        """
+        RQ also accepts a string timeout such as "1h", which must be normalized before comparison rather
+        than bypassing the check.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = 3599
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT='60')
+    def test_job_timeout_numeric_string_is_validated(self):
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=60)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = 59
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT=-1)
+    def test_unbounded_job_timeout_skips_validation(self):
+        """
+        A negative RQ timeout (-1) disables RQ's death penalty, so there is no job timeout to validate against.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=3600)
+        webhook.full_clean()
+
+    @override_settings(RQ_DEFAULT_TIMEOUT=0)
+    def test_zero_job_timeout_is_validated_against_queue_default(self):
+        """
+        A zero (or absent) RQ timeout is not unbounded: RQ falls back to the queue's own default, which the
+        webhook timeout must still stay below.
+        """
+        webhook = Webhook(name='Webhook 1', payload_url='http://localhost:9000/', timeout=Queue.DEFAULT_TIMEOUT)
+        with self.assertRaises(ValidationError):
+            webhook.full_clean()
+
+        webhook.timeout = Queue.DEFAULT_TIMEOUT - 1
+        webhook.full_clean()

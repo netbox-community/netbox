@@ -3,8 +3,10 @@ from types import SimpleNamespace
 
 from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.urls import reverse
 from netaddr import IPNetwork
 
+from account.models import UserToken
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.models import (
     Provider,
@@ -13,14 +15,17 @@ from circuits.models import (
     VirtualCircuitTermination,
     VirtualCircuitType,
 )
-from core.models import ObjectType
+from core.models import ConfigRevision, ObjectType
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface, Region, Site
 from netbox.ui import attrs
+from netbox.ui.breadcrumbs import Breadcrumb
+from netbox.ui.layout import SimpleLayout
 from netbox.ui.panels import ObjectsTablePanel
 from netbox.ui.utils import build_coords_url
 from users.models import ObjectPermission, User
 from utilities.testing import create_test_device
+from utilities.views import get_view
 from vpn.choices import (
     AuthenticationAlgorithmChoices,
     AuthenticationMethodChoices,
@@ -843,6 +848,172 @@ class DisplayDistanceTagTestCase(SimpleTestCase):
         self.assertEqual(self._render(10, 'mi', 16093.44, system='imperial'), '10 mi')
 
 
+class DiameterAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'diameter', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, diameter, unit, abs_mm):
+        return SimpleNamespace(diameter=diameter, diameter_unit=unit, _abs_diameter=abs_mm)
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.DiameterAttr('diameter')
+        obj = SimpleNamespace(diameter=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_shows_stored_value(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(25, 'mm', 25), self._ctx(system=''))
+        self.assertIn('25', result)
+        self.assertIn('mm', result)
+
+    def test_metric_converts_in_to_mm(self):
+        # 1 in = 25.4 mm
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(1, 'in', 25.4), self._ctx(system='metric'))
+        self.assertIn('25.4', result)
+        self.assertIn('mm', result)
+
+    def test_imperial_converts_mm_to_in(self):
+        # 25 mm → 25 / 25.4 = 0.98 in
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(25, 'mm', 25), self._ctx(system='imperial'))
+        self.assertIn('0.98', result)
+        self.assertIn('in', result)
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(2.5, 'cm', 25), self._ctx(system='metric'))
+        self.assertIn('2.5', result)
+        self.assertIn('cm', result)
+
+    def test_metric_no_conversion_when_abs_diameter_is_none(self):
+        attr = attrs.DiameterAttr('diameter')
+        result = attr.render(self._obj(1, 'in', None), self._ctx(system='metric'))
+        self.assertIn('1', result)
+        self.assertIn('in', result)
+
+
+class FlowRateAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'max_flow', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, max_flow, unit, abs_lpm):
+        return SimpleNamespace(max_flow=max_flow, max_flow_unit=unit, _abs_max_flow=abs_lpm)
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        obj = SimpleNamespace(max_flow=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_abbreviates_stored_unit(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(100, 'lpm', 100), self._ctx(system=''))
+        self.assertIn('100', result)
+        self.assertIn('L/min', result)
+
+    def test_inherit_abbreviates_cubic_meters_per_hour(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(6, 'm3ph', 100), self._ctx(system=''))
+        self.assertIn('6', result)
+        self.assertIn('m³/h', result)
+
+    def test_metric_converts_gpm_to_lpm(self):
+        # 10 GPM = 37.8541 L/min
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', 37.8541), self._ctx(system='metric'))
+        self.assertIn('37.85', result)
+        self.assertIn('L/min', result)
+
+    def test_imperial_converts_lpm_to_gpm(self):
+        # 100 L/min → 100 / 3.785411784 = 26.42 GPM
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(100, 'lpm', 100), self._ctx(system='imperial'))
+        self.assertIn('26.42', result)
+        self.assertIn('GPM', result)
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', 37.8541), self._ctx(system='imperial'))
+        self.assertIn('10', result)
+        self.assertIn('GPM', result)
+
+    def test_metric_no_conversion_when_abs_flow_is_none(self):
+        attr = attrs.FlowRateAttr('max_flow')
+        result = attr.render(self._obj(10, 'gpm', None), self._ctx(system='metric'))
+        self.assertIn('10', result)
+        self.assertIn('GPM', result)
+
+
+class DisplayDiameterTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_diameter diameter diameter_unit abs_diameter %}')
+
+    def _render(self, diameter, diameter_unit, abs_diameter, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'diameter': diameter,
+            'diameter_unit': diameter_unit,
+            'abs_diameter': abs_diameter,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_diameter_returns_empty(self):
+        self.assertEqual(self._render(None, 'mm', None), '')
+
+    def test_zero_diameter_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'mm', 0), '0 mm')
+
+    def test_inherit_stores_mm(self):
+        # An unconverted Decimal keeps its stored scale, as with display_weight
+        self.assertEqual(self._render(Decimal('25.00'), 'mm', Decimal('25.0000')), '25.00 mm')
+
+    def test_metric_converts_in_to_mm(self):
+        self.assertEqual(self._render(1, 'in', Decimal('25.4000'), system='metric'), '25.4 mm')
+
+    def test_imperial_converts_cm_to_in(self):
+        # 2.5 cm = 25 mm → 25 / 25.4 = 0.98 in
+        self.assertEqual(self._render(Decimal('2.50'), 'cm', Decimal('25.0000'), system='imperial'), '0.98 in')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(1, 'in', Decimal('25.4000'), system='imperial'), '1 in')
+
+
+class DisplayFlowRateTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_flow_rate max_flow max_flow_unit abs_max_flow %}')
+
+    def _render(self, max_flow, max_flow_unit, abs_max_flow, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'max_flow': max_flow,
+            'max_flow_unit': max_flow_unit,
+            'abs_max_flow': abs_max_flow,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_flow_rate_returns_empty(self):
+        self.assertEqual(self._render(None, 'lpm', None), '')
+
+    def test_zero_flow_rate_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'lpm', 0), '0 L/min')
+
+    def test_inherit_abbreviates_stored_unit(self):
+        # An unconverted Decimal keeps its stored scale, as with display_weight
+        self.assertEqual(self._render(Decimal('100.00'), 'lpm', Decimal('100.0000')), '100.00 L/min')
+        self.assertEqual(self._render(Decimal('6.00'), 'm3ph', Decimal('100.0000')), '6.00 m³/h')
+        self.assertEqual(self._render(Decimal('10.00'), 'gpm', Decimal('37.8541')), '10.00 GPM')
+
+    def test_metric_converts_gpm_to_lpm(self):
+        self.assertEqual(self._render(10, 'gpm', Decimal('37.8541'), system='metric'), '37.85 L/min')
+
+    def test_imperial_converts_lpm_to_gpm(self):
+        # 100 L/min → 100 / 3.785411784 = 26.42 GPM
+        self.assertEqual(self._render(100, 'lpm', Decimal('100.0000'), system='imperial'), '26.42 GPM')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(10, 'gpm', Decimal('37.8541'), system='imperial'), '10 GPM')
+
+
 class ObjectsTablePanelTestCase(TestCase):
     """
     Verify that ObjectsTablePanel.should_render() hides the panel when
@@ -893,3 +1064,246 @@ class ObjectsTablePanelTestCase(TestCase):
         """
         context = self.panel_no_perm.get_context(self._make_context(self.user))
         self.assertFalse(self.panel_no_perm.should_render(context))
+
+
+class BreadcrumbTestCase(SimpleTestCase):
+    """
+    Validate the rendering behavior of the Breadcrumb class.
+    """
+    class _LinkedObject:
+        def __init__(self, label, url, pk=None):
+            self.label = label
+            self._url = url
+            self.pk = pk
+
+        def __str__(self):
+            return self.label
+
+        def get_absolute_url(self):
+            return self._url
+
+    class _PlainObject:
+        def __str__(self):
+            return 'Plain'
+
+    @staticmethod
+    def _render(breadcrumb, instance):
+        return breadcrumb.render({'object': instance})
+
+    def test_accessor_absolute_url(self):
+        """
+        A string accessor resolves the related object, which links to its get_absolute_url() by default.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/region/1/">Region 1</a></li>', html)
+
+    def test_explicit_url_string(self):
+        """
+        An explicit url string overrides the resolved object's get_absolute_url().
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region', url='/explicit/'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/explicit/">Region 1</a></li>', html)
+
+    def test_url_callable(self):
+        """
+        A callable url is invoked with the resolved object.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/', pk=7))
+        html = self._render(Breadcrumb('region', url=lambda o: f'/list/?region_id={o.pk}'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/list/?region_id=7">Region 1</a></li>', html)
+
+    def test_callable_accessor_iterable(self):
+        """
+        A callable accessor resolving to an iterable renders one breadcrumb per object.
+        """
+        a = self._LinkedObject('A', '/a/')
+        b = self._LinkedObject('B', '/b/')
+        html = self._render(Breadcrumb(lambda o: [a, b]), SimpleNamespace())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/a/">A</a></li>', html)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/b/">B</a></li>', html)
+
+    def test_no_link(self):
+        """
+        An object with neither an explicit url nor get_absolute_url() renders as a plain label.
+        """
+        html = self._render(Breadcrumb('thing'), SimpleNamespace(thing=self._PlainObject()))
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">Plain</li>', html)
+
+    def test_unresolved_accessor(self):
+        """
+        A breadcrumb whose accessor resolves to None renders as an empty string (and is therefore omitted).
+        """
+        self.assertEqual(self._render(Breadcrumb('region'), SimpleNamespace(region=None)), '')
+
+    def test_empty_iterable(self):
+        """
+        A callable accessor resolving to an empty iterable renders as an empty string.
+        """
+        self.assertEqual(self._render(Breadcrumb(lambda o: []), SimpleNamespace()), '')
+
+    def test_no_instance(self):
+        """
+        With no object in context, the breadcrumb renders as an empty string.
+        """
+        self.assertEqual(Breadcrumb('region').render({}), '')
+
+    def test_static_label_linked(self):
+        """
+        A breadcrumb with a static label and explicit url renders a single fixed crumb, independent of the object.
+        """
+        html = self._render(Breadcrumb(label='My API Tokens', url='/account/tokens/'), SimpleNamespace())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/account/tokens/">My API Tokens</a></li>', html)
+
+    def test_static_label_no_instance(self):
+        """
+        A static breadcrumb renders even with no object in context.
+        """
+        html = Breadcrumb(label='My API Tokens', url='/account/tokens/').render({})
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/account/tokens/">My API Tokens</a></li>', html)
+
+    def test_static_label_unlinked(self):
+        """
+        A static breadcrumb without a url renders as a plain label and does not fall back to the object's URL.
+        """
+        instance = self._LinkedObject('Token', '/account/tokens/1/')
+        html = self._render(Breadcrumb(label='My API Tokens'), instance)
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">My API Tokens</li>', html)
+
+    def test_callable_label_static(self):
+        """
+        An accessor-less breadcrumb may derive its label from the viewed instance via a callable.
+        """
+        instance = SimpleNamespace(unit_list='1-5')
+        html = self._render(Breadcrumb(label=lambda o: f'Units {o.unit_list}'), instance)
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">Units 1-5</li>', html)
+
+    def test_callable_label_with_accessor(self):
+        """
+        With an accessor, a callable label receives the resolved related object (overriding its string value).
+        """
+        instance = SimpleNamespace(rack=self._LinkedObject('Rack 1', '/rack/1/'))
+        html = self._render(Breadcrumb('rack', label=lambda o: f'Rack: {o}'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/rack/1/">Rack: Rack 1</a></li>', html)
+
+    def test_no_accessor_or_label_raises(self):
+        """
+        A breadcrumb must define either an accessor or a static label.
+        """
+        with self.assertRaises(ValueError):
+            Breadcrumb()
+
+
+class LayoutBreadcrumbsTestCase(SimpleTestCase):
+    """
+    Validate that a layout stores and validates the breadcrumbs declared on it.
+    """
+    def test_breadcrumbs_stored(self):
+        crumbs = [Breadcrumb('region'), Breadcrumb('group')]
+        self.assertEqual(SimpleLayout(breadcrumbs=crumbs).breadcrumbs, crumbs)
+
+    def test_breadcrumbs_default_empty(self):
+        self.assertEqual(SimpleLayout().breadcrumbs, [])
+
+    def test_invalid_breadcrumb_raises(self):
+        with self.assertRaises(TypeError):
+            SimpleLayout(breadcrumbs=['not a breadcrumb'])
+
+    def test_root_breadcrumb_default_true(self):
+        self.assertTrue(SimpleLayout().root_breadcrumb)
+
+    def test_root_breadcrumb_opt_out(self):
+        self.assertFalse(SimpleLayout(root_breadcrumb=False).root_breadcrumb)
+
+
+class GetViewTestCase(SimpleTestCase):
+    """
+    Validate the get_view() utility used to resolve a model's registered views.
+    """
+    def test_base_view(self):
+        view = get_view(Site)
+        self.assertIsNotNone(view)
+        self.assertEqual(view.queryset.model, Site)
+
+    def test_accepts_instance(self):
+        # A model instance resolves to the same view as its class
+        self.assertIs(get_view(Site(name='Site 1')), get_view(Site))
+
+    def test_unknown_name_returns_none(self):
+        self.assertIsNone(get_view(Site, 'this-view-does-not-exist'))
+
+
+class RenderBreadcrumbsTagTestCase(SimpleTestCase):
+    """
+    Validate the render_breadcrumbs template tag's handling of objects without a breadcrumb trail.
+    """
+    @staticmethod
+    def _render(obj):
+        template = Template('{% render_breadcrumbs %}')
+        return template.render(Context({'object': obj}))
+
+    def test_none_object(self):
+        self.assertEqual(self._render(None), '')
+
+    def test_non_model_object(self):
+        # An object lacking _meta (e.g. an RQ worker) must not raise
+        self.assertEqual(self._render(SimpleNamespace(name='not a model')), '')
+
+    def test_default_root_breadcrumb(self):
+        # A model whose base view declares no custom breadcrumbs still renders the default root crumb:
+        # a link to its list view, labeled with the model's plural name.
+        html = self._render(ObjectPermission())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/users/permissions/">Permissions</a></li>', html)
+
+    def test_opt_out_root_breadcrumb(self):
+        # A layout with root_breadcrumb=False suppresses the default root crumb, leaving only its own
+        # breadcrumbs (here UserTokenView's static "My API Tokens" crumb) to stand in its place.
+        html = self._render(UserToken())
+        self.assertEqual(html.count('breadcrumb-item'), 1)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{reverse("account:usertoken_list")}">My API Tokens</a></li>', html
+        )
+
+    def test_opt_out_without_breadcrumbs(self):
+        # A layout with root_breadcrumb=False and no breadcrumbs of its own (e.g. ConfigRevisionView) renders
+        # an empty trail.
+        self.assertEqual(self._render(ConfigRevision()), '')
+
+
+class RenderBreadcrumbsTagRenderTestCase(TestCase):
+    """
+    Validate that the render_breadcrumbs tag resolves and renders the trail declared on a model's base view layout.
+    """
+    @staticmethod
+    def _render(instance):
+        template = Template('{% render_breadcrumbs %}')
+        return template.render(Context({'object': instance}))
+
+    def test_region_ancestor_breadcrumbs(self):
+        grandparent = Region.objects.create(name='Grandparent Region', slug='grandparent-region')
+        parent = Region.objects.create(name='Parent Region', slug='parent-region', parent=grandparent)
+        child = Region.objects.create(name='Child Region', slug='child-region', parent=parent)
+
+        html = self._render(child)
+        list_url = reverse('dcim:region_list')
+        # The default root crumb is rendered ahead of the layout-defined ancestor crumbs
+        self.assertInHTML(f'<li class="breadcrumb-item"><a href="{list_url}">Regions</a></li>', html)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?parent_id={grandparent.pk}">{grandparent}</a></li>', html
+        )
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?parent_id={parent.pk}">{parent}</a></li>', html
+        )
+
+    def test_region_without_ancestors(self):
+        # A top-level object's ancestor accessor resolves to an empty queryset, leaving only the default root crumb
+        region = Region.objects.create(name='Top Region', slug='top-region')
+        html = self._render(region)
+        self.assertEqual(html.count('breadcrumb-item'), 1)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{reverse("dcim:region_list")}">Regions</a></li>', html
+        )

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -9,22 +9,22 @@ from dcim.models import Device, Interface, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
+from ipam.forms.fields import PortMappingField
 from ipam.models import *
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
-from utilities.forms import add_blank_choice
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField,
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    NumericArrayField,
+    GenericObjectChoiceField,
     NumericRangeArrayField,
+    TypedChoiceField,
 )
-from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
-from utilities.forms.utils import get_field_value
-from utilities.forms.widgets import DatePicker, HTMXSelect
-from utilities.templatetags.builtins.filters import bettertitle
+from utilities.forms.rendering import FieldSet, ObjectAttribute, TabbedGroups
+from utilities.forms.widgets import DatePicker
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -205,6 +205,12 @@ class RoleForm(OrganizationalModelForm):
 
 
 class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PrefixStatusChoices,
+        initial=PrefixStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this prefix'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -215,7 +221,7 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
         required=False,
         selector=True,
         query_params={
-            'available_at_site': '$scope',
+            'available_at_site': '$scope_object_id',
         },
         label=_('VLAN'),
     )
@@ -230,7 +236,7 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
         FieldSet(
             'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -238,24 +244,24 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
     class Meta:
         model = Prefix
         fields = [
-            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
+            'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'tenant_group',
             'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # #18605: only filter VLAN select list if scope field is a Site or Site Group
+        # #18605: only filter the VLAN select list if the selected scope is a Site (or none is selected yet).
+        # #22588: a Site Group scope filters VLANs by the group's member sites instead.
         if scope_field := self.fields.get('scope', None):
-            if scope_field.queryset.model is Site:
-                pass  # already filtered by available_at_site
-            elif scope_field.queryset.model is SiteGroup:
+            selected_model = scope_field.selected_model
+            if selected_model is SiteGroup:
                 self.fields['vlan'].widget.dynamic_params.clear()
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
                 self.fields['vlan'].widget.add_query_params({
-                    'available_at_site_group': '$scope',
+                    'available_at_site_group': '$scope_object_id',
                 })
-            else:
+            elif selected_model not in (None, Site):
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 
 
@@ -270,13 +276,19 @@ class PrefixBulkAddForm(PrefixForm):
         FieldSet(
             'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
 
 class IPRangeForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPRangeStatusChoices,
+        initial=IPRangeStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this range'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -306,6 +318,18 @@ class IPRangeForm(TenancyForm, PrimaryModelForm):
 
 
 class IPAddressForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPAddressStatusChoices,
+        initial=IPAddressStatusChoices.STATUS_ACTIVE,
+        help_text=_('The operational status of this IP'),
+    )
+    role = TypedChoiceField(
+        label=_('Role'),
+        choices=add_blank_choice(IPAddressRoleChoices),
+        required=False,
+        help_text=_('The functional role of this IP'),
+    )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -493,6 +517,18 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
 
 
 class IPAddressBulkAddForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=IPAddressStatusChoices,
+        initial=IPAddressStatusChoices.STATUS_ACTIVE,
+        help_text=_('The operational status of this IP'),
+    )
+    role = TypedChoiceField(
+        label=_('Role'),
+        choices=add_blank_choice(IPAddressRoleChoices),
+        required=False,
+        help_text=_('The functional role of this IP'),
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -525,6 +561,15 @@ class IPAddressAssignForm(forms.Form):
 
 
 class FHRPGroupForm(PrimaryModelForm):
+    protocol = ChoiceField(
+        label=_('Protocol'),
+        choices=FHRPGroupProtocolChoices,
+    )
+    auth_type = TypedChoiceField(
+        label=_('Authentication type'),
+        choices=add_blank_choice(FHRPGroupAuthTypeChoices),
+        required=False,
+    )
 
     # Optionally create a new IPAddress along with the FHRPGroup
     ip_vrf = DynamicModelChoiceField(
@@ -536,7 +581,7 @@ class FHRPGroupForm(PrimaryModelForm):
         required=False,
         label=_('Address')
     )
-    ip_status = forms.ChoiceField(
+    ip_status = ChoiceField(
         choices=add_blank_choice(IPAddressStatusChoices),
         required=False,
         label=_('Status')
@@ -628,34 +673,46 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
         return group
 
 
-class VLANGroupForm(TenancyForm, ScopedForm, OrganizationalModelForm):
+class VLANGroupForm(GenericObjectFormMixin, TenancyForm, OrganizationalModelForm):
     vid_ranges = NumericRangeArrayField(
         label=_('VLAN IDs')
     )
-    # Override ScopedForm.scope_type to set custom queryset
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        widget=HTMXSelect(),
+    scope = GenericObjectChoiceField(
+        label=_('Scope'),
+        content_type_queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
-        label=_('Scope type')
+        selector=True,
+        hx_target_id='scope',
     )
 
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('vid_ranges', name=_('Child VLANs')),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'owner', 'comments',
+            'name', 'slug', 'description', 'vid_ranges', 'tenant_group', 'tenant', 'owner', 'comments',
             'tags',
         ]
 
 
 class VLANForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VLANStatusChoices,
+        initial=VLANStatusChoices.STATUS_ACTIVE,
+        help_text=_('Operational status of this VLAN'),
+    )
+    qinq_role = TypedChoiceField(
+        label=_('Q-in-Q role'),
+        choices=add_blank_choice(VLANQinQRoleChoices),
+        required=False,
+        help_text=_('Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)'),
+    )
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -751,46 +808,37 @@ class VLANTranslationRuleForm(NetBoxModelForm):
         ]
 
 
-class ServiceTemplateForm(PrimaryModelForm):
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
+class ServicePortMappingsMixin(forms.Form):
+    """
+    Adds a ``port_mappings`` field (protocol + ports rows) to a Service/ServiceTemplate form. The field
+    maps directly to the model's ``port_mappings`` ArrayField, so no custom save handling is required.
+    """
+    port_mappings = PortMappingField(
+        label=_('Port Mappings'),
+        help_text=_(
+            "One protocol per row, each with one or more port numbers. A range may be specified using a "
+            "hyphen (e.g. 80,443,8000-8010)."
         ),
-        help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
     )
 
+
+class ServiceTemplateForm(ServicePortMappingsMixin, PrimaryModelForm):
     fieldsets = (
-        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
+        FieldSet('name', 'port_mappings', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'port_mappings', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceForm(PrimaryModelForm):
-    parent_object_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
-        widget=HTMXSelect(),
-        required=True,
-        label=_('Parent type')
-    )
-    parent = DynamicModelChoiceField(
+class ServiceForm(ServicePortMappingsMixin, GenericObjectFormMixin, PrimaryModelForm):
+    parent = GenericObjectChoiceField(
         label=_('Parent'),
-        queryset=Device.objects.none(),  # Initial queryset
+        content_type_queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
-        disabled=True,
-        selector=True
-    )
-    ports = NumericArrayField(
-        label=_('Ports'),
-        base_field=forms.IntegerField(
-            min_value=SERVICE_PORT_MIN,
-            max_value=SERVICE_PORT_MAX
-        ),
-        help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
+        selector=True,
+        hx_target_id='service',
     )
     ipaddresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
@@ -800,58 +848,30 @@ class ServiceForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet(
-            'parent_object_type', 'parent', 'name',
-            InlineFields('protocol', 'ports', label=_('Port(s)')),
-            'ipaddresses', 'description', 'tags', name=_('Application Service')
+            'parent', 'name', 'port_mappings',
+            'ipaddresses', 'description', 'tags', name=_('Application Service'),
+            html_id='service',
         ),
     )
 
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
-            'parent_object_type',
+            'name', 'port_mappings', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
-        initial = kwargs.get('initial', {}).copy()
-
-        if (instance := kwargs.get('instance', None)) and instance.parent:
-            initial['parent'] = instance.parent
-
-        kwargs['initial'] = initial
-
         super().__init__(*args, **kwargs)
 
-        if parent_object_type_id := get_field_value(self, 'parent_object_type'):
-            try:
-                parent_type = ContentType.objects.get(pk=parent_object_type_id)
-                model = parent_type.model_class()
-                if model == Device:
-                    self.fields['ipaddresses'].widget.add_query_params({
-                        'device_id': '$parent',
-                    })
-                elif model == VirtualMachine:
-                    self.fields['ipaddresses'].widget.add_query_params({
-                        'virtual_machine_id': '$parent',
-                    })
-                elif model == FHRPGroup:
-                    self.fields['ipaddresses'].widget.add_query_params({
-                        'fhrpgroup_id': '$parent',
-                    })
-                self.fields['parent'].queryset = model.objects.all()
-                self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['parent'].disabled = False
-                self.fields['parent'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
-
-            if self.instance and self.instance.pk and parent_object_type_id != self.instance.parent_object_type_id:
-                self.initial['parent'] = None
-
-    def clean(self):
-        super().clean()
-        self.instance.parent = self.cleaned_data.get('parent')
+        # Filter the IP address selector to those belonging to the selected parent. The object subwidget is
+        # named "parent_object_id", so the dynamic param references "$parent_object_id".
+        parent_model = self.fields['parent'].selected_model
+        if parent_model is Device:
+            self.fields['ipaddresses'].widget.add_query_params({'device_id': '$parent_object_id'})
+        elif parent_model is VirtualMachine:
+            self.fields['ipaddresses'].widget.add_query_params({'virtual_machine_id': '$parent_object_id'})
+        elif parent_model is FHRPGroup:
+            self.fields['ipaddresses'].widget.add_query_params({'fhrpgroup_id': '$parent_object_id'})
 
 
 class ServiceCreateForm(ServiceForm):
@@ -863,26 +883,27 @@ class ServiceCreateForm(ServiceForm):
 
     fieldsets = (
         FieldSet(
-            'parent_object_type', 'parent',
+            'parent',
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
-                FieldSet('name', 'protocol', 'ports', name=_('Custom')),
+                FieldSet('name', 'port_mappings', name=_('Custom')),
             ),
-            'ipaddresses', 'description', 'tags', name=_('Application Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service'),
+            html_id='service',
         ),
     )
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner',
-            'comments', 'tags', 'parent_object_type',
+            'service_template', 'name', 'port_mappings', 'ipaddresses', 'description', 'owner',
+            'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Fields which may be populated from a ServiceTemplate are not required
-        for field in ('name', 'protocol', 'ports'):
+        for field in ('name', 'port_mappings'):
             self.fields[field].required = False
             self.fields[field].widget.is_required = False
 
@@ -892,11 +913,10 @@ class ServiceCreateForm(ServiceForm):
             # Create a new Service from the specified template
             service_template = self.cleaned_data['service_template']
             self.cleaned_data['name'] = service_template.name
-            self.cleaned_data['protocol'] = service_template.protocol
-            self.cleaned_data['ports'] = service_template.ports
+            self.cleaned_data['port_mappings'] = list(service_template.port_mappings)
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
-        elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
+        elif not self.cleaned_data.get('name') or not self.cleaned_data.get('port_mappings'):
             raise forms.ValidationError(
-                _("Must specify name, protocol, and port(s) if not using an application service template.")
+                _("Must specify name and port mapping(s) if not using an application service template.")
             )

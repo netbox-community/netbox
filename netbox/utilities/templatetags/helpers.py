@@ -1,5 +1,4 @@
 import json
-import warnings
 from typing import Any
 from urllib.parse import quote
 
@@ -11,7 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
 from netbox.ui.attrs import (
+    compute_diameter_display,
     compute_distance_display,
+    compute_flow_rate_display,
     compute_weight_display,
 )
 from utilities.forms import TableConfigForm, get_selected_values
@@ -22,7 +23,9 @@ __all__ = (
     'action_url',
     'applied_filters',
     'as_range',
+    'display_diameter',
     'display_distance',
+    'display_flow_rate',
     'display_weight',
     'divide',
     'get_item',
@@ -34,7 +37,6 @@ __all__ = (
     'kg_to_pounds',
     'meters_to_feet',
     'percentage',
-    'querystring',
     'startswith',
     'status_from_tag',
     'table_config_form',
@@ -362,6 +364,30 @@ def display_distance(context, distance, distance_unit, abs_distance):
     return f'{value:g} {unit}'
 
 
+@register.simple_tag(takes_context=True)
+def display_diameter(context, diameter, diameter_unit, abs_diameter):
+    """
+    Render a diameter value respecting the user's ui.measurement_system preference.
+    """
+    if diameter is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_diameter_display(diameter, diameter_unit, abs_diameter, system)
+    return f'{value:g} {unit}'
+
+
+@register.simple_tag(takes_context=True)
+def display_flow_rate(context, flow_rate, flow_rate_unit, abs_flow_rate):
+    """
+    Render a flow rate value respecting the user's ui.measurement_system preference.
+    """
+    if flow_rate is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_flow_rate_display(flow_rate, flow_rate_unit, abs_flow_rate, system)
+    return f'{value:g} {unit}'
+
+
 @register.filter("startswith")
 def startswith(text: str, starts: str) -> bool:
     """
@@ -424,28 +450,6 @@ def icon_from_status(status: str = "info") -> str:
 #
 # Tags
 #
-
-@register.simple_tag()
-def querystring(request, **kwargs):
-    """
-    Append or update the page number in a querystring.
-    """
-    warnings.warn(
-        'The querystring template tag is deprecated and will be removed in a future release. Use '
-        'the built-in Django querystring tag instead.',
-        category=FutureWarning,
-    )
-    querydict = request.GET.copy()
-    for k, v in kwargs.items():
-        if v is not None:
-            querydict[k] = str(v)
-        elif k in querydict:
-            querydict.pop(k)
-    querystring = querydict.urlencode(safe='/')
-    if querystring:
-        return '?' + querystring
-    return ''
-
 
 @register.inclusion_tag('helpers/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):

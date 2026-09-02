@@ -17,7 +17,7 @@
     <i class="mdi mdi-alert"></i>
     <strong>{% trans "Unsupported PostgreSQL version" %}.</strong>
     {% blocktrans trimmed with sql_query="SELECT VERSION()" %}
-      Ensure that PostgreSQL version 14 or later is in use. You can check this by connecting to the database using
+      Ensure that PostgreSQL version 15 or later is in use. You can check this by connecting to the database using
       NetBox's credentials and issuing a query for <code>{{ sql_query }}</code>.
     {% endblocktrans %}
   </p>

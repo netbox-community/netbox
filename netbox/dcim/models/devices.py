@@ -4,6 +4,7 @@ from functools import cached_property
 import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -18,12 +19,12 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import create_port_mappings, update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges, update_interface_parents
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
-from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
 from utilities.exceptions import AbortRequest
@@ -135,6 +136,19 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    cooling_method = models.CharField(
+        verbose_name=_('cooling method'),
+        max_length=50,
+        choices=CoolingMethodChoices,
+        blank=True,
+        null=True
+    )
+    end_of_life = models.DateField(
+        verbose_name=_('end of life'),
+        blank=True,
+        null=True,
+        help_text=_('The date after which this device type is no longer supported by the manufacturer')
+    )
     front_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
@@ -159,6 +173,14 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
     power_outlet_template_count = CounterCacheField(
         to_model='dcim.PowerOutletTemplate',
+        to_field='device_type'
+    )
+    cooling_intake_template_count = CounterCacheField(
+        to_model='dcim.CoolingIntakeTemplate',
+        to_field='device_type'
+    )
+    cooling_outflow_template_count = CounterCacheField(
+        to_model='dcim.CoolingOutflowTemplate',
         to_field='device_type'
     )
     interface_template_count = CounterCacheField(
@@ -191,8 +213,8 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-        'weight_unit',
+        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'cooling_method', 'weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -230,6 +252,9 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
 
+    def get_cooling_method_color(self):
+        return CoolingMethodChoices.colors.get(self.cooling_method)
+
     def to_yaml(self):
         data = {
             'manufacturer': self.manufacturer.name,
@@ -242,8 +267,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'is_full_depth': self.is_full_depth,
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
+            'cooling_method': self.cooling_method,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
             'comments': self.comments,
         }
 
@@ -263,6 +290,14 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
                 c.to_yaml() for c in self.poweroutlettemplates.all()
+            ]
+        if self.coolingintaketemplates.exists():
+            data['cooling-intakes'] = [
+                c.to_yaml() for c in self.coolingintaketemplates.all()
+            ]
+        if self.coolingoutflowtemplates.exists():
+            data['cooling-outflows'] = [
+                c.to_yaml() for c in self.coolingoutflowtemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
@@ -385,7 +420,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 # Devices
 #
 
-class DeviceRole(NestedGroupModel):
+class DeviceRole(NestedLtreeGroupModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -411,37 +446,30 @@ class DeviceRole(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_devicerole_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_devicerole_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='%(app_label)s_%(class)s_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level device role with this name already exists.")
+                name='%(app_label)s_%(class)s_parent_name',
+                nulls_distinct=False,
+                violation_error_message=_("A device role with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='%(app_label)s_%(class)s_parent_slug'
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level device role with this slug already exists.")
+                name='%(app_label)s_%(class)s_parent_slug',
+                nulls_distinct=False,
+                violation_error_message=_("A device role with this slug already exists.")
             ),
         )
         verbose_name = _('device role')
         verbose_name_plural = _('device roles')
 
 
-class Platform(NestedGroupModel):
+class Platform(NestedLtreeGroupModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
@@ -465,31 +493,24 @@ class Platform(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_platform_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_platform_sort_path_idx'),
+        )
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
         constraints = (
             models.UniqueConstraint(
                 fields=('manufacturer', 'name'),
                 name='%(app_label)s_%(class)s_manufacturer_name',
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(manufacturer__isnull=True),
+                nulls_distinct=False,
                 violation_error_message=_("Platform name must be unique.")
             ),
             models.UniqueConstraint(
                 fields=('manufacturer', 'slug'),
                 name='%(app_label)s_%(class)s_manufacturer_slug',
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(manufacturer__isnull=True),
+                nulls_distinct=False,
                 violation_error_message=_("Platform slug must be unique.")
             ),
         )
@@ -608,6 +629,13 @@ class Device(
         blank=True,
         null=True
     )
+    cooling_method = models.CharField(
+        verbose_name=_('cooling method'),
+        max_length=50,
+        choices=CoolingMethodChoices,
+        blank=True,
+        null=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
@@ -707,6 +735,14 @@ class Device(
         to_model='dcim.PowerOutlet',
         to_field='device'
     )
+    cooling_intake_count = CounterCacheField(
+        to_model='dcim.CoolingIntake',
+        to_field='device'
+    )
+    cooling_outflow_count = CounterCacheField(
+        to_model='dcim.CoolingOutflow',
+        to_field='device'
+    )
     interface_count = CounterCacheField(
         to_model='dcim.Interface',
         to_field='device'
@@ -736,7 +772,7 @@ class Device(
 
     clone_fields = (
         'device_type', 'role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
-        'cluster', 'virtual_chassis',
+        'cooling_method', 'cluster', 'virtual_chassis',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -748,17 +784,23 @@ class Device(
         ordering = ('name', 'pk')  # Name may be null
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
+            # Partial index supporting the background renderer's scan for objects whose config
+            # context cache has been invalidated (see extras.jobs.RenderConfigContextJob and
+            # extras.cache). Indexing only the NULL-cache rows keeps that lookup cheap on large
+            # tables where the steady state is for nearly every row to be populated.
+            models.Index(
+                fields=('id',),
+                condition=Q(_config_context_data__isnull=True),
+                name='dcim_device_cc_null',
+            ),
         )
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'site', 'tenant',
-                name='%(app_label)s_%(class)s_unique_name_site_tenant'
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'site',
-                name='%(app_label)s_%(class)s_unique_name_site',
-                condition=Q(tenant__isnull=True),
-                violation_error_message=_("Device name must be unique per site.")
+                name='%(app_label)s_%(class)s_unique_name_site_tenant',
+                condition=Q(name__isnull=False),
+                nulls_distinct=False,
+                violation_error_message=_("Device name must be unique per site and tenant.")
             ),
             models.UniqueConstraint(
                 fields=('rack', 'position', 'face'),
@@ -1033,6 +1075,10 @@ class Device(
                 if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                     component.custom_field_data = cf_defaults
                 component.save(using=using)
+                # Copy module_bay_types from the source template (set by instantiate()).
+                if src := getattr(component, '_source_template', None):
+                    if hasattr(component, 'module_bay_types'):
+                        component.module_bay_types.set(src.module_bay_types.db_manager(using).all())
 
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)
@@ -1040,6 +1086,10 @@ class Device(
         # Inherit airflow attribute from DeviceType if not set
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
+
+        # Inherit cooling_method attribute from DeviceType if not set
+        if is_new and not self.cooling_method:
+            self.cooling_method = self.device_type.cooling_method
 
         # Inherit default_platform from DeviceType if not set
         if is_new and not self.platform:
@@ -1057,6 +1107,8 @@ class Device(
             self._instantiate_components(self.device_type.consoleserverporttemplates.all())
             self._instantiate_components(self.device_type.powerporttemplates.all())
             self._instantiate_components(self.device_type.poweroutlettemplates.all())
+            self._instantiate_components(self.device_type.coolingintaketemplates.all())
+            self._instantiate_components(self.device_type.coolingoutflowtemplates.all())
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())
@@ -1067,7 +1119,9 @@ class Device(
             self._instantiate_components(self.device_type.devicebaytemplates.all())
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
-            # Interface bridges have to be set after interface instantiation
+            # Interface parents & bridges have to be set after interface instantiation. Parents are applied first so
+            # that channel subinterfaces validate against a populated parent.
+            update_interface_parents(self, self.device_type.interfacetemplates.all())
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
 
         # Update Site and Rack assignment for any child Devices
@@ -1152,6 +1206,9 @@ class Device(
 
     def get_status_color(self):
         return DeviceStatusChoices.colors.get(self.status)
+
+    def get_cooling_method_color(self):
+        return CoolingMethodChoices.colors.get(self.cooling_method)
 
     @cached_property
     def total_weight(self):
@@ -1399,9 +1456,10 @@ class MACAddress(PrimaryModel):
 
     @cached_property
     def is_primary(self):
-        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
-            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
-                return True
+        # Compare against primary_mac_address_id (a column already loaded on the assigned object) rather than
+        # dereferencing primary_mac_address, to avoid an extra query per object in list responses.
+        if (obj := self.assigned_object) is not None and hasattr(obj, 'primary_mac_address_id'):
+            return obj.primary_mac_address_id == self.pk
         return False
 
     def clean(self, *args, **kwargs):

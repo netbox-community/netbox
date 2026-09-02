@@ -40,6 +40,7 @@ from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObjec
 from netbox.plugins import PluginConfig
 from netbox.plugins.utils import get_installed_plugins
 from netbox.ui import layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
 from netbox.ui.panels import (
     CommentsPanel,
     JSONPanel,
@@ -199,6 +200,7 @@ class DataFileListView(generic.ObjectListView):
 @register_model_view(DataFile)
 @method_decorator(never_cache, name='dispatch')
 class DataFileView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = DataFile.objects.all()
     actions = (DeleteObject,)
     layout = layout.Layout(
@@ -214,6 +216,9 @@ class DataFileView(generic.ObjectView):
                 PluginContentPanel('full_width_page'),
             ),
         ),
+        breadcrumbs=[
+            Breadcrumb('source', url=filtered_list_url('core:datafile_list', 'source_id')),
+        ],
     )
 
 
@@ -438,6 +443,7 @@ class ConfigRevisionView(generic.ObjectView):
                 PluginContentPanel('full_width_page'),
             ),
         ),
+        root_breadcrumb=False,
     )
 
     def get_extra_context(self, request, instance):

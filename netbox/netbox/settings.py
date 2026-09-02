@@ -18,7 +18,14 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
-from netbox.settings_utils import get_configuration_dir, load_configuration, resolve_install_paths, secret_key_hint
+from netbox.settings_utils import (
+    get_configuration_dir,
+    load_configuration,
+    parse_job_timeout,
+    resolve_install_paths,
+    secret_key_hint,
+    validate_webhook_default_timeout,
+)
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
@@ -89,6 +96,11 @@ AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     },
 ])
 BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
+BULK_UPDATE_CHUNK_SIZE = getattr(configuration, 'BULK_UPDATE_CHUNK_SIZE', 5000)
+if BULK_UPDATE_CHUNK_SIZE is not None and (type(BULK_UPDATE_CHUNK_SIZE) is not int or BULK_UPDATE_CHUNK_SIZE < 1):
+    raise ImproperlyConfigured(
+        f"BULK_UPDATE_CHUNK_SIZE must be a positive integer or None (found {BULK_UPDATE_CHUNK_SIZE!r})"
+    )
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
@@ -150,7 +162,7 @@ HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA_ENVIRONMENT_PARAMS = getattr(configuration, 'JINJA_ENVIRONMENT_PARAMS', [])
-JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
+JINJA_FILTERS = getattr(configuration, 'JINJA_FILTERS', getattr(configuration, 'JINJA2_FILTERS', {}))
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
@@ -204,16 +216,8 @@ SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
 SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
-# TODO: Remove in NetBox v4.7
-SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
-# TODO: Remove in NetBox v4.7
-SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
-# TODO: Remove in NetBox v4.7
-SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
-# TODO: Remove in NetBox v4.7
-SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
 SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
@@ -223,6 +227,8 @@ STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', None)
 STORAGES = getattr(configuration, 'STORAGES', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
+WEBHOOK_DEFAULT_TIMEOUT = getattr(configuration, 'WEBHOOK_DEFAULT_TIMEOUT', 60)
+validate_webhook_default_timeout(WEBHOOK_DEFAULT_TIMEOUT, parse_job_timeout(RQ_DEFAULT_TIMEOUT))
 DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
 if DISK_BASE_UNIT not in [1000, 1024]:
     raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
@@ -279,6 +285,12 @@ elif hasattr(configuration, 'LOGIN_REQUIRED'):
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
         "configuration file.",
         FutureWarning,
+    )
+if hasattr(configuration, 'JINJA2_FILTERS'):
+    warnings.warn(
+        "JINJA2_FILTERS has been renamed to JINJA_FILTERS and the old name will be removed in NetBox v5.0. Please "
+        "update your configuration file to use JINJA_FILTERS instead.",
+        DeprecationWarning,
     )
 
 
@@ -453,16 +465,23 @@ if SESSION_FILE_PATH is not None:
 # Email
 #
 
-EMAIL_HOST = EMAIL.get('SERVER')
-EMAIL_HOST_USER = EMAIL.get('USERNAME')
-EMAIL_HOST_PASSWORD = EMAIL.get('PASSWORD')
-EMAIL_PORT = EMAIL.get('PORT', 25)
-EMAIL_SSL_CERTFILE = EMAIL.get('SSL_CERTFILE')
-EMAIL_SSL_KEYFILE = EMAIL.get('SSL_KEYFILE')
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+        'OPTIONS': {
+            'host': EMAIL.get('SERVER'),
+            'port': EMAIL.get('PORT', 25),
+            'username': EMAIL.get('USERNAME'),
+            'password': EMAIL.get('PASSWORD'),
+            'use_ssl': EMAIL.get('USE_SSL', False),
+            'use_tls': EMAIL.get('USE_TLS', False),
+            'ssl_certfile': EMAIL.get('SSL_CERTFILE'),
+            'ssl_keyfile': EMAIL.get('SSL_KEYFILE'),
+            'timeout': EMAIL.get('TIMEOUT', 10),
+        },
+    },
+}
 EMAIL_SUBJECT_PREFIX = '[NetBox] '
-EMAIL_USE_SSL = EMAIL.get('USE_SSL', False)
-EMAIL_USE_TLS = EMAIL.get('USE_TLS', False)
-EMAIL_TIMEOUT = EMAIL.get('TIMEOUT', 10)
 SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 
 
@@ -665,31 +684,21 @@ MAINTENANCE_EXEMPT_PATHS = (
 # Sentry
 #
 
-# Warn on the presence of deprecated Sentry config parameters
-for config_param in ('SENTRY_DSN', 'SENTRY_SAMPLE_RATE', 'SENTRY_SEND_DEFAULT_PII', 'SENTRY_TRACES_SAMPLE_RATE'):
-    if hasattr(configuration, config_param):
-        warnings.warn(
-            f"{config_param} is deprecated and will be removed in NetBox v4.7. Use SENTRY_CONFIG instead.",
-            FutureWarning,
-        )
-
 if SENTRY_ENABLED:
     try:
         import sentry_sdk
     except ModuleNotFoundError:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but the sentry-sdk package is not installed.")
 
-    # Construct default Sentry initialization parameters from legacy SENTRY_* config parameters
+    # Build the Sentry initialization parameters
     sentry_config = {
-        'dsn': SENTRY_DSN,
-        'sample_rate': SENTRY_SAMPLE_RATE,
-        'send_default_pii': SENTRY_SEND_DEFAULT_PII,
-        'traces_sample_rate': SENTRY_TRACES_SAMPLE_RATE,
+        'sample_rate': 1.0,
+        'send_default_pii': False,
+        'traces_sample_rate': 0,
         # TODO: Support proxy routing
         'http_proxy': HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
         'https_proxy': HTTP_PROXIES.get('https') if HTTP_PROXIES else None,
     }
-    # Override/extend the default parameters with any provided via SENTRY_CONFIG
     sentry_config.update(SENTRY_CONFIG)
     # Check for a DSN
     if not sentry_config.get('dsn'):
@@ -804,6 +813,12 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'core.api.schema.NetBoxAutoSchema',
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+    # Align REST framework's key for errors which pertain to no particular field with Django's
+    # (django.core.exceptions.NON_FIELD_ERRORS), so that the API reports such an error under one key
+    # rather than two. Model validation errors reach a response by way of full_clean(), and so are
+    # keyed by Django; errors raised by a serializer or field are keyed by REST framework. Without
+    # this, which of the two a client must read depends on the layer which rejected the request.
+    'NON_FIELD_ERRORS_KEY': '__all__',
     'SCHEMA_COERCE_METHOD_NAMES': {
         # Default mappings
         'retrieve': 'read',
@@ -1018,6 +1033,9 @@ for plugin_name in PLUGINS:
             EVENTS_PIPELINE.extend(events_pipeline)
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
+
+# GraphQL assembly must run after every plugin has initialized.
+INSTALLED_APPS.append('netbox.graphql.apps.GraphQLConfig')
 
 
 #

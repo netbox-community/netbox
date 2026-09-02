@@ -1,10 +1,9 @@
 from decimal import Decimal
-from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, tag
 
 from circuits.models import *
 from core.models import ObjectType
@@ -13,10 +12,9 @@ from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
-from netbox.choices import WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
-from utilities.testing import PinnedConnectionRouter
 from virtualization.models import Cluster, ClusterType
 
 
@@ -55,6 +53,67 @@ class MACAddressTestCase(TestCase):
     def test_clean_will_allow_removal_of_assigned_object_if_not_primary(self):
         self.mac_b.assigned_object = None
         self.mac_b.clean()
+
+    def test_set_primary_mac_address_assigns(self):
+        self.interface.set_primary_mac_address(self.mac_b)
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_b.pk)
+
+    def test_set_primary_mac_address_clears(self):
+        self.interface.set_primary_mac_address(None)
+        self.interface.refresh_from_db()
+        self.assertIsNone(self.interface.primary_mac_address_id)
+
+    def test_set_primary_mac_address_noop_when_already_primary(self):
+        # mac_a is already primary; re-setting it changes nothing and doesn't error.
+        self.interface.set_primary_mac_address(self.mac_a)
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_a.pk)
+
+    def test_set_primary_mac_address_from_value_finds_existing(self):
+        # A value already present on the interface is promoted, not duplicated.
+        count_before = self.interface.mac_addresses.count()
+        self.interface.set_primary_mac_address_from_value(str(self.mac_b.mac_address))
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.primary_mac_address_id, self.mac_b.pk)
+        self.assertEqual(self.interface.mac_addresses.count(), count_before)
+
+    def test_set_primary_mac_address_from_value_creates(self):
+        count_before = self.interface.mac_addresses.count()
+        self.interface.set_primary_mac_address_from_value('aabbccddeeff')
+        self.interface.refresh_from_db()
+        self.assertEqual(self.interface.mac_addresses.count(), count_before + 1)
+        self.assertEqual(str(self.interface.primary_mac_address.mac_address).lower(), 'aa:bb:cc:dd:ee:ff')
+
+    def test_set_primary_mac_address_rejects_foreign_mac(self):
+        # A MAC assigned to a different interface can't be made primary here.
+        other = Interface.objects.create(
+            device=self.interface.device,
+            name='Interface 2',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        foreign_mac = MACAddress.objects.create(mac_address='ffeeddccbbaa', assigned_object=other)
+        with self.assertRaises(ValidationError):
+            self.interface.set_primary_mac_address(foreign_mac)
+
+    def test_clean_rejects_unassigned_primary_mac_on_update(self):
+        # An existing interface can't point its primary at a MAC that isn't assigned to it.
+        unassigned = MACAddress.objects.create(mac_address='aabbccdd0099')
+        self.interface.primary_mac_address = unassigned
+        with self.assertRaises(ValidationError):
+            self.interface.full_clean()
+
+    def test_clean_allows_unassigned_primary_mac_on_create(self):
+        # On create the MAC is assigned by a post_save signal after clean(), so an as-yet-unassigned
+        # primary MAC must pass validation on a new (adding) instance.
+        mac = MACAddress.objects.create(mac_address='aabbccdd00aa')
+        new_iface = Interface(
+            device=self.interface.device,
+            name='Interface Create Heal',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            primary_mac_address=mac,
+        )
+        new_iface.full_clean()  # must not raise
 
 
 class LocationTestCase(TestCase):
@@ -184,6 +243,34 @@ class ModuleTypeTestCase(TestCase):
         module_type.refresh_from_db()
         self.assertEqual(module_type.interface_template_count, 1)
 
+    def test_module_bay_template_to_yaml_includes_module_bay_types(self):
+        """
+        ModuleBayTemplate.to_yaml() should export its assigned module bay types by name.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        bay_type = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        module_bay_template = ModuleBayTemplate.objects.create(module_type=module_type, name='Module Bay 1')
+        module_bay_template.module_bay_types.set([bay_type])
+
+        data = module_bay_template.to_yaml()
+        self.assertEqual(data['module_bay_types'], ['SFP28'])
+
+    def test_module_bay_template_to_yaml_orders_module_bay_types(self):
+        """
+        Multiple module bay types should export in ModuleBayType's own ordering
+        (manufacturer, name), independent of assignment order.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        bay_type_b = ModuleBayType.objects.create(name='QSFP28', slug='qsfp28')
+        bay_type_a = ModuleBayType.objects.create(name='SFP28', slug='sfp28')
+        module_bay_template = ModuleBayTemplate.objects.create(module_type=module_type, name='Module Bay 1')
+        module_bay_template.module_bay_types.set([bay_type_b, bay_type_a])
+
+        data = module_bay_template.to_yaml()
+        self.assertEqual(data['module_bay_types'], ['QSFP28', 'SFP28'])
+
     def test_attributes(self):
         """
         ModuleType.attributes should normalize iterable values into strings for presentation.
@@ -245,6 +332,8 @@ class RackTypeTestCase(TestCase):
             weight_unit=WeightUnitChoices.UNIT_POUND,
             max_weight=7777,
             mounting_depth=8,
+            cooling_capability=RackCoolingCapabilityChoices.CAPABILITY_LIQUID_ONLY,
+            cooling_capacity=80,
         )
 
     def test_rack_creation(self):
@@ -264,7 +353,7 @@ class RackTypeTestCase(TestCase):
             facility_id='A101',
             site=sites[0],
             location=locations[0],
-            rack_type=rack_type
+            rack_type=rack_type,
         )
         self.assertEqual(rack.width, rack_type.width)
         self.assertEqual(rack.u_height, rack_type.u_height)
@@ -277,6 +366,9 @@ class RackTypeTestCase(TestCase):
         self.assertEqual(rack.weight_unit, rack_type.weight_unit)
         self.assertEqual(rack.max_weight, rack_type.max_weight)
         self.assertEqual(rack.mounting_depth, rack_type.mounting_depth)
+        # Cooling capability/capacity are inherited from the rack type
+        self.assertEqual(rack.cooling_capability, rack_type.cooling_capability)
+        self.assertEqual(rack.cooling_capacity, rack_type.cooling_capacity)
 
 
 class RackTestCase(TestCase):
@@ -1063,9 +1155,10 @@ class ModuleBayTestCase(TestCase):
             module_bay_1.clean()
             module_bay_1.save()
 
-        # Confirm error if Module recurses
-        with self.assertRaises(ValidationError):
-            module_1.module_bay = module_bay_3
+        # Confirm error if Module recurses (empty target bay, so the occupied-bay check cannot mask it)
+        module_bay_4 = ModuleBay.objects.create(device=module_1.device, name='Module Bay 4', module=module_3)
+        with self.assertRaisesMessage(ValidationError, 'cannot belong to a module installed within it'):
+            module_1.module_bay = module_bay_4
             module_1.clean()
             module_1.save()
 
@@ -1146,18 +1239,17 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(names, ['Bay 1', 'Bay 1.1', 'Bay 1.2', 'Bay 1.3'])
 
     @tag('regression')  # #22146
-    def test_root_module_bay_rename_preserves_tree_ids(self):
+    def test_root_module_bay_rename_preserves_paths(self):
         """
-        Renaming a root module bay must not renumber any other root tree's
-        tree_id. The renamed bay's own tree_id is also expected to remain
-        stable, but the load-bearing assertion is that the *other* bays are
-        not shifted.
+        Renaming a root module bay must not rewrite any tree's path. Renaming
+        touches only sort_path (the display-ordering column), so every bay's
+        path — including the renamed bay's own — must be unchanged afterward.
         """
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
         site = Site.objects.first()
         device = Device.objects.create(
-            name='Rename TreeID Device',
+            name='Rename Path Device',
             device_type=device_type,
             role=device_role,
             site=site,
@@ -1165,8 +1257,8 @@ class ModuleBayTestCase(TestCase):
         for name in ('Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'):
             ModuleBay.objects.create(device=device, name=name)
 
-        tree_ids_before = {
-            bay.name: bay.tree_id
+        paths_before = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
 
@@ -1174,18 +1266,16 @@ class ModuleBayTestCase(TestCase):
         bay.name = 'Bay 99'
         bay.save()
 
-        tree_ids_after = {
-            bay.name: bay.tree_id
+        paths_after = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
-        for name in ('Bay 1', 'Bay 3', 'Bay 4'):
-            self.assertEqual(tree_ids_after[name], tree_ids_before[name])
-        self.assertEqual(tree_ids_after['Bay 99'], tree_ids_before['Bay 2'])
+        self.assertEqual(paths_after, paths_before)
 
     @tag('regression')  # #22146
     def test_root_module_bay_rename_updates_display_order(self):
         """
-        Even though renaming a root module bay does not renumber tree_ids,
+        Even though renaming a root module bay does not rewrite its path,
         the manager's _root_name annotation must reflect the new name so the
         display ordering is correct.
         """
@@ -1275,15 +1365,17 @@ class ModuleBayTestCase(TestCase):
         movable_bay.refresh_from_db()
         host_bay.refresh_from_db()
         self.assertEqual(movable_bay.parent_id, host_bay.pk)
-        self.assertEqual(movable_bay.tree_id, host_bay.tree_id)
+        # The trigger cascade must have re-rooted the moved bay into host_bay's
+        # tree: its path is now a strict descendant of host_bay's path.
+        self.assertTrue(str(movable_bay.path).startswith(f'{host_bay.path}.'))
 
     @tag('regression')  # #22251
     def test_moving_module_reparents_child_module_bays(self):
         """
         When a module is moved to a different module bay, each child ModuleBay
-        (a bay that belongs to the module) must have its MPTT parent updated
-        to the new host bay. Without the fix the children stay parented to the
-        old bay even though Module.module_bay_id has changed.
+        (a bay that belongs to the module) must have its parent updated to the
+        new host bay. Without the fix the children stay parented to the old bay
+        even though Module.module_bay_id has changed.
         """
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
@@ -1318,19 +1410,20 @@ class ModuleBayTestCase(TestCase):
         child_2.refresh_from_db()
         self.assertEqual(child_1.parent_id, bay_b.pk)
         self.assertEqual(child_2.parent_id, bay_b.pk)
-        # Children must share the same MPTT tree as their new parent.
+        # Children must be re-rooted under bay_b in the ltree hierarchy.
         bay_b.refresh_from_db()
-        self.assertEqual(child_1.tree_id, bay_b.tree_id)
-        self.assertEqual(child_2.tree_id, bay_b.tree_id)
+        self.assertTrue(str(child_1.path).startswith(f'{bay_b.path}.'))
+        self.assertTrue(str(child_2.path).startswith(f'{bay_b.path}.'))
 
     @tag('regression')  # #22251
     def test_moving_module_reparents_grandchild_module_bays(self):
         """
         When a module is moved, grandchild ModuleBays (bays inside a module
         that is itself installed inside a child bay of the moved module) must
-        also land in the new MPTT tree. MPTT moves subtrees atomically, so
-        calling save() only on direct children is sufficient — this test
-        documents and preserves that invariant for future tree-backend changes.
+        also land in the new ltree subtree. The trigger cascade moves subtrees
+        atomically, so calling save() only on direct children is sufficient —
+        this test documents and preserves that invariant for future tree-backend
+        changes.
         """
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
@@ -1358,7 +1451,8 @@ class ModuleBayTestCase(TestCase):
 
         self.assertEqual(child_bay.parent_id, bay_a.pk)
         self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
-        self.assertEqual(grandchild_bay.tree_id, bay_a.tree_id)
+        bay_a.refresh_from_db()
+        self.assertTrue(str(grandchild_bay.path).startswith(f'{bay_a.path}.'))
 
         # Move the top-level module to bay_b.
         module_1.module_bay = bay_b
@@ -1369,10 +1463,10 @@ class ModuleBayTestCase(TestCase):
         bay_b.refresh_from_db()
 
         self.assertEqual(child_bay.parent_id, bay_b.pk)
-        self.assertEqual(child_bay.tree_id, bay_b.tree_id)
+        self.assertTrue(str(child_bay.path).startswith(f'{bay_b.path}.'))
         # Grandchild's direct parent (child_bay) is unchanged; only tree placement moves.
         self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
-        self.assertEqual(grandchild_bay.tree_id, bay_b.tree_id)
+        self.assertTrue(str(grandchild_bay.path).startswith(f'{bay_b.path}.'))
 
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
@@ -1450,6 +1544,38 @@ class ModuleBayTestCase(TestCase):
         # Verify nested bay label resolves {module} to parent position
         nested_bay = module.modulebays.get(name='SFP A-21')
         self.assertEqual(nested_bay.label, 'A-21')
+
+    @tag('regression')  # #21418
+    def test_module_install_nests_module_bay_parent(self):
+        """
+        A module bay instantiated when a module is installed must be nested under the
+        installing module's bay. bulk_create() bypasses ModuleBay.save(), so the parent
+        is assigned in ModuleBayTemplate.instantiate(); without it the bay would be left
+        a root with a top-level ltree path.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Chassis with Bay', slug='chassis-with-bay'
+        )
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Bay A')
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module with Sub-bay')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='Sub-bay 1')
+
+        device = Device.objects.create(
+            name='Nested Bay Parent Device', device_type=device_type, role=device_role, site=site
+        )
+        parent_bay = device.modulebays.get(name='Bay A')
+        module = Module.objects.create(device=device, module_bay=parent_bay, module_type=module_type)
+
+        nested_bay = module.modulebays.get(name='Sub-bay 1')
+        self.assertEqual(nested_bay.parent, parent_bay)
+        # The ltree path/level must reflect the nesting, not a root placement.
+        self.assertEqual(nested_bay.level, parent_bay.level + 1)
+        self.assertTrue(str(nested_bay.path).startswith(f'{parent_bay.path}.'))
 
     @tag('regression')  # #20467
     def test_nested_module_bay_position_resolution(self):
@@ -1944,6 +2070,160 @@ class ModuleBayTestCase(TestCase):
         self.assertIn('disabled module bay', str(cm.exception.message_dict['module_bay']))
 
 
+class ModuleBayTypeCompatibilityTestCase(TestCase):
+    """Tests for bay type compatibility: Module.is_bay_compatible, ModuleType.get_incompatible_modules,
+    ModuleBay.is_module_compatible, and Module.clean() validation."""
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Compat Site', slug='compat-site')
+        manufacturer = Manufacturer.objects.create(name='Compat Mfr', slug='compat-mfr')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Compat Device Type', slug='compat-dt'
+        )
+        device_role = DeviceRole.objects.create(name='Compat Role', slug='compat-role')
+        cls.device = Device.objects.create(
+            name='Compat Device', device_type=device_type, role=device_role, site=site
+        )
+
+        cls.bay_type_a = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Bay Type A', slug='bay-type-a'
+        )
+        cls.bay_type_b = ModuleBayType.objects.create(
+            manufacturer=manufacturer, name='Bay Type B', slug='bay-type-b'
+        )
+
+        cls.module_type_a = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type A')
+        cls.module_type_a.module_bay_types.set([cls.bay_type_a])
+
+        cls.module_type_b = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type B')
+        cls.module_type_b.module_bay_types.set([cls.bay_type_b])
+
+        cls.module_type_any = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type Any')
+
+    def _make_bay(self, name, *bay_types):
+        bay = ModuleBay.objects.create(device=self.device, name=name)
+        if bay_types:
+            bay.module_bay_types.set(bay_types)
+        return bay
+
+    def _install(self, bay, module_type):
+        return Module.objects.create(device=self.device, module_bay=bay, module_type=module_type)
+
+    # --- Module.clean() validation ---
+
+    def test_clean_blocks_incompatible_install(self):
+        """Module.clean() raises ValidationError when bay and module type have disjoint type sets."""
+        bay = self._make_bay('Bay Compat 1', self.bay_type_b)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        with self.assertRaises(ValidationError):
+            module.clean()
+
+    def test_clean_allows_compatible_install(self):
+        """Module.clean() passes when bay and module type share at least one bay type."""
+        bay = self._make_bay('Bay Compat 2', self.bay_type_a)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.clean()  # should not raise
+
+    def test_clean_allows_unconstrained_module_type(self):
+        """Module.clean() passes when the module type has no bay type constraints."""
+        bay = self._make_bay('Bay Compat 3', self.bay_type_a)
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_any)
+        module.clean()  # should not raise
+
+    def test_clean_allows_unconstrained_bay(self):
+        """Module.clean() passes when the bay has no bay type constraints."""
+        bay = self._make_bay('Bay Compat 4')
+        module = Module(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.clean()  # should not raise
+
+    # --- Module.is_bay_compatible ---
+
+    def test_is_bay_compatible_false_when_disjoint(self):
+        """Module.is_bay_compatible returns False when bay and module type sets are disjoint."""
+        bay = self._make_bay('Bay Compat 5', self.bay_type_b)
+        # Bypass clean() to create an incompatible installation for testing the property
+        module = Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        module.refresh_from_db()
+        self.assertFalse(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_overlapping(self):
+        """Module.is_bay_compatible returns True when bay and module type share a bay type."""
+        bay = self._make_bay('Bay Compat 6', self.bay_type_a)
+        module = self._install(bay, self.module_type_a)
+        self.assertTrue(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_module_type_unconstrained(self):
+        """Module.is_bay_compatible returns True when module type has no constraints."""
+        bay = self._make_bay('Bay Compat 7', self.bay_type_a)
+        module = self._install(bay, self.module_type_any)
+        self.assertTrue(module.is_bay_compatible)
+
+    def test_is_bay_compatible_true_when_bay_unconstrained(self):
+        """Module.is_bay_compatible returns True when bay has no constraints."""
+        bay = self._make_bay('Bay Compat 8')
+        module = self._install(bay, self.module_type_a)
+        self.assertTrue(module.is_bay_compatible)
+
+    # --- ModuleType.get_incompatible_modules ---
+
+    def test_get_incompatible_modules_returns_incompatible(self):
+        """ModuleType.get_incompatible_modules includes modules in bays with disjoint type sets."""
+        bay = self._make_bay('Bay Compat 9', self.bay_type_b)
+        module = Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertIn(module, qs)
+
+    def test_get_incompatible_modules_excludes_compatible(self):
+        """ModuleType.get_incompatible_modules excludes modules in bays with matching type sets."""
+        bay = self._make_bay('Bay Compat 10', self.bay_type_a)
+        module = self._install(bay, self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertNotIn(module, qs)
+
+    def test_get_incompatible_modules_excludes_unconstrained_bay(self):
+        """ModuleType.get_incompatible_modules excludes modules in unconstrained bays."""
+        bay = self._make_bay('Bay Compat 11')
+        module = self._install(bay, self.module_type_a)
+        qs = self.module_type_a.get_incompatible_modules()
+        self.assertNotIn(module, qs)
+
+    def test_get_incompatible_modules_empty_when_type_unconstrained(self):
+        """ModuleType.get_incompatible_modules returns empty queryset when type has no constraints."""
+        bay = self._make_bay('Bay Compat 12', self.bay_type_a)
+        self._install(bay, self.module_type_any)
+        qs = self.module_type_any.get_incompatible_modules()
+        self.assertFalse(qs.exists())
+
+    # --- ModuleBay.is_module_compatible ---
+
+    def test_bay_is_module_compatible_false_when_disjoint(self):
+        """ModuleBay.is_module_compatible returns False when bay and installed module sets are disjoint."""
+        bay = self._make_bay('Bay Compat 13', self.bay_type_b)
+        Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        bay.refresh_from_db()
+        self.assertFalse(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_overlapping(self):
+        """ModuleBay.is_module_compatible returns True when sets overlap."""
+        bay = self._make_bay('Bay Compat 14', self.bay_type_a)
+        self._install(bay, self.module_type_a)
+        bay.refresh_from_db()
+        self.assertTrue(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_no_module(self):
+        """ModuleBay.is_module_compatible returns True when nothing is installed."""
+        bay = self._make_bay('Bay Compat 15', self.bay_type_a)
+        self.assertTrue(bay.is_module_compatible)
+
+    def test_bay_is_module_compatible_true_when_bay_unconstrained(self):
+        """ModuleBay.is_module_compatible returns True when bay has no constraints."""
+        bay = self._make_bay('Bay Compat 16')
+        Module.objects.create(device=self.device, module_bay=bay, module_type=self.module_type_a)
+        bay.refresh_from_db()
+        self.assertTrue(bay.is_module_compatible)
+
+
 class CableTestCase(TestCase):
 
     @classmethod
@@ -2188,6 +2468,97 @@ class CableTestCase(TestCase):
         b_terms = [ct.termination for ct in CableTermination.objects.filter(cable=cable, cable_end='B')]
         self.assertEqual(a_terms, [interface1])
         self.assertEqual(b_terms, [interface2])
+
+    def _create_multiposition_cable(self, count=4):
+        """
+        Create a cable with `count` terminations at either end, using the 4C1P trunk profile. Returns
+        the cable and its A & B terminating objects.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+        a_interfaces = [
+            Interface.objects.create(device=device1, name=f'trunk-a{i}') for i in range(count)
+        ]
+        b_interfaces = [
+            Interface.objects.create(device=device2, name=f'trunk-b{i}') for i in range(count)
+        ]
+        cable = Cable(
+            a_terminations=a_interfaces,
+            b_terminations=b_interfaces,
+            profile=CableProfileChoices.TRUNK_4C1P,
+        )
+        cable.save()
+
+        return cable, a_interfaces, b_interfaces
+
+    def _get_connectors(self, cable, cable_end):
+        return [
+            (ct.connector, ct.termination) for ct in cable.terminations.filter(cable_end=cable_end)
+        ]
+
+    def test_reordering_terminations_reassigns_connectors(self):
+        """
+        A Cable's terminations are assigned to connectors in the order given, so reordering them must
+        rewire the Cable even though its set of terminating objects is unchanged.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate(b_interfaces, start=1))
+        )
+
+        # Reverse the B side terminations
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = list(reversed(b_interfaces))
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate(reversed(b_interfaces), start=1))
+        )
+
+        # The A side, which was not modified, must be left alone
+        self.assertEqual(
+            self._get_connectors(cable, 'A'), list(enumerate(a_interfaces, start=1))
+        )
+
+        # The reordering must be reflected in the terminations' link peers
+        self.assertEqual(
+            Interface.objects.get(pk=a_interfaces[0].pk).link_peers, [b_interfaces[-1]]
+        )
+
+    def test_removing_a_termination_reassigns_connectors(self):
+        """
+        Removing a termination from the middle of a Cable's list must renumber the connectors of those
+        which follow it.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable()
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [b_interfaces[0], b_interfaces[2], b_interfaces[3]]
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'),
+            [(1, b_interfaces[0]), (2, b_interfaces[2]), (3, b_interfaces[3])]
+        )
+
+    def test_appending_a_termination_preserves_connectors(self):
+        """
+        Appending a termination must not disturb the connectors already assigned to the terminations
+        which precede it.
+        """
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable(count=3)
+        original_cts = {ct.termination: ct.pk for ct in cable.terminations.filter(cable_end='B')}
+        new_interface = Interface.objects.create(device=Device.objects.get(name='TestDevice2'), name='trunk-b3')
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [*b_interfaces, new_interface]
+        cable.save()
+        self.assertEqual(
+            self._get_connectors(cable, 'B'), list(enumerate([*b_interfaces, new_interface], start=1))
+        )
+
+        # The existing CableTerminations must not have been recreated
+        for ct in cable.terminations.filter(cable_end='B'):
+            if ct.termination in original_cts:
+                self.assertEqual(ct.pk, original_cts[ct.termination])
 
     @tag('regression')  # #21498
     def test_path_refreshes_replaced_cablepath_reference(self):
@@ -2954,122 +3325,550 @@ class PowerPortDrawTestCase(TestCase):
         self.assertEqual(legs_by_name['C']['allocated'], 0)
 
 
-class ComponentInstantiationConnectionTestCase(TestCase):
+class InventoryItemCycleTestCase(TestCase):
     """
-    Verify that component instantiation issues its queries against the connection the
-    parent object was written to, rather than letting DATABASE_ROUTERS select one. On an
-    installation with routers configured (e.g. netbox_branching), a routed query reads or
-    writes the component in the wrong database.
-
-    Where a path instantiates components, PinnedConnectionRouter cannot be used: Django's
-    own forward-relation descriptor consults the router when a related object is assigned
-    to an unsaved instance. Those paths are checked by capturing the alias handed to the
-    call instead.
+    InventoryItem (ltree-backed, not the nested-group base) must reject assigning
+    self or a descendant as parent — behavior django-mptt previously enforced via
+    InvalidMove on save().
     """
     @classmethod
     def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='inv-site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='inv-mfr-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='inv-dt-1'
+        )
+        role = DeviceRole.objects.create(name='Role 1', slug='inv-role-1')
+        cls.device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=role, site=site
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        b = InventoryItem.objects.create(device=self.device, name='B', parent=a)
+        c = InventoryItem.objects.create(device=self.device, name='C', parent=b)
+        a.parent = c
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        # The save()-level guard also rejects the cycle when clean() is bypassed.
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+
+
+class InventoryItemTemplateCycleTestCase(TestCase):
+    """InventoryItemTemplate must likewise reject self/descendant as parent."""
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='iit-mfr-1')
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='iit-dt-1'
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        b = InventoryItemTemplate.objects.create(device_type=self.device_type, name='B', parent=a)
+        a.parent = b
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+
+
+class CoolingComponentTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
         cls.site = Site.objects.create(name='Site 1', slug='site-1')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
-        cls.device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        cls.module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
-    def _record_module_bay_save_aliases(self):
+    def test_cooling_method_inherited_from_device_type(self):
         """
-        Patch ModuleBay.save() to record the database alias passed to each call.
+        A new Device should inherit its cooling_method from the DeviceType when not explicitly set.
         """
-        aliases = []
-        original_save = ModuleBay.save
-
-        def record_alias(instance, *args, **kwargs):
-            aliases.append(kwargs.get('using'))
-            return original_save(instance, *args, **kwargs)
-
-        return aliases, patch.object(ModuleBay, 'save', record_alias)
-
-    def test_module_bay_tree_id_lookup_pinned_to_saving_connection(self):
-        """
-        Inserting a root ModuleBay looks up the highest existing tree ID, which must be
-        read from the connection the bay is being written to.
-        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
+        )
         device = Device.objects.create(
-            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 1'
         )
-        # Instantiate outside the router, as assigning the Device consults it.
-        module_bay = ModuleBay(device=device, name='Module Bay 1')
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_LIQUID)
 
-        with override_settings(DATABASE_ROUTERS=[PinnedConnectionRouter(ModuleBay)]):
-            module_bay.save(using='default')
-
-        self.assertTrue(ModuleBay.objects.filter(pk=module_bay.pk).exists())
-
-    def test_device_module_bays_receive_saving_connection(self):
+    def test_cooling_method_not_overridden_when_set(self):
         """
-        ModuleBays are instantiated individually (rather than in bulk) to maintain the MPTT
-        tree, so each save() must be given the Device's connection.
+        A new Device with an explicitly-set cooling_method should not be overridden by the DeviceType.
         """
-        ModuleBayTemplate.objects.create(device_type=self.device_type, name='Module Bay 1')
-
-        device = Device(
-            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 2',
+            slug='device-type-2',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
         )
-        aliases, spy = self._record_module_bay_save_aliases()
-        with spy:
-            device.save()
-
-        self.assertEqual(aliases, [device._state.db])
-        self.assertEqual(ModuleBay.objects.filter(device=device).count(), 1)
-
-    def test_module_module_bays_receive_saving_connection(self):
-        """
-        Replicated MPTT components are likewise saved individually, and must be given the
-        Module's connection.
-        """
-        ModuleBayTemplate.objects.create(module_type=self.module_type, name='Module Bay 1')
-
         device = Device.objects.create(
-            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 2',
+            cooling_method=CoolingMethodChoices.METHOD_AIR
         )
-        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_AIR)
 
-        module = Module(device=device, module_bay=parent_bay, module_type=self.module_type)
-        aliases, spy = self._record_module_bay_save_aliases()
-        with spy:
-            module.save()
-
-        self.assertEqual(aliases, [module._state.db])
-        self.assertEqual(ModuleBay.objects.filter(module=module).count(), 1)
-
-    def test_module_component_rebuild_uses_saving_connection(self):
+    def test_device_creation_instantiates_cooling_components(self):
         """
-        Adopting existing components assigns them to the Module via bulk_update(), which
-        bypasses save() and so requires an explicit MPTT tree rebuild. That rebuild must
-        run on the Module's connection.
+        Creating a Device from a DeviceType with cooling component templates should auto-instantiate
+        matching CoolingIntake and CoolingOutflow components.
         """
-        ModuleBayTemplate.objects.create(module_type=self.module_type, name='Module Bay 1')
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 3',
+            slug='device-type-3'
+        )
+
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            max_flow=100,
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+        )
 
         device = Device.objects.create(
-            name='Device 1', device_type=self.device_type, role=self.device_role, site=self.site
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 3'
         )
-        parent_bay = ModuleBay.objects.create(device=device, name='Parent Bay')
-        child_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
 
-        aliases = []
-        manager_class = type(ModuleBay.objects)
-        original_rebuild = manager_class.rebuild
+        cooling_intake = CoolingIntake.objects.get(
+            device=device,
+            name='Cooling Port 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            max_flow=100,
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+        )
+        self.assertEqual(cooling_intake_template.max_flow, cooling_intake.max_flow)
 
-        def record_alias(manager, *args, **kwargs):
-            # Manager.db falls back to the router, so the private attribute is the only
-            # indication of whether an alias was set explicitly.
-            aliases.append(manager._db)
-            return original_rebuild(manager, *args, **kwargs)
+        CoolingOutflow.objects.get(
+            device=device,
+            name='Cooling Outlet 1',
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=Decimal('25'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+        )
 
-        module = Module(device=device, module_bay=parent_bay, module_type=self.module_type)
-        module._adopt_components = True
-        module._disable_replication = True
-        with patch.object(manager_class, 'rebuild', record_alias):
-            module.save()
+    def test_cooling_choice_colors_resolve(self):
+        """
+        ChoiceFieldColumn and ChoiceAttr both render a badge color by calling get_FOO_color() on the
+        instance, so every model exposing a colored cooling choice must implement the accessor.
+        """
+        for model in (Device, DeviceType, ModuleType):
+            with self.subTest(model=model.__name__):
+                instance = model(cooling_method=CoolingMethodChoices.METHOD_LIQUID)
+                self.assertEqual(
+                    instance.get_cooling_method_color(),
+                    CoolingMethodChoices.colors[CoolingMethodChoices.METHOD_LIQUID]
+                )
+                # An unset value has no color, which the consumers fall back on
+                self.assertIsNone(model().get_cooling_method_color())
 
-        child_bay.refresh_from_db()
-        self.assertEqual(child_bay.module, module)
-        self.assertEqual(aliases, [module._state.db])
+        for model in (Rack, RackType):
+            with self.subTest(model=model.__name__):
+                instance = model(cooling_capability=RackCoolingCapabilityChoices.CAPABILITY_HYBRID)
+                self.assertEqual(
+                    instance.get_cooling_capability_color(),
+                    RackCoolingCapabilityChoices.colors[RackCoolingCapabilityChoices.CAPABILITY_HYBRID]
+                )
+                self.assertIsNone(model().get_cooling_capability_color())
+
+    def test_measurements_below_minimum_rejected(self):
+        """
+        A populated diameter or flow rate must be positive and non-zero: anything below the smallest storable
+        value (0.01) should raise a ValidationError (via MinValueValidator) rather than a raw ValueError from
+        the unit conversion in save().
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 8', slug='device-type-8'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device F'
+        )
+        cooling_source = CoolingSource.objects.create(
+            site=self.site, name='Cooling Source F', type=CoolingSourceTypeChoices.TYPE_CHILLER
+        )
+
+        for value in (Decimal('-5'), Decimal('0')):
+            with self.subTest(diameter=value):
+                cooling_intake = CoolingIntake(
+                    device=device,
+                    name='Cooling Port 1',
+                    diameter=value,
+                    diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_intake.full_clean()
+
+            with self.subTest(max_flow=value):
+                cooling_intake = CoolingIntake(
+                    device=device,
+                    name='Cooling Port 1',
+                    max_flow=value,
+                    max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_intake.full_clean()
+
+            with self.subTest(feed_max_flow=value):
+                cooling_feed = CoolingFeed(
+                    cooling_source=cooling_source,
+                    name='Cooling Feed F',
+                    max_flow=value,
+                    max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+                )
+                with self.assertRaises(ValidationError):
+                    cooling_feed.full_clean()
+
+        # The minimum itself is permitted
+        CoolingIntake(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('0.01'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            max_flow=Decimal('0.01'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        ).full_clean()
+
+        # Sub-unit values are permitted: fractional-inch fittings (e.g. 1/2" NPT) and cold plates rated below
+        # one gallon per minute are both commonplace.
+        CoolingIntake(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('0.5'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('0.75'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+        ).full_clean()
+
+        CoolingFeed(
+            cooling_source=cooling_source,
+            name='Cooling Feed F',
+            max_flow=Decimal('0.5'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+        ).full_clean()
+
+    def test_parent_intake_resolved_on_device_instantiation(self):
+        """
+        A CoolingOutflowTemplate with a parent CoolingIntakeTemplate should resolve to the newly created
+        CoolingIntake on the same device. This depends on intakes being instantiated before outflows.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 12', slug='device-type-12'
+        )
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            device_type=device_type, name='Cooling Port 1'
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type, name='Cooling Outlet 1', cooling_intake=cooling_intake_template
+        )
+        # A second outflow with no parent must remain unassigned
+        CoolingOutflowTemplate.objects.create(device_type=device_type, name='Cooling Outlet 2')
+
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device J'
+        )
+
+        cooling_intake = CoolingIntake.objects.get(device=device, name='Cooling Port 1')
+        self.assertEqual(
+            CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1').cooling_intake,
+            cooling_intake
+        )
+        self.assertIsNone(CoolingOutflow.objects.get(device=device, name='Cooling Outlet 2').cooling_intake)
+
+    def test_parent_intake_resolved_on_module_instantiation(self):
+        """
+        The parent intake of a CoolingOutflowTemplate should likewise resolve when the components are
+        instantiated for a Module rather than a Device.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 13', slug='device-type-13'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device K'
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+
+        module_type = ModuleType.objects.create(manufacturer=self.manufacturer, model='Module Type 1')
+        cooling_intake_template = CoolingIntakeTemplate.objects.create(
+            module_type=module_type, name='Cooling Port 1'
+        )
+        CoolingOutflowTemplate.objects.create(
+            module_type=module_type, name='Cooling Outlet 1', cooling_intake=cooling_intake_template
+        )
+
+        module = Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        cooling_intake = CoolingIntake.objects.get(module=module, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow.objects.get(module=module, name='Cooling Outlet 1')
+        self.assertEqual(cooling_outflow.cooling_intake, cooling_intake)
+        self.assertEqual(cooling_outflow.device, device)
+
+    def test_measurements_normalized_on_save(self):
+        """
+        Saving a component should populate the normalized _abs_* columns, converting from the selected
+        unit to the canonical unit (millimeters for diameter, liters per minute for flow).
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 9', slug='device-type-9'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device G'
+        )
+        cooling_intake = CoolingIntake.objects.create(
+            device=device,
+            name='Cooling Port 1',
+            diameter=Decimal('1'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('10'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
+        )
+        cooling_intake.refresh_from_db()
+        self.assertEqual(cooling_intake._abs_diameter, Decimal('25.4'))
+        self.assertEqual(cooling_intake._abs_max_flow, Decimal('37.8541'))
+        # The public aliases used by templates should mirror the underscore-prefixed columns
+        self.assertEqual(cooling_intake.abs_diameter, cooling_intake._abs_diameter)
+        self.assertEqual(cooling_intake.abs_max_flow, cooling_intake._abs_max_flow)
+
+        # Clearing a value should null both its unit and its normalized column
+        cooling_intake.diameter = None
+        cooling_intake.max_flow = None
+        cooling_intake.save()
+        cooling_intake.refresh_from_db()
+        self.assertIsNone(cooling_intake.diameter_unit)
+        self.assertIsNone(cooling_intake._abs_diameter)
+        self.assertIsNone(cooling_intake.max_flow_unit)
+        self.assertIsNone(cooling_intake._abs_max_flow)
+
+    def test_measurements_normalized_on_component_instantiation(self):
+        """
+        Components instantiated from templates are written via bulk_create, which bypasses save(); the
+        normalized _abs_* columns must still be populated.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 10', slug='device-type-10'
+        )
+        CoolingIntakeTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            diameter=Decimal('1'),
+            diameter_unit=DiameterUnitChoices.UNIT_INCH,
+            max_flow=Decimal('6'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+        )
+        CoolingOutflowTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            diameter=Decimal('2.5'),
+            diameter_unit=DiameterUnitChoices.UNIT_CENTIMETER,
+        )
+
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device H'
+        )
+
+        cooling_intake = CoolingIntake.objects.get(device=device, name='Cooling Port 1')
+        self.assertEqual(cooling_intake._abs_diameter, Decimal('25.4'))
+        self.assertEqual(cooling_intake._abs_max_flow, Decimal('100'))
+
+        cooling_outflow = CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1')
+        self.assertEqual(cooling_outflow._abs_diameter, Decimal('25'))
+
+    def test_measurement_unit_required(self):
+        """
+        Setting a measurement without its accompanying unit should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 11', slug='device-type-11'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device I'
+        )
+
+        with self.assertRaises(ValidationError):
+            CoolingIntake(device=device, name='Cooling Port 1', diameter=Decimal('25')).full_clean()
+
+        with self.assertRaises(ValidationError):
+            CoolingIntake(device=device, name='Cooling Port 2', max_flow=Decimal('100')).full_clean()
+
+        with self.assertRaises(ValidationError):
+            CoolingOutflow(device=device, name='Cooling Outlet 1', diameter=Decimal('25')).full_clean()
+
+    def test_cooling_feed_flow_normalized(self):
+        """
+        CoolingFeed shares the flow-rate normalization applied to device components, and likewise requires
+        a unit whenever a flow rate is set.
+        """
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 1',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+        )
+        cooling_feed = CoolingFeed.objects.create(
+            cooling_source=cooling_source,
+            name='Cooling Feed 1',
+            max_flow=Decimal('6'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
+        )
+        cooling_feed.refresh_from_db()
+        self.assertEqual(cooling_feed._abs_max_flow, Decimal('100'))
+        self.assertEqual(cooling_feed.abs_max_flow, cooling_feed._abs_max_flow)
+
+        with self.assertRaises(ValidationError):
+            CoolingFeed(
+                cooling_source=cooling_source, name='Cooling Feed 2', max_flow=Decimal('100')
+            ).full_clean()
+
+    def test_cooling_outflow_clean_different_device(self):
+        """
+        CoolingOutflow.clean() should raise a ValidationError when its cooling_intake belongs to a
+        different device.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 4',
+            slug='device-type-4'
+        )
+        device1 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device A'
+        )
+        device2 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device B'
+        )
+
+        cooling_intake = CoolingIntake.objects.create(device=device1, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow(device=device2, name='Cooling Outlet 1', cooling_intake=cooling_intake)
+
+        with self.assertRaises(ValidationError):
+            cooling_outflow.full_clean()
+
+    def test_cooling_source_location_site_mismatch(self):
+        """
+        CoolingSource.clean() should raise a ValidationError when its location belongs to a different site.
+        """
+        site2 = Site.objects.create(name='Site 2', slug='site-2')
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site2)
+        cooling_source = CoolingSource(
+            site=self.site,
+            location=location,
+            name='Cooling Source 1',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_source.full_clean()
+
+    def test_cooling_feed_rack_site_mismatch(self):
+        """
+        CoolingFeed.clean() should raise a ValidationError when its rack is in a different site than the
+        cooling source.
+        """
+        site2 = Site.objects.create(name='Site 3', slug='site-3')
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 3',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        rack = Rack.objects.create(name='Rack 1', site=site2, status=RackStatusChoices.STATUS_ACTIVE)
+        cooling_feed = CoolingFeed(
+            cooling_source=cooling_source,
+            rack=rack,
+            name='Cooling Feed 1',
+            status=CoolingFeedStatusChoices.STATUS_ACTIVE,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_feed.full_clean()
+
+    def test_cooling_chain_valid(self):
+        """
+        A non-looping intake/outflow assignment should pass validation.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 5', slug='device-type-5'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device C'
+        )
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_intake = CoolingIntake(device=device, name='Cooling Port 1', cooling_outflow=cooling_outflow)
+
+        # Should not raise
+        cooling_intake.full_clean()
+
+    def test_cooling_intake_loop_rejected(self):
+        """
+        Closing the intake/outflow chain into a loop from the intake side should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 6', slug='device-type-6'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device D'
+        )
+        cooling_intake = CoolingIntake.objects.create(device=device, name='Cooling Port 1')
+        cooling_outflow = CoolingOutflow.objects.create(
+            device=device, name='Cooling Outlet 1', cooling_intake=cooling_intake
+        )
+
+        # The outflow is fed by the intake; supplying that same intake from the outflow closes the loop
+        cooling_intake.cooling_outflow = cooling_outflow
+        with self.assertRaises(ValidationError):
+            cooling_intake.full_clean()
+
+    def test_cooling_outflow_loop_rejected(self):
+        """
+        Closing the intake/outflow chain into a loop from the outflow side should raise a ValidationError.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 7', slug='device-type-7'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device E'
+        )
+        cooling_outflow = CoolingOutflow.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_intake = CoolingIntake.objects.create(
+            device=device, name='Cooling Port 1', cooling_outflow=cooling_outflow
+        )
+
+        # The intake is supplied by the outflow; feeding that same intake into the outflow closes the loop
+        cooling_outflow.cooling_intake = cooling_intake
+        with self.assertRaises(ValidationError):
+            cooling_outflow.full_clean()

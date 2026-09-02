@@ -13,14 +13,14 @@
               {% if column.is_ordered %}
                 <div class="float-end">
                   <a href="#"
-                     hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field='' %}"
+                     hx-get="{{ table.htmx_url }}{% querystring_replace table.prefixed_order_by_field='' %}"
                      class="text-danger"
                      title="{% trans "Clear ordering" %}"
                   ><i class="mdi mdi-close"></i></a>
                 </div>
               {% endif %}
               <a href="#"
-                 hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
+                 hx-get="{{ table.htmx_url }}{% querystring_replace table.prefixed_order_by_field=column.order_by_alias.next %}"
               >{{ column.header }}</a>
             </th>
           {% else %}

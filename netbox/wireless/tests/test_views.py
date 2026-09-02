@@ -110,8 +110,8 @@ class WirelessLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'ssid': 'WLAN2',
             'group': groups[1].pk,
             'status': WirelessLANStatusChoices.STATUS_DISABLED,
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[1].pk,
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'tenant': tenants[1].pk,
             'tags': [t.pk for t in tags],
         }

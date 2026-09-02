@@ -1,4 +1,10 @@
+from urllib.parse import quote
+
 import django_tables2 as tables
+from django.middleware.csrf import get_token
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
@@ -250,6 +256,12 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     power_outlet_count = tables.Column(
         verbose_name=_('Power outlets')
     )
+    cooling_intake_count = tables.Column(
+        verbose_name=_('Cooling intakes')
+    )
+    cooling_outflow_count = tables.Column(
+        verbose_name=_('Cooling outflows')
+    )
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )
@@ -268,13 +280,17 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     inventory_item_count = tables.Column(
         verbose_name=_('Inventory items')
     )
+    cooling_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Method'),
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = models.Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'role', 'manufacturer', 'device_type',
             'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
-            'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'primary_ip', 'primary_ip4',
+            'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'cooling_method',
+            'primary_ip', 'primary_ip4',
             'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
@@ -706,12 +722,12 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
     class Meta(DeviceComponentTable.Meta):
         model = models.Interface
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn',
-            'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer',
-            'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'channels',
+            'channel_id', 'mgmt_only', 'mtu', 'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses',
+            'primary_mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency',
+            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
             'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
@@ -1011,12 +1027,16 @@ class ModuleBayTable(ModularDeviceComponentTable):
         template_code=MODULEBAY_STATUS,
         verbose_name=_('Module Status')
     )
+    module_bay_types = columns.ManyToManyColumn(
+        verbose_name=_('Bay Types'),
+        linkify_item=True,
+    )
 
     class Meta(ModularDeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'enabled', 'parent', 'label', 'position', 'installed_module', 'module_status',
-            'module_serial', 'module_asset_tag', 'description', 'tags',
+            'pk', 'id', 'name', 'device', 'enabled', 'parent', 'label', 'position', 'module_bay_types',
+            'installed_module', 'module_status', 'module_serial', 'module_asset_tag', 'description', 'tags',
         )
         default_columns = (
             'pk', 'name', 'device', 'enabled', 'parent', 'label', 'installed_module', 'module_status', 'description',
@@ -1218,6 +1238,61 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, PrimaryModelTable):
         )
 
 
+class MACAddressActionsColumn(columns.ActionsColumn):
+    actions = {
+        **columns.ActionsColumn.actions,
+        'set_primary': columns.ActionsItem('Set as primary', 'star-outline', None, 'warning'),
+    }
+
+    def render(self, record, table, **kwargs):
+        # Always exclude set_primary from the parent's action loop (which renders GET links).
+        # We inject a CSRF-protected POST form for set_primary in the dropdown below.
+        show_set_primary = not record.is_primary and record.assigned_object_id
+        original_actions = self.actions
+        self.actions = {k: v for k, v in original_actions.items() if k != 'set_primary'}
+        try:
+            html = super().render(record, table, **kwargs)
+        finally:
+            self.actions = original_actions
+
+        if show_set_primary and html:
+            request = getattr(table, 'context', {}).get('request')
+            if request:
+                url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
+                # Return the user where they came from, the same way the parent's GET actions
+                # (edit/delete/changelog) do. In an embedded panel ObjectsTablePanel injects the parent
+                # object's URL as ?return_url=, so this lands on the interface; on the list view it falls
+                # back to the list path.
+                return_url = request.GET.get('return_url', request.get_full_path())
+                url = f'{url}?return_url={quote(return_url)}'
+                # Embedded tables need their own form; list tables reuse the surrounding bulk form.
+                if getattr(table, 'embedded', False):
+                    # No surrounding form: a self-contained POST form is valid and carries its own CSRF token.
+                    action_li = format_html(
+                        '<li><form method="post" action="{}">'
+                        '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+                        '<button type="submit" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></form></li>',
+                        url, get_token(request), _('Set as primary'),
+                    )
+                else:
+                    # Inside the bulk-edit <form>: a nested <form> is invalid HTML and gets dropped by the
+                    # parser, so ride the surrounding form via formaction/formmethod instead (matching the
+                    # DataSource sync button in core/tables/template_code.py).
+                    action_li = format_html(
+                        '<li><button type="submit" formaction="{}" formmethod="post" class="dropdown-item">'
+                        '<i class="mdi mdi-star-outline"></i> {}'
+                        '</button></li>',
+                        url, _('Set as primary'),
+                    )
+                html_str = str(html)
+                if '</ul>' in html_str:
+                    html = mark_safe(html_str.replace('</ul>', str(action_li) + '</ul>', 1))
+
+        return html
+
+
 class MACAddressTable(PrimaryModelTable):
     mac_address = tables.TemplateColumn(
         template_code=MACADDRESS_LINK,
@@ -1241,7 +1316,8 @@ class MACAddressTable(PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
-    actions = columns.ActionsColumn(
+    actions = MACAddressActionsColumn(
+        actions=('edit', 'delete', 'changelog', 'set_primary'),
         extra_buttons=MACADDRESS_COPY_BUTTON
     )
 

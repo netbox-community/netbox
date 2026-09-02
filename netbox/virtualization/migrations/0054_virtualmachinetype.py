@@ -64,7 +64,8 @@ class Migration(migrations.Migration):
                 (
                     'owner',
                     models.ForeignKey(
-                        blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
+                        blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+',
+                        to='users.owner'
                     ),
                 ),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),

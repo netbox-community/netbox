@@ -73,9 +73,6 @@ A `PluginMenuItem` has the following attributes:
 | `staff_only`    | -        | Display only for superusers                          |
 | `buttons`       | -        | An iterable of PluginMenuButton instances to include |
 
-!!! note "Changed in NetBox v4.5"
-    In releases prior to NetBox v4.5, `staff_only` restricted display of a menu item to only users with `is_staff` set to True. In NetBox v4.5, the `is_staff` flag was removed from the user model. Menu items with `staff_only` set to True are now displayed only for superusers.
-
 ## Menu Buttons
 
 Each menu item can include a set of buttons. These can be handy for providing shortcuts related to the menu item. For instance, most items in NetBox's navigation menu include buttons to create and import new objects.

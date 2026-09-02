@@ -4,9 +4,6 @@
 {% load perms %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-{% endblock %}
-
 {% block control-buttons %}
   {% if not object.pk or object.is_active and perms.core.add_configrevision %}
     {% url 'core:configrevision_add' as edit_url %}

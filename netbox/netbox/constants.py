@@ -29,44 +29,12 @@ ADVISORY_LOCK_KEYS = {
     'available-vlans': 100300,
     'available-asns': 100400,
 
-    # MPTT locks
-    'region': 105100,
-    'sitegroup': 105200,
-    'location': 105300,
-    'tenantgroup': 105400,
-    'contactgroup': 105500,
-    'wirelesslangroup': 105600,
-    'inventoryitem': 105700,
-    'inventoryitemtemplate': 105800,
-    'platform': 105900,
-
     # Jobs
     'job-schedules': 110100,
+
+    # Custom field data
+    'custom-field-data': 115100,
 }
-
-# TODO: Remove in NetBox v4.7
-# Legacy default view action permission mapping
-_DEFAULT_ACTION_PERMISSIONS = {
-    'add': {'add'},
-    'export': {'view'},
-    'bulk_import': {'add'},
-    'bulk_edit': {'change'},
-    'bulk_delete': {'delete'},
-}
-
-
-def __getattr__(name):
-    if name == 'DEFAULT_ACTION_PERMISSIONS':
-        import warnings
-        warnings.warn(
-            f"{name} is deprecated and will be removed in NetBox v4.7. "
-            "Define action permissions via ObjectAction subclasses instead.",
-            FutureWarning,
-            stacklevel=2,
-        )
-        return _DEFAULT_ACTION_PERMISSIONS
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-
 
 # General-purpose tokens
 CENSOR_TOKEN = '********'

@@ -1,5 +1,5 @@
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import Case, JSONField, OuterRef, Q, Subquery, When
 
 from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg
@@ -18,6 +18,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
     def get_for_object(self, obj, aggregate_data=False):
         """
         Return all applicable ConfigContexts for a given object. Only active ConfigContexts will be included.
+
+        WARNING: This method's scope-matching logic is mirrored (inverted) by ConfigContext.get_affected_objects(),
+        which powers cache invalidation. Any change to the matching criteria here MUST be applied there as well, or
+        pre-rendered config context caches will go stale. See extras/models/configs.py.
 
         Args:
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
@@ -70,7 +74,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
 
         if aggregate_data:
             return queryset.aggregate(
-                config_context_data=JSONBAgg('data', ordering=['weight', 'name'])
+                config_context_data=JSONBAgg('data', order_by=['weight', 'name'])
             )['config_context_data']
 
         return queryset
@@ -85,20 +89,39 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
     This offers a substantial performance gain over ConfigContextQuerySet.get_for_object() when dealing with
     multiple objects. This allows the annotation to be entirely optional.
     """
-    def annotate_config_context_data(self):
+    def annotate_config_context_data(self, only_invalidated=False):
         """
-        Attach the subquery annotation to the base queryset
+        Attach the subquery annotation to the base queryset.
+
+        Args:
+            only_invalidated: If True, evaluate the (expensive) aggregation subquery only for rows
+                whose pre-rendered cache (`_config_context_data`) is NULL, returning NULL for rows
+                that already have a populated cache. This is the list/detail read-path optimization:
+                warm rows are served from the cache by ConfigContextModel.get_config_context() and
+                never consult this annotation, so computing it for them is wasted work. PostgreSQL
+                short-circuits CASE branches, so the correlated SubPlan is not executed for warm
+                rows.
+
+                NOTE: With only_invalidated=True the annotation is NULL for warm rows. It is only
+                safe to read via get_config_context() (which short-circuits on the cache before
+                touching the annotation). Do NOT call render_config_context() directly on a row
+                annotated this way, or a warm row would render an empty context.
         """
         from extras.models import ConfigContext
-        return self.annotate(
-            config_context_data=Subquery(
-                ConfigContext.objects.filter(
-                    self._get_config_context_filters()
-                ).annotate(
-                    _data=EmptyGroupByJSONBAgg('data', order_by=['weight', 'name'])
-                ).values("_data").order_by()
-            )
+        subquery = Subquery(
+            ConfigContext.objects.filter(
+                self._get_config_context_filters()
+            ).annotate(
+                _data=EmptyGroupByJSONBAgg('data', order_by=['weight', 'name'])
+            ).values("_data").order_by()
         )
+        if only_invalidated:
+            subquery = Case(
+                When(_config_context_data__isnull=True, then=subquery),
+                default=None,
+                output_field=JSONField(),
+            )
+        return self.annotate(config_context_data=subquery)
 
     def _get_config_context_filters(self):
         # Construct the set of Q objects for the specific object types
@@ -131,10 +154,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         if self.model._meta.model_name == 'device':
             base_query.add(
                 (Q(
-                    locations__tree_id=OuterRef('location__tree_id'),
-                    locations__level__lte=OuterRef('location__level'),
-                    locations__lft__lte=OuterRef('location__lft'),
-                    locations__rght__gte=OuterRef('location__rght'),
+                    locations__path__ancestor_or_equal=OuterRef('location__path'),
                 ) | Q(locations=None)),
                 Q.AND
             )
@@ -143,40 +163,29 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             base_query.add(Q(locations=None), Q.AND)
             base_query.add(Q(device_types=None), Q.AND)
 
-        # MPTT-based filters
+        # Ltree-based filters: the ConfigContext-side tree node must be an ancestor
+        # (or equal to) the device/VM-side tree node, i.e. `cc_node.path @> obj_node.path`.
         base_query.add(
             (Q(
-                regions__tree_id=OuterRef('site__region__tree_id'),
-                regions__level__lte=OuterRef('site__region__level'),
-                regions__lft__lte=OuterRef('site__region__lft'),
-                regions__rght__gte=OuterRef('site__region__rght'),
+                regions__path__ancestor_or_equal=OuterRef('site__region__path'),
             ) | Q(regions=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                site_groups__tree_id=OuterRef('site__group__tree_id'),
-                site_groups__level__lte=OuterRef('site__group__level'),
-                site_groups__lft__lte=OuterRef('site__group__lft'),
-                site_groups__rght__gte=OuterRef('site__group__rght'),
+                site_groups__path__ancestor_or_equal=OuterRef('site__group__path'),
             ) | Q(site_groups=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                roles__tree_id=OuterRef('role__tree_id'),
-                roles__level__lte=OuterRef('role__level'),
-                roles__lft__lte=OuterRef('role__lft'),
-                roles__rght__gte=OuterRef('role__rght'),
+                roles__path__ancestor_or_equal=OuterRef('role__path'),
             ) | Q(roles=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                platforms__tree_id=OuterRef('platform__tree_id'),
-                platforms__level__lte=OuterRef('platform__level'),
-                platforms__lft__lte=OuterRef('platform__lft'),
-                platforms__rght__gte=OuterRef('platform__rght'),
+                platforms__path__ancestor_or_equal=OuterRef('platform__path'),
             ) | Q(platforms=None)),
             Q.AND
         )

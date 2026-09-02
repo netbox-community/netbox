@@ -5,13 +5,13 @@ from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
+from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device
 from wireless.choices import *
 from wireless.filtersets import *
 from wireless.models import *
 
 
-class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = WirelessLANGroup.objects.all()
     filterset = WirelessLANGroupFilterSet
 
@@ -104,7 +104,7 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
-class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
+class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = WirelessLAN.objects.all()
     filterset = WirelessLANFilterSet
 
@@ -309,7 +309,7 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
+class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = WirelessLink.objects.all()
     filterset = WirelessLinkFilterSet
 

@@ -10,7 +10,13 @@ from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.optimization import build_gfk_prefetch
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import (
+    BaseObjectType,
+    NetBoxObjectType,
+    OrganizationalObjectType,
+    PrimaryObjectType,
+    register_type,
+)
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 from .filters import *
@@ -65,7 +71,7 @@ class IPAddressFamilyType:
     label: str
 
 
-@strawberry_django.type(
+@register_type(
     models.ASN,
     fields='__all__',
     filters=ASNFilter,
@@ -81,7 +87,7 @@ class ASNType(ContactsMixin, PrimaryObjectType):
     providers: list[ProviderType]
 
 
-@strawberry_django.type(
+@register_type(
     models.ASNRange,
     fields='__all__',
     filters=ASNRangeFilter,
@@ -94,7 +100,7 @@ class ASNRangeType(OrganizationalObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
 
-@strawberry_django.type(
+@register_type(
     models.Aggregate,
     fields='__all__',
     filters=AggregateFilter,
@@ -111,7 +117,7 @@ class AggregateType(ContactsMixin, PrimaryObjectType):
         return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
-@strawberry_django.type(
+@register_type(
     models.FHRPGroup,
     fields='__all__',
     filters=FHRPGroupFilter,
@@ -121,7 +127,7 @@ class FHRPGroupType(IPAddressesMixin, PrimaryObjectType):
     fhrpgroupassignment_set: list[Annotated["FHRPGroupAssignmentType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.FHRPGroupAssignment,
     exclude=['interface_type', 'interface_id'],
     filters=FHRPGroupAssignmentFilter,
@@ -148,7 +154,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
         return self.interface
 
 
-@strawberry_django.type(
+@register_type(
     models.IPAddress,
     exclude=['assigned_object_type', 'assigned_object_id', 'address'],
     filters=IPAddressFilter,
@@ -188,7 +194,7 @@ class IPAddressType(ContactsMixin, PrimaryObjectType):
         return self.assigned_object
 
 
-@strawberry_django.type(
+@register_type(
     models.IPRange,
     fields='__all__',
     filters=IPRangeFilter,
@@ -202,7 +208,7 @@ class IPRangeType(ContactsMixin, PrimaryObjectType):
     role: Annotated["RoleType", strawberry.lazy('ipam.graphql.types')] | None
 
 
-@strawberry_django.type(
+@register_type(
     models.Prefix,
     exclude=['scope_type', 'scope_id', '_location', '_region', '_site', '_site_group'],
     filters=PrefixFilter,
@@ -242,7 +248,7 @@ class PrefixType(ContactsMixin, PrimaryObjectType):
         return self.scope
 
 
-@strawberry_django.type(
+@register_type(
     models.RIR,
     fields='__all__',
     filters=RIRFilter,
@@ -255,7 +261,7 @@ class RIRType(OrganizationalObjectType):
     aggregates: list[Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.Role,
     fields='__all__',
     filters=RoleFilter,
@@ -268,7 +274,7 @@ class RoleType(OrganizationalObjectType):
     vlans: list[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.RouteTarget,
     fields='__all__',
     filters=RouteTargetFilter,
@@ -283,15 +289,30 @@ class RouteTargetType(PrimaryObjectType):
     exporting_vrfs: list[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+# Shared deprecation reason for the legacy port-mapping GraphQL fields. The fields themselves are
+# declared on each type (rather than via a mixin) so they reliably override the auto-generated model
+# field of the same name; each delegates to the model's protocol/ports properties (the single source of
+# truth for the legacy view, derived from port_mappings on each access).
+_LEGACY_DEPRECATION = "Deprecated; use port_mappings. Populated only for single-protocol services."
+
+
+@register_type(
     models.Service,
-    exclude=('_ports_lowest', 'parent_object_type', 'parent_object_id'),
+    exclude=['parent_object_type', 'parent_object_id'],
     filters=ServiceFilter,
     pagination=True
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
-    ports: list[int]
+    port_mappings: list[str]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def protocol(self) -> str | None:
+        return self.protocol
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def ports(self) -> list[int] | None:
+        return self.ports
 
     @strawberry_django.field(
         prefetch_related=build_gfk_prefetch(
@@ -313,17 +334,25 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
         return self.parent
 
 
-@strawberry_django.type(
+@register_type(
     models.ServiceTemplate,
-    exclude=('_ports_lowest',),
+    fields='__all__',
     filters=ServiceTemplateFilter,
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
-    ports: list[int]
+    port_mappings: list[str]
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def protocol(self) -> str | None:
+        return self.protocol
+
+    @strawberry_django.field(deprecation_reason=_LEGACY_DEPRECATION)
+    def ports(self) -> list[int] | None:
+        return self.ports
 
 
-@strawberry_django.type(
+@register_type(
     models.VLAN,
     exclude=['qinq_svlan'],
     filters=VLANFilter,
@@ -347,7 +376,7 @@ class VLANType(PrimaryObjectType):
         return self.qinq_svlan
 
 
-@strawberry_django.type(
+@register_type(
     models.VLANGroup,
     exclude=['scope_type', 'scope_id'],
     filters=VLANGroupFilter,
@@ -390,7 +419,7 @@ class VLANGroupType(OrganizationalObjectType):
         return self.scope
 
 
-@strawberry_django.type(
+@register_type(
     models.VLANTranslationPolicy,
     fields='__all__',
     filters=VLANTranslationPolicyFilter,
@@ -400,7 +429,7 @@ class VLANTranslationPolicyType(PrimaryObjectType):
     rules: list[Annotated["VLANTranslationRuleType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.VLANTranslationRule,
     fields='__all__',
     filters=VLANTranslationRuleFilter,
@@ -413,7 +442,7 @@ class VLANTranslationRuleType(NetBoxObjectType):
     ] = strawberry_django.field(select_related=["policy"])
 
 
-@strawberry_django.type(
+@register_type(
     models.VRF,
     fields='__all__',
     filters=VRFFilter,

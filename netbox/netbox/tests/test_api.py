@@ -1,11 +1,13 @@
 import uuid
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
+from rest_framework.settings import api_settings
 
 from dcim.api.serializers import RackSerializer
 from dcim.models import Device, Site
@@ -51,6 +53,44 @@ class AppTestCase(APITestCase):
         self.assertEqual(response.data['id'], self.user.pk)
 
 
+class NonFieldErrorKeyTestCase(APITestCase):
+    """
+    REST framework's key for errors which pertain to no particular field is configured to match
+    Django's, so that the API reports such an error under `__all__` regardless of which layer
+    rejected the request (see REST_FRAMEWORK['NON_FIELD_ERRORS_KEY'] in settings). Model validation
+    errors are keyed by Django, having reached the response by way of full_clean(); errors raised by
+    a serializer or field are keyed by REST framework.
+    """
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('dcim.add_site', 'dcim.view_site', 'dcim.change_site')
+        self.url = reverse('dcim-api:site-list')
+
+    def test_setting_matches_django(self):
+        self.assertEqual(api_settings.NON_FIELD_ERRORS_KEY, NON_FIELD_ERRORS)
+
+    def test_serializer_error_uses_all_key(self):
+        """An error from REST framework's own machinery (here, a non-dictionary item)."""
+        response = self.client.post(self.url, ['not an object'], format='json', **self.header)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(NON_FIELD_ERRORS, response.data['errors'][0]['errors'])
+
+    def test_model_validation_error_uses_all_key(self):
+        """An error from Django's full_clean(), which uses this key of its own accord."""
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        # A Location's name must be unique within its Site, enforced by a model constraint
+        location_url = reverse('dcim-api:location-list')
+        self.add_permissions('dcim.add_location', 'dcim.view_location')
+        data = {'name': 'Location 1', 'slug': 'location-1', 'site': site.pk}
+        self.assertEqual(self.client.post(location_url, data, format='json', **self.header).status_code, 201)
+
+        response = self.client.post(location_url, data, format='json', **self.header)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(NON_FIELD_ERRORS, response.data)
+
+
 class RelatedObjectCountFieldTestCase(TestCase):
     """
     RelatedObjectCountFields are populated by annotations applied to a viewset's queryset, which are only
@@ -74,7 +114,7 @@ class RelatedObjectCountFieldTestCase(TestCase):
         self.assertIsInstance(serializer.fields['device_count'], RelatedObjectCountField)
 
 
-class OptionalLimitOffsetPaginationTestCase(TestCase):
+class NetBoxPaginationTestCase(TestCase):
 
     def setUp(self):
         self.paginator = NetBoxPagination()

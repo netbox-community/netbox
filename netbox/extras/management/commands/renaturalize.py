@@ -2,6 +2,7 @@ from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 
 from utilities.fields import NaturalOrderingField
+from utilities.querysets import chunked_update
 
 
 class Command(BaseCommand):
@@ -93,7 +94,7 @@ class Command(BaseCommand):
                         self.stdout.flush()
 
                     # Update each unique field value in bulk
-                    changed = model.objects.filter(name=value).update(**{field.name: naturalized_value})
+                    changed = chunked_update(model.objects.filter(name=value), **{field.name: naturalized_value})
 
                     if options['verbosity'] >= 2:
                         self.stdout.write(f" ({changed})")

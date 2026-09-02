@@ -1,5 +1,10 @@
 # Custom Scripts
 
+!!! warning "Deprecation Warning"
+    Beginning in NetBox v4.7, the custom scripts functionality built into core NetBox has been deprecated. It is being replaced by a dedicated open source plugin, which offers an expanded feature set including the organization of scripts into projects, the sharing of Python resources among scripts, and version control for individual scripts.
+
+    The core implementation will remain available and supported throughout the v4.7 and v4.8 release cycles, and is scheduled for removal in NetBox v5.0. No immediate action is required: Existing scripts will continue to work as they do today, and users may migrate to the plugin at any point during the migration period. Migration is intended to be a largely automated process which should not require rewriting scripts.
+
 Custom scripting was introduced to provide a way for users to execute custom logic from within the NetBox UI. Custom scripts enable the user to directly and conveniently manipulate NetBox data in a prescribed fashion. They can be used to accomplish myriad tasks, such as:
 
 * Automatically populate new devices and cables in preparation for a new site deployment

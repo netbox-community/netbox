@@ -7,6 +7,12 @@
     overflow-y: auto;
   }
 
+  // Gap for the reveal in sidenav.ts, which scrolls with `block: 'nearest'`
+  .nav-item.dropdown,
+  .dropdown-item {
+    scroll-margin-block: 0.5rem;
+  }
+
   // Render the <button> menu headings identically to the surrounding nav links
   .navbar-collapse .nav-item.dropdown > button.nav-link {
     width: 100%;

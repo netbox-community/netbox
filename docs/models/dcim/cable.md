@@ -23,8 +23,6 @@ The cable's operational status. Choices include:
 
 ### Profile
 
-!!! note "This field was introduced in NetBox v4.5."
-
 The profile to which the cable conforms. The profile determines the mapping of termination between the two ends and enables logical tracing across complex connections, such as breakout cables. Supported profiles are listed below.
 
 * Straight (single position)
@@ -34,7 +32,9 @@ The profile to which the cable conforms. The profile determines the mapping of t
 
 A single-position cable is allowed only one termination point at each end. There is no limit to the number of terminations a multi-position cable may have. Each end of a cable must have the same number of terminations, unless connected to a pass-through port or to a circuit termination.
 
-The assignment of a cable profile is optional. If no profile is assigned, legacy tracing behavior will be preserved.
+The assignment of a cable profile is optional. If no profile is assigned, legacy tracing behavior will be preserved. Note that a cable's profile is what maps each termination to a connector and position: a cable carrying multiple terminations on an end but having no profile assigned is permitted, but NetBox cannot map its positions across the cable. Assign a profile to model a breakout cable whose individual positions must be traced.
+
+When creating cables in bulk, each side accepts a comma-separated list of termination names, along with either a single parent device (or power panel) shared by all of them or one parent per name. Terminations are assigned to connectors in the order given, so the order of these lists determines how the cable is wired.
 
 ### Type
 

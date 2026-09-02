@@ -3,14 +3,14 @@ from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.backends.postgresql.psycopg_any import NumericRange
-from django.test import RequestFactory
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.constants import InterfaceTypeChoices
-from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, SavedFilter
 from ipam import filtersets
@@ -21,7 +21,7 @@ from ipam.views import AggregatePrefixesView, PrefixPrefixesView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
 from users.models import Group, ObjectPermission, Owner
-from utilities.testing import ViewTestCases, create_tags
+from utilities.testing import ViewTestCases, create_tags, post_data
 
 
 class ASNRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -672,8 +672,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[1].pk,
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
@@ -715,6 +715,180 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'is_pool': False,
             'description': 'New description',
         }
+
+    def test_bulk_edit_htmx_dependent_field_refresh_skips_validation(self):
+        """An HTMX content-type change (no _apply) re-renders the bulk-edit form without validation errors."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.0.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            # The client-side hx-on::config-request clears the paired object id on a type change.
+            'scope_object_id': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data, headers={'HX-Request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, 'Please select a site')
+        # The object selector is rebuilt for the new type rather than erroring out.
+        self.assertContains(response, 'name="scope_object_id"')
+        self.assertContains(response, 'data-url="/api/dcim/sites/"')
+
+    def test_bulk_edit_apply_still_validates_incomplete_scope(self):
+        """A real apply with a content type but no object still surfaces the validation error."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.1.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            '_apply': '1',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Please select a site')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_edit_applies_scope(self):
+        """A bulk edit which sets a scope persists the generic foreign key to every selected object."""
+        site = Site.objects.first()
+        prefixes = (
+            Prefix.objects.create(prefix=IPNetwork('10.98.0.0/24')),
+            Prefix.objects.create(prefix=IPNetwork('10.98.1.0/24')),
+        )
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [p.pk for p in prefixes],
+            '_apply': '1',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': site.pk,
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        for prefix in prefixes:
+            prefix.refresh_from_db()
+            self.assertEqual(prefix.scope_type, ContentType.objects.get_for_model(Site))
+            self.assertEqual(prefix.scope_id, site.pk)
+            self.assertEqual(prefix.scope, site)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_edit_nullifies_scope(self):
+        """Nullifying the scope in a bulk edit clears both concrete GFK columns on every object."""
+        # The prefixes created in setUpTestData are already scoped to a Site.
+        prefixes = Prefix.objects.filter(scope_id__isnull=False)
+        self.assertTrue(prefixes.exists())
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [p.pk for p in prefixes],
+            '_apply': '1',
+            '_nullify': ['scope'],
+            # An empty scope alongside _nullify must not trigger the incomplete-scope validation error.
+            'scope_content_type': '',
+            'scope_object_id': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        for prefix in prefixes:
+            prefix.refresh_from_db()
+            self.assertIsNone(prefix.scope_type_id)
+            self.assertIsNone(prefix.scope_id)
+
+    def test_scope_object_selector_restricted_by_permissions(self):
+        """A constrained user cannot assign a scope object outside their permitted object set."""
+        sites = Site.objects.all()[:2]
+        permitted_site, forbidden_site = sites[0], sites[1]
+
+        # Grant add/view but constrain viewable Sites to a single object, mirroring how the object
+        # selector's queryset is narrowed by restrict_form_fields() in a real request.
+        self.add_permissions('ipam.add_prefix')
+        site_perm = ObjectPermission(
+            name='Restricted sites', actions=['view'], constraints={'pk': permitted_site.pk}
+        )
+        site_perm.save()
+        site_perm.users.add(self.user)
+        site_perm.object_types.add(ObjectType.objects.get_for_model(Site))
+
+        site_ct = ContentType.objects.get_for_model(Site)
+
+        # A minimal payload isolates the scope restriction from unrelated FK field permissions.
+        base = {
+            'prefix': '10.97.0.0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+            'scope_content_type': site_ct.pk,
+        }
+
+        # Assigning the forbidden site is rejected: it is not among the user's permitted choices.
+        data = post_data({**base, 'scope_object_id': forbidden_site.pk})
+        response = self.client.post(self._get_url('add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(Prefix.objects.filter(prefix='10.97.0.0/24').exists())
+
+        # Assigning the permitted site succeeds.
+        data = post_data({**base, 'prefix': '10.97.1.0/24', 'scope_object_id': permitted_site.pk})
+        response = self.client.post(self._get_url('add'), data)
+        self.assertHttpStatus(response, 302)
+        prefix = Prefix.objects.get(prefix='10.97.1.0/24')
+        self.assertEqual(prefix.scope, permitted_site)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_scope_rejects_object_id_from_other_content_type(self):
+        """A submitted object ID belonging to a different content type is rejected, not silently accepted."""
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        self.add_permissions('ipam.add_prefix')
+
+        # Choose a Site pk which is not also a valid Region pk. The two tables' sequences are
+        # independent and are not rolled back between test classes, so a collision would otherwise
+        # make the "forbidden" pk a legitimate Region and depend on test ordering.
+        site = Site.objects.exclude(pk__in=Region.objects.values_list('pk', flat=True)).first()
+        self.assertIsNotNone(site)
+
+        # Region content type paired with a Site's pk: the object must be validated against the
+        # selected type, so a Site pk cannot resurface as a Region.
+        data = post_data({
+            **self.form_data,
+            'prefix': IPNetwork('10.96.0.0/24'),
+            'scope_content_type': ContentType.objects.get_for_model(Region).pk,
+            'scope_object_id': site.pk,
+        })
+        response = self.client.post(self._get_url('add'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(Prefix.objects.filter(prefix='10.96.0.0/24').exists())
+
+        # A matching Region pk under the Region content type validates.
+        data['prefix'] = '10.96.1.0/24'
+        data['scope_object_id'] = region.pk
+        response = self.client.post(self._get_url('add'), data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.get(prefix='10.96.1.0/24').scope, region)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_scope_rejects_malformed_input(self):
+        """Malformed scope input is rejected as invalid rather than raising a server error."""
+        site = Site.objects.first()
+        site_ct = ContentType.objects.get_for_model(Site).pk
+        self.add_permissions('ipam.add_prefix')
+
+        malformed = (
+            {'scope_content_type': 'not-a-number', 'scope_object_id': site.pk},
+            {'scope_content_type': '-1', 'scope_object_id': site.pk},
+            {'scope_content_type': site_ct, 'scope_object_id': 'not-a-number'},
+            # An object ID which overflows PositiveBigIntegerField: it reaches the DB as a filter
+            # argument, so a missing guard would surface a driver error (500) rather than a clean rejection.
+            {'scope_content_type': site_ct, 'scope_object_id': '9' * 30},
+        )
+        for i, scope in enumerate(malformed):
+            with self.subTest(scope=scope):
+                data = post_data({**self.form_data, 'prefix': IPNetwork(f'10.95.{i}.0/24'), **scope})
+                response = self.client.post(self._get_url('add'), data)
+                # Rejected with a re-rendered form (200), never a 500, and no object created.
+                self.assertHttpStatus(response, 200)
+                self.assertFalse(Prefix.objects.filter(prefix=f'10.95.{i}.0/24').exists())
+                # The rejection lands on the scope field, not on some unrelated field.
+                self.assertIn('scope', response.context['form'].errors)
 
     def test_bulk_add_ipv4_prefixes(self):
         """Test bulk creating IPv4 prefixes using a pattern."""
@@ -828,6 +1002,23 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_prefix_prefixes_add_links_include_scope_params(self):
+        """Child-prefix Add links pre-populate scope via the GenericObjectChoiceField subwidget params."""
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        site = Site.objects.create(name='Scope Site', slug='scope-site')
+        parent = Prefix.objects.create(prefix=IPNetwork('203.0.113.0/24'), scope=site)
+        Prefix.objects.create(prefix=IPNetwork('203.0.113.0/26'), scope=site)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': parent.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        scope_ct = ContentType.objects.get_for_model(Site)
+        # The new GenericObjectChoiceField reads these subwidget-named query params.
+        self.assertContains(response, f'scope_content_type={scope_ct.pk}')
+        self.assertContains(response, f'scope_object_id={site.pk}')
 
     def test_prefix_prefixes_filter_suppresses_available_prefixes(self):
         self.add_permissions('ipam.view_prefix')
@@ -1969,6 +2160,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
             'vid_ranges': '100-199,300-399',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -1996,6 +2189,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
         }
 
     def test_vlans_filter_suppresses_available_vlans(self):
@@ -2488,13 +2683,16 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
+    # port_mappings is an ArrayField, but the form submits it as a JSON string rather than a list, so
+    # the value isn't directly comparable to the stored field during the view test's edit assertions
+    validation_excluded_fields = ('port_mappings',)
 
     @classmethod
     def setUpTestData(cls):
         service_templates = (
-            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            ServiceTemplate(name='Service Template 1', port_mappings=['tcp/101']),
+            ServiceTemplate(name='Service Template 2', port_mappings=['tcp/102']),
+            ServiceTemplate(name='Service Template 3', port_mappings=['tcp/103']),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
 
@@ -2502,17 +2700,16 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Service Template X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '104,105',
+            'port_mappings': '[{"protocol": "udp", "ports": "104,105"}]',
             'description': 'A new service template',
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "name,protocol,ports,description",
-            "Service Template 4,tcp,1,First service template",
-            "Service Template 5,tcp,2,Second service template",
-            "Service Template 6,tcp,3,Third service template",
+            "name,port_mappings,description",
+            "Service Template 4,tcp/1,First service template",
+            "Service Template 5,tcp/2,Second service template",
+            'Service Template 6,"udp/3,tcp/4",Third service template',
         )
 
         cls.csv_update_data = (
@@ -2523,16 +2720,75 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
         }
+
+    def test_port_mappings_stored_from_form(self):
+        # port_mappings is in validation_excluded_fields (the form submits JSON rows, not a list), so the
+        # standard create/edit view tests can't compare it. Assert the form round-trip explicitly.
+        self.add_permissions('ipam.add_servicetemplate', 'ipam.change_servicetemplate')
+
+        # Create: a row's comma-separated ports expand into individual mappings
+        data = {
+            'name': 'Mappings Via Form',
+            'port_mappings': '[{"protocol": "udp", "ports": "104,105"}]',
+        }
+        self.assertHttpStatus(self.client.post(self._get_url('add'), data=post_data(data)), 302)
+        template = ServiceTemplate.objects.get(name='Mappings Via Form')
+        self.assertEqual(template.port_mappings, ['udp/104', 'udp/105'])
+
+        # Edit: multiple rows, a range, and a non-canonical port are expanded and normalized
+        data['port_mappings'] = '[{"protocol": "tcp", "ports": "080,8000-8002"}, {"protocol": "udp", "ports": "53"}]'
+        self.assertHttpStatus(
+            self.client.post(self._get_url('edit', template), data=post_data(data)), 302
+        )
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/80', 'tcp/8000', 'tcp/8001', 'tcp/8002', 'udp/53'])
+
+    def test_bulk_edit_port_mappings(self):
+        # Bulk add/remove port mappings across selected templates (tags-style). ServiceTemplate is where
+        # the add/remove fields are declared (ServiceBulkEditForm inherits them), so cover it directly.
+        self.add_permissions('ipam.view_servicetemplate', 'ipam.change_servicetemplate')
+        templates = list(
+            ServiceTemplate.objects.filter(name__in=['Service Template 1', 'Service Template 2']).order_by('name')
+        )
+        data = {
+            'pk': [t.pk for t in templates],
+            'add_port_mappings': '[{"protocol": "udp", "ports": "53"}]',
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        # Service Template 1 (was tcp/101): tcp/101 removed, udp/53 added
+        self.assertEqual(ServiceTemplate.objects.get(pk=templates[0].pk).port_mappings, ['udp/53'])
+        # Service Template 2 (was tcp/102): remove is a no-op, udp/53 added
+        self.assertEqual(
+            ServiceTemplate.objects.get(pk=templates[1].pk).port_mappings, ['tcp/102', 'udp/53']
+        )
+
+    def test_bulk_edit_removing_all_mappings_is_rejected(self):
+        # Emptying an object's mappings must fail validation rather than persist an invalid object.
+        self.add_permissions('ipam.view_servicetemplate', 'ipam.change_servicetemplate')
+        template = ServiceTemplate.objects.get(name='Service Template 1')
+        data = {
+            'pk': [template.pk],
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)  # Re-rendered with the error, not a redirect
+        template.refresh_from_db()
+        self.assertEqual(template.port_mappings, ['tcp/101'])
 
 
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
     # TODO, related to #9816, cannot validate GFK
-    validation_excluded_fields = ('device',)
+    # port_mappings is an ArrayField, but the form submits it as a JSON string rather than a list, so
+    # the value isn't directly comparable to the stored field during the view test's edit assertions
+    validation_excluded_fields = ('device', 'port_mappings')
 
     @classmethod
     def setUpTestData(cls):
@@ -2548,9 +2804,9 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         services = (
-            Service(parent=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            Service(parent=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            Service(parent=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            Service(parent=device, name='Service 1', port_mappings=['tcp/101']),
+            Service(parent=device, name='Service 2', port_mappings=['tcp/102']),
+            Service(parent=device, name='Service 3', port_mappings=['tcp/103']),
         )
         Service.objects.bulk_create(services)
 
@@ -2566,11 +2822,10 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-            'parent': device.pk,
+            'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+            'parent_object_id': device.pk,
             'name': 'Service X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
-            'ports': '104,105',
+            'port_mappings': '[{"protocol": "tcp", "ports": "104,105"}, {"protocol": "udp", "ports": "104"}]',
             'ipaddresses': [],
             'description': 'A new service',
             'owner': owner.pk,
@@ -2578,11 +2833,11 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "parent_object_type,parent,name,protocol,ports,ipaddresses,description",
-            "dcim.device,Device 1,Service 1,tcp,1,192.0.2.1/24,First service",
-            "dcim.device,Device 1,Service 2,tcp,2,192.0.2.2/24,Second service",
-            "dcim.device,Device 1,Service 3,udp,3,,Third service",
-            "ipam.fhrpgroup,Group 1,Service 4,udp,4,192.0.2.3/24,Fourth service",
+            "parent_object_type,parent,name,port_mappings,ipaddresses,description",
+            "dcim.device,Device 1,Service 1,tcp/1,192.0.2.1/24,First service",
+            "dcim.device,Device 1,Service 2,tcp/2,192.0.2.2/24,Second service",
+            "dcim.device,Device 1,Service 3,udp/3,,Third service",
+            'ipam.fhrpgroup,Group 1,Service 4,"tcp/4,udp/4",192.0.2.3/24,Fourth service',
         )
 
         cls.csv_update_data = (
@@ -2593,8 +2848,6 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
         }
 
@@ -2603,8 +2856,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.first()
         addr = IPAddress.objects.create(address='192.0.2.4/24')
         csv_data = (
-            "parent_object_type,parent_object_id,name,protocol,ports,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp,10,{addr.address},Eleventh service",
+            "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
+            f"dcim.device,{device.pk},Service 11,tcp/10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()
@@ -2634,8 +2887,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         interface = device.interfaces.first()
         addr = IPAddress.objects.create(assigned_object=interface, address='192.0.2.3/24')
         csv_data = (
-            "parent_object_type,parent_object_id,name,protocol,ports,ipaddresses,description",
-            f"dcim.device,{device.pk},Service 11,tcp,10,{addr.address},Eleventh service",
+            "parent_object_type,parent_object_id,name,port_mappings,ipaddresses,description",
+            f"dcim.device,{device.pk},Service 11,tcp/10,{addr.address},Eleventh service",
         )
 
         initial_count = self._get_queryset().count()
@@ -2669,16 +2922,15 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         device = Device.objects.first()
         service_template = ServiceTemplate.objects.create(
             name='HTTP',
-            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-            ports=[80],
+            port_mappings=['tcp/80'],
             description='Hypertext transfer protocol'
         )
 
         request = {
             'path': self._get_url('add'),
             'data': {
-                'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-                'parent': device.pk,
+                'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+                'parent_object_id': device.pk,
                 'service_template': service_template.pk,
             },
         }
@@ -2687,6 +2939,48 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         instance = self._get_queryset().order_by('pk').last()
         self.assertEqual(instance.parent, device)
         self.assertEqual(instance.name, service_template.name)
-        self.assertEqual(instance.protocol, service_template.protocol)
-        self.assertEqual(instance.ports, service_template.ports)
         self.assertEqual(instance.description, service_template.description)
+        # Port mappings should be copied from the template
+        self.assertEqual(instance.port_mappings, ['tcp/80'])
+
+    # EXEMPT_VIEW_PERMISSIONS matches the standard create/edit view tests: without it the form's related
+    # object fields (parent, tags) reject choices the test user has no view permission for.
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_port_mappings_stored_from_form(self):
+        # port_mappings is in validation_excluded_fields (the form submits JSON rows, not a list), so the
+        # standard create/edit view tests can't compare it. Assert the form round-trip explicitly, using a
+        # multi-protocol payload — the whole point of the field — including the same port on two protocols.
+        self.add_permissions('ipam.add_service', 'ipam.change_service')
+
+        data = {**self.form_data, 'name': 'Mappings Via Form'}
+        self.assertHttpStatus(self.client.post(self._get_url('add'), data=post_data(data)), 302)
+        service = Service.objects.get(name='Mappings Via Form')
+        self.assertEqual(service.port_mappings, ['tcp/104', 'tcp/105', 'udp/104'])
+
+        # Edit: a range and a non-canonical port are expanded and normalized
+        data['port_mappings'] = '[{"protocol": "tcp", "ports": "080,8000-8002"}]'
+        self.assertHttpStatus(
+            self.client.post(self._get_url('edit', service), data=post_data(data)), 302
+        )
+        service.refresh_from_db()
+        self.assertEqual(service.port_mappings, ['tcp/80', 'tcp/8000', 'tcp/8001', 'tcp/8002'])
+
+    def test_bulk_edit_port_mappings(self):
+        # Bulk add/remove port mappings across selected services (tags-style)
+        self.add_permissions('ipam.view_service', 'ipam.change_service')
+        services = list(Service.objects.filter(name__in=['Service 1', 'Service 2']).order_by('name'))
+        data = {
+            'pk': [s.pk for s in services],
+            'add_port_mappings': '[{"protocol": "udp", "ports": "53"}]',
+            'remove_port_mappings': '[{"protocol": "tcp", "ports": "101"}]',
+            '_apply': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 302)
+
+        # Service 1 (was tcp/101): tcp/101 removed, udp/53 added
+        service1 = Service.objects.get(pk=services[0].pk)
+        self.assertEqual(service1.port_mappings, ['udp/53'])
+        # Service 2 (was tcp/102): remove is a no-op, udp/53 added
+        service2 = Service.objects.get(pk=services[1].pk)
+        self.assertEqual(service2.port_mappings, ['tcp/102', 'udp/53'])

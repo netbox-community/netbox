@@ -2,23 +2,16 @@ import logging
 from collections import UserDict, defaultdict
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
-from django_rq import get_queue
 
 from core.events import *
 from core.models import ObjectType
-from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
 from utilities.api import get_serializer_for_model
-from utilities.request import copy_safe_request
-from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 
-from .choices import EventRuleActionChoices
+from .conditions import AbsentData
 from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
@@ -155,9 +148,6 @@ def enqueue_event(queue, instance, request, event_type):
             snapshots=get_snapshots(instance, event_type),
             request=request,
             user=request.user,
-            # Legacy request attributes for backward compatibility
-            username=request.user.username,  # DEPRECATED, will be removed in NetBox v4.7.0
-            request_id=request.id,           # DEPRECATED, will be removed in NetBox v4.7.0
         )
 
     # For delete events, eagerly serialize the payload before the row is gone.
@@ -171,21 +161,39 @@ def process_event_rules(event_rules, object_type, event):
     Process a list of EventRules against an event.
 
     Notes on event sources:
-    - Object change events (created/updated/deleted) are enqueued via
-      enqueue_event() during an HTTP request.
-      These events include a request object and legacy request
-      attributes (e.g. username, request_id) for backward compatibility.
-    - Job lifecycle events (JOB_STARTED/JOB_COMPLETED) are emitted by
-      job_start/job_end signal handlers and may not include a request
-      context.
-      Consumers must not assume that fields like `username` are always
-      present.
+    - Object change events (created/updated/deleted) are enqueued via enqueue_event()
+      during an HTTP request. These events include a request object, and their payload is
+      always the serialized object.
+    - Job lifecycle events (JOB_STARTED/JOB_COMPLETED) are emitted by job_start/job_end
+      signal handlers and may not include a request context. Consumers must not assume
+      that a request is always present. Their payload is the job's `data` field, which is
+      nullable and (for a job which sets it directly) not guaranteed to be a dict.
     """
+    if not event_rules:
+        return
+
+    # Normalize object_type onto the event context so that an action's enqueue() can always read
+    # event_context['object_type']: job-lifecycle events pass it only as this parameter.
+    event['object_type'] = object_type
+
+    # Normalize the event payload to a dict or AbsentData once for all rules.
+    data = event['data']
+    if not isinstance(data, dict):
+        if data is not None:
+            logger.warning(
+                _('Ignoring invalid data payload on {event_type} event (got {data_type})').format(
+                    event_type=event['event_type'],
+                    data_type=type(data).__name__,
+                )
+            )
+        data = AbsentData()
 
     for event_rule in event_rules:
 
-        # Evaluate event rule conditions (if any)
-        if not event_rule.eval_conditions(event['data']):
+        # Merge snapshots and evaluate event rule conditions (if any).
+        condition_data = data.copy()
+        condition_data['snapshots'] = event.get('snapshots')
+        if not event_rule.eval_conditions(condition_data):
             continue
 
         # Guard against action_data that is valid JSON but not a dict
@@ -207,88 +215,37 @@ def process_event_rules(event_rules, object_type, event):
 
         # Merge rule-specific action_data with the event payload.
         # Copy to avoid mutating the rule's stored action_data dict.
-        event_data = {**action_data, **event['data']}
+        event_data = {**action_data, **data}
 
-        # Webhooks
-        if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
-
-            # Select the appropriate RQ queue
-            queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
-            rq_queue = get_queue(queue_name)
-
-            # For job lifecycle events, `username` may be absent because
-            # there is no request context.
-            # Prefer the associated user object when present, falling
-            # back to the legacy username attribute.
-            username = getattr(event.get('user'), 'username', None) or event.get('username')
-
-            # Compile the task parameters
-            params = {
-                'event_rule': event_rule,
-                'object_type': object_type,
-                'event_type': event['event_type'],
-                'data': event_data,
-                'snapshots': event.get('snapshots'),
-                'timestamp': timezone.now().isoformat(),
-                'username': username,
-                'retry': get_rq_retry(),
-            }
-            if 'request' in event:
-                # Exclude FILES - webhooks don't need uploaded files,
-                # which can cause pickle errors with Pillow.
-                params['request'] = copy_safe_request(event['request'], include_files=False)
-
-            # Enqueue the task
-            rq_queue.enqueue('extras.webhooks.send_webhook', **params)
-
-        # Scripts
-        elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
-            # Resolve the script from action parameters
-            script = event_rule.action_object.python_class()
-
-            # Enqueue a Job to record the script's execution
-            from extras.jobs import ScriptJob
-
-            params = {
-                'instance': event_rule.action_object,
-                'name': script.name,
-                'user': event['user'],
-                'data': event_data,
-                'notifications': script.notifications_default,
-                'job_timeout': script.job_timeout,
-            }
-            if 'snapshots' in event:
-                params['snapshots'] = event['snapshots']
-            if 'request' in event:
-                params['request'] = copy_safe_request(event['request'], include_files=False)
-
-            # Enqueue the job. If the script's Meta configuration is invalid (see #22872), log the error and skip this
-            # action rather than allowing the exception to abort the event pipeline (and, since events are processed
-            # in-request, the originating object change). Note this is intentionally asymmetric with the webhook
-            # branch above, which lets enqueue failures propagate: script Meta is validated eagerly at enqueue and a
-            # misconfigured script must not take down an unrelated object change.
-            try:
-                ScriptJob.enqueue(**params)
-            except ValidationError as e:
-                logger.error(
-                    "Skipping script action for event rule %s: invalid script configuration: %s",
-                    event_rule, '; '.join(e.messages)
+        action = event_rule.action_provider
+        if action is None:
+            # The plugin providing this action type may not be installed. Log and move on to the
+            # next rule rather than raising: one rule's unavailable action must not prevent any
+            # other rule in this batch from being processed.
+            logger.warning(
+                _('Skipping event rule "{rule}": action type "{action_type}" is not registered '
+                  '(the providing plugin may not be installed).').format(
+                    rule=event_rule, action_type=event_rule.action_type,
                 )
-
-        # Notification groups
-        elif event_rule.action_type == EventRuleActionChoices.NOTIFICATION:
-            # Bulk-create notifications for all members of the notification group
-            event_rule.action_object.notify(
-                object_type=object_type,
-                object_id=event_data['id'],
-                object_repr=event_data.get('display'),
-                event_type=event['event_type'],
             )
+            continue
 
-        else:
-            raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
-                action_type=event_rule.action_type
-            ))
+        try:
+            action.enqueue(
+                event_rule=event_rule,
+                event_context=event,
+                action_object=event_rule.action_object,
+                action_data=event_data,
+            )
+        except Exception:
+            # Isolate third-party bugs; a core action's own bugs should propagate instead.
+            if not action.is_plugin_provided:
+                raise
+            logger.exception(
+                _('Error processing event rule "{rule}" (action: {action_type})').format(
+                    rule=event_rule, action_type=event_rule.action_type,
+                )
+            )
 
 
 def process_event_queue(events):

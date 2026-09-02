@@ -7,7 +7,13 @@ from dcim.models import Interface
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from ipam.models import VLAN
 from netbox.graphql.optimization import build_gfk_prefetch
-from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import (
+    NetBoxObjectType,
+    ObjectType,
+    OrganizationalObjectType,
+    PrimaryObjectType,
+    register_type,
+)
 from virtualization.models import VMInterface
 from vpn import models
 
@@ -34,7 +40,7 @@ __all__ = (
 )
 
 
-@strawberry_django.type(
+@register_type(
     models.TunnelGroup,
     fields='__all__',
     filters=TunnelGroupFilter,
@@ -45,7 +51,7 @@ class TunnelGroupType(ContactsMixin, OrganizationalObjectType):
     tunnels: list[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.TunnelTermination,
     fields='__all__',
     filters=TunnelTerminationFilter,
@@ -57,7 +63,7 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     outside_ip: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
 
-@strawberry_django.type(
+@register_type(
     models.Tunnel,
     fields='__all__',
     filters=TunnelFilter,
@@ -71,7 +77,7 @@ class TunnelType(ContactsMixin, PrimaryObjectType):
     terminations: list[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.IKEProposal,
     fields='__all__',
     filters=IKEProposalFilter,
@@ -81,7 +87,7 @@ class IKEProposalType(PrimaryObjectType):
     ike_policies: list[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.IKEPolicy,
     fields='__all__',
     filters=IKEPolicyFilter,
@@ -92,7 +98,7 @@ class IKEPolicyType(PrimaryObjectType):
     ipsec_profiles: list[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.IPSecProposal,
     fields='__all__',
     filters=IPSecProposalFilter,
@@ -102,7 +108,7 @@ class IPSecProposalType(PrimaryObjectType):
     ipsec_policies: list[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.IPSecPolicy,
     fields='__all__',
     filters=IPSecPolicyFilter,
@@ -113,7 +119,7 @@ class IPSecPolicyType(PrimaryObjectType):
     ipsec_profiles: list[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.IPSecProfile,
     fields='__all__',
     filters=IPSecProfileFilter,
@@ -126,7 +132,7 @@ class IPSecProfileType(PrimaryObjectType):
     tunnels: list[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.L2VPN,
     fields='__all__',
     filters=L2VPNFilter,
@@ -140,7 +146,7 @@ class L2VPNType(ContactsMixin, PrimaryObjectType):
     import_targets: list[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.L2VPNTermination,
     exclude=['assigned_object_type', 'assigned_object_id'],
     filters=L2VPNTerminationFilter,

@@ -11,6 +11,7 @@ from core.graphql.schema import CoreQuery
 from dcim.graphql.schema import DCIMQuery
 from extras.graphql.schema import ExtrasQuery
 from ipam.graphql.schema import IPAMQuery
+from netbox.plugins import _load_plugin_graphql_schemas
 from netbox.registry import registry
 from tenancy.graphql.schema import TenancyQuery
 from users.graphql.schema import UsersQuery
@@ -21,6 +22,10 @@ from wireless.graphql.schema import WirelessQuery
 from .scalars import BigInt, BigIntScalar
 
 SchemaExtensionFactory = type[SchemaExtension] | Callable[[], SchemaExtension]
+
+
+# Must run before Query is defined, since its bases consume the registered plugin schemas.
+_load_plugin_graphql_schemas()
 
 
 @strawberry.type

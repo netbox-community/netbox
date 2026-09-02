@@ -44,15 +44,10 @@ class TokenImportForm(CSVModelForm):
         required=False,
         help_text=_("Specify version 1 or 2 (v2 will be used by default)")
     )
-    token = forms.CharField(
-        label=_('Token'),
-        required=False,
-        help_text=_("If no token is provided, one will be generated automatically.")
-    )
 
     class Meta:
         model = Token
-        fields = ('user', 'version', 'token', 'enabled', 'write_enabled', 'expires', 'description',)
+        fields = ('user', 'version', 'enabled', 'write_enabled', 'expires', 'description',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -12,6 +12,22 @@ BASE_PATH = 'netbox/'
 
 ---
 
+## BULK_UPDATE_CHUNK_SIZE
+
+Default: `5000`
+
+The maximum number of rows to affect in a single SQL `UPDATE` statement when NetBox performs a bulk update across many objects (for example, when recalculating cached counters or backfilling custom field data). On very large tables, an unbounded update spanning millions of rows can exceed the database's configured statement timeout; splitting the work into batches of at most this many rows bounds each statement while keeping the overall operation atomic.
+
+Must be a positive integer, or `None` to disable chunking and issue each bulk update as a single unbounded statement.
+
+This parameter also determines when a custom field operation is deferred to a background job: creating a field with a default value, or deleting a field, is performed within the request only where the field's assigned object types hold no more than this many objects in total (see [field status](../customization/custom-fields.md#field-status)). Setting it to `None` therefore defers every such operation which affects any object.
+
+```python
+BULK_UPDATE_CHUNK_SIZE = 5000
+```
+
+---
+
 ## DATABASE_ROUTERS
 
 Default: `[]` (empty list)
@@ -40,7 +56,7 @@ The filesystem path to NetBox's documentation. This is used when presenting cont
 
 In order to send email, NetBox needs an email server configured. The following items can be defined within the `EMAIL` configuration parameter:
 
-* `SERVER` - Hostname or IP address of the email server (use `localhost` if running locally)
+* `SERVER` - Hostname or IP address of the email server (required; use `localhost` if running locally)
 * `PORT` - TCP port to use for the connection (default: `25`)
 * `USERNAME` - Username with which to authenticate
 * `PASSWORD` - Password with which to authenticate
@@ -54,6 +70,9 @@ In order to send email, NetBox needs an email server configured. The following i
 !!! note
     The `USE_SSL` and `USE_TLS` parameters are mutually exclusive.
 
+!!! warning
+    `SERVER` must be defined in order to send email: A deployment which omits it raises an `InvalidMailer` exception when attempting to send. Note that this is raised at send time rather than at startup, so a misconfiguration here will not be apparent until NetBox first tries to send mail.
+
 Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
@@ -63,16 +82,13 @@ Email is sent from NetBox only for critical events or if configured for [logging
   'Test Email Subject',
   'Test Email Body',
   'noreply-netbox@example.com',
-  ['users@example.com'],
-  fail_silently=False
+  ['users@example.com']
 )
 ```
 
 ---
 
 ## HOSTNAME
-
-!!! info "This parameter was introduced in NetBox v4.4."
 
 Default: System hostname
 
@@ -81,8 +97,6 @@ The hostname displayed in the user interface identifying the system on which Net
 ---
 
 ## HTTP_CLIENT_IP_HEADERS
-
-!!! info "This parameter was introduced in NetBox v4.6.1."
 
 Default:
 
@@ -128,7 +142,7 @@ A list of IP addresses recognized as internal to the system, used to control the
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
 addresses (and [`DEBUG`](./development.md#debug) is `True`).
 
-!!! info "New in NetBox v4.6"
+!!! info "Enabling the toolbar for all clients"
     Setting this parameter to an empty list will enable the toolbar for all requests provided debugging is enabled:
 
     ```python
@@ -152,7 +166,7 @@ Set this configuration parameter to `True` for NetBox deployments which do not h
 
 Default: `[]`
 
-A list of system environment variable names which may be referenced from within Jinja2 templates via the built-in [`env`](#jinja2_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
+A list of system environment variable names which may be referenced from within Jinja templates via the built-in [`env`](#jinja_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
 
 ```python
 JINJA_ENVIRONMENT_PARAMS = [
@@ -166,32 +180,38 @@ JINJA_ENVIRONMENT_PARAMS = [
 
 ---
 
-## JINJA2_FILTERS
+## JINJA_FILTERS
+
+!!! info "Renamed in NetBox v4.7"
+    This parameter was formerly named `JINJA2_FILTERS`. The old name is still supported for backward compatibility but is deprecated and will be removed in NetBox v5.0.
 
 Default: `{}`
 
-A dictionary of custom Jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
+A dictionary of custom Jinja filters with the key being the filter name and the value being a callable. For more information see the [Jinja documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
 
 ```python
 def uppercase(x):
     return str(x).upper()
 
-JINJA2_FILTERS = {
+JINJA_FILTERS = {
     'uppercase': uppercase,
 }
 ```
 
-NetBox also registers the following filters by default. Any entry defined in `JINJA2_FILTERS` with the same name will override the default.
+NetBox also registers the following filters by default. Any entry defined in `JINJA_FILTERS` with the same name will override the default.
 
 | Filter | Description |
 |---|---|
 | `env` | Returns the value of the system environment variable with the given name, provided its name matches an entry in [`JINJA_ENVIRONMENT_PARAMS`](#jinja_environment_params). Returns `None` if the variable is not defined or its name is not whitelisted. |
 
-For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja2 template may reference an environment variable as:
+For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja template may reference an environment variable as:
 
 ```
 Authorization: Bearer {{ 'WEBHOOK_TOKEN_3' | env }}
 ```
+
+!!! tip "Plugin-provided filters"
+    Plugins can also register Jinja filters without requiring instance configuration. See [Jinja Config Templates](../plugins/development/config-templates.md) in the plugin development documentation. Instance-level `JINJA_FILTERS` always takes precedence over plugin-registered filters of the same name.
 
 ---
 
@@ -261,6 +281,9 @@ The file path to the location where [custom reports](../customization/reports.md
 ---
 
 ## SCRIPTS_ROOT
+
+!!! warning "Deprecation Warning"
+    The custom scripts functionality has been deprecated beginning in NetBox v4.7, and is scheduled for removal in NetBox v5.0. This parameter will be removed along with it.
 
 Default: `$INSTALL_ROOT/netbox/scripts/`
 

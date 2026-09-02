@@ -6,7 +6,8 @@ import django_tables2 as tables
 from django.conf import settings
 from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
-from django.db.models import DateField, DateTimeField, Q
+from django.db.models import Case, DateField, DateTimeField, IntegerField, Q, Value, When
+from django.db.models.fields.json import KeyTextTransform
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
@@ -20,7 +21,9 @@ from django_tables2.utils import Accessor
 from extras.choices import CustomFieldTypeChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
+from utilities.request import get_safe_request_context
 from utilities.templatetags.builtins.filters import render_markdown
+from utilities.validators import url_scheme_is_allowed
 from utilities.views import get_action_url
 
 __all__ = (
@@ -45,6 +48,7 @@ __all__ = (
     'TagColumn',
     'TemplateColumn',
     'ToggleColumn',
+    'TreeColumn',
     'UtilizationColumn',
 )
 
@@ -562,6 +566,57 @@ class CustomFieldColumn(tables.Column):
             self.unset_alias: Q(**{f'custom_field_data__{self.customfield.name}__empty': True})
         }
 
+    def order(self, queryset, is_descending):
+        """
+        Override get_ordering_annotation()'s default (SQL-standard, direction-coupled) null
+        placement to honor the custom field's nulls_first attribute instead: the empty group's
+        position is fixed by admin preference, independent of ascending/descending. Returning
+        (queryset, True) here signals django-tables2 to use this ordering as-is, bypassing the
+        generic annotation set up by get_ordering_annotation() (which still runs, but its result
+        goes unused for this column since only its alias name -- referenced by unset_alias --
+        needs to exist, not the SQL-standard placement it would otherwise apply).
+
+        A missing key or a JSON null value is extracted as SQL NULL via the ->> (text) operator,
+        whereas the -> (JSONB) operator used for value ordering treats JSON null as a sortable
+        value. We therefore annotate an explicit rank to control null placement independently of
+        JSONB sorting.
+
+        Ordering is expressed as plain string keys (not F()-based OrderBy expressions): NetBox's
+        BaseTable._apply_ordering_tie_breaker() inspects self.data.data.query.order_by afterward
+        and wraps each entry in django-tables2's own (string-only) OrderBy helper, which raises
+        TypeError on a raw expression object.
+
+        Trade-off: returning (queryset, True) here is django-tables2's signal that this column
+        has fully handled ordering itself, which takes priority over -- and discards -- any other
+        columns' sort keys requested in the same multi-column sort (see TableQuerysetData.order_by()
+        in django_tables2/data.py: the loop applies whichever column's order() last returns
+        modified=True and returns immediately, never combining it with sibling columns'
+        contributions). A CustomFieldColumn can therefore not currently be composed with other
+        columns in a single sort; it is always the sole and final sort key when included. Preserving
+        nulls_first (an existing, widely-integrated per-field admin setting) was judged to matter
+        more than gaining composability for this specific column, since django-tables2's per-key
+        ascending/descending toggle is applied uniformly across an entire order_by tuple and cannot
+        keep one key's effective placement constant while another flips -- so nulls_first and
+        multi-column composition cannot both be expressed through the generic annotation mechanism
+        for the same column.
+        """
+        name = self.customfield.name
+        text_value = f'_cf_{name}_text'
+        null_rank = f'_cf_{name}_nullrank'
+        null_sort, value_sort = (0, 1) if self.customfield.nulls_first else (1, 0)
+        queryset = queryset.annotate(**{
+            text_value: KeyTextTransform(name, 'custom_field_data'),
+        }).annotate(**{
+            null_rank: Case(
+                When(**{f'{text_value}__isnull': True}, then=Value(null_sort)),
+                default=Value(value_sort),
+                output_field=IntegerField(),
+            ),
+        })
+        value_field = f'custom_field_data__{name}'
+        ordering = (null_rank, f'-{value_field}' if is_descending else value_field)
+        return queryset.order_by(*ordering), True
+
     @staticmethod
     def _linkify_item(item):
         if hasattr(item, 'get_absolute_url'):
@@ -574,7 +629,12 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value is False:
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
-            return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            # Only render as a link if the scheme is permitted by ALLOWED_URL_SCHEMES, to guard against
+            # dangerous schemes (e.g. javascript:) in values which bypassed validation. A schemeless
+            # (relative) value is considered safe.
+            if url_scheme_is_allowed(value):
+                return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+            return escape(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
             if value is None:
                 return self.default
@@ -646,9 +706,9 @@ class CustomLinkColumn(tables.Column):
             'debug': settings.DEBUG,
         }
         if request := getattr(table, 'context', {}).get('request'):
-            # If the request is available, include it as context
+            # If the request is available, include a sanitized subset of it as context
             context.update({
-                'request': request,
+                'request': get_safe_request_context(request),
                 **auth(request),
             })
 
@@ -674,9 +734,9 @@ class CustomLinkColumn(tables.Column):
         return None
 
 
-class MPTTColumn(tables.TemplateColumn):
+class TreeColumn(tables.TemplateColumn):
     """
-    Display a nested hierarchy for MPTT-enabled models.
+    Display a nested hierarchy for tree-enabled models (Region, Location, etc.).
     """
     template_code = """
         {% load helpers %}
@@ -696,6 +756,11 @@ class MPTTColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+# Deprecated alias for plugin compatibility; use TreeColumn going forward.
+# TODO: Remove this in NetBox v5.0
+MPTTColumn = TreeColumn
 
 
 class UtilizationColumn(tables.TemplateColumn):

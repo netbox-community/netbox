@@ -17,7 +17,7 @@ Custom fields may be created by navigating to Customization > Custom Fields. Net
 * Boolean: True or false
 * Date: A date in ISO 8601 format (YYYY-MM-DD)
 * Date & time: A date and time in ISO 8601 format (YYYY-MM-DD HH:MM:SS)
-* URL: This will be presented as a link in the web UI
+* URL: This will be presented as a link in the web UI. Values are restricted to the schemes permitted by [`ALLOWED_URL_SCHEMES`](../configuration/security.md#allowed_url_schemes). A value entered without a scheme (e.g. `example.com`) is assumed to use `https` and stored as an absolute URL (e.g. `https://example.com`).
 * JSON: Arbitrary data stored in JSON format
 * Selection: A selection of one of several pre-defined custom choices
 * Multiple selection: A selection field which supports the assignment of multiple values
@@ -37,7 +37,34 @@ Unless the field has been assigned a default value, creating a custom field does
 
 This matters only if you query the underlying `custom_field_data` JSON directly, for example in a custom script. The field's key is absent from an object's data until a value is assigned to it, so read it with `obj.cf['field_name']` or `obj.custom_field_data.get('field_name')` rather than by direct subscript.
 
-Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. On a model with a very large number of objects, this can take some time. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
+Assigning a default value, by contrast, does write that value to every existing object at the time the field is created, so that objects can be filtered by it immediately. Note that a default added to a field which already exists is _not_ backfilled: objects with no value continue to report none until they are next saved.
+
+### Field Status
+
+!!! info "This behavior was introduced in NetBox v4.7.0."
+
+Creating a custom field with a default value, and deleting a custom field, both require rewriting the stored data of the objects the field applies to. Where the field is assigned to a large number of objects, this cannot be completed within the request, so it is handed to a background job instead and the field reports its status accordingly:
+
+| Status | Meaning |
+| ------ | ------- |
+| Active | The field is live and available for use. |
+| Provisioning | The field's default value is being written to existing objects. |
+| Deleting | The field's data is being removed from existing objects. |
+
+Whether a background job is required is determined by the total number of objects of the field's assigned object types, measured against the [`BULK_UPDATE_CHUNK_SIZE`](../configuration/system.md#bulk_update_chunk_size) configuration parameter — not by how many of those objects actually hold a value for the field. Deleting a field assigned to a large table is therefore deferred even where the field holds no data at all: NetBox cannot count the objects holding a value without scanning the entire table, which is the cost the threshold exists to avoid.
+
+A field is live only while active. During provisioning or deletion it does not appear on objects, in forms, in filters, or in either API, and its stored data is read and written by nothing but the job responsible for it; it becomes available (or disappears entirely) once the job completes. Objects created in the meantime are unaffected — a field being provisioned still supplies its default to new objects.
+
+A field which is not active cannot be modified while its job runs, as its configuration must not change under the job rewriting its data. This includes assigning it further object types, and unassigning those it already carries: such a change is rejected until the field is live again.
+
+A field pending deletion continues to occupy its name until its data has been removed, so that a new field cannot be created — and an existing field cannot be renamed — to a name whose old values are still present on objects.
+
+These operations require a running [background worker](../features/background-jobs.md) (`rqworker`). A field left mid-operation, for example because no worker was running or because its job failed, remains in its pending status until that job runs to completion.
+
+Such a field can always be deleted, whichever status it holds. Deleting one already pending deletion queues a fresh job to finish removing its data. A field left provisioning has no equivalent in-application retry: requeue its job from the background queues (**Admin > System > Background Tasks**, which requires a staff account), or delete the field and create it again.
+
+!!! note
+    Unassigning an object type from a custom field still removes the field's data from those objects immediately, and remains subject to the request timeout on very large tables. The same applies to renaming a custom field.
 
 ### Filtering
 
@@ -109,6 +136,28 @@ When retrieving an object via the REST API, all of its custom data will be inclu
     ...
 ```
 
+Selection and multiple selection fields are returned as objects exposing both the stored value and its human-friendly label, following the same convention used by NetBox's built-in choice fields:
+
+```json
+    "custom_fields": {
+        "site_type": {
+            "value": "datacenter",
+            "label": "Data Center"
+        },
+        "regions": [
+            {
+                "value": "us-east",
+                "label": "US East"
+            },
+            {
+                "value": "us-west",
+                "label": "US West"
+            }
+        ]
+    },
+    ...
+```
+
 To set or change these values, simply include nested JSON data. For example:
 
 ```json
@@ -120,3 +169,7 @@ To set or change these values, simply include nested JSON data. For example:
     }
 }
 ```
+
+As with built-in choice fields, selection custom fields are written by passing the raw value (e.g. `"site_type": "datacenter"`), not the `{value, label}` object returned on read.
+
+The GraphQL API's `custom_fields` field resolves selection and multiple selection values to the same `{value, label}` representation.

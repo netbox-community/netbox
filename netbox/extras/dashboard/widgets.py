@@ -17,6 +17,7 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
 from netbox.config import get_config
+from utilities.choices import Choice
 from utilities.html import clean_html
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
@@ -42,7 +43,7 @@ logger = logging.getLogger('netbox.data_backends')
 
 def get_object_type_choices():
     return [
-        (object_type_identifier(ot), object_type_name(ot))
+        Choice(object_type_identifier(ot), object_type_name(ot))
         for ot in ObjectType.objects.public().order_by('app_label', 'model')
     ]
 
@@ -70,7 +71,7 @@ def object_list_widget_supports_model(model: Model) -> bool:
 
 def get_bookmarks_object_type_choices():
     return [
-        (object_type_identifier(ot), object_type_name(ot))
+        Choice(object_type_identifier(ot), object_type_name(ot))
         for ot in ObjectType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 

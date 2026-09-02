@@ -1,10 +1,10 @@
 from django.core.cache import cache
-from django.db import models
+from django.db import models, router, transaction
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from utilities.querysets import RestrictedQuerySet
+from utilities.querysets import RestrictedQuerySet, chunked_update
 
 __all__ = (
     'ConfigRevision',
@@ -78,9 +78,15 @@ class ConfigRevision(models.Model):
         cache.set('config_version', self.pk, None)
 
         if update_db:
-            # Set all instances of ConfigRevision to false and set this instance to true
-            ConfigRevision.objects.all().update(active=False)
-            ConfigRevision.objects.filter(pk=self.pk).update(active=True)
+            # Set all instances of ConfigRevision to false and set this instance to true. Wrap both
+            # statements in a transaction so the "exactly one active revision" invariant is preserved
+            # even when the deactivation is chunked into multiple statements. Resolve the write alias
+            # once and pin the transaction and both querysets to it, so the transaction genuinely
+            # covers the (potentially router-directed) writes performed by chunked_update().
+            using = router.db_for_write(ConfigRevision)
+            with transaction.atomic(using=using):
+                chunked_update(ConfigRevision.objects.using(using).all(), active=False)
+                ConfigRevision.objects.using(using).filter(pk=self.pk).update(active=True)
 
     activate.alters_data = True
 

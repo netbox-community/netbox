@@ -12,20 +12,24 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.models import *
+from netbox.event_rules import get_event_rule_action, get_event_rule_action_choices
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.forms import get_field_value
+from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
+    ChoiceField,
     CommentField,
     ContentTypeChoiceField,
     ContentTypeMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
+    MultipleChoiceField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
@@ -54,6 +58,33 @@ __all__ = (
 
 
 class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=CustomFieldTypeChoices,
+        initial=CustomFieldTypeChoices.TYPE_TEXT,
+        help_text=_(
+            'The type of data stored in this field. For object/multi-object fields, select the related object '
+            'type below.'
+        ),
+    )
+    filter_logic = ChoiceField(
+        label=_('Filter logic'),
+        choices=CustomFieldFilterLogicChoices,
+        initial=CustomFieldFilterLogicChoices.FILTER_LOOSE,
+        help_text=_('Loose matches any instance of a given string; exact matches the entire field.'),
+    )
+    ui_visible = ChoiceField(
+        label=_('UI visible'),
+        choices=CustomFieldUIVisibleChoices,
+        initial=CustomFieldUIVisibleChoices.ALWAYS,
+        help_text=_('Specifies whether the custom field is displayed in the UI'),
+    )
+    ui_editable = ChoiceField(
+        label=_('UI editable'),
+        choices=CustomFieldUIEditableChoices,
+        initial=CustomFieldUIEditableChoices.YES,
+        help_text=_('Specifies whether the custom field value can be edited in the UI'),
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -89,7 +120,8 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
             name=_('Custom Field')
         ),
         FieldSet(
-            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
+            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', 'nulls_first',
+            name=_('Behavior')
         ),
     )
 
@@ -97,17 +129,14 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         model = CustomField
         fields = '__all__'
         help_texts = {
-            'type': _(
-                "The type of data stored in this field. For object/multi-object fields, select the related object "
-                "type below."
-            ),
             'description': _("This will be displayed as help text for the form field. Markdown is supported.")
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Mimic HTMXSelect()
+        # Mimic HTMXSelect() — no hx_target_id because changing type adds/removes
+        # Validation, Related Object, and Choices fieldsets dynamically.
         self.fields['type'].widget.attrs.update({
             'hx-get': '.',
             'hx-include': '#form_fields',
@@ -188,6 +217,12 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
 
 
 class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    base_choices = TypedChoiceField(
+        label=_('Base choices'),
+        choices=add_blank_choice(CustomFieldChoiceSetBaseChoices),
+        required=False,
+        help_text=_('Base set of predefined choices (optional)'),
+    )
     # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
@@ -302,6 +337,12 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
 
 
 class CustomLinkForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
+    button_class = ChoiceField(
+        label=_('Button class'),
+        choices=CustomLinkButtonClassChoices,
+        initial=CustomLinkButtonClassChoices.DEFAULT,
+        help_text=_('The class of the first link in a group will be used for the dropdown button'),
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
@@ -530,12 +571,17 @@ class SubscriptionForm(forms.ModelForm):
 
 
 class WebhookForm(OwnerMixin, NetBoxModelForm):
+    http_method = ChoiceField(
+        label=_('HTTP method'),
+        choices=WebhookHttpMethodChoices,
+        initial=WebhookHttpMethodChoices.METHOD_POST,
+    )
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Webhook')),
         FieldSet(
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            name=_('HTTP Request')
+            'timeout', name=_('HTTP Request')
         ),
         FieldSet('ssl_verification', 'ca_file_path', name=_('SSL')),
     )
@@ -550,15 +596,21 @@ class WebhookForm(OwnerMixin, NetBoxModelForm):
 
 
 class EventRuleForm(OwnerMixin, NetBoxModelForm):
+    action_type = ChoiceField(
+        label=_('Action type'),
+        choices=get_event_rule_action_choices,
+        initial=EventRuleActionChoices.WEBHOOK,
+        widget=HTMXSelect(hx_target_id='event-rule-action'),
+    )
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
-    event_types = forms.MultipleChoiceField(
+    event_types = MultipleChoiceField(
         choices=get_event_type_choices(),
         label=_('Event types')
     )
-    action_choice = forms.ChoiceField(
+    action_choice = ChoiceField(
         label=_('Action choice'),
         choices=[]
     )
@@ -575,7 +627,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('event_types', 'conditions', name=_('Triggers')),
-        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), html_id='event-rule-action'),
     )
 
     class Meta:
@@ -585,46 +637,31 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
             'action_object_type', 'action_object_id', 'action_data', 'owner', 'comments', 'tags'
         )
         widgets = {
-            'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'action_type': HTMXSelect(),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
         }
 
-    def init_script_choice(self):
-        initial = None
-        if self.instance.action_type == EventRuleActionChoices.SCRIPT:
-            script_id = get_field_value(self, 'action_object_id')
-            initial = Script.objects.get(pk=script_id) if script_id else None
-        self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Script'),
-            queryset=Script.objects.all(),
-            required=True,
-            initial=initial
-        )
+    def init_action_choice(self):
+        action_type = get_field_value(self, 'action_type')
+        action = get_event_rule_action(action_type)
 
-    def init_webhook_choice(self):
-        initial = None
-        if self.instance.action_type == EventRuleActionChoices.WEBHOOK:
-            webhook_id = get_field_value(self, 'action_object_id')
-            initial = Webhook.objects.get(pk=webhook_id) if webhook_id else None
-        self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Webhook'),
-            queryset=Webhook.objects.all(),
-            required=True,
-            initial=initial
-        )
+        if action is None or action.object_model is None:
+            # Either an unregistered action_type (e.g. the providing plugin is not installed), or
+            # an action that doesn't operate on a target object at all -- no object picker needed.
+            self.fields.pop('action_choice', None)
+            return
 
-    def init_notificationgroup_choice(self):
         initial = None
-        if self.instance.action_type == EventRuleActionChoices.NOTIFICATION:
-            notificationgroup_id = get_field_value(self, 'action_object_id')
-            initial = NotificationGroup.objects.get(pk=notificationgroup_id) if notificationgroup_id else None
+        if self.instance.action_type == action_type:
+            object_id = get_field_value(self, 'action_object_id')
+            if object_id:
+                initial = action.get_object_queryset().filter(pk=object_id).first()
+
         self.fields['action_choice'] = DynamicModelChoiceField(
-            label=_('Notification group'),
-            queryset=NotificationGroup.objects.all(),
-            required=True,
-            initial=initial
+            label=action.get_object_label(),
+            queryset=action.get_object_queryset(),
+            required=action.object_required,
+            initial=initial,
         )
 
     def __init__(self, *args, **kwargs):
@@ -632,35 +669,24 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         self.fields['action_object_type'].required = False
         self.fields['action_object_id'].required = False
 
-        # Determine the action type
-        action_type = get_field_value(self, 'action_type')
-
-        if action_type == EventRuleActionChoices.WEBHOOK:
-            self.init_webhook_choice()
-        elif action_type == EventRuleActionChoices.SCRIPT:
-            self.init_script_choice()
-        elif action_type == EventRuleActionChoices.NOTIFICATION:
-            self.init_notificationgroup_choice()
+        self.init_action_choice()
 
     def clean(self):
         super().clean()
 
+        action = get_event_rule_action(self.cleaned_data.get('action_type'))
         action_choice = self.cleaned_data.get('action_choice')
-        # Webhook
-        if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
-            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
-            self.cleaned_data['action_object_id'] = action_choice.id
-        # Script
-        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+
+        if action and action.object_model and action_choice:
             self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(
-                Script,
-                for_concrete_model=False
+                action_choice, for_concrete_model=False
             )
-            self.cleaned_data['action_object_id'] = action_choice.id
-        # Notification
-        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.NOTIFICATION:
-            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
-            self.cleaned_data['action_object_id'] = action_choice.id
+            self.cleaned_data['action_object_id'] = action_choice.pk
+        elif action:
+            # A no-object action, or an optional object left unselected: store no action_object
+            self.cleaned_data['action_object_type'] = None
+            self.cleaned_data['action_object_id'] = None
+        # An unregistered action_type leaves the stored action_object untouched
 
         return self.cleaned_data
 
@@ -892,7 +918,7 @@ class ImageAttachmentForm(forms.ModelForm):
 
 
 class JournalEntryForm(NetBoxModelForm):
-    kind = forms.ChoiceField(
+    kind = ChoiceField(
         label=_('Kind'),
         choices=JournalEntryKindChoices
     )

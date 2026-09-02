@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from ipam.models import VRF, Prefix
 from ipam.utils import rebuild_prefixes
+from utilities.querysets import chunked_update
 
 
 class Command(BaseCommand):
@@ -11,7 +12,7 @@ class Command(BaseCommand):
         self.stdout.write(f'Rebuilding {Prefix.objects.count()} prefixes...')
 
         # Reset existing counts
-        Prefix.objects.update(_depth=0, _children=0)
+        chunked_update(Prefix.objects.all(), _depth=0, _children=0)
 
         # Rebuild the global table
         global_count = Prefix.objects.filter(vrf__isnull=True).count()

@@ -221,6 +221,13 @@ class Token(models.Model):
             raise ValidationError(_("Unable to save v2 tokens: API_TOKEN_PEPPERS is not defined."))
 
         if self._state.adding:
+            # Ensure a randomly-generated plaintext is always assigned to new tokens. A client-supplied value is
+            # never accepted via the REST API (the serializer's `token` field is read-only); generating it here
+            # guarantees the version-dependent key/digest fields are populated before constraint validation
+            # (full_clean) runs.
+            if self.token is None:
+                self.token = self.generate()
+
             if self.pepper_id is not None and self.pepper_id not in settings.API_TOKEN_PEPPERS:
                 raise ValidationError(_(
                     "Invalid pepper ID: {id}. Check configured API_TOKEN_PEPPERS."
