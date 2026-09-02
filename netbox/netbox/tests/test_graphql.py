@@ -11,7 +11,6 @@ from django.db import connection
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
-from django.utils import timezone
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
@@ -39,7 +38,7 @@ from netbox.graphql.schema import Query, get_schema_extensions, schema
 from netbox.graphql.utils import register_model_graphql_type, splice_extension_bases, validate_extension_final_names
 from netbox.registry import registry
 from netbox.tests.dummy_plugin.models import DummySiteAttachment
-from users.models import ObjectPermission, Token, User
+from users.models import ObjectPermission, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases, TestCase, disable_warnings
 
@@ -1241,14 +1240,13 @@ class GraphQLDeferredColumnTestCase(APITestCase):
         """
         Execute `query_template` (which must accept a `limit` interpolation) for a single object and for
         OBJECT_COUNT objects, asserting that no row of `table` is re-fetched by primary key and that the
-        total query count is identical for both. `validate` is called with the returned objects.
-        """
-        # Token authentication updates Token.last_used at most once per minute, so the first API request
-        # made by a test issues an additional UPDATE (see netbox/api/authentication.py). Stamp the token
-        # up front to keep that one-off write out of the counts compared below.
-        Token.objects.filter(pk=self.token.pk).update(last_used=timezone.now())
+        table is read exactly once per request regardless of the number of objects returned. `validate`
+        is called with the returned objects.
 
-        query_counts = []
+        Assert on the number of reads of `table` rather than on the total query count: the capture window
+        also holds request processing queries which may be repeated when a cache key shared by the other
+        parallel test workers is evicted mid-test, which would otherwise fail the test spuriously.
+        """
         for limit in (1, self.OBJECT_COUNT):
             data, queries = self._execute(query_template % {'limit': limit})
             objects = data[list_field]
@@ -1259,16 +1257,12 @@ class GraphQLDeferredColumnTestCase(APITestCase):
             self.assertEqual(
                 reloads, [], msg=f'{len(reloads)} deferred-column reload(s) for {limit} object(s): {reloads[:1]}'
             )
-            query_counts.append(len(queries))
 
-        self.assertEqual(
-            query_counts[0],
-            query_counts[1],
-            msg=(
-                f'Query count grew from {query_counts[0]} to {query_counts[1]} when the number of objects '
-                f'returned grew from 1 to {self.OBJECT_COUNT}'
+            reads = [q['sql'] for q in queries if f'FROM "{table}"' in q['sql']]
+            self.assertEqual(
+                len(reads), 1,
+                msg=f'{table} must be read once for {limit} object(s), got {len(reads)} read(s): {reads}'
             )
-        )
 
     def test_custom_fields(self):
         """

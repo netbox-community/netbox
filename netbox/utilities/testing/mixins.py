@@ -24,7 +24,10 @@ class RQQueueTestMixin(SerializeMixin):
     @classmethod
     def clear_rq_queues(cls):
         for queue_name in cls.rq_queue_names:
-            get_queue(queue_name).connection.flushall()
+            # Flush only the queue's own database. FLUSHALL would empty every database on the Redis
+            # server, including the caching database, whose keys (e.g. the cached config revision)
+            # are shared by the other parallel test workers.
+            get_queue(queue_name).connection.flushdb()
 
     def run_rq_jobs(self, *queue_names, burst=True):
         """
