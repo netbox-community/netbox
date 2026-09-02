@@ -1,9 +1,6 @@
 # NetBox v4.7
 
-## v4.7.0-beta2 (2026-08-26)
-
-!!! danger "Not for Production Use"
-    This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+## v4.7.0 (2026-09-02)
 
 !!! warning "PostgreSQL 15 or Later Required"
     This release of NetBox drops support for PostgreSQL 14.
@@ -17,7 +14,7 @@
 !!! warning "Extended Upgrade Duration"
     Two steps in this upgrade scale with the size of the database, and may take considerably longer than a typical NetBox upgrade.
 
-    The migration which replaces django-mptt with `ltree` adds and alters columns on each hierarchical table before backfilling it in a single statement. The schema changes hold an `ACCESS EXCLUSIVE` lock, which blocks reads as well as writes for their duration; the backfill which follows locks every row it updates, blocking concurrent writes to those rows until it commits. On a large deployment this can last several minutes. The table most likely to be affected is `dcim_inventoryitem`, which can hold millions of rows; the others (region, sitegroup, location, devicerole, platform, modulebay, inventoryitemtemplate, tenantgroup, contactgroup, and wirelesslangroup) are typically far smaller.
+    The migration which replaces `django-mptt` with `ltree` adds and alters columns on each hierarchical table before backfilling it in a single statement. The schema changes hold an `ACCESS EXCLUSIVE` lock, which blocks reads as well as writes for their duration; the backfill which follows locks every row it updates, blocking concurrent writes to those rows until it commits. On a large deployment this can last several minutes.
 
     The upgrade script then runs the `rebuild_config_context_cache` management command, which issues one `UPDATE` per device and virtual machine.
 

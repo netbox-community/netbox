@@ -14,7 +14,7 @@ readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: Django",
     "Natural Language :: English",
     "Programming Language :: Python",

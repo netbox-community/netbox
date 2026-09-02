@@ -10,6 +10,18 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 4.7](./version-4.7.md) (September 2026)
+
+* Cooling Infrastructure Modeling ([#22447](https://github.com/netbox-community/netbox/issues/22447))
+* Channelized Subinterfaces ([#20972](https://github.com/netbox-community/netbox/issues/20972))
+* Multi-Protocol Application Services ([#20285](https://github.com/netbox-community/netbox/issues/20285))
+* Module Bay Types ([#19731](https://github.com/netbox-community/netbox/issues/19731))
+* Relocating Installed Modules ([#15289](https://github.com/netbox-community/netbox/issues/15289))
+* Background Processing for REST API Requests ([#21992](https://github.com/netbox-community/netbox/issues/21992))
+* Per-Object Errors for Bulk Operations ([#20054](https://github.com/netbox-community/netbox/issues/20054))
+* Pre-Rendered Config Context Data ([#21025](https://github.com/netbox-community/netbox/issues/21025))
+* Snapshot-Aware Event Rule Conditions ([#18159](https://github.com/netbox-community/netbox/issues/18159))
+
 #### [Version 4.6](./version-4.6.md) (May 2026)
 
 * Virtual Machine Types ([#5795](https://github.com/netbox-community/netbox/issues/5795))
