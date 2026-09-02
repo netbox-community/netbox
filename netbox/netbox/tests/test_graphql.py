@@ -1170,8 +1170,8 @@ class GraphQLDeferredColumnTestCase(APITestCase):
     reads must therefore be declared via an `only` hint; otherwise the column is deferred and reading it
     reloads the row from the database once per object returned (see #22813).
 
-    Each test below asserts both that no single-row reload occurs and that the total query count does not
-    grow with the number of objects returned.
+    Each test below asserts both that no single-row reload occurs and that the model's table is read
+    exactly once per request, regardless of the number of objects returned.
     """
     OBJECT_COUNT = 10
 
