@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-01 05:01+0000\n"
+"POT-Creation-Date: 2026-09-02 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1264,7 +1264,7 @@ msgstr ""
 msgid "Group Assignment"
 msgstr ""
 
-#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:117
+#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:118
 #: netbox/dcim/models/device_component_templates.py:364
 #: netbox/dcim/models/device_component_templates.py:611
 #: netbox/dcim/models/device_component_templates.py:684
@@ -1297,7 +1297,7 @@ msgstr ""
 
 #: netbox/circuits/models/circuits.py:74
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
-#: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:93
+#: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:94
 #: netbox/dcim/models/device_components.py:635
 #: netbox/dcim/models/device_components.py:1581
 #: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1265
@@ -1431,7 +1431,7 @@ msgstr ""
 #: netbox/circuits/models/providers.py:21
 #: netbox/circuits/models/providers.py:63
 #: netbox/circuits/models/providers.py:98 netbox/core/models/data.py:40
-#: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:55
+#: netbox/core/models/jobs.py:56 netbox/dcim/models/cables.py:56
 #: netbox/dcim/models/device_component_templates.py:56
 #: netbox/dcim/models/device_components.py:57 netbox/dcim/models/devices.py:543
 #: netbox/dcim/models/devices.py:1185 netbox/dcim/models/devices.py:1260
@@ -2067,7 +2067,7 @@ msgid "Sync interval"
 msgstr ""
 
 #: netbox/core/forms/bulk_edit.py:33 netbox/extras/forms/model_forms.py:388
-#: netbox/extras/views.py:398 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:399 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:299
 #: netbox/vpn/forms/model_forms.py:320 netbox/vpn/forms/model_forms.py:336
@@ -2366,7 +2366,7 @@ msgstr ""
 msgid "Config revision #{id}"
 msgstr ""
 
-#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:86
+#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:87
 #: netbox/dcim/models/device_component_templates.py:221
 #: netbox/dcim/models/device_component_templates.py:256
 #: netbox/dcim/models/device_component_templates.py:292
@@ -2460,7 +2460,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:745
+#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:765
 msgid "path"
 msgstr ""
 
@@ -5976,143 +5976,143 @@ msgstr ""
 msgid "A position must be specified for the first VC member."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:62
+#: netbox/dcim/models/cables.py:63
 msgid "cable bundle"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:63
+#: netbox/dcim/models/cables.py:64
 msgid "cable bundles"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:99
+#: netbox/dcim/models/cables.py:100
 msgid "profile"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:112
+#: netbox/dcim/models/cables.py:113
 #: netbox/dcim/models/device_component_templates.py:64
 #: netbox/dcim/models/device_components.py:62
 #: netbox/extras/models/customfields.py:140
 msgid "label"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:121
+#: netbox/dcim/models/cables.py:122
 msgid "length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:128
+#: netbox/dcim/models/cables.py:129
 msgid "length unit"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:147
+#: netbox/dcim/models/cables.py:148
 msgid "bundle"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:154
+#: netbox/dcim/models/cables.py:155
 msgid "cable"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:155
+#: netbox/dcim/models/cables.py:156
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:281
+#: netbox/dcim/models/cables.py:282
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:284
+#: netbox/dcim/models/cables.py:285
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:295
+#: netbox/dcim/models/cables.py:296
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:303
+#: netbox/dcim/models/cables.py:304
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:313
+#: netbox/dcim/models/cables.py:314
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:530 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:550 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:601
+#: netbox/dcim/models/cables.py:621
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:602
+#: netbox/dcim/models/cables.py:622
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:615
+#: netbox/dcim/models/cables.py:635
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:632
+#: netbox/dcim/models/cables.py:652
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:642
+#: netbox/dcim/models/cables.py:662
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:649
+#: netbox/dcim/models/cables.py:669
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:681
+#: netbox/dcim/models/cables.py:701
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:749 netbox/extras/models/configs.py:103
+#: netbox/dcim/models/cables.py:769 netbox/extras/models/configs.py:103
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:753
+#: netbox/dcim/models/cables.py:773
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:757
+#: netbox/dcim/models/cables.py:777
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:770
+#: netbox/dcim/models/cables.py:790
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:771
+#: netbox/dcim/models/cables.py:791
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:862
+#: netbox/dcim/models/cables.py:882
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:880
+#: netbox/dcim/models/cables.py:900
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:888
+#: netbox/dcim/models/cables.py:908
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:918
+#: netbox/dcim/models/cables.py:938
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:920
+#: netbox/dcim/models/cables.py:940
 msgid "All links must match first link type"
 msgstr ""
 
@@ -8271,7 +8271,7 @@ msgstr ""
 msgid "Unknown related object(s): {name}"
 msgstr ""
 
-#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:256
+#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:257
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw "
 "rendered content is returned in place of the JSON object."
@@ -8281,11 +8281,11 @@ msgstr ""
 msgid "No config template could be resolved for this object."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:262
+#: netbox/extras/api/mixins.py:104 netbox/extras/api/views.py:263
 msgid "An error occurred while rendering the config template."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1315
+#: netbox/extras/api/mixins.py:127 netbox/extras/views.py:1316
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr ""
@@ -8345,19 +8345,19 @@ msgstr ""
 msgid "Scheduled time must be in the future."
 msgstr ""
 
-#: netbox/extras/api/views.py:370
+#: netbox/extras/api/views.py:371
 msgid "The script has been enqueued for execution."
 msgstr ""
 
-#: netbox/extras/api/views.py:383
+#: netbox/extras/api/views.py:384
 msgid "This token does not permit write operations (running a script)."
 msgstr ""
 
-#: netbox/extras/api/views.py:388
+#: netbox/extras/api/views.py:389
 msgid "This user does not have permission to run this script."
 msgstr ""
 
-#: netbox/extras/api/views.py:398
+#: netbox/extras/api/views.py:399
 msgid "This script is not currently executable."
 msgstr ""
 
@@ -8670,22 +8670,22 @@ msgstr ""
 msgid "Show your personal bookmarks"
 msgstr ""
 
-#: netbox/extras/events.py:130
+#: netbox/extras/events.py:131
 #, python-brace-format
 msgid "Cannot enqueue an event for an unsaved {app_label}.{model} instance."
 msgstr ""
 
-#: netbox/extras/events.py:200
+#: netbox/extras/events.py:201
 #, python-brace-format
 msgid "Ignoring invalid action_data on event rule \"{rule}\" (got {data_type})"
 msgstr ""
 
-#: netbox/extras/events.py:278
+#: netbox/extras/events.py:289
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:321
+#: netbox/extras/events.py:332
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -8860,7 +8860,7 @@ msgstr ""
 msgid "Event types"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:304 netbox/extras/views.py:846
+#: netbox/extras/forms/bulk_edit.py:304 netbox/extras/views.py:847
 msgid "Conditions"
 msgstr ""
 
@@ -9374,19 +9374,19 @@ msgstr ""
 msgid "When to notify the user of job completion"
 msgstr ""
 
-#: netbox/extras/jobs.py:64
+#: netbox/extras/jobs.py:89
 msgid "Database changes have been reverted automatically."
 msgstr ""
 
-#: netbox/extras/jobs.py:70
+#: netbox/extras/jobs.py:95
 msgid "Script aborted with error: "
 msgstr ""
 
-#: netbox/extras/jobs.py:81
+#: netbox/extras/jobs.py:106
 msgid "An exception occurred: "
 msgstr ""
 
-#: netbox/extras/jobs.py:87
+#: netbox/extras/jobs.py:112
 msgid "Database changes have been reverted due to error."
 msgstr ""
 
@@ -10272,11 +10272,28 @@ msgstr ""
 msgid "tagged items"
 msgstr ""
 
-#: netbox/extras/scripts.py:505
+#: netbox/extras/scripts.py:437
+#, python-brace-format
+msgid ""
+"Invalid job_timeout value '{value}': must be an integer (seconds) or a "
+"duration string such as '1h' or '30m'."
+msgstr ""
+
+#: netbox/extras/scripts.py:442
+#, python-brace-format
+msgid "Invalid job_timeout value '{value}': must be a positive duration."
+msgstr ""
+
+#: netbox/extras/scripts.py:451
+#, python-brace-format
+msgid "Invalid notifications value '{value}': must be one of {valid}."
+msgstr ""
+
+#: netbox/extras/scripts.py:556
 msgid "Script Data"
 msgstr ""
 
-#: netbox/extras/scripts.py:512
+#: netbox/extras/scripts.py:563
 msgid "Script Execution Parameters"
 msgstr ""
 
@@ -10486,8 +10503,8 @@ msgstr ""
 msgid "Attachment"
 msgstr ""
 
-#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:251
-#: netbox/extras/views.py:323
+#: netbox/extras/ui/panels.py:261 netbox/extras/views.py:252
+#: netbox/extras/views.py:324
 msgid "Assigned Models"
 msgstr ""
 
@@ -10560,64 +10577,69 @@ msgstr ""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr ""
 
-#: netbox/extras/views.py:254
+#: netbox/extras/views.py:255
 msgid "Link Text"
 msgstr ""
 
-#: netbox/extras/views.py:255
+#: netbox/extras/views.py:256
 msgid "Link URL"
 msgstr ""
 
-#: netbox/extras/views.py:324 netbox/extras/views.py:1218
+#: netbox/extras/views.py:325 netbox/extras/views.py:1219
 msgid "Environment Parameters"
 msgstr ""
 
-#: netbox/extras/views.py:327 netbox/extras/views.py:1221
+#: netbox/extras/views.py:328 netbox/extras/views.py:1222
 msgid "Template"
 msgstr ""
 
-#: netbox/extras/views.py:491
+#: netbox/extras/views.py:492
 msgid "Table configurations must be created from an object list view."
 msgstr ""
 
-#: netbox/extras/views.py:776
+#: netbox/extras/views.py:777
 msgid "Additional Headers"
 msgstr ""
 
-#: netbox/extras/views.py:777
+#: netbox/extras/views.py:778
 msgid "Body Template"
 msgstr ""
 
-#: netbox/extras/views.py:920
+#: netbox/extras/views.py:921
 msgid "Tagged Objects"
 msgstr ""
 
-#: netbox/extras/views.py:1013
+#: netbox/extras/views.py:1014
 msgid "JSON Schema"
 msgstr ""
 
-#: netbox/extras/views.py:1510
+#: netbox/extras/views.py:1511
 msgid "Your dashboard has been reset."
 msgstr ""
 
-#: netbox/extras/views.py:1556
+#: netbox/extras/views.py:1557
 msgid "Added widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1597
+#: netbox/extras/views.py:1598
 msgid "Updated widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1633
+#: netbox/extras/views.py:1634
 msgid "Deleted widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1635
+#: netbox/extras/views.py:1636
 msgid "Error deleting widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1751
+#: netbox/extras/views.py:1752
 msgid "Unable to run script: RQ worker process not running."
+msgstr ""
+
+#: netbox/extras/views.py:1771
+#, python-brace-format
+msgid "Unable to run script: {error}"
 msgstr ""
 
 #: netbox/ipam/api/field_serializers.py:16
@@ -12582,6 +12604,11 @@ msgstr ""
 
 #: netbox/netbox/forms/search.py:38
 msgid "Lookup"
+msgstr ""
+
+#: netbox/netbox/jobs.py:181
+#, python-brace-format
+msgid "Recurring job not rescheduled due to invalid configuration: {error}"
 msgstr ""
 
 #: netbox/netbox/middleware.py:301
