@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.7.0-beta2",
+        "version": "4.7.0",
         "license": {
             "name": "Apache v2 License"
         }
