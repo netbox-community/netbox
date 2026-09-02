@@ -49,7 +49,7 @@ def populate_port_mappings(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("ipam", "0094_denormalization_triggers"),
+        ("ipam", "0095_denormalization_triggers"),
     ]
 
     operations = [
