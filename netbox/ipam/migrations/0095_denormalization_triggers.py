@@ -10,7 +10,7 @@ from utilities.migration import InstallDenormalizationTrigger
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0093_alter_prefix__region_alter_prefix__site_group'),
+        ('ipam', '0094_ipaddress_host_index'),
         # Source tables (dcim_site, dcim_location) must already exist.
         ('dcim', '0242_ltree_paths'),
     ]

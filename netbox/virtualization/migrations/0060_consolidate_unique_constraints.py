@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0245_consolidate_unique_constraints'),
         ('extras', '0139_alter_customfieldchoiceset_extra_choices'),
-        ('ipam', '0094_denormalization_triggers'),
+        ('ipam', '0095_denormalization_triggers'),
         ('tenancy', '0026_consolidate_unique_constraints'),
         ('users', '0016_default_ordering_indexes'),
         ('virtualization', '0059_virtualmachine__config_context_data'),
