@@ -2910,7 +2910,7 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         self.assertEqual(len(path_pks), 2)
         self.assertEqual(len(termination_pks), 2)
 
-        # Reassign the same terminations, as the edit form does on every submission
+        # Reassign the same terminations on a freshly loaded instance
         cable1 = Cable.objects.get(pk=cable1.pk)
         cable1.a_terminations = [interface1]
         cable1.b_terminations = [interface2]

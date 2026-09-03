@@ -2790,7 +2790,7 @@ class CablePathTestCase(BaseCablePathTestCase):
         """
         [IF1] --C1-- [IF2]
 
-        Applying a profile after the edit form re-assigned the unchanged terminations rebuilds the paths.
+        Applying a profile after both termination caches have been populated must still rebuild the paths.
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -2806,7 +2806,7 @@ class CablePathTestCase(BaseCablePathTestCase):
         cable1.save()
         self.assertEqual(CablePath.objects.count(), 2)
 
-        # Reload, then re-assign the stored terminations as the edit form does on every submission
+        # Reload and populate both termination caches by reassigning their stored values
         cable1 = Cable.objects.get(pk=cable1.pk)
         cable1.a_terminations = [interfaces[0]]
         cable1.b_terminations = [interfaces[1]]

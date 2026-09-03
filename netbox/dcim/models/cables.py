@@ -229,6 +229,16 @@ class Cable(PrimaryModel):
             ct.termination for ct in self.terminations.all() if ct.cable_end == side
         ]
 
+    def _cache_stored_terminations(self):
+        """
+        Fill each cold termination cache from the CableTermination rows, in their stored order.
+        """
+        a_terminations, b_terminations = self.get_terminations()
+        if not hasattr(self, '_a_terminations'):
+            self._a_terminations = list(a_terminations.keys())
+        if not hasattr(self, '_b_terminations'):
+            self._b_terminations = list(b_terminations.keys())
+
     def _set_x_terminations(self, side, value):
         """
         Set the terminating objects for the given cable end (A or B).
@@ -244,8 +254,11 @@ class Cable(PrimaryModel):
                 ct.termination for ct in CableTermination.objects.filter(pk__in=value).prefetch_related('termination')
             ]
 
-        # Compare against the cached terminations, falling back to the stored rows on a freshly loaded cable
-        if not self.pk or self._get_x_terminations(side) != list(value):
+        # Compare a saved cable against its stored rows, not against a possibly stale prefetch of self.terminations
+        if self.pk and not hasattr(self, _attr):
+            self._cache_stored_terminations()
+
+        if not self.pk or getattr(self, _attr) != list(value):
             self._terminations_modified = True
 
         setattr(self, _attr, value)
