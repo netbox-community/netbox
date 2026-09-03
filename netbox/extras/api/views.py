@@ -415,22 +415,25 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
                 {'data': _('Invalid data payload; expected an object mapping variable names to values.')}
             )
 
+        # Guaranteed non-None by the is_executable check above
         script_class = script.python_class
-        if not script_class:
-            raise ValidationError({'script': _('Unable to load the script class.')})
         script_instance = script_class()
 
         form = prepare_script_form(script_instance, payload, files=request.FILES)
         if not form.is_valid():
             # Exec params (_commit etc.) are validated separately via ScriptInputSerializer;
             # exclude them explicitly rather than via a '_' prefix, which would also strip
-            # Django's NON_FIELD_ERRORS key ('__all__') and any script var legitimately
-            # named with a leading underscore.
+            # Django's NON_FIELD_ERRORS key ('__all__'). This does not disambiguate a script
+            # variable whose name collides with one of EXEC_PARAM_FIELDS: such a variable
+            # shadows the exec field on the dynamic form subclass, so its errors are filtered
+            # here and its value popped below, along with the exec param it shadows.
             errors = {k: v for k, v in form.errors.items() if k not in EXEC_PARAM_FIELDS}
             if not errors:
-                # Only a non-field error remains (e.g. ScriptForm.clean()'s "Scheduled
-                # time must be in the future."). Surface it instead of an empty body.
-                errors = {NON_FIELD_ERRORS: form.errors.get(NON_FIELD_ERRORS, [_('Invalid script input.')])}
+                # Every error was on an exec-param field, which a client can bind by naming one
+                # in 'data' (e.g. {"_interval": "abc"}). NON_FIELD_ERRORS is never among them --
+                # the filter above retains '__all__' -- so there is nothing to re-surface here;
+                # report a generic message rather than an empty body.
+                errors = {NON_FIELD_ERRORS: [_('Invalid script input.')]}
             # Nest under 'data' so script-variable errors can't collide with the
             # serializer's own top-level fields (commit, schedule_at, interval, ...).
             raise ValidationError({'data': errors})
