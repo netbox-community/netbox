@@ -1907,6 +1907,7 @@ class ScriptRunExecutionTestCase(APITestCase):
         site = ObjectVar(model=Site)
         sites = MultiObjectVar(model=Site, required=False)
         label = StringVar(default='hello')
+        flag = BooleanVar(default=True)
 
         def run(self, data, commit=True):
             return 'ok'
@@ -2045,6 +2046,55 @@ class ScriptRunExecutionTestCase(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         mock_enqueue.assert_not_called()
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_ignores_undeclared_keys(self, mock_enqueue):
+        # Binding 'data' to the script's form means keys which don't correspond to a declared
+        # variable are dropped rather than forwarded to run(). This is the contract documented
+        # under "Running Custom Scripts > Via the API"; pin it so it can't regress silently.
+        payload = {
+            'data': {'site': self.sites[0].pk, 'bogus': 'ignored', 'id': 99},
+            'commit': True,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = mock_enqueue.call_args.kwargs['data']
+        self.assertEqual(data['site'], self.sites[0])
+        self.assertNotIn('bogus', data)
+        self.assertNotIn('id', data)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_rejects_omitted_required_var(self, mock_enqueue):
+        # 'site' is required and declares no default, so unlike 'label' it cannot be
+        # back-filled: omitting it must 400 rather than enqueue a job that fails at runtime.
+        payload = {'data': {'label': 'hi'}, 'commit': True}
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('site', response.data['data'])
+        mock_enqueue.assert_not_called()
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_resolves_booleanvar_default_and_explicit_values(self, mock_enqueue):
+        # BooleanVar renders as a checkbox, and CheckboxInput reads a missing key as False.
+        # An omitted BooleanVar must therefore pick up its declared default, while an
+        # explicitly supplied False must not be overwritten by that default.
+        for case, supplied, expected in (
+            ('omitted', {}, True),
+            ('explicit False', {'flag': False}, False),
+            ('explicit True', {'flag': True}, True),
+        ):
+            with self.subTest(case=case):
+                mock_enqueue.reset_mock()
+                payload = {'data': {'site': self.sites[0].pk, **supplied}, 'commit': True}
+
+                response = self.client.post(self.url, payload, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertIs(mock_enqueue.call_args.kwargs['data']['flag'], expected)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):
