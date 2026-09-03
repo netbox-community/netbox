@@ -244,7 +244,8 @@ class Cable(PrimaryModel):
                 ct.termination for ct in CableTermination.objects.filter(pk__in=value).prefetch_related('termination')
             ]
 
-        if not self.pk or getattr(self, _attr, []) != list(value):
+        # Compare against the cached terminations, falling back to the stored rows on a freshly loaded cable
+        if not self.pk or self._get_x_terminations(side) != list(value):
             self._terminations_modified = True
 
         setattr(self, _attr, value)
@@ -510,6 +511,10 @@ class Cable(PrimaryModel):
         force_a = force or self._connectors_reassigned(a_terminations, self.a_terminations)
         force_b = force or self._connectors_reassigned(b_terminations, self.b_terminations)
 
+        # Recreating either end's terminations invalidates its paths, even when the endpoints are unchanged
+        if force_a or force_b:
+            self._terminations_modified = True
+
         # When force-recreating terminations (e.g. after a profile change), cache the termination objects
         # from the database before deleting, so they are available for recreation. Without this, the
         # a_terminations/b_terminations properties would query the DB after deletion and return empty lists.
@@ -517,9 +522,6 @@ class Cable(PrimaryModel):
             self._a_terminations = list(a_terminations.keys())
         if force_b and not hasattr(self, '_b_terminations'):
             self._b_terminations = list(b_terminations.keys())
-
-            # Recreating terminations invalidates existing paths, even when the endpoints are unchanged
-            self._terminations_modified = True
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
