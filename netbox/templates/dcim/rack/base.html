@@ -3,17 +3,6 @@
 
 {% block title %}{% trans "Rack" %} {{ object }}{% endblock %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
-  {% if object.location %}
-    {% for location in object.location.get_ancestors %}
-      <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location }}</a></li>
-    {% endfor %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ object.location.pk }}">{{ object.location }}</a></li>
-  {% endif %}
-{% endblock %}
-
 {% block extra_controls %}
   <div class="btn-group" role="group" aria-label="RackNavigation">
     {% if prev_rack %}

@@ -1,4 +1,5 @@
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -438,17 +439,24 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         for k in EXEC_PARAM_FIELDS:
             data.pop(k, None)
 
-        ScriptJob.enqueue(
-            instance=script,
-            user=request.user,
-            data=data,
-            request=copy_safe_request(request),
-            commit=validated.get('commit'),
-            job_timeout=script_class.job_timeout,
-            schedule_at=validated.get('schedule_at'),
-            interval=validated.get('interval'),
-            notifications=validated.get('notifications'),
-        )
+        try:
+            ScriptJob.enqueue(
+                instance=script,
+                user=request.user,
+                data=data,
+                request=copy_safe_request(request),
+                commit=validated.get('commit'),
+                job_timeout=script_class.job_timeout,
+                schedule_at=validated.get('schedule_at'),
+                interval=validated.get('interval'),
+                notifications=validated.get('notifications'),
+            )
+        except DjangoValidationError as e:
+            # The script's execution configuration is invalid (see #22872). Surface it as a 400 rather than
+            # allowing the exception to bubble up as an HTTP 500. These are script-level config errors, not
+            # request-field errors, so report them under the non-field "detail" key.
+            raise ValidationError({'detail': e.messages}) from e
+
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
         return Response(serializer.data)
 

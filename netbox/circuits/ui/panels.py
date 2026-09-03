@@ -62,8 +62,8 @@ class CircuitGroupAssignmentsPanel(panels.ObjectsTablePanel):
         actions.AddObject(
             'circuits.CircuitGroupAssignment',
             url_params={
-                'member_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
-                'member': lambda ctx: ctx['object'].pk,
+                'member_content_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                'member_object_id': lambda ctx: ctx['object'].pk,
                 'return_url': lambda ctx: ctx['object'].get_absolute_url(),
             },
             label=_('Assign Group'),

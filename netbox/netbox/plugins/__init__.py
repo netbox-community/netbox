@@ -1,12 +1,13 @@
 import collections
 from importlib import import_module
 
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
 
 from core.exceptions import IncompatiblePluginError
+from netbox.event_rules import register_event_rule_action
 from netbox.registry import registry
 from netbox.search import register_search
 from netbox.utils import register_data_backend
@@ -20,6 +21,11 @@ from .utils import *
 registry['plugins'].update({
     'installed': [],
     'graphql_schemas': [],
+    'jinja_filters': {},
+    'graphql_type_extensions': collections.defaultdict(list),
+    'graphql_filter_extensions': collections.defaultdict(list),
+    # Assembled (store key, model label) pairs. Registering an extension for an assembled target raises.
+    'graphql_extensions_assembled': set(),
     'menus': [],
     'menu_items': {},
     'preferences': {},
@@ -29,7 +35,11 @@ registry['plugins'].update({
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
+    'event_rule_actions': 'event_rules.event_rule_actions',
     'graphql_schema': 'graphql.schema',
+    'graphql_type_extensions': 'graphql_extensions.type_extensions',
+    'graphql_filter_extensions': 'graphql_extensions.filter_extensions',
+    'jinja_filters': 'jinja_env.filters',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -77,7 +87,12 @@ class PluginConfig(AppConfig):
     # Optional plugin resources
     search_indexes = None
     data_backends = None
+    event_rule_actions = None
     graphql_schema = None
+    jinja_filters = None
+    # Extension resources load from ready() and must not import core GraphQL modules. Schemas load at assembly.
+    graphql_type_extensions = None
+    graphql_filter_extensions = None
     menu = None
     menu_items = None
     serializer_resolver = None
@@ -85,19 +100,34 @@ class PluginConfig(AppConfig):
     user_preferences = None
     events_pipeline = []
 
+    def get_jinja_context(self):
+        """
+        Return a dict of additional variables to inject into the Jinja template context
+        when rendering ConfigTemplates. Override this in a PluginConfig subclass to expose
+        plugin-managed data to config templates without requiring template authors to know
+        internal model names.
+
+        The returned dict is merged into the template context after the standard
+        ObjectType-based model population, so keys here can shadow the auto-populated
+        entries if needed.
+        """
+        return {}
+
     def _load_resource(self, name):
         # Import from the configured path, if defined.
         if path := getattr(self, name, None):
             return import_string(f"{self.__module__}.{path}")
 
-        # Fall back to the resource's default path. Return None if the module has not been provided.
+        # Fall back to the default path. Only the module's own absence returns None, nested errors propagate.
         default_path = f'{self.__module__}.{DEFAULT_RESOURCE_PATHS[name]}'
         default_module, resource_name = default_path.rsplit('.', 1)
         try:
             module = import_module(default_module)
-            return getattr(module, resource_name, None)
-        except ModuleNotFoundError:
-            pass
+        except ModuleNotFoundError as exc:
+            if exc.name and (default_module == exc.name or default_module.startswith(f'{exc.name}.')):
+                return None
+            raise
+        return getattr(module, resource_name, None)
 
     def ready(self):
         from netbox.models.features import register_models
@@ -117,6 +147,15 @@ class PluginConfig(AppConfig):
         for backend in data_backends:
             register_data_backend()(backend)
 
+        # Register event rule actions (if defined)
+        event_rule_actions = self._load_resource('event_rule_actions') or []
+        for action in event_rule_actions:
+            register_event_rule_action(action)
+
+        # Register Jinja filters (if defined)
+        if jinja_filters := self._load_resource('jinja_filters'):
+            register_jinja_filters(jinja_filters)
+
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):
             register_template_extensions(template_extensions)
@@ -127,9 +166,11 @@ class PluginConfig(AppConfig):
         if menu_items := self._load_resource('menu_items'):
             register_menu_items(self.verbose_name, menu_items)
 
-        # Register GraphQL schema (if defined)
-        if graphql_schema := self._load_resource('graphql_schema'):
-            register_graphql_schema(graphql_schema)
+        # Register GraphQL type & filter extensions (if defined)
+        if graphql_type_extensions := self._load_resource('graphql_type_extensions'):
+            register_graphql_type_extensions(graphql_type_extensions)
+        if graphql_filter_extensions := self._load_resource('graphql_filter_extensions'):
+            register_graphql_filter_extensions(graphql_filter_extensions)
 
         # Register user preferences (if defined)
         if user_preferences := self._load_resource('user_preferences'):
@@ -178,3 +219,21 @@ class PluginConfig(AppConfig):
         for setting, value in cls.default_settings.items():
             if setting not in user_config:
                 user_config[setting] = value
+
+
+def _load_plugin_graphql_schemas():
+    """
+    Load and register every installed plugin's GraphQL schema resource. Runs during root schema assembly, after
+    all plugins have initialized, so plugin schema modules may import core GraphQL types freely.
+    """
+    configs = {config.name: config for config in apps.get_app_configs()}
+    for plugin_name in registry['plugins']['installed']:
+        if (config := configs.get(plugin_name)) is None:
+            raise ImproperlyConfigured(
+                f"Plugin '{plugin_name}' has no AppConfig named after its PLUGINS entry. PluginConfig.name "
+                f"must match the configured plugin name."
+            )
+        if graphql_schema := config._load_resource('graphql_schema'):
+            # Avoid duplicate registration if the loader is invoked more than once.
+            registered = registry['plugins']['graphql_schemas']
+            register_graphql_schema([cls for cls in graphql_schema if cls not in registered])

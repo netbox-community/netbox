@@ -1,7 +1,10 @@
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
+from netaddr import EUI, AddrFormatError
 from rest_framework import serializers
 
 from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer
+from dcim.api.serializers_.mixins import _UNSET, MACAddressShortcutMixin
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
@@ -27,7 +30,6 @@ __all__ = (
     'VirtualDiskSerializer',
     'VirtualMachineSerializer',
     'VirtualMachineTypeSerializer',
-    'VirtualMachineWithConfigContextSerializer',
 )
 
 
@@ -76,6 +78,7 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
         fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
+    config_context = serializers.SerializerMethodField(read_only=True)
 
     # Counter fields
     interface_count = serializers.IntegerField(read_only=True)
@@ -88,21 +91,9 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
             'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
             'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
             'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
-        ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
-
-
-class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
-    config_context = serializers.SerializerMethodField()
-
-    class Meta(VirtualMachineSerializer.Meta):
-        fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot',
-            'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
-            'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
             'config_context',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj):
@@ -113,7 +104,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 # VM interfaces
 #
 
-class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
+class VMInterfaceSerializer(MACAddressShortcutMixin, OwnerMixin, NetBoxModelSerializer):
     virtual_machine = VirtualMachineSerializer(nested=True)
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
@@ -132,8 +123,9 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    # Maintains backward compatibility with NetBox <v4.2
-    mac_address = serializers.CharField(allow_null=True, read_only=True)
+    # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
+    # create/update the primary MAC address in a single request.
+    mac_address = serializers.CharField(allow_null=True, required=False)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
@@ -148,6 +140,21 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
     def validate(self, data):
+        # Pop mac_address before model validation — it's a cached_property, not a model field.
+        # data may be a VMInterface instance (not a dict) in some custom field code paths (#18887).
+        mac_address = _UNSET
+        if isinstance(data, dict):
+            mac_address = data.pop('mac_address', _UNSET)
+        self._validate_no_mac_conflict(data, mac_address)
+
+        if not self.nested and isinstance(data, dict) and mac_address not in (_UNSET, None):
+            try:
+                EUI(mac_address, version=48)
+            except (AddrFormatError, ValueError, TypeError):
+                raise serializers.ValidationError({
+                    'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
+                })
+
         # Validate many-to-many VLAN assignments
         virtual_machine = None
         tagged_vlans = []
@@ -175,7 +182,12 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
                                         f"machine, or it must be global."
                     })
 
-        return super().validate(data)
+        data = super().validate(data)
+
+        if mac_address is not _UNSET:
+            data['mac_address'] = mac_address
+
+        return data
 
 
 #

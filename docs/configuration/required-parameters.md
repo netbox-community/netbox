@@ -25,8 +25,6 @@ ALLOWED_HOSTS = ['*']
 
 ## API_TOKEN_PEPPERS
 
-!!! info "This parameter was introduced in NetBox v4.5."
-
 [Cryptographic peppers](https://en.wikipedia.org/wiki/Pepper_(cryptography)) are employed to generate hashes of sensitive values on the server. This parameter defines the peppers used to hash v2 API tokens in NetBox. You must define at least one pepper before creating a v2 API token. See the [API documentation](../integrations/rest-api.md#authentication) for further information about how peppers are used.
 
 ```python
@@ -39,7 +37,7 @@ API_TOKEN_PEPPERS = {
 !!! warning "Peppers are sensitive"
     Treat pepper values as extremely sensitive. Consider populating peppers from environment variables at initialization time rather than defining them in the configuration file, if feasible. 
 
-Peppers must be at least 50 characters in length and should comprise a random string with a diverse character set. Consider using the Python script at `$INSTALL_ROOT/netbox/generate_secret_key.py` to generate a pepper value.
+Peppers must be at least 50 characters in length and should comprise a random string with a diverse character set. Consider using the Python script at `$INSTALL_ROOT/netbox/generate_secret_key.py` to generate a pepper value. For a Python package installation, run the virtual environment's `netbox secret-key` command instead.
 
 It is recommended to start with a pepper ID of `1`. Additional peppers can be introduced later as needed to begin rotating token hashes.
 
@@ -59,7 +57,7 @@ See the [`DATABASES`](#databases) configuration below for usage.
 
 ## DATABASES
 
-NetBox requires access to a PostgreSQL 14 or later database service to store data. Note that support for PostgreSQL 14 is deprecated and will be removed in NetBox v4.7; PostgreSQL 15 or later will be required. This service can run locally on the NetBox server or on a remote system. Databases are defined as named dictionaries:
+NetBox requires access to a PostgreSQL 15 or later database service to store data. This service can run locally on the NetBox server or on a remote system. Databases are defined as named dictionaries:
 
 ```python
 DATABASES = {
@@ -251,4 +249,4 @@ REDIS = {
 
 This is a secret, pseudorandom string used to assist in the creation new cryptographic hashes for passwords and HTTP cookies. The key defined here should not be shared outside the configuration file. `SECRET_KEY` can be changed at any time without impacting stored data, however be aware that doing so will invalidate all existing user sessions. NetBox deployments comprising multiple nodes must have the same secret key configured on all nodes.
 
-`SECRET_KEY` **must** be at least 50 characters in length, and should contain a mix of letters, digits, and symbols. The script located at `$INSTALL_ROOT/netbox/generate_secret_key.py` may be used to generate a suitable key. Please note that this key is **not** used directly for hashing user passwords or for the encrypted storage of secret data in NetBox.
+`SECRET_KEY` **must** be at least 50 characters in length, and should contain a mix of letters, digits, and symbols. The script located at `$INSTALL_ROOT/netbox/generate_secret_key.py` may be used to generate a suitable key. For a Python package installation, run the virtual environment's `netbox secret-key` command instead. Please note that this key is **not** used directly for hashing user passwords or for the encrypted storage of secret data in NetBox.

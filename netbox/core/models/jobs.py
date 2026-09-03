@@ -84,6 +84,12 @@ class Job(models.Model):
         null=True,
         blank=True
     )
+    execution_time = models.DurationField(
+        verbose_name=_('execution time'),
+        null=True,
+        blank=True,
+        editable=False
+    )
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -241,6 +247,8 @@ class Job(models.Model):
         if error:
             self.error = error
         self.completed = timezone.now()
+        if self.started:
+            self.execution_time = self.completed - self.started
         self.save()
 
         # Notify the user (if any) of completion

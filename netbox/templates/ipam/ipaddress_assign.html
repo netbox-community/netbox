@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block form %}
-  <form action="{% querystring request %}" method="post" class="form form-horizontal">
+  <form action="{% querystring %}" method="post" class="form form-horizontal">
     {% csrf_token %}
     {% for field in form.hidden_fields %}
       {{ field }}

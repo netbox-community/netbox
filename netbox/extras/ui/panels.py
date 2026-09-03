@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
@@ -125,6 +126,7 @@ class CustomFieldPanel(panels.ObjectAttributesPanel):
     title = _('Custom Field')
 
     name = attrs.TextAttr('name')
+    status = attrs.ChoiceAttr('status')
     type = attrs.TemplatedAttr('type', label=_('Type'), template_name='extras/customfield/attrs/type.html')
     label = attrs.TextAttr('label')
     group_name = attrs.TextAttr('group_name', label=_('Group name'))
@@ -154,6 +156,7 @@ class CustomFieldBehaviorPanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight', label=_('Display weight'))
     ui_visible = attrs.ChoiceAttr('ui_visible', label=_('UI visible'))
     ui_editable = attrs.ChoiceAttr('ui_editable', label=_('UI editable'))
+    nulls_first = attrs.BooleanAttr('nulls_first', label=_('Nulls first'))
 
 
 class CustomFieldValidationPanel(panels.ObjectAttributesPanel):
@@ -332,6 +335,17 @@ class WebhookPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
+class WebhookTimeoutAttr(attrs.TextAttr):
+    """
+    Render a webhook's timeout. Webhooks which do not define their own timeout fall back to the globally
+    configured default, which is displayed (and annotated as such) in place of an empty value.
+    """
+    def get_value(self, obj):
+        if obj.timeout is not None:
+            return _('{timeout} seconds').format(timeout=obj.timeout)
+        return _('{timeout} seconds (default)').format(timeout=settings.WEBHOOK_DEFAULT_TIMEOUT)
+
+
 class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     title = _('HTTP Request')
 
@@ -339,6 +353,7 @@ class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     payload_url = attrs.TextAttr('payload_url', label=_('Payload URL'), style='font-monospace')
     http_content_type = attrs.TextAttr('http_content_type', label=_('HTTP content type'))
     secret = attrs.TextAttr('secret')
+    timeout = WebhookTimeoutAttr('timeout')
 
 
 class WebhookSSLPanel(panels.ObjectAttributesPanel):

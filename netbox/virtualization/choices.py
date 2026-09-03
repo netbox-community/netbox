@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from utilities.choices import ChoiceSet
+from utilities.choices import Choice, ChoiceSet
 
 #
 # Clusters
@@ -17,11 +17,26 @@ class ClusterStatusChoices(ChoiceSet):
     STATUS_OFFLINE = 'offline'
 
     CHOICES = [
-        (STATUS_PLANNED, _('Planned'), 'cyan'),
-        (STATUS_STAGING, _('Staging'), 'blue'),
-        (STATUS_ACTIVE, _('Active'), 'green'),
-        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
-        (STATUS_OFFLINE, _('Offline'), 'red'),
+        Choice(
+            STATUS_PLANNED, _('Planned'), color='cyan',
+            description=_('Designated for future use but not yet in service')
+        ),
+        Choice(
+            STATUS_STAGING, _('Staging'), color='blue',
+            description=_('Being prepared for production use')
+        ),
+        Choice(
+            STATUS_ACTIVE, _('Active'), color='green',
+            description=_('Fully operational and in service')
+        ),
+        Choice(
+            STATUS_DECOMMISSIONING, _('Decommissioning'), color='yellow',
+            description=_('Being removed from service')
+        ),
+        Choice(
+            STATUS_OFFLINE, _('Offline'), color='red',
+            description=_('Not currently in service')
+        ),
     ]
 
 
@@ -41,13 +56,34 @@ class VirtualMachineStatusChoices(ChoiceSet):
     STATUS_PAUSED = 'paused'
 
     CHOICES = [
-        (STATUS_OFFLINE, _('Offline'), 'gray'),
-        (STATUS_ACTIVE, _('Active'), 'green'),
-        (STATUS_PLANNED, _('Planned'), 'cyan'),
-        (STATUS_STAGED, _('Staged'), 'blue'),
-        (STATUS_FAILED, _('Failed'), 'red'),
-        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
-        (STATUS_PAUSED, _('Paused'), 'orange'),
+        Choice(
+            STATUS_OFFLINE, _('Offline'), color='gray',
+            description=_('Powered off or not currently running')
+        ),
+        Choice(
+            STATUS_ACTIVE, _('Active'), color='green',
+            description=_('Powered on and operational')
+        ),
+        Choice(
+            STATUS_PLANNED, _('Planned'), color='cyan',
+            description=_('Designated for future use but not yet provisioned')
+        ),
+        Choice(
+            STATUS_STAGED, _('Staged'), color='blue',
+            description=_('Provisioned but not yet in service')
+        ),
+        Choice(
+            STATUS_FAILED, _('Failed'), color='red',
+            description=_('In an error state or otherwise not functioning')
+        ),
+        Choice(
+            STATUS_DECOMMISSIONING, _('Decommissioning'), color='yellow',
+            description=_('Being removed from service')
+        ),
+        Choice(
+            STATUS_PAUSED, _('Paused'), color='orange',
+            description=_('Suspended with its state retained in memory')
+        ),
     ]
 
 
@@ -59,7 +95,16 @@ class VirtualMachineStartOnBootChoices(ChoiceSet):
     STATUS_LAST_STATE = 'laststate'
 
     CHOICES = [
-        (STATUS_ON, _('On'), 'green'),
-        (STATUS_OFF, _('Off'), 'gray'),
-        (STATUS_LAST_STATE, _('Last State'), 'cyan')
+        Choice(
+            STATUS_ON, _('On'), color='green',
+            description=_('Automatically start when the host boots')
+        ),
+        Choice(
+            STATUS_OFF, _('Off'), color='gray',
+            description=_('Do not start automatically when the host boots')
+        ),
+        Choice(
+            STATUS_LAST_STATE, _('Last State'), color='cyan',
+            description=_('Restore the power state the machine had before the host shut down')
+        ),
     ]

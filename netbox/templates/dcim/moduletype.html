@@ -3,13 +3,6 @@
 
 {% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item">
-    <a href="{% url 'dcim:moduletype_list' %}?manufacturer_id={{ object.manufacturer.pk }}">{{ object.manufacturer }}</a>
-  </li>
-{% endblock %}
-
 {% block extra_controls %}
   {% include 'dcim/inc/moduletype_buttons.html' %}
 {% endblock %}

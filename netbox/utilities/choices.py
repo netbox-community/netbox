@@ -1,16 +1,48 @@
 import enum
+from typing import Any
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 
 from utilities.data import get_config_value_ci
 from utilities.string import enum_key
 
 __all__ = (
+    'Choice',
     'ChoiceSet',
     'unpack_grouped_choices',
 )
+
+
+class Choice(tuple):
+    """
+    A single choice within a ChoiceSet. Carries the choice's label, and optionally a color and a description, in a
+    single object. A Choice **is** a `(value, label)` two-tuple for backward compatibility with the plain-tuple choice
+    format (so it satisfies `isinstance(choice, tuple)` checks in Django, DRF, etc.); its `color` and `description`
+    are exposed only as attributes.
+    """
+    value: Any
+    label: str | Promise
+    color: str | None
+    description: str | Promise | None
+
+    def __new__(cls, value, label, color=None, description=None):
+        instance = super().__new__(cls, (value, label))
+        instance.value = value
+        instance.label = label
+        instance.color = color
+        instance.description = description
+        return instance
+
+    def __getnewargs__(self):
+        # tuple's default reconstructor would call Choice((value, label)) with a single argument, which fails
+        # __new__'s (value, label, ...) signature. Supply the real constructor args so copy/deepcopy/pickle work.
+        return self.value, self.label, self.color, self.description
+
+    def __repr__(self):
+        return f'Choice(value={self.value!r}, label={self.label!r})'
 
 
 class ChoiceSetMeta(type):
@@ -36,21 +68,35 @@ class ChoiceSetMeta(type):
                 if extend_choices is not None:
                     attrs['CHOICES'].extend(extend_choices)
 
-        # Define choice tuples and color maps
+        # Build the normalized choice list and the derived color map. Each choice may be defined as a Choice object
+        # (which is preserved as-is so consumers can reference its color/description) or as a plain (value, label) or
+        # (value, label, color) tuple. The colors map is kept for model-level consumers (e.g. get_FOO_color()).
         attrs['_choices'] = []
         attrs['colors'] = {}
+
+        def register(entry):
+            # A choice may be given as a dict (e.g. from FIELD_CHOICES config, to avoid importing Choice), a Choice
+            # object, or a legacy (value, label[, color]) tuple. Dicts and Choices are preserved as Choice objects so
+            # consumers can reference their color/description; legacy tuples are reduced to (value, label). Any color
+            # is also recorded on the colors map for model-level consumers.
+            if isinstance(entry, dict):
+                entry = Choice(**entry)
+            if isinstance(entry, Choice):
+                if entry.color is not None:
+                    attrs['colors'][entry.value] = entry.color
+                return entry
+            value, label = entry[0], entry[1]
+            if len(entry) >= 3:
+                attrs['colors'][value] = entry[2]
+            return value, label
+
         for choice in attrs['CHOICES']:
-            if isinstance(choice[1], (list, tuple)):
-                grouped_choices = []
-                for c in choice[1]:
-                    grouped_choices.append((c[0], c[1]))
-                    if len(c) == 3:
-                        attrs['colors'][c[0]] = c[2]
+            # A grouped choice is a (group_label, [members]) tuple; Choice and dict entries are always flat choices
+            if not isinstance(choice, (Choice, dict)) and isinstance(choice[1], (list, tuple)):
+                grouped_choices = [register(c) for c in choice[1]]
                 attrs['_choices'].append((choice[0], grouped_choices))
             else:
-                attrs['_choices'].append((choice[0], choice[1]))
-                if len(choice) == 3:
-                    attrs['colors'][choice[0]] = choice[2]
+                attrs['_choices'].append(register(choice))
 
         return super().__new__(mcs, name, bases, attrs)
 
@@ -64,8 +110,10 @@ class ChoiceSetMeta(type):
 
 class ChoiceSet(metaclass=ChoiceSetMeta):
     """
-    Holds an iterable of choice tuples suitable for passing to a Django model or form field. Choices can be defined
-    statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter.
+    Holds an iterable of choices suitable for passing to a Django model or form field. Choices can be defined
+    statically within the class as CHOICES and/or gleaned from the FIELD_CHOICES configuration parameter. Each
+    choice may be defined as a Choice object (to carry a color and/or description) or as a plain (value, label) or
+    (value, label, color) tuple.
     """
     CHOICES = list()
 

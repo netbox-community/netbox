@@ -15,11 +15,11 @@ from extras.filtersets import *
 from extras.models import *
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
-from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
+from utilities.testing import BaseFilterSetTestMixin, ChangeLoggedFilterSetTestMixin, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
-class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
     ignore_fields = ('default', 'related_object_filter', 'validation_schema')
@@ -51,7 +51,8 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT,
                 ui_visible=CustomFieldUIVisibleChoices.IF_SET,
                 ui_editable=CustomFieldUIEditableChoices.NO,
-                description='foobar2'
+                description='foobar2',
+                nulls_first=False
             ),
             CustomField(
                 name='Custom Field 3',
@@ -61,7 +62,8 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
                 ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
                 ui_editable=CustomFieldUIEditableChoices.HIDDEN,
-                description='foobar3'
+                description='foobar3',
+                nulls_first=False
             ),
             CustomField(
                 name='Custom Field 4',
@@ -141,6 +143,12 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'ui_editable': CustomFieldUIEditableChoices.YES}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+    def test_status(self):
+        params = {'status': CustomFieldStatusChoices.STATUS_ACTIVE}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'status': CustomFieldStatusChoices.STATUS_DELETING}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_choice_set(self):
         params = {'choice_set': ['Choice Set 1', 'Choice Set 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -151,8 +159,14 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_nulls_first(self):
+        params = {'nulls_first': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'nulls_first': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
+
+class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = CustomFieldChoiceSetFilterSet
     ignore_fields = ('extra_choices',)
@@ -206,7 +220,7 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class WebhookTestCase(TestCase, BaseFilterSetTests):
+class WebhookTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Webhook.objects.all()
     filterset = WebhookFilterSet
     ignore_fields = ('additional_headers', 'body_template')
@@ -219,6 +233,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?1',
                 http_method='GET',
                 ssl_verification=True,
+                timeout=10,
                 description='foobar1'
             ),
             Webhook(
@@ -226,6 +241,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?2',
                 http_method='POST',
                 ssl_verification=True,
+                timeout=20,
                 description='foobar2'
             ),
             Webhook(
@@ -233,6 +249,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?3',
                 http_method='PATCH',
                 ssl_verification=False,
+                timeout=30,
                 description='foobar3'
             ),
             Webhook(
@@ -270,8 +287,19 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         params = {'ssl_verification': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_timeout(self):
+        params = {'timeout': [10, 20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-class EventRuleTestCase(TestCase, BaseFilterSetTests):
+    def test_timeout_range(self):
+        # Backs the minimum/maximum timeout fields exposed by WebhookFilterForm
+        params = {'timeout__gte': [20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'timeout__lte': [20]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class EventRuleTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = EventRule.objects.all()
     filterset = EventRuleFilterSet
     ignore_fields = ('action_data', 'conditions', 'event_types')
@@ -381,6 +409,49 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'action_type': [EventRuleActionChoices.SCRIPT]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_action_is_available(self):
+        unavailable_rule = EventRule.objects.create(
+            name='Unavailable Filterset Rule',
+            event_types=[OBJECT_CREATED],
+            action_type='someplugin.not_installed_filterset_test',
+        )
+        unavailable_rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        params = {'action_is_available': True}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 5)
+        self.assertNotIn(unavailable_rule, qs)
+
+        params = {'action_is_available': False}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), unavailable_rule)
+
+    def test_action_type_registered_plugin_style_slug(self):
+        """A plugin-registered action slug is a valid action_type filter value, not just the core actions."""
+        from netbox.event_rules import EventRuleAction, register_event_rule_action
+        from netbox.registry import registry
+
+        class FilterTestAction(EventRuleAction):
+            slug = 'test.filterset_registered_action'
+            label = 'Filterset Test Action'
+            object_required = False
+
+        register_event_rule_action(FilterTestAction)
+        self.addCleanup(registry['event_rule_actions'].pop, FilterTestAction.slug, None)
+
+        rule = EventRule.objects.create(
+            name='Filterset Registered Action Rule',
+            event_types=[OBJECT_CREATED],
+            action_type=FilterTestAction.slug,
+        )
+        rule.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        params = {'action_type': [FilterTestAction.slug]}
+        qs = self.filterset(params, EventRule.objects.all()).qs
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.first(), rule)
+
     def test_enabled(self):
         params = {'enabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -392,7 +463,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
+class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = CustomLink.objects.all()
     filterset = CustomLinkFilterSet
 
@@ -461,7 +532,7 @@ class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
+class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = SavedFilter.objects.all()
     filterset = SavedFilterFilterSet
     ignore_fields = ('parameters',)
@@ -566,7 +637,7 @@ class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class BookmarkTestCase(TestCase, BaseFilterSetTests):
+class BookmarkTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = Bookmark.objects.all()
     filterset = BookmarkFilterSet
 
@@ -635,7 +706,7 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
     ignore_fields = ('template_code', 'environment_params', 'data_path')
@@ -711,7 +782,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ImageAttachment.objects.all()
     filterset = ImageAttachmentFilterSet
     ignore_fields = ('image',)
@@ -805,7 +876,7 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = TableConfig.objects.all()
     filterset = TableConfigFilterSet
     ignore_fields = ('columns', 'ordering')
@@ -861,7 +932,7 @@ class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
 
-class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
+class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = JournalEntry.objects.all()
     filterset = JournalEntryFilterSet
 
@@ -964,7 +1035,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigContextProfile.objects.all()
     filterset = ConfigContextProfileFilterSet
     ignore_fields = ('schema', 'data_path')
@@ -997,7 +1068,7 @@ class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
     ignore_fields = ('data', 'data_path')
@@ -1240,7 +1311,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
+class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigTemplate.objects.all()
     filterset = ConfigTemplateFilterSet
     ignore_fields = ('template_code', 'environment_params', 'data_path')
@@ -1306,7 +1377,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
+class TagTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
     ignore_fields = (
@@ -1629,7 +1700,7 @@ class ChangeLoggedFilterSetTestCase(TestCase):
         self.assertEqual(self.queryset.count(), 4)
 
 
-class NotificationGroupTestCase(TestCase, BaseFilterSetTests):
+class NotificationGroupTestCase(TestCase, BaseFilterSetTestMixin):
     queryset = NotificationGroup.objects.all()
     filterset = NotificationGroupFilterSet
 

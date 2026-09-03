@@ -1,3 +1,4 @@
+from django.test.testcases import SerializeMixin
 from django_rq import get_queue
 from django_rq.workers import get_worker
 from rq import SimpleWorker
@@ -7,16 +8,26 @@ __all__ = (
 )
 
 
-class RQQueueTestMixin:
+class RQQueueTestMixin(SerializeMixin):
     """
     Clear RQ queues before and after each test.
+
+    Test classes using this mixin share a single RQ (Redis) instance. Under the parallel
+    test runner that Redis is not isolated per worker (unlike the database), so concurrent
+    classes that enqueue and assert exact queue counts race each other. SerializeMixin
+    holds an exclusive lock on `lockfile`, so no two classes using this mixin run at the
+    same time, which removes that cross-worker contention.
     """
+    lockfile = __file__
     rq_queue_names = ('default', 'high', 'low')
 
     @classmethod
     def clear_rq_queues(cls):
         for queue_name in cls.rq_queue_names:
-            get_queue(queue_name).connection.flushall()
+            # Flush only the queue's own database. FLUSHALL would empty every database on the Redis
+            # server, including the caching database, whose keys (e.g. the cached config revision)
+            # are shared by the other parallel test workers.
+            get_queue(queue_name).connection.flushdb()
 
     def run_rq_jobs(self, *queue_names, burst=True):
         """

@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import InterfaceModeChoices
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
@@ -14,11 +15,23 @@ from ipam.models import VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm
-from utilities.forms import ConfirmationForm, get_field_value
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField
+from utilities.forms import ConfirmationForm, add_blank_choice, get_field_value
+from utilities.forms.fields import (
+    ChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+    SlugField,
+    TypedChoiceField,
+)
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import HTMXSelect
+from virtualization.choices import (
+    ClusterStatusChoices,
+    VirtualMachineStartOnBootChoices,
+    VirtualMachineStatusChoices,
+)
 
 from ..models import *
 
@@ -60,6 +73,11 @@ class ClusterGroupForm(OrganizationalModelForm):
 
 
 class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=ClusterStatusChoices,
+        initial=ClusterStatusChoices.STATUS_ACTIVE,
+    )
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -74,14 +92,14 @@ class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'owner', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -202,10 +220,22 @@ class VirtualMachineTypeForm(PrimaryModelForm):
 
 
 class VirtualMachineForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VirtualMachineStatusChoices,
+        initial=VirtualMachineStatusChoices.STATUS_ACTIVE,
+    )
+    start_on_boot = ChoiceField(
+        label=_('Start on boot'),
+        choices=VirtualMachineStartOnBootChoices,
+        initial=VirtualMachineStartOnBootChoices.STATUS_OFF,
+    )
     virtual_machine_type = forms.ModelChoiceField(
         label=_('Type'),
         queryset=VirtualMachineType.objects.all(),
         required=False,
+        # No hx_target_id: type change populates defaults across both the Virtual Machine
+        # and Resources fieldsets, so a single-fieldset partial swap would miss half the update.
         widget=HTMXSelect(),
     )
     site = DynamicModelChoiceField(
@@ -387,6 +417,13 @@ class VMComponentForm(OwnerMixin, NetBoxModelForm):
 
 
 class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
+    mode = TypedChoiceField(
+        label=_('802.1Q Mode'),
+        choices=add_blank_choice(InterfaceModeChoices),
+        required=False,
+        help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
+    )
     primary_mac_address = DynamicModelChoiceField(
         queryset=MACAddress.objects.all(),
         label=_('Primary MAC address'),
@@ -456,12 +493,13 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 
     fieldsets = (
         FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
-        FieldSet('vrf', 'primary_mac_address', name=_('Addressing')),
+        FieldSet('vrf', 'mac_address', name=_('Addressing')),
         FieldSet('mtu', 'enabled', name=_('Operation')),
         FieldSet('parent', 'bridge', name=_('Related Interfaces')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
-            name=_('802.1Q Switching')
+            name=_('802.1Q Switching'),
+            html_id='dot1q-switching',
         ),
     )
 
@@ -469,15 +507,9 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         model = VMInterface
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf',
             'owner', 'tags',
         ]
-        labels = {
-            'mode': _('802.1Q Mode'),
-        }
-        widgets = {
-            'mode': HTMXSelect(),
-        }
 
 
 class VirtualDiskForm(VMComponentForm):

@@ -388,9 +388,44 @@ class APIViewTestCases:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_CREATE,
                         message=changelog_message)
 
+        def test_bulk_create_objects_invalid_item(self):
+            """
+            POST a set of objects in which one item is invalid. The failure must be correlated to
+            that item's position in the request, and the entire batch must be rolled back.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            initial_count = self._get_queryset().count()
+
+            # A non-dictionary is used as the invalid item because it is guaranteed to fail for every
+            # model, whereas which *fields* are required varies from one model to the next.
+            response = self.client.post(
+                self._get_list_url(),
+                [self.create_data[0], 'this is not an object'],
+                format='json',
+                **self.header,
+            )
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertEqual(
+                self._get_queryset().count(), initial_count,
+                'No objects should be created when any sibling fails validation'
+            )
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('errors', response.data['errors'][0])
+
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
         bulk_update_data = None
+        bulk_update_invalid_data = None
         validation_excluded_fields = []
 
         def test_update_object_without_permission(self):
@@ -537,6 +572,213 @@ class APIViewTestCases:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_UPDATE,
                         message=changelog_message)
 
+        def test_bulk_update_objects_string_id(self):
+            """
+            PATCH a set of objects whose IDs are given as strings rather than as numbers. The ID
+            field coerces such a value, so the object is identified and its attributes must be
+            applied -- rather than the entry being treated as though it carried no data.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest("Bulk update data not set")
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, "Insufficient number of objects to test bulk update")
+
+            # Quote only the second ID, so that a batch mixing the two forms is covered as well
+            data = [
+                {'id': id_list[0], **self.bulk_update_data},
+                {'id': str(id_list[1]), **self.bulk_update_data},
+            ]
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            # The attributes must have been applied to both objects. Note that the response body is
+            # deliberately not inspected: for a model whose viewset narrows its own queryset (e.g.
+            # SavedFilter, which is restricted to shared or owned objects), an update which moves an
+            # object outside that queryset succeeds but is not echoed back.
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            for instance in self._get_queryset().filter(pk__in=id_list):
+                self.assertInstanceEqual(instance, self.bulk_update_data, api=True)
+
+        def test_bulk_update_objects_validation_error(self):
+            """
+            PATCH a set of objects where one fails validation. Verify the structured per-object error
+            response and that no objects are modified (atomic rollback).
+            """
+            if self.bulk_update_data is None or self.bulk_update_invalid_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update validation error')
+
+            # First object: valid data; second: invalid data that must fail validation
+            data = [
+                {'id': id_list[0], **self.bulk_update_data},
+                {'id': id_list[1], **self.bulk_update_invalid_data},
+            ]
+
+            # Snapshot field values before the request so we can verify atomicity afterward
+            instance0_before = self._get_queryset().get(pk=id_list[0])
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[1])
+            self.assertIn('errors', response.data['errors'][0])
+
+            # Verify atomicity: object 0 passed validation but must not have been modified
+            instance0_after = self._get_queryset().get(pk=id_list[0])
+            for field in self.bulk_update_data:
+                if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                    continue
+                self.assertEqual(
+                    getattr(instance0_after, field, None),
+                    getattr(instance0_before, field, None),
+                    f'Field {field!r} of object {id_list[0]} was modified — atomic rollback may be broken',
+                )
+
+        def test_bulk_update_objects_nonexistent_id(self):
+            """
+            PATCH a set of objects where one of the IDs does not identify an existing object. Verify
+            the structured per-object error response and that no objects are modified.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update')
+            missing_id = self._get_queryset().order_by('-id').first().id + 1
+
+            data = [{'id': id, **self.bulk_update_data} for id in (*id_list, missing_id)]
+
+            # Snapshot the objects which would otherwise have been updated
+            instances_before = list(self._get_queryset().filter(pk__in=id_list))
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], missing_id)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The objects named alongside the missing one must not have been updated
+            for instance_before in instances_before:
+                instance_after = self._get_queryset().get(pk=instance_before.pk)
+                for field in self.bulk_update_data:
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                        continue
+                    self.assertEqual(
+                        getattr(instance_after, field, None),
+                        getattr(instance_before, field, None),
+                        f'Field {field!r} of object {instance_before.pk} was modified despite an unresolvable '
+                        f'sibling ID',
+                    )
+
+        def test_bulk_update_objects_malformed_entry(self):
+            """
+            PATCH a set of objects in which one entry does not identify an object. The failure must be
+            reported in the same structured form as a per-object failure, correlated by position.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            instance = self._get_queryset().first()
+
+            # The second entry omits the object ID, so it cannot be matched to an object
+            data = [{'id': instance.pk, **self.bulk_update_data}, {}]
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+
+            # Correlated by position, as no object was identified for this entry
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The valid entry must not have been applied
+            instance_after = self._get_queryset().get(pk=instance.pk)
+            for field in self.bulk_update_data:
+                if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                    continue
+                self.assertEqual(
+                    getattr(instance_after, field, None),
+                    getattr(instance, field, None),
+                    f'Field {field!r} of object {instance.pk} was modified despite a malformed sibling entry',
+                )
+
+        def test_bulk_update_objects_duplicate_id(self):
+            """
+            PATCH a set of objects in which the same object is named twice. The request must be
+            rejected rather than applying only one of the entries given for that object.
+            """
+            if self.bulk_update_data is None:
+                self.skipTest('Bulk update data not set')
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            id_list = list(self._get_queryset().values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk update')
+
+            # Repeat the first ID at the end of the request
+            data = [{'id': id, **self.bulk_update_data} for id in (*id_list, id_list[0])]
+
+            # Snapshot the objects which would otherwise have been updated
+            instances_before = list(self._get_queryset().filter(pk__in=id_list))
+
+            response = self.client.patch(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+
+            # The repeated ID must be reported once, not once per occurrence
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[0])
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # No object named in the request may have been updated, including the one named only once
+            for instance_before in instances_before:
+                instance_after = self._get_queryset().get(pk=instance_before.pk)
+                for field in self.bulk_update_data:
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
+                        continue
+                    self.assertEqual(
+                        getattr(instance_after, field, None),
+                        getattr(instance_before, field, None),
+                        f'Field {field!r} of object {instance_before.pk} was modified despite a duplicated '
+                        f'sibling ID',
+                    )
+
     class DeleteObjectViewTestCase(APITestCase):
 
         def test_delete_object_without_permission(self):
@@ -625,6 +867,133 @@ class APIViewTestCases:
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_DELETE,
                         message=changelog_message)
+
+        def test_bulk_delete_objects_nonexistent_id(self):
+            """
+            DELETE a set of objects where one of the IDs does not identify an existing object. Verify
+            the structured per-object error response and that no objects are deleted.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created objects to avoid triggering recursive deletions
+            id_list = list(self._get_queryset().order_by('-id').values_list('id', flat=True)[:3])
+            self.assertEqual(len(id_list), 3, 'Insufficient number of objects to test bulk deletion')
+            missing_id = max(id_list) + 1
+            data = [{'id': id} for id in (*id_list, missing_id)]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], missing_id)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # The objects named alongside the missing one must not have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+        def test_bulk_delete_objects_malformed_entry(self):
+            """
+            DELETE a set of objects in which one entry does not identify an object. The failure must be
+            reported in the same structured form as a per-object failure, correlated by position.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created object to avoid triggering recursive deletions
+            instance = self._get_queryset().order_by('-id').first()
+
+            # The second entry omits the object ID, so it cannot be matched to an object
+            data = [{'id': instance.pk}, {}]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertEqual(len(response.data['errors']), 1)
+
+            # Correlated by position, as no object was identified for this entry
+            self.assertEqual(response.data['errors'][0]['index'], 1)
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # Nothing may have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+        def test_bulk_delete_objects_duplicate_id(self):
+            """
+            DELETE a set of objects in which the same object is named twice. The request must be
+            rejected rather than reporting success for a batch it only partly acted on.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Target the most recently created objects to avoid triggering recursive deletions
+            id_list = list(self._get_queryset().order_by('-id').values_list('id', flat=True)[:2])
+            self.assertEqual(len(id_list), 2, 'Insufficient number of objects to test bulk deletion')
+
+            # Repeat the first ID at the end of the request
+            data = [{'id': id} for id in (*id_list, id_list[0])]
+
+            initial_count = self._get_queryset().count()
+            response = self.client.delete(self._get_list_url(), data, format='json', **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            self.assertIn('errors', response.data)
+
+            # The repeated ID must be reported once, not once per occurrence
+            self.assertEqual(len(response.data['errors']), 1)
+            self.assertEqual(response.data['errors'][0]['id'], id_list[0])
+            self.assertIn('id', response.data['errors'][0]['errors'])
+
+            # No object named in the request may have been deleted
+            self.assertEqual(self._get_queryset().count(), initial_count)
+
+        def test_bulk_delete_objects_no_body(self):
+            """
+            DELETE a list endpoint with no body at all. Nothing may be deleted -- the request names no
+            objects, so it cannot mean "all of them" -- and the response must say so intelligibly.
+            """
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['delete']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            initial_count = self._get_queryset().count()
+            self.assertNotEqual(initial_count, 0, 'No objects exist against which to test bulk deletion')
+
+            response = self.client.delete(self._get_list_url(), **self.header)
+
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('detail', response.data)
+            # There are no entries to report against, so no per-object errors are returned
+            self.assertNotIn('errors', response.data)
+            self.assertEqual(
+                self._get_queryset().count(), initial_count,
+                'A bulk delete naming no objects must not delete anything'
+            )
 
     class GraphQLTestCase(APITestCase):
         graphql_auto_filter_tests = True

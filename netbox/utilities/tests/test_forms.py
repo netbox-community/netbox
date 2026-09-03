@@ -1,19 +1,31 @@
+import copy
+import warnings
+from types import SimpleNamespace
+
 from django import forms
-from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase, override_settings
 
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
+from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
+from utilities.forms.fields.generic import GenericObjectChoiceField
 from utilities.forms.forms import BulkRenameForm
+from utilities.forms.mixins import GenericObjectFormMixin
+from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
+    add_blank_choice,
     expand_alphanumeric_pattern,
     expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
+    parse_numeric_range,
 )
-from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -303,6 +315,65 @@ class ExpandAlphanumericTestCase(TestCase):
 
         with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[a,,b]a'))
+
+
+class ParseNumericRangeTestCase(TestCase):
+    """
+    Validate the operation of parse_numeric_range(), in particular its optional min_value/max_value
+    bounds checking.
+    """
+    def test_unbounded(self):
+        self.assertEqual(parse_numeric_range('0-3,5'), [0, 1, 2, 3, 5])
+        self.assertEqual(parse_numeric_range('2,8-b,d,f', base=16), [2, 8, 9, 10, 11, 13, 15])
+
+    def test_unbounded_reversed_range_yields_nothing(self):
+        # Without bounds a reversed range expands to an empty list, as it always has. Callers which can't
+        # tolerate that (e.g. port mappings) pass bounds to get an error instead.
+        self.assertEqual(parse_numeric_range('9-5'), [])
+        self.assertEqual(parse_numeric_range('1,9-5'), [1])
+
+    def test_bounded_within_range(self):
+        self.assertEqual(parse_numeric_range('80,443,8000-8002', min_value=1, max_value=65535),
+                         [80, 443, 8000, 8001, 8002])
+        # The bounds are inclusive at both ends
+        self.assertEqual(parse_numeric_range('1,65535', min_value=1, max_value=65535), [1, 65535])
+        self.assertEqual(parse_numeric_range('1-3', min_value=1, max_value=3), [1, 2, 3])
+
+    def test_bounded_below_min(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('0', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('0-80', min_value=1, max_value=65535)
+
+    def test_bounded_above_max(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('70000', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80-70000', min_value=1, max_value=65535)
+
+    def test_bounded_rejects_before_expanding(self):
+        # A pathological range must be rejected on its endpoints rather than materialized first
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('1-9999999999', min_value=1, max_value=65535)
+
+    def test_bounded_reversed_range_raises(self):
+        # With bounds, a reversed range is an error rather than a silent empty expansion — otherwise it
+        # would be swallowed when combined with a valid range (e.g. '80,9000-53')
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('9000-53', min_value=1, max_value=65535)
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80,9000-53', min_value=1, max_value=65535)
+
+    def test_bounded_invalid_value(self):
+        with self.assertRaises(forms.ValidationError):
+            parse_numeric_range('80,abc', min_value=1, max_value=65535)
+
+    def test_bounds_are_all_or_nothing(self):
+        # Supplying only one bound would opt into a lower bound while leaving the expansion size uncapped
+        with self.assertRaises(ValueError):
+            parse_numeric_range('80', min_value=1)
+        with self.assertRaises(ValueError):
+            parse_numeric_range('80', max_value=65535)
 
 
 class ImportFormTestCase(TestCase):
@@ -615,6 +686,231 @@ class DynamicMultipleChoiceFieldTestCase(TestCase):
         self.assertEqual(form.fields['field'].choices, [])
 
 
+class GenericObjectChoiceFieldTestCase(TestCase):
+    """Validate generic foreign key object selection via a content type plus an API-backed object selector."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        cls.site_type = ContentType.objects.get_for_model(Site)
+        cls.invalid_type = ContentType.objects.get_for_model(ContentType)
+
+    def _make_form(self, data=None, initial=None, required=False):
+        site_type = self.site_type
+
+        class TestForm(forms.Form):
+            obj = GenericObjectChoiceField(
+                content_type_queryset=ContentType.objects.filter(pk=site_type.pk),
+                required=required,
+                selector=True,
+            )
+
+        return TestForm(data=data, initial=initial)
+
+    def test_valid_value_returns_selected_object(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['obj'], self.site)
+
+    def test_optional_empty_value_returns_none(self):
+        form = self._make_form(data={'obj_content_type': '', 'obj_object_id': ''})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIsNone(form.cleaned_data['obj'])
+
+    def test_required_empty_value_is_invalid(self):
+        form = self._make_form(data={'obj_content_type': '', 'obj_object_id': ''}, required=True)
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_incomplete_value_is_invalid(self):
+        for data in (
+            {'obj_content_type': str(self.site_type.pk), 'obj_object_id': ''},
+            {'obj_content_type': '', 'obj_object_id': str(self.site.pk)},
+        ):
+            form = self._make_form(data=data)
+            self.assertFalse(form.is_valid())
+            self.assertIn('obj', form.errors)
+
+    def test_invalid_content_type_is_rejected(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.invalid_type.pk), 'obj_object_id': str(self.site.pk)}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_invalid_object_id_is_rejected(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk + 1000)}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_initial_object_configures_object_selector(self):
+        form = self._make_form(initial={'obj': self.site})
+        field = form.fields['obj']
+        bound_field = field.get_bound_field(form, 'obj')
+        self.assertEqual(field.selected_model, Site)
+        self.assertEqual(list(field.object_field.queryset), [self.site])
+        self.assertEqual(field.object_field.widget.attrs['selector'], Site._meta.label_lower)
+        self.assertIn('data-url', field.object_field.widget.attrs)
+        self.assertIn('obj_content_type', str(bound_field))
+        self.assertIn('obj_object_id', str(bound_field))
+
+    def test_unbound_htmx_rerender_preserves_selection(self):
+        # Simulates an HTMX content-type change: the view passes the submitted subwidget values
+        # via `initial` (form is unbound). The object selector must reconfigure for the new type.
+        form = self._make_form(initial={
+            'obj_content_type': str(self.site_type.pk),
+            'obj_object_id': str(self.site.pk),
+        })
+        field = form.fields['obj']
+        field.get_bound_field(form, 'obj')
+        self.assertEqual(field.selected_model, Site)
+        self.assertIn('data-url', field.object_field.widget.attrs)
+        self.assertEqual(field.initial, [str(self.site_type.pk), str(self.site.pk)])
+
+    def test_initial_content_type_is_selected_on_render(self):
+        # The content-type subwidget must render its options and mark the current type selected on edit forms.
+        form = self._make_form(initial={'obj': self.site})
+        content_type_html = str(form['obj']).split('name="obj_object_id"')[0]
+        self.assertRegex(content_type_html, rf'value="{self.site_type.pk}"\s+selected')
+
+    def test_queryset_property_proxies_object_field(self):
+        """The top-level queryset proxy reads and writes the nested object field's queryset."""
+        form = self._make_form()
+        field = form.fields['obj']
+        self.assertIs(field.queryset, field.object_field.queryset)
+        field.queryset = Site.objects.all()
+        self.assertIs(field.object_field.queryset, field.queryset)
+        self.assertEqual(list(field.queryset), list(Site.objects.all()))
+
+    def test_queryset_setter_syncs_rendered_subwidget(self):
+        """Assigning queryset (as restrict_form_fields does, pre-render) populates the rendered subwidget."""
+        form = self._make_form()
+        field = form.fields['obj']
+        field.queryset = Site.objects.all()
+        self.assertIs(field.object_field.widget, field.widget.widgets[1])
+        rendered_values = [getattr(value, 'value', value) for value, label in field.object_field.widget.choices]
+        self.assertIn(self.site.pk, rendered_values)
+
+    def test_restricted_queryset_rejects_unviewable_object(self):
+        """An object outside the restricted queryset is rejected, mirroring restrict_form_fields()."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        # restrict_form_fields() narrows the nested queryset via the top-level proxy before validation.
+        form.fields['obj'].queryset = Site.objects.exclude(pk=self.site.pk)
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_restricted_queryset_allows_viewable_object(self):
+        """An object within the restricted queryset still validates."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        form.fields['obj'].queryset = Site.objects.all()
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['obj'], self.site)
+
+    def test_incomplete_value_names_selected_type(self):
+        """When a type is chosen but no object, the error names the selected type."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': ''},
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('Please select a site.', form.errors['obj'])
+
+    def test_content_type_change_clears_stale_object_id(self):
+        """The content-type selector clears its paired object_id client-side on change (stale-PK guard)."""
+        form = self._make_form(initial={'obj': self.site})
+        field = form.fields['obj']
+        field.get_bound_field(form, 'obj')
+        self.assertEqual(
+            field.content_type_field.widget.attrs.get('hx-on::config-request'),
+            "event.detail.parameters['obj_object_id'] = ''",
+        )
+
+    def test_content_type_lookup_is_cached(self):
+        """Repeated content-type resolution hits the database only once per field instance."""
+        field = self._make_form().fields['obj']
+        with self.assertNumQueries(1):
+            first = field._get_content_type(str(self.site_type.pk))
+            second = field._get_content_type(str(self.site_type.pk))
+        self.assertEqual(first, self.site_type)
+        self.assertEqual(second, self.site_type)
+
+    def test_content_type_outside_queryset_returns_none(self):
+        """A content type outside the allowed queryset still resolves to None (constraint preserved)."""
+        field = self._make_form().fields['obj']
+        self.assertIsNone(field._get_content_type(str(self.invalid_type.pk)))
+
+    def test_compress_is_not_implemented(self):
+        """compress() is intentionally unreachable and raises to signal clean() owns the conversion."""
+        field = self._make_form().fields['obj']
+        with self.assertRaises(NotImplementedError):
+            field.compress([self.site_type, self.site])
+
+
+class GenericObjectFormMixinTestCase(TestCase):
+    """Validate the DEBUG warning emitted when an HTMX target has no matching FieldSet."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Mixin Test Site', slug='mixin-test-site')
+        cls.site_type = ContentType.objects.get_for_model(Site)
+
+    def _field(self):
+        return GenericObjectChoiceField(
+            content_type_queryset=ContentType.objects.filter(pk=self.site_type.pk),
+            required=False,
+            hx_target_id='scope',
+        )
+
+    @override_settings(DEBUG=True)
+    def test_missing_htmx_fieldset_warns(self):
+        field = self._field()
+
+        class MissingFieldsetForm(GenericObjectFormMixin, forms.Form):
+            obj = field
+
+        with self.assertWarns(UserWarning):
+            MissingFieldsetForm()
+
+    @override_settings(DEBUG=True)
+    def test_present_htmx_fieldset_does_not_warn(self):
+        field = self._field()
+
+        class PresentFieldsetForm(GenericObjectFormMixin, forms.Form):
+            obj = field
+            fieldsets = (FieldSet('obj', name='Scope', html_id='scope'),)
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            PresentFieldsetForm()
+        self.assertEqual([w for w in caught if 'html_id' in str(w.message)], [])
+
+    def test_gfk_name_routes_assignment(self):
+        """When gfk_name differs from the field name, the cleaned object is assigned to that attribute."""
+        site_type = self.site_type
+
+        class TargetForm(GenericObjectFormMixin, forms.Form):
+            target = GenericObjectChoiceField(
+                content_type_queryset=ContentType.objects.filter(pk=site_type.pk),
+                required=False,
+                gfk_name='assigned_object',
+            )
+
+        form = TargetForm(data={'target_content_type': str(site_type.pk), 'target_object_id': str(self.site.pk)})
+        form.instance = SimpleNamespace()
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.instance.assigned_object, self.site)
+
+
 class GetCapacityUnitLabelTestCase(TestCase):
     """
     Test the get_capacity_unit_label function for correct base unit label.
@@ -625,3 +921,158 @@ class GetCapacityUnitLabelTestCase(TestCase):
 
     def test_iec_label(self):
         self.assertEqual(get_capacity_unit_label(1024), 'MiB')
+
+
+class FieldSetTestCase(TestCase):
+
+    def test_html_id_defaults_to_none(self):
+        fs = FieldSet('field1', 'field2', name='Test')
+        self.assertIsNone(fs.html_id)
+
+    def test_html_id_stored(self):
+        fs = FieldSet('field1', 'field2', name='Test', html_id='my-fieldset')
+        self.assertEqual(fs.html_id, 'my-fieldset')
+
+    @override_settings(DEBUG=True)
+    def test_html_id_invalid_css_identifier_raises(self):
+        with self.assertRaises(ValueError):
+            FieldSet('field1', html_id='123-bad')
+
+    @override_settings(DEBUG=False)
+    def test_html_id_invalid_css_identifier_ignored_outside_debug(self):
+        fs = FieldSet('field1', html_id='123-bad')
+        self.assertEqual(fs.html_id, '123-bad')
+
+
+class HTMXSelectTestCase(TestCase):
+
+    def test_default_targets_form_fields(self):
+        widget = HTMXSelect()
+        self.assertEqual(widget.attrs['hx-target'], '#form_fields')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')
+        self.assertNotIn('hx-select', widget.attrs)
+        self.assertNotIn('hx-swap', widget.attrs)
+
+    def test_hx_target_id_sets_target_select_and_swap(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-target'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-select'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-swap'], 'outerHTML')
+
+    def test_hx_target_id_include_stays_on_form_fields(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')
+
+
+class DescriptionSelectTestCase(TestCase):
+    """
+    Validate the rendering of option descriptions in static select fields.
+    """
+    class ExampleChoices(ChoiceSet):
+        FOO = 'foo'
+        BAR = 'bar'
+        CHOICES = (
+            Choice(FOO, 'Foo', description='Description of foo'),
+            Choice(BAR, 'Bar'),
+        )
+
+    def test_choiceset_descriptions_populate_widget(self):
+        field = ChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_multiplechoicefield_descriptions_populate_widget(self):
+        field = MultipleChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_show_descriptions_false_suppresses_descriptions(self):
+        field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_add_blank_choice_preserves_descriptions(self):
+        field = ChoiceField(choices=add_blank_choice(self.ExampleChoices))
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_data_description_rendered_on_option(self):
+        field = ChoiceField(choices=self.ExampleChoices)
+        html = field.widget.render('test', None)
+        self.assertInHTML(
+            '<option value="foo" data-description="Description of foo">Foo</option>',
+            html
+        )
+        # Options without a description should not receive the attribute
+        self.assertInHTML('<option value="bar">Bar</option>', html)
+
+    def test_choiceset_without_descriptions(self):
+        class NoDescriptions(ChoiceSet):
+            CHOICES = (('a', 'A'),)
+
+        field = ChoiceField(choices=NoDescriptions)
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_descriptions_refresh_when_choices_reassigned(self):
+        """Reassigning a field's choices after construction should refresh the widget's description map."""
+        class OtherChoices(ChoiceSet):
+            CHOICES = (
+                Choice('baz', 'Baz', description='Description of baz'),
+            )
+
+        field = ChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+        field.choices = OtherChoices
+        self.assertEqual(field.widget.descriptions, {'baz': 'Description of baz'})
+
+    def test_show_descriptions_false_suppresses_on_reassignment(self):
+        field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
+        field.choices = self.ExampleChoices
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_typedchoicefield_populates_descriptions(self):
+        field = TypedChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_typedchoicefield_empty_value_defaults_to_none(self):
+        """A blank selection on a TypedChoiceField resolves to None (for storage as NULL) rather than ''."""
+        field = TypedChoiceField(choices=add_blank_choice(self.ExampleChoices), required=False)
+        self.assertIsNone(field.empty_value)
+        self.assertIsNone(field.clean(''))
+
+    def test_explicit_descriptions_mapping(self):
+        widget = Select(choices=[('x', 'X'), ('y', 'Y')], descriptions={'x': 'Description X'})
+        html = widget.render('test', None)
+        self.assertInHTML('<option value="x" data-description="Description X">X</option>', html)
+        self.assertInHTML('<option value="y">Y</option>', html)
+
+    def test_deepcopy_does_not_share_descriptions(self):
+        widget = Select(choices=[('x', 'X')], descriptions={'x': 'Description X'})
+        clone = copy.deepcopy(widget)
+        self.assertIsNot(widget.descriptions, clone.descriptions)
+        widget.descriptions['y'] = 'leaked'
+        self.assertNotIn('y', clone.descriptions)
+
+    def test_choices_setter_delegates_through_mro(self):
+        """
+        AttrChoiceMixin must delegate to the parent field's choices setter via the MRO, not a hardcoded base,
+        so a setter override on an intermediate class is not bypassed.
+        """
+        from django import forms
+
+        from utilities.forms.fields.choices import AttrChoiceMixin
+        from utilities.forms.widgets import Select as DescriptionSelect
+
+        calls = []
+
+        class OverridingChoiceField(forms.ChoiceField):
+            def _set_choices(self, value):
+                calls.append(value)
+                forms.ChoiceField.choices.fset(self, value)
+            choices = property(forms.ChoiceField.choices.fget, _set_choices)
+
+        class CustomField(AttrChoiceMixin, OverridingChoiceField):
+            widget = DescriptionSelect
+
+        field = CustomField(choices=self.ExampleChoices)
+        # The intermediate class's setter must have been invoked (delegation not bypassed)
+        self.assertTrue(calls)
+        # And descriptions are still collected as normal
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})

@@ -28,10 +28,18 @@ An alternative physical label identifying the interface.
 
 ### Type
 
-The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables.
+The type of interface. Interfaces may be physical or virtual in nature, but only physical interfaces may be connected via cables. The generic **channel** type identifies a [channelized subinterface](#channel-id) bound to a parent interface when its specific transceiver type is not relevant; a channel subinterface may instead keep its own specific physical type (e.g. directly declaring a channel as 10GBASE-SR) to record the actual transceiver in use.
 
 !!! note
     The interface type refers to the physical termination or port on the device. Interfaces which employ a removable optic or similar transceiver should be defined to represent the type of transceiver in use, irrespective of the physical termination to that transceiver.
+
+### Channels
+
+!!! info "This field was added in NetBox v4.7."
+
+For a channelized (breakout) interface, the number of physical channels into which the interface is divided. For example, a 40GE interface broken out into four 10GE channels would have `channels` set to four. Each channel is modeled as a channel subinterface bound to this interface via its [channel ID](#channel-id).
+
+A single physical cable terminates to the channelized (parent) interface, occupying one connector shared by all of its channels; NetBox traces a distinct cable path for each channel subinterface. Only one layer of channelization is supported: an interface cannot be both channelized and itself bound to a channel.
 
 ### Speed
 
@@ -49,7 +57,7 @@ The [virtual routing and forwarding](../ipam/vrf.md) instance to which this inte
 
 The [MAC address](./macaddress.md) assigned to this interface which is designated as its primary.
 
-!!! note "Changed in NetBox v4.2"
+!!! note "MAC address is a property"
     The MAC address of an interface (formerly a concrete database field) is available as a property, `mac_address`, which reflects the value of the primary linked [MAC address](./macaddress.md) object.
 
 ### WWN
@@ -78,10 +86,17 @@ If selected, this component will be treated as if a cable has been connected.
 
 ### Parent Interface
 
-Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface.
+Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface. A channel subinterface is likewise bound to its [channelized](#channels) parent interface, whether it uses the generic **channel** type or its own specific physical type.
 
 !!! note
-    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned.
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned. Renaming a channelized interface updates the names of any channel subinterfaces which follow the `<name>:<channel ID>` convention, to keep their names consistent with their new parent, unless the resulting name is already in use by another interface on the device or would exceed the maximum length of the name field (in either case, that subinterface's name is left unchanged).
+
+### Channel ID
+
+The numeric channel on a [channelized](#channels) parent interface to which this subinterface is bound, identifying it as a channel subinterface. This may be set on the generic **channel** type, or on any other physical interface type (e.g. to record the specific transceiver used on that channel) — but not on a virtual or wireless interface. The channel ID must fall within the range of channels provided by the parent (e.g. one through four for a parent with four channels). A channel subinterface derives its cable connection from the parent's; it cannot be cabled directly.
+
+!!! note "Channel IDs are one-indexed"
+    Channel IDs increment starting at one, even for interfaces with a zero-based identifier. This ensures that each subinterface maps cleanly to the profile of an attached cable.
 
 ### Bridged Interface
 

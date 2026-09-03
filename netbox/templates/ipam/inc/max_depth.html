@@ -8,11 +8,11 @@
     <ul class="dropdown-menu" aria-labelledby="max_depth">
         {% if request.GET.depth__lte %}
             <li>
-                <a class="dropdown-item" href="{{ request.path }}{% querystring request depth__lte=None page=1 %}">{% trans "Clear" %}</a>
+                <a class="dropdown-item" href="{{ request.path }}{% querystring depth__lte=None page=1 %}">{% trans "Clear" %}</a>
             </li>
         {% endif %}
         {% for i in 16|as_range %}
-            <li><a class="dropdown-item" href="{{ request.path }}{% querystring request depth__lte=i page=1 %}">
+            <li><a class="dropdown-item" href="{{ request.path }}{% querystring depth__lte=i page=1 %}">
                 {{ i }} {% if request.GET.depth__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
             </a></li>
         {% endfor %}

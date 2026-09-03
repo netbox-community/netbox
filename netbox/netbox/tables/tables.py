@@ -435,7 +435,7 @@ class NestedGroupModelTable(NetBoxTable):
         linkify=True,
         verbose_name=_('Owner'),
     )
-    name = columns.MPTTColumn(
+    name = columns.TreeColumn(
         verbose_name=_('Name'),
         linkify=True
     )

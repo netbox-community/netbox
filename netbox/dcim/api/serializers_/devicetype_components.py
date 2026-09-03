@@ -6,23 +6,27 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate,
     ConsoleServerPortTemplate,
+    CoolingIntakeTemplate,
+    CoolingOutflowTemplate,
     DeviceBayTemplate,
     FrontPortTemplate,
     InterfaceTemplate,
     InventoryItemTemplate,
     ModuleBayTemplate,
+    ModuleBayType,
     PortTemplateMapping,
     PowerOutletTemplate,
     PowerPortTemplate,
     RearPortTemplate,
 )
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
 from wireless.choices import *
 
 from .base import PortSerializer
-from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
+from .devicetypes import DeviceTypeSerializer, ModuleBayTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceTemplateSerializer
 from .roles import InventoryItemRoleSerializer
@@ -30,6 +34,8 @@ from .roles import InventoryItemRoleSerializer
 __all__ = (
     'ConsolePortTemplateSerializer',
     'ConsoleServerPortTemplateSerializer',
+    'CoolingIntakeTemplateSerializer',
+    'CoolingOutflowTemplateSerializer',
     'DeviceBayTemplateSerializer',
     'FrontPortTemplateSerializer',
     'InterfaceTemplateSerializer',
@@ -170,6 +176,88 @@ class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
+class CoolingIntakeTemplateSerializer(ComponentTemplateSerializer):
+    device_type = DeviceTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    max_flow_unit = ChoiceField(
+        choices=FlowRateUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingIntakeTemplate
+        fields = [
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'max_flow', 'max_flow_unit', 'description',
+            'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
+class CoolingOutflowTemplateSerializer(ComponentTemplateSerializer):
+    device_type = DeviceTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    cooling_intake = CoolingIntakeTemplateSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingOutflowTemplate
+        fields = [
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
+            'diameter', 'diameter_unit', 'cooling_intake', 'description', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
 class InterfaceTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
@@ -184,6 +272,10 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=InterfaceTypeChoices)
+    parent = NestedInterfaceTemplateSerializer(
+        required=False,
+        allow_null=True
+    )
     bridge = NestedInterfaceTemplateSerializer(
         required=False,
         allow_null=True
@@ -210,8 +302,9 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
-            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id',
+            'enabled', 'mgmt_only', 'description', 'parent', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -313,12 +406,19 @@ class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
+    module_bay_types = SerializedPKRelatedField(
+        queryset=ModuleBayType.objects.all(),
+        serializer=ModuleBayTypeSerializer,
+        nested=True,
+        required=False,
+        many=True
+    )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
-            'created', 'last_updated',
+            'module_bay_types', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'description')
 

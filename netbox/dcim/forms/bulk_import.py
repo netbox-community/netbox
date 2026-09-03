@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms.array import SimpleArrayField
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils.safestring import mark_safe
+from django.core.exceptions import NON_FIELD_ERRORS, MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils.functional import lazy
+from django.utils.html import format_html
+from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -39,6 +41,10 @@ __all__ = (
     'CableImportForm',
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
+    'CoolingFeedImportForm',
+    'CoolingIntakeImportForm',
+    'CoolingOutflowImportForm',
+    'CoolingSourceImportForm',
     'DeviceBayImportForm',
     'DeviceImportForm',
     'DeviceRoleImportForm',
@@ -51,6 +57,7 @@ __all__ = (
     'MACAddressImportForm',
     'ManufacturerImportForm',
     'ModuleBayImportForm',
+    'ModuleBayTypeImportForm',
     'ModuleImportForm',
     'ModuleTypeImportForm',
     'ModuleTypeProfileImportForm',
@@ -71,6 +78,10 @@ __all__ = (
     'VirtualChassisImportForm',
     'VirtualDeviceContextImportForm'
 )
+
+# A lazily evaluated format_html(), for help text which must not resolve its translated content until
+# the field is rendered. Unlike mark_safe(), this escapes the interpolated arguments.
+format_html_lazy = lazy(format_html, SafeString)
 
 
 class RegionImportForm(NestedGroupModelImportForm):
@@ -239,13 +250,19 @@ class RackTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Unit for rack weights')
     )
+    cooling_capability = CSVChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False,
+        help_text=_('Cooling capability')
+    )
 
     class Meta:
         model = RackType
         fields = (
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -325,6 +342,12 @@ class RackImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_capability = CSVChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False,
+        help_text=_('Cooling capability')
+    )
     weight_unit = CSVChoiceField(
         label=_('Weight unit'),
         choices=WeightUnitChoices,
@@ -337,8 +360,8 @@ class RackImportForm(PrimaryModelImportForm):
         fields = (
             'site', 'location', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor',
             'serial', 'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'owner',
-            'comments', 'tags',
+            'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability', 'cooling_capacity', 'weight',
+            'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -458,8 +481,23 @@ class DeviceTypeImportForm(PrimaryModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'owner', 'comments',
-            'tags',
+            'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'description', 'weight', 'weight_unit',
+            'end_of_life', 'owner', 'comments', 'tags',
+        ]
+
+
+class ModuleBayTypeImportForm(PrimaryModelImportForm):
+    manufacturer = CSVModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        to_field_name='name',
+        required=False,
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = [
+            'name', 'slug', 'manufacturer', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -490,6 +528,12 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_method = CSVChoiceField(
+        label=_('Cooling method'),
+        choices=CoolingMethodChoices,
+        required=False,
+        help_text=_('Cooling method')
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -510,8 +554,8 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'profile',
-            'attribute_data', 'owner', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
+            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):
@@ -699,6 +743,12 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_method = CSVChoiceField(
+        label=_('Cooling method'),
+        choices=CoolingMethodChoices,
+        required=False,
+        help_text=_('Cooling method')
+    )
     config_template = CSVModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
@@ -711,8 +761,8 @@ class DeviceImportForm(BaseDeviceImportForm):
         fields = [
             'name', 'role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent', 'device_bay', 'airflow',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'owner',
-            'comments', 'tags',
+            'cooling_method', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description',
+            'config_template', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -949,6 +999,143 @@ class PowerOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             self.fields['power_port'].queryset = PowerPort.objects.none()
 
 
+class CoolingIntakeImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False,
+        help_text=_('Physical connector type')
+    )
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
+        required=False,
+        help_text=_('Diameter unit')
+    )
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for maximum flow')
+    )
+    cooling_outflow_device = CSVModelChoiceField(
+        label=_('Cooling outflow device'),
+        queryset=Device.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Device bearing the upstream cooling outflow (defaults to this intake\'s device)')
+    )
+    cooling_outflow = CSVModelChoiceField(
+        label=_('Cooling outflow'),
+        queryset=CoolingOutflow.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Upstream cooling outflow which feeds this intake')
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = (
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow',
+            'max_flow_unit', 'cooling_outflow_device', 'cooling_outflow', 'description', 'owner', 'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # The supplying outflow typically belongs to an upstream device (e.g. a CDU or manifold), so scope the
+        # CoolingOutflow choices to cooling_outflow_device where given, falling back to this intake's own device.
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        outflow_device = None
+        if self.is_bound and self.data.get('cooling_outflow_device'):
+            try:
+                outflow_device = self.fields['cooling_outflow_device'].to_python(
+                    self.data['cooling_outflow_device']
+                )
+            except forms.ValidationError:
+                outflow_device = None
+
+        if outflow_device:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(device=outflow_device)
+        elif device:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['cooling_outflow'].queryset = CoolingOutflow.objects.none()
+
+
+class CoolingOutflowImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False,
+        help_text=_('Physical connector type')
+    )
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
+        required=False,
+        help_text=_('Diameter unit')
+    )
+    cooling_intake = CSVModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntake.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Local cooling intake which feeds this outflow')
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = (
+            'device', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description', 'owner', 'tags',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit CoolingIntake choices to those belonging to this device (or VC master)
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['cooling_intake'].queryset = CoolingIntake.objects.none()
+
+
 class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
@@ -1064,9 +1251,9 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = Interface
         fields = (
-            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'speed', 'duplex', 'enabled',
-            'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'mode',
-            'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'rf_role', 'rf_channel',
+            'device', 'name', 'label', 'parent', 'bridge', 'lag', 'type', 'channels', 'channel_id', 'speed', 'duplex',
+            'enabled', 'mark_connected', 'wwn', 'vdcs', 'mtu', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
+            'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'owner', 'tags'
         )
 
@@ -1520,27 +1707,49 @@ class CableBundleImportForm(PrimaryModelImportForm):
 
 
 class CableImportForm(PrimaryModelImportForm):
+    # Cable.clean() reports termination errors (e.g. cable profile violations) against the model's
+    # a_terminations/b_terminations attributes, which have no corresponding fields on this form.
+    # Map them onto the columns which define each side's terminations.
+    TERMINATION_ERROR_FIELDS = {
+        'a_terminations': 'side_a_name',
+        'b_terminations': 'side_b_name',
+    }
+
+    # Columns which take effect only by resolving a side's terminations, and are therefore
+    # meaningless without that side's name column.
+    TERMINATION_DEPENDENT_COLUMNS = ('site', 'device', 'power_panel', 'type')
+
     # Termination A
     side_a_site = CSVModelChoiceField(
         label=_('Side A site'),
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device A (if any)'),
+        help_text=_('Site of parent device A (if any). Restricts the devices & power panels which may be matched.'),
     )
-    side_a_device = CSVModelChoiceField(
+    side_a_device = CSVModelMultipleChoiceField(
         label=_('Side A device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Device name (for device component terminations)')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Device name(s) for device component terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"device1,device2"'
+        )
     )
-    side_a_power_panel = CSVModelChoiceField(
+    side_a_power_panel = CSVModelMultipleChoiceField(
         label=_('Side A power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Power panel name (for power feed terminations)')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"panel1,panel2"'
+        )
     )
     side_a_type = CSVContentTypeField(
         label=_('Side A type'),
@@ -1550,7 +1759,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_a_name = forms.CharField(
         label=_('Side A name'),
-        help_text=_('Termination name')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
+              'Example:'),
+            '"eth0,eth1"'
+        )
     )
 
     # Termination B
@@ -1559,21 +1773,31 @@ class CableImportForm(PrimaryModelImportForm):
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Site of parent device B (if any)'),
+        help_text=_('Site of parent device B (if any). Restricts the devices & power panels which may be matched.'),
     )
-    side_b_device = CSVModelChoiceField(
+    side_b_device = CSVModelMultipleChoiceField(
         label=_('Side B device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Device name (for device component terminations)')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Device name(s) for device component terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"device1,device2"'
+        )
     )
-    side_b_power_panel = CSVModelChoiceField(
+    side_b_power_panel = CSVModelMultipleChoiceField(
         label=_('Side B power panel'),
         queryset=PowerPanel.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Power panel name (for power feed terminations)')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Power panel name(s) for power feed terminations. Separate multiple values with commas, '
+              'encased with double quotes. Example:'),
+            '"panel1,panel2"'
+        )
     )
     side_b_type = CSVContentTypeField(
         label=_('Side B type'),
@@ -1583,7 +1807,12 @@ class CableImportForm(PrimaryModelImportForm):
     )
     side_b_name = forms.CharField(
         label=_('Side B name'),
-        help_text=_('Termination name')
+        help_text=format_html_lazy(
+            '{} <code>{}</code>',
+            _('Termination name(s). Separate multiple values with commas, encased with double quotes. '
+              'Example:'),
+            '"eth0,eth1"'
+        )
     )
 
     # Cable attributes
@@ -1665,6 +1894,105 @@ class CableImportForm(PrimaryModelImportForm):
                     **side_b_parent_params
                 )
 
+    def _update_errors(self, errors):
+        # Remap any termination errors raised by Cable.clean() onto the relevant import column.
+        # Without this, the base form reports them as prefixed non-field errors, as neither
+        # a_terminations nor b_terminations exists as a field on this form. Errors are dispatched
+        # per key so that both sides can fall back to a non-field error without colliding.
+        if hasattr(errors, 'error_dict'):
+            remapped = {}
+            for name, error_list in errors.error_dict.items():
+                mapped_name = self._map_termination_field(name) or NON_FIELD_ERRORS
+                remapped.setdefault(mapped_name, []).extend(error_list)
+            errors = forms.ValidationError(remapped)
+
+        super()._update_errors(errors)
+
+    def _map_termination_field(self, field):
+        """
+        Return the import column against which a model-level termination error should be reported,
+        or None (i.e. a non-field error) if that column is not present on the form. Columns absent
+        from an update record are removed from the form by BulkImportView, so a cable profile
+        violation can be reported against a side whose terminations were not being modified.
+        """
+        if field not in self.TERMINATION_ERROR_FIELDS:
+            return field
+        mapped_field = self.TERMINATION_ERROR_FIELDS[field]
+        return mapped_field if mapped_field in self.fields else None
+
+    @staticmethod
+    def _split_side_values(value):
+        """
+        Split a side_* cell into an ordered list of values, preserving duplicates and empty
+        entries. Accepts a comma-separated string (CSV) or a native list (JSON/YAML).
+        """
+        if value in (None, ''):
+            return []
+        if not isinstance(value, (list, tuple)):
+            value = str(value).split(',')
+        return ['' if item is None else str(item).strip() for item in value]
+
+    def _check_companion_column(self, side, field_name):
+        """
+        Verify that a column needed to resolve a side's terminations is present on the form.
+
+        When updating an existing object, BulkImportView removes every field which does not appear
+        in the record. A record which redefines a side's termination names must therefore also
+        include the columns identifying their type and parent, otherwise the names cannot be
+        resolved and the update would appear to succeed while changing nothing.
+        """
+        if field_name not in self.fields:
+            raise forms.ValidationError(
+                _(
+                    "Side {side_upper}: The {column} column must be included when modifying terminations"
+                ).format(side_upper=side.upper(), column=field_name)
+            )
+
+    def _resolve_side_parent_objects(self, field_name):
+        """
+        Resolve a side's parent objects from the raw submitted values, preserving their order.
+        CSVModelMultipleChoiceField cleans to an unordered queryset, which cannot be used to pair
+        each parent with its corresponding termination name by position. Resolution errors are
+        reported on the parent field itself.
+        """
+        if field_name not in self.cleaned_data:
+            # The parent field has already raised its own validation error
+            return None
+        field = self.fields[field_name]
+        to_field_name = field.to_field_name or 'pk'
+
+        parents = []
+        for value in self._split_side_values(self.data.get(field_name)):
+            try:
+                parents.append(field.queryset.get(**{to_field_name: value}))
+            except ObjectDoesNotExist:
+                self.add_error(field_name, _("Object not found: {value}").format(value=value))
+                return None
+            except MultipleObjectsReturned:
+                self.add_error(
+                    field_name,
+                    _('"{value}" is not a unique value for this field; multiple objects were found').format(
+                        value=value
+                    )
+                )
+                return None
+        return parents
+
+    @staticmethod
+    def _get_device_component_termination(model, device, name):
+        """
+        Resolve a device component by its device and name. If the device is a virtual chassis
+        master and the component is not found on it, search all virtual chassis members.
+        """
+        queryset = model.objects.filter(device=device, name=name)
+        if (
+            device.virtual_chassis and
+            device.virtual_chassis.master == device and
+            not queryset.exists()
+        ):
+            queryset = model.objects.filter(device__in=device.virtual_chassis.members.all(), name=name)
+        return queryset.get()
+
     def _clean_side(self, side):
         """
         Derive a Cable's A/B termination objects.
@@ -1674,60 +2002,98 @@ class CableImportForm(PrimaryModelImportForm):
         if side not in ('a', 'b'):
             raise ValueError(_("Invalid side designation: {side}").format(side=side))
 
-        device = self.cleaned_data.get(f'side_{side}_device')
-        power_panel = self.cleaned_data.get(f'side_{side}_power_panel')
         content_type = self.cleaned_data.get(f'side_{side}_type')
-        name = self.cleaned_data.get(f'side_{side}_name')
-        if not content_type or not name:
+        # Native list values (JSON/YAML) bypass the CharField; strings use its cleaned value
+        names = self.data.get(f'side_{side}_name')
+        if not isinstance(names, (list, tuple)):
+            names = self.cleaned_data.get(f'side_{side}_name')
+        names = self._split_side_values(names)
+        if not names:
             return None
+
+        if not content_type:
+            # BulkImportView removes any field absent from an update record, so a missing termination
+            # type here means the column was omitted rather than left blank. Reject it: silently
+            # ignoring the submitted names would report a successful update which changed nothing.
+            self._check_companion_column(side, f'side_{side}_type')
+            return None
+
+        if '' in names:
+            raise forms.ValidationError(
+                _("Side {side_upper}: Empty termination names are not permitted").format(side_upper=side.upper())
+            )
 
         model = content_type.model_class()
 
-        # PowerFeed terminations reference a PowerPanel, not a Device
+        # Identify the parent field for the termination type. PowerFeed terminations reference a
+        # PowerPanel; all other supported types reference a Device.
         if content_type.model == 'powerfeed':
-            if not power_panel:
-                return None
-            try:
-                termination_object = model.objects.get(power_panel=power_panel, name=name)
-                if termination_object.cable is not None and termination_object.cable != self.instance:
-                    raise forms.ValidationError(
-                        _("Side {side_upper}: {power_panel} {termination_object} is already connected").format(
-                            side_upper=side.upper(), power_panel=power_panel, termination_object=termination_object
-                        )
-                    )
-            except ObjectDoesNotExist:
-                raise forms.ValidationError(
-                    _("{side_upper} side termination not found: {power_panel} {name}").format(
-                        side_upper=side.upper(), power_panel=power_panel, name=name
-                    )
-                )
+            parent_field_name = f'side_{side}_power_panel'
+            parent_label = _('power panel')
+        elif any(field.name == 'device' for field in model._meta.fields):
+            parent_field_name = f'side_{side}_device'
+            parent_label = _('device')
         else:
-            if not device:
-                return None
+            raise forms.ValidationError(
+                _("Bulk import does not support {type} terminations").format(type=content_type)
+            )
+
+        self._check_companion_column(side, parent_field_name)
+
+        parents = self._resolve_side_parent_objects(parent_field_name)
+        if parents is None:
+            # The parent field has already raised its own validation error
+            return None
+        if not parents:
+            raise forms.ValidationError(
+                _("Side {side_upper}: Must specify a {parent} for the selected termination type").format(
+                    side_upper=side.upper(), parent=parent_label
+                )
+            )
+        if len(parents) == 1:
+            parents = parents * len(names)
+        elif len(parents) != len(names):
+            raise forms.ValidationError(
+                _(
+                    "Side {side_upper}: Must specify either one {parent} for all terminations or one {parent} "
+                    "per termination name"
+                ).format(side_upper=side.upper(), parent=parent_label)
+            )
+
+        terminations = []
+        for parent, name in zip(parents, names):
             try:
-                if (
-                    device.virtual_chassis and
-                    device.virtual_chassis.master == device and
-                    not model.objects.filter(device=device, name=name).exists()
-                ):
-                    termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
+                if content_type.model == 'powerfeed':
+                    termination_object = model.objects.get(power_panel=parent, name=name)
                 else:
-                    termination_object = model.objects.get(device=device, name=name)
-                if termination_object.cable is not None and termination_object.cable != self.instance:
-                    raise forms.ValidationError(
-                        _("Side {side_upper}: {device} {termination_object} is already connected").format(
-                            side_upper=side.upper(), device=device, termination_object=termination_object
-                        )
-                    )
+                    termination_object = self._get_device_component_termination(model, parent, name)
             except ObjectDoesNotExist:
                 raise forms.ValidationError(
-                    _("{side_upper} side termination not found: {device} {name}").format(
-                        side_upper=side.upper(), device=device, name=name
+                    _("{side_upper} side termination not found: {parent} {name}").format(
+                        side_upper=side.upper(), parent=parent, name=name
                     )
                 )
+            except MultipleObjectsReturned:
+                raise forms.ValidationError(
+                    _("{side_upper} side termination not unique: {parent} {name}").format(
+                        side_upper=side.upper(), parent=parent, name=name
+                    )
+                )
+            if termination_object.cable is not None and termination_object.cable != self.instance:
+                raise forms.ValidationError(
+                    _("Side {side_upper}: {parent} {termination_object} is already connected").format(
+                        side_upper=side.upper(), parent=parent, termination_object=termination_object
+                    )
+                )
+            terminations.append(termination_object)
 
-        setattr(self.instance, f'{side}_terminations', [termination_object])
-        return termination_object
+        if len({termination.pk for termination in terminations}) != len(terminations):
+            raise forms.ValidationError(
+                _("Side {side_upper}: Duplicate termination specified").format(side_upper=side.upper())
+            )
+
+        setattr(self.instance, f'{side}_terminations', terminations)
+        return terminations
 
     def _clean_color(self, color):
         """
@@ -1746,6 +2112,32 @@ class CableImportForm(PrimaryModelImportForm):
                 _(f"{color} did not match any used color name and was longer than six characters: invalid hex.")
             )
         return color_parsed
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Termination resolution is driven by clean_side_<x>_name(), which Django never calls for a
+        # field BulkImportView has removed. An update record which supplies a side's supporting
+        # columns but omits its name column would therefore have those columns silently discarded
+        # and report an update which changed nothing; reject it instead. This cannot trigger on
+        # creation, where the name columns are always present (and required).
+        for side in ('a', 'b'):
+            if f'side_{side}_name' in self.fields:
+                continue
+            if supplied := [
+                column for column in self.TERMINATION_DEPENDENT_COLUMNS
+                if f'side_{side}_{column}' in self.fields
+            ]:
+                self.add_error(None, _(
+                    "Side {side_upper}: The side_{side}_name column must be included when modifying "
+                    "terminations (found {columns})"
+                ).format(
+                    side_upper=side.upper(),
+                    side=side,
+                    columns=', '.join(f'side_{side}_{column}' for column in supplied),
+                ))
+
+        return cleaned_data
 
     def clean_side_a_name(self):
         return self._clean_side('a')
@@ -1881,6 +2273,127 @@ class PowerFeedImportForm(PrimaryModelImportForm):
             # Limit power_panel queryset by site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
             self.fields['power_panel'].queryset = self.fields['power_panel'].queryset.filter(**params)
+
+            # Limit location queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+
+            # Limit rack queryset by site and group
+            params = {
+                f"site__{self.fields['site'].to_field_name}": data.get('site'),
+                f"location__{self.fields['location'].to_field_name}": data.get('location'),
+            }
+            self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
+
+
+class CoolingSourceImportForm(PrimaryModelImportForm):
+    site = CSVModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text=_('Name of parent site')
+    )
+    location = CSVModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        required=False,
+        to_field_name='name'
+    )
+    type = CSVChoiceField(
+        label=_('Type'),
+        choices=CoolingSourceTypeChoices,
+        help_text=_('Cooling source type')
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=CoolingSourceStatusChoices,
+        help_text=_('Operational status')
+    )
+    fluid_type = CSVChoiceField(
+        label=_('Fluid type'),
+        choices=FluidTypeChoices,
+        required=False,
+        help_text=_('Coolant fluid type')
+    )
+
+    class Meta:
+        model = CoolingSource
+        fields = (
+            'site', 'location', 'name', 'type', 'status', 'fluid_type', 'cooling_capacity', 'description', 'owner',
+            'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit location queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
+
+
+class CoolingFeedImportForm(PrimaryModelImportForm):
+    site = CSVModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned site')
+    )
+    cooling_source = CSVModelChoiceField(
+        label=_('Cooling source'),
+        queryset=CoolingSource.objects.all(),
+        to_field_name='name',
+        help_text=_('Upstream cooling source')
+    )
+    location = CSVModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_("Rack's location (if any)")
+    )
+    rack = CSVModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Rack')
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Assigned tenant')
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=CoolingFeedStatusChoices,
+        help_text=_('Operational status')
+    )
+    max_flow_unit = CSVChoiceField(
+        label=_('Max flow unit'),
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for maximum flow')
+    )
+
+    class Meta:
+        model = CoolingFeed
+        fields = (
+            'site', 'cooling_source', 'location', 'rack', 'name', 'status',
+            'cooling_capacity', 'max_flow', 'max_flow_unit', 'tenant', 'description', 'owner',
+            'comments', 'tags',
+        )
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit cooling_source queryset by site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['cooling_source'].queryset = self.fields['cooling_source'].queryset.filter(**params)
 
             # Limit location queryset by site
             params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}

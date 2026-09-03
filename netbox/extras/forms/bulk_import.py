@@ -2,12 +2,13 @@ import re
 
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import NON_FIELD_ERRORS, ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.models import DataFile, DataSource, ObjectType
 from extras.choices import *
 from extras.models import *
+from netbox.event_rules import get_event_rule_action
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
 from users.models import Group, User
@@ -81,7 +82,7 @@ class CustomFieldImportForm(OwnerCSVMixin, CSVModelForm):
             'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'unique',
             'description', 'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
             'validation_maximum', 'validation_regex', 'validation_schema', 'ui_visible', 'ui_editable',
-            'is_cloneable', 'owner', 'comments',
+            'is_cloneable', 'nulls_first', 'owner', 'comments',
         )
 
 
@@ -254,7 +255,7 @@ class WebhookImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         model = Webhook
         fields = (
             'name', 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template',
-            'secret', 'ssl_verification', 'ca_file_path', 'description', 'owner', 'tags'
+            'secret', 'ssl_verification', 'ca_file_path', 'timeout', 'description', 'owner', 'tags'
         )
 
 
@@ -271,8 +272,11 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     )
     action_object = forms.CharField(
         label=_('Action object'),
-        required=True,
-        help_text=_('Webhook name or script as dotted path module.Class')
+        required=False,
+        help_text=_(
+            'The target object for the action, if it requires one. The expected format depends on the action type '
+            '(e.g. a webhook or notification group name, or a script as dotted path module.Class).'
+        )
     )
 
     class Meta:
@@ -287,24 +291,58 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
         action_object = self.cleaned_data.get('action_object')
         action_type = self.cleaned_data.get('action_type')
-        if action_object and action_type:
-            # Webhook
-            if action_type == EventRuleActionChoices.WEBHOOK:
-                try:
-                    webhook = Webhook.objects.get(name=action_object)
-                except Webhook.DoesNotExist:
-                    raise forms.ValidationError(_("Webhook {name} not found").format(name=action_object))
-                self.instance.action_object = webhook
-            # Script
-            elif action_type == EventRuleActionChoices.SCRIPT:
-                from extras.scripts import get_module_and_script
-                module_name, script_name = action_object.split('.', 1)
-                try:
-                    script = get_module_and_script(module_name, script_name)[1]
-                except ObjectDoesNotExist:
-                    raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
-                self.instance.action_object = script
-                self.instance.action_object_type = ObjectType.objects.get_for_model(script, for_concrete_model=False)
+        if not action_type:
+            return
+
+        action = get_event_rule_action(action_type)
+        if action is None:
+            raise forms.ValidationError({
+                'action_type': _('"{action_type}" is not a registered action type.').format(action_type=action_type)
+            })
+
+        if not action_object:
+            if action.object_required:
+                raise forms.ValidationError({
+                    'action_object': _("This action type requires a target object."),
+                })
+            # Clear any action_object this instance previously had (relevant for a CSV row that
+            # updates an existing rule, matched by id, to a now-object-less action_type).
+            self.instance.action_object_type = None
+            self.instance.action_object_id = None
+            return
+
+        if action.object_model is None:
+            raise forms.ValidationError({
+                'action_object': _("This action type does not operate against a target object."),
+            })
+
+        try:
+            obj = action.resolve_import_object(action_object)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError({
+                'action_object': _("{name} not found").format(name=action_object)
+            })
+        if obj is None:
+            raise forms.ValidationError({
+                'action_object': _("This action type does not support bulk import.")
+            })
+
+        # Assign the GFK itself (not just action_object_type/id) so EventRule.clean()'s later
+        # access to self.action_object hits the descriptor cache instead of a fresh SELECT --
+        # for a non-proxy object_model, where the concrete and non-concrete content types match.
+        self.instance.action_object = obj
+        self.instance.action_object_type = ObjectType.objects.get_for_model(obj, for_concrete_model=False)
+
+    def _update_errors(self, errors):
+        # Remap errors keyed by fields this form doesn't expose (e.g. action_object_id) to
+        # NON_FIELD_ERRORS; otherwise Django's add_error() raises ValueError instead of failing validation normally.
+        if hasattr(errors, 'error_dict'):
+            remapped = {}
+            for field, messages in errors.error_dict.items():
+                key = field if field == NON_FIELD_ERRORS or field in self.fields else NON_FIELD_ERRORS
+                remapped.setdefault(key, []).extend(messages)
+            errors = ValidationError(remapped)
+        super()._update_errors(errors)
 
 
 class TagImportForm(OwnerCSVMixin, CSVModelForm):

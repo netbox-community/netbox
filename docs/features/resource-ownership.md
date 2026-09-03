@@ -1,7 +1,5 @@
 # Resource Ownership
 
-!!! info "This feature was introduced in NetBox v4.5."
-
 Most objects in NetBox can be assigned an owner. An owner is a set of users and/or groups who are responsible for the administration of associated objects. For example, you might designate the operations team at a site as the owner for all prefixes and VLANs deployed at that site. The users and groups assigned to an owner are referred to as its members.
 
 !!! note

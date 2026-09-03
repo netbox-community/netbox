@@ -1,9 +1,11 @@
 import uuid
+from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+from django.utils import timezone
 
 from core.choices import JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.models import DataSource, Job, ObjectType
@@ -344,3 +346,38 @@ class JobTestCase(TestCase):
                     0,
                     msg=f"Expected no notification for status={status} with notifications=never",
                 )
+
+    @patch('core.models.jobs.job_end')
+    def test_execution_time_set_on_terminate(self, mock_job_end):
+        """
+        terminate() should set execution_time to (completed - started) for a started job.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        job.started = timezone.now() - timedelta(seconds=90)
+        job.save()
+
+        job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
+
+        self.assertIsNotNone(job.execution_time)
+        self.assertEqual(job.execution_time, job.completed - job.started)
+
+    @patch('core.models.jobs.job_end')
+    def test_execution_time_none_before_completion(self, mock_job_end):
+        """
+        A job which has not completed should have a null execution_time.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        self.assertIsNone(job.execution_time)
+
+    @patch('core.models.jobs.job_end')
+    def test_execution_time_none_when_never_started(self, mock_job_end):
+        """
+        Terminating a job which was never started (no started timestamp) should leave
+        execution_time null rather than computing a value from a missing start time.
+        """
+        job = self._make_job(None, JobNotificationChoices.NOTIFICATION_NEVER)
+        self.assertIsNone(job.started)
+
+        job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
+
+        self.assertIsNone(job.execution_time)

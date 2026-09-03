@@ -79,13 +79,7 @@ The NetBox URL registration process has two parts:
 
 ::: utilities.views.register_model_view
 
-!!! note "Changed in NetBox v4.2"
-    In NetBox v4.2, the `register_model_view()` function was extended to support the registration of list views by passing `detail=False`.
-
 ::: utilities.urls.get_model_urls
-
-!!! note "Changed in NetBox v4.2"
-    In NetBox v4.2, the `get_model_urls()` function was extended to support retrieving registered general model views (e.g. for listing objects) by passing `detail=False`.
 
 ### Example Usage
 

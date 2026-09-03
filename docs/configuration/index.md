@@ -6,6 +6,9 @@ NetBox's configuration file contains all the important parameters which control 
 
 The configuration file is loaded from `$INSTALL_ROOT/netbox/netbox/configuration.py` by default. An example configuration is provided at `configuration_example.py`, which you may copy to use as your default config. Note that a configuration file must be defined; NetBox will not run without one.
 
+!!! note "Python package installations (experimental)"
+    An experimental Python package installation loads `$NETBOX_ROOT/conf/configuration.py` by default. `NETBOX_ROOT` defaults to `/opt/netbox`. Use `netbox setup --target <path>` to scaffold the local configuration, and keep configuration and mutable instance data outside the virtual environment and installed package. The setup target is not persisted; set `NETBOX_ROOT` for all commands and services when using a non-default path.
+
 !!! info "Customizing the Configuration Module"
     A custom configuration module may be specified by setting the `NETBOX_CONFIGURATION` environment variable. This must be a dotted path to the desired Python module. For example, a file named `my_config.py` in the same directory as `settings.py` would be referenced as `netbox.my_config`.
 

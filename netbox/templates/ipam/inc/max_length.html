@@ -8,11 +8,11 @@
     <ul class="dropdown-menu" aria-labelledby="max_length">
         {% if request.GET.mask_length__lte %}
             <li>
-                <a class="dropdown-item" href="{{ request.path }}{% querystring request mask_length__lte=None page=1 %}">{% trans "Clear" %}</a>
+                <a class="dropdown-item" href="{{ request.path }}{% querystring mask_length__lte=None page=1 %}">{% trans "Clear" %}</a>
             </li>
         {% endif %}
         {% for i in "4,8,12,16,20,24,28,32,40,48,56,64"|split %}
-            <li><a class="dropdown-item" href="{{ request.path }}{% querystring request mask_length__lte=i page=1 %}">
+            <li><a class="dropdown-item" href="{{ request.path }}{% querystring mask_length__lte=i page=1 %}">
                 {{ i }} {% if request.GET.mask_length__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
             </a></li>
         {% endfor %}

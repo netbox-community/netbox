@@ -125,8 +125,6 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 ## STREAMING_EXPORTS
 
-!!! note "This parameter was introduced in NetBox v4.6."
-
 Default: `False`
 
 When set to `True`, CSV bulk exports are returned as a streaming HTTP response, emitting rows to the client as they are rendered rather than buffering the entire dataset in memory first. This can significantly reduce memory usage and time-to-first-byte for very large exports.
@@ -277,7 +275,10 @@ This is a wrapper for passing global configuration parameters to [Django RQ](htt
 
 Default: `300`
 
-The maximum execution time of a background task (such as running a custom script), in seconds.
+The maximum execution time of a background task (such as running a custom script), in seconds. This may also be expressed as a duration string such as `1h` or `30m`, which NetBox normalizes to seconds when comparing it against webhook timeouts. Set this to `-1` to disable the job timeout entirely.
+
+!!! note
+    A value of zero (or `None`) does not disable the timeout: RQ falls back to its own default of 180 seconds, and NetBox validates webhook timeouts against that value accordingly.
 
 ---
 
@@ -306,3 +307,19 @@ The base unit for disk sizes. Set this to `1024` to use binary prefixes (MiB, Gi
 Default: `1000`
 
 The base unit for RAM sizes. Set this to `1024` to use binary prefixes (MiB, GiB, etc.) instead of decimal prefixes (MB, GB, etc.).
+
+---
+
+## WEBHOOK_DEFAULT_TIMEOUT
+
+Default: `60`
+
+The default maximum time (in seconds) to wait for a response when sending a webhook. This value is used for any webhook which does not define its own timeout. Keeping this below [`RQ_DEFAULT_TIMEOUT`](#rq_default_timeout) gives an unresponsive receiver a chance to be cut off by the request timeout rather than by termination of the background job.
+
+This value must be an integer between 1 and 3600, and must be less than `RQ_DEFAULT_TIMEOUT`; NetBox will refuse to start otherwise. The same upper bound is enforced on the per-webhook [timeout](../models/extras/webhook.md#timeout) field.
+
+!!! warning "Upgrading"
+    If you have lowered `RQ_DEFAULT_TIMEOUT` to 60 seconds or less and have not set `WEBHOOK_DEFAULT_TIMEOUT`, NetBox will not start until you set `WEBHOOK_DEFAULT_TIMEOUT` to a value below your job timeout.
+
+!!! note
+    The timeout is applied separately to establishing the connection and to waiting for data, rather than to the request as a whole. A receiver which responds slowly but continuously can therefore keep a request open for longer than the configured value. `RQ_DEFAULT_TIMEOUT` remains the ultimate upper bound on how long a webhook job can occupy a worker.

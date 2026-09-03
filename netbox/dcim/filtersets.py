@@ -1,7 +1,7 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Func, IntegerField
+from django.db.models import Func, IntegerField, Q
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -12,7 +12,7 @@ from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices
+from netbox.choices import ColorChoices, DiameterUnitChoices, FlowRateUnitChoices
 from netbox.filtersets import (
     AttributeFiltersMixin,
     BaseFilterSet,
@@ -57,6 +57,12 @@ __all__ = (
     'ConsolePortTemplateFilterSet',
     'ConsoleServerPortFilterSet',
     'ConsoleServerPortTemplateFilterSet',
+    'CoolingFeedFilterSet',
+    'CoolingIntakeFilterSet',
+    'CoolingIntakeTemplateFilterSet',
+    'CoolingOutflowFilterSet',
+    'CoolingOutflowTemplateFilterSet',
+    'CoolingSourceFilterSet',
     'DeviceBayFilterSet',
     'DeviceBayTemplateFilterSet',
     'DeviceFilterSet',
@@ -75,6 +81,7 @@ __all__ = (
     'ManufacturerFilterSet',
     'ModuleBayFilterSet',
     'ModuleBayTemplateFilterSet',
+    'ModuleBayTypeFilterSet',
     'ModuleFilterSet',
     'ModuleTypeFilterSet',
     'ModuleTypeProfileFilterSet',
@@ -354,12 +361,17 @@ class RackTypeFilterSet(PrimaryModelFilterSet):
         choices=RackWidthChoices,
         distinct=False,
     )
+    cooling_capability = django_filters.MultipleChoiceFilter(
+        choices=RackCoolingCapabilityChoices,
+        distinct=False,
+    )
 
     class Meta:
         model = RackType
         fields = (
             'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'cooling_capacity',
+            'description',
 
             # Counters
             'rack_count',
@@ -494,12 +506,17 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         lookup_expr='iexact'
     )
 
+    cooling_capability = django_filters.MultipleChoiceFilter(
+        choices=RackCoolingCapabilityChoices,
+        distinct=False,
+    )
+
     class Meta:
         model = Rack
         fields = (
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
-            'weight_unit', 'description',
+            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'cooling_capacity',
+            'weight', 'max_weight', 'weight_unit', 'description',
         )
 
     def search(self, queryset, name, value):
@@ -727,13 +744,15 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         model = DeviceType
         fields = (
             'id', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'description',
+            'subdevice_role', 'airflow', 'cooling_method', 'weight', 'weight_unit', 'end_of_life', 'description',
 
             # Counters
             'console_port_template_count',
             'console_server_port_template_count',
             'power_port_template_count',
             'power_outlet_template_count',
+            'cooling_intake_template_count',
+            'cooling_outflow_template_count',
             'interface_template_count',
             'front_port_template_count',
             'rear_port_template_count',
@@ -796,6 +815,51 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
+class ModuleBayTypeFilterSet(PrimaryModelFilterSet):
+    manufacturer_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Manufacturer.objects.all(),
+        distinct=False,
+        label=_('Manufacturer (ID)'),
+    )
+    manufacturer = django_filters.ModelMultipleChoiceFilter(
+        field_name='manufacturer__slug',
+        queryset=Manufacturer.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Manufacturer (slug)'),
+    )
+    module_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_types',
+        queryset=ModuleType.objects.all(),
+        label=_('Module type (ID)'),
+    )
+    module_bay_template_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_templates',
+        queryset=ModuleBayTemplate.objects.all(),
+        label=_('Module bay template (ID)'),
+    )
+    module_bay_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bays',
+        queryset=ModuleBay.objects.all(),
+        label=_('Module bay (ID)'),
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = ('id', 'name', 'slug', 'color', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(slug__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
+@register_filterset
 class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
 
     class Meta:
@@ -838,6 +902,19 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
+    )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
         label=_('Has console ports'),
@@ -870,13 +947,16 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     class Meta:
         model = ModuleType
         fields = (
-            'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
+            'id', 'model', 'part_number', 'airflow', 'cooling_method', 'weight', 'weight_unit', 'end_of_life',
+            'description',
 
             # Counters
             'console_port_template_count',
             'console_server_port_template_count',
             'power_port_template_count',
             'power_outlet_template_count',
+            'cooling_intake_template_count',
+            'cooling_outflow_template_count',
             'interface_template_count',
             'front_port_template_count',
             'rear_port_template_count',
@@ -993,11 +1073,65 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 
 
 @register_filterset
+class CoolingIntakeTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    max_flow_unit = django_filters.MultipleChoiceFilter(
+        choices=FlowRateUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+
+    class Meta:
+        model = CoolingIntakeTemplate
+        fields = (
+            'id', 'name', 'label', 'diameter', 'max_flow', 'description',
+        )
+
+
+@register_filterset
+class CoolingOutflowTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_intake',
+        queryset=CoolingIntakeTemplate.objects.all(),
+        distinct=False,
+        label=_('Cooling intake (ID)'),
+    )
+
+    class Meta:
+        model = CoolingOutflowTemplate
+        fields = ('id', 'name', 'label', 'diameter', 'description')
+
+
+@register_filterset
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
         distinct=False,
         null_value=None
+    )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent',
+        queryset=InterfaceTemplate.objects.all(),
+        distinct=False,
     )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
         field_name='bridge',
@@ -1019,7 +1153,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = InterfaceTemplate
-        fields = ('id', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')
+        fields = ('id', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mgmt_only', 'description')
 
 
 @register_filterset
@@ -1062,6 +1196,19 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
 
 @register_filterset
 class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
+    )
 
     class Meta:
         model = ModuleBayTemplate
@@ -1465,14 +1612,16 @@ class DeviceFilterSet(
     class Meta:
         model = Device
         fields = (
-            'id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority',
-            'description',
+            'id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'cooling_method', 'vc_position',
+            'vc_priority', 'description',
 
             # Counters
             'console_port_count',
             'console_server_port_count',
             'power_port_count',
             'power_outlet_count',
+            'cooling_intake_count',
+            'cooling_outflow_count',
             'interface_count',
             'front_port_count',
             'rear_port_count',
@@ -2026,6 +2175,63 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 
 
 @register_filterset
+class CoolingIntakeFilterSet(ModularDeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    max_flow_unit = django_filters.MultipleChoiceFilter(
+        choices=FlowRateUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    cooling_outflow_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CoolingOutflow.objects.all(),
+        field_name='cooling_outflow',
+        distinct=False,
+        label=_('Cooling outflow (ID)'),
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = (
+            'id', 'name', 'label', 'diameter', 'max_flow', 'description',
+        )
+
+
+@register_filterset
+class CoolingOutflowFilterSet(ModularDeviceComponentFilterSet):
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingConnectorTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    diameter_unit = django_filters.MultipleChoiceFilter(
+        choices=DiameterUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    cooling_intake_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_intake',
+        queryset=CoolingIntake.objects.all(),
+        distinct=False,
+        label=_('Cooling intake (ID)'),
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = (
+            'id', 'name', 'label', 'diameter', 'description',
+        )
+
+
+@register_filterset
 class MACAddressFilterSet(PrimaryModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
     assigned_object_type = MultiValueContentTypeFilter()
@@ -2344,9 +2550,9 @@ class InterfaceFilterSet(
     class Meta:
         model = Interface
         fields = (
-            'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
-            'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end', 'cable_connector',
+            'id', 'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mtu', 'mgmt_only', 'poe_mode',
+            'poe_type', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+            'description', 'mark_connected', 'cable_id', 'cable_end', 'cable_connector',
         )
 
     def filter_virtual_chassis_member_or_master(self, queryset, name, value):
@@ -2364,7 +2570,9 @@ class InterfaceFilterSet(
     def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
         return {
-            'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES),
+            # A channel subinterface is excluded even if its type is otherwise connectable: it derives its cable
+            # from its channelized parent and cannot be cabled directly (matches Interface.is_wired).
+            'physical': queryset.exclude(type__in=NONCONNECTABLE_IFACE_TYPES).filter(channel_id__isnull=True),
             'virtual': queryset.filter(type__in=VIRTUAL_IFACE_TYPES),
             'wireless': queryset.filter(type__in=WIRELESS_IFACE_TYPES),
         }.get(value, queryset.none())
@@ -2439,6 +2647,19 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
         field_name='installed_module',
         queryset=ModuleBay.objects.all(),
         label=_('Installed module (ID)'),
+    )
+    module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        label=_('Module bay type (ID)'),
+    )
+    module_bay_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_bay_types__slug',
+        queryset=ModuleBayType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Module bay type (slug)'),
     )
 
     class Meta:
@@ -3026,6 +3247,173 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpo
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(power_panel__name__icontains=value) |
+            Q(comments__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+@register_filterset
+class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        distinct=False,
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='site__slug',
+        queryset=Site.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Site name (slug)'),
+    )
+    location_id = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='location',
+        lookup_expr='in',
+        label=_('Location (ID)'),
+    )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
+    type = django_filters.MultipleChoiceFilter(
+        choices=CoolingSourceTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=CoolingSourceStatusChoices,
+        distinct=False,
+        null_value=None
+    )
+    fluid_type = django_filters.MultipleChoiceFilter(
+        choices=FluidTypeChoices,
+        distinct=False,
+        null_value=None
+    )
+
+    class Meta:
+        model = CoolingSource
+        fields = (
+            'id', 'name', 'cooling_capacity', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+        return queryset.filter(qs_filter)
+
+
+@register_filterset
+class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='cooling_source__site__region',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='cooling_source__site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='cooling_source__site__group',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='cooling_source__site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_source__site',
+        queryset=Site.objects.all(),
+        distinct=False,
+        label=_('Site (ID)'),
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='cooling_source__site__slug',
+        queryset=Site.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Site name (slug)'),
+    )
+    cooling_source_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CoolingSource.objects.all(),
+        distinct=False,
+        label=_('Cooling source (ID)'),
+    )
+    rack_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack',
+        queryset=Rack.objects.all(),
+        distinct=False,
+        label=_('Rack (ID)'),
+    )
+    status = django_filters.MultipleChoiceFilter(
+        choices=CoolingFeedStatusChoices,
+        distinct=False,
+        null_value=None
+    )
+    max_flow_unit = django_filters.MultipleChoiceFilter(
+        choices=FlowRateUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+
+    class Meta:
+        model = CoolingFeed
+        fields = (
+            'id', 'name', 'cooling_capacity', 'max_flow', 'description',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(cooling_source__name__icontains=value) |
             Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)

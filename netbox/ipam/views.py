@@ -14,6 +14,7 @@ from dcim.models import Device, Interface, Site
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
 from netbox.ui.panels import (
     CommentsPanel,
     ContextTablePanel,
@@ -360,8 +361,12 @@ class ASNRangeListView(generic.ObjectListView):
 
 @register_model_view(ASNRange)
 class ASNRangeView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ASNRange.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('rir', url=filtered_list_url('ipam:asnrange_list', 'rir_id')),
+        ],
         left_panels=[
             panels.ASNRangePanel(),
             TagsPanel(),
@@ -450,8 +455,12 @@ class ASNListView(generic.ObjectListView):
 
 @register_model_view(ASN)
 class ASNView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ASN.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('rir', url=filtered_list_url('ipam:asn_list', 'rir_id')),
+        ],
         left_panels=[
             panels.ASNPanel(),
             TagsPanel(),
@@ -536,8 +545,12 @@ class AggregateListView(generic.ObjectListView):
 
 @register_model_view(Aggregate)
 class AggregateView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Aggregate.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('rir', url=filtered_list_url('ipam:aggregate_list', 'rir_id')),
+        ],
         left_panels=[
             panels.AggregatePanel(),
         ],
@@ -787,6 +800,9 @@ class PrefixListView(generic.ObjectListView):
 class PrefixView(generic.ObjectView):
     queryset = Prefix.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('vrf', url=filtered_list_url('ipam:prefix_list', 'vrf_id')),
+        ],
         left_panels=[
             panels.PrefixPanel(),
         ],
@@ -1003,8 +1019,12 @@ class IPRangeListView(generic.ObjectListView):
 
 @register_model_view(IPRange)
 class IPRangeView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = IPRange.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('vrf', url=filtered_list_url('ipam:iprange_list', 'vrf_id')),
+        ],
         left_panels=[
             panels.IPRangePanel(),
         ],
@@ -1113,8 +1133,12 @@ class IPAddressListView(generic.ObjectListView):
 
 @register_model_view(IPAddress)
 class IPAddressView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('vrf', url=filtered_list_url('ipam:ipaddress_list', 'vrf_id')),
+        ],
         left_panels=[
             panels.IPAddressPanel(),
             TagsPanel(),
@@ -1319,6 +1343,9 @@ class VLANGroupListView(generic.ObjectListView):
 class VLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VLANGroup.objects.annotate_utilization()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('scope'),
+        ],
         left_panels=[
             panels.VLANGroupPanel(),
             TagsPanel(),
@@ -1720,7 +1747,12 @@ class VLANListView(generic.ObjectListView):
 @register_model_view(VLAN)
 class VLANView(generic.ObjectView):
     queryset = VLAN.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site', url=filtered_list_url('ipam:vlan_list', 'site_id')),
+            Breadcrumb('group', url=filtered_list_url('ipam:vlan_list', 'group_id')),
+        ],
         left_panels=[
             panels.VLANPanel(),
         ],
@@ -1740,10 +1772,10 @@ class VLANView(generic.ObjectView):
                         'ipam.prefix',
                         url_params={
                             'tenant': lambda ctx: ctx['object'].tenant_id,
-                            'scope_type': lambda ctx: (
+                            'scope_content_type': lambda ctx: (
                                 ContentType.objects.get_for_model(Site).pk if ctx['object'].site_id else None
                             ),
-                            'scope': lambda ctx: ctx['object'].site_id,
+                            'scope_object_id': lambda ctx: ctx['object'].site_id,
                             'vlan': lambda ctx: ctx['object'].pk,
                         },
                         label=_('Add a Prefix'),
@@ -1887,8 +1919,23 @@ class ServiceTemplateBulkImportView(generic.BulkImportView):
     model_form = forms.ServiceTemplateImportForm
 
 
+class ServicePortMappingsBulkEditMixin:
+    """
+    Fold the ``add_port_mappings`` / ``remove_port_mappings`` bulk-edit deltas into each object before it
+    is validated and saved, keeping the model unaware of the bulk-edit form's fields.
+    """
+    def pre_save_operations(self, form, obj):
+        super().pre_save_operations(form, obj)
+        add = form.cleaned_data.get('add_port_mappings')
+        remove = form.cleaned_data.get('remove_port_mappings')
+        if add:
+            obj._add_port_mappings(add)
+        if remove:
+            obj._remove_port_mappings(remove)
+
+
 @register_model_view(ServiceTemplate, 'bulk_edit', path='edit', detail=False)
-class ServiceTemplateBulkEditView(generic.BulkEditView):
+class ServiceTemplateBulkEditView(ServicePortMappingsBulkEditMixin, generic.BulkEditView):
     queryset = ServiceTemplate.objects.all()
     filterset = filtersets.ServiceTemplateFilterSet
     table = tables.ServiceTemplateTable
@@ -1971,7 +2018,7 @@ class ServiceBulkImportView(generic.BulkImportView):
 
 
 @register_model_view(Service, 'bulk_edit', path='edit', detail=False)
-class ServiceBulkEditView(generic.BulkEditView):
+class ServiceBulkEditView(ServicePortMappingsBulkEditMixin, generic.BulkEditView):
     queryset = Service.objects.prefetch_related('parent')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable

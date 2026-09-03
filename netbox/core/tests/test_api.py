@@ -206,9 +206,25 @@ class JobTestCase(
                     status='completed',
                     queue_name='default',
                     job_id=uuid.uuid4(),
+                    execution_time=timezone.timedelta(seconds=90),
                 ),
             ]
         )
+
+    def test_list_objects_by_execution_time(self):
+        """The Job list endpoint supports filtering and ordering by execution_time."""
+        self.add_permissions('core.view_job')
+        url = reverse('core-api:job-list')
+
+        # Filter: only the completed job has a (90s) execution_time
+        response = self.client.get(f'{url}?execution_time__gte=60', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+
+        # Ordering by execution_time should be accepted (NULLs sort to one end)
+        response = self.client.get(f'{url}?ordering=execution_time', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 3)
 
 
 class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):

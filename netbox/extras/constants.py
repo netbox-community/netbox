@@ -6,13 +6,14 @@ from extras.choices import LogLevelChoices
 # Custom fields
 CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 
-# Maximum number of objects to update per query when provisioning, removing, or renaming custom
-# field data. Bounding the number of rows touched by each statement prevents very large tables from
-# exceeding the database statement timeout (JSONB updates rewrite each affected row). This value
-# sits at the throughput "knee": benchmarking jsonb_set() across a 1M-row table showed throughput
-# plateaus by ~5K rows/statement (raising it further yields no meaningful speedup), while keeping
-# each statement orders of magnitude below a typical statement timeout.
-CUSTOMFIELD_DATA_BATCH_SIZE = 5000
+# Timeout (in seconds) applied to the background jobs which provision and purge custom field data.
+# These jobs exist precisely because the work is too large for the request which triggered it, so
+# the default RQ timeout -- being of the same order as the request timeout being escaped -- would
+# reimpose the limit they were introduced to avoid. A timeout is recoverable, as each job commits
+# its batches independently and both are idempotent, but it leaves the field pending until the job
+# is run again. Three hours is well beyond what a batched update of any real table takes, while
+# still releasing a worker blocked on an unresponsive database.
+CUSTOMFIELD_JOB_TIMEOUT = 10800
 
 # ImageAttachment
 IMAGE_ATTACHMENT_IMAGE_FORMATS = {
@@ -213,4 +214,16 @@ LOG_LEVEL_RANK = {
     LogLevelChoices.LOG_SUCCESS: 2,
     LogLevelChoices.LOG_WARNING: 3,
     LogLevelChoices.LOG_FAILURE: 4,
+}
+
+# Config context cache: fields whose modification on an object requires re-rendering its config
+# context cache, keyed by model label.
+CC_FIELDS_BY_MODEL = {
+    'dcim.device': (
+        'site_id', 'location_id', 'device_type_id', 'role_id', 'tenant_id', 'platform_id',
+        'cluster_id', 'local_context_data',
+    ),
+    'virtualization.virtualmachine': (
+        'site_id', 'cluster_id', 'tenant_id', 'platform_id', 'role_id', 'local_context_data',
+    ),
 }

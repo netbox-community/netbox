@@ -1,13 +1,30 @@
 from unittest.mock import patch
 
+from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import MaxLengthValidator
+from django.forms.models import ALL_FIELDS
 from django.test import TestCase
 
+from circuits.forms import CircuitGroupAssignmentForm, CircuitTerminationForm
+from core.forms import DataSourceForm
 from dcim.choices import InterfaceTypeChoices
-from dcim.forms import InterfaceImportForm
+from dcim.forms import (
+    CableForm,
+    FrontPortCreateForm,
+    InterfaceForm,
+    InterfaceImportForm,
+    ModuleTypeForm,
+    RackForm,
+)
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from extras.forms import CustomFieldForm, EventRuleForm
+from ipam.forms import PrefixForm, ServiceForm, VLANGroupForm
+from utilities.forms.widgets import HTMXSelect
+from virtualization.forms import ClusterForm, VirtualMachineForm, VMInterfaceForm
+from vpn.forms import TunnelCreateForm, TunnelTerminationForm
+from wireless.forms import WirelessLANForm
 
 
 class NetBoxModelImportFormTestCase(TestCase):
@@ -398,3 +415,162 @@ class NetBoxModelImportFormTestCase(TestCase):
         matching = [error for error in error_data if error.code == MaxLengthValidator.code]
         self.assertEqual(len(matching), 1)
         self.assertEqual(matching[0].params, {'limit_value': 20, 'show_value': 25})
+
+
+class HTMXPartialSwapRenderingTestCase(TestCase):
+    """Ensure each form field's HTMX swap wiring is present on the widget bound to the field."""
+
+    # (form, bound field name, target fieldset id)
+    PARTIAL_SWAP_FIELDS = (
+        (InterfaceForm, 'mode', 'dot1q-switching'),
+        (VMInterfaceForm, 'mode', 'dot1q-switching'),
+        (ModuleTypeForm, 'profile', 'profile-attributes'),
+        (CableForm, 'a_terminations_type', 'cable-side-a'),
+        (CableForm, 'b_terminations_type', 'cable-side-b'),
+        (VLANGroupForm, 'scope', 'scope'),
+        (ServiceForm, 'parent', 'service'),
+        (CircuitTerminationForm, 'termination', 'circuit-termination'),
+        (CircuitGroupAssignmentForm, 'member', 'circuit-group-assignment'),
+        (TunnelCreateForm, 'termination1_type', 'tunnel-termination1'),
+        (TunnelCreateForm, 'termination2_type', 'tunnel-termination2'),
+        (TunnelTerminationForm, 'type', 'tunnel-termination'),
+        (EventRuleForm, 'action_type', 'event-rule-action'),
+        (ClusterForm, 'scope', 'scope'),
+        (WirelessLANForm, 'scope', 'scope'),
+        (PrefixForm, 'scope', 'scope'),
+    )
+
+    # Fields that intentionally re-render the whole form (#form_fields) rather than a single fieldset.
+    FULL_FORM_FIELDS = (
+        (CustomFieldForm, 'type'),
+        (DataSourceForm, 'type'),
+        (VirtualMachineForm, 'virtual_machine_type'),
+        (RackForm, 'rack_type'),
+        (FrontPortCreateForm, 'device'),
+    )
+
+    # CableForm targets template <div>s, not FieldSet(html_id=...), so its target can't be checked
+    # against form.fieldsets.
+    FIELDSET_ID_EXEMPT = {CableForm}
+
+    @staticmethod
+    def _hx_widget(field):
+        """Return the HTMXSelect carrying the field's HTMX attrs, unwrapping a MultiWidget by type."""
+        widget = field.widget
+        if isinstance(widget, forms.MultiWidget):
+            hx = next((w for w in widget.widgets if isinstance(w, HTMXSelect)), None)
+            assert hx is not None, f'{type(widget).__name__} has no HTMXSelect subwidget'
+            return hx
+        return widget
+
+    def test_partial_swap_fields_target_their_fieldset(self):
+        for form_class, field_name, target_id in self.PARTIAL_SWAP_FIELDS:
+            with self.subTest(form=form_class.__name__, field=field_name):
+                form = form_class()
+                self.assertIn(field_name, form.fields)
+                attrs = self._hx_widget(form.fields[field_name]).attrs
+                # hx-get issues the request; hx-target/hx-select alone are inert.
+                self.assertIn('hx-get', attrs)
+                self.assertEqual(attrs.get('hx-select'), f'#{target_id}')
+                self.assertEqual(attrs.get('hx-target'), f'#{target_id}')
+                # The target must name a declared FieldSet html_id, else the swap fails silently.
+                if form_class not in self.FIELDSET_ID_EXEMPT:
+                    fieldset_ids = {getattr(fs, 'html_id', None) for fs in getattr(form, 'fieldsets', ())}
+                    self.assertIn(target_id, fieldset_ids)
+
+    def test_interface_mode_retains_option_descriptions(self):
+        # Partial swap and option descriptions must coexist on the mode field.
+        for form_class in (InterfaceForm, VMInterfaceForm):
+            with self.subTest(form=form_class.__name__):
+                self.assertTrue(form_class().fields['mode'].widget.descriptions)
+
+    def test_full_form_fields_do_not_partial_swap(self):
+        for form_class, field_name in self.FULL_FORM_FIELDS:
+            with self.subTest(form=form_class.__name__, field=field_name):
+                form = form_class()
+                self.assertIn(field_name, form.fields)
+                attrs = self._hx_widget(form.fields[field_name]).attrs
+                self.assertIn('hx-get', attrs)
+                self.assertEqual(attrs.get('hx-target'), '#form_fields')
+                self.assertNotIn('hx-select', attrs)
+
+
+class MetaShadowingTestCase(TestCase):
+    """Ensure declared fields do not shadow supported `ModelForm.Meta` configuration."""
+    # Known overlaps whose cleanup is deferred, as specific (form, Meta attribute, field) triples so
+    # that any new overlap on the same form is still caught. ConfigRevisionForm builds these fields
+    # via ConfigFormMetaclass; restoring their monospace widget is tracked separately (see #22889).
+    ALLOWED = {
+        ('ConfigRevisionForm', 'widgets', 'BANNER_LOGIN'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_MAINTENANCE'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_TOP'),
+        ('ConfigRevisionForm', 'widgets', 'BANNER_BOTTOM'),
+        ('ConfigRevisionForm', 'widgets', 'CUSTOM_VALIDATORS'),
+        ('ConfigRevisionForm', 'widgets', 'PROTECTION_RULES'),
+    }
+
+    @staticmethod
+    def _all_model_forms():
+        # Import every app's forms package so all ModelForm subclasses are registered before walking.
+        import importlib
+        import pkgutil
+        for app in (
+            'circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'utilities',
+            'virtualization', 'vpn', 'wireless', 'netbox',
+        ):
+            # Only tolerate an app that has no forms package; a broken import inside a package that
+            # does exist must surface, or the invariant could pass having skipped part of the tree.
+            pkg_name = f'{app}.forms'
+            try:
+                pkg = importlib.import_module(pkg_name)
+            except ModuleNotFoundError as e:
+                if e.name == pkg_name:
+                    continue
+                raise
+            for module in getattr(pkg, '__path__', []) and pkgutil.iter_modules(pkg.__path__) or []:
+                submodule = f'{app}.forms.{module.name}'
+                try:
+                    importlib.import_module(submodule)
+                except ModuleNotFoundError as e:
+                    if e.name == submodule:
+                        continue
+                    raise
+
+        seen, stack = set(), [forms.ModelForm]
+        while stack:
+            for sub in stack.pop().__subclasses__():
+                if sub not in seen:
+                    seen.add(sub)
+                    stack.append(sub)
+        return seen
+
+    @staticmethod
+    def _configured_field_names(configured, declared):
+        # Field names a Meta option targets. localized_fields may be the ALL_FIELDS sentinel
+        # ('__all__') meaning every field; set() of that string would yield its characters, so map
+        # the sentinel to the full declared set instead.
+        if configured == ALL_FIELDS:
+            return set(declared)
+        return set(configured or ())
+
+    def test_meta_config_does_not_shadow_declared_fields(self):
+        for form_class in self._all_model_forms():
+            meta = getattr(form_class, 'Meta', None)
+            declared = set(getattr(form_class, 'declared_fields', {}))
+            if meta is None or not declared:
+                continue
+            for attr in ('widgets', 'labels', 'help_texts', 'error_messages', 'field_classes', 'localized_fields'):
+                configured = self._configured_field_names(getattr(meta, attr, None), declared)
+                overlap = declared & configured
+                overlap -= {f for f in overlap if (form_class.__name__, attr, f) in self.ALLOWED}
+                with self.subTest(form=form_class.__name__, meta=attr):
+                    self.assertEqual(
+                        overlap, set(),
+                        f"{form_class.__module__}.{form_class.__name__} sets Meta.{attr} for "
+                        f"explicitly declared field(s) {sorted(overlap)}; Django discards these. "
+                        f"Move the config onto the declared field or drop the Meta entry."
+                    )
+
+    def test_localized_fields_all_sentinel_expands_to_declared(self):
+        # The ALL_FIELDS sentinel must expand to the declared fields, not char-split into letters.
+        self.assertEqual(self._configured_field_names(ALL_FIELDS, {'name', 'status'}), {'name', 'status'})

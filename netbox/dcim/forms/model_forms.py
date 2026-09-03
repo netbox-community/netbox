@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneFormField
 
@@ -11,29 +12,35 @@ from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
+from netbox.choices import WeightUnitChoices
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.forms import TenancyForm
 from users.models import User
+from utilities.choices import Choice
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
     NumericArrayField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields, TabbedGroups
 from utilities.forms.widgets import (
     APISelect,
     ClearableFileInput,
     ClearableSelect,
+    DatePicker,
     HTMXSelect,
     NumberWithOptions,
     SelectWithPK,
 )
 from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
+from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLANGroup
 
 from .common import InterfaceCommonForm, ModuleCommonForm
@@ -45,6 +52,12 @@ __all__ = (
     'ConsolePortTemplateForm',
     'ConsoleServerPortForm',
     'ConsoleServerPortTemplateForm',
+    'CoolingFeedForm',
+    'CoolingIntakeForm',
+    'CoolingIntakeTemplateForm',
+    'CoolingOutflowForm',
+    'CoolingOutflowTemplateForm',
+    'CoolingSourceForm',
     'DeviceBayForm',
     'DeviceBayTemplateForm',
     'DeviceForm',
@@ -63,6 +76,7 @@ __all__ = (
     'ManufacturerForm',
     'ModuleBayForm',
     'ModuleBayTemplateForm',
+    'ModuleBayTypeForm',
     'ModuleForm',
     'ModuleTypeForm',
     'ModuleTypeProfileForm',
@@ -127,6 +141,11 @@ class SiteGroupForm(NestedGroupModelForm):
 
 
 class SiteForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=SiteStatusChoices,
+        initial=SiteStatusChoices.STATUS_ACTIVE,
+    )
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -207,6 +226,11 @@ class SiteForm(TenancyForm, PrimaryModelForm):
 
 
 class LocationForm(TenancyForm, NestedGroupModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=LocationStatusChoices,
+        initial=LocationStatusChoices.STATUS_ACTIVE,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -259,6 +283,20 @@ class RackRoleForm(OrganizationalModelForm):
 
 
 class RackTypeForm(PrimaryModelForm):
+    form_factor = ChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
+    )
+    outer_unit = TypedChoiceField(
+        label=_('Outer unit'),
+        choices=add_blank_choice(RackDimensionUnitChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -278,6 +316,7 @@ class RackTypeForm(PrimaryModelForm):
             'mounting_depth', name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
     )
 
     class Meta:
@@ -285,11 +324,36 @@ class RackTypeForm(PrimaryModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'owner', 'comments', 'tags',
         ]
 
 
 class RackForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=RackStatusChoices,
+        initial=RackStatusChoices.STATUS_ACTIVE,
+    )
+    form_factor = TypedChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
+        required=False,
+    )
+    outer_unit = TypedChoiceField(
+        label=_('Outer unit'),
+        choices=add_blank_choice(RackDimensionUnitChoices),
+        required=False,
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -326,6 +390,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
             'site', 'location', 'group', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
             name=_('Rack')
         ),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -335,8 +400,8 @@ class RackForm(TenancyForm, PrimaryModelForm):
         fields = [
             'site', 'location', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'cooling_capability',
+            'cooling_capacity', 'weight', 'max_weight', 'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -354,19 +419,46 @@ class RackForm(TenancyForm, PrimaryModelForm):
             for field_name in Rack.RACKTYPE_FIELDS:
                 del self.fields[field_name]
         else:
+            # The form_factor, width, and outer_* fields are deprecated on the Rack model and will be removed in
+            # NetBox v5.0. Their values should instead be defined on an assigned rack type. (See #22593.)
+            deprecation_warning = format_html(
+                '<span class="text-warning"><i class="mdi mdi-alert"></i> {}</span>',
+                _(
+                    'Deprecated and will be removed in NetBox v5.0. Assign a rack type to define this attribute '
+                    'instead.'
+                )
+            )
+            self.fields['form_factor'].help_text = deprecation_warning
+            self.fields['width'].help_text = deprecation_warning
+
             self.fieldsets = (
                 *self.fieldsets,
                 FieldSet(
-                    'form_factor', 'width', 'starting_unit', 'u_height',
-                    InlineFields('outer_width', 'outer_height', 'outer_depth', 'outer_unit',
-                                 label=_('Outer Dimensions')),
-                    InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-                    'mounting_depth', 'desc_units', name=_('Dimensions')
+                    'form_factor',
+                    'width',
+                    'starting_unit',
+                    'u_height',
+                    InlineFields(
+                        'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
+                        label=_('Outer Dimensions'),
+                        help_text=deprecation_warning,
+                    ),
+                    InlineFields(
+                        'weight', 'max_weight', 'weight_unit', label=_('Weight'),
+                    ),
+                    'mounting_depth',
+                    'desc_units',
+                    name=_('Dimensions')
                 ),
             )
 
 
 class RackReservationForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        initial=RackReservationStatusChoices.STATUS_ACTIVE,
+    )
     rack = DynamicModelChoiceField(
         label=_('Rack'),
         queryset=Rack.objects.all(),
@@ -407,6 +499,25 @@ class ManufacturerForm(OrganizationalModelForm):
 
 
 class DeviceTypeForm(PrimaryModelForm):
+    subdevice_role = TypedChoiceField(
+        label=_('Parent/child status'),
+        choices=add_blank_choice(SubdeviceRoleChoices),
+        required=False,
+        help_text=_(
+            'Parent devices house child devices in device bays. Leave blank if this device type is neither a '
+            'parent nor a child.'
+        ),
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -429,9 +540,11 @@ class DeviceTypeForm(PrimaryModelForm):
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
         FieldSet(
-            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
+            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role',
             'weight', 'weight_unit', name=_('Chassis')
         ),
+        FieldSet('cooling_method', 'airflow', name=_('Cooling')),
+        FieldSet('end_of_life', name=_('Lifecycle')),
         FieldSet('front_image', 'rear_image', name=_('Images')),
     )
 
@@ -439,8 +552,9 @@ class DeviceTypeForm(PrimaryModelForm):
         model = DeviceType
         fields = [
             'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
-            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'owner', 'comments', 'tags',
+            'is_full_depth', 'subdevice_role', 'airflow', 'cooling_method', 'weight', 'weight_unit', 'end_of_life',
+            'front_image',
+            'rear_image', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -449,7 +563,29 @@ class DeviceTypeForm(PrimaryModelForm):
             'rear_image': ClearableFileInput(attrs={
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
+            'end_of_life': DatePicker(),
         }
+
+
+class ModuleBayTypeForm(PrimaryModelForm):
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+    )
+    slug = SlugField(
+        slug_source='name',
+    )
+
+    fieldsets = (
+        FieldSet('name', 'slug', 'manufacturer', 'color', 'description', 'tags', name=_('Module Bay Type')),
+    )
+
+    class Meta:
+        model = ModuleBayType
+        fields = [
+            'name', 'slug', 'manufacturer', 'color', 'description', 'owner', 'comments', 'tags',
+        ]
 
 
 class ModuleTypeProfileForm(PrimaryModelForm):
@@ -471,31 +607,52 @@ class ModuleTypeProfileForm(PrimaryModelForm):
 
 
 class ModuleTypeForm(PrimaryModelForm):
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(ModuleAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     profile = forms.ModelChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
         required=False,
-        widget=HTMXSelect()
+        widget=HTMXSelect(hx_target_id='profile-attributes')
     )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
+    )
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
     )
 
     @property
     def fieldsets(self):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-            FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
-            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'))
+            FieldSet('weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('cooling_method', 'airflow', name=_('Cooling')),
+            FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
+            FieldSet('end_of_life', name=_('Lifecycle')),
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
         ]
 
     class Meta:
         model = ModuleType
         fields = [
-            'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'owner', 'comments', 'tags',
+            'profile', 'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight',
+            'weight_unit', 'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
         ]
+        widgets = {
+            'end_of_life': DatePicker(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -611,6 +768,16 @@ class PlatformForm(NestedGroupModelForm):
 
 
 class DeviceForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=DeviceStatusChoices,
+        initial=DeviceStatusChoices.STATUS_ACTIVE,
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -649,7 +816,7 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             },
         )
     )
-    face = forms.ChoiceField(
+    face = TypedChoiceField(
         label=_('Face'),
         choices=add_blank_choice(DeviceFaceChoices),
         required=False,
@@ -722,7 +889,8 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         model = Device
         fields = [
             'name', 'role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
-            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
+            'latitude', 'longitude', 'status', 'airflow', 'cooling_method', 'platform', 'primary_ip4', 'primary_ip6',
+            'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
             'owner', 'comments', 'tags', 'local_context_data',
         ]
@@ -790,6 +958,11 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
 
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=ModuleStatusChoices,
+        initial=ModuleStatusChoices.STATUS_ACTIVE,
+    )
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -844,7 +1017,6 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
-            self.fields['device'].disabled = True
             self.fields['replicate_components'].initial = False
             self.fields['replicate_components'].disabled = True
             self.fields['adopt_components'].initial = False
@@ -853,7 +1025,7 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
 
 def get_termination_type_choices():
     return add_blank_choice([
-        (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
+        Choice(f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
         for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     ])
 
@@ -870,16 +1042,36 @@ class CableBundleForm(PrimaryModelForm):
 
 
 class CableForm(TenancyForm, PrimaryModelForm):
-    a_terminations_type = forms.ChoiceField(
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(CableTypeChoices),
+        required=False,
+    )
+    status = ChoiceField(
+        label=_('Status'),
+        choices=LinkStatusChoices,
+        initial=LinkStatusChoices.STATUS_CONNECTED,
+    )
+    profile = ChoiceField(
+        label=_('Profile'),
+        choices=add_blank_choice(CableProfileChoices),
+        required=False,
+    )
+    length_unit = TypedChoiceField(
+        label=_('Length unit'),
+        choices=add_blank_choice(CableLengthUnitChoices),
+        required=False,
+    )
+    a_terminations_type = ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='cable-side-a'),
         label=_('Type')
     )
-    b_terminations_type = forms.ChoiceField(
+    b_terminations_type = ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='cable-side-b'),
         label=_('Type')
     )
     bundle = DynamicModelChoiceField(
@@ -923,6 +1115,26 @@ class PowerPanelForm(PrimaryModelForm):
 
 
 class PowerFeedForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PowerFeedStatusChoices,
+        initial=PowerFeedStatusChoices.STATUS_ACTIVE,
+    )
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PowerFeedTypeChoices,
+        initial=PowerFeedTypeChoices.TYPE_PRIMARY,
+    )
+    supply = ChoiceField(
+        label=_('Supply'),
+        choices=PowerFeedSupplyChoices,
+        initial=PowerFeedSupplyChoices.SUPPLY_AC,
+    )
+    phase = ChoiceField(
+        label=_('Phase'),
+        choices=PowerFeedPhaseChoices,
+        initial=PowerFeedPhaseChoices.PHASE_SINGLE,
+    )
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
@@ -954,6 +1166,74 @@ class PowerFeedForm(TenancyForm, PrimaryModelForm):
 
 
 #
+# Cooling
+#
+
+class CoolingSourceForm(PrimaryModelForm):
+    site = DynamicModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        selector=True
+    )
+    location = DynamicModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site'
+        }
+    )
+
+    fieldsets = (
+        FieldSet('site', 'location', 'name', 'type', 'status', 'description', 'tags', name=_('Cooling Source')),
+        FieldSet('fluid_type', 'cooling_capacity', name=_('Characteristics')),
+    )
+
+    class Meta:
+        model = CoolingSource
+        fields = [
+            'site', 'location', 'name', 'type', 'status', 'fluid_type', 'cooling_capacity', 'description', 'owner',
+            'comments', 'tags',
+        ]
+
+
+class CoolingFeedForm(TenancyForm, PrimaryModelForm):
+    cooling_source = DynamicModelChoiceField(
+        label=_('Cooling source'),
+        queryset=CoolingSource.objects.all(),
+        selector=True,
+        quick_add=True
+    )
+    rack = DynamicModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+        selector=True
+    )
+
+    fieldsets = (
+        FieldSet(
+            'cooling_source', 'rack', 'name', 'status', 'description', 'tags',
+            name=_('Cooling Feed')
+        ),
+        FieldSet(
+            'cooling_capacity',
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
+            name=_('Characteristics')
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
+    class Meta:
+        model = CoolingFeed
+        fields = [
+            'cooling_source', 'rack', 'name', 'status', 'cooling_capacity',
+            'max_flow', 'max_flow_unit', 'tenant_group', 'tenant', 'description', 'owner', 'comments',
+            'tags',
+        ]
+
+
+#
 # Virtual chassis
 #
 
@@ -962,6 +1242,7 @@ class VirtualChassisForm(PrimaryModelForm):
         label=_('Master'),
         queryset=Device.objects.all(),
         required=False,
+        widget=SelectWithPK(),
     )
 
     class Meta:
@@ -969,9 +1250,6 @@ class VirtualChassisForm(PrimaryModelForm):
         fields = [
             'name', 'domain', 'master', 'description', 'owner', 'comments', 'tags',
         ]
-        widgets = {
-            'master': SelectWithPK(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1106,6 +1384,12 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
+
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -1114,6 +1398,12 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
 
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
+
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -1122,6 +1412,11 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
 
 
 class PowerPortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1140,6 +1435,17 @@ class PowerPortTemplateForm(ModularComponentTemplateForm):
 
 
 class PowerOutletTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+    )
+    feed_leg = TypedChoiceField(
+        label=_('Feed leg'),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        help_text=_('Phase (for three-phase feeds)'),
+    )
     power_port = DynamicModelChoiceField(
         label=_('Power port'),
         queryset=PowerPortTemplate.objects.all(),
@@ -1166,7 +1472,87 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
         ]
 
 
+class CoolingIntakeTemplateForm(ModularComponentTemplateForm):
+    fieldsets = (
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
+            'description',
+        ),
+    )
+
+    class Meta:
+        model = CoolingIntakeTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'max_flow', 'max_flow_unit', 'description',
+        ]
+
+
+class CoolingOutflowTemplateForm(ModularComponentTemplateForm):
+    cooling_intake = DynamicModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntakeTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type',
+        }
+    )
+
+    fieldsets = (
+        FieldSet(
+            TabbedGroups(
+                FieldSet('device_type', name=_('Device Type')),
+                FieldSet('module_type', name=_('Module Type')),
+            ),
+            'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'cooling_intake', 'description',
+        ),
+    )
+
+    class Meta:
+        model = CoolingOutflowTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'diameter', 'diameter_unit',
+            'cooling_intake', 'description',
+        ]
+
+
 class InterfaceTemplateForm(ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=InterfaceTypeChoices,
+    )
+    poe_mode = TypedChoiceField(
+        label=_('PoE mode'),
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+    )
+    poe_type = TypedChoiceField(
+        label=_('PoE type'),
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+    )
+    rf_role = TypedChoiceField(
+        label=_('Wireless role'),
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+    )
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=InterfaceTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type',
+            'module_type_id': '$module_type',
+        }
+    )
     bridge = DynamicModelChoiceField(
         label=_('Bridge'),
         queryset=InterfaceTemplate.objects.all(),
@@ -1183,7 +1569,8 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge',
+            'name', 'label', 'type', 'channels', 'channel_id', 'enabled', 'mgmt_only', 'description', 'parent',
+            'bridge',
         ),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('rf_role', name=_('Wireless')),
@@ -1192,12 +1579,16 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode',
-            'poe_type', 'bridge', 'rf_role',
+            'device_type', 'module_type', 'name', 'label', 'type', 'channels', 'channel_id', 'mgmt_only', 'enabled',
+            'description', 'poe_mode', 'poe_type', 'parent', 'bridge', 'rf_role',
         ]
 
 
 class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1238,6 +1629,10 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1256,20 +1651,26 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 
 class ModuleBayTemplateForm(ModularComponentTemplateForm):
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'position', 'enabled', 'description',
+            'name', 'label', 'position', 'enabled', 'description', 'module_bay_types',
         ),
     )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
+            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types',
         ]
 
 
@@ -1461,6 +1862,12 @@ class ModularDeviceComponentForm(DeviceComponentForm):
 
 
 class ConsolePortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
@@ -1475,6 +1882,12 @@ class ConsolePortForm(ModularDeviceComponentForm):
 
 
 class ConsoleServerPortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
@@ -1489,6 +1902,12 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
 
 
 class PowerPortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
@@ -1505,6 +1924,23 @@ class PowerPortForm(ModularDeviceComponentForm):
 
 
 class PowerOutletForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PowerOutletStatusChoices,
+        initial=PowerOutletStatusChoices.STATUS_ENABLED,
+    )
+    feed_leg = TypedChoiceField(
+        label=_('Feed leg'),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        help_text=_('Phase (for three-phase feeds)'),
+    )
     power_port = DynamicModelChoiceField(
         label=_('Power port'),
         queryset=PowerPort.objects.all(),
@@ -1529,7 +1965,94 @@ class PowerOutletForm(ModularDeviceComponentForm):
         ]
 
 
+class CoolingIntakeForm(ModularDeviceComponentForm):
+    cooling_outflow = DynamicModelChoiceField(
+        label=_('Cooling outflow'),
+        queryset=CoolingOutflow.objects.all(),
+        required=False,
+        selector=True
+    )
+
+    fieldsets = (
+        FieldSet(
+            'device', 'module', 'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            InlineFields('max_flow', 'max_flow_unit', label=_('Max flow')),
+            'cooling_outflow', 'description', 'tags',
+        ),
+    )
+
+    class Meta:
+        model = CoolingIntake
+        fields = [
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'max_flow',
+            'max_flow_unit', 'cooling_outflow', 'description', 'owner', 'tags',
+        ]
+
+
+class CoolingOutflowForm(ModularDeviceComponentForm):
+    cooling_intake = DynamicModelChoiceField(
+        label=_('Cooling intake'),
+        queryset=CoolingIntake.objects.all(),
+        required=False,
+        query_params={
+            'device_id': '$device',
+        }
+    )
+
+    fieldsets = (
+        FieldSet(
+            'device', 'module', 'name', 'label', 'type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'cooling_intake', 'description', 'tags',
+        ),
+    )
+
+    class Meta:
+        model = CoolingOutflow
+        fields = [
+            'device', 'module', 'name', 'label', 'type', 'diameter', 'diameter_unit', 'cooling_intake', 'description',
+            'owner', 'tags',
+        ]
+
+
 class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=InterfaceTypeChoices,
+    )
+    duplex = TypedChoiceField(
+        label=_('Duplex'),
+        choices=add_blank_choice(InterfaceDuplexChoices),
+        required=False,
+    )
+    poe_mode = TypedChoiceField(
+        label=_('PoE mode'),
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+    )
+    poe_type = TypedChoiceField(
+        label=_('PoE type'),
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+    )
+    mode = TypedChoiceField(
+        label=_('802.1Q Mode'),
+        choices=add_blank_choice(InterfaceModeChoices),
+        required=False,
+        help_text=_('IEEE 802.1Q tagging strategy'),
+        widget=HTMXSelect(hx_target_id='dot1q-switching'),
+    )
+    rf_role = TypedChoiceField(
+        label=_('Wireless role'),
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+    )
+    rf_channel = TypedChoiceField(
+        label=_('Wireless channel'),
+        choices=add_blank_choice(WirelessChannelChoices),
+        required=False,
+    )
     vdcs = DynamicModelMultipleChoiceField(
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
@@ -1618,13 +2141,6 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('VRF')
     )
-    primary_mac_address = DynamicModelChoiceField(
-        queryset=MACAddress.objects.all(),
-        label=_('Primary MAC address'),
-        required=False,
-        quick_add=True,
-        quick_add_params={'interface': '$pk'}
-    )
     wwn = forms.CharField(
         empty_value=None,
         required=False,
@@ -1638,15 +2154,17 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
+            'device', 'module', 'name', 'label', 'type', 'channels', 'speed', 'duplex', 'description', 'tags',
+            name=_('Interface')
         ),
-        FieldSet('vrf', 'primary_mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
         FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
-        FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
+        FieldSet('parent', 'channel_id', 'bridge', 'lag', name=_('Related Interfaces')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
-            name=_('802.1Q Switching')
+            name=_('802.1Q Switching'),
+            html_id='dot1q-switching',
         ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
@@ -1657,24 +2175,24 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     class Meta:
         model = Interface
         fields = [
-            'device', 'module', 'vdcs', 'name', 'label', 'type', 'speed', 'duplex', 'enabled', 'parent', 'bridge',
-            'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
-            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
-            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'owner', 'tags',
+            'device', 'module', 'vdcs', 'name', 'label', 'type', 'channels', 'channel_id', 'speed', 'duplex',
+            'enabled', 'parent', 'bridge', 'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description',
+            'poe_mode', 'poe_type', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
+            'tx_power', 'wireless_lans', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
+            'vrf', 'owner', 'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            'mode': HTMXSelect(),
-        }
-        labels = {
-            'mode': '802.1Q Mode',
         }
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
@@ -1711,6 +2229,10 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
 
 
 class RearPortForm(ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
@@ -1726,14 +2248,21 @@ class RearPortForm(ModularDeviceComponentForm):
 
 
 class ModuleBayForm(ModularDeviceComponentForm):
+    module_bay_types = DynamicModelMultipleChoiceField(
+        label=_('Module bay types'),
+        queryset=ModuleBayType.objects.all(),
+        required=False,
+    )
+
     fieldsets = (
-        FieldSet('device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'tags',),
+        FieldSet('device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types', 'tags'),
     )
 
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'module_bay_types', 'owner',
+            'tags',
         ]
 
 
@@ -1769,6 +2298,11 @@ class PopulateDeviceBayForm(forms.Form):
 
 
 class InventoryItemForm(DeviceComponentForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        initial=InventoryItemStatusChoices.STATUS_ACTIVE,
+    )
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=InventoryItem.objects.all(),
@@ -1929,6 +2463,10 @@ class InventoryItemRoleForm(OrganizationalModelForm):
 
 
 class VirtualDeviceContextForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VirtualDeviceContextStatusChoices,
+    )
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),

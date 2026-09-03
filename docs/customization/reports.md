@@ -3,6 +3,8 @@
 !!! warning
     Reports are deprecated beginning with NetBox v4.0, and their functionality has been merged with [custom scripts](./custom-scripts.md). While backward compatibility has been maintained, users are advised to convert legacy reports into custom scripts soon, as support for legacy reports will be removed in a future release.
 
+    Beginning with NetBox v4.7, NetBox's built-in custom scripts implementation is deprecated and is being replaced by a dedicated plugin. Converting a legacy report to a custom script remains the recommended first step. See the [custom scripts documentation](./custom-scripts.md) for details.
+
 ## Converting Reports to Scripts
 
 ### Step 1: Update Class Definition

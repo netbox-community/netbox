@@ -1,6 +1,6 @@
-# NetBox Installation
+# Install NetBox from a Release Archive or Git
 
-This section of the documentation discusses installing and configuring the NetBox application itself.
+This page covers the established release archive and Git installation methods. To install NetBox from the experimental Python package instead, follow the [separate package installation guide](3b-python-package.md).
 
 ## Install System Packages
 
@@ -99,7 +99,7 @@ cd /opt/netbox/netbox/netbox/
 sudo cp configuration_example.py configuration.py
 ```
 
-Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following four are required for new installations:
+Open `configuration.py` with your preferred editor to begin configuring NetBox. NetBox offers [many configuration parameters](../configuration/index.md), but only the following five are required for new installations:
 
 * `ALLOWED_HOSTS`
 * `API_TOKEN_PEPPERS`

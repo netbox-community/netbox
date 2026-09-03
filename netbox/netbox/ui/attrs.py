@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.config import get_config
 from netbox.ui.utils import build_coords_url, is_coordinate_map_url
 from utilities.data import resolve_attr_path
+from utilities.string import humanize_duration
 
 __all__ = (
     'AddressAttr',
@@ -13,7 +14,10 @@ __all__ = (
     'ChoiceAttr',
     'ColorAttr',
     'DateTimeAttr',
+    'DiameterAttr',
     'DistanceAttr',
+    'DurationAttr',
+    'FlowRateAttr',
     'GPSCoordinatesAttr',
     'GenericForeignKeyAttr',
     'ImageAttr',
@@ -562,6 +566,15 @@ class TimezoneAttr(ObjectAttribute):
     template_name = 'ui/attrs/timezone.html'
 
 
+class DurationAttr(TextAttr):
+    """
+    A duration (timedelta) value, rendered in a human-friendly format (e.g. 1h 5m 23s).
+    """
+    def get_value(self, obj):
+        value = resolve_attr_path(obj, self.accessor)
+        return humanize_duration(value) or None
+
+
 class TemplatedAttr(ObjectAttribute):
     """
     Renders an attribute using a custom template.
@@ -594,6 +607,17 @@ IMPERIAL_WEIGHT = {'lb', 'oz'}
 METRIC_WEIGHT = {'kg', 'g'}
 IMPERIAL_DISTANCE = {'mi', 'ft'}
 METRIC_DISTANCE = {'km', 'm'}
+IMPERIAL_DIAMETER = {'in'}
+METRIC_DIAMETER = {'mm', 'cm'}
+IMPERIAL_FLOW_RATE = {'gpm'}
+METRIC_FLOW_RATE = {'lpm', 'm3ph'}
+
+# Abbreviations for the flow rate units, whose stored values are not themselves presentable
+FLOW_RATE_ABBREVIATIONS = {
+    'lpm': 'L/min',
+    'm3ph': 'm³/h',
+    'gpm': 'GPM',
+}
 
 
 def compute_weight_display(weight, weight_unit, abs_weight, system):
@@ -610,6 +634,30 @@ def compute_weight_display(weight, weight_unit, abs_weight, system):
     if weight_unit == 'lb':
         return weight, 'lb' if weight == 1 else 'lbs'
     return weight, weight_unit
+
+
+def compute_diameter_display(diameter, diameter_unit, abs_diameter, system):
+    """
+    Return (display_value, display_unit) for a diameter, respecting the user's measurement system.
+    abs_diameter is in millimeters (from DiameterMixin._abs_diameter).
+    """
+    if system == 'metric' and diameter_unit in IMPERIAL_DIAMETER and abs_diameter is not None:
+        return round(float(abs_diameter), 2), 'mm'
+    if system == 'imperial' and diameter_unit in METRIC_DIAMETER and abs_diameter is not None:
+        return round(float(abs_diameter) / 25.4, 2), 'in'
+    return diameter, diameter_unit
+
+
+def compute_flow_rate_display(flow_rate, flow_rate_unit, abs_flow_rate, system):
+    """
+    Return (display_value, display_unit) for a flow rate, respecting the user's measurement system.
+    abs_flow_rate is in liters per minute (from MaxFlowMixin._abs_max_flow).
+    """
+    if system == 'metric' and flow_rate_unit in IMPERIAL_FLOW_RATE and abs_flow_rate is not None:
+        return round(float(abs_flow_rate), 2), FLOW_RATE_ABBREVIATIONS['lpm']
+    if system == 'imperial' and flow_rate_unit in METRIC_FLOW_RATE and abs_flow_rate is not None:
+        return round(float(abs_flow_rate) / 3.785411784, 2), FLOW_RATE_ABBREVIATIONS['gpm']
+    return flow_rate, FLOW_RATE_ABBREVIATIONS.get(flow_rate_unit, flow_rate_unit)
 
 
 def compute_distance_display(distance, distance_unit, abs_distance, system):
@@ -689,6 +737,72 @@ class DistanceAttr(ObjectAttribute):
         unit = resolve_attr_path(obj, self.unit_attr)
         abs_distance = resolve_attr_path(obj, self.abs_attr)
         display_value, display_unit = compute_distance_display(distance, unit, abs_distance, system)
+
+        return render_to_string(self.template_name, {
+            'name': context['name'],
+            'value': display_value,
+            'unit': display_unit,
+        })
+
+
+class DiameterAttr(ObjectAttribute):
+    """
+    A diameter attribute that converts to the user's preferred measurement system.
+
+    Parameters:
+        unit_attr (str): Name of the field holding the diameter unit (default: 'diameter_unit')
+        abs_attr (str): The internal _abs_diameter field name on DiameterMixin (stored in millimeters).
+            Accessed via Python — not subject to Django's template underscore restriction.
+    """
+    template_name = 'ui/attrs/measurement.html'
+
+    def __init__(self, *args, unit_attr='diameter_unit', abs_attr='_abs_diameter', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit_attr = unit_attr
+        self.abs_attr = abs_attr
+
+    def render(self, obj, context):
+        diameter = resolve_attr_path(obj, self.accessor)
+        if diameter is None:
+            return self.placeholder
+
+        system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+        unit = resolve_attr_path(obj, self.unit_attr)
+        abs_diameter = resolve_attr_path(obj, self.abs_attr)
+        display_value, display_unit = compute_diameter_display(diameter, unit, abs_diameter, system)
+
+        return render_to_string(self.template_name, {
+            'name': context['name'],
+            'value': display_value,
+            'unit': display_unit,
+        })
+
+
+class FlowRateAttr(ObjectAttribute):
+    """
+    A flow rate attribute that converts to the user's preferred measurement system.
+
+    Parameters:
+        unit_attr (str): Name of the field holding the flow rate unit (default: 'max_flow_unit')
+        abs_attr (str): The internal _abs_max_flow field name on MaxFlowMixin (stored in liters per
+            minute). Accessed via Python — not subject to Django's template underscore restriction.
+    """
+    template_name = 'ui/attrs/measurement.html'
+
+    def __init__(self, *args, unit_attr='max_flow_unit', abs_attr='_abs_max_flow', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit_attr = unit_attr
+        self.abs_attr = abs_attr
+
+    def render(self, obj, context):
+        flow_rate = resolve_attr_path(obj, self.accessor)
+        if flow_rate is None:
+            return self.placeholder
+
+        system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+        unit = resolve_attr_path(obj, self.unit_attr)
+        abs_flow_rate = resolve_attr_path(obj, self.abs_attr)
+        display_value, display_unit = compute_flow_rate_display(flow_rate, unit, abs_flow_rate, system)
 
         return render_to_string(self.template_name, {
             'name': context['name'],

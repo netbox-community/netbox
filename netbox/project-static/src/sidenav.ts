@@ -7,6 +7,9 @@ type BodyAttr = 'show' | 'hide' | 'hidden' | 'pinned';
 // Keep in sync with Bootstrap's `lg` breakpoint and `navbar-expand-lg` in base/layout.html.
 const SIDENAV_DESKTOP_MEDIA = '(min-width: 992px)';
 
+// Session-scoped, unlike the localStorage `netbox-sidenav` pin state.
+const SCROLL_STATE_KEY = 'netbox-sidenav-scroll';
+
 class SideNav {
   /**
    * Sidenav container element.
@@ -18,6 +21,11 @@ class SideNav {
    */
   private state: StateManager<NavState>;
 
+  /**
+   * First nav item matching the current page, cached at construction.
+   */
+  private activePageLink: Nullable<HTMLDivElement> = null;
+
   constructor(base: HTMLElement) {
     this.base = base;
     this.state = new StateManager<NavState>(
@@ -27,6 +35,7 @@ class SideNav {
 
     this.init();
     this.initLinks();
+    this.initScrollPosition();
   }
 
   /**
@@ -99,6 +108,8 @@ class SideNav {
    */
   private initLinks(): void {
     for (const link of this.getActiveLinks()) {
+      this.activePageLink ??= link;
+
       if (this.bodyHas('show')) {
         this.activateLink(link, 'expand');
       } else if (this.bodyHas('hidden')) {
@@ -198,6 +209,45 @@ class SideNav {
         }
       }
     }
+  }
+
+  /**
+   * Whether the aside currently overflows, as opposed to whether the layout lets it scroll at all.
+   */
+  private isScrollable(): boolean {
+    return this.base.scrollHeight > this.base.clientHeight;
+  }
+
+  /**
+   * Restore the offset saved for this browser tab, reveal the active item when it falls outside
+   * the sidebar viewport, and save the offset again on the way out. One offset per tab, so a
+   * shorter menu can clamp a deeper value.
+   */
+  private initScrollPosition(): void {
+    const initiallyScrollable = this.isScrollable();
+    const storedScrollTop = sessionStorage.getItem(SCROLL_STATE_KEY);
+
+    // Leave a missing offset alone so the browser's own restoration survives.
+    if (storedScrollTop !== null) {
+      this.base.scrollTop = Number(storedScrollTop);
+    }
+
+    // Reveal only in the fixed desktop layout. In the mobile flow layout, scrollIntoView would scroll the page.
+    if (window.matchMedia(SIDENAV_DESKTOP_MEDIA).matches) {
+      const menu = this.activePageLink?.closest<HTMLElement>('.nav-item.dropdown');
+      // A closed dropdown has no box to measure, so reveal its heading instead.
+      const target =
+        menu && !menu.querySelector('.dropdown-menu.show') ? menu : this.activePageLink;
+
+      target?.scrollIntoView({ block: 'nearest' });
+    }
+
+    window.addEventListener('pagehide', () => {
+      // Zero counts only from a sidebar that was already scrollable at load, not one that grew on hover.
+      if (this.isScrollable() && (initiallyScrollable || this.base.scrollTop > 0)) {
+        sessionStorage.setItem(SCROLL_STATE_KEY, String(this.base.scrollTop));
+      }
+    });
   }
 
   /**

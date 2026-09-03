@@ -22,7 +22,6 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
-    NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -31,6 +30,7 @@ from vpn.models import L2VPN
 
 from .choices import *
 from .models import *
+from .utils import normalize_port_mapping, port_mapping_q
 
 __all__ = (
     'ASNFilterSet',
@@ -1214,16 +1214,146 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-@register_filterset
-class ServiceTemplateFilterSet(PrimaryModelFilterSet):
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
+# Service/ServiceTemplate port filter name -> the port lookup it applies, in the order the conditions
+# are built. See ServicePortMappingFilterMixin and ipam.utils.PORT_MAPPING_LOOKUPS.
+SERVICE_PORT_FILTERS = {
+    'port': 'exact',
+    'port__gt': 'gt',
+    'port__gte': 'gte',
+    'port__lt': 'lt',
+    'port__lte': 'lte',
+}
+
+
+class ServicePortMappingFilterMixin(django_filters.FilterSet):
+    """
+    Shared ``port_mappings``, ``protocol`` and ``port`` filtering for Service and ServiceTemplate, all
+    operating on the ``port_mappings`` array. ``protocol`` and every active ``port`` lookup are
+    correlated: they must all be satisfied by one single mapping, so ``?protocol=tcp&port__gt=1000`` does
+    not match a service whose only tcp mapping is tcp/80, and ``?port__gte=1000&port__lte=2000`` does not
+    match a service exposing only ports 500 and 5000. See ``ipam.utils.port_mapping_q``.
+    """
+    # Whole-mapping lookup, e.g. ?port_mappings=tcp/80. Each value already names one complete
+    # protocol/port pair, so this needs none of the protocol/port correlation machinery below and is
+    # simply ANDed with the other filters.
+    port_mappings = MultiValueCharFilter(
+        method='filter_port_mappings',
+        label=_('Port mapping (protocol/port)'),
     )
+    port_mappings__n = MultiValueCharFilter(
+        method='filter_port_mappings_negated',
+        label=_('Port mapping (protocol/port)'),
+    )
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+        method='filter_protocol_noop',
+    )
+    # Negation lookup retained from when `protocol` was a model field: method-based filters don't get
+    # the char-based lookups (protocol__n, __ic, ...) auto-generated, and silently dropping protocol__n
+    # would widen existing saved filters/scripts rather than error. The __ic/__nic/__empty variants were
+    # never meaningful on a small fixed choice set and are intentionally left gone.
+    protocol__n = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+        method='filter_protocol_negated',
+    )
+    # `port` and its range lookups. These are declared explicitly because a method-based filter gets no
+    # auto-generated lookups (BaseFilterSet.get_additional_lookups() skips filters with a method), and
+    # they must be correlated with `protocol` rather than applied independently. `port__empty` is
+    # intentionally absent: port_mappings is never empty on a validated object, so it was never
+    # meaningful. See ipam.utils.PORT_MAPPING_LOOKUPS for the lookup -> SQL operator mapping.
+    #
+    # `protocol` above and every `port*` lookup below (except the negations, which stand alone) are
+    # deliberately no-ops: because they must be correlated with one another they cannot be applied as each
+    # filter runs. filter_queryset() applies them together, once, after super() has applied the rest.
+    port = MultiValueNumberFilter(
+        method='filter_noop',
+    )
+    port__n = MultiValueNumberFilter(
+        method='filter_port_negated',
+    )
+    port__gt = MultiValueNumberFilter(
+        method='filter_noop',
+    )
+    port__gte = MultiValueNumberFilter(
+        method='filter_noop',
+    )
+    port__lt = MultiValueNumberFilter(
+        method='filter_noop',
+    )
+    port__lte = MultiValueNumberFilter(
+        method='filter_noop',
+    )
+
+    def filter_queryset(self, queryset):
+        """
+        Apply `protocol` and every active `port*` lookup as a single correlated predicate.
+
+        These can't be applied per-filter the way django-filter normally works: they must all be satisfied
+        by one single mapping, and a query combining N of them would otherwise emit N independent (and
+        redundant) copies of the same scan. So the individual filters are no-ops and the combined
+        predicate is built here, from the cleaned data, exactly once per call.
+        """
+        queryset = super().filter_queryset(queryset)
+
+        cleaned_data = self.form.cleaned_data
+        protocols = cleaned_data.get('protocol') or []
+        port_tests = [
+            (lookup, values)
+            for lookup, values in (
+                (lookup, cleaned_data.get(name) or [])
+                for name, lookup in SERVICE_PORT_FILTERS.items()
+            )
+            if values
+        ]
+        if not protocols and not port_tests:
+            return queryset
+
+        return queryset.filter(port_mapping_q(protocols, port_tests))
+
+    def filter_noop(self, queryset, name, value):
+        # See filter_queryset(), which applies `protocol` and the port lookups as one correlated predicate.
+        return queryset
+
+    def filter_protocol_noop(self, queryset, name, value: list[str]):
+        # A no-op like filter_noop(), from which this differs only in its type hint. `protocol` is not a
+        # model field, so the schema generator cannot infer the parameter's type from the model, and a
+        # plain MultipleChoiceFilter carries none of the @extend_schema_field annotations which the
+        # MultiValue* filters (used by the port lookups) do. The hint supplies it.
+        return self.filter_noop(queryset, name, value)
+
+    def filter_port_mappings(self, queryset, name, value: list[str]):
+        # Array overlap (&&) is served by the GIN index on port_mappings and gives the multi-value OR
+        # semantics used throughout NetBox: ?port_mappings=tcp/80&port_mappings=udp/53 matches either.
+        if not value:
+            return queryset
+        return queryset.filter(port_mappings__overlap=[normalize_port_mapping(v) for v in value])
+
+    def filter_port_mappings_negated(self, queryset, name, value: list[str]):
+        if not value:
+            return queryset
+        return queryset.exclude(port_mappings__overlap=[normalize_port_mapping(v) for v in value])
+
+    def filter_protocol_negated(self, queryset, name, value: list[str]):
+        # Exclude services exposing any of the given protocols (negation of the protocol-only lookup).
+        if not value:
+            return queryset
+        return queryset.exclude(port_mapping_q(value))
+
+    def filter_port_negated(self, queryset, name, value: list[int]):
+        # Exclude services exposing any of the given ports. Correlated with `protocol` when supplied, so
+        # ?protocol=tcp&port__n=80 excludes only services exposing tcp/80 (not those exposing udp/80).
+        if not value:
+            return queryset
+        protocols = self.form.cleaned_data.get('protocol') or []
+        return queryset.exclude(port_mapping_q(protocols, [('exact', value)]))
+
+
+@register_filterset
+class ServiceTemplateFilterSet(ServicePortMappingFilterMixin, PrimaryModelFilterSet):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('id', 'name', 'protocol', 'description')
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1236,7 +1366,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
-class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
+class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
@@ -1279,14 +1409,10 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
-    )
 
     class Meta:
         model = Service
-        fields = ('id', 'name', 'protocol', 'description', 'parent_object_type', 'parent_object_id')
+        fields = ('id', 'name', 'description', 'parent_object_type', 'parent_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

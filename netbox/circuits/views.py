@@ -5,6 +5,7 @@ from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from ipam.models import ASN
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
 from netbox.ui.panels import (
     CommentsPanel,
     ObjectsTablePanel,
@@ -147,8 +148,12 @@ class ProviderAccountListView(generic.ObjectListView):
 
 @register_model_view(ProviderAccount)
 class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ProviderAccount.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('provider', url=filtered_list_url('circuits:provideraccount_list', 'provider_id')),
+        ],
         left_panels=[
             panels.ProviderAccountPanel(),
             TagsPanel(),
@@ -240,8 +245,12 @@ class ProviderNetworkListView(generic.ObjectListView):
 
 @register_model_view(ProviderNetwork)
 class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ProviderNetwork.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('provider', url=filtered_list_url('circuits:providernetwork_list', 'provider_id')),
+        ],
         left_panels=[
             panels.ProviderNetworkPanel(),
             TagsPanel(),
@@ -422,8 +431,12 @@ class CircuitListView(generic.ObjectListView):
 
 @register_model_view(Circuit)
 class CircuitView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Circuit.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('provider', url=filtered_list_url('circuits:circuit_list', 'provider_id')),
+        ],
         left_panels=[
             panels.CircuitPanel(),
             panels.CircuitGroupAssignmentsPanel(),
@@ -508,8 +521,12 @@ class CircuitTerminationListView(generic.ObjectListView):
 
 @register_model_view(CircuitTermination)
 class CircuitTerminationView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = CircuitTermination.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('circuit.provider', url=filtered_list_url('circuits:circuit_list', 'provider_id')),
+        ],
         left_panels=[
             panels.CircuitTerminationPanel(),
         ],
@@ -646,8 +663,12 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
 
 @register_model_view(CircuitGroupAssignment)
 class CircuitGroupAssignmentView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = CircuitGroupAssignment.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('group', url=filtered_list_url('circuits:circuitgroupassignment_list', 'group_id')),
+        ],
         left_panels=[
             panels.CircuitGroupAssignmentPanel(),
             TagsPanel(),
@@ -785,8 +806,16 @@ class VirtualCircuitListView(generic.ObjectListView):
 
 @register_model_view(VirtualCircuit)
 class VirtualCircuitView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualCircuit.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('provider', url=filtered_list_url('circuits:virtualcircuit_list', 'provider_id')),
+            Breadcrumb(
+                'provider_network',
+                url=filtered_list_url('circuits:virtualcircuit_list', 'provider_network_id'),
+            ),
+        ],
         left_panels=[
             panels.VirtualCircuitPanel(),
             TagsPanel(),
@@ -881,8 +910,23 @@ class VirtualCircuitTerminationListView(generic.ObjectListView):
 
 @register_model_view(VirtualCircuitTermination)
 class VirtualCircuitTerminationView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualCircuitTermination.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                'virtual_circuit.provider',
+                url=filtered_list_url('circuits:virtualcircuit_list', 'provider_id'),
+            ),
+            Breadcrumb(
+                'virtual_circuit.provider_network',
+                url=filtered_list_url('circuits:virtualcircuit_list', 'provider_network_id'),
+            ),
+            Breadcrumb(
+                'virtual_circuit',
+                url=filtered_list_url('circuits:virtualcircuittermination_list', 'virtual_circuit_id'),
+            ),
+        ],
         left_panels=[
             panels.VirtualCircuitTerminationPanel(),
             TagsPanel(),

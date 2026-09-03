@@ -250,30 +250,30 @@ class VirtualMachine(
         ordering = ('name', 'pk')  # Name may be non-unique
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
+            # Partial index supporting the background renderer's scan for objects whose config
+            # context cache has been invalidated (see extras.jobs.RenderConfigContextJob and
+            # extras.cache). Indexing only the NULL-cache rows keeps that lookup cheap on large
+            # tables where the steady state is for nearly every row to be populated.
+            models.Index(
+                fields=('id',),
+                condition=Q(_config_context_data__isnull=True),
+                name='virtualization_vm_cc_null',
+            ),
         )
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'cluster', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_cluster_tenant',
+                condition=Q(cluster__isnull=False),
+                nulls_distinct=False,
                 violation_error_message=_('Virtual machine name must be unique per cluster and tenant.')
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'cluster',
-                name='%(app_label)s_%(class)s_unique_name_cluster',
-                condition=Q(tenant__isnull=True),
-                violation_error_message=_('Virtual machine name must be unique per cluster.')
             ),
             models.UniqueConstraint(
                 Lower('name'), 'device', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_device_tenant',
                 condition=Q(cluster__isnull=True, device__isnull=False),
+                nulls_distinct=False,
                 violation_error_message=_('Virtual machine name must be unique per device and tenant.')
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'device',
-                name='%(app_label)s_%(class)s_unique_name_device',
-                condition=Q(cluster__isnull=True, device__isnull=False, tenant__isnull=True),
-                violation_error_message=_('Virtual machine name must be unique per device.')
             ),
         )
         verbose_name = _('virtual machine')

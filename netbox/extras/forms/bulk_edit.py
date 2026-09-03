@@ -7,7 +7,7 @@ from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelBulkEditForm, PrimaryModelBulkEditForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from utilities.forms import BulkEditForm, add_blank_choice
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, JSONField
+from utilities.forms.fields import ChoiceField, ColorField, CommentField, DynamicModelChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
@@ -61,18 +61,23 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False
     )
-    ui_visible = forms.ChoiceField(
+    ui_visible = ChoiceField(
         label=_("UI visible"),
         choices=add_blank_choice(CustomFieldUIVisibleChoices),
         required=False
     )
-    ui_editable = forms.ChoiceField(
+    ui_editable = ChoiceField(
         label=_("UI editable"),
         choices=add_blank_choice(CustomFieldUIEditableChoices),
         required=False
     )
     is_cloneable = forms.NullBooleanField(
         label=_('Is cloneable'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    nulls_first = forms.NullBooleanField(
+        label=_('Nulls first'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -96,7 +101,7 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
 
     fieldsets = (
         FieldSet('group_name', 'description', 'weight', 'required', 'unique', 'choice_set', name=_('Attributes')),
-        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
+        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', 'nulls_first', name=_('Behavior')),
         FieldSet(
             'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_schema',
             name=_('Validation')
@@ -110,7 +115,7 @@ class CustomFieldChoiceSetBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEd
         queryset=CustomFieldChoiceSet.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    base_choices = forms.ChoiceField(
+    base_choices = ChoiceField(
         choices=add_blank_choice(CustomFieldChoiceSetBaseChoices),
         required=False
     )
@@ -144,7 +149,7 @@ class CustomLinkBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
         label=_('Weight'),
         required=False
     )
-    button_class = forms.ChoiceField(
+    button_class = ChoiceField(
         label=_('Button class'),
         choices=add_blank_choice(CustomLinkButtonClassChoices),
         required=False
@@ -252,7 +257,7 @@ class WebhookBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    http_method = forms.ChoiceField(
+    http_method = ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
         label=_('HTTP method')
@@ -274,8 +279,14 @@ class WebhookBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         required=False,
         label=_('CA file path')
     )
+    timeout = forms.IntegerField(
+        required=False,
+        min_value=1,
+        max_value=3600,
+        label=_('Timeout')
+    )
 
-    nullable_fields = ('secret', 'ca_file_path')
+    nullable_fields = ('secret', 'ca_file_path', 'timeout')
 
 
 class EventRuleBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
@@ -434,7 +445,7 @@ class JournalEntryBulkEditForm(ChangelogMessageMixin, BulkEditForm):
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    kind = forms.ChoiceField(
+    kind = ChoiceField(
         label=_('Kind'),
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False

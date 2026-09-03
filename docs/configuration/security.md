@@ -6,7 +6,7 @@
 
 Default: `('file', 'ftp', 'ftps', 'http', 'https', 'irc', 'mailto', 'sftp', 'ssh', 'tel', 'telnet', 'tftp', 'vnc', 'xmpp')`
 
-A list of permitted URL schemes referenced when rendering links within NetBox. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all the default values as well (excluding those schemes which are not desirable).
+A list of permitted URL schemes referenced when rendering links within NetBox. This list is also enforced when validating the value of URL custom fields. Note that only the schemes specified in this list will be accepted: If adding your own, be sure to replicate all the default values as well (excluding those schemes which are not desirable).
 
 !!! note
     Image sources (`<img src="...">`) are limited to HTTP(S) and relative URLs, subject to `ALLOWED_URL_SCHEMES`.
@@ -170,9 +170,6 @@ Note that enabling this setting causes NetBox to update a user's session in the 
 Default: `True`
 
 When enabled, only authenticated users are permitted to access any part of NetBox. Disabling this will allow unauthenticated users to access most areas of NetBox (but not make any changes).
-
-!!! info "Changed in NetBox v4.0.2"
-    Prior to NetBox v4.0.2, this setting was disabled by default.
 
 ---
 

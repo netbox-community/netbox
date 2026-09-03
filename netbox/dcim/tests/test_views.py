@@ -1,13 +1,17 @@
 import csv
+import datetime
 import json
 from decimal import Decimal
 from io import StringIO
+from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.http import StreamingHttpResponse
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import EUI
 
@@ -16,9 +20,16 @@ from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigContext, ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
+from netbox.choices import (
+    CSVDelimiterChoices,
+    DiameterUnitChoices,
+    FlowRateUnitChoices,
+    ImportFormatChoices,
+    WeightUnitChoices,
+)
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
@@ -719,6 +730,7 @@ class DeviceTypeTestCase(
             'u_height': 2,
             'is_full_depth': True,
             'subdevice_role': None,
+            'end_of_life': datetime.date(2035, 6, 30),
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -728,6 +740,7 @@ class DeviceTypeTestCase(
             'default_platform': platforms[1].pk,
             'u_height': 3,
             'is_full_depth': False,
+            'end_of_life': datetime.date(2030, 1, 1),
         }
 
     def test_devicetype_consoleports(self):
@@ -927,6 +940,36 @@ power-outlets:
     type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: A
+cooling-intakes:
+  - name: Cooling Intake 1
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+    max_flow: 100
+    max_flow_unit: lpm
+  - name: Cooling Intake 2
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+  - name: Cooling Intake 3
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+cooling-outflows:
+  - name: Cooling Outflow 1
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 2
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 3
+    type: uqdb
+    diameter: 25
+    diameter_unit: mm
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -959,11 +1002,15 @@ port-mappings:
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
+    enabled: false
   - name: Module Bay 3
 device-bays:
   - name: Device Bay 1
   - name: Device Bay 2
+    enabled: false
   - name: Device Bay 3
 inventory-items:
   - name: Inventory Item 1
@@ -979,6 +1026,7 @@ inventory-items:
         manufacturer.save()
         platform = Platform(name='Platform', slug='test-platform', manufacturer=manufacturer)
         platform.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -988,6 +1036,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1038,6 +1088,26 @@ inventory-items:
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
+        self.assertEqual(device_type.coolingintaketemplates.count(), 3)
+        ci1 = CoolingIntakeTemplate.objects.first()
+        self.assertEqual(ci1.name, 'Cooling Intake 1')
+        self.assertEqual(ci1.type, CoolingConnectorTypeChoices.TYPE_UQD)
+        self.assertEqual(ci1.diameter, 1)
+        self.assertEqual(ci1.diameter_unit, DiameterUnitChoices.UNIT_INCH)
+        self.assertEqual(ci1.max_flow, 100)
+        self.assertEqual(ci1.max_flow_unit, FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE)
+        # The normalized columns are populated on import
+        self.assertEqual(ci1._abs_diameter, Decimal('25.4'))
+        self.assertEqual(ci1._abs_max_flow, Decimal('100'))
+
+        self.assertEqual(device_type.coolingoutflowtemplates.count(), 3)
+        co1 = CoolingOutflowTemplate.objects.first()
+        self.assertEqual(co1.name, 'Cooling Outflow 1')
+        self.assertEqual(co1.type, CoolingConnectorTypeChoices.TYPE_UQDB)
+        self.assertEqual(co1.diameter, 25)
+        self.assertEqual(co1.diameter_unit, DiameterUnitChoices.UNIT_MILLIMETER)
+        self.assertEqual(co1.cooling_intake, ci1)
+
         self.assertEqual(device_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
@@ -1065,14 +1135,120 @@ inventory-items:
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+        self.assertTrue(mb1.enabled)
+
+        mb2 = ModuleBayTemplate.objects.filter(name='Module Bay 2').first()
+        self.assertFalse(mb2.enabled)
 
         self.assertEqual(device_type.devicebaytemplates.count(), 3)
         db1 = DeviceBayTemplate.objects.first()
         self.assertEqual(db1.name, 'Device Bay 1')
+        self.assertTrue(db1.enabled)
+
+        db2 = DeviceBayTemplate.objects.filter(name='Device Bay 2').first()
+        self.assertFalse(db2.enabled)
 
         self.assertEqual(device_type.inventoryitemtemplates.count(), 3)
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
+
+    def test_bulk_yaml_export_module_bay_types_query_count_is_constant(self):
+        """Query count shouldn't scale with bay count -- module_bay_types is prefetched."""
+        manufacturer = Manufacturer.objects.create(name='Export Query Manufacturer', slug='export-query-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query SFP28', slug='export-query-sfp28')
+
+        def make_device_type(model_name, bay_count):
+            device_type = DeviceType.objects.create(
+                manufacturer=manufacturer, model=model_name, slug=model_name.lower().replace(' ', '-'),
+            )
+            for i in range(bay_count):
+                bay = ModuleBayTemplate.objects.create(device_type=device_type, name=f'Bay {i}')
+                bay.module_bay_types.set([bay_type])
+            return device_type
+
+        one_bay_device_type = make_device_type('Export Query DT One Bay', 1)
+        five_bay_device_type = make_device_type('Export Query DT Five Bays', 5)
+
+        view = DeviceTypeListView()
+        view.queryset = DeviceType.objects.filter(pk=one_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as one_bay_queries:
+            view.export_yaml()
+
+        view.queryset = DeviceType.objects.filter(pk=five_bay_device_type.pk)
+        with CaptureQueriesContext(connection) as five_bay_queries:
+            view.export_yaml()
+
+        self.assertEqual(len(one_bay_queries), len(five_bay_queries))
+
+    def test_import_channelized_interfaces(self):
+        """
+        A channel subinterface template resolves its parent by name within the device type being imported.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-5000
+slug: test-5000
+u_height: 1
+interfaces:
+  - name: et-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+  - name: et-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: et-0/0/0
+  - name: et-0/0/0:2
+    type: channel
+    channel_id: 2
+    parent: et-0/0/0
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        # The name lookup runs through get(), so an unscoped queryset would raise MultipleObjectsReturned here
+        InterfaceTemplate.objects.create(
+            device_type=DeviceType.objects.get(model='Device Type 1'),
+            name='et-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+            'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        device_type = DeviceType.objects.get(model='TEST-5000')
+        self.assertEqual(device_type.interfacetemplates.count(), 3)
+
+        parent = device_type.interfacetemplates.get(name='et-0/0/0')
+        self.assertEqual(parent.channels, 4)
+
+        for i in range(1, 3):
+            channel = device_type.interfacetemplates.get(name=f'et-0/0/0:{i}')
+            self.assertEqual(channel.type, InterfaceTypeChoices.TYPE_CHANNEL)
+            self.assertEqual(channel.channel_id, i)
+            self.assertEqual(channel.parent, parent)
 
     def test_import_error_numbering(self):
         # Add all required permissions to the test user
@@ -1084,6 +1260,8 @@ inventory-items:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1136,6 +1314,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1172,6 +1352,8 @@ console-ports: {value}
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1267,6 +1449,7 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'manufacturer': manufacturers[1].pk,
             'model': 'Device Type X',
             'part_number': '123ABC',
+            'end_of_life': datetime.date(2035, 6, 30),
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
         }
@@ -1274,11 +1457,12 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'manufacturer': manufacturers[1].pk,
             'part_number': '456DEF',
+            'end_of_life': datetime.date(2030, 1, 1),
         }
 
         cls.csv_data = (
-            "manufacturer,model,part_number,comments,profile",
-            f"Manufacturer 1,Module Type 4,module-type-4,,{cls.profile.name}",
+            "manufacturer,model,part_number,end_of_life,comments,profile",
+            f"Manufacturer 1,Module Type 4,module-type-4,2035-06-30,,{cls.profile.name}",
         )
 
         cls.csv_update_data = (
@@ -1292,6 +1476,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1308,6 +1494,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1324,6 +1512,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1344,6 +1534,8 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1516,6 +1708,26 @@ power-outlets:
     type: iec-60320-c13
     power_port: Power Port 1
     feed_leg: A
+cooling-intakes:
+  - name: Cooling Intake 1
+    type: uqd
+    diameter: 1
+    diameter_unit: in
+    max_flow: 6
+    max_flow_unit: m3ph
+  - name: Cooling Intake 2
+    type: uqd
+  - name: Cooling Intake 3
+    type: uqd
+cooling-outflows:
+  - name: Cooling Outflow 1
+    type: uqdb
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 2
+    type: uqdb
+    cooling_intake: Cooling Intake 1
+  - name: Cooling Outflow 3
+    type: uqdb
 interfaces:
   - name: Interface 1
     type: 1000base-t
@@ -1548,6 +1760,8 @@ port-mappings:
 module-bays:
   - name: Module Bay 1
     position: 1
+    module_bay_types:
+      - SFP28
   - name: Module Bay 2
     position: 2
   - name: Module Bay 3
@@ -1557,6 +1771,7 @@ module-bays:
         # Create the manufacturer
         manufacturer = Manufacturer(name='Generic', slug='generic')
         manufacturer.save()
+        ModuleBayType.objects.create(name='SFP28', slug='sfp28')
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -1566,6 +1781,8 @@ module-bays:
             'dcim.add_consoleserverporttemplate',
             'dcim.add_powerporttemplate',
             'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
             'dcim.add_interfacetemplate',
             'dcim.add_frontporttemplate',
             'dcim.add_rearporttemplate',
@@ -1608,6 +1825,24 @@ module-bays:
         self.assertEqual(po1.power_port, pp1)
         self.assertEqual(po1.feed_leg, PowerOutletFeedLegChoices.FEED_LEG_A)
 
+        self.assertEqual(module_type.coolingintaketemplates.count(), 3)
+        ci1 = CoolingIntakeTemplate.objects.first()
+        self.assertEqual(ci1.name, 'Cooling Intake 1')
+        self.assertEqual(ci1.type, CoolingConnectorTypeChoices.TYPE_UQD)
+        self.assertEqual(ci1.diameter, 1)
+        self.assertEqual(ci1.diameter_unit, DiameterUnitChoices.UNIT_INCH)
+        self.assertEqual(ci1.max_flow, 6)
+        self.assertEqual(ci1.max_flow_unit, FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR)
+        # The normalized columns are populated on import
+        self.assertEqual(ci1._abs_diameter, Decimal('25.4'))
+        self.assertEqual(ci1._abs_max_flow, Decimal('100'))
+
+        self.assertEqual(module_type.coolingoutflowtemplates.count(), 3)
+        co1 = CoolingOutflowTemplate.objects.first()
+        self.assertEqual(co1.name, 'Cooling Outflow 1')
+        self.assertEqual(co1.type, CoolingConnectorTypeChoices.TYPE_UQDB)
+        self.assertEqual(co1.cooling_intake, ci1)
+
         self.assertEqual(module_type.interfacetemplates.count(), 3)
         iface1 = InterfaceTemplate.objects.first()
         self.assertEqual(iface1.name, 'Interface 1')
@@ -1632,6 +1867,224 @@ module-bays:
         mb1 = ModuleBayTemplate.objects.first()
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
+        self.assertEqual(list(mb1.module_bay_types.values_list('name', flat=True)), ['SFP28'])
+
+    def test_import_channelized_interfaces(self):
+        """
+        A channel subinterface template resolves its parent by name within the module type being imported.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-2000
+interfaces:
+  - name: xe-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+  - name: xe-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: xe-0/0/0
+  - name: xe-0/0/0:2
+    type: channel
+    channel_id: 2
+    parent: xe-0/0/0
+  - name: xe-0/0/0:3
+    type: channel
+    channel_id: 3
+    parent: xe-0/0/0
+  - name: xe-0/0/0:4
+    type: channel
+    channel_id: 4
+    parent: xe-0/0/0
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        # The name lookup runs through get(), so an unscoped queryset would raise MultipleObjectsReturned here
+        InterfaceTemplate.objects.create(
+            module_type=ModuleType.objects.get(model='Module Type 1'),
+            name='xe-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        module_type = ModuleType.objects.get(model='TEST-2000')
+        self.assertEqual(module_type.interfacetemplates.count(), 5)
+
+        parent = module_type.interfacetemplates.get(name='xe-0/0/0')
+        self.assertEqual(parent.type, InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS)
+        self.assertEqual(parent.channels, 4)
+        self.assertIsNone(parent.channel_id)
+
+        for i in range(1, 5):
+            channel = module_type.interfacetemplates.get(name=f'xe-0/0/0:{i}')
+            self.assertEqual(channel.type, InterfaceTypeChoices.TYPE_CHANNEL)
+            self.assertEqual(channel.channel_id, i)
+            self.assertIsNone(channel.channels)
+            self.assertEqual(channel.parent, parent)
+
+    def test_import_channel_before_parent(self):
+        """
+        A channel subinterface listed ahead of its parent reports a form error rather than a server error.
+        """
+        IMPORT_DATA = """
+manufacturer: Generic
+model: TEST-2001
+interfaces:
+  - name: xe-0/0/0:1
+    type: channel
+    channel_id: 1
+    parent: xe-0/0/0
+  - name: xe-0/0/0
+    type: 40gbase-x-qsfpp
+    channels: 4
+"""
+        Manufacturer.objects.create(name='Generic', slug='generic')
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(
+            response,
+            'Record 1 interfaces[1].parent: Select a valid choice. That choice is not one of the available choices.'
+        )
+        self.assertContains(
+            response,
+            'Record 1 interfaces[1].parent: A channel subinterface must be assigned to a parent interface.'
+        )
+        self.assertFalse(ModuleType.objects.filter(model='TEST-2001').exists())
+
+    def test_import_exported_channelized_module_type(self):
+        """
+        YAML produced by ModuleType.to_yaml() for a channelized module type can be imported again.
+        """
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='TEST-3000')
+        parent = InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='xe-0/0/0',
+            type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS,
+            channels=4,
+        )
+        for i in range(1, 5):
+            InterfaceTemplate.objects.create(
+                module_type=module_type,
+                name=f'xe-0/0/0:{i}',
+                type=InterfaceTypeChoices.TYPE_CHANNEL,
+                parent=parent,
+                channel_id=i,
+            )
+
+        # The importer saves each entry in list order, so the export must place a parent ahead of its channels
+        exported = yaml.safe_load(module_type.to_yaml())
+        self.assertEqual(
+            [interface['name'] for interface in exported['interfaces']],
+            ['xe-0/0/0', 'xe-0/0/0:1', 'xe-0/0/0:2', 'xe-0/0/0:3', 'xe-0/0/0:4'],
+        )
+
+        # Re-import under a different model so it does not collide with the source
+        exported['model'] = 'TEST-3001'
+
+        self.add_permissions(
+            'dcim.view_manufacturer',
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_coolingintaketemplate',
+            'dcim.add_coolingoutflowtemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+        )
+
+        form_data = {
+            'data': yaml.dump(exported),
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('dcim:moduletype_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        imported = ModuleType.objects.get(model='TEST-3001')
+        self.assertEqual(imported.interfacetemplates.count(), 5)
+
+        imported_parent = imported.interfacetemplates.get(name='xe-0/0/0')
+        self.assertEqual(imported_parent.channels, 4)
+        for i in range(1, 5):
+            channel = imported.interfacetemplates.get(name=f'xe-0/0/0:{i}')
+            self.assertEqual(channel.channel_id, i)
+            self.assertEqual(channel.parent, imported_parent)
+
+    def test_bulk_yaml_export_prefetches_module_bay_types_on_the_module_type_itself(self):
+        """Compares an unprefetched to_yaml() call per instance against export_yaml() (which
+        prefetches and issues no queries of its own beyond that), rather than a row-count
+        comparison, which other per-instance relations that legitimately scale with it would
+        swamp."""
+        manufacturer = Manufacturer.objects.create(name='Export Query MT Manufacturer', slug='export-query-mt-mfr')
+        bay_type = ModuleBayType.objects.create(name='Export Query MT SFP28', slug='export-query-mt-sfp28')
+
+        module_types = []
+        for i in range(5):
+            module_type = ModuleType.objects.create(manufacturer=manufacturer, model=f'Export Query MT {i}')
+            module_type.module_bay_types.set([bay_type])
+            module_types.append(module_type)
+        pks = [mt.pk for mt in module_types]
+
+        with CaptureQueriesContext(connection) as unprefetched:
+            [obj.to_yaml() for obj in ModuleType.objects.filter(pk__in=pks)]
+
+        view = ModuleTypeListView()
+        view.queryset = ModuleType.objects.filter(pk__in=pks)
+        with CaptureQueriesContext(connection) as prefetched:
+            view.export_yaml()
+
+        # Without the prefetch, each of the 5 module types issues its own module_bay_types
+        # query; with it, exactly one query serves all 5.
+        self.assertEqual(len(unprefetched) - len(prefetched), 4)
 
     @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
@@ -1655,6 +2108,47 @@ module-bays:
         rows = list(csv.reader(StringIO(content)))
         self.assertGreater(len(rows), 1)
         self.assertEqual(len(rows) - 1, ModuleType.objects.count())
+
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.change_moduletype',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_types = list(
+            ModuleType.objects.filter(model__in=('Module Type 2', 'Module Type 3')).order_by('pk')
+        )
+        for module_type, kept_type in zip(module_types, kept_types):
+            module_type.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_type.pk for module_type in module_types]
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_type, kept_type in zip(module_types, kept_types):
+            self.assertEqual(
+                set(module_type.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
 
 
 class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -1726,6 +2220,54 @@ class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class ModuleBayTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ModuleBayType
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturers = (
+            Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        )
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        module_bay_types = (
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 1', slug='module-bay-type-1'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 2', slug='module-bay-type-2'),
+            ModuleBayType(manufacturer=manufacturers[0], name='Module Bay Type 3', slug='module-bay-type-3'),
+        )
+        ModuleBayType.objects.bulk_create(module_bay_types)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'manufacturer': manufacturers[1].pk,
+            'name': 'Module Bay Type X',
+            'slug': 'module-bay-type-x',
+            'color': 'aa1409',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,manufacturer",
+            "Module Bay Type 4,module-bay-type-4,Manufacturer 1",
+            "Module Bay Type 5,module-bay-type-5,Manufacturer 1",
+            "Module Bay Type 6,module-bay-type-6,Manufacturer 1",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{module_bay_types[0].pk},New description",
+            f"{module_bay_types[1].pk},New description",
+            f"{module_bay_types[2].pk},New description",
+        )
+
+        cls.bulk_edit_data = {
+            'manufacturer': manufacturers[1].pk,
             'description': 'New description',
         }
 
@@ -2030,6 +2572,56 @@ class ModuleBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             'description': 'Foo bar',
             'position': 'A1',
         }
+
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_modulebaytemplate',
+            'dcim.change_modulebaytemplate',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_bay_templates = list(ModuleBayTemplate.objects.order_by('pk')[:2])
+        for module_bay_template, kept_type in zip(module_bay_templates, kept_types):
+            module_bay_template.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_bay_template.pk for module_bay_template in module_bay_templates]
+
+        # The reported symptom: both controls must appear on the bulk-edit form
+        response = self.client.post(self._get_url('bulk_edit'), {'pk': pk_list})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Add bay types')
+        self.assertContains(response, 'Remove bay types')
+
+        # Declaring fieldsets switches the template to its grouped branch, which must keep
+        # annotating the nullable fields
+        self.assertContains(response, 'id="nullify_id_label"')
+        self.assertContains(response, 'id="nullify_id_description"')
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_bay_template, kept_type in zip(module_bay_templates, kept_types):
+            self.assertEqual(
+                set(module_bay_template.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
 
 
 class DeviceBayTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
@@ -3515,6 +4107,59 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
 
+    def test_mac_address_shortcut_create(self):
+        """
+        Submitting the Interface form with a mac_address string creates a MACAddress
+        and sets it as primary in one request.
+        """
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
+
+        data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('add'), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        interface = Interface.objects.get(device=data['device'], name=data['name'])
+        self.assertIsNotNone(interface.primary_mac_address)
+        self.assertEqual(str(interface.primary_mac_address.mac_address), 'AA:BB:CC:DD:EE:FF')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_edit(self):
+        """
+        Submitting the Interface edit form with a mac_address string creates a MACAddress
+        and assigns it as primary when none existed before.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        self.assertIsNone(instance.primary_mac_address)
+
+        data = {**self.form_data, 'mac_address': '11:22:33:44:55:66', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNotNone(instance.primary_mac_address)
+        self.assertEqual(str(instance.primary_mac_address.mac_address), '11:22:33:44:55:66')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_clear(self):
+        """
+        Submitting the Interface edit form with an empty mac_address clears the primary MAC.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        data = {**self.form_data, 'mac_address': '', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_import_omitted_field_validation_error(self):
         """Surface omitted-field validation errors during bulk updates."""
@@ -3546,6 +4191,73 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         wireless_interface.refresh_from_db()
         self.assertEqual(wireless_interface.type, InterfaceTypeChoices.TYPE_80211AC)
         self.assertEqual(wireless_interface.rf_channel_width, Decimal('20.0'))
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_unchanged_edit_without_add_permission(self):
+        """
+        Editing an unrelated field on an interface with a pre-populated primary MAC, as a user without
+        add_macaddress, succeeds: the untouched pre-populated MAC must not require the create permission.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        # Re-submit the current primary MAC unchanged while editing an unrelated field.
+        data = {
+            **self.form_data,
+            'mac_address': 'AA:BB:CC:DD:EE:FF',
+            'description': 'Updated description',
+            'changelog_message': 'test',
+        }
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertEqual(instance.description, 'Updated description')
+        self.assertEqual(instance.primary_mac_address_id, mac.pk)
+
+    @override_settings(
+        EXEMPT_VIEW_PERMISSIONS=['*'],
+        EXEMPT_EXCLUDE_MODELS=[],
+        CUSTOM_VALIDATORS={'dcim.macaddress': [{'mac_address': {'regex': '^AA:'}}]},
+    )
+    def test_mac_address_shortcut_custom_validation_error(self):
+        """
+        A MAC that fails a custom validator on the edit form is surfaced as a request error, not a 500.
+        """
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+
+        data = {**self.form_data, 'mac_address': 'BB:CC:DD:EE:FF:00', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # AbortRequest re-renders the form (200) rather than 500ing; the MAC is not created.
+        self.assertHttpStatus(response, 200)
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_edit_interface_with_dangling_primary_mac_does_not_500(self):
+        """
+        An interface with a primary MAC not assigned to it (reachable via direct ORM) must render a
+        form error on edit, not a 500. The error is non-field because primary_mac_address is not an
+        InterfaceForm field, so a field-keyed error would raise in the form's add_error().
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        dangling = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:AA')
+        instance.primary_mac_address = dangling
+        instance.save()
+
+        data = {**self.form_data, 'description': 'edit attempt', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        # The invalid form re-renders (200) rather than 500ing.
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Only a MAC address assigned to this interface')
 
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -3903,6 +4615,45 @@ class ModuleBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
 
         self.assertEqual(initial_count + 8, self._get_queryset().count())
+
+    @tag('regression')  # Issue #22961
+    def test_bulk_edit_module_bay_types(self):
+        """
+        Bulk edit adds and removes bay types per object, leaving each object's other assignments intact.
+        """
+        self.add_permissions(
+            'dcim.view_modulebay',
+            'dcim.change_modulebay',
+            'dcim.view_modulebaytype',
+        )
+
+        kept_types = (
+            ModuleBayType.objects.create(name='Kept Type 1', slug='kept-type-1'),
+            ModuleBayType.objects.create(name='Kept Type 2', slug='kept-type-2'),
+        )
+        removed_type = ModuleBayType.objects.create(name='Removed Type', slug='removed-type')
+        added_type = ModuleBayType.objects.create(name='Added Type', slug='added-type')
+
+        # Differing starting sets prove a per-object delta rather than a wholesale replacement
+        module_bays = list(ModuleBay.objects.order_by('pk')[:2])
+        for module_bay, kept_type in zip(module_bays, kept_types):
+            module_bay.module_bay_types.set((kept_type, removed_type))
+
+        pk_list = [module_bay.pk for module_bay in module_bays]
+
+        response = self.client.post(self._get_url('bulk_edit'), post_data({
+            'pk': pk_list,
+            'add_module_bay_types': [added_type.pk],
+            'remove_module_bay_types': [removed_type.pk],
+            '_apply': True,
+        }))
+        self.assertHttpStatus(response, 302)
+
+        for module_bay, kept_type in zip(module_bays, kept_types):
+            self.assertEqual(
+                set(module_bay.module_bay_types.values_list('pk', flat=True)),
+                {kept_type.pk, added_type.pk},
+            )
 
 
 class DeviceBayTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -4265,6 +5016,15 @@ class CableTestCase(
                 "Power Panel 1,dcim.powerfeed,Power Feed 2,Device 4,dcim.powerport,Power Port 2",
                 "Power Panel 1,dcim.powerfeed,Power Feed 3,Device 4,dcim.powerport,Power Port 3",
             ),
+            'multi-termination': (
+                # Ensure that a comma-separated cell imports multiple terminations per cable end,
+                # both with a single broadcast parent and with one parent per termination name.
+                "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+                'Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,'
+                '"Interface 1,Interface 2",breakout-1c2p-2c1p',
+                'Device 3,dcim.interface,Interface 2,"Device 4,Device 5",dcim.interface,'
+                '"Interface 3,Interface 1",breakout-1c2p-2c1p',
+            ),
         }
 
         cls.csv_update_data = (
@@ -4293,6 +5053,223 @@ class CableTestCase(
             data['b_terminations'] = [obj.pk for obj in data['b_terminations']]
 
         return data
+
+    def test_bulk_import_unquoted_multi_value_cell(self):
+        """An unquoted multi-value cell is rejected with a column-count error."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1,Interface 2,breakout-1c2p-2c1p",
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('Expected 7 columns but found 8', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+    def test_bulk_import_unquoted_multi_value_cell_shifted_columns(self):
+        """An unquoted multi-value cell matching the column count is rejected by field validation."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1,Interface 2",
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('not one of the available choices', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_exceeding_profile_capacity(self):
+        """A record with more terminations than its profile permits reports a validation error."""
+        self.add_permissions('dcim.add_cable')
+        csv_data = (
+            "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name,profile",
+            'Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,'
+            '"Interface 1,Interface 2,Interface 3",breakout-1c2p-2c1p',
+        )
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertIn('only 2 are permitted', response.content.decode())
+        self.assertEqual(self._get_queryset().count(), initial_count)
+
+    def _post_cable_update(self, csv_data):
+        self.add_permissions('dcim.add_cable', 'dcim.change_cable')
+        return self.client.post(self._get_url('bulk_import'), {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_parent_column(self):
+        """Redefining termination names without the parent column is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_type,side_b_name",
+            f'{cable.pk},dcim.interface,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_device column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_without_type_column(self):
+        """The same applies to the termination type column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_name",
+            f'{cable.pk},Device 4,"Interface 1,Interface 2"',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_type column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_profile_violation_without_termination_columns(self):
+        """
+        A profile change which conflicts with the cable's existing terminations reports a validation
+        error even though the record omits the termination columns.
+        """
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,profile",
+            f'{cable.pk},{CableProfileChoices.SINGLE_1C1P}',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('only 1 are permitted', response.content.decode())
+        self.assertEqual(
+            Cable.objects.get(pk=cable.pk).profile, CableProfileChoices.BREAKOUT_1C2P_2C1P
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_terminations_with_all_columns(self):
+        """A complete set of side columns updates the terminations."""
+        cable = self._get_queryset().first()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name,profile",
+            f'{cable.pk},Device 4,dcim.interface,"Interface 1,Interface 2",breakout-1c2p-2c1p',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(t) for t in Cable.objects.get(pk=cable.pk).b_terminations],
+            ['Interface 1', 'Interface 2']
+        )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_side_columns_without_name_column(self):
+        """Supporting side columns without the name column are rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type",
+            f'{cable.pk},Device 4,dcim.interface',
+        ))
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('side_b_name column must be included', content)
+        self.assertIn('side_b_device, side_b_type', content)
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_site_column_without_name_column(self):
+        """The site column only scopes termination resolution, so it too requires the name column."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_site",
+            f'{cable.pk},Site 1',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name column must be included', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_without_any_side_columns(self):
+        """An update touching no side columns is unaffected by the name column requirement."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,label",
+            f'{cable.pk},Relabeled',
+        ))
+        self.assertHttpStatus(response, 302)
+        cable = Cable.objects.get(pk=cable.pk)
+        self.assertEqual(cable.label, 'Relabeled')
+        self.assertEqual(cable.b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_blank_name_column(self):
+        """A blank name column alongside its supporting columns is rejected, not silently ignored."""
+        cable = self._get_queryset().first()
+        original = cable.b_terminations
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,',
+        ))
+        self.assertHttpStatus(response, 200)
+        self.assertIn('side_b_name: This field is required', response.content.decode())
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, original)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_update_reorders_terminations(self):
+        """Reordering a side's terminations rewires the cable, even though its members are unchanged."""
+        interfaces = Interface.objects.filter(device__name='Device 4').order_by('name')[:2]
+        cable = Cable(
+            a_terminations=[Interface.objects.get(device__name='Device 3', name='Interface 1')],
+            b_terminations=[interfaces[0], interfaces[1]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        response = self._post_cable_update((
+            "id,side_b_device,side_b_type,side_b_name",
+            f'{cable.pk},Device 4,dcim.interface,"{interfaces[1].name},{interfaces[0].name}"',
+        ))
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [
+                (ct.connector, ct.termination)
+                for ct in Cable.objects.get(pk=cable.pk).terminations.filter(cable_end=CableEndChoices.SIDE_B)
+            ],
+            [(1, interfaces[1]), (2, interfaces[0])]
+        )
 
 
 #
@@ -4628,6 +5605,358 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
 
 
+class CoolingIntakeTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingIntakeTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingIntakeTemplate.objects.bulk_create((
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        }
+
+
+class CoolingOutflowTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingOutflowTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingOutflowTemplate.objects.bulk_create((
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutflowTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        ))
+
+        coolingintakes = (
+            CoolingIntakeTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+        )
+        CoolingIntakeTemplate.objects.bulk_create(coolingintakes)
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[0].pk,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[0].pk,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+        }
+
+
+class CoolingIntakeTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingIntake
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        cooling_intakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+            CoolingIntake(device=device, name='Cooling Port 3'),
+        )
+        CoolingIntake.objects.bulk_create(cooling_intakes)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Port X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Port [4-6]]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'max_flow': 100,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Port 4",
+            "Device 1,Cooling Port 5",
+            "Device 1,Cooling Port 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_intakes[0].pk},Cooling Port 7,New description7",
+            f"{cooling_intakes[1].pk},Cooling Port 8,New description8",
+            f"{cooling_intakes[2].pk},Cooling Port 9,New description9",
+        )
+
+
+class CoolingOutflowTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingOutflow
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        coolingintakes = (
+            CoolingIntake(device=device, name='Cooling Port 1'),
+            CoolingIntake(device=device, name='Cooling Port 2'),
+        )
+        CoolingIntake.objects.bulk_create(coolingintakes)
+
+        cooling_outflows = (
+            CoolingOutflow(device=device, name='Cooling Outlet 1', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 2', cooling_intake=coolingintakes[0]),
+            CoolingOutflow(device=device, name='Cooling Outlet 3', cooling_intake=coolingintakes[0]),
+        )
+        CoolingOutflow.objects.bulk_create(cooling_outflows)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet X',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet [4-6]',
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'cooling_intake': coolingintakes[1].pk,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Outlet 4",
+            "Device 1,Cooling Outlet 5",
+            "Device 1,Cooling Outlet 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_outflows[0].pk},Cooling Outlet 7,New description7",
+            f"{cooling_outflows[1].pk},Cooling Outlet 8,New description8",
+            f"{cooling_outflows[2].pk},Cooling Outlet 9,New description9",
+        )
+
+
+class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingSource
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+        )
+        for location in locations:
+            location.save()
+
+        cooling_sources = (
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 1',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 2',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 3',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+            'name': 'Cooling Source X',
+            'type': CoolingSourceTypeChoices.TYPE_COOLING_TOWER,
+            'status': CoolingSourceStatusChoices.STATUS_ACTIVE,
+            'fluid_type': FluidTypeChoices.FLUID_WATER,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,location,name,type,status",
+            "Site 1,Location 1,Cooling Source 4,chiller,active",
+            "Site 1,Location 1,Cooling Source 5,chiller,active",
+            "Site 1,Location 1,Cooling Source 6,chiller,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{cooling_sources[0].pk},Cooling Source 7",
+            f"{cooling_sources[1].pk},Cooling Source 8",
+            f"{cooling_sources[2].pk},Cooling Source 9",
+        )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+        }
+
+
+class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingFeed
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        cooling_sources = (
+            CoolingSource(site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER),
+            CoolingSource(site=site, name='Cooling Source 2', type=CoolingSourceTypeChoices.TYPE_CHILLER),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cooling_feeds = (
+            CoolingFeed(name='Cooling Feed 1', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 2', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 3', cooling_source=cooling_sources[0], rack=racks[0]),
+        )
+        CoolingFeed.objects.bulk_create(cooling_feeds)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cooling Feed X',
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'cooling_capacity': 100,
+            'max_flow': 50,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'comments': 'New comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,cooling_source,name,status",
+            "Site 1,Cooling Source 1,Cooling Feed 4,active",
+            "Site 1,Cooling Source 1,Cooling Feed 5,active",
+            "Site 1,Cooling Source 1,Cooling Feed 6,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name,status",
+            f"{cooling_feeds[0].pk},Cooling Feed 7,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[1].pk},Cooling Feed 8,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[2].pk},Cooling Feed 9,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+        )
+
+        cls.bulk_edit_data = {
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'cooling_capacity': 100,
+            'max_flow': 50,
+            'max_flow_unit': FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+            'comments': 'New comments',
+        }
+
+
 class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualDeviceContext
 
@@ -4750,10 +6079,211 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_set_primary(self):
+        """
+        Test that MACAddressSetPrimaryView promotes a non-primary MAC to primary and
+        redirects to the assigned interface's detail page.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        # Use the first MAC fixture which is assigned to an interface but not yet primary
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        self.assertIsNotNone(interface)
+        self.assertIsNone(interface.primary_mac_address)
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_already_primary(self):
+        """
+        Clicking Set as primary on the current primary MAC is a no-op and still
+        redirects to the interface.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        interface.primary_mac_address = mac
+        interface.save()
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_requires_interface_change_permission(self):
+        """
+        Attempting to set a primary MAC without change_interface permission
+        redirects to the MAC's detail page with an error.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        mac.assigned_object.refresh_from_db()
+        self.assertIsNone(mac.assigned_object.primary_mac_address)
+
+    def test_set_primary_enforces_object_level_change_permission(self):
+        """
+        A user with model-level change_interface but a constrained ObjectPermission that excludes the
+        target interface cannot set its primary MAC: object-level constraints are enforced, not just
+        the model-level permission.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        # Grant change_interface constrained to a different interface (id != target), so the target
+        # is invisible to the change-restricted queryset.
+        obj_perm = ObjectPermission(
+            name='Constrained interface change',
+            actions=['change'],
+            constraints={'id__gt': interface.pk},
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Interface))
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertIsNone(interface.primary_mac_address_id)
+
+    def test_set_primary_get_redirects(self):
+        """
+        A direct GET (bookmark, prefetch) degrades to the MAC's detail page rather than a 405.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+
+    def test_set_primary_anonymous_redirects_to_login(self):
+        """
+        With LOGIN_REQUIRED, an unauthenticated request is redirected to the login page (via
+        ConditionalLoginRequiredMixin) rather than 404ing or acting, for both GET and POST.
+        """
+        self.client.logout()
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+
+        with override_settings(LOGIN_REQUIRED=True):
+            for method in (self.client.get, self.client.post):
+                response = method(url)
+                self.assertHttpStatus(response, 302)
+                self.assertTrue(response['Location'].startswith(reverse('login')))
+
+    def test_set_primary_honors_return_url(self):
+        """
+        With a safe return_url supplied (as the list-view action does), the view redirects there
+        rather than to the interface, so setting a primary MAC from the list keeps the user on it.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        return_url = reverse('dcim:macaddress_list')
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(f'{url}?return_url={return_url}')
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], return_url)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_list_view_request(self):
+        """
+        Request-level coverage of the real list-view wiring: GET the MAC list and confirm the
+        table is served inside the bulk-edit <form> with the Set as primary action riding it via
+        formaction, and no nested <form>. This fails if the list view stops wrapping the table in
+        a form or the column's context detection breaks (the class of regression #18821 was).
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        list_url = reverse('dcim:macaddress_list')
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(list_url)}'
+
+        response = self.client.get(list_url)
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+
+        # The action rides the bulk form via a formaction button; it injects no nested <form> of its
+        # own (which the parser would drop, producing the original 405).
+        self.assertInHTML(
+            f'<button type="submit" formaction="{action_url}" formmethod="post" '
+            f'class="dropdown-item"><i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertNotIn(f'<form method="post" action="{set_primary_url}', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_action_embedded_request(self):
+        """
+        Request-level coverage of the embedded panel wiring: GET the MAC list as ObjectsTablePanel
+        does (?embedded=True with the parent object's return_url) and confirm the action renders a
+        self-contained <form> (no surrounding form to ride) that returns the user to that object.
+        """
+        self.add_permissions('dcim.view_macaddress')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface_url = mac.assigned_object.get_absolute_url()
+        set_primary_url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        action_url = f'{set_primary_url}?return_url={quote(interface_url)}'
+
+        response = self.client.get(
+            reverse('dcim:macaddress_list') + f'?embedded=True&return_url={quote(interface_url)}',
+            headers={'hx-request': 'true'},
+        )
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+
+        # A self-contained POST <form> to the returning action URL (valid here, no surrounding form)
+        # wraps the submit button. Assert the button structurally; the form's action carries the
+        # return_url so the user lands back on the interface.
+        self.assertInHTML(
+            '<button type="submit" class="dropdown-item">'
+            '<i class="mdi mdi-star-outline"></i> Set as primary</button>',
+            content,
+        )
+        self.assertIn(f'<form method="post" action="{action_url}">', content)
+
+    @tag('regression')  # Issue #18821
+    def test_set_primary_from_embedded_redirects_to_interface(self):
+        """
+        A set-primary POST with no return_url falls back to the assigned object's detail page, so
+        the action always lands the user on the interface even absent an explicit return target.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+        mac = MACAddress.objects.filter(assigned_object_id__isnull=False).first()
+        interface = mac.assigned_object
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.post(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):
         """
-        Test creating a MAC address via quick-add modal (e.g., from Interface form).
+        Test creating a MAC address via the quick-add modal mechanism.
         Regression test for issue #20542 where form prefix was missing in POST handler.
         """
         self.add_permissions('dcim.view_macaddress', 'dcim.view_interface', 'extras.view_tag')

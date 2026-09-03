@@ -41,11 +41,12 @@ from netbox.forms.model_forms import (
 )
 from netbox.graphql.types import (
     NestedGroupObjectType,
+    NestedLtreeGroupObjectType,
     NetBoxObjectType,
     OrganizationalObjectType,
     PrimaryObjectType,
 )
-from netbox.models import NestedGroupModel, NetBoxModel, OrganizationalModel, PrimaryModel
+from netbox.models import NestedGroupModelMixin, NestedLtreeGroupModel, NetBoxModel, OrganizationalModel, PrimaryModel
 from netbox.registry import registry
 from netbox.tables import (
     NestedGroupModelTable,
@@ -78,7 +79,7 @@ class FormClassesTestCase(TestCase):
             return PrimaryModelForm
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelForm
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelForm
@@ -95,7 +96,7 @@ class FormClassesTestCase(TestCase):
             return PrimaryModelBulkEditForm
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelBulkEditForm
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelBulkEditForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelBulkEditForm
@@ -112,7 +113,7 @@ class FormClassesTestCase(TestCase):
             return PrimaryModelImportForm
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelImportForm
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelImportForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelImportForm
@@ -129,7 +130,7 @@ class FormClassesTestCase(TestCase):
             return PrimaryModelFilterSetForm
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelFilterSetForm
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelFilterSetForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelFilterSetForm
@@ -265,7 +266,7 @@ class FilterSetClassesTestCase(TestCase):
             return PrimaryModelFilterSet
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelFilterSet
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelFilterSet
         if issubclass(model, NetBoxModel):
             return NetBoxModelFilterSet
@@ -316,7 +317,7 @@ class TableClassesTestCase(TestCase):
             return PrimaryModelTable
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelTable
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelTable
         if issubclass(model, NetBoxModel):
             return NetBoxTable
@@ -397,7 +398,7 @@ class SerializerClassesTestCase(TestCase):
             return PrimaryModelSerializer
         if issubclass(model, OrganizationalModel):
             return OrganizationalModelSerializer
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupModelSerializer
         if issubclass(model, NetBoxModel):
             return NetBoxModelSerializer
@@ -438,7 +439,9 @@ class GraphQLTypeClassesTestCase(TestCase):
             return PrimaryObjectType
         if issubclass(model, OrganizationalModel):
             return OrganizationalObjectType
-        if issubclass(model, NestedGroupModel):
+        if issubclass(model, NestedLtreeGroupModel):
+            return NestedLtreeGroupObjectType
+        if issubclass(model, NestedGroupModelMixin):
             return NestedGroupObjectType
         if issubclass(model, NetBoxModel):
             return NetBoxObjectType

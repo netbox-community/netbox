@@ -29,9 +29,14 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from core.api import schema  # noqa: F401
-        from core.checks import check_duplicate_indexes, check_postgresql_version, check_redis_version  # noqa: F401
+        from core.checks import (  # noqa: F401
+            check_duplicate_indexes,
+            check_postgresql_version,
+            check_redis_version,
+        )
         from netbox import context_managers  # noqa: F401
         from netbox.models.features import register_models
+        from netbox.search import signals as search_signals  # noqa: F401
 
         from . import data_backends, events, search  # noqa: F401
 

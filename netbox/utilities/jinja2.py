@@ -11,6 +11,7 @@ from jinja2.meta import find_referenced_templates
 from jinja2.sandbox import SandboxedEnvironment
 
 from netbox.config import get_config
+from netbox.registry import registry
 
 __all__ = (
     'DEFAULT_JINJA2_FILTERS',
@@ -98,11 +99,19 @@ class DataFileLoader(BaseLoader):
 
 def _jinja2_filters(filters=None):
     """
-    Build the Jinja2 filter table: defaults, then instance-configured JINJA2_FILTERS, then any
-    filters passed for this call, in increasing precedence. Shared by render_jinja2() and
-    validate_jinja2_syntax() so both see an identical filter table.
+    Build the Jinja2 filter table: default < plugin-registered < instance JINJA_FILTERS < filters
+    passed for this call, in increasing precedence. Instance-level config wins over
+    plugin-registered filters so site admins can override anything. Filters passed for this call
+    take precedence over all of them, so that context-specific (e.g. sanitization) filters cannot
+    be shadowed. Shared by render_jinja2() and validate_jinja2_syntax() so both see an identical
+    filter table.
     """
-    return {**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS, **(filters or {})}
+    return {
+        **DEFAULT_JINJA2_FILTERS,
+        **registry['plugins'].get('jinja_filters', {}),
+        **get_config().JINJA_FILTERS,
+        **(filters or {}),
+    }
 
 
 def render_jinja2(template_code, context, environment_params=None, data_file=None, debug=False, filters=None):

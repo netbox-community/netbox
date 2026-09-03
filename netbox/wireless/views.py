@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Interface
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url
 from netbox.ui.panels import (
     CommentsPanel,
     ObjectsTablePanel,
@@ -39,6 +40,12 @@ class WirelessLANGroupListView(generic.ObjectListView):
 class WirelessLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('wireless:wirelesslangroup_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             panels.WirelessLANGroupPanel(),
             TagsPanel(),

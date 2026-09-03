@@ -11,9 +11,8 @@ from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
@@ -27,6 +26,7 @@ from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.ui import layout
+from netbox.ui.breadcrumbs import Breadcrumb
 from netbox.views import generic
 from users import forms
 from users.models import UserConfig
@@ -66,17 +66,21 @@ class LoginView(View):
             'display_name': display_name,
             'icon_name': icon_name,
             'icon_img': icon_img,
-            'url': f'{url}?{urlencode(params)}',
+            'url': url,
+            'params': dict(params),
         }
 
     def get_auth_backends(self, request):
         auth_backends = []
         saml_idps = get_saml_idps()
+        # The login page is re-rendered by post() when authentication fails, in which case the
+        # post-login URL is found in the POST data (as with redirect_to_next() below).
+        request_data = request.POST if request.method == 'POST' else request.GET
 
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
             url = reverse('social:begin', args=[name])
             params = {}
-            if next := request.GET.get('next'):
+            if next := request_data.get('next'):
                 params['next'] = next
             if name.lower() == 'saml' and saml_idps:
                 for idp in saml_idps:
@@ -345,6 +349,12 @@ class UserTokenListView(LoginRequiredMixin, View):
 @register_model_view(UserToken)
 class UserTokenView(LoginRequiredMixin, View):
     layout = layout.SimpleLayout(
+        # The global UserToken list view is admin-only, so substitute the user's personal token list
+        # for the default root breadcrumb.
+        root_breadcrumb=False,
+        breadcrumbs=[
+            Breadcrumb(label=_('My API Tokens'), url=reverse_lazy('account:usertoken_list')),
+        ],
         left_panels=[
             TokenPanel(),
         ],
@@ -362,7 +372,7 @@ class UserTokenView(LoginRequiredMixin, View):
         plaintext = request.session.pop(f'_token_plaintext_{token.pk}', None)
         token_auth_string = f'{token.get_auth_header_prefix()}{plaintext}' if plaintext else None
 
-        return render(request, 'account/token.html', {
+        return render(request, 'users/token.html', {
             'object': token,
             'layout': self.layout,
             'token_auth_string': token_auth_string,

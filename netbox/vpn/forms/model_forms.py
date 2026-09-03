@@ -6,7 +6,13 @@ from dcim.models import Device, Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import (
+    ChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    SlugField,
+    TypedChoiceField,
+)
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
@@ -42,6 +48,15 @@ class TunnelGroupForm(OrganizationalModelForm):
 
 
 class TunnelForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=TunnelStatusChoices,
+        initial=TunnelStatusChoices.STATUS_ACTIVE,
+    )
+    encapsulation = ChoiceField(
+        label=_('Encapsulation'),
+        choices=TunnelEncapsulationChoices,
+    )
     group = DynamicModelChoiceField(
         queryset=TunnelGroup.objects.all(),
         label=_('Tunnel Group'),
@@ -70,15 +85,15 @@ class TunnelForm(TenancyForm, PrimaryModelForm):
 
 class TunnelCreateForm(TunnelForm):
     # First termination
-    termination1_role = forms.ChoiceField(
+    termination1_role = ChoiceField(
         choices=add_blank_choice(TunnelTerminationRoleChoices),
         required=False,
         label=_('Role')
     )
-    termination1_type = forms.ChoiceField(
+    termination1_type = ChoiceField(
         choices=TunnelTerminationTypeChoices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination1'),
         label=_('Type')
     )
     termination1_parent = DynamicModelChoiceField(
@@ -105,15 +120,15 @@ class TunnelCreateForm(TunnelForm):
     )
 
     # Second termination
-    termination2_role = forms.ChoiceField(
+    termination2_role = ChoiceField(
         choices=add_blank_choice(TunnelTerminationRoleChoices),
         required=False,
         label=_('Role')
     )
-    termination2_type = forms.ChoiceField(
+    termination2_type = ChoiceField(
         choices=TunnelTerminationTypeChoices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination2'),
         label=_('Type')
     )
     termination2_parent = DynamicModelChoiceField(
@@ -145,10 +160,10 @@ class TunnelCreateForm(TunnelForm):
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
-            'termination1_outside_ip', name=_('First Termination')),
+            'termination1_outside_ip', name=_('First Termination'), html_id='tunnel-termination1'),
         FieldSet(
             'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_termination',
-            'termination2_outside_ip', name=_('Second Termination')),
+            'termination2_outside_ip', name=_('Second Termination'), html_id='tunnel-termination2'),
     )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -220,12 +235,17 @@ class TunnelCreateForm(TunnelForm):
 
 
 class TunnelTerminationForm(NetBoxModelForm):
+    role = ChoiceField(
+        label=_('Role'),
+        choices=TunnelTerminationRoleChoices,
+        initial=TunnelTerminationRoleChoices.ROLE_PEER,
+    )
     tunnel = DynamicModelChoiceField(
         queryset=Tunnel.objects.all()
     )
-    type = forms.ChoiceField(
+    type = ChoiceField(
         choices=TunnelTerminationTypeChoices,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination'),
         label=_('Type')
     )
     parent = DynamicModelChoiceField(
@@ -250,7 +270,10 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags'),
+        FieldSet(
+            'tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags',
+            html_id='tunnel-termination',
+        ),
     )
 
     class Meta:
@@ -291,6 +314,19 @@ class TunnelTerminationForm(NetBoxModelForm):
 
 
 class IKEProposalForm(PrimaryModelForm):
+    authentication_method = ChoiceField(
+        label=_('Authentication method'),
+        choices=AuthenticationMethodChoices,
+    )
+    encryption_algorithm = ChoiceField(
+        label=_('Encryption algorithm'),
+        choices=EncryptionAlgorithmChoices,
+    )
+    authentication_algorithm = TypedChoiceField(
+        label=_('Authentication algorithm'),
+        choices=add_blank_choice(AuthenticationAlgorithmChoices),
+        required=False,
+    )
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -309,6 +345,11 @@ class IKEProposalForm(PrimaryModelForm):
 
 
 class IKEPolicyForm(PrimaryModelForm):
+    mode = TypedChoiceField(
+        label=_('Mode'),
+        choices=add_blank_choice(IKEModeChoices),
+        required=False,
+    )
     proposals = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
         label=_('Proposals'),
@@ -328,6 +369,16 @@ class IKEPolicyForm(PrimaryModelForm):
 
 
 class IPSecProposalForm(PrimaryModelForm):
+    encryption_algorithm = TypedChoiceField(
+        label=_('Encryption'),
+        choices=add_blank_choice(EncryptionAlgorithmChoices),
+        required=False,
+    )
+    authentication_algorithm = TypedChoiceField(
+        label=_('Authentication'),
+        choices=add_blank_choice(AuthenticationAlgorithmChoices),
+        required=False,
+    )
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -365,6 +416,10 @@ class IPSecPolicyForm(PrimaryModelForm):
 
 
 class IPSecProfileForm(PrimaryModelForm):
+    mode = ChoiceField(
+        label=_('Mode'),
+        choices=IPSecModeChoices,
+    )
     ike_policy = DynamicModelChoiceField(
         queryset=IKEPolicy.objects.all(),
         label=_('IKE policy')
@@ -391,6 +446,15 @@ class IPSecProfileForm(PrimaryModelForm):
 #
 
 class L2VPNForm(TenancyForm, PrimaryModelForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=L2VPNTypeChoices,
+    )
+    status = ChoiceField(
+        label=_('Status'),
+        choices=L2VPNStatusChoices,
+        initial=L2VPNStatusChoices.STATUS_ACTIVE,
+    )
     slug = SlugField()
     import_targets = DynamicModelMultipleChoiceField(
         label=_('Import targets'),

@@ -16,6 +16,7 @@ from utilities.data import (
     check_ranges_overlap,
     get_inclusive_integer_range_bounds,
     normalize_integer_range,
+    normalize_update_fields,
     ranges_to_string,
     ranges_to_string_list,
 )
@@ -100,13 +101,16 @@ class VLANGroup(OrganizationalModel):
         verbose_name_plural = _('VLAN groups')
 
     def clean(self):
-        super().clean()
-
-        # Validate scope assignment
+        # Validate the scope pair first, since BaseModel.clean() keys its errors to scope_id, which forms omit
         if self.scope_type and not self.scope_id:
-            raise ValidationError(_("Cannot set scope_type without scope_id."))
+            scope_type = self.scope_type.model_class()
+            raise ValidationError(
+                _("Please select a {scope_type}.").format(scope_type=scope_type._meta.model_name)
+            )
         if self.scope_id and not self.scope_type:
-            raise ValidationError(_("Cannot set scope_id without scope_type."))
+            raise ValidationError({'scope_type': _("Please select a scope type.")})
+
+        super().clean()
 
         # Validate VID ranges
         for vid_range in self.vid_ranges:
@@ -145,10 +149,10 @@ class VLANGroup(OrganizationalModel):
             self.total_vlan_ids += vid_range.upper - vid_range.lower
         self.vid_ranges = vid_ranges
 
-        update_fields = kwargs.get('update_fields')
+        update_fields = normalize_update_fields(kwargs)
         if update_fields is not None and 'vid_ranges' in update_fields:
             # total_vlan_ids is a denormalized cache of vid_ranges; persist them together.
-            kwargs['update_fields'] = list(set(update_fields) | {'total_vlan_ids'})
+            kwargs['update_fields'] = update_fields | {'total_vlan_ids'}
 
         super().save(*args, **kwargs)
 

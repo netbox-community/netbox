@@ -1,11 +1,10 @@
 from typing import Annotated
 
 import strawberry
-import strawberry_django
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
 
 from core import models
-from netbox.graphql.types import BaseObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, PrimaryObjectType, register_type
 
 from .filters import *
 
@@ -17,7 +16,7 @@ __all__ = (
 )
 
 
-@strawberry_django.type(
+@register_type(
     models.DataFile,
     exclude=['data',],
     filters=DataFileFilter,
@@ -27,7 +26,7 @@ class DataFileType(BaseObjectType):
     source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')]
 
 
-@strawberry_django.type(
+@register_type(
     models.DataSource,
     fields='__all__',
     filters=DataSourceFilter,
@@ -37,7 +36,7 @@ class DataSourceType(PrimaryObjectType):
     datafiles: list[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]
 
 
-@strawberry_django.type(
+@register_type(
     models.ObjectChange,
     fields='__all__',
     filters=ObjectChangeFilter,
@@ -47,7 +46,7 @@ class ObjectChangeType(BaseObjectType):
     pass
 
 
-@strawberry_django.type(
+@register_type(
     DjangoContentType,
     fields='__all__',
     pagination=True

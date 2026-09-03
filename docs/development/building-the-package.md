@@ -1,8 +1,10 @@
 # Building the Package
 
-NetBox package artifacts (a wheel and a source distribution) can be built and verified locally. During the v4.6.x preview period, published artifacts are for maintainer validation only. Installing NetBox via pip is not a supported installation path yet. Experimental support for installing from production PyPI is planned for NetBox v4.7.0. This page is intended for maintainers and contributors working on the packaging itself; routine development does not require building a package.
+NetBox package artifacts (a wheel and a source distribution) can be built and verified locally. Installing NetBox from the Python package is experimental in NetBox v4.7 and is not recommended for production use. This page is intended for maintainers and contributors working on the packaging itself. Routine development does not require building a package.
 
-The artifacts are always built by CI from a clean checkout (see `.github/workflows/release.yml`). A local build is useful for testing packaging changes before they are merged.
+Published artifacts are always built by CI from a clean checkout (see `.github/workflows/release.yml`). A local build is useful for testing packaging changes before they are merged.
+
+Release tags trigger the production PyPI publishing workflow. Before a release tag is pushed, confirm that the `pypi` GitHub Actions environment has required reviewers configured so the upload waits for approval after the package checks complete. Referencing the environment in the workflow does not create an approval gate by itself. See [Confirm Package Publishing Prerequisites](./release-checklist.md#confirm-package-publishing-prerequisites) and [Publish to PyPI](./release-checklist.md#publish-to-pypi) for the required repository checks and release procedure.
 
 ## Prerequisites
 
@@ -12,7 +14,7 @@ Install the minimum local build tooling (all three are also included in the `dev
 python -m pip install --upgrade build packaging twine
 ```
 
-Building also requires a freshly rendered copy of the documentation site (see [Building](#building) below). The documentation toolchain (`zensical`, `mkdocs`, `mkdocs-material`, `mkdocstrings`) is pinned in `requirements.txt` rather than the `dev` group because it is also needed outside packaging, such as documentation previews and CI's `docs` job.
+Building also requires a freshly rendered copy of the documentation site (see [Building](#building) below). The documentation toolchain, including `zensical`, `mkdocs`, `mkdocs-material`, `mkdocstrings`, and `mkdocstrings-python`, is pinned in `requirements.txt` rather than the `dev` group because it is also needed outside packaging, such as documentation previews and CI's `docs` job.
 
 ## Building
 
@@ -41,7 +43,7 @@ The package version and the wheel's runtime dependency metadata are both compute
 
 ## Clean-tree caveat
 
-Always build release artifacts from a clean checkout. The build configuration keeps deployment-local files out of the artifacts: the Hatch excludes drop every `configuration*.py` and `ldap_config*.py` except the two tracked configuration templates (`configuration_example.py` and `configuration_testing.py`, which are force-included explicitly), and CI verifies the contents of both the wheel and the sdist before anything is published.
+Always build release artifacts from a clean checkout. The Hatch configuration excludes `netbox/netbox/configuration*.py` and `netbox/netbox/ldap_config*.py`, then force-includes only the two tracked configuration templates, `configuration_example.py` and `configuration_testing.py`. The sdist additionally excludes the checkout-level `netbox/configuration.py` and `netbox/ldap_config.py` symlinks. CI verifies the complete contents of both distributions before anything is published.
 
 These checks are defense in depth, not a license to build from a dirty tree: other untracked files under `netbox/` can still be picked up by a local build. CI builds from a clean checkout, so the published artifacts are unaffected. For a comparable local build, use a fresh `git clone` or a separate clean worktree rather than your day-to-day development tree.
 
@@ -93,11 +95,11 @@ NETBOX_SMOKETEST_BASE=/tmp/netbox-build-test-root \
 /tmp/netbox-build-test/bin/netbox check
 ```
 
-Without configuration, a wheel-installed NetBox looks for `$NETBOX_ROOT/conf/configuration.py` (default `/opt/netbox/conf/configuration.py`), which normally does not exist on a development workstation. The environment variables above point `netbox check` at the same minimal configuration module used by the release workflow's smoke-test job (`scripts/smoketest_configuration.py`); run the command from the repository root so `PYTHONPATH` can find it. `NETBOX_SMOKETEST_BASE` sets the writable scratch directory under which the module creates its media, reports, and scripts roots; `NETBOX_ROOT` points the fixed collected-static root at the same directory. Any other importable configuration module works the same way via `NETBOX_CONFIGURATION` (and `PYTHONPATH`, if the configuration lives outside the package). To exercise the full post-install task sequence from the wheel, run `netbox upgrade --no-input` with the same environment against a throwaway database (the collected static files land under `$NETBOX_ROOT/static`); this is what the release workflow's smoke-test job does. The documentation ships pre-rendered in the wheel, so there is nothing to build on the instance; `--build-docs` remains a checkout-only convenience for rendering the documentation from its sources.
+Without configuration, a wheel-installed NetBox looks for `$NETBOX_ROOT/conf/configuration.py` (default `/opt/netbox/conf/configuration.py`), which normally does not exist on a development workstation. The environment variables above point `netbox check` at the same minimal configuration module used by the release workflow's smoke-test job (`scripts/smoketest_configuration.py`); run the command from the repository root so `PYTHONPATH` can find it. `NETBOX_SMOKETEST_BASE` sets the writable scratch directory under which the module creates its media, reports, and scripts roots. `NETBOX_ROOT` sets the instance root, from which the fixed collected-static path `$NETBOX_ROOT/static` is derived. Any other importable configuration module works the same way via `NETBOX_CONFIGURATION` (and `PYTHONPATH`, if the configuration lives outside the package). To exercise the full post-install task sequence from the wheel, run `netbox upgrade --no-input` with the same environment against a throwaway database (the collected static files land under `$NETBOX_ROOT/static`); this is what the release workflow's smoke-test job does. The documentation ships pre-rendered in the wheel, so there is nothing to build on the instance; `--build-docs` remains a checkout-only convenience for rendering the documentation from its sources.
 
 ## Packaging architecture
 
-This section is a developer-facing overview of how the package is assembled and how a pip-installed NetBox behaves at runtime. User-facing installation documentation for the pip install path will be added alongside experimental PyPI support (planned for NetBox v4.7.0); this page does not cover end-user installation steps.
+This section is a developer-facing overview of how the package is assembled and how a pip-installed NetBox behaves at runtime. End-user installation steps live in [Install NetBox from the Python Package](../installation/3b-python-package.md).
 
 ### Dynamic metadata
 
@@ -105,7 +107,7 @@ This section is a developer-facing overview of how the package is assembled and 
 
 ### sdist and the sdist-to-wheel guard
 
-`python -m build` produces both an sdist and a wheel, with the wheel built from the sdist. The release workflow's `verify-sdist` job rebuilds a wheel from the candidate sdist and runs `scripts/verify_wheel_metadata.py` and `scripts/verify_wheel_contents.py` against it, so a missing build input (for example the metadata hook or `base_requirements.txt`) cannot regress unnoticed. The rendered documentation site is one such build input: it reaches the sdist through its own force-include (`[tool.hatch.build.targets.sdist.force-include]`), so this guard also fails if that force-include is removed or broken.
+`python -m build` produces both an sdist and a wheel, with the wheel built from the sdist. The release workflow's `verify-sdist` job rebuilds a wheel from the candidate sdist and runs `scripts/verify_wheel_metadata.py` and `scripts/verify_wheel_contents.py` against it, so a missing build input, for example the metadata hook, `netbox/release.yaml`, or `requirements.txt`, cannot regress unnoticed. The rendered documentation site is one such build input: it reaches the sdist through its own force-include (`[tool.hatch.build.targets.sdist.force-include]`), so this guard also fails if that force-include is removed or broken.
 
 ### Wheel data layout
 

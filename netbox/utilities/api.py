@@ -8,7 +8,7 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     ValidationError,
 )
-from django.db.models.fields.related import ManyToOneRel, RelatedField
+from django.db.models.fields.related import ManyToManyRel, ManyToOneRel, RelatedField
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +31,7 @@ __all__ = (
     'IsSuperuser',
     'get_annotations_for_serializer',
     'get_graphql_type_for_model',
+    'get_positional_errors',
     'get_prefetches_for_serializer',
     'get_related_object_by_attrs',
     'get_serializer_for_model',
@@ -128,6 +129,29 @@ def get_view_name(view):
     return drf_get_view_name(view)
 
 
+def get_positional_errors(errors, count):
+    """
+    Return the errors reported by a serializer bound to a list of `count` entries as a list
+    correlated to the positions of those entries, with an empty dict standing in for each entry
+    which validated.
+
+    DRF 3.18 reports the errors of a ListSerializer as a mapping of the index of each failed entry
+    to that entry's errors, omitting the entries which passed; earlier releases reported a list
+    aligned with the request body. Restoring the positional form keeps the response shape stable for
+    API consumers which index into it.
+
+    Errors which pertain to the list as a whole rather than to any one entry (e.g. a body which is
+    not a list at all) carry no position, and are returned unchanged.
+
+    :param errors: The `errors` of a serializer instantiated with many=True.
+    :param count: The number of entries the serializer was bound to.
+    """
+    if not isinstance(errors, dict) or not any(isinstance(index, int) for index in errors):
+        return errors
+
+    return [errors.get(index, {}) for index in range(count)]
+
+
 def _get_nested_serializer(serializer_field):
     """
     Return the nested serializer instance for a declared serializer field.
@@ -193,7 +217,7 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _ser
         # If the serializer field does not map to a discrete model field, skip it.
         try:
             field = model._meta.get_field(model_field_name)
-            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+            if isinstance(field, (RelatedField, ManyToOneRel, ManyToManyRel, GenericForeignKey)):
                 prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
