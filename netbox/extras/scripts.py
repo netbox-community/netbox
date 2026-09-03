@@ -719,9 +719,10 @@ def prepare_script_form(script_instance, data, files=None):
     declared variable's `default` value into `data` when the caller omitted it.
 
     Used by both the UI (extras/views.py) and the REST API (extras/api/views.py) so the
-    two entry points share one contract and can't drift apart again. `runscript` deliberately
-    stays on the plain `as_form()` call, since its own test suite exercises it with bare
-    script doubles that only implement `as_form()`, not the full Script/`_get_vars()` API.
+    two entry points share one contract and can't drift apart again. `runscript` stays on the
+    plain `as_form()` call: it has never back-filled defaults, so routing it through this
+    helper would change CLI behavior (a variable with a `default` omitted from `--data` would
+    begin to be accepted rather than reported as required). That is a separate change.
 
     Note: `script_instance` must already be an *instance* (e.g. `script.python_class()`),
     not the class itself.
