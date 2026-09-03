@@ -546,6 +546,9 @@ http://netbox/api/extras/scripts/example.MyReport/ \
 
 Optionally `schedule_at` can be passed in the form data with a datetime string to schedule a script at the specified date and time.
 
+!!! note
+    The `data` object is validated against the script's declared variables, just as in the web UI and on the CLI. Keys which do not match a declared variable are ignored.
+
 ### Via the CLI
 
 Scripts can be run on the CLI by invoking the management command:
