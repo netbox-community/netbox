@@ -12,7 +12,7 @@ from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from users.constants import TOKEN_PREFIX
 from users.models import Token
-from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase
+from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags
 from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
 
@@ -99,6 +99,57 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
                 'source_url': 'https://example.com/git/source6'
             },
         ]
+
+    def test_tags_in_representation(self):
+        """Assigned tags are rendered in the detail representation."""
+        data_source = DataSource.objects.first()
+        data_source.tags.set(create_tags('Alpha'))
+        self.add_permissions('core.view_datasource')
+
+        response = self.client.get(self._get_detail_url(data_source), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('tags', response.data)
+        self.assertEqual([tag['slug'] for tag in response.data['tags']], ['alpha'])
+
+    def test_create_with_tags(self):
+        """Tags supplied on creation are assigned to the new data source."""
+        create_tags('Alpha')
+        self.add_permissions('core.add_datasource', 'extras.view_tag')
+
+        data = {
+            'name': 'Data Source 7',
+            'type': 'git',
+            'source_url': 'https://example.com/git/source7',
+            'tags': [{'slug': 'alpha'}],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        data_source = DataSource.objects.get(pk=response.data['id'])
+        self.assertEqual(list(data_source.tags.values_list('slug', flat=True)), ['alpha'])
+
+    def test_update_tags(self):
+        """Tags supplied on update replace the existing assignment."""
+        data_source = DataSource.objects.first()
+        tags = create_tags('Alpha', 'Bravo')
+        data_source.tags.set([tags[0]])
+        self.add_permissions('core.change_datasource', 'extras.view_tag')
+
+        data = {'tags': [{'slug': 'bravo'}]}
+        response = self.client.patch(self._get_detail_url(data_source), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(list(data_source.tags.values_list('slug', flat=True)), ['bravo'])
+
+    def test_clear_tags(self):
+        """An empty tag list clears the existing assignment."""
+        data_source = DataSource.objects.first()
+        data_source.tags.set(create_tags('Alpha'))
+        self.add_permissions('core.change_datasource')
+
+        data = {'tags': []}
+        response = self.client.patch(self._get_detail_url(data_source), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(list(data_source.tags.values_list('slug', flat=True)), [])
 
     def assert_only_source_1(self, data):
         """The JSON lookup returns exactly the source carrying the matching value."""
