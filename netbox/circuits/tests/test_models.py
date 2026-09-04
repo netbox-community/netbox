@@ -282,7 +282,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
     """
     The Circuit.termination_a/termination_z pointers are maintained by CircuitTermination.save().
     They were previously written with a queryset update(), which emits no post_save and therefore
-    no ObjectChange, so consumers which replay the changelog never saw the association. (#22651)
+    no ObjectChange, so consumers which replay the changelog never saw the association. (#23134)
     """
     @classmethod
     def setUpTestData(cls):
@@ -314,7 +314,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
             action=ObjectChangeActionChoices.ACTION_UPDATE,
         ).order_by('pk')
 
-    @tag('regression')  # Ref: #22651
+    @tag('regression')  # Ref: #23134
     def test_creation_records_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
@@ -325,7 +325,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertIsNone(changes[0].prechange_data['termination_a'])
         self.assertEqual(changes[0].postchange_data['termination_a'], termination.pk)
 
-    @tag('regression')  # Ref: #22651
+    @tag('regression')  # Ref: #23134
     def test_second_termination_snapshots_current_state(self):
         # The A pointer is already committed when the Z termination is created; its prechange
         # snapshot must reflect that rather than a Circuit cached before the A write.
@@ -345,7 +345,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[0].postchange_data['termination_a'], termination_a.pk)
         self.assertEqual(changes[0].postchange_data['termination_z'], termination_z.pk)
 
-    @tag('regression')  # Ref: #22651
+    @tag('regression')  # Ref: #23134
     def test_circuit_change_records_both_circuits(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
@@ -370,7 +370,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertIsNone(new_changes[0].prechange_data['termination_a'])
         self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
 
-    @tag('regression')  # Ref: #22651
+    @tag('regression')  # Ref: #23134
     def test_term_side_change_records_single_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
@@ -388,6 +388,34 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes.count(), 2)
         self.assertIsNone(changes[0].postchange_data['termination_a'])
         self.assertEqual(changes[1].postchange_data['termination_z'], termination.pk)
+
+    @tag('regression')  # Ref: #23134
+    def test_pointer_already_set_records_no_circuit_update(self):
+        # bulk_create() bypasses save(), so the circuit's pointer is never written. Moving the
+        # termination afterwards reaches the clear path with the pointer already null.
+        CircuitTermination.objects.bulk_create([
+            CircuitTermination(circuit=self.circuits[0], term_side='A', termination=self.sites[0]),
+        ])
+        termination = CircuitTermination.objects.get(circuit=self.circuits[0], term_side='A')
+
+        def _move():
+            termination.circuit = self.circuits[1]
+            termination.save()
+
+        old_circuit_last_updated = Circuit.objects.get(pk=self.circuits[0].pk).last_updated
+
+        self._tracked(_move)
+
+        # The old circuit's pointer was already null, so it is not written to at all...
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
+        self.assertEqual(
+            Circuit.objects.get(pk=self.circuits[0].pk).last_updated, old_circuit_last_updated
+        )
+
+        # ...while the new circuit's pointer is set as usual.
+        new_changes = self._circuit_changes(self.circuits[1])
+        self.assertEqual(new_changes.count(), 1)
+        self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
 
     def test_noop_resave_records_no_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(

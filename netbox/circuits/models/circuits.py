@@ -423,13 +423,14 @@ class CircuitTermination(
 
         This is written via snapshot() + save() rather than a queryset update() so that the write
         passes through post_save and is recorded in the changelog. A raw update() emits no signal,
-        so consumers which replay ObjectChange records -- notably the branching plugin, which
-        applies a CREATE via a raw save that never runs this method -- have no record of the write
-        and silently drop the association.
+        so consumers which replay ObjectChange records have no record of the write and silently
+        drop the association.
 
-        The Circuit is always re-fetched rather than reusing a cached `self.circuit`: creating the
-        A and Z terminations in sequence would otherwise snapshot a Circuit loaded before the A
-        pointer was set, recording a prechange value that no longer matches the database.
+        The Circuit is re-fetched rather than reusing a cached `self.circuit` so that saving the A
+        and Z terminations in sequence does not snapshot a Circuit loaded before the A pointer was
+        written. That only holds within a single sequential flow: under READ COMMITTED, concurrent
+        writers can each snapshot a Circuit which does not yet reflect the other's uncommitted
+        write. The row itself is safe, as update_fields limits each write to one column.
         """
         circuit = Circuit.objects.filter(pk=circuit_id).first()
         if circuit is None or getattr(circuit, f'{field_name}_id') == value:
