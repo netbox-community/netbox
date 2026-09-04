@@ -1091,6 +1091,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
         # Multiselect
         elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            # Do not pin lookup_expr: FILTER_ARRAY_BASED_LOOKUP_MAP preserves the class default under negation
             filter_class = filters.MultiValueArrayFilter
 
         # Object
