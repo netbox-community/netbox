@@ -399,6 +399,10 @@ class CircuitTermination(
         # Cache objects associated with the terminating object (for filtering)
         self.cache_related_objects()
 
+        if not pointer_moved:
+            super().save(*args, **kwargs)
+            return
+
         # Collect the pointer writes per circuit, so that a term_side change within one
         # circuit clears the old side and sets the new one in a single write
         updates = {}
@@ -412,23 +416,24 @@ class CircuitTermination(
         with transaction.atomic(using=router.db_for_write(type(self))):
             super().save(*args, **kwargs)
 
-            # Update the cache if this is a new termination or circuit/term_side changed
-            if pointer_moved:
-                # Update the new circuit's termination reference
-                termination_name = f'termination_{self.term_side.lower()}'
-                updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
+            # Update the new circuit's termination reference
+            termination_name = f'termination_{self.term_side.lower()}'
+            updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
 
-            for circuit_id, fields in updates.items():
-                circuit = self._set_circuit_terminations(circuit_id, fields)
-                # Keep the instance's cached Circuit in step with the write
+            # Ordered by PK, so that two terminations moving between the same pair of circuits
+            # take the two locks in the same order and cannot deadlock
+            for circuit_id in sorted(updates, key=lambda pk: pk or 0):
+                circuit = self._set_circuit_terminations(circuit_id, updates[circuit_id])
+                # Adopt the fetched Circuit, so that to_objectchange() and the caller see the
+                # new pointers. Note this replaces the instance's cached parent, discarding any
+                # prefetch or annotation set up on it.
                 if circuit is not None and circuit.pk == self.circuit_id:
                     self.circuit = circuit
 
             # Update cached values for subsequent saves, only once the pointer writes have
             # succeeded, so that a failed save is still pending on retry
-            if pointer_moved:
-                self._orig_circuit_id = self.circuit_id
-                self._orig_term_side = self.term_side
+            self._orig_circuit_id = self.circuit_id
+            self._orig_term_side = self.term_side
 
     @staticmethod
     def _set_circuit_terminations(circuit_id, fields):
@@ -437,13 +442,15 @@ class CircuitTermination(
         field name to CircuitTermination PK (or None).
 
         Written via snapshot() + save() rather than a queryset update(), which emits no post_save
-        and so records nothing in the changelog. The Circuit is re-fetched so that sequential A/Z
-        saves snapshot current state; concurrent writers under READ COMMITTED still cannot see
-        each other's uncommitted writes.
+        and so records nothing in the changelog. The Circuit is re-fetched under a lock so that
+        the snapshot reflects a sibling pointer written concurrently; without it, a second writer
+        could record the first writer's pointer as null. no_key avoids blocking the foreign key
+        inserts which reference this circuit.
 
         Returns the Circuit, or None if no such row exists.
         """
-        circuit = Circuit.objects.filter(pk=circuit_id).first()
+        # order_by() clears the default ordering, whose JOIN would leave the row unlockable
+        circuit = Circuit.objects.filter(pk=circuit_id).order_by().select_for_update(no_key=True).first()
         if circuit is None:
             return None
 
