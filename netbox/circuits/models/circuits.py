@@ -403,17 +403,41 @@ class CircuitTermination(
         # Clear the old termination reference if circuit or term_side changed
         if circuit_changed or term_side_changed:
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
-            Circuit.objects.filter(pk=self._orig_circuit_id).update(**{old_termination_name: None})
+            self._set_circuit_termination(self._orig_circuit_id, old_termination_name, None)
 
         # Update the cache if this is a new termination or circuit/term_side changed
         if is_new or circuit_changed or term_side_changed:
             # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
-            Circuit.objects.filter(pk=self.circuit_id).update(**{termination_name: self.pk})
+            self._set_circuit_termination(self.circuit_id, termination_name, self.pk)
 
             # Update cached values for subsequent saves
             self._orig_circuit_id = self.circuit_id
             self._orig_term_side = self.term_side
+
+    @staticmethod
+    def _set_circuit_termination(circuit_id, field_name, value):
+        """
+        Point a Circuit's cached `termination_a`/`termination_z` field at the given
+        CircuitTermination PK, or clear it.
+
+        This is written via snapshot() + save() rather than a queryset update() so that the write
+        passes through post_save and is recorded in the changelog. A raw update() emits no signal,
+        so consumers which replay ObjectChange records -- notably the branching plugin, which
+        applies a CREATE via a raw save that never runs this method -- have no record of the write
+        and silently drop the association.
+
+        The Circuit is always re-fetched rather than reusing a cached `self.circuit`: creating the
+        A and Z terminations in sequence would otherwise snapshot a Circuit loaded before the A
+        pointer was set, recording a prechange value that no longer matches the database.
+        """
+        circuit = Circuit.objects.filter(pk=circuit_id).first()
+        if circuit is None or getattr(circuit, f'{field_name}_id') == value:
+            return
+
+        circuit.snapshot()
+        setattr(circuit, f'{field_name}_id', value)
+        circuit.save(update_fields=[field_name, 'last_updated'])
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

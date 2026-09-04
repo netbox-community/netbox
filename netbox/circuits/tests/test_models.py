@@ -1,9 +1,15 @@
+import uuid
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
-from django.test import TestCase
+from django.test import RequestFactory, TestCase, tag
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange
 from dcim.models import Location, Region, Site, SiteGroup
+from netbox.context_managers import event_tracking
+from users.models import User
 
 
 class CircuitTerminationTestCase(TestCase):
@@ -270,3 +276,125 @@ class CircuitTerminationDenormalizationTriggerTestCase(TestCase):
 
         termination.refresh_from_db()
         self.assertEqual(termination._region, region_b)
+
+
+class CircuitTerminationChangeLoggingTestCase(TestCase):
+    """
+    The Circuit.termination_a/termination_z pointers are maintained by CircuitTermination.save().
+    They were previously written with a queryset update(), which emits no post_save and therefore
+    no ObjectChange, so consumers which replay the changelog never saw the association. (#22651)
+    """
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username='testuser', password='pw')
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+        cls.sites = (
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+        )
+        cls.circuits = (
+            Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type),
+            Circuit.objects.create(cid='Circuit 2', provider=provider, type=circuit_type),
+        )
+
+    def _tracked(self, func):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        with event_tracking(request):
+            return func()
+
+    def _circuit_changes(self, circuit):
+        return ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Circuit),
+            changed_object_id=circuit.pk,
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+        ).order_by('pk')
+
+    @tag('regression')  # Ref: #22651
+    def test_creation_records_circuit_update(self):
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertIsNone(changes[0].prechange_data['termination_a'])
+        self.assertEqual(changes[0].postchange_data['termination_a'], termination.pk)
+
+    @tag('regression')  # Ref: #22651
+    def test_second_termination_snapshots_current_state(self):
+        # The A pointer is already committed when the Z termination is created; its prechange
+        # snapshot must reflect that rather than a Circuit cached before the A write.
+        termination_a = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        termination_z = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='Z', termination=self.sites[1],
+        ))
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination_a.pk)
+        self.assertIsNone(changes[0].prechange_data['termination_z'])
+        self.assertEqual(changes[0].postchange_data['termination_a'], termination_a.pk)
+        self.assertEqual(changes[0].postchange_data['termination_z'], termination_z.pk)
+
+    @tag('regression')  # Ref: #22651
+    def test_circuit_change_records_both_circuits(self):
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        def _move():
+            termination.circuit = self.circuits[1]
+            termination.save()
+
+        self._tracked(_move)
+
+        # The old circuit's pointer is cleared...
+        old_changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(old_changes.count(), 1)
+        self.assertEqual(old_changes[0].prechange_data['termination_a'], termination.pk)
+        self.assertIsNone(old_changes[0].postchange_data['termination_a'])
+
+        # ...and the new circuit's pointer is set.
+        new_changes = self._circuit_changes(self.circuits[1])
+        self.assertEqual(new_changes.count(), 1)
+        self.assertIsNone(new_changes[0].prechange_data['termination_a'])
+        self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
+
+    @tag('regression')  # Ref: #22651
+    def test_term_side_change_records_single_circuit_update(self):
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        def _flip():
+            termination.term_side = 'Z'
+            termination.save()
+
+        self._tracked(_flip)
+
+        # Both pointers move within one circuit, so the clear and the set are recorded separately.
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 2)
+        self.assertIsNone(changes[0].postchange_data['termination_a'])
+        self.assertEqual(changes[1].postchange_data['termination_z'], termination.pk)
+
+    def test_noop_resave_records_no_circuit_update(self):
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        self._tracked(termination.save)
+
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
