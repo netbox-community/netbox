@@ -409,11 +409,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
         validated = input_serializer.validated_data
 
-        payload = validated.get('data')
-        if not isinstance(payload, dict):
-            raise ValidationError(
-                {'data': _('Invalid data payload; expected an object mapping variable names to values.')}
-            )
+        payload = validated['data']
 
         # Guaranteed non-None by the is_executable check above
         script_class = script.python_class
