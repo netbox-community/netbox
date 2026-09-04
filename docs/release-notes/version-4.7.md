@@ -21,7 +21,13 @@
     WHERE c.sort_path <> p.sort_path || chr(9) || c.name;
     ```
 
-    Stale `sort_path` values affect only the order in which objects are listed. A stale `path`, by contrast, misplaces an object within the hierarchy, so it can be omitted from its ancestor's list of descendants.
+    Stale `sort_path` values affect only the order in which objects are listed. A stale `path`, by contrast, misplaces an object within the hierarchy, so it can be omitted from its ancestor's list of descendants. Repair an affected table with the [`rebuild_ltree_paths`](../administration/management-commands.md#rebuild_ltree_paths) management command, naming the models the queries above flagged:
+
+    ```no-highlight
+    python netbox/manage.py rebuild_ltree_paths dcim.region
+    ```
+
+    A rebuild rewrites every row of the named tables, locking those rows until it commits, so run it during a maintenance window.
 
     Plugins which maintain their own `ltree` models via the `InstallLtreeTriggers` migration operation are affected in the same way, and their tables are not touched by the migrations above. Where such a database was restored from a dump, the plugin's cascade triggers are missing entirely; where it was upgraded in place, they carry the old definition and will be lost by its next dump. Either way, applying `InstallLtreeTriggers` again from a new plugin migration reinstalls them: as of this release the operation drops each trigger before recreating it, so it is safe to re-run.
 
