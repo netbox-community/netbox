@@ -5,7 +5,7 @@ Refs: #20638
 """
 import json
 
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 
 from core.api.schema import FixSerializedPKRelatedField, NetBoxAutoSchema
 from dcim.api.serializers import SiteSerializer
@@ -15,6 +15,11 @@ from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import BulkOperationErrorSerializer
 
 
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+    }
+})
 class OpenAPISchemaTestCase(TestCase):
     """Tests for OpenAPI schema generation."""
 
@@ -330,6 +335,22 @@ class OpenAPISchemaTestCase(TestCase):
         ):
             with self.subTest(component=component, field=field):
                 self.assertEqual(components[component]['properties'][field]['items']['type'], 'integer')
+
+    def test_script_run_operation_exists(self):
+        """
+        Encodes presence of extras_scripts_run operation in schema as expected.
+
+        Refs: #22569
+        """
+        paths = self.schema['paths']
+        resource_path = paths['/api/extras/scripts/{id}/']
+        self.assertIn('post', resource_path)
+
+        run_operation = resource_path['post']
+
+        self.assertEqual(run_operation['operationId'], 'extras_scripts_run')
+        self.assertEqual(len(run_operation['responses']), 1)
+        self.assertIn('200', run_operation['responses'])
 
 
 class WritableFieldRebuildTestCase(TestCase):
