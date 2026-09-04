@@ -1892,12 +1892,7 @@ class ScriptTestCase(APITestCase):
 
 class ScriptRunExecutionTestCase(APITestCase):
     """
-    Exercises ScriptViewSet.post() end-to-end (real request -> real serializer -> real
-    form -> real ScriptJob.enqueue() call): execution parameters (commit, schedule_at,
-    interval, notifications) must be taken from the validated request rather than the
-    form's own defaults; ObjectVar/MultiObjectVar values must be converted from raw IDs
-    to model instances/querysets (see #22750); and declared defaults must be back-filled
-    for variables the client omits.
+    Exercises ScriptViewSet.run() end-to-end: request -> serializer -> form -> enqueue.
     """
 
     class TestScriptClass(PythonClass):

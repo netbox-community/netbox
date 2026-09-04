@@ -421,12 +421,9 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
 
         form = prepare_script_form(script_instance, payload, files=request.FILES)
         if not form.is_valid():
-            # Exec params (_commit etc.) are validated separately via ScriptInputSerializer;
-            # exclude them explicitly rather than via a '_' prefix, which would also strip
-            # Django's NON_FIELD_ERRORS key ('__all__'). This does not disambiguate a script
-            # variable whose name collides with one of EXEC_PARAM_FIELDS: such a variable
-            # shadows the exec field on the dynamic form subclass, so its errors are filtered
-            # here and its value popped below, along with the exec param it shadows.
+            # Exec params are validated separately via ScriptInputSerializer. Excluded by name
+            # rather than by '_' prefix, which would also strip Django's NON_FIELD_ERRORS
+            # key ('__all__').
             errors = {k: v for k, v in form.errors.items() if k not in EXEC_PARAM_FIELDS}
             if not errors:
                 # Every error was on an exec-param field, which a client can bind by naming one

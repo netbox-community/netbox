@@ -301,6 +301,9 @@ All custom script variables support the following default options:
 * `required` - Indicates whether the field is mandatory (all fields are required by default)
 * `widget` - The class of form widget to use (see the [Django documentation](https://docs.djangoproject.com/en/stable/ref/forms/widgets/))
 
+!!! warning "Reserved variable names"
+    The names `_commit`, `_schedule_at`, `_interval`, and `_notifications` are reserved for the execution parameters which NetBox renders alongside a script's own fields. A variable declared with one of these names shadows its execution parameter, and its value is not passed to `run()`. Choose a different name.
+
 ### StringVar
 
 Stores a string of characters (i.e. text). Options include:
@@ -547,7 +550,7 @@ http://netbox/api/extras/scripts/example.MyReport/ \
 Optionally `schedule_at` can be passed in the form data with a datetime string to schedule a script at the specified date and time.
 
 !!! note
-    The `data` object is validated against the script's declared variables, just as in the web UI. Keys which do not match a declared variable are ignored. Scripts declaring a `FileVar` must be run via a `multipart/form-data` request, passing `data` as a JSON string alongside the uploaded file.
+    Script input submitted through the REST API is validated against the variables declared by the script. Missing required variables or invalid values result in an HTTP 400 response, and undeclared keys are discarded rather than passed to `run()`. Existing API clients that relied on the previous pass-through behavior may need to update their requests. Scripts declaring a `FileVar` must be run via a `multipart/form-data` request, passing `data` as a JSON string alongside the uploaded file.
 
 ### Via the CLI
 

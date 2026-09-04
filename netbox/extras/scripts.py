@@ -715,22 +715,11 @@ def get_module_and_script(module_name, script_name):
 
 def prepare_script_form(script_instance, data, files=None):
     """
-    Build a bound ScriptForm for an already-instantiated Script object, back-filling any
-    declared variable's `default` value into `data` when the caller omitted it.
+    Return a bound ScriptForm for the given Script instance, back-filling the declared
+    `default` of any variable omitted from `data`.
 
-    Used by both the UI (extras/views.py) and the REST API (extras/api/views.py) so the
-    two entry points share one contract and can't drift apart again. `runscript` stays on the
-    plain `as_form()` call: it has never back-filled defaults, so routing it through this
-    helper would change CLI behavior (a variable with a `default` omitted from `--data` would
-    begin to be accepted rather than reported as required). That is a separate change.
-
-    Note: `script_instance` must already be an *instance* (e.g. `script.python_class()`),
-    not the class itself.
-
-    `data` is copied via `.copy()` rather than coerced with `dict(...)`, so a QueryDict
-    (as submitted by the UI form) keeps its multi-value semantics -- collapsing it to a
-    plain dict would silently drop all but the last value for a MultiObjectVar's
-    multi-select field.
+    `data` is copied rather than coerced to a plain dict, so a QueryDict retains the
+    multi-value semantics a MultiObjectVar's multi-select field depends on.
     """
     data = data.copy() if data is not None else {}
     for name, var in script_instance._get_vars().items():
