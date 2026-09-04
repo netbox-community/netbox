@@ -400,26 +400,35 @@ class CircuitTermination(
 
         super().save(*args, **kwargs)
 
+        # Collect the pointer writes per circuit, so that a term_side change within a single
+        # circuit clears the old side and sets the new one in one write rather than passing
+        # through a state with neither side set
+        updates = {}
+
         # Clear the old termination reference if circuit or term_side changed
         if circuit_changed or term_side_changed:
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
-            self._set_circuit_termination(self._orig_circuit_id, old_termination_name, None)
+            updates.setdefault(self._orig_circuit_id, {})[old_termination_name] = None
 
         # Update the cache if this is a new termination or circuit/term_side changed
         if is_new or circuit_changed or term_side_changed:
             # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
-            self._set_circuit_termination(self.circuit_id, termination_name, self.pk)
+            updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
 
             # Update cached values for subsequent saves
             self._orig_circuit_id = self.circuit_id
             self._orig_term_side = self.term_side
 
+        for circuit_id, fields in updates.items():
+            self._set_circuit_terminations(circuit_id, fields)
+
     @staticmethod
-    def _set_circuit_termination(circuit_id, field_name, value):
+    def _set_circuit_terminations(circuit_id, fields):
         """
-        Point a Circuit's cached `termination_a`/`termination_z` field at the given
-        CircuitTermination PK, or clear it.
+        Point a Circuit's cached `termination_a`/`termination_z` fields at the given
+        CircuitTermination PKs, or clear them. `fields` maps field name to PK (or None); both
+        sides are passed together where they change at once, to keep it to a single write.
 
         This is written via snapshot() + save() rather than a queryset update() so that the write
         passes through post_save and is recorded in the changelog. A raw update() emits no signal,
@@ -430,15 +439,27 @@ class CircuitTermination(
         and Z terminations in sequence does not snapshot a Circuit loaded before the A pointer was
         written. That only holds within a single sequential flow: under READ COMMITTED, concurrent
         writers can each snapshot a Circuit which does not yet reflect the other's uncommitted
-        write. The row itself is safe, as update_fields limits each write to one column.
+        write. The row itself is safe, as update_fields limits the write to the pointer fields
+        this termination owns (plus last_updated, which is last-writer-wins).
         """
         circuit = Circuit.objects.filter(pk=circuit_id).first()
-        if circuit is None or getattr(circuit, f'{field_name}_id') == value:
+        if circuit is None:
+            return
+
+        # Skip fields which already hold the intended value, so that a redundant write neither
+        # touches the row nor dispatches an event
+        fields = {
+            field_name: value
+            for field_name, value in fields.items()
+            if getattr(circuit, f'{field_name}_id') != value
+        }
+        if not fields:
             return
 
         circuit.snapshot()
-        setattr(circuit, f'{field_name}_id', value)
-        circuit.save(update_fields=[field_name, 'last_updated'])
+        for field_name, value in fields.items():
+            setattr(circuit, f'{field_name}_id', value)
+        circuit.save(update_fields=[*fields, 'last_updated'])
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

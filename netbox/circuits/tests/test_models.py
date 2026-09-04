@@ -383,14 +383,17 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
 
         self._tracked(_flip)
 
-        # Both pointers move within one circuit, so the clear and the set are recorded separately.
+        # Both pointers move within one circuit, so the clear and the set are coalesced into one
+        # write rather than passing through a state with neither side set.
         changes = self._circuit_changes(self.circuits[0])
-        self.assertEqual(changes.count(), 2)
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination.pk)
+        self.assertIsNone(changes[0].prechange_data['termination_z'])
         self.assertIsNone(changes[0].postchange_data['termination_a'])
-        self.assertEqual(changes[1].postchange_data['termination_z'], termination.pk)
+        self.assertEqual(changes[0].postchange_data['termination_z'], termination.pk)
 
     @tag('regression')  # Ref: #23134
-    def test_pointer_already_set_records_no_circuit_update(self):
+    def test_redundant_pointer_write_is_skipped(self):
         # bulk_create() bypasses save(), so the circuit's pointer is never written. Moving the
         # termination afterwards reaches the clear path with the pointer already null.
         CircuitTermination.objects.bulk_create([
@@ -417,6 +420,7 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(new_changes.count(), 1)
         self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
 
+    @tag('regression')  # Ref: #23134
     def test_noop_resave_records_no_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
@@ -425,4 +429,45 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
 
         self._tracked(termination.save)
 
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
+
+    @tag('regression')  # Ref: #23134
+    def test_circuit_change_via_update_fields_records_circuit_update(self):
+        # save(update_fields=...) takes its own branch when deciding whether the circuit or
+        # term_side is being persisted; the pointer writes must be recorded there too.
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        def _move():
+            termination.circuit = self.circuits[1]
+            termination.save(update_fields=('circuit',))
+
+        self._tracked(_move)
+
+        old_changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(old_changes.count(), 1)
+        self.assertIsNone(old_changes[0].postchange_data['termination_a'])
+
+        new_changes = self._circuit_changes(self.circuits[1])
+        self.assertEqual(new_changes.count(), 1)
+        self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
+
+    def test_deletion_clears_pointer_without_recording_a_change(self):
+        # Deleting a termination clears the pointer via on_delete=SET_NULL, which emits no
+        # post_save and so is not change-logged. handle_deleted_object() does not cover it
+        # either: termination_a/termination_z declare related_name='+', so they are hidden
+        # relations and absent from CircuitTermination._meta.related_objects. The changelog is
+        # therefore still asymmetric here; documented rather than fixed, as replaying the
+        # termination's DELETE re-applies SET_NULL on the target side.
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        self._tracked(termination.delete)
+
+        self.circuits[0].refresh_from_db()
+        self.assertIsNone(self.circuits[0].termination_a_id)
         self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
