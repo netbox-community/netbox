@@ -723,6 +723,15 @@ def prepare_script_form(script_instance, data, files=None):
     """
     data = data.copy() if data is not None else {}
     for name, var in script_instance._get_vars().items():
-        if name not in data and (initial := var.field_attrs.get('initial')) is not None:
+        if name in data:
+            continue
+        if (initial := var.field_attrs.get('initial')) is None:
+            continue
+        if isinstance(initial, (list, tuple)) and hasattr(data, 'setlist'):
+            # Assigning a list to a QueryDict stores it as a single nested value, which a
+            # multi-select widget reads back as one bogus choice. Set the values individually
+            # so a MultiChoiceVar/MultiObjectVar default binds as it does for a plain dict.
+            data.setlist(name, list(initial))
+        else:
             data[name] = initial
     return script_instance.as_form(data=data, files=files)

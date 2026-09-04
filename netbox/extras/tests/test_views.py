@@ -14,7 +14,7 @@ from core.models import Job, ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
-from extras.scripts import BooleanVar, IntegerVar, StringVar
+from extras.scripts import BooleanVar, IntegerVar, MultiChoiceVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
@@ -1294,6 +1294,7 @@ class ScriptDefaultBackfillTestCase(TestCase):
 
         label = StringVar(default='hello')
         flag = BooleanVar(default=True)
+        picks = MultiChoiceVar(choices=(('a', 'A'), ('b', 'B'), ('c', 'C')), default=['a', 'b'])
 
         def run(self, data, commit):
             return 'Complete'
@@ -1328,6 +1329,10 @@ class ScriptDefaultBackfillTestCase(TestCase):
         data = mock_enqueue.call_args.kwargs['data']
         self.assertEqual(data['label'], 'hello')
         self.assertIs(data['flag'], True)
+        # A multi-value default must be set on the QueryDict with setlist(): a plain
+        # assignment stores the list as one nested value, which the multi-select widget
+        # then rejects as a single invalid choice.
+        self.assertEqual(data['picks'], ['a', 'b'])
 
 
 class ScriptValidationErrorTestCase(TestCase):
