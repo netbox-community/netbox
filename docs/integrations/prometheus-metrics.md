@@ -13,6 +13,7 @@ NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-pr
 - Per view request latency histograms
 - REST API requests (by endpoint & method)
 - GraphQL API requests
+- Client disconnect counters (by method & view)
 - Request body size histograms
 - Response body size histograms
 - Response code counters
@@ -22,6 +23,12 @@ NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-pr
 - Other Django related metadata metrics
 
 For the exhaustive list of exposed metrics, visit the `/metrics` endpoint on your NetBox instance.
+
+## Client Disconnects
+
+The `netbox_client_disconnects_total` counter, labelled by `method` and `view`, records requests which NetBox aborted because the HTTP client disconnected before the response was sent. Together with the `netbox.disconnect` log, this identifies which endpoints are accumulating abandoned requests and which clients are generating them.
+
+This counter is populated only when [`ABORT_ON_CLIENT_DISCONNECT`](../configuration/system.md#abort_on_client_disconnect) is enabled and NetBox is running under a supported WSGI server. It remains at zero otherwise: a zero value means NetBox is taking no action on client disconnects, not that no clients are disconnecting.
 
 ## Multi Processing Notes
 
