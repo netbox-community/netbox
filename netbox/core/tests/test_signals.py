@@ -5,16 +5,19 @@ from unittest.mock import MagicMock, Mock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.signals import request_finished
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
+from django.utils import timezone
+from rq.timeouts import JobTimeoutException
 
 from core import signals
 from core.choices import DataSourceStatusChoices, JobStatusChoices, ObjectChangeActionChoices
-from core.models import ConfigRevision, DataSource, ObjectChange, ObjectType
+from core.exceptions import SyncError
+from core.models import AutoSyncRecord, ConfigRevision, DataFile, DataSource, ObjectChange, ObjectType
 from core.signals import _signals_received, clear_events, post_sync
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, SiteGroup
-from extras.models import Tag
+from extras.models import ConfigContext, Tag
 from extras.validators import CustomValidator
 from netbox.context import events_queue
 from netbox.context_managers import event_tracking
@@ -348,27 +351,168 @@ class AutoSyncSignalTestCase(TestCase):
     DataSource when post_sync fires.
     """
 
-    def test_post_sync_resyncs_dependent_records(self):
-        ds = DataSource.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.datasource = DataSource.objects.create(
             name='DS 1',
             type='local',
             source_url='/tmp/ds1',
             status=DataSourceStatusChoices.COMPLETED,
         )
-        record_a = SimpleNamespace(object=SimpleNamespace(synced=False))
+        cls.object_type = ObjectType.objects.get_for_model(ConfigContext)
+
+    def make_record(self, object_id, obj):
+        """Stand in for an AutoSyncRecord, carrying the attributes the receiver reads."""
+        return SimpleNamespace(object=obj, object_type=self.object_type, object_id=object_id)
+
+    def patch_records(self, autosync_model, records):
+        """Point the patched manager's queryset chain at the given stand-in records."""
+        queryset = autosync_model.objects.filter.return_value.select_related.return_value
+        queryset.prefetch_related.return_value = records
+
+    def test_post_sync_resyncs_dependent_records(self):
+        record_a = self.make_record(1, SimpleNamespace(synced=False))
         record_a.object.sync = lambda save: setattr(record_a.object, 'synced', save)
-        record_b = SimpleNamespace(object=SimpleNamespace(synced=False))
+        record_b = self.make_record(2, SimpleNamespace(synced=False))
         record_b.object.sync = lambda save: setattr(record_b.object, 'synced', save)
 
         with patch('core.models.AutoSyncRecord') as autosync_model:
-            autosync_model.objects.filter.return_value.prefetch_related.return_value = [
-                record_a,
-                record_b,
-            ]
-            post_sync.send(sender=ds.__class__, instance=ds)
+            self.patch_records(autosync_model, [record_a, record_b])
+            post_sync.send(sender=DataSource, instance=self.datasource)
 
         self.assertTrue(record_a.object.synced)
         self.assertTrue(record_b.object.synced)
+
+    def test_post_sync_continues_after_failed_record(self):
+        """A failing record leaves the connection usable for the records after it."""
+        record_a = self.make_record(1, MagicMock())
+        record_b = self.make_record(2, MagicMock())
+
+        def create_duplicate_datasource(save):
+            # Violates the unique constraint on DataSource.name
+            DataSource.objects.create(name=self.datasource.name, type='local', source_url='/tmp/duplicate')
+
+        def create_datasource(save):
+            DataSource.objects.create(name='DS 2', type='local', source_url='/tmp/ds2')
+
+        record_a.object.sync.side_effect = create_duplicate_datasource
+        record_b.object.sync.side_effect = create_datasource
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, [record_a, record_b])
+            with self.assertLogs('netbox.core.signals', 'ERROR'), self.assertRaises(SyncError) as cm:
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        record_a.object.sync.assert_called_once_with(save=True)
+        record_b.object.sync.assert_called_once_with(save=True)
+        self.assertIsInstance(cm.exception.__cause__, IntegrityError)
+        self.assertIn('Automatic synchronization failed for 1 object:', str(cm.exception))
+        self.assertIn('- extras.configcontext ID 1: IntegrityError:', str(cm.exception))
+        self.assertTrue(DataSource.objects.filter(name='DS 2').exists())
+
+    def test_post_sync_reports_every_failure(self):
+        """Each failed object is named in the aggregated error."""
+        record_a = self.make_record(1, MagicMock())
+        record_b = self.make_record(2, MagicMock())
+        record_a.object.sync.side_effect = ValueError('First failure')
+        record_b.object.sync.side_effect = RuntimeError('Second failure')
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, [record_a, record_b])
+            with self.assertLogs('netbox.core.signals', 'ERROR'), self.assertRaises(SyncError) as cm:
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        record_a.object.sync.assert_called_once_with(save=True)
+        record_b.object.sync.assert_called_once_with(save=True)
+        self.assertEqual(
+            str(cm.exception),
+            'Automatic synchronization failed for 2 objects:\n'
+            '- extras.configcontext ID 1: ValueError: First failure\n'
+            '- extras.configcontext ID 2: RuntimeError: Second failure',
+        )
+        self.assertIsInstance(cm.exception.__cause__, ValueError)
+
+    def test_post_sync_deletes_dangling_record(self):
+        """A record whose generic relation no longer resolves is removed instead of failing the sync."""
+        dangling = MagicMock(object=None, object_type=self.object_type, object_id=7)
+        record = self.make_record(1, MagicMock())
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, [dangling, record])
+            with self.assertLogs('netbox.core.signals', 'WARNING'):
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        dangling.delete.assert_called_once_with()
+        record.object.sync.assert_called_once_with(save=True)
+
+    def test_post_sync_deletes_real_dangling_record(self):
+        """The stale record is removed from the database, exercising the unmocked queryset."""
+        datafile = DataFile.objects.create(
+            source=self.datasource,
+            path='dir1/context.yaml',
+            last_updated=timezone.now(),
+            size=1000,
+            hash='442da078f0111cbdf42f21903724f6597c692535f55bdfbbea758a1ae99ad9e1',
+            data=b'value: original',
+        )
+        AutoSyncRecord.objects.create(
+            datafile=datafile,
+            object_type=ObjectType.objects.get_for_model(ConfigContext),
+            object_id=99999,
+        )
+
+        with self.assertLogs('netbox.core.signals', 'WARNING') as logs:
+            post_sync.send(sender=DataSource, instance=self.datasource)
+
+        self.assertFalse(AutoSyncRecord.objects.filter(datafile=datafile).exists())
+        # The mocked tests must not assert a format the real content type never emits
+        self.assertIn('extras.configcontext ID 99999', logs.output[0])
+
+    def test_post_sync_reports_dangling_record_when_cleanup_is_refused(self):
+        """A stale record is reported by its target keys when its own cleanup is blocked."""
+        dangling = MagicMock(object=None, object_type=self.object_type, object_id=7)
+        dangling.delete.side_effect = AbortRequest('Deletion is prevented by a protection rule')
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, [dangling])
+            with self.assertLogs('netbox.core.signals', 'ERROR'), self.assertRaises(SyncError) as cm:
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        self.assertIn('- extras.configcontext ID 7: AbortRequest:', str(cm.exception))
+        self.assertNotIn('- None:', str(cm.exception))
+
+    def test_post_sync_caps_reported_failures(self):
+        """Only the first N failures are detailed, with the remainder counted."""
+        records = []
+        for i in range(signals._AUTO_SYNC_DETAIL_LIMIT + 3):
+            record = self.make_record(i, MagicMock())
+            record.object.sync.side_effect = ValueError(f'Failure {i}')
+            records.append(record)
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, records)
+            with self.assertLogs('netbox.core.signals', 'ERROR') as logs, self.assertRaises(SyncError) as cm:
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        message = str(cm.exception)
+        self.assertIn(f'failed for {len(records)} objects:', message)
+        self.assertEqual(message.count('ValueError: Failure'), signals._AUTO_SYNC_DETAIL_LIMIT)
+        self.assertIn('and 3 more failures.', message)
+        # Capping the message must not lose an identity, so every failure is still logged
+        self.assertEqual(len(logs.records), len(records))
+
+    def test_post_sync_propagates_job_timeout(self):
+        """An rq job timeout escapes the receiver instead of being recorded as a failure."""
+        record_a = self.make_record(1, MagicMock())
+        record_b = self.make_record(2, MagicMock())
+        record_a.object.sync.side_effect = JobTimeoutException('Task exceeded maximum timeout value')
+
+        with patch('core.models.AutoSyncRecord') as autosync_model:
+            self.patch_records(autosync_model, [record_a, record_b])
+            with self.assertRaises(JobTimeoutException):
+                post_sync.send(sender=DataSource, instance=self.datasource)
+
+        record_b.object.sync.assert_not_called()
 
 
 class UpdateConfigSignalTestCase(TestCase):
