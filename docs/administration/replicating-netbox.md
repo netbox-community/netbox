@@ -34,8 +34,15 @@ When restoring a database from a file, it's recommended to delete any existing d
 ```no-highlight
 psql -c 'drop database netbox'
 psql -c 'create database netbox'
-psql netbox < netbox.sql
+psql -v ON_ERROR_STOP=1 netbox < netbox.sql
 ```
+
+!!! warning "Always restore with ON_ERROR_STOP"
+    By default, `psql` continues after an error and still exits with status 0. A restore which failed partway through, leaving out an index, a function, or a trigger, therefore reports success and yields a database which looks healthy but is incomplete. Passing `-v ON_ERROR_STOP=1` makes `psql` abort on the first error and exit non-zero, so check the exit status before putting the restored database into service.
+
+    This changes the behavior of the restore: a dump which previously appeared to restore successfully will now abort on its first error, including errors unrelated to NetBox's own schema (a role which already exists, an extension owned by another user, and so on). That is the intended outcome, but expect a restore which used to "succeed" to start reporting failures which were there all along.
+
+    For a dump in one of `pg_dump`'s non-plain formats, restore it with `pg_restore --exit-on-error` instead.
 
 Keep in mind that PostgreSQL user accounts and permissions are not included with the dump: You will need to create those manually if you want to fully replicate the original database (see the [installation docs](../installation/1-postgresql.md)). When setting up a development instance of NetBox, it's strongly recommended to use different credentials anyway.
 

@@ -67,6 +67,16 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
     newly created source row has no dependents yet) and it does not recurse: the dependent tables carry no
     triggers of their own.
 
+    !!! warning "Watched columns must be of a type whose `=` lives in `pg_catalog`"
+        The generated WHEN clause compares each watched column with `IS DISTINCT FROM`, which expands to
+        that column type's `=` operator, resolved from `search_path` at CREATE TRIGGER time and with no
+        syntax available to schema-qualify it. Every current caller watches integer FK columns, whose `=` is
+        a built-in in `pg_catalog` and therefore always resolvable. Do NOT pass a column of an extension
+        type (`ltree`, `hstore`, PostGIS `geometry`, ...): its operators live in the extension's schema, so
+        the resulting trigger would fail to restore from a `pg_dump`, which replays DDL with an empty
+        `search_path` — and because `psql` does not stop on error by default, the restore would appear to
+        succeed with the trigger silently missing. See `utilities/ltree.py` and #23130.
+
     Example: refresh a CircuitTermination's cached region/sitegroup when its Site's region or group changes::
 
         InstallDenormalizationTrigger(

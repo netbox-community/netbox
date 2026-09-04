@@ -44,6 +44,19 @@ By default, only those objects whose cache is empty are rendered, so the command
 python3 netbox/manage.py rebuild_config_context_cache [--force]
 ```
 
+## rebuild_ltree_paths
+
+Recompute the `path` and `sort_path` columns of the hierarchical models (regions, site groups, locations, device roles, platforms, tenant groups, contact groups, wireless LAN groups, module bays, inventory items, and inventory item templates) from their parent relationships. These columns are maintained by PostgreSQL triggers, so this is needed only where a write bypassed them: a bulk `COPY`, a direct `UPDATE`, or a database restored from a NetBox v4.7.0 dump (see [#23130](https://github.com/netbox-community/netbox/issues/23130)).
+
+Pass one or more models as `app_label.ModelName` to limit the rebuild.
+
+```
+python3 netbox/manage.py rebuild_ltree_paths [app_label.ModelName ...]
+```
+
+!!! warning
+    A rebuild rewrites every row of each named table in a single statement, locking those rows until it commits. On a large table this blocks concurrent writes for minutes, so run it during a maintenance window. The detection queries in the [v4.7.1 release notes](../release-notes/version-4.7.md) take no locks, and can be used first to find which tables need it.
+
 ## rebuild_prefixes
 
 Rebuild the IPAM prefix hierarchy, recalculating the depth and child counts for all prefixes.

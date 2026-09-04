@@ -1,5 +1,38 @@
 # NetBox v4.7
 
+## v4.7.1 (FUTURE)
+
+!!! warning "Databases Restored From a v4.7.0 Dump"
+    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, because `pg_dump` resets the `search_path` and the triggers' `WHEN` clause depended on it. As `psql` does not stop on error by default, such a restore reported success while leaving the database without those triggers, so renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, or inventory item did not update its descendants.
+
+    Upgrading reinstalls the triggers, so all subsequent changes are cascaded correctly. It does **not** repair values which have already gone stale. The query below reports whether a table is affected. Substitute each hierarchical table in turn: `dcim_region`, `dcim_sitegroup`, `dcim_location`, `dcim_devicerole`, `dcim_platform`, `dcim_modulebay`, `dcim_inventoryitem`, `dcim_inventoryitemtemplate`, `tenancy_tenantgroup`, `tenancy_contactgroup`, and `wireless_wirelesslangroup`.
+
+    ```no-highlight
+    SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
+    WHERE c.path <> p.path || lpad(c.id::text, 19, '0')::ltree;
+    ```
+
+    Treat any non-zero result as "this table needs rebuilding" rather than as a count of the damage: a node whose ancestor moved is reported, but its own descendants are consistent with it and so are not, even though they are equally stale.
+
+    The nine tables which order their children by name additionally maintain a `sort_path`, which can go stale on a rename even when `path` is correct. Every table in the list above except `dcim_inventoryitem` and `dcim_inventoryitemtemplate` carries one, and is checked with:
+
+    ```no-highlight
+    SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
+    WHERE c.sort_path <> p.sort_path || chr(9) || c.name;
+    ```
+
+    Stale `sort_path` values affect only the order in which objects are listed. A stale `path`, by contrast, misplaces an object within the hierarchy, so it can be omitted from its ancestor's list of descendants. Repair an affected table with the [`rebuild_ltree_paths`](../administration/management-commands.md#rebuild_ltree_paths) management command, naming the models the queries above flagged:
+
+    ```no-highlight
+    python netbox/manage.py rebuild_ltree_paths dcim.region
+    ```
+
+    A rebuild rewrites every row of the named tables, locking those rows until it commits, so run it during a maintenance window.
+
+    Plugins which maintain their own `ltree` models via the `InstallLtreeTriggers` migration operation are affected in the same way, and their tables are not touched by the migrations above. Where such a database was restored from a dump, the plugin's cascade triggers are missing entirely; where it was upgraded in place, they carry the old definition and will be lost by its next dump. Either way, applying `InstallLtreeTriggers` again from a new plugin migration reinstalls them: as of this release the operation drops each trigger before recreating it, so it is safe to re-run.
+
+---
+
 ## v4.7.0 (2026-09-02)
 
 !!! warning "PostgreSQL 15 or Later Required"
