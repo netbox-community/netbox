@@ -4,15 +4,19 @@ from threading import local
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.signals import request_finished
+from django.db import transaction
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from django_prometheus.models import model_deletes, model_inserts, model_updates
+from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
+from core.exceptions import SyncError
 from core.models import ObjectType
 from extras.events import enqueue_event
 from extras.models import Tag
@@ -24,6 +28,8 @@ from utilities.data import get_config_value_ci
 from utilities.exceptions import AbortRequest
 
 from .models import ConfigRevision, DataSource, ObjectChange
+
+logger = logging.getLogger('netbox.core.signals')
 
 __all__ = (
     'clear_events',
@@ -299,6 +305,10 @@ def enqueue_sync_job(instance, created, **kwargs):
             job.delete()
 
 
+# Keeps the aggregated error readable when a whole source fails at once
+_AUTO_SYNC_DETAIL_LIMIT = 10
+
+
 @receiver(post_sync)
 def auto_sync(instance, **kwargs):
     """
@@ -306,8 +316,47 @@ def auto_sync(instance, **kwargs):
     """
     from .models import AutoSyncRecord
 
-    for autosync in AutoSyncRecord.objects.filter(datafile__source=instance).prefetch_related('object'):
-        autosync.object.sync(save=True)
+    failure_count = 0
+    details = []
+    first_error = None
+
+    records = AutoSyncRecord.objects.filter(datafile__source=instance)
+    for autosync in records.select_related('object_type').prefetch_related('object'):
+        # The object may be unresolvable or mid-failure, so identify by keys
+        target = f'{autosync.object_type.app_label}.{autosync.object_type.model} ID {autosync.object_id}'
+        try:
+            # The try must stay outside this, so the savepoint is rolled back before the handler runs
+            with transaction.atomic():
+                if autosync.object is None:
+                    logger.warning(f"Deleting stale AutoSyncRecord for {target}")
+                    autosync.delete()
+                    continue
+                autosync.object.sync(save=True)
+        except JobTimeoutException:
+            # rq arms one alarm per job, so a timeout is not an ordinary per-object failure
+            raise
+        except Exception as e:
+            failure_count += 1
+            if first_error is None:
+                first_error = e
+            # Not capped, unlike the raised message below
+            logger.error(f"Error auto-syncing {target}: {e}", exc_info=True)
+            if len(details) < _AUTO_SYNC_DETAIL_LIMIT:
+                details.append(f'- {target}: {type(e).__name__}: {e}')
+
+    if first_error is not None:
+        summary = ngettext(
+            'Automatic synchronization failed for {count} object:',
+            'Automatic synchronization failed for {count} objects:',
+            failure_count,
+        ).format(count=failure_count)
+        if omitted := failure_count - len(details):
+            details.append(ngettext(
+                'and {count} more failure.',
+                'and {count} more failures.',
+                omitted,
+            ).format(count=omitted))
+        raise SyncError('\n'.join([summary, *details])) from first_error
 
 
 @receiver(post_save, sender=ConfigRevision)
