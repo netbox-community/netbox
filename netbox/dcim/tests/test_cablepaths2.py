@@ -2785,3 +2785,49 @@ class CablePathTestCase(BaseCablePathTestCase):
             set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
             termination_pks
         )
+
+    def test_311_change_cable_profile_after_reassigning_unchanged_terminations(self):
+        """
+        [IF1] --C1-- [IF2]
+
+        Applying a profile after both termination caches have been populated must still rebuild the paths.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+
+        # Create cable 1 without a profile
+        cable1 = Cable(
+            a_terminations=[interfaces[0]],
+            b_terminations=[interfaces[1]],
+        )
+        cable1.clean()
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Reload and populate both termination caches by reassigning their stored values
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.a_terminations = [interfaces[0]]
+        cable1.b_terminations = [interfaces[1]]
+        self.assertFalse(cable1._terminations_modified)
+
+        cable1.profile = CableProfileChoices.SINGLE_1C1P
+        cable1.full_clean()
+        cable1.save()
+
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, interfaces[1]),
+            is_complete=True,
+            is_active=True
+        )
+        path2 = self.assertPathExists(
+            (interfaces[1], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+        interfaces[0].refresh_from_db()
+        interfaces[1].refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)

@@ -5271,6 +5271,117 @@ class CableTestCase(
             [(1, interfaces[1]), (2, interfaces[0])]
         )
 
+    @tag('regression')  # Issue #23097
+    def test_edit_with_unchanged_terminations_preserves_paths(self):
+        """Editing a cable without changing its terminations must leave its paths in place."""
+        # The form's termination fields are restricted by view permission
+        self.add_permissions('dcim.change_cable', 'dcim.view_interface')
+
+        interface_a = Interface.objects.get(
+            device__name='Device 1', device__site__name='Site 1', name='Interface 1'
+        )
+        cable = interface_a.cable
+        interface_b = cable.b_terminations[0]
+        path_pks = set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True))
+        self.assertEqual(len(path_pks), 2)
+
+        data = {
+            'a_terminations': [interface_a.pk],
+            'b_terminations': [interface_b.pk],
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'label': 'Renamed',
+            'color': 'c0c0c0',
+        }
+        request = {
+            'path': self._get_url('edit', cable),
+            'data': post_data(data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        cable.refresh_from_db()
+        self.assertEqual(cable.label, 'Renamed')
+        self.assertEqual(
+            set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True)),
+            path_pks
+        )
+
+    @tag('regression')  # Issue #23097
+    def test_edit_with_unchanged_terminations_preserves_connector_order(self):
+        """A label-only edit must keep the connectors of an end whose stored order differs from the form's."""
+        # The form's termination fields are restricted by view permission
+        self.add_permissions('dcim.change_cable', 'dcim.view_interface')
+
+        interface_a = Interface.objects.get(device__name='Device 3', name='Interface 1')
+        interfaces = list(Interface.objects.filter(device__name='Device 4').order_by('name')[:2])
+        cable = Cable(
+            a_terminations=[interface_a],
+            b_terminations=[interfaces[1], interfaces[0]],
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+        )
+        cable.save()
+
+        def b_terminations():
+            return list(
+                CableTermination.objects.filter(cable=cable, cable_end=CableEndChoices.SIDE_B)
+                .values_list('pk', 'connector', 'termination_id')
+            )
+
+        terminations = b_terminations()
+        self.assertEqual([t[1:] for t in terminations], [(1, interfaces[1].pk), (2, interfaces[0].pk)])
+        path_pks = set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True))
+
+        data = {
+            'a_terminations': [interface_a.pk],
+            'b_terminations': [interfaces[0].pk, interfaces[1].pk],
+            'profile': CableProfileChoices.BREAKOUT_1C2P_2C1P,
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+            'label': 'Renamed',
+        }
+        request = {
+            'path': self._get_url('edit', cable),
+            'data': post_data(data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        cable.refresh_from_db()
+        self.assertEqual(cable.label, 'Renamed')
+        self.assertEqual(b_terminations(), terminations)
+        self.assertEqual(
+            set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True)),
+            path_pks
+        )
+
+    def test_edit_with_changed_terminations_rewires_the_end(self):
+        """Replacing a termination through the edit form must still rewrite that end."""
+        # The form's termination fields are restricted by view permission
+        self.add_permissions('dcim.change_cable', 'dcim.view_interface')
+
+        interface_a = Interface.objects.get(
+            device__name='Device 1', device__site__name='Site 1', name='Interface 1'
+        )
+        cable = interface_a.cable
+        interface_b = cable.b_terminations[0]
+        new_interface_b = Interface.objects.get(device__name='Device 4', name='Interface 3')
+
+        data = {
+            'a_terminations': [interface_a.pk],
+            'b_terminations': [new_interface_b.pk],
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': LinkStatusChoices.STATUS_CONNECTED,
+        }
+        request = {
+            'path': self._get_url('edit', cable),
+            'data': post_data(data),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+
+        self.assertEqual(Cable.objects.get(pk=cable.pk).b_terminations, [new_interface_b])
+        interface_b.refresh_from_db()
+        self.assertIsNone(interface_b.cable)
+        new_interface_b.refresh_from_db()
+        self.assertEqual(new_interface_b.cable, cable)
+
 
 #
 # Connections

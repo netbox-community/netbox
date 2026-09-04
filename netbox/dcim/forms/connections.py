@@ -142,8 +142,10 @@ def get_cable_form(a_type, b_type):
         def clean(self):
             super().clean()
 
-            # Set the A/B terminations on the Cable instance
-            self.instance.a_terminations = self.cleaned_data.get('a_terminations', [])
-            self.instance.b_terminations = self.cleaned_data.get('b_terminations', [])
+            # The field discards submission order, so a saved cable's end is assigned only when its members changed
+            for field_name in ('a_terminations', 'b_terminations'):
+                value = self.cleaned_data.get(field_name, [])
+                if not self.instance.pk or set(value) != set(self.initial.get(field_name, [])):
+                    setattr(self.instance, field_name, value)
 
     return _CableForm

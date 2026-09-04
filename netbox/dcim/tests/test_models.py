@@ -2413,6 +2413,50 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    def test_reassigning_unchanged_terminations_does_not_flag_a_change(self):
+        """
+        Assigning the stored terminations to a freshly loaded cable must leave them unflagged.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+
+        # A cable loaded from the database has no cached terminations
+        cable = Cable.objects.first()
+        cable.a_terminations = [interface1]
+        cable.b_terminations = [interface2]
+
+        self.assertFalse(cable._terminations_modified)
+
+    def test_reassigning_different_terminations_flags_a_change(self):
+        """
+        Assigning a different termination to a freshly loaded cable must flag the change.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+
+        cable = Cable.objects.first()
+        cable.a_terminations = [interface1]
+        cable.b_terminations = [interface3]
+
+        self.assertTrue(cable._terminations_modified)
+
+    def test_reassigning_stale_prefetched_terminations_flags_a_change(self):
+        """
+        A stale prefetched relation must not hide a real termination change.
+        """
+        cable = Cable.objects.prefetch_related('terminations__termination').first()
+        stale_termination = cable.b_terminations[0]
+        current_termination = Interface.objects.get(device__name='TestDevice2', name='eth1')
+
+        # Moving the B end through a second instance leaves the prefetch above stale
+        moved = Cable.objects.get(pk=cable.pk)
+        moved.b_terminations = [current_termination]
+        moved.save()
+
+        # The value matches the stale prefetch but not the stored row
+        cable.b_terminations = [stale_termination]
+        self.assertTrue(cable._terminations_modified)
+
     def test_partial_save_does_not_apply_an_unwritten_profile(self):
         """
         A save excluding profile must leave the terminations alone but keep the change pending.

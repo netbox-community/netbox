@@ -2892,6 +2892,52 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         interface3.refresh_from_db()
         self.assertPathIsNotSet(interface3)
 
+    def test_304_resave_cable_with_unchanged_terminations(self):
+        """
+        [IF1] --C1-- [IF2]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[interface2]
+        )
+        cable1.save()
+
+        path_pks = set(CablePath.objects.values_list('pk', flat=True))
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertEqual(len(path_pks), 2)
+        self.assertEqual(len(termination_pks), 2)
+
+        # Reassign the same terminations on a freshly loaded instance
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.a_terminations = [interface1]
+        cable1.b_terminations = [interface2]
+        cable1.label = 'Renamed'
+        cable1.save()
+
+        self.assertEqual(set(CablePath.objects.values_list('pk', flat=True)), path_pks)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+            termination_pks
+        )
+
+        path1 = self.assertPathExists(
+            (interface1, cable1, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        path2 = self.assertPathExists(
+            (interface2, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+
     def test_401_exclude_midspan_devices(self):
         """
         [IF1] --C1-- [FP1][Test Device][RP1] --C2-- [RP2][Test Device][FP2] --C3-- [IF2]
