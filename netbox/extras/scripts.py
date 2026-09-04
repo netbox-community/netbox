@@ -46,6 +46,11 @@ __all__ = (
     'get_module_and_script',
 )
 
+# Internal ScriptForm fields used to carry execution parameters (see ScriptForm in
+# extras/forms/scripts.py). These are validated/sourced separately from the script's own
+# declared variables and must never be treated as script data or surfaced as script errors.
+EXEC_PARAM_FIELDS = ('_commit', '_schedule_at', '_interval', '_notifications')
+
 # Sentinel distinguishing "argument not supplied" from an explicit None in validate_meta().
 _UNSET = object()
 
@@ -706,3 +711,27 @@ def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
     script = module.scripts.get(name=script_name)
     return module, script
+
+
+def prepare_script_form(script_instance, data, files=None):
+    """
+    Return a bound ScriptForm for the given Script instance, back-filling the declared
+    `default` of any variable omitted from `data`.
+
+    `data` is copied rather than coerced to a plain dict, so a QueryDict retains the
+    multi-value semantics a MultiObjectVar's multi-select field depends on.
+    """
+    data = data.copy() if data is not None else {}
+    for name, var in script_instance._get_vars().items():
+        if name in data:
+            continue
+        if (initial := var.field_attrs.get('initial')) is None:
+            continue
+        if isinstance(initial, (list, tuple)) and hasattr(data, 'setlist'):
+            # Assigning a list to a QueryDict stores it as a single nested value, which a
+            # multi-select widget reads back as one bogus choice. Set the values individually
+            # so a MultiChoiceVar/MultiObjectVar default binds as it does for a plain dict.
+            data.setlist(name, list(initial))
+        else:
+            data[name] = initial
+    return script_instance.as_form(data=data, files=files)
