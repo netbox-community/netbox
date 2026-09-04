@@ -117,7 +117,11 @@ class VLANTranslationRuleSerializer(NetBoxModelSerializer):
 
     class Meta:
         model = VLANTranslationRule
-        fields = ['id', 'url', 'display', 'policy', 'local_vid', 'remote_vid', 'description']
+        fields = [
+            'id', 'url', 'display_url', 'display', 'policy', 'local_vid', 'remote_vid', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'policy', 'local_vid', 'remote_vid', 'description')
 
 
 class VLANTranslationPolicySerializer(PrimaryModelSerializer):
@@ -125,5 +129,8 @@ class VLANTranslationPolicySerializer(PrimaryModelSerializer):
 
     class Meta:
         model = VLANTranslationPolicy
-        fields = ['id', 'url', 'display', 'name', 'description', 'display', 'rules', 'owner', 'comments']
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'rules', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

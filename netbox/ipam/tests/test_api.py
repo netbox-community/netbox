@@ -11,7 +11,7 @@ from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
 from utilities.data import string_to_ranges
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
+from utilities.testing import APITestCase, APIViewTestCases, create_tags, create_test_device, disable_logging
 
 
 class AppTestCase(APITestCase):
@@ -1422,6 +1422,29 @@ class VLANTranslationPolicyTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_standard_fields_in_representation(self):
+        """The standard URL, tag, custom-field and change-tracking names appear in the representation."""
+        policy = VLANTranslationPolicy.objects.first()
+        self.add_permissions('ipam.view_vlantranslationpolicy')
+
+        response = self.client.get(self._get_detail_url(policy), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        expected = {'display_url', 'tags', 'custom_fields', 'created', 'last_updated'}
+        self.assertEqual(expected - set(response.data), set())
+
+    def test_update_tags(self):
+        """Tags supplied on update are assigned and rendered in the response."""
+        policy = VLANTranslationPolicy.objects.first()
+        create_tags('Alpha')
+        self.add_permissions('ipam.change_vlantranslationpolicy', 'extras.view_tag')
+
+        data = {'tags': [{'slug': 'alpha'}]}
+        response = self.client.patch(self._get_detail_url(policy), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('tags', response.data)
+        self.assertEqual([tag['slug'] for tag in response.data['tags']], ['alpha'])
+        self.assertEqual(list(policy.tags.values_list('slug', flat=True)), ['alpha'])
+
 
 class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
     model = VLANTranslationRule
@@ -1490,6 +1513,29 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
             'policy': vlan_translation_policies[2].pk,
             'description': 'New description',
         }
+
+    def test_standard_fields_in_representation(self):
+        """The standard URL, tag, custom-field and change-tracking names appear in the representation."""
+        rule = VLANTranslationRule.objects.first()
+        self.add_permissions('ipam.view_vlantranslationrule')
+
+        response = self.client.get(self._get_detail_url(rule), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        expected = {'display_url', 'tags', 'custom_fields', 'created', 'last_updated'}
+        self.assertEqual(expected - set(response.data), set())
+
+    def test_update_tags(self):
+        """Tags supplied on update are assigned and rendered in the response."""
+        rule = VLANTranslationRule.objects.first()
+        create_tags('Alpha')
+        self.add_permissions('ipam.change_vlantranslationrule', 'extras.view_tag')
+
+        data = {'tags': [{'slug': 'alpha'}]}
+        response = self.client.patch(self._get_detail_url(rule), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('tags', response.data)
+        self.assertEqual([tag['slug'] for tag in response.data['tags']], ['alpha'])
+        self.assertEqual(list(rule.tags.values_list('slug', flat=True)), ['alpha'])
 
 
 class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
