@@ -25,10 +25,6 @@
 
     Plugins which maintain their own `ltree` models via the `InstallLtreeTriggers` migration operation are affected in the same way, and their tables are not touched by the migrations above. Where such a database was restored from a dump, the plugin's cascade triggers are missing entirely; where it was upgraded in place, they carry the old definition and will be lost by its next dump. Either way, applying `InstallLtreeTriggers` again from a new plugin migration reinstalls them: as of this release the operation drops each trigger before recreating it, so it is safe to re-run.
 
-### Bug Fixes
-
-* [#23130](https://github.com/netbox-community/netbox/issues/23130) - Ensure the triggers which cascade hierarchical paths to descendants can be restored from a `pg_dump`
-
 ---
 
 ## v4.7.0 (2026-09-02)

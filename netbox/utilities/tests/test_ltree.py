@@ -1102,11 +1102,18 @@ class CascadeTriggerDefinitionTests(TestCase):
             expected - set(definitions), set(),
             msg='these core ltree tables have no cascade trigger installed',
         )
+        # Assert on the cast rather than on PostgreSQL's exact rendering of the clause:
+        # the parenthesization pg_get_triggerdef() emits is an implementation detail.
         for table in sorted(expected):
+            definition = definitions[table]
             self.assertIn(
-                '(old.path)::text IS DISTINCT FROM (new.path)::text', definitions[table],
+                '::text IS DISTINCT FROM', definition,
                 msg=f'{table}: the cascade trigger compares ltree values directly, so it '
                     f'will not survive a pg_dump restore (see #23130)',
+            )
+            self.assertNotRegex(
+                definition, r'old\.path\s+IS DISTINCT FROM\s+new\.path',
+                msg=f'{table}: the cascade trigger compares path without a cast to text',
             )
 
 

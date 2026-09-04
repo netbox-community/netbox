@@ -11,13 +11,19 @@ are absent) and one upgraded in place (they exist with the old definition, which
 fail its own next restore). InstallLtreeTriggers drops before creating, so this applies
 cleanly in either state.
 
-This reinstalls triggers only. It does not touch table data, so it does not incur the
-table-wide lock that 0242's path backfill did, and it does not repair path/sort_path
-values which went stale while the triggers were missing; see the v4.7.1 release notes for
-detection and repair.
+This reinstalls triggers only, so it takes ACCESS EXCLUSIVE on each table for the DDL
+itself and performs no table scan. Note that this is a stronger lock than the ROW
+EXCLUSIVE held by 0242's backfill, and it blocks readers as well as writers: it is brief,
+but on a busy table it queues behind any long-running query and holds everything behind
+it for that query's duration.
 
-Reversing this migration is a no-op: the triggers it replaces belong to 0242_ltree_paths,
-which recreates them (from the corrected template) when reversed in turn.
+It does not repair path/sort_path values which went stale while the triggers were
+missing; see the v4.7.1 release notes for detection and repair.
+
+Reversing this migration is a no-op. Reversing 0242_ltree_paths in turn drops these
+triggers rather than recreating them, which is that migration's business; what matters
+here is that undoing a corrective reinstall has no target state of its own, since the
+definition it replaced is the broken one.
 """
 from django.db import migrations
 
