@@ -2745,6 +2745,81 @@ class CableTestCase(TestCase):
         self.assertEqual(cable._abs_length, Decimal('1609343983.9066'))
 
 
+class PathEndpointTraceTestCase(TestCase):
+    """
+    Verify PathEndpoint.trace() includes the segment reached through an interface's own
+    bridge relationship, not just a bridge encountered at the destination end of a segment.
+
+    Models a media converter with bridged "copper" and "fiber" interfaces, each cabled to a
+    different switch. See #22518.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        site = Site.objects.create(name='Site', slug='site')
+
+        switch_a = Device.objects.create(site=site, device_type=device_type, role=role, name='Switch A')
+        switch_b = Device.objects.create(site=site, device_type=device_type, role=role, name='Switch B')
+        converter = Device.objects.create(site=site, device_type=device_type, role=role, name='Media Converter')
+
+        cls.switch_a_iface = Interface.objects.create(device=switch_a, name='eth0')
+        cls.switch_b_iface = Interface.objects.create(device=switch_b, name='eth0')
+        cls.copper = Interface.objects.create(device=converter, name='copper')
+        cls.fiber = Interface.objects.create(device=converter, name='fiber')
+        cls.copper.bridge = cls.fiber
+        cls.copper.save()
+        cls.fiber.bridge = cls.copper
+        cls.fiber.save()
+
+        Cable(a_terminations=[cls.switch_a_iface], b_terminations=[cls.copper]).save()
+        Cable(a_terminations=[cls.switch_b_iface], b_terminations=[cls.fiber]).save()
+
+    @staticmethod
+    def _terminations(segments):
+        return [node for segment in segments for group in (segment[0], segment[2]) for node in group]
+
+    def test_trace_from_bridged_interface_includes_both_segments(self):
+        """
+        Tracing from the bridged interface itself (copper) must include both the segment to
+        its own cable peer (Switch A) and the segment reached through its bridge (Switch B)
+        -- the same two segments a trace starting from Switch A already finds.
+        """
+        self.copper.refresh_from_db()
+        segments = self.copper.trace()
+
+        self.assertEqual(len(segments), 2)
+        terminations = self._terminations(segments)
+        self.assertIn(self.switch_a_iface, terminations)
+        self.assertIn(self.switch_b_iface, terminations)
+
+    def test_trace_from_bridge_partner_includes_both_segments(self):
+        """
+        The backward walk isn't one-directional: tracing from the fiber side must likewise
+        include both segments.
+        """
+        self.fiber.refresh_from_db()
+        segments = self.fiber.trace()
+
+        self.assertEqual(len(segments), 2)
+        terminations = self._terminations(segments)
+        self.assertIn(self.switch_a_iface, terminations)
+        self.assertIn(self.switch_b_iface, terminations)
+
+    def test_trace_from_connected_switch_unaffected(self):
+        """
+        The previously-working direction (#7761) must still return both segments.
+        """
+        segments = self.switch_a_iface.trace()
+
+        self.assertEqual(len(segments), 2)
+        terminations = self._terminations(segments)
+        self.assertIn(self.copper, terminations)
+        self.assertIn(self.switch_b_iface, terminations)
+
+
 class CableTerminationTestCase(TestCase):
 
     def test_cache_related_objects_requires_resolvable_termination(self):
