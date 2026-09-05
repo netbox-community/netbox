@@ -17,6 +17,12 @@ FILTER_CHAR_BASED_LOOKUP_MAP = dict(
     iregex='iregex',
 )
 
+# A member is a scalar inside a stored array, so negation cannot fall back to equality
+FILTER_ARRAY_BASED_LOOKUP_MAP = {
+    **FILTER_CHAR_BASED_LOOKUP_MAP,
+    'n': 'contains',
+}
+
 FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
     n='exact',
     lte='lte',
