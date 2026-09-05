@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 16:46+0000\n"
+"POT-Creation-Date: 2026-09-05 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2715,7 +2715,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:797
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:812
 msgid "path"
 msgstr ""
 
@@ -6907,110 +6907,110 @@ msgstr ""
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:282
+#: netbox/dcim/models/cables.py:296
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:285
+#: netbox/dcim/models/cables.py:299
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:296
+#: netbox/dcim/models/cables.py:310
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:304
+#: netbox/dcim/models/cables.py:318
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:314
+#: netbox/dcim/models/cables.py:328
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:574 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:589 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:645
+#: netbox/dcim/models/cables.py:660
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:646
+#: netbox/dcim/models/cables.py:661
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:659
+#: netbox/dcim/models/cables.py:674
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:676
+#: netbox/dcim/models/cables.py:691
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:688
+#: netbox/dcim/models/cables.py:703
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:694
+#: netbox/dcim/models/cables.py:709
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:701
+#: netbox/dcim/models/cables.py:716
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:733
+#: netbox/dcim/models/cables.py:748
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:801 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:816 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:805
+#: netbox/dcim/models/cables.py:820
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:809
+#: netbox/dcim/models/cables.py:824
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:822
+#: netbox/dcim/models/cables.py:837
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:823
+#: netbox/dcim/models/cables.py:838
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:914
+#: netbox/dcim/models/cables.py:929
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:932
+#: netbox/dcim/models/cables.py:947
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:940
+#: netbox/dcim/models/cables.py:955
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:970
+#: netbox/dcim/models/cables.py:985
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:972
+#: netbox/dcim/models/cables.py:987
 msgid "All links must match first link type"
 msgstr ""
 
