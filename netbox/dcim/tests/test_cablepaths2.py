@@ -1,7 +1,7 @@
 from unittest import skip
 
 from circuits.models import Circuit, CircuitTermination, ProviderNetwork
-from dcim.choices import CableLengthUnitChoices, CableProfileChoices
+from dcim.choices import CableEndChoices, CableLengthUnitChoices, CableProfileChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
@@ -2786,48 +2786,159 @@ class CablePathTestCase(BaseCablePathTestCase):
             termination_pks
         )
 
-    def test_311_change_cable_profile_after_reassigning_unchanged_terminations(self):
+    def test_311_change_cable_profile_on_a_warm_instance_rebuilds_paths(self):
         """
         [IF1] --C1-- [IF2]
 
-        Applying a profile after both termination caches have been populated must still rebuild the paths.
+        Applying a profile to an instance whose termination caches are warm must recreate the rows and the paths.
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
             Interface.objects.create(device=self.device, name='Interface 2'),
         ]
 
-        # Create cable 1 without a profile
+        # Creating the cable warms both caches and saving it resets the flag
         cable1 = Cable(
             a_terminations=[interfaces[0]],
             b_terminations=[interfaces[1]],
         )
         cable1.clean()
         cable1.save()
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
         self.assertEqual(CablePath.objects.count(), 2)
-
-        # Reload and populate both termination caches by reassigning their stored values
-        cable1 = Cable.objects.get(pk=cable1.pk)
-        cable1.a_terminations = [interfaces[0]]
-        cable1.b_terminations = [interfaces[1]]
+        self.assertTrue(hasattr(cable1, '_a_terminations') and hasattr(cable1, '_b_terminations'))
         self.assertFalse(cable1._terminations_modified)
 
         cable1.profile = CableProfileChoices.SINGLE_1C1P
         cable1.full_clean()
         cable1.save()
 
-        path1 = self.assertPathExists(
-            (interfaces[0], cable1, interfaces[1]),
-            is_complete=True,
-            is_active=True
-        )
-        path2 = self.assertPathExists(
-            (interfaces[1], cable1, interfaces[0]),
-            is_complete=True,
-            is_active=True
-        )
+        self.assertCurrentPathExists((interfaces[0], cable1, interfaces[1]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[1], cable1, interfaces[0]), is_complete=True, is_active=True)
         self.assertEqual(CablePath.objects.count(), 2)
-        interfaces[0].refresh_from_db()
-        interfaces[1].refresh_from_db()
-        self.assertPathIsSet(interfaces[0], path1)
-        self.assertPathIsSet(interfaces[1], path2)
+        new_termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertTrue(termination_pks.isdisjoint(new_termination_pks))
+        self.assertEqual(
+            sorted(CableTermination.objects.filter(cable=cable1).values_list('cable_end', 'connector', 'positions')),
+            [(CableEndChoices.SIDE_A, 1, [1]), (CableEndChoices.SIDE_B, 1, [1])]
+        )
+        data = cable1.serialize_object()
+        self.assertEqual(set(data['a_terminations'] + data['b_terminations']), new_termination_pks)
+
+    def test_312_replayed_midspan_terminations_complete_existing_paths(self):
+        """
+        [IF1] --C1-- [FP1][RP1] --C3-- [RP2][FP2] --C2-- [IF2]
+
+        Assigning a mid-span cable's stored terminations must complete the paths that stop at its rear ports.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name='Rear Port 1'),
+            RearPort.objects.create(device=self.device, name='Rear Port 2'),
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name='Front Port 1'),
+            FrontPort.objects.create(device=self.device, name='Front Port 2'),
+        ]
+        for front_port, rear_port in zip(front_ports, rear_ports):
+            PortMapping.objects.create(
+                device=self.device,
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1
+            )
+
+        cable1 = Cable(a_terminations=[interfaces[0]], b_terminations=[front_ports[0]])
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(a_terminations=[front_ports[1]], b_terminations=[interfaces[1]])
+        cable2.clean()
+        cable2.save()
+        cable3 = Cable(a_terminations=[rear_ports[0]], b_terminations=[rear_ports[1]])
+        cable3.clean()
+        cable3.save()
+
+        nodes_a_to_b = (
+            interfaces[0], cable1, front_ports[0], rear_ports[0], cable3, rear_ports[1], front_ports[1], cable2,
+            interfaces[1],
+        )
+        nodes_b_to_a = tuple(reversed(nodes_a_to_b))
+        self.assertCurrentPathExists(nodes_a_to_b, is_complete=True, is_active=True)
+        self.assertCurrentPathExists(nodes_b_to_a, is_complete=True, is_active=True)
+
+        # Recreate the B end's row directly, which leaves both paths incomplete at the rear ports
+        CableTermination.objects.get(cable=cable3, cable_end=CableEndChoices.SIDE_B).delete()
+        CableTermination(cable=cable3, cable_end=CableEndChoices.SIDE_B, termination=rear_ports[1]).save()
+        termination_pks = set(CableTermination.objects.filter(cable=cable3).values_list('pk', flat=True))
+        for interface in interfaces:
+            interface.refresh_from_db()
+            self.assertFalse(interface._path.is_complete)
+
+        data = cable3.serialize_object()
+        cable3 = Cable.objects.get(pk=cable3.pk)
+        cable3.a_terminations = data['a_terminations']
+        cable3.b_terminations = data['b_terminations']
+        cable3.save()
+
+        self.assertCurrentPathExists(nodes_a_to_b, is_complete=True, is_active=True)
+        self.assertCurrentPathExists(nodes_b_to_a, is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable3).values_list('pk', flat=True)),
+            termination_pks
+        )
+
+    def test_313_reordering_trunk_terminations_rewires_connectors_and_paths(self):
+        """
+        [IF1] --1 C1 1-- [IF3]  becomes  [IF2] --1 C1 1-- [IF3]
+        [IF2] --2    2-- [IF4]           [IF1] --2    2-- [IF4]
+
+        Reordering one end's members on a fresh instance must recreate that end's rows and rebuild the paths.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 5)
+        ]
+
+        cable1 = Cable(
+            profile=CableProfileChoices.TRUNK_2C1P,
+            a_terminations=[interfaces[0], interfaces[1]],
+            b_terminations=[interfaces[2], interfaces[3]],
+        )
+        cable1.full_clean()
+        cable1.save()
+        self.assertCurrentPathExists((interfaces[0], cable1, interfaces[2]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[1], cable1, interfaces[3]), is_complete=True, is_active=True)
+        a_termination_pks = set(
+            CableTermination.objects.filter(cable=cable1, cable_end=CableEndChoices.SIDE_A).values_list('pk', flat=True)
+        )
+        b_terminations = list(
+            CableTermination.objects.filter(cable=cable1, cable_end=CableEndChoices.SIDE_B)
+            .values_list('pk', 'connector', 'termination_id')
+        )
+
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.a_terminations = [interfaces[1], interfaces[0]]
+        cable1.full_clean()
+        cable1.save()
+
+        self.assertCurrentPathExists((interfaces[1], cable1, interfaces[2]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[0], cable1, interfaces[3]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[2], cable1, interfaces[1]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[3], cable1, interfaces[0]), is_complete=True, is_active=True)
+        a_terminations = CableTermination.objects.filter(cable=cable1, cable_end=CableEndChoices.SIDE_A)
+        self.assertEqual(
+            list(a_terminations.order_by('connector').values_list('connector', 'termination_id')),
+            [(1, interfaces[1].pk), (2, interfaces[0].pk)]
+        )
+        self.assertTrue(a_termination_pks.isdisjoint(a_terminations.values_list('pk', flat=True)))
+        self.assertEqual(
+            list(
+                CableTermination.objects.filter(cable=cable1, cable_end=CableEndChoices.SIDE_B)
+                .values_list('pk', 'connector', 'termination_id')
+            ),
+            b_terminations
+        )

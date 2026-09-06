@@ -229,16 +229,6 @@ class Cable(PrimaryModel):
             ct.termination for ct in self.terminations.all() if ct.cable_end == side
         ]
 
-    def _cache_stored_terminations(self):
-        """
-        Fill each cold termination cache from the CableTermination rows, in their stored order.
-        """
-        a_terminations, b_terminations = self.get_terminations()
-        if not hasattr(self, '_a_terminations'):
-            self._a_terminations = list(a_terminations.keys())
-        if not hasattr(self, '_b_terminations'):
-            self._b_terminations = list(b_terminations.keys())
-
     def _set_x_terminations(self, side, value):
         """
         Set the terminating objects for the given cable end (A or B).
@@ -254,11 +244,8 @@ class Cable(PrimaryModel):
                 ct.termination for ct in CableTermination.objects.filter(pk__in=value).prefetch_related('termination')
             ]
 
-        # Compare a saved cable against its stored rows, not against a possibly stale prefetch of self.terminations
-        if self.pk and not hasattr(self, _attr):
-            self._cache_stored_terminations()
-
-        if not self.pk or getattr(self, _attr) != list(value):
+        # A cold end always counts as assigned: replay writes the rows first, so equal rows do not imply current paths
+        if not self.pk or not hasattr(self, _attr) or getattr(self, _attr) != list(value):
             self._terminations_modified = True
 
         setattr(self, _attr, value)
@@ -517,6 +504,12 @@ class Cable(PrimaryModel):
         """
         a_terminations, b_terminations = self.get_terminations()
 
+        # An end the caller did not assign is reconciled against its stored rows, not a possibly stale prefetch
+        if not hasattr(self, '_a_terminations'):
+            self._a_terminations = list(a_terminations.keys())
+        if not hasattr(self, '_b_terminations'):
+            self._b_terminations = list(b_terminations.keys())
+
         # A CableTermination's connector is derived from its position within its end's list of terminating
         # objects, so reordering that list (or removing an object from the middle of it) rewires the Cable
         # without changing which objects it connects. Recreate the affected end's CableTerminations so that
@@ -527,14 +520,6 @@ class Cable(PrimaryModel):
         # Recreating either end's terminations invalidates its paths, even when the endpoints are unchanged
         if force_a or force_b:
             self._terminations_modified = True
-
-        # When force-recreating terminations (e.g. after a profile change), cache the termination objects
-        # from the database before deleting, so they are available for recreation. Without this, the
-        # a_terminations/b_terminations properties would query the DB after deletion and return empty lists.
-        if force_a and not hasattr(self, '_a_terminations'):
-            self._a_terminations = list(a_terminations.keys())
-        if force_b and not hasattr(self, '_b_terminations'):
-            self._b_terminations = list(b_terminations.keys())
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():

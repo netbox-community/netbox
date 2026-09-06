@@ -1,5 +1,5 @@
 from circuits.models import *
-from dcim.choices import LinkStatusChoices
+from dcim.choices import CableEndChoices, LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
@@ -2892,9 +2892,52 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         interface3.refresh_from_db()
         self.assertPathIsNotSet(interface3)
 
-    def test_304_resave_cable_with_unchanged_terminations(self):
+    def test_304_replayed_termination_move_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3]
+
+        Assigning terminations whose rows were already replaced must rebuild the paths from those rows.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[interface2]
+        )
+        cable1.save()
+
+        # Replace the B end's row directly, as change replay does before it saves the cable itself
+        CableTermination.objects.get(cable=cable1, cable_end=CableEndChoices.SIDE_B).delete()
+        CableTermination(cable=cable1, cable_end=CableEndChoices.SIDE_B, termination=interface3).save()
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        interface1.refresh_from_db()
+        interface3.refresh_from_db()
+        self.assertFalse(interface1._path.is_complete)
+        self.assertPathIsNotSet(interface3)
+
+        data = cable1.serialize_object()
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.a_terminations = data['a_terminations']
+        cable1.b_terminations = data['b_terminations']
+        cable1.save()
+
+        self.assertCurrentPathExists((interface1, cable1, interface3), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interface3, cable1, interface1), is_complete=True, is_active=True)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+            termination_pks
+        )
+        interface2.refresh_from_db()
+        self.assertIsNone(interface2.cable)
+        self.assertPathIsNotSet(interface2)
+
+    def test_305_reassigning_terminations_restores_missing_paths(self):
         """
         [IF1] --C1-- [IF2]
+
+        Assigning a fresh cable's own terminations, as objects or as serialized IDs, must recreate removed paths.
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
@@ -2904,39 +2947,109 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
             b_terminations=[interface2]
         )
         cable1.save()
-
-        path_pks = set(CablePath.objects.values_list('pk', flat=True))
         termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
-        self.assertEqual(len(path_pks), 2)
-        self.assertEqual(len(termination_pks), 2)
+        serialized = cable1.serialize_object()
 
-        # Reassign the same terminations on a freshly loaded instance
+        for value in ({'a_terminations': [interface1], 'b_terminations': [interface2]}, serialized):
+            with self.subTest(value_type=type(value['a_terminations'][0]).__name__):
+                # Delete each path on its own so the origins' _path references are cleared with it
+                for path in list(CablePath.objects.all()):
+                    path.delete()
+                interface1.refresh_from_db()
+                interface2.refresh_from_db()
+                self.assertPathIsNotSet(interface1)
+                self.assertPathIsNotSet(interface2)
+
+                cable1 = Cable.objects.get(pk=cable1.pk)
+                cable1.a_terminations = value['a_terminations']
+                cable1.b_terminations = value['b_terminations']
+                cable1.save()
+
+                self.assertCurrentPathExists((interface1, cable1, interface2), is_complete=True, is_active=True)
+                self.assertCurrentPathExists((interface2, cable1, interface1), is_complete=True, is_active=True)
+                self.assertEqual(CablePath.objects.count(), 2)
+                self.assertEqual(
+                    set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+                    termination_pks
+                )
+
+    def test_306_replaying_one_end_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3] or [IF3] --C1-- [IF2]
+
+        Assigning only the replaced end's serialized terminations must rebuild both paths and keep the other end's row.
+        """
+        for side in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
+            with self.subTest(side=side):
+                interface1 = Interface.objects.create(device=self.device, name=f'Interface {side}1')
+                interface2 = Interface.objects.create(device=self.device, name=f'Interface {side}2')
+                interface3 = Interface.objects.create(device=self.device, name=f'Interface {side}3')
+                cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+                cable1.save()
+                old, kept = (interface1, interface2) if side == CableEndChoices.SIDE_A else (interface2, interface1)
+
+                # Replace one end's row directly, as change replay does before it saves the cable itself
+                CableTermination.objects.get(cable=cable1, cable_end=side).delete()
+                CableTermination(cable=cable1, cable_end=side, termination=interface3).save()
+                termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+                kept.refresh_from_db()
+                interface3.refresh_from_db()
+                self.assertFalse(kept._path.is_complete)
+                self.assertPathIsNotSet(interface3)
+
+                attr = f'{side.lower()}_terminations'
+                data = cable1.serialize_object()
+                cable1 = Cable.objects.get(pk=cable1.pk)
+                setattr(cable1, attr, data[attr])
+                cable1.save()
+
+                self.assertCurrentPathExists((kept, cable1, interface3), is_complete=True, is_active=True)
+                self.assertCurrentPathExists((interface3, cable1, kept), is_complete=True, is_active=True)
+                self.assertEqual(
+                    set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+                    termination_pks
+                )
+                old.refresh_from_db()
+                self.assertIsNone(old.cable)
+                self.assertPathIsNotSet(old)
+
+    def test_307_replaying_a_termination_move_leaves_other_cables_alone(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3], while [IF4] --C2-- [IF5] stays as it is
+
+        Rebuilding one cable's paths must not touch another cable's termination or path rows.
+        """
+        interfaces = [Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 6)]
+        cable1 = Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[1]])
+        cable1.save()
+        cable2 = Cable(a_terminations=[interfaces[3]], b_terminations=[interfaces[4]])
+        cable2.save()
+
+        def other_rows():
+            return (
+                list(CableTermination.objects.filter(cable=cable2).values_list('pk', 'cable_end', 'termination_id')),
+                list(
+                    CablePath.objects.filter(_nodes__contains=cable2)
+                    .order_by('pk')
+                    .values_list('pk', 'path', 'is_complete', 'is_active')
+                ),
+            )
+
+        expected = other_rows()
+        self.assertEqual(len(expected[1]), 2)
+
+        CableTermination.objects.get(cable=cable1, cable_end=CableEndChoices.SIDE_B).delete()
+        CableTermination(cable=cable1, cable_end=CableEndChoices.SIDE_B, termination=interfaces[2]).save()
+        data = cable1.serialize_object()
         cable1 = Cable.objects.get(pk=cable1.pk)
-        cable1.a_terminations = [interface1]
-        cable1.b_terminations = [interface2]
-        cable1.label = 'Renamed'
+        cable1.b_terminations = data['b_terminations']
         cable1.save()
 
-        self.assertEqual(set(CablePath.objects.values_list('pk', flat=True)), path_pks)
-        self.assertEqual(
-            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
-            termination_pks
-        )
-
-        path1 = self.assertPathExists(
-            (interface1, cable1, interface2),
-            is_complete=True,
-            is_active=True
-        )
-        path2 = self.assertPathExists(
-            (interface2, cable1, interface1),
-            is_complete=True,
-            is_active=True
-        )
-        interface1.refresh_from_db()
-        interface2.refresh_from_db()
-        self.assertPathIsSet(interface1, path1)
-        self.assertPathIsSet(interface2, path2)
+        self.assertCurrentPathExists((interfaces[0], cable1, interfaces[2]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[2], cable1, interfaces[0]), is_complete=True, is_active=True)
+        self.assertEqual(other_rows(), expected)
+        self.assertCurrentPathExists((interfaces[3], cable2, interfaces[4]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[4], cable2, interfaces[3]), is_complete=True, is_active=True)
 
     def test_401_exclude_midspan_devices(self):
         """

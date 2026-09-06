@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db.models import ProtectedError
+from django.db.models import F, ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
 
@@ -2413,49 +2413,185 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
-    def test_reassigning_unchanged_terminations_does_not_flag_a_change(self):
+    def test_assigning_terminations_to_a_fresh_instance_flags_a_change(self):
         """
-        Assigning the stored terminations to a freshly loaded cable must leave them unflagged.
+        Assigning either end of a freshly loaded cable must flag a change, even with its stored terminations.
         """
         interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
         interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
 
-        # A cable loaded from the database has no cached terminations
-        cable = Cable.objects.first()
-        cable.a_terminations = [interface1]
-        cable.b_terminations = [interface2]
+        for attr, interface in (('a_terminations', interface1), ('b_terminations', interface2)):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.first()
+                self.assertFalse(cable._terminations_modified)
+                setattr(cable, attr, [interface])
+                self.assertTrue(cable._terminations_modified)
 
+    def test_assigning_a_different_end_to_a_warm_instance_flags_a_change(self):
+        """
+        Assigning a different termination to an end already held in memory must flag a change.
+        """
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+
+        # Assigning warms the B end's cache and the save resets the flag
+        cable = Cable.objects.first()
+        cable.b_terminations = [interface2]
+        cable.save()
         self.assertFalse(cable._terminations_modified)
 
-    def test_reassigning_different_terminations_flags_a_change(self):
+        cable.b_terminations = [interface3]
+        self.assertTrue(cable._terminations_modified)
+
+    def test_assigning_one_end_reconciles_the_other_against_its_stored_rows(self):
         """
-        Assigning a different termination to a freshly loaded cable must flag the change.
+        Assigning one end must leave the other end's stored rows alone, even when a prefetch of them is stale.
+        """
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        cable = Cable.objects.prefetch_related('terminations__termination').first()
+
+        # Moving the A end through a second instance leaves the prefetch above stale
+        moved = Cable.objects.get(pk=cable.pk)
+        moved.a_terminations = [interface3]
+        moved.save()
+        a_rows = CableTermination.objects.filter(cable=cable, cable_end=CableEndChoices.SIDE_A)
+        a_row_pk = a_rows.get().pk
+
+        cable.b_terminations = [interface2]
+        cable.save()
+
+        self.assertEqual(list(a_rows.values_list('pk', 'termination_id')), [(a_row_pk, interface3.pk)])
+
+    def test_assigning_serialized_termination_ids_flags_a_change(self):
+        """
+        Serialized CableTermination IDs assigned to a fresh instance must resolve to the endpoints and flag a change.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        data = Cable.objects.first().serialize_object()
+
+        for attr, interface in (('a_terminations', interface1), ('b_terminations', interface2)):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.first()
+                setattr(cable, attr, data[attr])
+                self.assertEqual(getattr(cable, attr), [interface])
+                self.assertTrue(cable._terminations_modified)
+
+    def test_serialize_object_includes_termination_ids(self):
+        """
+        Serialization must carry each end's CableTermination IDs, not the IDs of the terminating objects.
+        """
+        cable = Cable.objects.first()
+        # Move the rows above every existing ID so matching endpoint IDs cannot satisfy the assertion
+        offset = max(
+            Interface.objects.order_by('-pk').first().pk,
+            CableTermination.objects.order_by('-pk').first().pk,
+        ) + 1
+        CableTermination.objects.filter(cable=cable).update(id=F('id') + offset)
+
+        data = cable.serialize_object()
+
+        for side, attr in ((CableEndChoices.SIDE_A, 'a_terminations'), (CableEndChoices.SIDE_B, 'b_terminations')):
+            with self.subTest(side=side):
+                self.assertEqual(data[attr], [CableTermination.objects.get(cable=cable, cable_end=side).pk])
+
+    def test_clearing_an_end_of_a_fresh_instance_removes_its_terminations(self):
+        """
+        Assigning an empty list to an end of a freshly loaded cable must delete that end's terminations only.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        cable_pk = Cable.objects.first().pk
+
+        for attr, kept_side, cleared, kept in (
+            ('a_terminations', CableEndChoices.SIDE_B, interface1, interface2),
+            ('b_terminations', CableEndChoices.SIDE_A, interface2, interface1),
+        ):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.get(pk=cable_pk)
+                kept_row_pk = CableTermination.objects.get(cable=cable, cable_end=kept_side).pk
+                setattr(cable, attr, [])
+                self.assertTrue(cable._terminations_modified)
+                cable.full_clean()
+                cable.save()
+
+                self.assertEqual(
+                    list(CableTermination.objects.filter(cable=cable).values_list('pk', 'cable_end')),
+                    [(kept_row_pk, kept_side)]
+                )
+                cleared.refresh_from_db()
+                self.assertIsNone(cleared.cable)
+                self.assertIsNone(cleared._path_id)
+                kept.refresh_from_db()
+                self.assertEqual(kept.cable, cable)
+                self.assertFalse(kept._path.is_complete)
+
+                # Reconnect the cleared end so the other side starts from a complete cable
+                cable = Cable.objects.get(pk=cable_pk)
+                setattr(cable, attr, [cleared])
+                cable.save()
+
+        cable = Cable.objects.get(pk=cable_pk)
+        cable.a_terminations = []
+        cable.save()
+        cable = Cable.objects.get(pk=cable_pk)
+        cable.b_terminations = []
+        cable.save()
+
+        self.assertFalse(CableTermination.objects.filter(cable=cable).exists())
+        for interface in (interface1, interface2):
+            interface.refresh_from_db()
+            self.assertIsNone(interface.cable)
+            self.assertIsNone(interface._path_id)
+
+    def test_reassigning_an_unchanged_end_on_a_warm_instance_does_not_flag_a_change(self):
+        """
+        Assigning the value an end already holds in memory must not flag a change or clear a pending one.
         """
         interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
         interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
 
+        # Assigning warms the A end's cache and the save resets the flag
         cable = Cable.objects.first()
         cable.a_terminations = [interface1]
+        cable.save()
+        self.assertFalse(cable._terminations_modified)
+        termination_pks = set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True))
+        path_pks = set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True))
+
+        cable.a_terminations = [interface1]
+        self.assertFalse(cable._terminations_modified)
+        cable.save()
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True)),
+            termination_pks
+        )
+        self.assertEqual(set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True)), path_pks)
+
         cable.b_terminations = [interface3]
-
+        cable.a_terminations = [interface1]
         self.assertTrue(cable._terminations_modified)
 
-    def test_reassigning_stale_prefetched_terminations_flags_a_change(self):
+    def test_saving_a_fresh_instance_without_an_assignment_leaves_terminations_and_paths(self):
         """
-        A stale prefetched relation must not hide a real termination change.
+        A save on a freshly loaded cable that assigns no end must keep its termination and path rows.
         """
-        cable = Cable.objects.prefetch_related('terminations__termination').first()
-        stale_termination = cable.b_terminations[0]
-        current_termination = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        cable = Cable.objects.first()
+        termination_pks = set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True))
+        path_pks = set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True))
+        self.assertEqual(len(path_pks), 2)
 
-        # Moving the B end through a second instance leaves the prefetch above stale
-        moved = Cable.objects.get(pk=cable.pk)
-        moved.b_terminations = [current_termination]
-        moved.save()
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.label = 'Renamed'
+        cable.full_clean()
+        cable.save()
 
-        # The value matches the stale prefetch but not the stored row
-        cable.b_terminations = [stale_termination]
-        self.assertTrue(cable._terminations_modified)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True)),
+            termination_pks
+        )
+        self.assertEqual(set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True)), path_pks)
 
     def test_partial_save_does_not_apply_an_unwritten_profile(self):
         """

@@ -4719,6 +4719,108 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def _cable_topology(self, cable):
+        """
+        Return the termination rows, path rows and endpoint references of a cable, for equality checks.
+        """
+        paths = CablePath.objects.filter(_nodes__contains=cable).order_by('pk')
+        return (
+            list(CableTermination.objects.filter(cable=cable).values_list('pk', 'cable_end', 'termination_id')),
+            list(paths.values_list('pk', 'path', 'is_complete', 'is_active')),
+            list(Interface.objects.filter(cable=cable).values_list('pk', 'cable_end', '_path_id')),
+        )
+
+    def test_patch_without_terminations_leaves_the_topology_alone(self):
+        """
+        A PATCH that omits both termination lists must not touch the cable's rows or its endpoints.
+        """
+        self.add_permissions('dcim.change_cable')
+        cable = Cable.objects.get(label='Cable 1')
+        topology = self._cable_topology(cable)
+
+        response = self.client.patch(self._get_detail_url(cable), {'label': 'Renamed'}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(Cable.objects.get(pk=cable.pk).label, 'Renamed')
+        self.assertEqual(self._cable_topology(cable), topology)
+
+    def test_patch_clearing_an_end_keeps_the_other_end(self):
+        """
+        A PATCH with an empty termination list must detach that end only and keep the other end's row.
+        """
+        self.add_permissions('dcim.change_cable')
+        for label, attr, cleared_side, kept_side in (
+            ('Cable 1', 'a_terminations', CableEndChoices.SIDE_A, CableEndChoices.SIDE_B),
+            ('Cable 2', 'b_terminations', CableEndChoices.SIDE_B, CableEndChoices.SIDE_A),
+        ):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.get(label=label)
+                cleared = Interface.objects.get(cable=cable, cable_end=cleared_side)
+                kept = Interface.objects.get(cable=cable, cable_end=kept_side)
+                kept_row_pk = CableTermination.objects.get(cable=cable, cable_end=kept_side).pk
+
+                response = self.client.patch(self._get_detail_url(cable), {attr: []}, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(
+                    list(
+                        CableTermination.objects.filter(cable=cable)
+                        .values_list('pk', 'cable_end', 'termination_id')
+                    ),
+                    [(kept_row_pk, kept_side, kept.pk)]
+                )
+                cleared.refresh_from_db()
+                self.assertIsNone(cleared.cable)
+                self.assertIsNone(cleared._path_id)
+                kept.refresh_from_db()
+                self.assertEqual(kept.cable, cable)
+                self.assertFalse(kept._path.is_complete)
+
+    def test_patch_replacing_one_end_keeps_the_other_end_row(self):
+        """
+        A PATCH that replaces one end must rewire it, keep the other end's row and detach the old endpoint.
+        """
+        self.add_permissions('dcim.change_cable')
+        cable = Cable.objects.get(label='Cable 1')
+        interface_a = Interface.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_A)
+        old_b = Interface.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
+        new_b = Interface.objects.get(device__name='Device 2', name='eth3')
+        a_row_pk = CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_A).pk
+        data = {'b_terminations': [{'object_type': 'dcim.interface', 'object_id': new_b.pk}]}
+
+        response = self.client.patch(self._get_detail_url(cable), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(CableTermination.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_A).pk, a_row_pk)
+        for interface, peer in ((interface_a, new_b), (new_b, interface_a)):
+            interface = Interface.objects.get(pk=interface.pk)
+            self.assertEqual(interface.cable, cable)
+            self.assertTrue(interface._path.is_complete)
+            self.assertEqual(interface.connected_endpoints, [peer])
+        old_b.refresh_from_db()
+        self.assertIsNone(old_b.cable)
+        self.assertIsNone(old_b._path_id)
+
+    def test_rejected_patch_leaves_both_cables_alone(self):
+        """
+        A PATCH rejected for an occupied endpoint must persist nothing, not even the accompanying label.
+        """
+        self.add_permissions('dcim.change_cable')
+        cable = Cable.objects.get(label='Cable 1')
+        other = Cable.objects.get(label='Cable 2')
+        occupied = Interface.objects.get(cable=other, cable_end=CableEndChoices.SIDE_B)
+        topology = (self._cable_topology(cable), self._cable_topology(other))
+        data = {
+            'label': 'Must not persist',
+            'b_terminations': [{'object_type': 'dcim.interface', 'object_id': occupied.pk}],
+        }
+
+        response = self.client.patch(self._get_detail_url(cable), data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Cable.objects.get(pk=cable.pk).label, 'Cable 1')
+        self.assertEqual((self._cable_topology(cable), self._cable_topology(other)), topology)
+
     def test_graphql_cable_termination_cached_filters(self):
         """
         Validate filtering cables by cached CableTermination relations via GraphQL:
