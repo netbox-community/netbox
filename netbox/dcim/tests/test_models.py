@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, tag
+from django.test.utils import CaptureQueriesContext
 
 from circuits.models import *
 from core.models import ObjectType
@@ -2699,6 +2701,213 @@ class CableTestCase(TestCase):
         cable.refresh_from_db()
 
         self.assertEqual(cable._abs_length, Decimal('1609343983.9066'))
+
+    def test_partial_save_persists_normalized_length(self):
+        """
+        A save naming only length must persist the normalized length alongside it.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.save(update_fields=['length'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('2.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertEqual(cable._abs_length, Decimal('2.0000'))
+
+    def test_partial_save_persists_normalized_length_for_a_unit_change(self):
+        """
+        A save naming only length_unit must renormalize against the stored length.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('10')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_FOOT
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('10.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_FOOT)
+        self.assertEqual(cable._abs_length, Decimal('3.0480'))
+
+    def test_partial_save_persists_normalized_length_for_both_source_fields(self):
+        """
+        A save naming both source fields must normalize from the values being written.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_KILOMETER
+        cable.save(update_fields=['length', 'length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable._abs_length, Decimal('2000.0000'))
+
+    def test_partial_save_normalizes_against_an_unwritten_length_unit(self):
+        """
+        A save naming only length must normalize against the stored unit, not an unwritten one.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_KILOMETER
+        cable.save(update_fields=['length'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertEqual(cable._abs_length, Decimal('2.0000'))
+
+    def test_partial_save_normalizes_against_an_unwritten_length(self):
+        """
+        A save naming only length_unit must normalize against the stored length, not an unwritten one.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_CENTIMETER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_CENTIMETER)
+        self.assertEqual(cable._abs_length, Decimal('0.0100'))
+
+    def test_partial_save_normalizes_against_an_unwritten_cleared_length(self):
+        """
+        A save naming only length_unit must keep the unit when the excluded length is cleared in memory.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.length_unit = CableLengthUnitChoices.UNIT_CENTIMETER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_CENTIMETER)
+        self.assertEqual(cable._abs_length, Decimal('0.0100'))
+
+    def test_partial_save_clearing_length_keeps_the_stored_unit(self):
+        """
+        A save naming only length must clear the normalized length without writing length_unit.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.save(update_fields=['length'])
+
+        # The unit was not written, so the instance must still agree with the row
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertIsNone(cable._abs_length)
+
+    def test_partial_save_leaves_an_unwritten_length_alone(self):
+        """
+        A save naming an unrelated field must not persist an in-memory length change.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('99')
+        cable.label = 'Renamed'
+        cable.save(update_fields=['label'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.label, 'Renamed')
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable._abs_length, Decimal('1.0000'))
+
+    def test_partial_save_normalizes_against_an_out_of_band_length(self):
+        """
+        A save naming only length_unit must read the stored length, not one cached on the instance.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        Cable.objects.filter(pk=cable.pk).update(length=Decimal('7'))
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_FOOT
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('7.00'))
+        self.assertEqual(cable._abs_length, Decimal('2.1336'))
+
+    def test_partial_save_clears_a_unit_written_without_a_stored_length(self):
+        """
+        A save naming only length_unit must drop the unit when the row holds no length.
+        """
+        cable = Cable.objects.first()
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertIsNone(cable.length_unit)
+        self.assertIsNone(cable._abs_length)
+
+    def test_full_save_clears_the_unit_when_the_length_is_removed(self):
+        """
+        A full save with no length must clear the stored unit.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.save()
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertIsNone(cable.length_unit)
+        self.assertIsNone(cable._abs_length)
+
+    def test_partial_save_reads_the_stored_pair_only_for_an_excluded_field(self):
+        """
+        A save writing both source fields must normalize without reading the row back.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        with CaptureQueriesContext(connection) as both_written:
+            cable.save(update_fields=['length', 'length_unit'])
+        with CaptureQueriesContext(connection) as one_written:
+            cable.save(update_fields=['length'])
+
+        def cable_reads(queries):
+            return [q for q in queries if q['sql'].startswith('SELECT') and 'FROM "dcim_cable"' in q['sql']]
+
+        self.assertEqual(cable_reads(both_written), [])
+        self.assertEqual(len(cable_reads(one_written)), 1)
 
 
 class CableTerminationTestCase(TestCase):
