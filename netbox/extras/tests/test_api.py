@@ -13,14 +13,14 @@ from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
 
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
 from core.models import DataFile, DataSource, Job, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
 from extras.models import *
-from extras.scripts import BooleanVar, IntegerVar, StringVar
+from extras.scripts import BooleanVar, IntegerVar, MultiObjectVar, ObjectVar, StringVar
 from extras.scripts import Script as PythonClass
 from netbox.event_rules import EventRuleAction, register_event_rule_action
 from netbox.registry import registry
@@ -1888,6 +1888,208 @@ class ScriptTestCase(APITestCase):
                 with disable_warnings('django.request'):
                     response = self.client.get(url, **self.header)
                 self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+
+class ScriptRunExecutionTestCase(APITestCase):
+    """
+    Exercises ScriptViewSet.run() end-to-end: request -> serializer -> form -> enqueue.
+    """
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Test run script'
+
+        site = ObjectVar(model=Site)
+        sites = MultiObjectVar(model=Site, required=False)
+        label = StringVar(default='hello')
+        flag = BooleanVar(default=True)
+
+        def run(self, data, commit=True):
+            return 'ok'
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.sites = [
+            Site.objects.create(name=f'Test Site {i}', slug=f'test-site-{i}') for i in range(1, 3)
+        ]
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='run_script.py',
+            )
+        script = Script.objects.create(
+            module=module,
+            name='Test run script',
+            is_executable=True,
+        )
+        cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('extras.run_script')
+
+        # Monkey-patch the Script model to return our TestScriptClass above, restoring
+        # the real property afterwards so later tests aren't left with our stub.
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
+
+        # The script-run endpoint gates on a live RQ worker. Tests run without one, so
+        # bypass the check to exercise validation and the enqueue path.
+        worker_patch = patch('extras.api.views.any_workers_for_queue', return_value=True)
+        worker_patch.start()
+        self.addCleanup(worker_patch.stop)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_forwards_commit_value(self, mock_enqueue):
+        for commit_value in (True, False):
+            with self.subTest(commit=commit_value):
+                mock_enqueue.reset_mock()
+                payload = {'data': {'site': self.sites[0].pk}, 'commit': commit_value}
+
+                response = self.client.post(self.url, payload, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                mock_enqueue.assert_called_once()
+                self.assertIs(mock_enqueue.call_args.kwargs['commit'], commit_value)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_forwards_notifications_value(self, mock_enqueue):
+        # Regression: ScriptForm.clean() overwrites an empty '_notifications' with the
+        # field's own initial, so a client-supplied value never reached ScriptJob.enqueue.
+        payload = {
+            'data': {'site': self.sites[0].pk},
+            'commit': True,
+            'notifications': JobNotificationChoices.NOTIFICATION_NEVER,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            mock_enqueue.call_args.kwargs['notifications'],
+            JobNotificationChoices.NOTIFICATION_NEVER,
+        )
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_forwards_schedule_at_and_interval(self, mock_enqueue):
+        # Regression: schedule_at/interval were likewise read from the form (always
+        # absent there) instead of the validated request
+        schedule_at = now() + datetime.timedelta(hours=1)
+        payload = {
+            'data': {'site': self.sites[0].pk},
+            'commit': True,
+            'schedule_at': schedule_at,
+            'interval': 60,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        kwargs = mock_enqueue.call_args.kwargs
+        self.assertEqual(kwargs['schedule_at'], schedule_at)
+        self.assertEqual(kwargs['interval'], 60)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_converts_objectvar_and_multiobjectvar_ids(self, mock_enqueue):
+        payload = {
+            'data': {
+                'site': self.sites[0].pk,
+                'sites': [site.pk for site in self.sites],
+            },
+            'commit': True,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = mock_enqueue.call_args.kwargs['data']
+        self.assertEqual(data['site'], self.sites[0])
+        self.assertEqual(
+            set(data['sites'].values_list('pk', flat=True)),
+            {site.pk for site in self.sites},
+        )
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_backfills_default_for_omitted_required_var(self, mock_enqueue):
+        # Regression: required vars declaring `default=` were not back-filled before
+        # binding the form on the API path (unlike the UI path), so they 400'd even
+        # though the client legitimately omitted them.
+        payload = {'data': {'site': self.sites[0].pk}, 'commit': True}  # 'label' omitted
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(mock_enqueue.call_args.kwargs['data']['label'], 'hello')
+
+    def test_run_rejects_non_dict_payload(self):
+        payload = {'data': 'not-a-dict', 'commit': True}
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_rejects_nonexistent_object_id(self, mock_enqueue):
+        # This is the primary new failure mode introduced by converting raw IDs to model
+        # instances: a PK that doesn't resolve must 400 cleanly, not enqueue a broken job
+        # or raise an unhandled DoesNotExist.
+        nonexistent_pk = Site.objects.order_by('-pk').first().pk + 1000
+        payload = {'data': {'site': nonexistent_pk}, 'commit': True}
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        mock_enqueue.assert_not_called()
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_ignores_undeclared_keys(self, mock_enqueue):
+        # Binding 'data' to the script's form means keys which don't correspond to a declared
+        # variable are dropped rather than forwarded to run(). This is the contract documented
+        # under "Running Custom Scripts > Via the API"; pin it so it can't regress silently.
+        payload = {
+            'data': {'site': self.sites[0].pk, 'bogus': 'ignored', 'id': 99},
+            'commit': True,
+        }
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = mock_enqueue.call_args.kwargs['data']
+        self.assertEqual(data['site'], self.sites[0])
+        self.assertNotIn('bogus', data)
+        self.assertNotIn('id', data)
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_rejects_omitted_required_var(self, mock_enqueue):
+        # 'site' is required and declares no default, so unlike 'label' it cannot be
+        # back-filled: omitting it must 400 rather than enqueue a job that fails at runtime.
+        payload = {'data': {'label': 'hi'}, 'commit': True}
+
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('site', response.data['data'])
+        mock_enqueue.assert_not_called()
+
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_resolves_booleanvar_default_and_explicit_values(self, mock_enqueue):
+        # BooleanVar renders as a checkbox, and CheckboxInput reads a missing key as False.
+        # An omitted BooleanVar must therefore pick up its declared default, while an
+        # explicitly supplied False must not be overwritten by that default.
+        for case, supplied, expected in (
+            ('omitted', {}, True),
+            ('explicit False', {'flag': False}, False),
+            ('explicit True', {'flag': True}, True),
+        ):
+            with self.subTest(case=case):
+                mock_enqueue.reset_mock()
+                payload = {'data': {'site': self.sites[0].pk, **supplied}, 'commit': True}
+
+                response = self.client.post(self.url, payload, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertIs(mock_enqueue.call_args.kwargs['data']['flag'], expected)
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):

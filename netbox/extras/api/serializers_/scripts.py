@@ -188,6 +188,16 @@ class ScriptInputSerializer(serializers.Serializer):
         if script and script.python_class:
             self.fields['notifications'].default = script.python_class.notifications_default
 
+    def validate_data(self, value):
+        """
+        Validates that the script input is an object mapping variable names to values.
+        """
+        if not isinstance(value, dict):
+            raise serializers.ValidationError(
+                _('Invalid data payload; expected an object mapping variable names to values.')
+            )
+        return value
+
     def validate_schedule_at(self, value):
         """
         Validates the specified schedule time for a script execution.
