@@ -413,7 +413,8 @@ class CircuitTermination(
             updates.setdefault(self._orig_circuit_id, {})[old_termination_name] = None
 
         # Write the termination row and the pointers which reference it together
-        with transaction.atomic(using=router.db_for_write(type(self))):
+        using = kwargs.get('using') or router.db_for_write(type(self))
+        with transaction.atomic(using=using):
             super().save(*args, **kwargs)
 
             # Update the new circuit's termination reference
@@ -422,13 +423,8 @@ class CircuitTermination(
 
             # Ordered by PK, so that two terminations moving between the same pair of circuits
             # take the two locks in the same order and cannot deadlock
-            for circuit_id in sorted(updates, key=lambda pk: pk or 0):
-                circuit = self._set_circuit_terminations(circuit_id, updates[circuit_id])
-                # Adopt the fetched Circuit, so that to_objectchange() and the caller see the
-                # new pointers. Note this replaces the instance's cached parent, discarding any
-                # prefetch or annotation set up on it.
-                if circuit is not None and circuit.pk == self.circuit_id:
-                    self.circuit = circuit
+            for circuit_id in sorted(updates):
+                self._set_circuit_terminations(circuit_id, updates[circuit_id], using=using)
 
             # Update cached values for subsequent saves, only once the pointer writes have
             # succeeded, so that a failed save is still pending on retry
@@ -436,7 +432,7 @@ class CircuitTermination(
             self._orig_term_side = self.term_side
 
     @staticmethod
-    def _set_circuit_terminations(circuit_id, fields):
+    def _set_circuit_terminations(circuit_id, fields, using=None):
         """
         Set or clear a Circuit's cached `termination_a`/`termination_z` fields. `fields` maps
         field name to CircuitTermination PK (or None).
@@ -447,12 +443,17 @@ class CircuitTermination(
         could record the first writer's pointer as null. no_key avoids blocking the foreign key
         inserts which reference this circuit.
 
-        Returns the Circuit, or None if no such row exists.
+        Does nothing if the Circuit no longer exists, or if every field already holds its
+        intended value.
         """
+        using = using or router.db_for_write(Circuit)
+
         # order_by() clears the default ordering, whose JOIN would leave the row unlockable
-        circuit = Circuit.objects.filter(pk=circuit_id).order_by().select_for_update(no_key=True).first()
+        circuit = Circuit.objects.using(using).filter(
+            pk=circuit_id
+        ).order_by().select_for_update(no_key=True).first()
         if circuit is None:
-            return None
+            return
 
         # Skip fields which already hold the intended value
         fields = {
@@ -461,14 +462,15 @@ class CircuitTermination(
             if getattr(circuit, f'{field_name}_id') != value
         }
         if not fields:
-            return circuit
+            return
 
         circuit.snapshot()
         for field_name, value in fields.items():
             setattr(circuit, f'{field_name}_id', value)
-        circuit.save(update_fields=[*fields, 'last_updated'])
 
-        return circuit
+        # update_fields excludes _abs_distance, which DistanceMixin.save() recomputes; safe only
+        # because the Circuit was just re-fetched
+        circuit.save(using=using, update_fields=[*fields, 'last_updated'])
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

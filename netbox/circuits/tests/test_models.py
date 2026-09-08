@@ -325,6 +325,14 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertIsNone(changes[0].prechange_data['termination_a'])
         self.assertEqual(changes[0].postchange_data['termination_a'], termination.pk)
 
+        # The pointer references the termination's PK, so the create must be recorded first
+        termination_create = ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(CircuitTermination),
+            changed_object_id=termination.pk,
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+        )
+        self.assertLess(termination_create.pk, changes[0].pk)
+
     @tag('regression')  # Ref: #23134
     def test_second_termination_snapshots_current_state(self):
         # The A pointer is already committed when the Z termination is created
@@ -451,18 +459,66 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(new_changes.count(), 1)
         self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
 
-    def test_deletion_clears_pointer(self):
-        # on_delete=SET_NULL clears the pointer without a post_save, and related_name='+' keeps
-        # these relations out of _meta.related_objects, so handle_deleted_object() misses them
-        # too. Only the resulting database state is asserted.
+    @tag('regression')  # Ref: #23134
+    def test_deletion_records_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
+        ObjectChange.objects.all().delete()
+        termination_pk = termination.pk
 
         self._tracked(termination.delete)
 
         self.circuits[0].refresh_from_db()
         self.assertIsNone(self.circuits[0].termination_a_id)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
+        self.assertIsNone(changes[0].postchange_data['termination_a'])
+
+    @tag('regression')  # Ref: #23134
+    def test_bulk_deletion_records_circuit_update(self):
+        # A queryset delete() passes the queryset as the signal's origin rather than an instance
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+        termination_pk = termination.pk
+
+        self._tracked(CircuitTermination.objects.filter(pk=termination_pk).delete)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
+        self.assertIsNone(changes[0].postchange_data['termination_a'])
+
+    def test_cascade_from_termination_parent_records_circuit_update(self):
+        # The circuit survives the cascade, so the pointer clear still has to be recorded
+        termination = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+        termination_pk = termination.pk
+
+        self._tracked(self.sites[0].delete)
+
+        self.circuits[0].refresh_from_db()
+        self.assertIsNone(self.circuits[0].termination_a_id)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
+
+    def test_circuit_deletion_records_no_pointer_update(self):
+        self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        self._tracked(self.circuits[0].delete)
+
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
     @tag('regression')  # Ref: #23134
     def test_failed_pointer_write_leaves_the_change_pending(self):
