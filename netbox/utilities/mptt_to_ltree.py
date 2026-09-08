@@ -35,8 +35,9 @@ ancestor `name` values. Keep the two modules in sync if either changes.
 
 __all__ = (
     'assert_paths_populated_sql',
-    'count_unreachable_rows_sql',
+    'count_stale_rows_sql',
     'populate_paths_sql',
+    'unreachable_rows_sql',
 )
 
 # Width to which each PK is zero-padded when used as an ltree label. Must match
@@ -118,10 +119,40 @@ UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 """ + _RESTORE_SEARCH_PATH
 
 
-def count_unreachable_rows_sql(table):
+def count_stale_rows_sql(table, sort_path=False):
     """
-    Return SQL counting the rows in `table` which no root can reach by following
-    `parent_id`.
+    Return SQL counting the rows in `table` whose `path` disagrees with their parent's,
+    and (when `sort_path` is set) the rows whose `sort_path` does.
+
+    A reparent leaves `path` wrong, a rename leaves `sort_path` wrong, and while the
+    cascade trigger is missing either can happen without the other, so both are counted
+    separately.
+
+    This answers "does this table need rebuilding", not "how many rows are damaged". Only
+    a row which disagrees with its own parent is counted: the descendants below it agree
+    with their parents and are not, though they are equally stale. Treat any non-zero
+    result as the whole table needing a rebuild, and do not use it to decide which rows to
+    touch.
+    """
+    stale_sort_path = (
+        f'SELECT count(*) FROM "{table}" c JOIN "{table}" p ON c.parent_id = p.id'
+        f' WHERE c.sort_path <> p.sort_path || chr(9) || c.name'
+        if sort_path else 'SELECT 0'
+    )
+    return f"""
+SELECT
+    (
+        SELECT count(*) FROM "{table}" c JOIN "{table}" p ON c.parent_id = p.id
+        WHERE c.path <> p.path || lpad(c.id::text, {_PATH_LABEL_WIDTH}, '0')::ltree
+    ) AS stale_paths,
+    ({stale_sort_path}) AS stale_sort_paths;
+"""
+
+
+def unreachable_rows_sql(table, limit):
+    """
+    Return SQL reporting the rows in `table` which no root can reach by following
+    `parent_id`: how many there are, and the first `limit` of their ids.
 
     `populate_paths_sql()` seeds from `parent_id IS NULL` and walks downward, so it
     rewrites only the rows reachable that way. Anything else it leaves untouched, which
@@ -131,8 +162,10 @@ def count_unreachable_rows_sql(table):
 
     Callers which repair a populated table (rather than backfilling a fresh column, where
     `assert_paths_populated_sql()` catches the same condition via the NULLs left behind)
-    should run this first and refuse if it returns non-zero: the parent relationships have
-    to be corrected before any path rebuild can produce a correct answer.
+    should run this first and refuse if the count is non-zero: the parent relationships
+    have to be corrected before any path rebuild can produce a correct answer. The ids are
+    returned so that refusal can name rows to start from, rather than leaving the operator
+    to search the table for them.
     """
     return f"""
 WITH RECURSIVE reachable(id) AS (
@@ -140,7 +173,8 @@ WITH RECURSIVE reachable(id) AS (
     UNION ALL
     SELECT c.id FROM "{table}" c JOIN reachable r ON c.parent_id = r.id
 )
-SELECT count(*) FROM "{table}" t
+SELECT count(*), (array_agg(t.id ORDER BY t.id))[:{limit}]
+FROM "{table}" t
 WHERE NOT EXISTS (SELECT 1 FROM reachable r WHERE r.id = t.id);
 """
 

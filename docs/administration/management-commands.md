@@ -48,16 +48,53 @@ python3 netbox/manage.py rebuild_config_context_cache [--force]
 
 Recompute the `path` and `sort_path` columns of the hierarchical models (regions, site groups, locations, device roles, platforms, tenant groups, contact groups, wireless LAN groups, module bays, inventory items, and inventory item templates) from their parent relationships. These columns are maintained by PostgreSQL triggers, so this is needed only where a write bypassed them: a bulk `COPY`, a direct `UPDATE`, or a database restored from a NetBox v4.7.0 dump (see [#23130](https://github.com/netbox-community/netbox/issues/23130)).
 
-Pass one or more models as `app_label.ModelName` to limit the rebuild.
+The command has two modes. Both operate on every hierarchical model by default, or on those named as `app_label.ModelName`.
+
+### Reporting
+
+`--check` compares each object's stored `path` and `sort_path` against its parent's and reports which models disagree. It modifies nothing and takes no locks, so it can be run on a live system or against a replica.
+
+```
+python3 netbox/manage.py rebuild_ltree_paths --check
+```
+
+```no-highlight
+dcim.location: 5 path, 5 sort_path row(s) disagree with their parent
+dcim.region: 2 sort_path row(s) disagree with their parent
+...
+
+Needs rebuilding: dcim.location dcim.region
+```
+
+The counts answer whether a model needs rebuilding, not how many of its objects are wrong. Where an object has moved, the objects beneath it still agree with their own parent and are not counted, though they are equally stale. Rebuild the whole model rather than acting on the number.
+
+A model can also be damaged in a way `--check` does not report: an object which no root reaches by following `parent_id` is compared against a parent that is itself unreachable, so it may agree and be counted clean. The rebuild detects that case and refuses (see below).
+
+### Rebuilding
+
+With no `--check`, each named model is rebuilt: every row's `path` and `sort_path` are recomputed from the hierarchy.
 
 ```
 python3 netbox/manage.py rebuild_ltree_paths [app_label.ModelName ...]
 ```
 
-The rebuild derives each object's path by walking down from the roots of the hierarchy, so it can only repair a row which some root reaches by following `parent_id`. Where a table contains a row that no root reaches — one belonging to a cycle, one parented to itself, or one whose parent no longer exists — the command reports the count and stops without modifying that table, because a rebuild would silently skip exactly those rows. Correct the parent relationships and run it again.
+```no-highlight
+dcim.region: rebuilding... done
+Finished.
+```
+
+A rebuild derives each object's path by walking down from the roots, so it can only repair an object which some root reaches. Where a model contains an object no root reaches — one in a cycle, one parented to itself, or one whose parent no longer exists — the command reports how many and stops without modifying that model, because a rebuild would silently skip exactly those objects:
+
+```no-highlight
+CommandError: dcim.region: 5 row(s) cannot be reached from a root by following
+parent_id, so a rebuild would skip them: 1, 2, 3, 4, 5. Correct the parent
+relationships, then re-run.
+```
+
+One of the listed objects is in a cycle, parented to itself, or pointing at an object which no longer exists; the rest are descended from it and are otherwise intact. Correcting the relationship is left to the operator, as only they can say what the hierarchy was meant to be. Each model is checked and rebuilt in its own transaction, so a refusal leaves that model untouched, and models already rebuilt stay rebuilt.
 
 !!! warning
-    A rebuild rewrites every row of each named table in a single statement, locking those rows until it commits. On a large table this blocks concurrent writes for minutes, so run it during a maintenance window. The detection queries in the [v4.7.1 release notes](../release-notes/version-4.7.md) take no locks, and can be used first to find which tables need it.
+    A rebuild rewrites every row of each named model in a single statement, locking those rows until it commits. On a large table this blocks concurrent writes for minutes, so run it during a maintenance window. Use `--check` first to limit the rebuild to the models which need it.
 
 ## rebuild_prefixes
 

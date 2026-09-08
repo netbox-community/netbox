@@ -69,6 +69,27 @@ class RebuildLtreePathsTestCase(TestCase):
         cls.parent = Region.objects.create(name='Alpha', slug='alpha-rlp')
         cls.child = Region.objects.create(name='Beta', slug='beta-rlp', parent=cls.parent)
 
+    @staticmethod
+    def _set_parent_bypassing_triggers(pk, parent_pk):
+        """
+        Repoint a row's parent_id without firing the ltree triggers.
+
+        The BEFORE trigger recomputes `path` and rejects a move which its own cycle guard
+        can see, so the ORM cannot produce these states directly. Suppressing the triggers
+        for the statement reproduces what #23130 leaves behind: a database whose parent_id
+        graph has drifted from the paths stored alongside it.
+
+        `session_replication_role` is used rather than `ALTER TABLE ... DISABLE TRIGGER`,
+        which cannot run while the enclosing transaction has pending trigger events from
+        the rows created in setUpTestData.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute("SET LOCAL session_replication_role = 'replica'")
+            cursor.execute(
+                'UPDATE dcim_region SET parent_id = %s WHERE id = %s', [parent_pk, pk]
+            )
+            cursor.execute("SET LOCAL session_replication_role = 'origin'")
+
     def test_rebuilds_stale_path_and_sort_path(self):
         Region.objects.filter(pk=self.child.pk).update(
             path='9999999999999999999', sort_path='stale',
@@ -104,40 +125,59 @@ class RebuildLtreePathsTestCase(TestCase):
             self.assertIn(label, output)
         self.assertIn('Finished.', output)
 
+    def test_check_reports_a_model_needing_a_rebuild(self):
+        Region.objects.filter(pk=self.child.pk).update(sort_path='stale')
+        out = StringIO()
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=out)
+
+        output = out.getvalue()
+        self.assertIn('sort_path', output)
+        self.assertIn('Needs rebuilding: dcim.region', output)
+
+    def test_check_reports_a_healthy_model_as_ok(self):
+        out = StringIO()
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=out)
+
+        self.assertIn('dcim.region: OK', out.getvalue())
+        self.assertIn('Nothing to rebuild.', out.getvalue())
+
+    def test_check_modifies_nothing(self):
+        Region.objects.filter(pk=self.child.pk).update(sort_path='stale')
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=StringIO())
+
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.sort_path, 'stale')
+
+    def test_check_reports_a_stale_path_where_sort_path_is_correct(self):
+        # A reparent leaves path wrong on its own, so the two counts are separate.
+        Region.objects.filter(pk=self.child.pk).update(path='9999999999999999999')
+        out = StringIO()
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=out)
+
+        self.assertIn('1 path', out.getvalue())
+
     def test_rejects_a_model_which_is_not_hierarchical(self):
         with self.assertRaises(CommandError):
             call_command('rebuild_ltree_paths', 'dcim.site')
 
-    @staticmethod
-    def _set_parent_bypassing_triggers(pk, parent_pk):
-        """
-        Repoint a row's parent_id without firing the ltree triggers.
-
-        The BEFORE trigger recomputes `path` and rejects a move which its own cycle guard
-        can see, so the ORM cannot produce these states directly. Suppressing the triggers
-        for the statement reproduces what #23130 leaves behind: a database whose parent_id
-        graph has drifted from the paths stored alongside it.
-
-        `session_replication_role` is used rather than `ALTER TABLE ... DISABLE TRIGGER`,
-        which cannot run while the enclosing transaction has pending trigger events from
-        the rows created in setUpTestData.
-        """
-        with connection.cursor() as cursor:
-            cursor.execute("SET LOCAL session_replication_role = 'replica'")
-            cursor.execute(
-                'UPDATE dcim_region SET parent_id = %s WHERE id = %s', [parent_pk, pk]
-            )
-            cursor.execute("SET LOCAL session_replication_role = 'origin'")
-
     def test_refuses_a_table_containing_a_cycle(self):
         """
         A rebuild walks down from the roots, so rows in a cycle are never reached and keep
-        whatever paths they have. Refuse rather than report success.
+        whatever paths they have. Refuse rather than report success, and name the rows to
+        start from: "correct the parent relationships" is not actionable without them.
         """
         self._set_parent_bypassing_triggers(self.parent.pk, self.child.pk)
 
-        with self.assertRaises(CommandError):
+        with self.assertRaises(CommandError) as ctx:
             call_command('rebuild_ltree_paths', 'dcim.region')
+
+        message = str(ctx.exception)
+        self.assertIn(str(self.parent.pk), message)
+        self.assertIn(str(self.child.pk), message)
 
     def test_refuses_a_table_containing_a_self_parented_row(self):
         self._set_parent_bypassing_triggers(self.child.pk, self.child.pk)

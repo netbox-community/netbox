@@ -5,7 +5,13 @@
 !!! warning "Databases Restored From a v4.7.0 Dump"
     The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, because `pg_dump` resets the `search_path` and the triggers' `WHEN` clause depended on it. As `psql` does not stop on error by default, such a restore reported success while leaving the database without those triggers, so renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, or inventory item did not update its descendants.
 
-    Upgrading reinstalls the triggers, so all subsequent changes are cascaded correctly. It does **not** repair values which have already gone stale. The query below reports whether a table is affected. Substitute each hierarchical table in turn: `dcim_region`, `dcim_sitegroup`, `dcim_location`, `dcim_devicerole`, `dcim_platform`, `dcim_modulebay`, `dcim_inventoryitem`, `dcim_inventoryitemtemplate`, `tenancy_tenantgroup`, `tenancy_contactgroup`, and `wireless_wirelesslangroup`.
+    Upgrading reinstalls the triggers, so all subsequent changes are cascaded correctly. It does **not** repair values which have already gone stale. After upgrading, `rebuild_ltree_paths --check` reports which models are affected without modifying anything or taking any locks:
+
+    ```no-highlight
+    python netbox/manage.py rebuild_ltree_paths --check
+    ```
+
+    To check before upgrading, the same test can be run as SQL. Substitute each hierarchical table in turn: `dcim_region`, `dcim_sitegroup`, `dcim_location`, `dcim_devicerole`, `dcim_platform`, `dcim_modulebay`, `dcim_inventoryitem`, `dcim_inventoryitemtemplate`, `tenancy_tenantgroup`, `tenancy_contactgroup`, and `wireless_wirelesslangroup`.
 
     ```no-highlight
     SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
