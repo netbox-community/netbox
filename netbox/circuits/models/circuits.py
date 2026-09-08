@@ -407,10 +407,8 @@ class CircuitTermination(
         # circuit clears the old side and sets the new one in a single write
         updates = {}
 
-        # Clear the old termination reference if circuit or term_side changed. Skipped while
-        # inserting: nothing references the row yet, and the originals captured in __init__
-        # describe whatever was passed to the constructor, which may be another termination's
-        # pointer.
+        # Clear the old termination reference if circuit or term_side changed. Never on insert:
+        # __init__ captured the constructor's values, which may name a live sibling's pointer.
         if not is_new and (circuit_changed or term_side_changed):
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
             updates.setdefault(self._orig_circuit_id, {})[old_termination_name] = None
@@ -424,9 +422,7 @@ class CircuitTermination(
             termination_name = f'termination_{self.term_side.lower()}'
             updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
 
-            # Ordered by PK so concurrent saves take the circuit locks in the same order.
-            # delete() locks in queryset order, so a bulk delete under an enclosing transaction
-            # racing a save can still deadlock.
+            # Ordered by PK so concurrent saves take the circuit locks in the same order
             for circuit_id in sorted(updates):
                 self._set_circuit_terminations(circuit_id, updates[circuit_id], using=using)
 
@@ -480,31 +476,16 @@ class CircuitTermination(
         for field_name, value in fields.items():
             setattr(circuit, f'{field_name}_id', value)
 
-        # Saved in full rather than with update_fields, so that postchange_data describes the
-        # row as written. The mixin save() chain mutates fields beyond the pointers
-        # (custom_field_data, distance_unit, _abs_distance); excluding them from the write left
-        # them in the record but not the database, and a replaying consumer applies the
-        # difference. Writing every column is safe because the row was fetched under the lock
-        # held for this transaction, so no concurrent write can interleave.
+        # Saved in full, not with update_fields: the mixin chain also mutates custom_field_data
+        # and the distance fields, which would reach postchange_data but not the database.
         circuit.save(using=using)
 
     def delete(self, *args, **kwargs):
-        # Clear the parent Circuit's cached pointer before the deletion starts, so that its change
-        # record precedes this row's DELETE. on_delete=SET_NULL clears the column with a bulk
-        # UPDATE, and related_name='+' hides the relation from Circuit._meta.related_objects, so
-        # neither path records an ObjectChange. (#23134)
-        #
-        # Not a pre_delete receiver: core.signals.handle_deleted_object connects during the models
-        # import phase, ahead of any app's ready(), and Django dispatches in connection order, so a
-        # receiver here would run only after the DELETE had been recorded.
-        #
-        # Cascades (e.g. deleting the terminating Site, or the Circuit itself) reach the row through
-        # the collector rather than here, and remain unrecorded.
-        # Model.delete() still accepts `using` positionally
+        # Clear the pointer first, so its record precedes this DELETE. Not a pre_delete receiver:
+        # handle_deleted_object connects earlier and would record the DELETE first. (#23134)
         using = kwargs.get('using') or (args[0] if args else None) or router.db_for_write(type(self))
         with transaction.atomic(using=using):
-            # Lock this row before the circuit. super().save() locks it first too, so without
-            # this a concurrent save and delete of the same termination could deadlock.
+            # Locked before the circuit, matching the order super().save() takes them in
             CircuitTermination.objects.using(using).filter(
                 pk=self.pk
             ).order_by().select_for_update().first()
