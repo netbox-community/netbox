@@ -307,6 +307,13 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         with event_tracking(request):
             return func()
 
+    def _termination_change(self, termination_pk, action):
+        return ObjectChange.objects.get(
+            changed_object_type=ContentType.objects.get_for_model(CircuitTermination),
+            changed_object_id=termination_pk,
+            action=action,
+        )
+
     def _circuit_changes(self, circuit):
         return ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(Circuit),
@@ -326,10 +333,8 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[0].postchange_data['termination_a'], termination.pk)
 
         # The pointer references the termination's PK, so the create must be recorded first
-        termination_create = ObjectChange.objects.get(
-            changed_object_type=ContentType.objects.get_for_model(CircuitTermination),
-            changed_object_id=termination.pk,
-            action=ObjectChangeActionChoices.ACTION_CREATE,
+        termination_create = self._termination_change(
+            termination.pk, ObjectChangeActionChoices.ACTION_CREATE
         )
         self.assertLess(termination_create.pk, changes[0].pk)
 
@@ -477,6 +482,15 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
         self.assertIsNone(changes[0].postchange_data['termination_a'])
 
+        # core.signals.handle_deleted_object is connected before this app's receiver, so the
+        # DELETE precedes the pointer clear. Replaying in this order relies on the consumer
+        # applying the DELETE through the ORM, where on_delete=SET_NULL clears the pointer, or
+        # on the FK being DEFERRABLE INITIALLY DEFERRED within one transaction.
+        termination_delete = self._termination_change(
+            termination_pk, ObjectChangeActionChoices.ACTION_DELETE
+        )
+        self.assertLess(termination_delete.pk, changes[0].pk)
+
     @tag('regression')  # Ref: #23134
     def test_bulk_deletion_records_circuit_update(self):
         # A queryset delete() passes the queryset as the signal's origin rather than an instance
@@ -509,6 +523,24 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         changes = self._circuit_changes(self.circuits[0])
         self.assertEqual(changes.count(), 1)
         self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
+
+    def test_deletion_leaves_pointer_for_another_termination(self):
+        # An in-memory term_side which diverges from the persisted one must not clear a pointer
+        # belonging to a different termination
+        termination_a = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        termination_z = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='Z', termination=self.sites[1],
+        ))
+        ObjectChange.objects.all().delete()
+
+        termination_z.term_side = 'A'
+        self._tracked(termination_z.delete)
+
+        self.circuits[0].refresh_from_db()
+        self.assertEqual(self.circuits[0].termination_a_id, termination_a.pk)
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
     def test_circuit_deletion_records_no_pointer_update(self):
         self._tracked(lambda: CircuitTermination.objects.create(

@@ -31,5 +31,9 @@ def clear_circuit_termination_pointer(instance, using=None, origin=None, **kwarg
     if isinstance(origin, Circuit) or getattr(origin, 'model', None) is Circuit:
         return
 
+    # only_if_references matches what on_delete=SET_NULL would have cleared: the in-memory
+    # term_side may not be what the pointer actually references
     field_name = f'termination_{instance.term_side.lower()}'
-    CircuitTermination._set_circuit_terminations(instance.circuit_id, {field_name: None}, using=using)
+    CircuitTermination._set_circuit_terminations(
+        instance.circuit_id, {field_name: None}, using=using, only_if_references=instance.pk
+    )

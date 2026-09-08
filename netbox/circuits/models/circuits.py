@@ -421,21 +421,23 @@ class CircuitTermination(
             termination_name = f'termination_{self.term_side.lower()}'
             updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
 
-            # Ordered by PK, so that two terminations moving between the same pair of circuits
-            # take the two locks in the same order and cannot deadlock
+            # Ordered by PK so concurrent saves take the circuit locks in the same order. The
+            # delete path is unordered (see circuits.signals), so a bulk delete racing a save
+            # can still deadlock.
             for circuit_id in sorted(updates):
                 self._set_circuit_terminations(circuit_id, updates[circuit_id], using=using)
 
-            # Update cached values for subsequent saves, only once the pointer writes have
-            # succeeded, so that a failed save is still pending on retry
-            self._orig_circuit_id = self.circuit_id
-            self._orig_term_side = self.term_side
+        # Advanced only once the writes have left the block, so that a rolled-back save is still
+        # pending on retry
+        self._orig_circuit_id = self.circuit_id
+        self._orig_term_side = self.term_side
 
     @staticmethod
-    def _set_circuit_terminations(circuit_id, fields, using=None):
+    def _set_circuit_terminations(circuit_id, fields, using=None, only_if_references=None):
         """
         Set or clear a Circuit's cached `termination_a`/`termination_z` fields. `fields` maps
-        field name to CircuitTermination PK (or None).
+        field name to CircuitTermination PK (or None). `only_if_references` restricts the write
+        to fields which currently hold that PK.
 
         Written via snapshot() + save() rather than a queryset update(), which emits no post_save
         and so records nothing in the changelog. The Circuit is re-fetched under a lock so that
@@ -454,6 +456,13 @@ class CircuitTermination(
         ).order_by().select_for_update(no_key=True).first()
         if circuit is None:
             return
+
+        if only_if_references is not None:
+            fields = {
+                field_name: value
+                for field_name, value in fields.items()
+                if getattr(circuit, f'{field_name}_id') == only_if_references
+            }
 
         # Skip fields which already hold the intended value
         fields = {
