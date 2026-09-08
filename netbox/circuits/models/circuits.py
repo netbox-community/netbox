@@ -421,9 +421,9 @@ class CircuitTermination(
             termination_name = f'termination_{self.term_side.lower()}'
             updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
 
-            # Ordered by PK so concurrent saves take the circuit locks in the same order. The
-            # delete path is unordered (see circuits.signals), so a bulk delete racing a save
-            # can still deadlock.
+            # Ordered by PK so concurrent saves take the circuit locks in the same order.
+            # delete() locks in queryset order, so a bulk delete under an enclosing transaction
+            # racing a save can still deadlock.
             for circuit_id in sorted(updates):
                 self._set_circuit_terminations(circuit_id, updates[circuit_id], using=using)
 
@@ -480,6 +480,31 @@ class CircuitTermination(
         # update_fields excludes _abs_distance, which DistanceMixin.save() recomputes; safe only
         # because the Circuit was just re-fetched
         circuit.save(using=using, update_fields=[*fields, 'last_updated'])
+
+    def delete(self, *args, **kwargs):
+        # Clear the parent Circuit's cached pointer before the deletion starts, so that its change
+        # record precedes this row's DELETE. on_delete=SET_NULL clears the column with a bulk
+        # UPDATE, and related_name='+' hides the relation from Circuit._meta.related_objects, so
+        # neither path records an ObjectChange. (#23134)
+        #
+        # Not a pre_delete receiver: core.signals.handle_deleted_object connects during the models
+        # import phase, ahead of any app's ready(), and Django dispatches in connection order, so a
+        # receiver here would run only after the DELETE had been recorded.
+        #
+        # Cascades (e.g. deleting the terminating Site, or the Circuit itself) reach the row through
+        # the collector rather than here, and remain unrecorded.
+        using = kwargs.get('using') or router.db_for_write(type(self))
+        with transaction.atomic(using=using):
+            if self.term_side:
+                self._set_circuit_terminations(
+                    self.circuit_id,
+                    {f'termination_{self.term_side.lower()}': None},
+                    using=using,
+                    only_if_references=self.pk,
+                )
+            return super().delete(*args, **kwargs)
+
+    delete.alters_data = True
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

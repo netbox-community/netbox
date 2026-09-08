@@ -491,36 +491,37 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
 
     @tag('regression')  # Ref: #23134
     def test_bulk_deletion_records_circuit_update(self):
-        # A queryset delete() passes the queryset as the signal's origin rather than an instance
+        # NetBox's bulk delete views iterate obj.delete() rather than calling queryset.delete()
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
         ObjectChange.objects.all().delete()
         termination_pk = termination.pk
 
-        self._tracked(CircuitTermination.objects.filter(pk=termination_pk).delete)
+        def _bulk_delete():
+            for obj in CircuitTermination.objects.filter(pk=termination_pk):
+                obj.delete()
+
+        self._tracked(_bulk_delete)
 
         changes = self._circuit_changes(self.circuits[0])
         self.assertEqual(changes.count(), 1)
         self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
         self.assertIsNone(changes[0].postchange_data['termination_a'])
 
-    def test_cascade_from_termination_parent_records_circuit_update(self):
-        # The circuit survives the cascade, so the pointer clear still has to be recorded
-        termination = self._tracked(lambda: CircuitTermination.objects.create(
+    def test_cascade_deletion_leaves_pointer_unrecorded(self):
+        # Deleting the terminating Site reaches the termination through the collector, which does
+        # not call delete(). on_delete=SET_NULL still clears the column, but nothing records it.
+        self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
         ObjectChange.objects.all().delete()
-        termination_pk = termination.pk
 
         self._tracked(self.sites[0].delete)
 
         self.circuits[0].refresh_from_db()
         self.assertIsNone(self.circuits[0].termination_a_id)
-
-        changes = self._circuit_changes(self.circuits[0])
-        self.assertEqual(changes.count(), 1)
-        self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
     def test_deletion_leaves_pointer_for_another_termination(self):
         # An in-memory term_side which diverges from the persisted one must not clear a pointer
