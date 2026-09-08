@@ -2,14 +2,14 @@
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 
 from core.models import ObjectChange
 from dcim.models import Region, Site
 from netbox.models.ltree import LtreeModel
 from netbox.plugins import PluginConfig
 from tenancy.models import Contact, ContactGroup
-from utilities.ltree import ltree_trigger_sql
+from utilities.ltree import ReinstallLtreeTriggers, ltree_trigger_sql
 from utilities.mptt_to_ltree import populate_paths_sql
 
 
@@ -1065,10 +1065,11 @@ class CascadeTriggerDefinitionTests(TestCase):
     """
     Every core LtreeModel's cascade trigger must compare `path` as text.
 
-    Asserting on the definitions stored in the database, rather than on the templates,
-    also covers the set of tables: a tree table missing from the migrations which
-    reinstalled these triggers is reported by name here. Triggers are not part of
-    Django's model state, so `makemigrations --check` cannot detect that drift.
+    This covers the templates as they are installed, catching a new hierarchical model
+    which ships without triggers at all. It cannot tell whether the corrective migrations
+    reached a given table: a test database is built by migrating forward, so the original
+    migrations install the current, already-corrected definitions. See
+    `CorrectiveMigrationTests` for the seeded states which do exercise that.
 
     The expected tables are derived from the model layer and plugin models are excluded,
     so installing a plugin with its own ltree model cannot fail this.
@@ -1134,3 +1135,101 @@ class LtreeTriggerSqlTests(SimpleTestCase):
             self.assertIn(drop, sql)
             create = next(s for s in sql if f'CREATE TRIGGER "{trigger}"' in s)
             self.assertLess(sql.index(drop), sql.index(create))
+
+
+class CorrectiveMigrationTests(TransactionTestCase):
+    """
+    `ReinstallLtreeTriggers` must repair both states a v4.7.0 database can be in.
+
+    A test database is built by migrating forward, so `0242_ltree_paths` installs its
+    triggers from the current templates and every table already carries the corrected
+    definition before `0251_fix_ltree_cascade_triggers` runs. Nothing asserted about the
+    end state of that database says whether the corrective migration did anything. Seed
+    each state a real database can be in instead:
+
+    - the definition v4.7.0 shipped, which an upgraded-in-place database still carries
+    - no cascade trigger, which is what a database restored from a v4.7.0 dump has
+
+    then apply the operation those migrations are built from and assert the repair.
+
+    Scope: this covers the operation, not the migrations which call it. The tables each
+    corrective migration names are hand-maintained lists, and a table omitted from one
+    would not fail here. Catching that needs the pre-migration state a forward-migrated
+    test database does not have, i.e. replaying `0250 -> 0251` against a seeded fixture.
+
+    TransactionTestCase, because the seeded DDL has to be committed for the operation's
+    own transaction to see it.
+    """
+
+    TABLE = 'dcim_region'
+    TRIGGER = 'dcim_region_ltree_cascade_path'
+
+    def tearDown(self):
+        # Leave the trigger as the migrations would have it, for whatever runs next.
+        self.apply_corrective_operation()
+
+    def cascade_triggerdef(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT pg_get_triggerdef(oid) FROM pg_trigger '
+                'WHERE tgname = %s AND NOT tgisinternal',
+                [self.TRIGGER],
+            )
+            row = cursor.fetchone()
+        return row[0] if row else None
+
+    def drop_cascade_trigger(self):
+        """Leave the table as a database restored from a v4.7.0 dump: no cascade trigger."""
+        with connection.cursor() as cursor:
+            cursor.execute(f'DROP TRIGGER IF EXISTS "{self.TRIGGER}" ON "{self.TABLE}"')
+
+    def install_v470_cascade_trigger(self):
+        """
+        Install the definition v4.7.0 shipped: bare ltree comparisons, which a dump cannot
+        restore because the `ltree` operator is unresolvable under an empty search_path.
+        """
+        self.drop_cascade_trigger()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f'CREATE TRIGGER "{self.TRIGGER}" '
+                f'AFTER UPDATE OF parent_id, "name" ON "{self.TABLE}" '
+                f'FOR EACH ROW WHEN ('
+                f'  OLD.path IS DISTINCT FROM NEW.path'
+                f'  OR OLD.sort_path IS DISTINCT FROM NEW.sort_path'
+                f') EXECUTE FUNCTION "{self.TABLE}_ltree_cascade_path_fn"()'
+            )
+
+    def apply_corrective_operation(self):
+        with connection.schema_editor() as schema_editor:
+            ReinstallLtreeTriggers(self.TABLE, name_column='name').database_forwards(
+                'dcim', schema_editor, None, None,
+            )
+
+    def test_replaces_the_definition_shipped_in_v470(self):
+        self.install_v470_cascade_trigger()
+        self.assertNotIn('::text', self.cascade_triggerdef())
+
+        self.apply_corrective_operation()
+
+        self.assertIn('::text IS DISTINCT FROM', self.cascade_triggerdef())
+
+    def test_reinstalls_a_cascade_trigger_lost_in_a_restore(self):
+        self.drop_cascade_trigger()
+        self.assertIsNone(self.cascade_triggerdef())
+
+        self.apply_corrective_operation()
+
+        self.assertIn('::text IS DISTINCT FROM', self.cascade_triggerdef())
+
+    def test_the_repaired_trigger_cascades_a_rename(self):
+        """The reinstalled trigger has to work, not merely exist."""
+        self.drop_cascade_trigger()
+        self.apply_corrective_operation()
+
+        parent = Region.objects.create(name='Before', slug='before-cm')
+        child = Region.objects.create(name='Child', slug='child-cm', parent=parent)
+        parent.name = 'After'
+        parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.sort_path, f'After{chr(9)}Child')
