@@ -456,19 +456,14 @@ class CircuitTermination(
         if circuit is None:
             return
 
-        if only_if_references is not None:
-            fields = {
-                field_name: value
-                for field_name, value in fields.items()
-                if getattr(circuit, f'{field_name}_id') == only_if_references
-            }
+        def needs_write(field_name, value):
+            current = getattr(circuit, f'{field_name}_id')
+            if current == value:
+                return False
+            # Match what on_delete=SET_NULL would have cleared
+            return only_if_references is None or current == only_if_references
 
-        # Skip fields which already hold the intended value
-        fields = {
-            field_name: value
-            for field_name, value in fields.items()
-            if getattr(circuit, f'{field_name}_id') != value
-        }
+        fields = {name: value for name, value in fields.items() if needs_write(name, value)}
         if not fields:
             return
 
