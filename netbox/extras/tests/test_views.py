@@ -14,7 +14,7 @@ from core.models import Job, ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
-from extras.scripts import BooleanVar, IntegerVar
+from extras.scripts import BooleanVar, IntegerVar, MultiChoiceVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
@@ -1277,6 +1277,62 @@ class ScriptModuleCreateViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['return_url'], reverse('extras:script_list'))
+
+
+class ScriptDefaultBackfillTestCase(TestCase):
+    """
+    The UI and the REST API now share prepare_script_form(), so the UI's back-filling of
+    declared defaults (previously inline in ScriptView.post()) must keep working after
+    that logic moved into the helper.
+    """
+    user_permissions = ['extras.view_script', 'extras.run_script']
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Backfill test'
+            commit_default = False
+
+        label = StringVar(default='hello')
+        flag = BooleanVar(default=True)
+        picks = MultiChoiceVar(choices=(('a', 'A'), ('b', 'B'), ('c', 'C')), default=['a', 'b'])
+
+        def run(self, data, commit):
+            return 'Complete'
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='backfill_script.py',
+            )
+        cls.script = Script.objects.create(module=module, name='Backfill test', is_executable=True)
+
+    def setUp(self):
+        super().setUp()
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
+
+    @tag('regression')
+    def test_ui_backfills_declared_defaults(self):
+        url = reverse('extras:script', kwargs={'pk': self.script.pk})
+
+        with (
+            patch('extras.views.any_workers_for_queue', return_value=True),
+            patch('extras.jobs.ScriptJob.enqueue') as mock_enqueue,
+        ):
+            mock_enqueue.return_value.pk = 1
+            response = self.client.post(url, {'_commit': 'true'})
+
+        self.assertEqual(response.status_code, 302)
+        data = mock_enqueue.call_args.kwargs['data']
+        self.assertEqual(data['label'], 'hello')
+        self.assertIs(data['flag'], True)
+        # A multi-value default must be set on the QueryDict with setlist(): a plain
+        # assignment stores the list as one nested value, which the multi-select widget
+        # then rejects as a single invalid choice.
+        self.assertEqual(data['picks'], ['a', 'b'])
 
 
 class ScriptValidationErrorTestCase(TestCase):

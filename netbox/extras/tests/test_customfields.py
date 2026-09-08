@@ -2752,6 +2752,7 @@ class CustomFieldModelFilterTestCase(TestCase):
             'cf4': None,
             'cf6': None,
             'cf7': None,
+            'cf10': None,
         })
 
         for filter_name, value in (
@@ -2766,6 +2767,7 @@ class CustomFieldModelFilterTestCase(TestCase):
             ('cf_cf7__nic', 'a'),
             ('cf_cf7__nisw', 'http://'),
             ('cf_cf7__niew', '.com'),
+            ('cf_cf10__n', 'A'),
         ):
             with self.subTest(filter_name):
                 pks = set(
@@ -2836,6 +2838,15 @@ class CustomFieldModelFilterTestCase(TestCase):
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
+        # Negation excludes the objects whose array holds the value, not those whose array equals it
+        self.assertEqual(
+            set(self.filterset({'cf_cf10__n': ['A']}, self.queryset).qs.values_list('slug', flat=True)),
+            {'site-2', 'site-3', 'site-4'}
+        )
+        self.assertEqual(
+            set(self.filterset({'cf_cf10__n': ['A', 'C']}, self.queryset).qs.values_list('slug', flat=True)),
+            {'site-3', 'site-4'}
+        )
         # Matches both the object holding a literal null and the one carrying no key, as `empty` does
         self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 2)
@@ -2876,9 +2887,18 @@ def hold_data_lock(custom_field):
             cursor.execute('SELECT pg_try_advisory_lock(%s, %s)', lock_key)
             if not cursor.fetchone()[0]:
                 raise RuntimeError(f"Failed to acquire the data lock for {custom_field}")
-        yield
+        released = False
+        try:
+            yield
+        finally:
+            # Closing the connection releases the lock asynchronously, so the next deletion can race it
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT pg_advisory_unlock(%s, %s)', lock_key)
+                released = cursor.fetchone()[0]
+        # Outside the finally, so a failing body is reported as itself
+        if not released:
+            raise RuntimeError(f"Failed to release the data lock for {custom_field}")
     finally:
-        # Closing the session releases any advisory lock held on it
         connection.close()
 
 
@@ -3739,7 +3759,7 @@ class DeferredCustomFieldDataTestCase(TestCase):
 
         # delete() has returned and its own atomic block has exited, but the enclosing transaction
         # has yet to commit, so the lock must still be held
-        with self.assertRaises(RuntimeError):
+        with self.assertRaisesMessage(RuntimeError, "Failed to acquire the data lock"):
             with hold_data_lock(cf):
                 pass
 

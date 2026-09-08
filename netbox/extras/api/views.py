@@ -1,9 +1,9 @@
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
@@ -16,6 +16,7 @@ from core.choices import ManagedFileRootPathChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
+from extras.scripts import EXEC_PARAM_FIELDS, prepare_script_form
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -404,29 +405,56 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
         if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
-        if input_serializer.is_valid():
-            try:
-                ScriptJob.enqueue(
-                    instance=script,
-                    user=request.user,
-                    data=input_serializer.data['data'],
-                    request=copy_safe_request(request),
-                    commit=input_serializer.data['commit'],
-                    job_timeout=script.python_class.job_timeout,
-                    schedule_at=input_serializer.validated_data.get('schedule_at'),
-                    interval=input_serializer.validated_data.get('interval'),
-                    notifications=input_serializer.validated_data.get('notifications'),
-                )
-            except DjangoValidationError as e:
-                # The script's execution configuration is invalid (see #22872). Surface it as a 400 rather than
-                # allowing the exception to bubble up as an HTTP 500. These are script-level config errors, not
-                # request-field errors, so report them under the non-field "detail" key.
-                raise ValidationError({'detail': e.messages}) from e
-            serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        input_serializer.is_valid(raise_exception=True)
 
-            return Response(serializer.data)
+        validated = input_serializer.validated_data
 
-        return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        payload = validated['data']
+
+        # Guaranteed non-None by the is_executable check above
+        script_class = script.python_class
+        script_instance = script_class()
+
+        form = prepare_script_form(script_instance, payload, files=request.FILES)
+        if not form.is_valid():
+            # Exec params are validated separately via ScriptInputSerializer. Excluded by name
+            # rather than by '_' prefix, which would also strip Django's NON_FIELD_ERRORS
+            # key ('__all__').
+            errors = {k: v for k, v in form.errors.items() if k not in EXEC_PARAM_FIELDS}
+            if not errors:
+                # Every error was on an exec-param field, which a client can bind by naming one
+                # in 'data' (e.g. {"_interval": "abc"}). NON_FIELD_ERRORS is never among them --
+                # the filter above retains '__all__' -- so there is nothing to re-surface here;
+                # report a generic message rather than an empty body.
+                errors = {NON_FIELD_ERRORS: [_('Invalid script input.')]}
+            # Nest under 'data' so script-variable errors can't collide with the
+            # serializer's own top-level fields (commit, schedule_at, interval, ...).
+            raise ValidationError({'data': errors})
+
+        data = form.cleaned_data.copy()
+        for k in EXEC_PARAM_FIELDS:
+            data.pop(k, None)
+
+        try:
+            ScriptJob.enqueue(
+                instance=script,
+                user=request.user,
+                data=data,
+                request=copy_safe_request(request),
+                commit=validated.get('commit'),
+                job_timeout=script_class.job_timeout,
+                schedule_at=validated.get('schedule_at'),
+                interval=validated.get('interval'),
+                notifications=validated.get('notifications'),
+            )
+        except DjangoValidationError as e:
+            # The script's execution configuration is invalid (see #22872). Surface it as a 400 rather than
+            # allowing the exception to bubble up as an HTTP 500. These are script-level config errors, not
+            # request-field errors, so report them under the non-field "detail" key.
+            raise ValidationError({'detail': e.messages}) from e
+
+        serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        return Response(serializer.data)
 
 
 #
