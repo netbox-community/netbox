@@ -54,6 +54,8 @@ Pass one or more models as `app_label.ModelName` to limit the rebuild.
 python3 netbox/manage.py rebuild_ltree_paths [app_label.ModelName ...]
 ```
 
+The rebuild derives each object's path by walking down from the roots of the hierarchy, so it can only repair a row which some root reaches by following `parent_id`. Where a table contains a row that no root reaches — one belonging to a cycle, one parented to itself, or one whose parent no longer exists — the command reports the count and stops without modifying that table, because a rebuild would silently skip exactly those rows. Correct the parent relationships and run it again.
+
 !!! warning
     A rebuild rewrites every row of each named table in a single statement, locking those rows until it commits. On a large table this blocks concurrent writes for minutes, so run it during a maintenance window. The detection queries in the [v4.7.1 release notes](../release-notes/version-4.7.md) take no locks, and can be used first to find which tables need it.
 

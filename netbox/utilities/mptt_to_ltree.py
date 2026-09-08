@@ -35,6 +35,7 @@ ancestor `name` values. Keep the two modules in sync if either changes.
 
 __all__ = (
     'assert_paths_populated_sql',
+    'count_unreachable_rows_sql',
     'populate_paths_sql',
 )
 
@@ -115,6 +116,33 @@ WITH RECURSIVE t(id, parent_id, path) AS (
 )
 UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 """ + _RESTORE_SEARCH_PATH
+
+
+def count_unreachable_rows_sql(table):
+    """
+    Return SQL counting the rows in `table` which no root can reach by following
+    `parent_id`.
+
+    `populate_paths_sql()` seeds from `parent_id IS NULL` and walks downward, so it
+    rewrites only the rows reachable that way. Anything else it leaves untouched, which
+    makes an unreachable row an unrepaired one. Three shapes cause it: a cycle, a row
+    whose `parent_id` is its own id, and a `parent_id` referencing a row which does not
+    exist.
+
+    Callers which repair a populated table (rather than backfilling a fresh column, where
+    `assert_paths_populated_sql()` catches the same condition via the NULLs left behind)
+    should run this first and refuse if it returns non-zero: the parent relationships have
+    to be corrected before any path rebuild can produce a correct answer.
+    """
+    return f"""
+WITH RECURSIVE reachable(id) AS (
+    SELECT id FROM "{table}" WHERE parent_id IS NULL
+    UNION ALL
+    SELECT c.id FROM "{table}" c JOIN reachable r ON c.parent_id = r.id
+)
+SELECT count(*) FROM "{table}" t
+WHERE NOT EXISTS (SELECT 1 FROM reachable r WHERE r.id = t.id);
+"""
 
 
 def assert_paths_populated_sql(table):

@@ -3,9 +3,11 @@ from unittest.mock import MagicMock, patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import connection
 from django.test import TestCase
 
 from dcim.models import Region
+from tenancy.models import TenantGroup
 from utilities.management.commands.calculate_cached_counts import Command
 
 
@@ -105,3 +107,70 @@ class RebuildLtreePathsTestCase(TestCase):
     def test_rejects_a_model_which_is_not_hierarchical(self):
         with self.assertRaises(CommandError):
             call_command('rebuild_ltree_paths', 'dcim.site')
+
+    @staticmethod
+    def _set_parent_bypassing_triggers(pk, parent_pk):
+        """
+        Repoint a row's parent_id without firing the ltree triggers.
+
+        The BEFORE trigger recomputes `path` and rejects a move which its own cycle guard
+        can see, so the ORM cannot produce these states directly. Suppressing the triggers
+        for the statement reproduces what #23130 leaves behind: a database whose parent_id
+        graph has drifted from the paths stored alongside it.
+
+        `session_replication_role` is used rather than `ALTER TABLE ... DISABLE TRIGGER`,
+        which cannot run while the enclosing transaction has pending trigger events from
+        the rows created in setUpTestData.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute("SET LOCAL session_replication_role = 'replica'")
+            cursor.execute(
+                'UPDATE dcim_region SET parent_id = %s WHERE id = %s', [parent_pk, pk]
+            )
+            cursor.execute("SET LOCAL session_replication_role = 'origin'")
+
+    def test_refuses_a_table_containing_a_cycle(self):
+        """
+        A rebuild walks down from the roots, so rows in a cycle are never reached and keep
+        whatever paths they have. Refuse rather than report success.
+        """
+        self._set_parent_bypassing_triggers(self.parent.pk, self.child.pk)
+
+        with self.assertRaises(CommandError):
+            call_command('rebuild_ltree_paths', 'dcim.region')
+
+    def test_refuses_a_table_containing_a_self_parented_row(self):
+        self._set_parent_bypassing_triggers(self.child.pk, self.child.pk)
+
+        with self.assertRaises(CommandError):
+            call_command('rebuild_ltree_paths', 'dcim.region')
+
+    def test_refuses_a_table_whose_parent_id_references_a_missing_row(self):
+        # Not a cycle, but equally unreachable, so a cycle-specific check would miss it.
+        self._set_parent_bypassing_triggers(self.child.pk, self.parent.pk + 10000)
+
+        with self.assertRaises(CommandError):
+            call_command('rebuild_ltree_paths', 'dcim.region')
+
+    def test_refusing_a_table_leaves_that_table_untouched(self):
+        """
+        A refusal rolls back the transaction it was raised in, so the refused table keeps
+        the paths it had. Tables already rebuilt stay rebuilt: each is its own transaction,
+        which is what keeps one table's row locks from being held while the rest run.
+        """
+        group = TenantGroup.objects.create(name='Unrelated', slug='unrelated-rlp')
+        TenantGroup.objects.filter(pk=group.pk).update(sort_path='stale')
+        Region.objects.filter(pk=self.child.pk).update(sort_path='also-stale')
+        # dcim.region is named second and is the table which fails the check.
+        self._set_parent_bypassing_triggers(self.parent.pk, self.child.pk)
+
+        with self.assertRaises(CommandError):
+            call_command('rebuild_ltree_paths', 'tenancy.tenantgroup', 'dcim.region')
+
+        # The refused table is untouched: no partial rebuild, nothing to undo by hand.
+        self.child.refresh_from_db()
+        self.assertEqual(self.child.sort_path, 'also-stale')
+
+        # The table which passed its own check was rebuilt and committed.
+        group.refresh_from_db()
+        self.assertEqual(group.sort_path, 'Unrelated')

@@ -27,7 +27,7 @@
     python netbox/manage.py rebuild_ltree_paths dcim.region
     ```
 
-    A rebuild rewrites every row of the named tables, locking those rows until it commits, so run it during a maintenance window.
+    A rebuild rewrites every row of the named tables, locking those rows until it commits, so run it during a maintenance window. Should it report that a table contains rows unreachable from any root, the parent relationships themselves need correcting first: a rebuild walks down from the roots and would skip those rows.
 
     Plugins which maintain their own `ltree` models via the `InstallLtreeTriggers` migration operation are affected in the same way, and their tables are not touched by the migrations above. Where such a database was restored from a dump, the plugin's cascade triggers are missing entirely; where it was upgraded in place, they carry the old definition and will be lost by its next dump. Either way, applying `InstallLtreeTriggers` again from a new plugin migration reinstalls them: as of this release the operation drops each trigger before recreating it, so it is safe to re-run.
 

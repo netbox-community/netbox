@@ -4,7 +4,7 @@ from django.db import connection, transaction
 
 from netbox.models.ltree import LtreeModel
 from netbox.plugins import PluginConfig
-from utilities.mptt_to_ltree import populate_paths_sql
+from utilities.mptt_to_ltree import count_unreachable_rows_sql, populate_paths_sql
 
 
 class Command(BaseCommand):
@@ -21,7 +21,8 @@ class Command(BaseCommand):
 
     def get_models(self, names):
         """
-        Return the concrete core hierarchical models to operate on, ordered by table name.
+        Return the concrete core hierarchical models to operate on: those named, in the
+        order given, or every one of them ordered by table name.
 
         Plugin models are excluded, including when named explicitly: the SQL which rebuilds
         `sort_path` reads the name column by name, while `InstallLtreeTriggers` lets a plugin
@@ -50,14 +51,45 @@ class Command(BaseCommand):
             models.append(model)
         return models
 
+    def check_reachable(self, cursor, model):
+        """
+        Raise unless every row is reachable from a root by following `parent_id`.
+
+        The rebuild walks down from `parent_id IS NULL`, so a row no root can reach is one
+        it silently leaves alone. Reporting success in that case would be the same failure
+        this command exists to repair: an operation which appears to have worked while the
+        data is still wrong. Refuse instead, and leave correcting the parent relationships
+        to the operator, since only they can say what the intended hierarchy was.
+
+        Takes the caller's cursor to keep it visible that this must run in the same
+        transaction as the rebuild it guards. Checking in a separate transaction would
+        leave a window in which a concurrent write could strand a row between the two.
+        """
+        cursor.execute(count_unreachable_rows_sql(model._meta.db_table))
+        unreachable = cursor.fetchone()[0]
+
+        if unreachable:
+            raise CommandError(
+                f'{model._meta.label_lower}: {unreachable} row(s) cannot be reached from a '
+                f'root by following parent_id, so a rebuild would skip them. A cycle, a row '
+                f'parented to itself, or a parent_id referencing a missing row will do this. '
+                f'Correct the parent relationships, then re-run.'
+            )
+
     def handle(self, *args, **options):
+        # Each table is checked and rebuilt in its own transaction. Tables already done
+        # stay done if a later one fails or is refused: rebuilding one table cannot leave
+        # another inconsistent, and holding every table's row locks until the last one
+        # finished would turn several short blocking windows into one long one.
         for model in self.get_models(options['model']):
-            # populate_paths_sql() is the same SQL which backfilled these columns during the
-            # ltree migrations. It relies on SET LOCAL, so it must run inside a transaction,
-            # and the UPDATE it emits locks every row in the table until it commits.
             self.stdout.write(f'{model._meta.label_lower}: rebuilding... ', ending='')
             self.stdout.flush()
             with transaction.atomic(), connection.cursor() as cursor:
+                self.check_reachable(cursor, model)
+                # populate_paths_sql() is the same SQL which backfilled these columns
+                # during the ltree migrations. It relies on SET LOCAL, so it must run
+                # inside a transaction, and the UPDATE it emits locks every row in the
+                # table until it commits.
                 cursor.execute(
                     populate_paths_sql(model._meta.db_table, sort_path=model._has_sort_path())
                 )
