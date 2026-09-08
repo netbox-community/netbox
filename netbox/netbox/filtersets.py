@@ -18,6 +18,7 @@ from extras.models import CustomField, SavedFilter
 from users.filterset_mixins import OwnerFilterMixin
 from utilities import filters
 from utilities.constants import (
+    FILTER_ARRAY_BASED_LOOKUP_MAP,
     FILTER_CHAR_BASED_LOOKUP_MAP,
     FILTER_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP,
@@ -169,6 +170,12 @@ class BaseFilterSet(django_filters.FilterSet):
         )):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
+
+        if isinstance(existing_filter, (
+            filters.MultiValueArrayFilter,
+        )):
+            # Must precede the char-based branch below, which would otherwise shadow this subclass
+            return FILTER_ARRAY_BASED_LOOKUP_MAP
 
         if isinstance(existing_filter, (
             django_filters.filters.CharFilter,

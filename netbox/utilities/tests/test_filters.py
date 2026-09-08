@@ -28,6 +28,7 @@ from ipam.filtersets import ASNFilterSet
 from ipam.models import ASN, RIR
 from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
+    MultiValueArrayFilter,
     MultiValueCharFilter,
     MultiValueDateFilter,
     MultiValueDateTimeFilter,
@@ -209,6 +210,9 @@ class BaseFilterSetTestCase(TestCase):
         multiplechoicefield = django_filters.MultipleChoiceFilter(
             field_name='choicefield'
         )
+        multivaluearrayfield = MultiValueArrayFilter(
+            field_name='charfield'  # We're pretending this is an array field
+        )
         multivaluecharfield = MultiValueCharFilter(
             field_name='charfield'
         )
@@ -325,6 +329,13 @@ class BaseFilterSetTestCase(TestCase):
         self.assertEqual(self.filters['modelmultiplechoicefield'].exclude, False)
         self.assertEqual(self.filters['modelmultiplechoicefield__n'].lookup_expr, 'exact')
         self.assertEqual(self.filters['modelmultiplechoicefield__n'].exclude, True)
+
+    def test_multi_value_array_filter(self):
+        self.assertIsInstance(self.filters['multivaluearrayfield'], MultiValueArrayFilter)
+        self.assertEqual(self.filters['multivaluearrayfield'].lookup_expr, 'contains')
+        self.assertEqual(self.filters['multivaluearrayfield'].exclude, False)
+        self.assertEqual(self.filters['multivaluearrayfield__n'].lookup_expr, 'contains')
+        self.assertEqual(self.filters['multivaluearrayfield__n'].exclude, True)
 
     def test_multi_value_char_filter(self):
         self.assertIsInstance(self.filters['multivaluecharfield'], MultiValueCharFilter)
