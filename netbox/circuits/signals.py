@@ -1,4 +1,4 @@
-from django.db.models.signals import post_delete, post_save, pre_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.signals import rebuild_paths
@@ -17,12 +17,13 @@ def rebuild_cablepaths(instance, raw=False, **kwargs):
             rebuild_paths([peer_termination])
 
 
-@receiver(pre_delete, sender=CircuitTermination)
 def clear_circuit_termination_pointer(instance, using=None, origin=None, **kwargs):
     """
     Clear the parent Circuit's cached `termination_a`/`termination_z` pointer with a change-logged
     save. on_delete=SET_NULL clears it via a bulk UPDATE, and related_name='+' hides the relation
     from Circuit._meta.related_objects, so neither path records an ObjectChange. (#23134)
+
+    Connected in CircuitsConfig, not here, so that it precedes handle_deleted_object.
     """
     if not instance.term_side:
         return

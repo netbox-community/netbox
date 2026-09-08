@@ -482,14 +482,12 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
         self.assertIsNone(changes[0].postchange_data['termination_a'])
 
-        # core.signals.handle_deleted_object is connected before this app's receiver, so the
-        # DELETE precedes the pointer clear. Replaying in this order relies on the consumer
-        # applying the DELETE through the ORM, where on_delete=SET_NULL clears the pointer, or
-        # on the FK being DEFERRABLE INITIALLY DEFERRED within one transaction.
+        # The pointer clear must precede the DELETE, so that a consumer replaying in reverse
+        # restores the termination before the record which references it
         termination_delete = self._termination_change(
             termination_pk, ObjectChangeActionChoices.ACTION_DELETE
         )
-        self.assertLess(termination_delete.pk, changes[0].pk)
+        self.assertLess(changes[0].pk, termination_delete.pk)
 
     @tag('regression')  # Ref: #23134
     def test_bulk_deletion_records_circuit_update(self):
