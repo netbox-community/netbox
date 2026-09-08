@@ -407,8 +407,11 @@ class CircuitTermination(
         # circuit clears the old side and sets the new one in a single write
         updates = {}
 
-        # Clear the old termination reference if circuit or term_side changed
-        if circuit_changed or term_side_changed:
+        # Clear the old termination reference if circuit or term_side changed. Skipped while
+        # inserting: nothing references the row yet, and the originals captured in __init__
+        # describe whatever was passed to the constructor, which may be another termination's
+        # pointer.
+        if not is_new and (circuit_changed or term_side_changed):
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
             updates.setdefault(self._orig_circuit_id, {})[old_termination_name] = None
 
@@ -477,9 +480,13 @@ class CircuitTermination(
         for field_name, value in fields.items():
             setattr(circuit, f'{field_name}_id', value)
 
-        # update_fields excludes _abs_distance, which DistanceMixin.save() recomputes; safe only
-        # because the Circuit was just re-fetched
-        circuit.save(using=using, update_fields=[*fields, 'last_updated'])
+        # Saved in full rather than with update_fields, so that postchange_data describes the
+        # row as written. The mixin save() chain mutates fields beyond the pointers
+        # (custom_field_data, distance_unit, _abs_distance); excluding them from the write left
+        # them in the record but not the database, and a replaying consumer applies the
+        # difference. Writing every column is safe because the row was fetched under the lock
+        # held for this transaction, so no concurrent write can interleave.
+        circuit.save(using=using)
 
     def delete(self, *args, **kwargs):
         # Clear the parent Circuit's cached pointer before the deletion starts, so that its change
@@ -493,8 +500,15 @@ class CircuitTermination(
         #
         # Cascades (e.g. deleting the terminating Site, or the Circuit itself) reach the row through
         # the collector rather than here, and remain unrecorded.
-        using = kwargs.get('using') or router.db_for_write(type(self))
+        # Model.delete() still accepts `using` positionally
+        using = kwargs.get('using') or (args[0] if args else None) or router.db_for_write(type(self))
         with transaction.atomic(using=using):
+            # Lock this row before the circuit. super().save() locks it first too, so without
+            # this a concurrent save and delete of the same termination could deadlock.
+            CircuitTermination.objects.using(using).filter(
+                pk=self.pk
+            ).order_by().select_for_update().first()
+
             if self.term_side:
                 self._set_circuit_terminations(
                     self.circuit_id,

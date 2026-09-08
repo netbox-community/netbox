@@ -432,6 +432,33 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
 
     @tag('regression')  # Ref: #23134
+    def test_new_termination_does_not_clear_sibling_pointer(self):
+        # __init__ captures the originals from the constructor kwargs, so mutating term_side
+        # before the first save reaches the clear path with originals naming a live sibling
+        termination_a = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+
+        def _create():
+            termination = CircuitTermination(
+                circuit=self.circuits[0], term_side='A', termination=self.sites[1],
+            )
+            termination.term_side = 'Z'
+            termination.save()
+            return termination
+
+        termination_z = self._tracked(_create)
+
+        self.circuits[0].refresh_from_db()
+        self.assertEqual(self.circuits[0].termination_a_id, termination_a.pk)
+        self.assertEqual(self.circuits[0].termination_z_id, termination_z.pk)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].postchange_data['termination_a'], termination_a.pk)
+
+    @tag('regression')  # Ref: #23134
     def test_noop_resave_records_no_circuit_update(self):
         termination = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
