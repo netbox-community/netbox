@@ -2887,9 +2887,18 @@ def hold_data_lock(custom_field):
             cursor.execute('SELECT pg_try_advisory_lock(%s, %s)', lock_key)
             if not cursor.fetchone()[0]:
                 raise RuntimeError(f"Failed to acquire the data lock for {custom_field}")
-        yield
+        released = False
+        try:
+            yield
+        finally:
+            # Closing the connection releases the lock asynchronously, so the next deletion can race it
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT pg_advisory_unlock(%s, %s)', lock_key)
+                released = cursor.fetchone()[0]
+        # Outside the finally, so a failing body is reported as itself
+        if not released:
+            raise RuntimeError(f"Failed to release the data lock for {custom_field}")
     finally:
-        # Closing the session releases any advisory lock held on it
         connection.close()
 
 
@@ -3750,7 +3759,7 @@ class DeferredCustomFieldDataTestCase(TestCase):
 
         # delete() has returned and its own atomic block has exited, but the enclosing transaction
         # has yet to commit, so the lock must still be held
-        with self.assertRaises(RuntimeError):
+        with self.assertRaisesMessage(RuntimeError, "Failed to acquire the data lock"):
             with hold_data_lock(cf):
                 pass
 
