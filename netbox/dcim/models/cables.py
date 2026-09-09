@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, router
 from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -328,15 +328,32 @@ class Cable(PrimaryModel):
         }
         update_fields = normalize_update_fields(save_kwargs)
 
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length is not None and self.length_unit:
-            self._abs_length = to_meters(self.length, self.length_unit)
-        else:
-            self._abs_length = None
+        length_written = update_fields is None or 'length' in update_fields
+        length_unit_written = update_fields is None or 'length_unit' in update_fields
 
-        # Clear length_unit if no length is defined
-        if self.length is None:
-            self.length_unit = None
+        if length_written or length_unit_written:
+            if length_written and length_unit_written:
+                stored = {}
+            else:
+                # Read from the database this save will write, so a router cannot split the two
+                db = using or router.db_for_write(Cable, instance=self)
+                stored = Cable.objects.using(db).filter(pk=self.pk).values('length', 'length_unit').first() or {}
+            length = self.length if length_written else stored.get('length')
+            length_unit = self.length_unit if length_unit_written else stored.get('length_unit')
+
+            # Clear length_unit if no length is defined
+            if length is None and length_unit_written:
+                self.length_unit = None
+
+            # Store the given length (if any) in meters for use in database ordering
+            if length is not None and length_unit:
+                self._abs_length = to_meters(length, length_unit)
+            else:
+                self._abs_length = None
+
+            # _abs_length is a denormalized cache of length and length_unit, so persist them together
+            if update_fields is not None:
+                save_kwargs['update_fields'] = update_fields | {'_abs_length'}
 
         # A field counts as changed only when this save actually writes it
         status_written = update_fields is None or 'status' in update_fields
