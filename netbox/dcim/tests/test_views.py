@@ -2425,6 +2425,22 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
     model = InterfaceTemplate
     validation_excluded_fields = ('name', 'label')
 
+    def test_create_object_add_another_preserves_device_type(self):
+        # Regression test for #23150: "create & add another" must retain the
+        # parent device type, since component templates don't support cloning
+        self.add_permissions('dcim.add_interfacetemplate')
+
+        device_type = DeviceType.objects.first()
+        data = dict(self.form_data)
+        data.update({
+            '_addanother': True,
+            'name': 'Interface Template Y',
+        })
+        response = self.client.post(self._get_url('add'), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+        self.assertIn(f'device_type={device_type.pk}', response.headers['Location'])
+
+
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -3900,6 +3916,20 @@ class PowerOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
 class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = Interface
     validation_excluded_fields = ('name', 'label')
+
+    def test_bulk_create_add_another_preserves_device(self):
+        # Regression test for #23150: "add components" with "create & add another"
+        # must retain the parent device, since components don't support cloning
+        self.add_permissions('dcim.add_interface')
+
+        device = Device.objects.first()
+        response = self.client.post(
+            self._get_url('add'),
+            data=post_data(dict(self.bulk_create_data, _addanother=True)),
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertIn(f'device={device.pk}', response.headers['Location'])
+
 
     @classmethod
     def setUpTestData(cls):

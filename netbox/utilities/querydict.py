@@ -49,7 +49,13 @@ def prepare_cloned_fields(instance):
     """
     # Generate the clone attributes from the instance
     if not issubclass(type(instance), CloningMixin):
-        return QueryDict(mutable=True)
+        # The model doesn't support cloning (e.g. device components & templates), but we
+        # can still pre-select its parent object when the user clicks "create & add another"
+        params = []
+        for field_name in ('device_type', 'module_type', 'device', 'module'):
+            if value := getattr(instance, f'{field_name}_id', None):
+                params.append((field_name, value))
+        return QueryDict(urlencode(params), mutable=True)
     attrs = instance.clone()
 
     # Prepare QueryDict parameters
