@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 05:02+0000\n"
+"POT-Creation-Date: 2026-09-09 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -363,7 +363,7 @@ msgstr ""
 #: netbox/extras/filtersets.py:514 netbox/extras/filtersets.py:573
 #: netbox/extras/filtersets.py:634 netbox/extras/filtersets.py:673
 #: netbox/extras/filtersets.py:706 netbox/extras/filtersets.py:880
-#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:324
+#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:331
 #: netbox/netbox/forms/filtersets.py:32 netbox/netbox/forms/search.py:20
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:43
@@ -2715,7 +2715,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:812
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:797
 msgid "path"
 msgstr ""
 
@@ -6907,110 +6907,110 @@ msgstr ""
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:296
+#: netbox/dcim/models/cables.py:282
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:299
+#: netbox/dcim/models/cables.py:285
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:310
+#: netbox/dcim/models/cables.py:296
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:318
+#: netbox/dcim/models/cables.py:304
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:328
+#: netbox/dcim/models/cables.py:314
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:589 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:574 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:660
+#: netbox/dcim/models/cables.py:645
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:661
+#: netbox/dcim/models/cables.py:646
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:674
+#: netbox/dcim/models/cables.py:659
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:691
+#: netbox/dcim/models/cables.py:676
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:703
+#: netbox/dcim/models/cables.py:688
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:709
+#: netbox/dcim/models/cables.py:694
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:716
+#: netbox/dcim/models/cables.py:701
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:748
+#: netbox/dcim/models/cables.py:733
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:816 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:801 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:820
+#: netbox/dcim/models/cables.py:805
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:824
+#: netbox/dcim/models/cables.py:809
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:837
+#: netbox/dcim/models/cables.py:822
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:838
+#: netbox/dcim/models/cables.py:823
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:929
+#: netbox/dcim/models/cables.py:914
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:947
+#: netbox/dcim/models/cables.py:932
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:955
+#: netbox/dcim/models/cables.py:940
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:985
+#: netbox/dcim/models/cables.py:970
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:987
+#: netbox/dcim/models/cables.py:972
 msgid "All links must match first link type"
 msgstr ""
 
@@ -10887,7 +10887,7 @@ msgid "Base choices"
 msgstr ""
 
 #: netbox/extras/forms/model_forms.py:224
-#: netbox/extras/models/customfields.py:1265
+#: netbox/extras/models/customfields.py:1266
 msgid "Base set of predefined choices (optional)"
 msgstr ""
 
@@ -11413,125 +11413,125 @@ msgstr ""
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1128
-#: netbox/extras/models/customfields.py:1135
+#: netbox/extras/models/customfields.py:1129
+#: netbox/extras/models/customfields.py:1136
 msgid "Value must be a string."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1130
-#: netbox/extras/models/customfields.py:1143
+#: netbox/extras/models/customfields.py:1131
+#: netbox/extras/models/customfields.py:1144
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1140
+#: netbox/extras/models/customfields.py:1141
 msgid "URLs must use a scheme permitted by ALLOWED_URL_SCHEMES."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1148
+#: netbox/extras/models/customfields.py:1149
 msgid "Value must be an integer."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1151
-#: netbox/extras/models/customfields.py:1166
+#: netbox/extras/models/customfields.py:1152
+#: netbox/extras/models/customfields.py:1167
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1155
-#: netbox/extras/models/customfields.py:1170
+#: netbox/extras/models/customfields.py:1156
+#: netbox/extras/models/customfields.py:1171
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1163
+#: netbox/extras/models/customfields.py:1164
 msgid "Value must be a decimal."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1175
+#: netbox/extras/models/customfields.py:1176
 msgid "Value must be true or false."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1183
+#: netbox/extras/models/customfields.py:1184
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1192
+#: netbox/extras/models/customfields.py:1193
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1199
+#: netbox/extras/models/customfields.py:1200
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1213
+#: netbox/extras/models/customfields.py:1214
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1222
+#: netbox/extras/models/customfields.py:1223
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1228
+#: netbox/extras/models/customfields.py:1229
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1232
+#: netbox/extras/models/customfields.py:1233
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1241
+#: netbox/extras/models/customfields.py:1242
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1245
+#: netbox/extras/models/customfields.py:1246
 msgid "Required field cannot be empty."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1277
+#: netbox/extras/models/customfields.py:1278
 msgid "Choices are automatically ordered alphabetically"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1284
+#: netbox/extras/models/customfields.py:1285
 msgid "custom field choice set"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1285
+#: netbox/extras/models/customfields.py:1286
 msgid "custom field choice sets"
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1345
+#: netbox/extras/models/customfields.py:1346
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1351
+#: netbox/extras/models/customfields.py:1352
 msgid "Color mappings must be defined as a JSON object."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1363
+#: netbox/extras/models/customfields.py:1364
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1380
+#: netbox/extras/models/customfields.py:1381
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
 "{values}."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1387
+#: netbox/extras/models/customfields.py:1388
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:1410
+#: netbox/extras/models/customfields.py:1411
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
