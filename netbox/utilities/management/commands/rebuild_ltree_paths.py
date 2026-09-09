@@ -113,7 +113,7 @@ class Command(BaseCommand):
         if stale_sort_paths:
             damage.append(f'{stale_sort_paths} sort_path')
         self.stdout.write(self.style.WARNING(
-            f"{model._meta.label_lower}: {', '.join(damage)} row(s) disagree with their parent"
+            f"{model._meta.label_lower}: {', '.join(damage)} row(s) out of date"
         ))
         return True
 

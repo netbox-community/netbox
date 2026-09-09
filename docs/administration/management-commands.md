@@ -59,8 +59,8 @@ python3 netbox/manage.py rebuild_ltree_paths --check
 ```
 
 ```no-highlight
-dcim.location: 5 path, 5 sort_path row(s) disagree with their parent
-dcim.region: 2 sort_path row(s) disagree with their parent
+dcim.location: 5 path, 5 sort_path row(s) out of date
+dcim.region: 2 sort_path row(s) out of date
 ...
 
 Needs rebuilding: dcim.location dcim.region

@@ -160,6 +160,52 @@ class RebuildLtreePathsTestCase(TestCase):
 
         self.assertIn('1 path', out.getvalue())
 
+    def test_check_reports_a_stale_root(self):
+        """
+        A root has no parent to be compared against, so a check which only joins children
+        to parents never examines it and reports a corrupt root as clean.
+        """
+        root = Region.objects.create(name='Solo', slug='solo-rlp')
+        Region.objects.filter(pk=root.pk).update(
+            path='9999999999999999999', sort_path='WRONG',
+        )
+        out = StringIO()
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=out)
+
+        output = out.getvalue()
+        self.assertIn('1 path, 1 sort_path', output)
+        self.assertNotIn('dcim.region: OK', output)
+
+    def test_rebuilds_a_stale_root(self):
+        root = Region.objects.create(name='Solo', slug='solo-rlp')
+        Region.objects.filter(pk=root.pk).update(
+            path='9999999999999999999', sort_path='WRONG',
+        )
+
+        call_command('rebuild_ltree_paths', 'dcim.region', stdout=StringIO())
+
+        root.refresh_from_db()
+        self.assertEqual(root.path, str(root.pk).zfill(19))
+        self.assertEqual(root.sort_path, 'Solo')
+
+    def test_check_reports_a_stale_root_whose_child_agrees_with_it(self):
+        """
+        The child of a corrupt root can be consistent with that root, so a parent-only
+        comparison sees nothing wrong anywhere in the subtree.
+        """
+        root = Region.objects.create(name='Solo', slug='solo-rlp')
+        child = Region.objects.create(name='Sub', slug='sub-rlp', parent=root)
+        Region.objects.filter(pk=root.pk).update(path='9999999999999999999')
+        Region.objects.filter(pk=child.pk).update(
+            path=f'9999999999999999999.{str(child.pk).zfill(19)}',
+        )
+        out = StringIO()
+
+        call_command('rebuild_ltree_paths', 'dcim.region', '--check', stdout=out)
+
+        self.assertIn('1 path', out.getvalue())
+
     def test_rejects_a_model_which_is_not_hierarchical(self):
         with self.assertRaises(CommandError):
             call_command('rebuild_ltree_paths', 'dcim.site')
