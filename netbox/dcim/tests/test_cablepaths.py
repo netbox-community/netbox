@@ -2891,6 +2891,65 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         # Verify _path is cleared on removed interface (#21127)
         interface3.refresh_from_db()
         self.assertPathIsNotSet(interface3)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_304_replacing_a_termination_retires_superseded_paths(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3], and back again
+
+        Each replacement must leave only the two paths the cable's current terminations trace.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        for peer, detached in ((interface3, interface2), (interface2, interface3)):
+            with self.subTest(peer=peer.name):
+                cable1 = Cable.objects.get(pk=cable1.pk)
+                cable1.b_terminations = [peer]
+                cable1.full_clean()
+                cable1.save()
+
+                self.assertCurrentPathExists((interface1, cable1, peer), is_complete=True, is_active=True)
+                self.assertCurrentPathExists((peer, cable1, interface1), is_complete=True, is_active=True)
+                self.assertEqual(CablePath.objects.count(), 2)
+                detached.refresh_from_db()
+                self.assertIsNone(detached.cable)
+                self.assertPathIsNotSet(detached)
+
+    def test_305_adding_a_termination_retires_superseded_paths(self):
+        """
+        [IF1] --C1-- [IF2] gains a second B-side termination [IF3]
+
+        Extending an end must retire the paths whose destinations the extension supersedes.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.b_terminations = [interface2, interface3]
+        cable1.full_clean()
+        cable1.save()
+
+        self.assertCurrentPathExists(
+            (interface1, cable1, [interface2, interface3]), is_complete=True, is_active=True
+        )
+        path2 = self.assertPathExists(
+            ([interface2, interface3], cable1, interface1), is_complete=True, is_active=True
+        )
+        for interface in (interface2, interface3):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, path2)
+        self.assertEqual(CablePath.objects.count(), 2)
 
     def test_401_exclude_midspan_devices(self):
         """
