@@ -74,13 +74,29 @@ class CableBundle(PrimaryModel):
 # Cables
 #
 
+class CableQuerySet(RestrictedQuerySet):
+
+    def delete(self):
+        # Track these Cables as being deleted for the duration, as Cable.delete() does for a single
+        # instance: a queryset delete never calls it. Between them the two cover every deletion, as a
+        # Cable is never itself cascade-deleted (nothing points at it with on_delete=CASCADE).
+        pks = list(self.values_list('pk', flat=True))
+        for pk in pks:
+            Cable._track_deletion(pk)
+        try:
+            return super().delete()
+        finally:
+            for pk in pks:
+                Cable._untrack_deletion(pk)
+
+
 class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """
-    # Per-thread tracking of Cable PKs currently in delete(); referenced by
-    # dcim.signals.nullify_connected_endpoints to skip per-CableTermination
-    # cable path retracing during cascade (retrace_cable_paths handles it once).
+    # Per-thread tracking of Cable PKs currently being deleted; referenced by
+    # dcim.signals.nullify_connected_endpoints to record the disconnect on each terminating object and
+    # to skip per-CableTermination path retracing during the cascade (retrace_cable_paths does it once).
     _deletion_tracking = threading.local()
 
     type = models.CharField(
@@ -149,6 +165,8 @@ class Cable(PrimaryModel):
     )
 
     clone_fields = ('tenant', 'type', 'profile', 'bundle')
+
+    objects = CableQuerySet.as_manager()
 
     class Meta:
         ordering = ('pk',)
@@ -385,20 +403,32 @@ class Cable(PrimaryModel):
         self._terminations_modified = False
 
     def delete(self, *args, **kwargs):
-        # Track this Cable as being deleted so the post_delete signal handler
-        # for cascaded CableTerminations can skip redundant path retracing;
-        # retrace_cable_paths() will retrace each affected path once after the
-        # Cable itself is deleted. Cache the PK locally because super().delete()
-        # clears self.pk before the finally block runs. The tracking set lives
-        # on a threading.local() to isolate concurrent deletions across threads.
-        if not hasattr(Cable._deletion_tracking, 'pks'):
-            Cable._deletion_tracking.pks = set()
+        # Cache the PK locally because super().delete() clears self.pk before the finally block runs. The
+        # tracking itself is done by the pre_delete/post_delete receivers in dcim.signals, which also cover a
+        # queryset delete; this pairing just guarantees the PK is discarded if the delete raises.
         pk = self.pk
-        Cable._deletion_tracking.pks.add(pk)
+        Cable._track_deletion(pk)
         try:
             return super().delete(*args, **kwargs)
         finally:
-            Cable._deletion_tracking.pks.discard(pk)
+            Cable._untrack_deletion(pk)
+
+    @classmethod
+    def _track_deletion(cls, pk):
+        """
+        Track a Cable as being deleted, so that the post_delete handler for its cascaded CableTerminations can
+        record the disconnect on each terminating object and skip redundant path retracing (retrace_cable_paths()
+        retraces each affected path once, after the Cable itself is deleted). The tracking set lives on a
+        threading.local() to isolate concurrent deletions across threads.
+        """
+        if not hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks = set()
+        cls._deletion_tracking.pks.add(pk)
+
+    @classmethod
+    def _untrack_deletion(cls, pk):
+        if hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks.discard(pk)
 
     @classmethod
     def _is_being_deleted(cls, pk):
