@@ -79,16 +79,22 @@ class RebuildLtreePathsTestCase(TestCase):
         for the statement reproduces what #23130 leaves behind: a database whose parent_id
         graph has drifted from the paths stored alongside it.
 
-        `session_replication_role` is used rather than `ALTER TABLE ... DISABLE TRIGGER`,
-        which cannot run while the enclosing transaction has pending trigger events from
-        the rows created in setUpTestData.
+        `ALTER TABLE ... DISABLE TRIGGER` needs only ownership of the table, which the
+        role running the tests has, where `session_replication_role` needs SUPERUSER or an
+        explicit grant. It does refuse while the transaction holds pending trigger events,
+        which the rows created in setUpTestData leave behind, so flush those first: the
+        events are the deferred foreign key checks, and firing them early is harmless.
+        `netbox/tests/test_search.py` does the same to reach its own schema states.
         """
         with connection.cursor() as cursor:
-            cursor.execute("SET LOCAL session_replication_role = 'replica'")
-            cursor.execute(
-                'UPDATE dcim_region SET parent_id = %s WHERE id = %s', [parent_pk, pk]
-            )
-            cursor.execute("SET LOCAL session_replication_role = 'origin'")
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute('ALTER TABLE dcim_region DISABLE TRIGGER USER')
+            try:
+                cursor.execute(
+                    'UPDATE dcim_region SET parent_id = %s WHERE id = %s', [parent_pk, pk]
+                )
+            finally:
+                cursor.execute('ALTER TABLE dcim_region ENABLE TRIGGER USER')
 
     def test_rebuilds_stale_path_and_sort_path(self):
         Region.objects.filter(pk=self.child.pk).update(
@@ -232,7 +238,23 @@ class RebuildLtreePathsTestCase(TestCase):
             call_command('rebuild_ltree_paths', 'dcim.region')
 
     def test_refuses_a_table_whose_parent_id_references_a_missing_row(self):
-        # Not a cycle, but equally unreachable, so a cycle-specific check would miss it.
+        """
+        Not a cycle, but equally unreachable, so a cycle-specific check would miss it.
+
+        Disabling the triggers leaves the foreign key enforced, so drop it for this row as
+        well. Such a row does occur in practice: `pg_restore --disable-triggers` and
+        logical replication both load rows without enforcing it.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute('SET CONSTRAINTS ALL IMMEDIATE')
+            cursor.execute(
+                "SELECT conname FROM pg_constraint "
+                "WHERE conrelid = 'dcim_region'::regclass AND contype = 'f' "
+                "AND conkey = ARRAY[(SELECT attnum FROM pg_attribute "
+                "WHERE attrelid = 'dcim_region'::regclass AND attname = 'parent_id')]"
+            )
+            constraint = cursor.fetchone()[0]
+            cursor.execute(f'ALTER TABLE dcim_region DROP CONSTRAINT "{constraint}"')
         self._set_parent_bypassing_triggers(self.child.pk, self.parent.pk + 10000)
 
         with self.assertRaises(CommandError):
