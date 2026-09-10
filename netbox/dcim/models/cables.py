@@ -385,20 +385,32 @@ class Cable(PrimaryModel):
         self._terminations_modified = False
 
     def delete(self, *args, **kwargs):
-        # Track this Cable as being deleted so the post_delete signal handler
-        # for cascaded CableTerminations can skip redundant path retracing;
-        # retrace_cable_paths() will retrace each affected path once after the
-        # Cable itself is deleted. Cache the PK locally because super().delete()
-        # clears self.pk before the finally block runs. The tracking set lives
-        # on a threading.local() to isolate concurrent deletions across threads.
-        if not hasattr(Cable._deletion_tracking, 'pks'):
-            Cable._deletion_tracking.pks = set()
+        # Cache the PK locally because super().delete() clears self.pk before the finally block runs. The
+        # tracking itself is done by the pre_delete/post_delete receivers in dcim.signals, which also cover a
+        # queryset delete; this pairing just guarantees the PK is discarded if the delete raises.
         pk = self.pk
-        Cable._deletion_tracking.pks.add(pk)
+        Cable._track_deletion(pk)
         try:
             return super().delete(*args, **kwargs)
         finally:
-            Cable._deletion_tracking.pks.discard(pk)
+            Cable._untrack_deletion(pk)
+
+    @classmethod
+    def _track_deletion(cls, pk):
+        """
+        Track a Cable as being deleted, so that the post_delete handler for its cascaded CableTerminations can
+        record the disconnect on each terminating object and skip redundant path retracing (retrace_cable_paths()
+        retraces each affected path once, after the Cable itself is deleted). The tracking set lives on a
+        threading.local() to isolate concurrent deletions across threads.
+        """
+        if not hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks = set()
+        cls._deletion_tracking.pks.add(pk)
+
+    @classmethod
+    def _untrack_deletion(cls, pk):
+        if hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks.discard(pk)
 
     @classmethod
     def _is_being_deleted(cls, pk):

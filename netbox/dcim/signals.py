@@ -2,7 +2,7 @@ import logging
 
 from django.db import transaction
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -306,6 +306,24 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+@receiver(pre_delete, sender=Cable)
+def track_cable_deletion(instance, **kwargs):
+    """
+    Flag the Cable as being deleted for nullify_connected_endpoints() below, which runs for each of its
+    cascaded CableTerminations. Tracking here rather than only in Cable.delete() covers a queryset delete,
+    which never calls the model's delete() method.
+    """
+    Cable._track_deletion(instance.pk)
+
+
+@receiver(post_delete, sender=Cable)
+def untrack_cable_deletion(instance, **kwargs):
+    # Registered after retrace_cable_paths() so that the flag is still set while it runs. A delete that raises
+    # between the two signals leaves the PK tracked; Cable.delete() clears it in a finally, and for a queryset
+    # delete the transaction rolls back with only this stale entry left behind.
+    Cable._untrack_deletion(instance.pk)
+
+
 @receiver((post_delete, post_save), sender=PortMapping)
 def update_passthrough_port_paths(instance, **kwargs):
     """
@@ -326,8 +344,10 @@ def nullify_connected_endpoints(instance, **kwargs):
 
     # Deleting a Cable deletes its terminations in bulk, bypassing CableTermination.delete() and the
     # change-logged clear it performs on the terminating object; do the same here so the disconnect is
-    # recorded. `cable` is a SET_NULL FK which the deletion collector has already nulled by now, so restore
-    # the pre-delete values before snapshotting or the record shows no change.
+    # recorded. `cable` is a SET_NULL FK which the deletion collector has already nulled by now, so the
+    # pre-delete values are restored before snapshotting, or the record would show no change. They are
+    # restored field by field rather than via set_cable_termination(), whose Interface override would
+    # propagate the cable back onto the channel subinterfaces we are about to clear.
     termination = None
     if Cable._is_being_deleted(instance.cable_id):
         termination = model.objects.filter(pk=instance.termination_id).first()
@@ -338,11 +358,17 @@ def nullify_connected_endpoints(instance, **kwargs):
         termination.cable_connector = instance.connector
         termination.cable_positions = instance.positions
         termination.snapshot()
-        termination.cable = None
-        termination.cable_end = None
-        termination.cable_connector = None
-        termination.cable_positions = None
-        termination.save()
+        termination.clear_cable_termination(instance)
+        update_fields = ['cable', 'cable_end', 'cable_connector', 'cable_positions', 'last_updated']
+
+        # retrace_cable_paths() tears down the originating path once the Cable itself is deleted, clearing
+        # _path outside the changelog. Clear it here so the recorded state doesn't outlive the path.
+        if isinstance(termination, PathEndpoint):
+            termination._path = None
+            update_fields.append('_path')
+
+        # A narrow write: this row was read mid-cascade, and its full save() would pull in unrelated work
+        termination.save(update_fields=update_fields)
     else:
         # Already recorded by CableTermination.delete(), or the terminating object is going away too.
         model.objects.filter(pk=instance.termination_id).update(
