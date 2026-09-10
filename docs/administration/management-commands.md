@@ -96,6 +96,8 @@ One of the listed objects is in a cycle, parented to itself, or pointing at an o
 !!! warning
     A rebuild rewrites every row of each named model in a single statement, locking those rows until it commits. On a large table this blocks concurrent writes for minutes, so run it during a maintenance window. Use `--check` first to limit the rebuild to the models which need it.
 
+    A rebuild also assumes nothing else is changing the hierarchy while it runs. An object reparented after the command has checked the model, but before it rewrites it, is not accounted for, and the check which refuses unreachable objects cannot see it either. This is another reason to run the command with writes paused rather than against a live system.
+
 ## rebuild_prefixes
 
 Rebuild the IPAM prefix hierarchy, recalculating the depth and child counts for all prefixes.

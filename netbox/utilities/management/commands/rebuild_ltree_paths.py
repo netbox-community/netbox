@@ -72,9 +72,11 @@ class Command(BaseCommand):
         data is still wrong. Refuse instead, and leave correcting the parent relationships
         to the operator, since only they can say what the intended hierarchy was.
 
-        Takes the caller's cursor to keep it visible that this must run in the same
-        transaction as the rebuild it guards. Checking in a separate transaction would
-        leave a window in which a concurrent write could strand a row between the two.
+        Takes the caller's cursor so a refusal rolls back with the transaction the rebuild
+        would have run in. That does not make the pair atomic with respect to other
+        writers: under READ COMMITTED every statement takes a fresh snapshot, so a
+        reparent committed between the check and the rebuild is still missed. Pause writes
+        for the duration, as the documentation says to.
         """
         cursor.execute(unreachable_rows_sql(model._meta.db_table, self.REPORTED_IDS))
         unreachable, ids = cursor.fetchone()
