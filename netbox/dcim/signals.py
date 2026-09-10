@@ -323,12 +323,34 @@ def nullify_connected_endpoints(instance, **kwargs):
     Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
     model = instance.termination_type.model_class()
-    model.objects.filter(pk=instance.termination_id).update(
-        cable=None,
-        cable_end=None,
-        cable_connector=None,
-        cable_positions=None,
-    )
+
+    # Deleting a Cable deletes its terminations in bulk, bypassing CableTermination.delete() and the
+    # change-logged clear it performs on the terminating object; do the same here so the disconnect is
+    # recorded. `cable` is a SET_NULL FK which the deletion collector has already nulled by now, so restore
+    # the pre-delete values before snapshotting or the record shows no change.
+    termination = None
+    if Cable._is_being_deleted(instance.cable_id):
+        termination = model.objects.filter(pk=instance.termination_id).first()
+
+    if termination is not None:
+        termination.cable_id = instance.cable_id
+        termination.cable_end = instance.cable_end
+        termination.cable_connector = instance.connector
+        termination.cable_positions = instance.positions
+        termination.snapshot()
+        termination.cable = None
+        termination.cable_end = None
+        termination.cable_connector = None
+        termination.cable_positions = None
+        termination.save()
+    else:
+        # Already recorded by CableTermination.delete(), or the terminating object is going away too.
+        model.objects.filter(pk=instance.termination_id).update(
+            cable=None,
+            cable_end=None,
+            cable_connector=None,
+            cable_positions=None,
+        )
 
     # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto its channel
     # subinterfaces. This must happen before the retrace below so that each channel's (now dead) path is torn down
