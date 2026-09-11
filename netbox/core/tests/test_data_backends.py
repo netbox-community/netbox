@@ -62,8 +62,7 @@ class GitBackendCredentialIntegrationTestCase(TestCase):
     Integration tests that verify GitBackend correctly applies credential logic.
 
     These tests require dulwich to be installed and verify the full integration
-    of the credential handling in GitBackend.fetch(). dulwich is the optional
-    'git' extra, so CI installs it explicitly; see .github/workflows/ci.yml.
+    of the credential handling in GitBackend.fetch().
     """
 
     def _get_clone_kwargs(self, url, **params):
