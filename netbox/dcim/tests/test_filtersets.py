@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS, connection
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -3463,6 +3464,28 @@ class DeviceCollatedFilterTestCase(TestCase):
         # in one comparison, which would turn a working query into a 500.
         qs = Device.objects.annotate(collated=CollateAsChar('name')).filter(collated__icontains='switch')
         self.assertEqual(qs.count(), 2)
+
+    def test_collation_is_applied_to_parameter(self):
+        # The tests above assert on results, which stay correct for ASCII values even if
+        # the collation is never applied. This asserts on the lookup's own output instead,
+        # so that the mechanism failing open is caught rather than passing silently.
+        for lookup in ('icontains', 'iexact', 'istartswith', 'iendswith'):
+            with self.subTest(lookup=lookup):
+                self.assertEqual(
+                    self._compiled_rhs(Device, 'name', lookup),
+                    '%s COLLATE "natural_sort"'
+                )
+                self.assertEqual(self._compiled_rhs(Device, 'serial', lookup), '%s')
+
+    @staticmethod
+    def _compiled_rhs(model, field_name, lookup):
+        """
+        Compile a single filter's right-hand side and return its SQL.
+        """
+        query = model.objects.filter(**{f'{field_name}__{lookup}': 'x'}).query
+        compiler = query.get_compiler(using=DEFAULT_DB_ALIAS)
+        rhs, _ = query.where.children[0].process_rhs(compiler, connection)
+        return rhs
 
 
 class ModuleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):

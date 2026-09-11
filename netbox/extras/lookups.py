@@ -144,6 +144,9 @@ class CollatedCaseInsensitiveMixin:
 
     The COLLATE clause must sit inside UPPER(), not after the comparison, or it applies to
     the comparison's result rather than to its operand and has no effect.
+
+    Tested in dcim.tests.test_filtersets.DeviceCollatedFilterTestCase, which is where the
+    collated fields these lookups act upon are defined.
     """
     def process_rhs(self, compiler, connection):
         rhs, params = super().process_rhs(compiler, connection)
@@ -155,6 +158,11 @@ class CollatedCaseInsensitiveMixin:
         # one comparison. Requiring a Col also avoids reading a collation from an
         # annotation's output_field which the annotation itself does not carry, as Concat()
         # and Coalesce() both do.
+        #
+        # The placeholder is compared literally rather than inspected structurally: a field
+        # declaring its own get_placeholder() compiles to something other than '%s', and
+        # splicing a COLLATE clause into that is not safe. Any other rhs is a deliberate
+        # opt-out which leaves the lookup at its previous behaviour.
         if collation == NATURAL_SORT_COLLATION and rhs == '%s' and isinstance(self.lhs, Col):
             # The collation name cannot be passed as a query parameter, but it originates
             # from the field definition rather than from user input.

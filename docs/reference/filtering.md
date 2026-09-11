@@ -104,9 +104,12 @@ GET /api/dcim/devices/?name__ic=switch
 !!! note "Case-insensitive matching depends on the field's collation"
     Most `name` fields use a database collation which sorts them in natural order, so that
     `device-2` precedes `device-10`. Case-insensitive matching on those fields follows the
-    same collation, which treats the German `ß` and `ss` as equivalent: a search for
-    `Strasse` matches a device named `Straße`, and vice versa. Fields which do not use this
-    collation, such as `serial` and `description`, match these characters literally.
+    same collation, which treats a character as equivalent to the sequence it expands to in
+    upper case. The German `ß` is the common example: a search for `Strasse` matches a
+    device named `Straße`, and vice versa. Ligatures such as `ﬁ` behave the same way. One
+    consequence is that a case-insensitive exact match on such a field may return more than
+    one object. Fields which do not use this collation, such as `serial` and `description`,
+    match these characters literally.
 
 ### Foreign Keys & Other Fields
 
