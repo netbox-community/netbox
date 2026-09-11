@@ -38,6 +38,9 @@ class TunnelGroupTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -57,6 +60,9 @@ class TunnelTestCase(APIViewTestCases.APIViewTestCase):
         'status': TunnelStatusChoices.STATUS_PLANNED,
         'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -116,6 +122,9 @@ class TunnelTerminationTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'url']
     bulk_update_data = {
         'role': TunnelTerminationRoleChoices.ROLE_PEER,
+    }
+    bulk_update_invalid_data = {
+        'role': 'not-a-valid-role',
     }
     user_permissions = ('vpn.view_tunnel', )
 
@@ -189,6 +198,9 @@ class IKEProposalTestCase(APIViewTestCases.APIViewTestCase):
         'group': DHGroupChoices.GROUP_19,
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'authentication_algorithm': 'not-a-valid-authentication-algorithm',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -251,6 +263,9 @@ class IKEPolicyTestCase(APIViewTestCases.APIViewTestCase):
         'mode': IKEModeChoices.AGGRESSIVE,
         'description': 'New description',
         'preshared_key': 'New key',
+    }
+    bulk_update_invalid_data = {
+        'version': 'not-a-valid-version',
     }
 
     @classmethod
@@ -325,6 +340,9 @@ class IPSecProposalTestCase(APIViewTestCases.APIViewTestCase):
         'authentication_algorithm': AuthenticationAlgorithmChoices.AUTH_HMAC_MD5,
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'encryption_algorithm': 'not-a-valid-encryption-algorithm',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -373,6 +391,9 @@ class IPSecPolicyTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'pfs_group': DHGroupChoices.GROUP_5,
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'pfs_group': 'not-a-valid-pfs-group',
     }
 
     @classmethod
@@ -519,6 +540,10 @@ class IPSecProfileTestCase(APIViewTestCases.APIViewTestCase):
             'description': 'New description',
         }
 
+        cls.bulk_update_invalid_data = {
+            'mode': 'not-a-valid-mode',
+        }
+
 
 class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
     model = L2VPN
@@ -548,6 +573,9 @@ class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -655,4 +683,8 @@ class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
 
         cls.bulk_update_data = {
             'l2vpn': l2vpns[2].pk
+        }
+
+        cls.bulk_update_invalid_data = {
+            'l2vpn': 99999,
         }
