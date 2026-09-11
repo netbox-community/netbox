@@ -1,18 +1,28 @@
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields.ranges import RangeField
 from django.db.models import CharField, JSONField, Lookup
+from django.db.models.expressions import Col
 from django.db.models.fields.json import KeyTextTransform
+from django.db.models.lookups import IContains, IEndsWith, IExact, IStartsWith
 
 from .fields import CachedValueField, ChoiceSetField
 
 __all__ = (
     'ChoiceValueLookup',
+    'CollatedIContains',
+    'CollatedIEndsWith',
+    'CollatedIExact',
+    'CollatedIStartsWith',
     'Empty',
     'JSONEmpty',
     'NetContainsOrEquals',
     'NetHost',
     'RangeContains',
 )
+
+# The ICU collation created by dcim.migrations.0197_natural_sort_collation and applied to
+# the name field of most models.
+NATURAL_SORT_COLLATION = 'natural_sort'
 
 
 class RangeContains(Lookup):
@@ -123,9 +133,62 @@ class NetContainsOrEquals(Lookup):
         return f'CAST({lhs} AS INET) >>= {rhs}', params
 
 
+class CollatedCaseInsensitiveMixin:
+    """
+    Apply the column's collation to the right-hand side of a case-insensitive comparison.
+
+    UPPER() folds according to the collation of its argument. Django uppercases the column
+    under the column's own collation but the parameter under the database default, so for a
+    column using natural_sort the two sides disagree: UPPER('ß') is 'SS' on the left and
+    'ß' on the right, and the comparison silently matches nothing (#23012).
+
+    The COLLATE clause must sit inside UPPER(), not after the comparison, or it applies to
+    the comparison's result rather than to its operand and has no effect.
+    """
+    def process_rhs(self, compiler, connection):
+        rhs, params = super().process_rhs(compiler, connection)
+        collation = getattr(self.lhs.output_field, 'db_collation', None)
+
+        # Restricted to a bare column compared against a single placeholder. An expression
+        # wrapping the column (Collate() and CollateAsChar() in particular) may already
+        # carry an explicit collation, and PostgreSQL rejects two explicit collations in
+        # one comparison. Requiring a Col also avoids reading a collation from an
+        # annotation's output_field which the annotation itself does not carry, as Concat()
+        # and Coalesce() both do.
+        if collation == NATURAL_SORT_COLLATION and rhs == '%s' and isinstance(self.lhs, Col):
+            # The collation name cannot be passed as a query parameter, but it originates
+            # from the field definition rather than from user input.
+            rhs = f'%s COLLATE "{collation}"'
+
+        return rhs, params
+
+
+class CollatedIContains(CollatedCaseInsensitiveMixin, IContains):
+    pass
+
+
+class CollatedIExact(CollatedCaseInsensitiveMixin, IExact):
+    pass
+
+
+class CollatedIStartsWith(CollatedCaseInsensitiveMixin, IStartsWith):
+    pass
+
+
+class CollatedIEndsWith(CollatedCaseInsensitiveMixin, IEndsWith):
+    pass
+
+
 ArrayField.register_lookup(RangeContains)
 ChoiceSetField.register_lookup(ChoiceValueLookup)
 CharField.register_lookup(Empty)
 JSONField.register_lookup(JSONEmpty)
 CachedValueField.register_lookup(NetHost)
 CachedValueField.register_lookup(NetContainsOrEquals)
+
+# Override the built-in case-insensitive lookups so that they respect the collation of the
+# column being searched.
+CharField.register_lookup(CollatedIContains)
+CharField.register_lookup(CollatedIExact)
+CharField.register_lookup(CollatedIStartsWith)
+CharField.register_lookup(CollatedIEndsWith)

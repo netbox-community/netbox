@@ -101,6 +101,13 @@ Here is an example of a lookup expression on a string field that will return all
 GET /api/dcim/devices/?name__ic=switch
 ```
 
+!!! note "Case-insensitive matching depends on the field's collation"
+    Most `name` fields use a database collation which sorts them in natural order, so that
+    `device-2` precedes `device-10`. Case-insensitive matching on those fields follows the
+    same collation, which treats the German `ß` and `ss` as equivalent: a search for
+    `Strasse` matches a device named `Straße`, and vice versa. Fields which do not use this
+    collation, such as `serial` and `description`, match these characters literally.
+
 ### Foreign Keys & Other Fields
 
 Certain other fields, namely foreign key relationships support just the negation
