@@ -468,6 +468,46 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
         self.assertIsNone(channel.cable_positions)
         self.assertPathIsNotSet(channel)
 
+    def test_114_replacing_a_far_end_retires_the_channels_superseded_paths(self):
+        """
+        Replacing one far-end interface of a breakout cable must leave one path per channel in each direction. The
+        channels are the real origins, so the rows the retrace supersedes can only be found after the expansion.
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        replacement = Interface.objects.create(
+            device=self.device, name='xe4', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
+            a_terminations=[parent],
+            b_terminations=far,
+        )
+        cable.clean()
+        cable.save()
+        self.assertEqual(CablePath.objects.count(), 8)
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [*far[:3], replacement]
+        cable.clean()
+        cable.save()
+
+        self.assertEqual(CablePath.objects.count(), 8)
+        for channel, far_iface in zip(channels, [*far[:3], replacement]):
+            channel.refresh_from_db()
+            far_iface.refresh_from_db()
+            forward = self.assertPathExists((channel, cable, far_iface), is_complete=True, is_active=True)
+            reverse = self.assertPathExists((far_iface, cable, channel), is_complete=True, is_active=True)
+            self.assertPathIsSet(channel, forward)
+            self.assertPathIsSet(far_iface, reverse)
+        far[3].refresh_from_db()
+        self.assertIsNone(far[3].cable)
+        self.assertPathIsNotSet(far[3])
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """

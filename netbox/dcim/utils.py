@@ -125,9 +125,26 @@ def path_node_to_object(repr):
     return ct.model_class().objects.filter(pk=object_id).first()
 
 
+def retire_superseded_paths(objects):
+    """
+    Delete any CablePath which originates at one of the given nodes, so that a fresh trace from them
+    does not leave the row it replaces behind.
+    """
+    from dcim.models import CablePath
+
+    nodes = {object_to_path_node(obj) for obj in objects}
+
+    # `overlap` takes the encoded nodes directly, and matches nothing for an empty set
+    for cp in CablePath.objects.filter(_nodes__overlap=list(nodes)):
+        # `_nodes` matches a node anywhere in a path, including as another path's destination
+        if cp.path and nodes.intersection(cp.path[0]):
+            cp.delete()
+
+
 def create_cablepaths(objects):
     """
-    Create CablePaths for all paths originating from the specified set of nodes.
+    Create CablePaths for all paths originating from the specified set of nodes, retiring any path which
+    already originates there.
 
     :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
@@ -144,20 +161,28 @@ def create_cablepaths(objects):
         else:
             expanded.append(obj)
 
-    # Arrange objects by cable connector. All objects with a null connector are grouped together. Channel
-    # subinterfaces must each originate their own path, as sharing a connector would otherwise collapse a group of
-    # siblings into a single malformed path.
-    origins = defaultdict(list)
-    for obj in expanded:
-        if isinstance(obj, Interface) and obj.channel_id:
-            if cp := CablePath.from_origin([obj]):
-                cp.save()
-        else:
-            origins[obj.cable_connector].append(obj)
+    # The savepoint must stay: Cable.save() turns UnsupportedCablePath into AbortRequest and callers keep querying
+    with transaction.atomic(using=router.db_for_write(CablePath)):
 
-    for connector, objects in origins.items():
-        if cp := CablePath.from_origin(objects):
-            cp.save()
+        # Arrange objects by cable connector. All objects with a null connector are grouped together. Channel
+        # subinterfaces must each originate their own path, as sharing a connector would otherwise collapse a
+        # group of siblings into a single malformed path.
+        origins = defaultdict(list)
+        for obj in expanded:
+            if isinstance(obj, Interface) and obj.channel_id:
+                # Traced before the retirement so that an unsupported topology aborts without dropping a path
+                cp = CablePath.from_origin([obj])
+                retire_superseded_paths([obj])
+                if cp:
+                    cp.save()
+            else:
+                origins[obj.cable_connector].append(obj)
+
+        for connector, objects in origins.items():
+            cp = CablePath.from_origin(objects)
+            retire_superseded_paths(objects)
+            if cp:
+                cp.save()
 
 
 def rebuild_paths(terminations):
