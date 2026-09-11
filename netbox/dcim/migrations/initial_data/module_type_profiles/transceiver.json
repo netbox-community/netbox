@@ -25,7 +25,7 @@
             "reach": {
                 "type": "number",
                 "title": "Maximum reach (m)",
-                "description": "Maximum supported cable or fiber run, in meters"
+                "description": "Maximum supported distance in meters, or fixed assembly length for DAC and AOC cables"
             },
             "connector_type": {
                 "type": "string",
