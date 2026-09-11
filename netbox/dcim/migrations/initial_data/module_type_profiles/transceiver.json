@@ -1,0 +1,38 @@
+{
+    "name": "Transceiver",
+    "schema": {
+        "properties": {
+            "form_factor": {
+                "type": "string",
+                "title": "Form factor",
+                "description": "Physical form factor e.g. SFP+, QSFP28, OSFP"
+            },
+            "media": {
+                "type": "string",
+                "title": "Media",
+                "description": "Physical media e.g. single-mode fiber, multimode fiber, DAC"
+            },
+            "phy": {
+                "type": "string",
+                "title": "PHY",
+                "description": "Physical layer standard e.g. 10GBASE-LR, 400ZR"
+            },
+            "data_rate": {
+                "type": "string",
+                "title": "Data rate",
+                "description": "Nominal line rate e.g. 10G, 400G"
+            },
+            "reach": {
+                "type": "number",
+                "title": "Maximum reach (m)",
+                "description": "Maximum supported cable or fiber run",
+                "minimum": 1
+            },
+            "connector_type": {
+                "type": "string",
+                "title": "Connector type",
+                "description": "Connector type e.g. LC/UPC, MPO-12, 8P8C"
+            }
+        }
+    }
+}

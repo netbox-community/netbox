@@ -21,14 +21,14 @@ flowchart BT
     modulebay1 & modulebay2 & modulebay3 --> device[Device]
 ```
 
-### 1. Create an SFP Module Type Profile
+### 1. Select an SFP Module Type Profile
 
-If one has not already been defined, create a [module type profile](../models/dcim/moduletypeprofile.md) for SFPs. This profile will be assigned for all module types which represent a pluggable transceiver. Typically, you will need only one profile for all pluggable transceivers.
+New NetBox installations include a "Transceiver" [module type profile](../models/dcim/moduletypeprofile.md), which you can select for all module types which represent a pluggable transceiver. Typically, you will need only one profile for all pluggable transceivers. If this profile is not present, or if you prefer a different set of attributes, create your own profile for SFPs instead.
 
-You might opt to define custom attributes for the profile by defining a custom [JSON schema](https://json-schema.org/). Profile attributes might be used to define characteristics unique to transceivers, such as optical wavelength and power ranges. Adding profile attributes is optional, and can be done at a later point.
+The default profile defines attributes for form factor, media, PHY, data rate, reach, and connector type. You might opt to add or replace these by editing the profile's [JSON schema](https://json-schema.org/). Profile attributes might be used to define characteristics unique to transceivers, such as optical wavelength and power ranges. Adding profile attributes is optional, and can be done at a later point.
 
 !!! note
-    Creating a module type profile is optional, but recommended as it allows for defining custom module attributes.
+    Assigning a module type profile is optional, but recommended as it allows for defining custom module attributes.
 
 ### 2. Create a Module Type for Each SFP Model in Inventory
 
