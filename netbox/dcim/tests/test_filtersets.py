@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS, connection
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -18,6 +19,7 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
+from utilities.query_functions import CollateAsChar
 from utilities.testing import ChangeLoggedFilterSetTestMixin, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
@@ -3373,6 +3375,117 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'has_virtual_device_context': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class DeviceCollatedFilterTestCase(TestCase):
+    """
+    Case-insensitive filtering against a column which carries the natural_sort collation.
+
+    UPPER() folds according to the collation of its argument, so a collated column and an
+    uncollated parameter disagree: UPPER('ß') is 'SS' under natural_sort but 'ß' under the
+    database default. Searching for 'ß' therefore matched nothing at all (#23012).
+    """
+    queryset = Device.objects.all()
+    filterset = DeviceFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        Device.objects.bulk_create((
+            # The reported case: an eszett within the name.
+            Device(name='Straße Switch 1', device_type=device_type, role=role, site=site),
+            # The same word spelled 'ss', which must match the name above and vice versa.
+            Device(name='Strasse Switch 2', device_type=device_type, role=role, site=site),
+            # An eszett alongside an umlaut, to pin that umlauts are not folded.
+            Device(name='Grüße Router 3', device_type=device_type, role=role, site=site),
+            # Plain ASCII control.
+            Device(name='Device 4', device_type=device_type, role=role, site=site),
+        ))
+
+    def assertFilterReturns(self, params, expected_names):
+        names = self.filterset(params, self.queryset).qs.values_list('name', flat=True)
+        self.assertEqual(sorted(names), sorted(expected_names))
+
+    def test_icontains_eszett(self):
+        self.assertFilterReturns(
+            {'name__ic': ['straße']}, ['Straße Switch 1', 'Strasse Switch 2']
+        )
+
+    def test_icontains_ss_matches_eszett(self):
+        self.assertFilterReturns(
+            {'name__ic': ['strasse']}, ['Straße Switch 1', 'Strasse Switch 2']
+        )
+
+    def test_icontains_bare_eszett(self):
+        self.assertFilterReturns(
+            {'name__ic': ['ß']}, ['Straße Switch 1', 'Strasse Switch 2', 'Grüße Router 3']
+        )
+
+    def test_iexact_eszett(self):
+        self.assertFilterReturns({'name__ie': ['strasse switch 1']}, ['Straße Switch 1'])
+
+    def test_istartswith_eszett(self):
+        self.assertFilterReturns(
+            {'name__isw': ['Strasse']}, ['Straße Switch 1', 'Strasse Switch 2']
+        )
+
+    def test_iendswith_eszett(self):
+        self.assertFilterReturns({'name__iew': ['ße Router 3']}, ['Grüße Router 3'])
+
+    def test_ascii_matching_is_unchanged(self):
+        self.assertFilterReturns({'name__ic': ['device']}, ['Device 4'])
+        self.assertFilterReturns({'name__ic': ['SWITCH']}, ['Straße Switch 1', 'Strasse Switch 2'])
+
+    def test_umlauts_are_not_folded(self):
+        # Only the eszett is folded; 'ü' must not match 'u'. Otherwise this would be
+        # blanket accent stripping, which is a much broader change than intended.
+        self.assertFilterReturns({'name__ic': ['grusse']}, [])
+
+    def test_q_search_finds_eszett(self):
+        # The surface reported in #23012: the object list's quick search, which is also
+        # what the REST API uses.
+        self.assertFilterReturns(
+            {'q': 'straße'}, ['Straße Switch 1', 'Strasse Switch 2']
+        )
+
+    def test_uncollated_field_is_unaffected(self):
+        # serial carries no collation, so it keeps plain case-insensitive matching.
+        Device.objects.filter(name='Device 4').update(serial='Straße')
+        self.assertFilterReturns({'serial__ic': ['straße']}, ['Device 4'])
+        self.assertFilterReturns({'serial__ic': ['strasse']}, [])
+
+    def test_explicit_lhs_collation_does_not_error(self):
+        # Applying an explicit collation to the left-hand side must not collide with the
+        # collation applied to the parameter: PostgreSQL rejects two explicit collations
+        # in one comparison, which would turn a working query into a 500.
+        qs = Device.objects.annotate(collated=CollateAsChar('name')).filter(collated__icontains='switch')
+        self.assertEqual(qs.count(), 2)
+
+    def test_collation_is_applied_to_parameter(self):
+        # The tests above assert on results, which stay correct for ASCII values even if
+        # the collation is never applied. This asserts on the lookup's own output instead,
+        # so that the mechanism failing open is caught rather than passing silently.
+        for lookup in ('icontains', 'iexact', 'istartswith', 'iendswith'):
+            with self.subTest(lookup=lookup):
+                self.assertEqual(
+                    self._compiled_rhs(Device, 'name', lookup),
+                    '%s COLLATE "natural_sort"'
+                )
+                self.assertEqual(self._compiled_rhs(Device, 'serial', lookup), '%s')
+
+    @staticmethod
+    def _compiled_rhs(model, field_name, lookup):
+        """
+        Compile a single filter's right-hand side and return its SQL.
+        """
+        query = model.objects.filter(**{f'{field_name}__{lookup}': 'x'}).query
+        compiler = query.get_compiler(using=DEFAULT_DB_ALIAS)
+        rhs, _ = query.where.children[0].process_rhs(compiler, connection)
+        return rhs
 
 
 class ModuleTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
