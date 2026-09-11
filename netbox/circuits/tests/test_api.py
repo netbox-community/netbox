@@ -23,6 +23,9 @@ class ProviderTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'comments': 'New comments',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -79,6 +82,9 @@ class CircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -96,6 +102,9 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['cid', 'description', 'display', 'id', 'provider', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('circuits.view_provider', 'circuits.view_circuittype')
 
@@ -215,6 +224,9 @@ class CircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_data = {
             'port_speed': 123456
         }
+        cls.bulk_update_invalid_data = {
+            'term_side': 'not-a-valid-term-side',
+        }
 
 
 class CircuitGroupTestCase(APIViewTestCases.APIViewTestCase):
@@ -222,6 +234,9 @@ class CircuitGroupTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'tenant': 99999,
     }
 
     @classmethod
@@ -291,6 +306,9 @@ class ProviderAccountTestCase(APIViewTestCases.APIViewTestCase):
             'provider': providers[1].pk,
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'provider': 99999,
+        }
 
 
 class CircuitGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
@@ -298,6 +316,9 @@ class CircuitGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'group', 'id', 'member', 'member_id', 'member_type', 'priority', 'url']
     bulk_update_data = {
         'priority': CircuitPriorityChoices.PRIORITY_INACTIVE,
+    }
+    bulk_update_invalid_data = {
+        'priority': 'not-a-valid-priority',
     }
     user_permissions = ('circuits.view_circuit', 'circuits.view_circuitgroup')
 
@@ -407,6 +428,9 @@ class ProviderNetworkTestCase(APIViewTestCases.APIViewTestCase):
             'provider': providers[1].pk,
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'provider': 99999,
+        }
 
 
 class VirtualCircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
@@ -429,6 +453,9 @@ class VirtualCircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -446,6 +473,9 @@ class VirtualCircuitTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['cid', 'description', 'display', 'id', 'provider_network', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -510,6 +540,9 @@ class VirtualCircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'interface', 'role', 'url', 'virtual_circuit']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'role': 'not-a-valid-role',
     }
 
     @classmethod

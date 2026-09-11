@@ -56,6 +56,9 @@ class ClusterTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -88,6 +91,9 @@ class ClusterGroupTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -106,6 +112,9 @@ class ClusterTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'offline',
         'comments': 'New comment',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -235,6 +244,9 @@ class VirtualMachineTypeTestCase(APIViewTestCases.APIViewTestCase):
             'default_memory': 8192,
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'owner': 99999,
+        }
 
 
 class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
@@ -242,6 +254,9 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'staged',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_platform', 'virtualization.view_virtualmachinetype')
 
@@ -624,6 +639,9 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'mode': 'not-a-valid-mode',
+    }
     graphql_base_name = 'vm_interface'
     user_permissions = ('virtualization.view_virtualmachine', )
 
@@ -914,6 +932,9 @@ class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'size', 'url', 'virtual_machine']
     bulk_update_data = {
         'size': 888,
+    }
+    bulk_update_invalid_data = {
+        'virtual_machine': 99999,
     }
     graphql_base_name = 'virtual_disk'
     user_permissions = ('virtualization.view_virtualmachine', )

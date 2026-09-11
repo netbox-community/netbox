@@ -30,6 +30,9 @@ class ASNRangeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -142,6 +145,9 @@ class ASNTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -220,6 +226,9 @@ class VRFTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -263,6 +272,9 @@ class RouteTargetTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -295,6 +307,9 @@ class RIRTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -312,6 +327,9 @@ class AggregateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'family', 'id', 'prefix', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'rir': 99999,
     }
 
     @classmethod
@@ -415,6 +433,9 @@ class RoleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -454,6 +475,9 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -754,6 +778,9 @@ class IPRangeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -908,6 +935,9 @@ class IPAddressTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     graphql_filter = {
         'address': {'lookup': 'i_exact', 'value': '192.168.0.1/24'},
@@ -1071,6 +1101,9 @@ class FHRPGroupTestCase(APIViewTestCases.APIViewTestCase):
         'name': 'foobar-999',
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'protocol': 'not-a-valid-protocol',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1116,6 +1149,9 @@ class FHRPGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'group', 'id', 'interface_id', 'interface_type', 'priority', 'url']
     bulk_update_data = {
         'priority': 100,
+    }
+    bulk_update_invalid_data = {
+        'group': 99999,
     }
     user_permissions = ('ipam.view_fhrpgroup', )
 
@@ -1213,6 +1249,9 @@ class VLANGroupTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -1320,6 +1359,9 @@ class VLANTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1386,6 +1428,9 @@ class VLANTranslationPolicyTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url',]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -1523,6 +1568,9 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
             'policy': vlan_translation_policies[2].pk,
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'policy': 99999,
+        }
 
     def test_standard_fields_in_representation(self):
         """The standard URL, tag, custom-field and change-tracking names appear in the representation."""
@@ -1553,6 +1601,9 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
     graphql_base_name = 'service_template'
 
@@ -1837,6 +1888,9 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'port_mappings', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
     graphql_base_name = 'service'
 

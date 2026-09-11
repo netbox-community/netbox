@@ -40,6 +40,9 @@ class WirelessLANGroupTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'comments': 'New comment',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -118,6 +121,10 @@ class WirelessLANTestCase(APIViewTestCases.APIViewTestCase):
             'auth_psk': 'abc123def456',
         }
 
+        cls.bulk_update_invalid_data = {
+            'auth_type': 'not-a-valid-auth-type',
+        }
+
 
 class WirelessLinkTestCase(APIViewTestCases.APIViewTestCase):
     model = WirelessLink
@@ -126,6 +133,9 @@ class WirelessLinkTestCase(APIViewTestCases.APIViewTestCase):
         'status': 'planned',
         'distance': 100,
         'distance_unit': 'm',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_interface', )
 

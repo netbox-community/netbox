@@ -62,6 +62,9 @@ class WebhookTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'ssl_verification': False,
     }
+    bulk_update_invalid_data = {
+        'http_method': 'not-a-valid-http-method',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -89,6 +92,9 @@ class EventRuleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'enabled': False,
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'action_type': 'not-a-valid-action-type',
     }
     update_data = {
         'name': 'Event Rule X',
@@ -308,6 +314,9 @@ class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'nulls_first': False,
     }
+    bulk_update_invalid_data = {
+        'filter_logic': 'not-a-valid-filter-logic',
+    }
     update_data = {
         'object_types': ['dcim.device'],
         'name': 'New_Name',
@@ -376,6 +385,9 @@ class CustomFieldChoiceSetTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'base_choices': 'not-a-valid-base-choices',
     }
     update_data = {
         'name': 'Choice Set X',
@@ -577,6 +589,9 @@ class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
         'new_window': True,
         'enabled': False,
     }
+    bulk_update_invalid_data = {
+        'button_class': 'not-a-valid-button-class',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -660,6 +675,9 @@ class SavedFilterTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTest
         'weight': 1000,
         'enabled': False,
         'shared': False,
+    }
+    bulk_update_invalid_data = {
+        'object_types': ['dcim.notamodel'],
     }
 
     @classmethod
@@ -752,6 +770,9 @@ class TableConfigTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTest
         'weight': 999,
         'enabled': False,
         'shared': False,
+    }
+    bulk_update_invalid_data = {
+        'object_type': 'dcim.notamodel',
     }
 
     @classmethod
@@ -942,6 +963,9 @@ class ExportTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'object_types': ['dcim.notamodel'],
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -988,6 +1012,9 @@ class TagTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
     }
 
     @classmethod
@@ -1083,6 +1110,9 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'comments': 'Overwritten',
     }
+    bulk_update_invalid_data = {
+        'kind': 'not-a-valid-kind',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1168,6 +1198,9 @@ class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'data_source': 99999,
     }
 
     @classmethod
@@ -1280,6 +1313,9 @@ class ConfigContextTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'data_source': 99999,
     }
 
     @classmethod
@@ -1410,6 +1446,9 @@ class ConfigTemplateTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'data_source': 99999,
     }
 
     @classmethod
@@ -2226,6 +2265,9 @@ class SubscriptionTestCase(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_data = {
             'user': users[3].pk,
         }
+        cls.bulk_update_invalid_data = {
+            'object_type': 'dcim.notamodel',
+        }
 
 
 class NotificationGroupTestCase(APIViewTestCases.APIViewTestCase):
@@ -2256,6 +2298,9 @@ class NotificationGroupTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'users': [99999],
     }
 
     @classmethod
@@ -2310,6 +2355,9 @@ class NotificationTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
     bulk_update_data = {
         'read': now(),
+    }
+    bulk_update_invalid_data = {
+        'event_type': 'not-a-valid-event-type',
     }
     graphql_filter = {
         'event_type': {'lookup': 'exact', 'value': OBJECT_CREATED},
