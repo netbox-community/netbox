@@ -25,8 +25,7 @@
             "reach": {
                 "type": "number",
                 "title": "Maximum reach (m)",
-                "description": "Maximum supported cable or fiber run",
-                "minimum": 1
+                "description": "Maximum supported cable or fiber run, in meters"
             },
             "connector_type": {
                 "type": "string",
