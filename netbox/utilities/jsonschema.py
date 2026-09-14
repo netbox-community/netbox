@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
 from utilities.string import title
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import MultipleOfValidator
 
 __all__ = (
@@ -88,7 +89,7 @@ class JSONSchemaProperty:
         """
         field_kwargs = {
             'label': self.title or title(name),
-            'help_text': self.description,
+            'help_text': render_markdown(self.description),
             'required': required,
             'initial': self.default,
         }
