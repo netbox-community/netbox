@@ -1137,6 +1137,11 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_INFINIBAND_NDR = 'infiniband-ndr'
     TYPE_INFINIBAND_XDR = 'infiniband-xdr'
 
+    # InfiniBand 2X
+    TYPE_INFINIBAND_HDR_2X = 'infiniband-hdr-2x'
+    TYPE_INFINIBAND_NDR_2X = 'infiniband-ndr-2x'
+    TYPE_INFINIBAND_XDR_2X = 'infiniband-xdr-2x'
+
     # InfiniBand 4X
     TYPE_INFINIBAND_SDR_4X = 'infiniband-sdr-4x'
     TYPE_INFINIBAND_DDR_4X = 'infiniband-ddr-4x'
@@ -1478,6 +1483,14 @@ class InterfaceTypeChoices(ChoiceSet):
                 Choice(TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
                 Choice(TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
                 Choice(TYPE_INFINIBAND_XDR, 'XDR (200 Gbps)'),
+            )
+        ),
+        (
+            'InfiniBand 2X',
+            (
+                Choice(TYPE_INFINIBAND_HDR_2X, 'HDR 2X (100 Gbps)'),
+                Choice(TYPE_INFINIBAND_NDR_2X, 'NDR 2X (200 Gbps)'),
+                Choice(TYPE_INFINIBAND_XDR_2X, 'XDR 2X (400 Gbps)'),
             )
         ),
         (
