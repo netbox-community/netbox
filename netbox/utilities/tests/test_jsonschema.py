@@ -1,9 +1,11 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.test import TestCase
 
 from utilities.jsonschema import JSONSchemaProperty
+from utilities.validators import MultipleOfValidator
 
 
 class JSONSchemaPropertyTestCase(TestCase):
@@ -122,12 +124,115 @@ class JSONSchemaPropertyTestCase(TestCase):
         self.assertEqual(list(field.choices), [(None, ''), (1, 1), (2, 2)])
 
     def test_numeric_enum_with_multiple_of_builds_choice_field(self):
+        """An enum suppresses the numeric bounds but retains the multipleOf validator.
+
+        Field.__init__() accepts validators, so a MultipleOfValidator remains applicable to a
+        ChoiceField even though min_value and max_value are not.
+        """
         prop = JSONSchemaProperty(type='integer', title='Slots', enum=[2, 4], multipleOf=2)
 
         field = prop.to_form_field('slots')
 
         self.assertIsInstance(field, forms.ChoiceField)
         self.assertEqual(list(field.choices), [(None, ''), (2, 2), (4, 4)])
+        self.assertEqual(len(field.validators), 1)
+        self.assertIsInstance(field.validators[0], MultipleOfValidator)
+
+    def test_string_enum_with_min_length_builds_choice_field(self):
+        """A string property carrying both an enum and a length bound resolves to a ChoiceField.
+
+        ChoiceField accepts neither min_length nor max_length, so the length bounds must not be
+        passed through when an enum is present.
+        """
+        prop = JSONSchemaProperty(type='string', title='Media', enum=['a', 'bb'], minLength=1)
+
+        field = prop.to_form_field('media')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(list(field.choices), [(None, ''), ('a', 'a'), ('bb', 'bb')])
+
+    def test_string_enum_with_max_length_builds_choice_field(self):
+        prop = JSONSchemaProperty(type='string', title='Media', enum=['a', 'bb'], maxLength=2)
+
+        field = prop.to_form_field('media')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(list(field.choices), [(None, ''), ('a', 'a'), ('bb', 'bb')])
+
+    def test_string_enum_retains_pattern_validator(self):
+        """Dropping the length bounds for an enum must not also drop the pattern validator.
+
+        Field.__init__() accepts validators, so a RegexValidator remains applicable to a
+        ChoiceField even though min_length and max_length are not.
+        """
+        prop = JSONSchemaProperty(
+            type='string', title='Media', enum=['a', 'bb'], minLength=1, pattern='^[ab]+$'
+        )
+
+        field = prop.to_form_field('media')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(len(field.validators), 1)
+        self.assertIsInstance(field.validators[0], RegexValidator)
+        self.assertEqual(field.validators[0].regex.pattern, '^[ab]+$')
+
+    def test_string_bounds_are_applied_without_an_enum(self):
+        prop = JSONSchemaProperty(type='string', title='Media', minLength=1, maxLength=4)
+
+        field = prop.to_form_field('media')
+
+        self.assertIsInstance(field, forms.CharField)
+        self.assertEqual(field.min_length, 1)
+        self.assertEqual(field.max_length, 4)
+        with self.assertRaises(ValidationError):
+            field.clean('toolong')
+
+    def test_string_format_with_length_bound_builds_format_field(self):
+        """A string format resolves to a field class which accepts no length bounds.
+
+        DateField, TimeField and DateTimeField do not subclass CharField, so passing minLength
+        or maxLength to one raises TypeError.
+        """
+        for string_format, expected_class in (
+            ('date', forms.DateField),
+            ('time', forms.TimeField),
+            ('datetime', forms.DateTimeField),
+        ):
+            with self.subTest(format=string_format):
+                prop = JSONSchemaProperty(
+                    type='string', title='Timestamp', format=string_format, minLength=10, maxLength=30
+                )
+
+                field = prop.to_form_field('timestamp')
+
+                self.assertIsInstance(field, expected_class)
+
+    def test_string_format_retains_pattern_validator(self):
+        prop = JSONSchemaProperty(type='string', title='Timestamp', format='date', pattern='^x$')
+
+        field = prop.to_form_field('timestamp')
+
+        self.assertIsInstance(field, forms.DateField)
+        self.assertEqual(len(field.validators), 1)
+        self.assertIsInstance(field.validators[0], RegexValidator)
+
+    def test_charfield_derived_format_retains_length_bounds(self):
+        """EmailField, URLField and UUIDField subclass CharField, so they keep their bounds."""
+        for string_format, expected_class in (
+            ('email', forms.EmailField),
+            ('uri', forms.URLField),
+            ('uuid', forms.UUIDField),
+        ):
+            with self.subTest(format=string_format):
+                prop = JSONSchemaProperty(
+                    type='string', title='Contact', format=string_format, minLength=5, maxLength=40
+                )
+
+                field = prop.to_form_field('contact')
+
+                self.assertIsInstance(field, expected_class)
+                self.assertEqual(field.min_length, 5)
+                self.assertEqual(field.max_length, 40)
 
 
 class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):

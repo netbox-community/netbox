@@ -87,6 +87,7 @@ class JSONSchemaProperty:
         """
         Instantiate and return a Django form field suitable for editing the property's value.
         """
+        field_class = self.field_class
         field_kwargs = {
             'label': self.title or title(name),
             'help_text': render_markdown(self.description),
@@ -111,22 +112,26 @@ class JSONSchemaProperty:
 
         # String validation
         if self.type == PropertyTypeEnum.STRING.value:
-            if self.minLength is not None:
-                field_kwargs['min_length'] = self.minLength
-            if self.maxLength is not None:
-                field_kwargs['max_length'] = self.maxLength
+            # it's safe to check against CharField here because the other
+            # CharField-derived fields are ruled out by the "is a string check" above
+            if issubclass(field_class, forms.CharField):
+                if self.minLength is not None and not self.enum:
+                    field_kwargs['min_length'] = self.minLength
+                if self.maxLength is not None and not self.enum:
+                    field_kwargs['max_length'] = self.maxLength
             if self.pattern is not None:
                 field_kwargs['validators'] = [
                     RegexValidator(regex=self.pattern)
                 ]
 
         # Integer/number validation
-        elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value) and not self.enum:
-            field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
-            if self.minimum is not None:
-                field_kwargs['min_value'] = self.minimum
-            if self.maximum is not None:
-                field_kwargs['max_value'] = self.maximum
+        elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value):
+            if issubclass(field_class, forms.IntegerField):
+                field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
+                if self.minimum is not None:
+                    field_kwargs['min_value'] = self.minimum
+                if self.maximum is not None:
+                    field_kwargs['max_value'] = self.maximum
             if self.multipleOf:
                 field_kwargs['validators'] = [
                     MultipleOfValidator(multiple=self.multipleOf)
