@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from utilities.jsonschema import JSONSchemaProperty
@@ -44,6 +45,89 @@ class JSONSchemaPropertyTestCase(TestCase):
         self.assertIsInstance(field, SimpleArrayField)
         self.assertIsInstance(field.base_field, forms.CharField)
         self.assertEqual(field.clean('ge-0/0/0,ge-0/0/1'), ['ge-0/0/0', 'ge-0/0/1'])
+
+    def test_zero_minimum_is_applied_to_form_field(self):
+        prop = JSONSchemaProperty(type='number', title='Offset', minimum=0)
+
+        field = prop.to_form_field('offset')
+
+        self.assertEqual(field.min_value, 0)
+        with self.assertRaises(ValidationError):
+            field.clean(-5)
+        self.assertEqual(field.clean(0), 0)
+
+    def test_zero_maximum_is_applied_to_form_field(self):
+        prop = JSONSchemaProperty(type='number', title='Offset', maximum=0)
+
+        field = prop.to_form_field('offset')
+
+        self.assertEqual(field.max_value, 0)
+        with self.assertRaises(ValidationError):
+            field.clean(5)
+        self.assertEqual(field.clean(0), 0)
+
+    def test_zero_bounds_are_applied_to_integer_form_field(self):
+        prop = JSONSchemaProperty(type='integer', title='Slots', minimum=0, maximum=0)
+
+        field = prop.to_form_field('slots')
+
+        self.assertEqual(field.min_value, 0)
+        self.assertEqual(field.max_value, 0)
+        with self.assertRaises(ValidationError):
+            field.clean(-1)
+        with self.assertRaises(ValidationError):
+            field.clean(1)
+        self.assertEqual(field.clean(0), 0)
+
+    def test_nonzero_bounds_are_applied_to_form_field(self):
+        prop = JSONSchemaProperty(type='number', title='Offset', minimum=1, maximum=10)
+
+        field = prop.to_form_field('offset')
+
+        self.assertEqual(field.min_value, 1)
+        self.assertEqual(field.max_value, 10)
+        with self.assertRaises(ValidationError):
+            field.clean(0)
+        with self.assertRaises(ValidationError):
+            field.clean(11)
+
+    def test_omitted_bounds_are_not_applied_to_form_field(self):
+        prop = JSONSchemaProperty(type='number', title='Offset')
+
+        field = prop.to_form_field('offset')
+
+        self.assertIsNone(field.min_value)
+        self.assertIsNone(field.max_value)
+        self.assertEqual(field.clean(-100), -100)
+
+    def test_numeric_enum_with_zero_bound_builds_choice_field(self):
+        """A numeric property carrying both an enum and a zero bound resolves to a ChoiceField.
+
+        ChoiceField accepts neither min_value nor max_value, so the numeric bounds must not be
+        passed through when an enum is present.
+        """
+        prop = JSONSchemaProperty(type='integer', title='Slots', enum=[0, 1, 2], minimum=0)
+
+        field = prop.to_form_field('slots')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(list(field.choices), [(None, ''), (0, 0), (1, 1), (2, 2)])
+
+    def test_numeric_enum_with_nonzero_bound_builds_choice_field(self):
+        prop = JSONSchemaProperty(type='integer', title='Slots', enum=[1, 2], minimum=1, maximum=2)
+
+        field = prop.to_form_field('slots')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(list(field.choices), [(None, ''), (1, 1), (2, 2)])
+
+    def test_numeric_enum_with_multiple_of_builds_choice_field(self):
+        prop = JSONSchemaProperty(type='integer', title='Slots', enum=[2, 4], multipleOf=2)
+
+        field = prop.to_form_field('slots')
+
+        self.assertIsInstance(field, forms.ChoiceField)
+        self.assertEqual(list(field.choices), [(None, ''), (2, 2), (4, 4)])
 
 
 class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):

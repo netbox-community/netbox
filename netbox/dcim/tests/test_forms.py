@@ -229,6 +229,33 @@ class ModuleTypeFormTestCase(TestCase):
             module_type = form.save()
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
 
+    def test_zero_bound_attribute_is_enforced_by_the_form(self):
+        profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 2',
+            schema={
+                'properties': {
+                    'offset': {
+                        'title': 'Offset',
+                        'type': 'number',
+                        'minimum': 0,
+                        'maximum': 0,
+                    },
+                },
+            },
+        )
+        form = ModuleTypeForm(data={
+            'manufacturer': self.manufacturer.pk,
+            'model': 'Module Type 2',
+            'profile': profile.pk,
+            'attr_offset': -5,
+        })
+
+        self.assertEqual(form.fields['attr_offset'].min_value, 0)
+        self.assertEqual(form.fields['attr_offset'].max_value, 0)
+        with patch('utilities.forms.fields.dynamic.get_action_url', return_value='/'):
+            self.assertFalse(form.is_valid())
+        self.assertIn('attr_offset', form.errors)
+
 
 class ModuleTypeProfileDescriptionRenderingTestCase(TestCase):
     """

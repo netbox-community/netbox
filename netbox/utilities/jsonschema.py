@@ -121,11 +121,11 @@ class JSONSchemaProperty:
                 ]
 
         # Integer/number validation
-        elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value):
+        elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value) and not self.enum:
             field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
-            if self.minimum:
+            if self.minimum is not None:
                 field_kwargs['min_value'] = self.minimum
-            if self.maximum:
+            if self.maximum is not None:
                 field_kwargs['max_value'] = self.maximum
             if self.multipleOf:
                 field_kwargs['validators'] = [
