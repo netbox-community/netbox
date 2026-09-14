@@ -53,9 +53,9 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
     applies the HTML_ALLOWED_TAGS allowlist, matching the custom field path in
     extras.models.customfields.CustomField.to_form_field().
 
-    Each test asserts the complete help text, so a payload that survived anywhere in it would fail
-    the comparison. Asserting only on the absence of a substring would not, because escaping and
-    stripping both leave a payload's text behind as character data.
+    Each test compares the entire help text, so a payload surviving anywhere in it fails the
+    assertion. Asserting only on the absence of a substring would not, because stripping an
+    element leaves its text behind as character data.
     """
 
     def test_disallowed_element_is_stripped(self):
@@ -67,7 +67,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('capacity')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p>Gross disk size</p></div>',
             field.help_text,
         )
@@ -80,7 +80,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('vendor_code')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p>Vendor code</p></div>',
             field.help_text,
         )
@@ -94,7 +94,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('vendor_code')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p><b>Vendor code</b></p></div>',
             field.help_text,
         )
@@ -107,7 +107,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('vendor_code')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown">'
             '<p><a rel="noopener noreferrer">Vendor code</a></p></div>',
             field.help_text,
@@ -122,7 +122,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('vendor_code')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p><b>Vendor</b> code</p></div>',
             field.help_text,
         )
@@ -140,7 +140,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('capacity')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p>Gross disk size in <code>GB</code></p></div>',
             field.help_text,
         )
@@ -154,7 +154,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('capacity')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown">'
             '<p>Gross disk size in <strong>GB</strong></p></div>',
             field.help_text,
@@ -169,7 +169,7 @@ class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):
 
         field = prop.to_form_field('capacity')
 
-        self.assertInHTML(
+        self.assertHTMLEqual(
             '<div class="rendered-markdown"><p>Gross disk size in gigabytes</p></div>',
             field.help_text,
         )
