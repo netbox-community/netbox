@@ -143,8 +143,7 @@ PyYAML
 
 # redis-py
 # https://github.com/redis/redis-py
-# Default protocol changes to RESP3 in v8.0; see #22388
-redis<8.0
+redis
 
 # Requests
 # https://github.com/psf/requests/blob/main/HISTORY.md
