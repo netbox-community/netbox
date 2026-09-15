@@ -24,6 +24,9 @@ class UserTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'email': 'test@example.com',
     }
+    bulk_update_invalid_data = {
+        'email': 'not-an-email',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -201,6 +204,9 @@ class TokenTestCase(
     brief_fields = ['description', 'display', 'enabled', 'id', 'key', 'url', 'version', 'write_enabled']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'expires': 'not-a-date',
     }
 
     def setUp(self):
@@ -588,6 +594,9 @@ class ObjectPermissionTestCase(
         cls.bulk_update_data = {
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'users': [99999],
+        }
 
 
 class UserConfigTestCase(APITestCase):
@@ -648,6 +657,11 @@ class OwnerGroupTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    # OwnerGroupSerializer exposes only name, description, and a read-only member_count, so an
+    # over-length description is the only value available to trigger a validation error.
+    bulk_update_invalid_data = {
+        'description': 'a' * 201,
     }
 
     @classmethod
@@ -749,4 +763,8 @@ class OwnerTestCase(APIViewTestCases.APIViewTestCase):
             'user_groups': [groups[3].pk],
             'users': [users[3].pk],
             'description': 'New description',
+        }
+
+        cls.bulk_update_invalid_data = {
+            'group': 99999,
         }
