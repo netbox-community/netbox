@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.http import HttpResponse
 from django.test import Client, RequestFactory, SimpleTestCase
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import override_settings
@@ -861,7 +862,7 @@ class SSOLoginButtonTestCase(DjangoTestCase):
         Return the body of the rendered SSO form. The password login form renders its own hidden
         `next` field, so assertions about the SSO parameters must be scoped to this form.
         """
-        begin_url = reverse('social:begin', args=['google-oauth2'])
+        begin_url = reverse('social_auth_begin', args=['google-oauth2'])
         match = re.search(
             rf'<form[^>]*action="{re.escape(begin_url)}"[^>]*>(.*?)</form>',
             response.content.decode(),
@@ -876,7 +877,7 @@ class SSOLoginButtonTestCase(DjangoTestCase):
         """
         Each SSO button must be rendered as a POST form (including a CSRF token) rather than a link.
         """
-        begin_url = reverse('social:begin', args=['google-oauth2'])
+        begin_url = reverse('social_auth_begin', args=['google-oauth2'])
         response = self.client.get(reverse('login'))
 
         self.assertEqual(response.status_code, 200)
@@ -949,6 +950,158 @@ class SSOLoginButtonTestCase(DjangoTestCase):
         self.assertEqual(len(auth_backends), 3)
         for auth_backend in auth_backends:
             self.assertEqual(auth_backend['params'].get('next'), '/dcim/sites/')
+
+
+class SocialAuthBeginViewTestCase(DjangoTestCase):
+    """
+    Verify the view which initiates an SSO login. Chromium-based browsers evaluate the CSP
+    `form-action` directive against every hop in a form submission's redirect chain, so redirecting
+    the submission to the identity provider is blocked wherever `form-action 'self'` is enforced.
+    Clients which ask for JSON are handed the identity provider's URL to navigate to instead
+    (see #23112).
+    """
+    SSO_BACKENDS = [
+        'social_core.backends.google.GoogleOAuth2',
+        'netbox.authentication.ObjectPermissionBackend',
+    ]
+    AUTHORIZATION_URL = 'https://accounts.google.com/o/oauth2/auth'
+    # Stands in for the document rendered by a backend which does not redirect (see BaseAuth.start())
+    AUTH_HTML = '<html><body><form id="openid_message" action="https://idp.example.com/"></form></body></html>'
+
+    def setUp(self):
+        # load_backends() caches the discovered backends in a module-level dict, so isolate the
+        # backends overridden below from the remainder of the test suite.
+        cache_patcher = patch.dict('social_core.backends.utils.BACKENDSCACHE', {}, clear=True)
+        cache_patcher.start()
+        self.addCleanup(cache_patcher.stop)
+
+        self.url = reverse('social_auth_begin', args=['google-oauth2'])
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_json_request_returns_authorization_url(self):
+        """
+        A client which requests JSON receives the identity provider's URL in the response body
+        rather than an HTTP redirect, so that it can navigate there itself.
+        """
+        response = self.client.post(self.url, headers={'accept': 'application/json'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Content-Type'], 'application/json')
+        self.assertNotIn('Location', response.headers)
+        self.assertTrue(response.json()['url'].startswith(self.AUTHORIZATION_URL))
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_form_submission_returns_redirect(self):
+        """
+        A client which has not asked for JSON (e.g. a browser with JavaScript disabled) receives the
+        unmodified redirect from python-social-auth.
+        """
+        response = self.client.post(self.url, headers={'accept': 'text/html'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.headers['Location'].startswith(self.AUTHORIZATION_URL))
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_session_state_recorded(self):
+        """
+        The anti-forgery state conveyed to the identity provider must be recorded in the session, as
+        the completion view compares the two. This is what makes the JSON response safe to follow:
+        the session established here is the one the callback is validated against.
+        """
+        response = self.client.post(self.url, headers={'accept': 'application/json'})
+
+        state = self.client.session['google-oauth2_state']
+        self.assertIn(f'state={state}', response.json()['url'])
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_next_recorded_in_session(self):
+        """
+        The post-login URL is read from the POST data by do_auth() and stashed in the session; the
+        wrapper must not interfere with the form fields rendered on the login page.
+        """
+        self.client.post(self.url, {'next': '/dcim/sites/'}, headers={'accept': 'application/json'})
+
+        self.assertEqual(self.client.session['next'], '/dcim/sites/')
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_get_request_not_allowed(self):
+        """
+        Authentication must be initiated by POST: a GET request is trivially forgeable, which is why
+        social-auth-app-django restricts its own begin view to POST.
+        """
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 405)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_csrf_token_required(self):
+        """
+        CSRF protection must be retained, so that a third party cannot silently initiate an SSO
+        login on the user's behalf.
+        """
+        client = Client(enforce_csrf_checks=True)
+        response = client.post(self.url, headers={'accept': 'application/json'})
+
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_response_is_not_cached(self):
+        """
+        The authorization URL embeds a single-use state parameter and must never be cached.
+        """
+        response = self.client.post(self.url, headers={'accept': 'application/json'})
+
+        self.assertIn('no-store', response.headers['Cache-Control'])
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    def test_unknown_backend(self):
+        """
+        An unconfigured backend yields an HTTP 404, as it does via python-social-auth directly.
+        """
+        response = self.client.post(reverse('social_auth_begin', args=['nosuchbackend']))
+
+        self.assertEqual(response.status_code, 404)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    @patch('social_core.backends.google.GoogleOAuth2.uses_redirect', return_value=False)
+    @patch('social_core.backends.google.GoogleOAuth2.auth_html', return_value=AUTH_HTML)
+    def test_json_request_returns_html_for_non_redirecting_backend(self, _auth_html, _uses_redirect):
+        """
+        A backend which renders its own HTML rather than redirecting has that document returned in
+        the response body. The client renders it in place: were it made to submit the form to fetch
+        the document again, the login would be initiated a second time.
+        """
+        response = self.client.post(self.url, headers={'accept': 'application/json'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Content-Type'], 'application/json')
+        self.assertNotIn('Location', response.headers)
+        self.assertEqual(response.json()['html'], self.AUTH_HTML)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    @patch('social_core.backends.google.GoogleOAuth2.uses_redirect', return_value=False)
+    @patch('social_core.backends.google.GoogleOAuth2.auth_html', return_value=AUTH_HTML)
+    def test_html_passed_through_for_non_redirecting_backend(self, _auth_html, _uses_redirect):
+        """
+        A client which has not asked for JSON receives that same document unmodified.
+        """
+        response = self.client.post(self.url, headers={'accept': 'text/html'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), self.AUTH_HTML)
+
+    @override_settings(AUTHENTICATION_BACKENDS=SSO_BACKENDS)
+    @patch('account.views.social_auth_begin', side_effect=lambda *args, **kwargs: HttpResponse(status=502))
+    def test_json_request_passes_through_error_response(self, _begin):
+        """
+        Only a redirect or a rendered document is translated to JSON. An unsuccessful response is
+        passed through as-is, so that the client reports the failure rather than mistaking the
+        response for a login it can act on.
+        """
+        response = self.client.post(self.url, headers={'accept': 'application/json'})
+
+        self.assertEqual(response.status_code, 502)
+        self.assertNotEqual(response.headers.get('Content-Type'), 'application/json')
 
 
 class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):

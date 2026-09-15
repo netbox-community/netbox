@@ -41,6 +41,12 @@ NetBox supports single sign-on authentication via the [python-social-auth](https
 
 Most remote authentication backends require some additional configuration through settings prefixed with `SOCIAL_AUTH_`. These will be automatically imported from NetBox's `configuration.py` file. Additionally, the [authentication pipeline](https://python-social-auth.readthedocs.io/en/latest/pipeline.html) can be customized via the `SOCIAL_AUTH_PIPELINE` parameter. (NetBox's default pipeline is defined in `netbox/settings.py` for your reference.)
 
+!!! note "Content Security Policy"
+    Beginning an SSO login requires the browser to make a request back to NetBox before it is sent
+    on to the identity provider. If you serve NetBox with a Content Security Policy which does not
+    permit same-origin connections, SSO logins will fail: add `connect-src 'self'` (or a
+    `default-src` which covers it) to your policy.
+
 #### Configuring the SSO module's appearance
 
 The way a remote authentication backend is displayed to the user on the login
