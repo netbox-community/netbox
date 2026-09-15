@@ -28,8 +28,13 @@ python netbox/manage.py rebuild_ltree_paths --check
 The same test can be run as SQL against a deployment which has not yet been upgraded. Substitute each hierarchical table in turn: `dcim_region`, `dcim_sitegroup`, `dcim_location`, `dcim_devicerole`, `dcim_platform`, `dcim_modulebay`, `dcim_inventoryitem`, `dcim_inventoryitemtemplate`, `tenancy_tenantgroup`, `tenancy_contactgroup`, and `wireless_wirelesslangroup`.
 
 ```no-highlight
-SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
-WHERE c.path <> p.path || lpad(c.id::text, 19, '0')::ltree;
+SELECT count(*) FROM (
+    SELECT id FROM dcim_region WHERE parent_id IS NULL
+        AND path <> lpad(id::text, 19, '0')::ltree
+    UNION ALL
+    SELECT c.id FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
+        WHERE c.path <> p.path || lpad(c.id::text, 19, '0')::ltree
+) x;
 ```
 
 Treat any non-zero result as "this table needs rebuilding" rather than as a count of the damage: an object whose ancestor moved is reported, but its own descendants are consistent with it and so are not, even though they are equally stale.
@@ -39,8 +44,12 @@ Treat any non-zero result as "this table needs rebuilding" rather than as a coun
 The nine tables which order their children by name additionally maintain a `sort_path`, which can go stale on a rename even when `path` is correct. Every table in the list above except `dcim_inventoryitem` and `dcim_inventoryitemtemplate` carries one, and is checked with:
 
 ```no-highlight
-SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
-WHERE c.sort_path <> p.sort_path || chr(9) || c.name;
+SELECT count(*) FROM (
+    SELECT id FROM dcim_region WHERE parent_id IS NULL AND sort_path <> name
+    UNION ALL
+    SELECT c.id FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
+        WHERE c.sort_path <> p.sort_path || chr(9) || c.name
+) x;
 ```
 
 Stale `sort_path` values affect only the order in which objects are listed. A stale `path`, by contrast, misplaces an object within the hierarchy, so it can be omitted from its ancestor's list of descendants.

@@ -3,7 +3,7 @@
 ## v4.7.1 (2026-09-15)
 
 !!! warning "Databases Restored From a v4.7.0 Dump"
-    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, so such a restore reported success while leaving the database without those triggers. Renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, or inventory item then did not update its descendants. Upgrading reinstalls the triggers so that all subsequent changes cascade correctly, but does **not** repair values which have already gone stale. See [Repairing Hierarchical Paths](../administration/repairing-hierarchical-paths.md) for how to detect and correct them, and for the steps plugins maintaining their own `ltree` models must take.
+    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, so such a restore reported success while leaving the database without those triggers. Renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, inventory item, or inventory item template then did not update its descendants. Upgrading reinstalls the triggers so that all subsequent changes cascade correctly, but does **not** repair values which have already gone stale. See [Repairing Hierarchical Paths](../administration/repairing-hierarchical-paths.md) for how to detect and correct them, and for the steps plugins maintaining their own `ltree` models must take.
 
 ### Enhancements
 
