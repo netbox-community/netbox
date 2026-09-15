@@ -115,9 +115,9 @@ class JSONSchemaProperty:
             # it's safe to check against CharField here because the other
             # CharField-derived fields are ruled out by the "is a string check" above
             if issubclass(field_class, forms.CharField):
-                if self.minLength is not None and not self.enum:
+                if self.minLength is not None:
                     field_kwargs['min_length'] = self.minLength
-                if self.maxLength is not None and not self.enum:
+                if self.maxLength is not None:
                     field_kwargs['max_length'] = self.maxLength
             if self.pattern is not None:
                 field_kwargs['validators'] = [
