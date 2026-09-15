@@ -1208,9 +1208,9 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
 
     def test_form_factor_required(self):
         """
-        Regression test for #23154: form_factor must be reported as required by
-        OPTIONS, and a POST omitting it must be rejected with a normal "required"
-        validation error rather than a model-level "cannot be blank" error.
+        form_factor must be reported as required by OPTIONS, and a POST omitting it
+        must be rejected with a normal "required" validation error rather than a
+        model-level "cannot be blank" error.
         """
         self.add_permissions('dcim.add_racktype')
 

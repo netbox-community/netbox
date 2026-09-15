@@ -603,9 +603,9 @@ class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
 
     def test_type_required(self):
         """
-        Regression test for #23154: type must be reported as required by OPTIONS,
-        and a POST omitting it must be rejected with a normal "required" validation
-        error rather than a model-level "cannot be blank" error.
+        type must be reported as required by OPTIONS, and a POST omitting it must
+        be rejected with a normal "required" validation error rather than a
+        model-level "cannot be blank" error.
         """
         self.add_permissions('vpn.add_l2vpn')
 
