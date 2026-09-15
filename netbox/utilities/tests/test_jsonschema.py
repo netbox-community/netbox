@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ValidationError
@@ -217,11 +219,10 @@ class JSONSchemaPropertyTestCase(TestCase):
         self.assertIsInstance(field.validators[0], RegexValidator)
 
     def test_charfield_derived_format_retains_length_bounds(self):
-        """EmailField, URLField and UUIDField subclass CharField, so they keep their bounds."""
-        for string_format, expected_class in (
-            ('email', forms.EmailField),
-            ('uri', forms.URLField),
-            ('uuid', forms.UUIDField),
+        """EmailField and URLField clean to a string, so the length bounds apply to them."""
+        for string_format, expected_class, value in (
+            ('email', forms.EmailField, 'user@example.com'),
+            ('uri', forms.URLField, 'https://example.com/x'),
         ):
             with self.subTest(format=string_format):
                 prop = JSONSchemaProperty(
@@ -233,6 +234,23 @@ class JSONSchemaPropertyTestCase(TestCase):
                 self.assertIsInstance(field, expected_class)
                 self.assertEqual(field.min_length, 5)
                 self.assertEqual(field.max_length, 40)
+                self.assertEqual(field.clean(value), value)
+
+    def test_uuid_format_omits_length_bounds(self):
+        """UUIDField subclasses CharField but cleans to a uuid.UUID, which has no length.
+
+        CharField.__init__() installs a MinLengthValidator and MaxLengthValidator for the bounds,
+        and those call len() on the cleaned value, so a UUID raises TypeError at clean time.
+        """
+        value = '12345678-1234-5678-1234-567812345678'
+        prop = JSONSchemaProperty(type='string', title='Serial', format='uuid', minLength=5, maxLength=40)
+
+        field = prop.to_form_field('serial')
+
+        self.assertIsInstance(field, forms.UUIDField)
+        self.assertIsNone(field.min_length)
+        self.assertIsNone(field.max_length)
+        self.assertEqual(field.clean(value), UUID(value))
 
 
 class JSONSchemaPropertyDescriptionSanitizationTestCase(TestCase):

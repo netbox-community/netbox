@@ -112,9 +112,10 @@ class JSONSchemaProperty:
 
         # String validation
         if self.type == PropertyTypeEnum.STRING.value:
-            # it's safe to check against CharField here because the other
-            # CharField-derived fields are ruled out by the "is a string check" above
-            if issubclass(field_class, forms.CharField):
+            # Checking against CharField is safe because the other CharField-derived fields are
+            # ruled out by the "is a string" check above. UUIDField is the exception: it cleans to
+            # a uuid.UUID, which the length validators can't call len() on.
+            if issubclass(field_class, forms.CharField) and not issubclass(field_class, forms.UUIDField):
                 if self.minLength is not None:
                     field_kwargs['min_length'] = self.minLength
                 if self.maxLength is not None:
