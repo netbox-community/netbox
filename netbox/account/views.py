@@ -9,14 +9,16 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
+from social_django.views import auth as social_auth_begin
 
 from account.models import UserToken
 from core.models import ObjectChange
@@ -78,7 +80,7 @@ class LoginView(View):
         request_data = request.POST if request.method == 'POST' else request.GET
 
         for name in load_backends(settings.AUTHENTICATION_BACKENDS).keys():
-            url = reverse('social:begin', args=[name])
+            url = reverse('social_auth_begin', args=[name])
             params = {}
             if next := request_data.get('next'):
                 params['next'] = next
@@ -185,6 +187,50 @@ class LogoutView(View):
         response.delete_cookie('session_key')
         response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
 
+        return response
+
+
+class SocialAuthBeginView(View):
+    """
+    Initiate authentication against a social auth (SSO) backend.
+
+    This wraps python-social-auth's "begin" view, which responds with an HTTP redirect to the
+    identity provider. Chromium-based browsers evaluate the CSP `form-action` directive against
+    every hop in a form submission's redirect chain, so a deployment which serves NetBox with
+    `form-action 'self'` (a common reverse proxy default) blocks that redirect and the SSO button
+    appears to do nothing. A client which asks for JSON is given the identity provider's URL in the
+    response body instead, and navigates to it itself: `form-action` does not govern a navigation
+    initiated by a script. Any other client (e.g. a browser with JavaScript disabled) receives the
+    unmodified response from python-social-auth.
+
+    A backend which does not redirect (`uses_redirect()` is False, as for OpenID 2.0) renders its
+    own HTML instead, which is returned in the response body for the client to render in place so
+    that it need not repeat the request. This is not a way around `form-action`: that document
+    carries a form which submits itself to the identity provider, and such a submission is governed
+    by the policy wherever the document is rendered. Deployments using one of these backends still
+    require a `form-action` which admits the identity provider.
+
+    The underlying view is reused as-is so that CSRF protection, the callback URL, and the session
+    state recorded for the identity provider all remain identical to a direct form submission.
+    """
+    @method_decorator(never_cache)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, backend):
+        response = social_auth_begin(request, backend)
+
+        if 'application/json' in request.headers.get('Accept', ''):
+            if url := response.headers.get('Location'):
+                return JsonResponse({'url': url})
+            if response.status_code == 200:
+                # Some backends render an HTML form (which submits itself to the identity provider)
+                # rather than redirecting. Hand that document to the client to render, so that it
+                # need not repeat the request and initiate the login a second time.
+                return JsonResponse({'html': response.content.decode(response.charset)})
+
+        # Anything else (including the response to a client which has not asked for JSON) is passed
+        # through unchanged.
         return response
 
 
