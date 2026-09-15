@@ -601,6 +601,26 @@ class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response_data['count'], 1)
 
+    def test_type_required(self):
+        """
+        type must be reported as required by OPTIONS, and a POST omitting it must
+        be rejected with a normal "required" validation error rather than a
+        model-level "cannot be blank" error.
+        """
+        self.add_permissions('vpn.add_l2vpn')
+
+        response = self.client.options(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(response.data['actions']['POST']['type']['required'])
+
+        data = {
+            'name': 'L2VPN Missing Type',
+            'slug': 'l2vpn-missing-type',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['type'][0].code, 'required')
+
 
 class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = L2VPNTermination

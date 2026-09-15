@@ -225,7 +225,6 @@ class RackTypeImportForm(PrimaryModelImportForm):
     form_factor = CSVChoiceField(
         label=_('Type'),
         choices=RackFormFactorChoices,
-        required=False,
         help_text=_('Form factor')
     )
     starting_unit = forms.IntegerField(
