@@ -2785,3 +2785,67 @@ class CablePathTestCase(BaseCablePathTestCase):
             set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
             termination_pks
         )
+
+    def test_311_moving_a_midspan_termination_preserves_far_end_paths(self):
+        """
+        [IF1] --C1-- [FP1][RP1] --C3-- [RP2][FP2] --C2-- [IF2]
+        becomes
+        [IF1] --C1-- [FP1][RP1] --C3-- [RP3][FP3] --C4-- [IF3]
+
+        Rear ports originate no path, so moving a mid-span cable's end must retrace the rows which traverse it
+        rather than delete them: their origins cannot be recovered from the cable's own terminations.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 4)
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name=f'Rear Port {i}') for i in range(1, 4)
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name=f'Front Port {i}') for i in range(1, 4)
+        ]
+        for front_port, rear_port in zip(front_ports, rear_ports):
+            PortMapping.objects.create(
+                device=self.device,
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1
+            )
+
+        cable1 = Cable(a_terminations=[interfaces[0]], b_terminations=[front_ports[0]])
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(a_terminations=[front_ports[1]], b_terminations=[interfaces[1]])
+        cable2.clean()
+        cable2.save()
+        cable3 = Cable(a_terminations=[rear_ports[0]], b_terminations=[rear_ports[1]])
+        cable3.clean()
+        cable3.save()
+        cable4 = Cable(a_terminations=[front_ports[2]], b_terminations=[interfaces[2]])
+        cable4.clean()
+        cable4.save()
+
+        before = (
+            interfaces[0], cable1, front_ports[0], rear_ports[0], cable3, rear_ports[1], front_ports[1], cable2,
+            interfaces[1],
+        )
+        self.assertCurrentPathExists(before, is_complete=True, is_active=True)
+        self.assertCurrentPathExists(tuple(reversed(before)), is_complete=True, is_active=True)
+        # Two for the completed link, one for the third interface stopping at its own rear port
+        self.assertEqual(CablePath.objects.count(), 3)
+
+        cable3 = Cable.objects.get(pk=cable3.pk)
+        cable3.b_terminations = [rear_ports[2]]
+        cable3.full_clean()
+        cable3.save()
+
+        after = (
+            interfaces[0], cable1, front_ports[0], rear_ports[0], cable3, rear_ports[2], front_ports[2], cable4,
+            interfaces[2],
+        )
+        self.assertCurrentPathExists(after, is_complete=True, is_active=True)
+        self.assertCurrentPathExists(tuple(reversed(after)), is_complete=True, is_active=True)
+        interfaces[1].refresh_from_db()
+        self.assertFalse(interfaces[1]._path.is_complete)
+        self.assertEqual(CablePath.objects.count(), 3)

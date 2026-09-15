@@ -4719,6 +4719,29 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_repeated_put_does_not_accumulate_paths(self):
+        """
+        Repeating an identical PUT must leave the cable with the two paths its terminations trace.
+        """
+        self.add_permissions('dcim.change_cable')
+        cable = Cable.objects.get(label='Cable 1')
+        interface_a = Interface.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_A)
+        interface_b = Interface.objects.get(cable=cable, cable_end=CableEndChoices.SIDE_B)
+        data = {
+            'status': cable.status,
+            'a_terminations': [{'object_type': 'dcim.interface', 'object_id': interface_a.pk}],
+            'b_terminations': [{'object_type': 'dcim.interface', 'object_id': interface_b.pk}],
+        }
+
+        for attempt in range(3):
+            with self.subTest(attempt=attempt):
+                response = self.client.put(self._get_detail_url(cable), data, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                for interface in (interface_a, interface_b):
+                    self.assertTrue(Interface.objects.get(pk=interface.pk)._path.is_complete)
+                self.assertEqual(CablePath.objects.filter(_nodes__contains=cable).count(), 2)
+
     def test_graphql_cable_termination_cached_filters(self):
         """
         Validate filtering cables by cached CableTermination relations via GraphQL:
