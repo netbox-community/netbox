@@ -1226,7 +1226,7 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
         }
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('form_factor', response.data)
+        self.assertEqual(response.data['form_factor'][0].code, 'required')
 
 
 class RackTestCase(APIViewTestCases.APIViewTestCase):

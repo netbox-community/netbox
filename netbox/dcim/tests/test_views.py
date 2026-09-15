@@ -503,10 +503,10 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
-            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
-            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
-            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
+            "manufacturer,model,slug,form_factor,width,u_height,weight,max_weight,weight_unit",
+            f"Manufacturer 1,RackType 4,rack-type-4,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
+            f"Manufacturer 1,RackType 5,rack-type-5,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
+            f"Manufacturer 1,RackType 6,rack-type-6,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
@@ -530,6 +530,30 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'weight_unit': WeightUnitChoices.UNIT_POUND,
             'comments': 'New comments',
         }
+
+    def test_bulk_import_objects_without_form_factor(self):
+        """
+        A CSV import row omitting form_factor must be rejected, not silently saved
+        with form_factor=''.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        csv_data = (
+            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType Missing Form Factor,rack-type-missing-form-factor,19,42,100,2000,kg",
+        )
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(self._get_queryset().count(), initial_count)
 
 
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):

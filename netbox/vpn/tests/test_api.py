@@ -619,7 +619,7 @@ class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
         }
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('type', response.data)
+        self.assertEqual(response.data['type'][0].code, 'required')
 
 
 class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
