@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 16:46+0000\n"
+"POT-Creation-Date: 2026-09-15 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
@@ -53,9 +53,9 @@ msgstr "API Belirteçlerim"
 #: netbox/circuits/choices.py:22 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:44 netbox/dcim/choices.py:114
 #: netbox/dcim/choices.py:216 netbox/dcim/choices.py:274
-#: netbox/dcim/choices.py:2026 netbox/dcim/choices.py:2093
-#: netbox/dcim/choices.py:2195 netbox/dcim/choices.py:2211
-#: netbox/dcim/choices.py:2274 netbox/dcim/choices.py:2296
+#: netbox/dcim/choices.py:2039 netbox/dcim/choices.py:2106
+#: netbox/dcim/choices.py:2208 netbox/dcim/choices.py:2224
+#: netbox/dcim/choices.py:2287 netbox/dcim/choices.py:2309
 #: netbox/virtualization/choices.py:21 netbox/virtualization/choices.py:68
 #: netbox/vpn/choices.py:20 netbox/vpn/choices.py:316
 msgid "Planned"
@@ -78,9 +78,9 @@ msgstr "Servis için yapılandırılmak"
 #: netbox/core/tables/tasks.py:23 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:46 netbox/dcim/choices.py:115
 #: netbox/dcim/choices.py:167 netbox/dcim/choices.py:215
-#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2092
-#: netbox/dcim/choices.py:2194 netbox/dcim/choices.py:2210
-#: netbox/dcim/choices.py:2273 netbox/dcim/choices.py:2295
+#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2105
+#: netbox/dcim/choices.py:2207 netbox/dcim/choices.py:2223
+#: netbox/dcim/choices.py:2286 netbox/dcim/choices.py:2308
 #: netbox/extras/choices.py:63 netbox/extras/tables/tables.py:673
 #: netbox/extras/ui/panels.py:456 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
@@ -92,21 +92,21 @@ msgid "Active"
 msgstr "Aktif"
 
 #: netbox/circuits/choices.py:26 netbox/dcim/choices.py:215
-#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2273
-#: netbox/dcim/choices.py:2295 netbox/virtualization/choices.py:30
+#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2286
+#: netbox/dcim/choices.py:2308 netbox/virtualization/choices.py:30
 msgid "Fully operational and in service"
 msgstr "Tamamen çalışır durumda ve hizmette"
 
 #: netbox/circuits/choices.py:27 netbox/dcim/choices.py:214
-#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2088
-#: netbox/dcim/choices.py:2193 netbox/dcim/choices.py:2209
-#: netbox/dcim/choices.py:2275 netbox/dcim/choices.py:2294
+#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2101
+#: netbox/dcim/choices.py:2206 netbox/dcim/choices.py:2222
+#: netbox/dcim/choices.py:2288 netbox/dcim/choices.py:2307
 #: netbox/virtualization/choices.py:37 netbox/virtualization/choices.py:60
 msgid "Offline"
 msgstr "Çevrim dışı"
 
 #: netbox/circuits/choices.py:27 netbox/dcim/choices.py:214
-#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2294
+#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2307
 msgid "Installed but not currently in service"
 msgstr "Yüklü ancak şu anda hizmette değil"
 
@@ -116,8 +116,8 @@ msgstr "Hazırlıktan Kaldırma"
 
 #: netbox/circuits/choices.py:28 netbox/dcim/choices.py:24
 #: netbox/dcim/choices.py:48 netbox/dcim/choices.py:224
-#: netbox/dcim/choices.py:281 netbox/dcim/choices.py:2031
-#: netbox/dcim/choices.py:2303 netbox/virtualization/choices.py:34
+#: netbox/dcim/choices.py:281 netbox/dcim/choices.py:2044
+#: netbox/dcim/choices.py:2316 netbox/virtualization/choices.py:34
 #: netbox/virtualization/choices.py:81
 msgid "Being removed from service"
 msgstr "Hizmetten çıkarılmak"
@@ -130,7 +130,7 @@ msgstr "Hizmet dışı bırakıldı"
 msgid "Retired and no longer in service"
 msgstr "Emekli ve artık hizmette değil"
 
-#: netbox/circuits/choices.py:96 netbox/dcim/choices.py:2104
+#: netbox/circuits/choices.py:96 netbox/dcim/choices.py:2117
 #: netbox/dcim/tables/devices.py:1313
 #: netbox/templates/dcim/interface/attrs/mac_address.html:3
 #: netbox/tenancy/choices.py:17
@@ -370,7 +370,7 @@ msgstr "Fesih A (ID)"
 #: netbox/extras/filtersets.py:514 netbox/extras/filtersets.py:573
 #: netbox/extras/filtersets.py:634 netbox/extras/filtersets.py:673
 #: netbox/extras/filtersets.py:706 netbox/extras/filtersets.py:880
-#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:324
+#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:331
 #: netbox/netbox/forms/filtersets.py:32 netbox/netbox/forms/search.py:20
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:43
@@ -2066,8 +2066,8 @@ msgstr "En son senkronizasyon başarılı oldu"
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:21 netbox/core/tables/tasks.py:35
 #: netbox/dcim/choices.py:218 netbox/dcim/choices.py:276
-#: netbox/dcim/choices.py:2094 netbox/dcim/choices.py:2196
-#: netbox/dcim/choices.py:2212 netbox/dcim/choices.py:2298
+#: netbox/dcim/choices.py:2107 netbox/dcim/choices.py:2209
+#: netbox/dcim/choices.py:2225 netbox/dcim/choices.py:2311
 #: netbox/virtualization/choices.py:76
 msgid "Failed"
 msgstr "Başarısız"
@@ -2321,7 +2321,7 @@ msgid "User name"
 msgstr "Kullanıcı adı"
 
 #: netbox/core/forms/bulk_edit.py:26 netbox/core/forms/filtersets.py:47
-#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2142
+#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2155
 #: netbox/dcim/forms/bulk_edit.py:1500 netbox/dcim/forms/bulk_edit.py:1609
 #: netbox/dcim/forms/bulk_edit.py:1646 netbox/dcim/forms/bulk_edit.py:1880
 #: netbox/dcim/forms/bulk_edit.py:2148 netbox/dcim/forms/bulk_edit.py:2176
@@ -2353,7 +2353,7 @@ msgid "Sync interval"
 msgstr "Senkronizasyon aralığı"
 
 #: netbox/core/forms/bulk_edit.py:34 netbox/extras/forms/model_forms.py:429
-#: netbox/extras/views.py:399 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:400 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:335
 #: netbox/vpn/forms/model_forms.py:361 netbox/vpn/forms/model_forms.py:387
@@ -2514,7 +2514,7 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr "Raf Yükseltmeleri"
 
-#: netbox/core/forms/model_forms.py:152 netbox/dcim/choices.py:2004
+#: netbox/core/forms/model_forms.py:152 netbox/dcim/choices.py:2017
 #: netbox/dcim/forms/bulk_edit.py:1084 netbox/dcim/forms/bulk_edit.py:1769
 #: netbox/dcim/forms/bulk_edit.py:1790 netbox/dcim/tables/racks.py:178
 #: netbox/netbox/navigation/menu.py:327 netbox/netbox/navigation/menu.py:331
@@ -2770,7 +2770,7 @@ msgstr ""
 msgid "last updated"
 msgstr "son güncellendi"
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:797
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:814
 msgid "path"
 msgstr "yol"
 
@@ -3338,8 +3338,8 @@ msgstr ""
 
 #: netbox/dcim/choices.py:20 netbox/dcim/choices.py:44
 #: netbox/dcim/choices.py:114 netbox/dcim/choices.py:216
-#: netbox/dcim/choices.py:274 netbox/dcim/choices.py:2093
-#: netbox/dcim/choices.py:2274 netbox/dcim/choices.py:2296
+#: netbox/dcim/choices.py:274 netbox/dcim/choices.py:2106
+#: netbox/dcim/choices.py:2287 netbox/dcim/choices.py:2309
 msgid "Planned for future deployment"
 msgstr "Gelecekteki dağıtım için planlanıyor"
 
@@ -3359,7 +3359,7 @@ msgstr "Şu anda hizmette"
 
 #: netbox/dcim/choices.py:24 netbox/dcim/choices.py:48
 #: netbox/dcim/choices.py:222 netbox/dcim/choices.py:279
-#: netbox/dcim/choices.py:2029 netbox/dcim/choices.py:2301
+#: netbox/dcim/choices.py:2042 netbox/dcim/choices.py:2314
 #: netbox/virtualization/choices.py:33 netbox/virtualization/choices.py:80
 #: netbox/vpn/choices.py:320
 msgid "Decommissioning"
@@ -3470,7 +3470,7 @@ msgstr "Artık kullanım için önerilmez"
 msgid "Millimeters"
 msgstr "Milimetre"
 
-#: netbox/dcim/choices.py:127 netbox/dcim/choices.py:2054
+#: netbox/dcim/choices.py:127 netbox/dcim/choices.py:2067
 #: netbox/netbox/choices.py:216
 msgid "Inches"
 msgstr "İnç"
@@ -3564,17 +3564,17 @@ msgid "Rear"
 msgstr "Arka"
 
 #: netbox/dcim/choices.py:217 netbox/dcim/choices.py:275
-#: netbox/dcim/choices.py:2297 netbox/virtualization/choices.py:72
+#: netbox/dcim/choices.py:2310 netbox/virtualization/choices.py:72
 msgid "Staged"
 msgstr "Sahnelenmiş"
 
 #: netbox/dcim/choices.py:217 netbox/dcim/choices.py:275
-#: netbox/dcim/choices.py:2297
+#: netbox/dcim/choices.py:2310
 msgid "Installed and being prepared for service"
 msgstr "Kuruluyor ve servise hazırlanıyor"
 
 #: netbox/dcim/choices.py:218 netbox/dcim/choices.py:276
-#: netbox/dcim/choices.py:2094 netbox/dcim/choices.py:2298
+#: netbox/dcim/choices.py:2107 netbox/dcim/choices.py:2311
 msgid "Malfunctioning or out of service"
 msgstr "Arızalı veya hizmet dışı"
 
@@ -3611,7 +3611,7 @@ msgid "Top to bottom"
 msgstr "Yukarıdan aşağıya"
 
 #: netbox/dcim/choices.py:252 netbox/dcim/choices.py:302
-#: netbox/dcim/choices.py:1645
+#: netbox/dcim/choices.py:1658
 msgid "Passive"
 msgstr "Pasif"
 
@@ -3636,13 +3636,13 @@ msgid "International/ITA"
 msgstr "Uluslararası/ITA"
 
 #: netbox/dcim/choices.py:620 netbox/dcim/choices.py:865
-#: netbox/dcim/choices.py:2258
+#: netbox/dcim/choices.py:2271
 msgid "Proprietary"
 msgstr "Tescilli"
 
 #: netbox/dcim/choices.py:628 netbox/dcim/choices.py:875
-#: netbox/dcim/choices.py:1554 netbox/dcim/choices.py:1556
-#: netbox/dcim/choices.py:1805 netbox/dcim/choices.py:1807
+#: netbox/dcim/choices.py:1567 netbox/dcim/choices.py:1569
+#: netbox/dcim/choices.py:1818 netbox/dcim/choices.py:1820
 #: netbox/netbox/navigation/menu.py:222
 msgid "Other"
 msgstr "Diğer"
@@ -3655,11 +3655,11 @@ msgstr "ITA/Uluslararası"
 msgid "Physical"
 msgstr "Fiziksel"
 
-#: netbox/dcim/choices.py:906 netbox/dcim/choices.py:1199
+#: netbox/dcim/choices.py:906 netbox/dcim/choices.py:1204
 msgid "Virtual"
 msgstr "Sanal"
 
-#: netbox/dcim/choices.py:907 netbox/dcim/choices.py:1416
+#: netbox/dcim/choices.py:907 netbox/dcim/choices.py:1421
 #: netbox/dcim/forms/bulk_edit.py:2040 netbox/dcim/forms/filtersets.py:2013
 #: netbox/dcim/forms/filtersets.py:2147 netbox/dcim/forms/model_forms.py:1576
 #: netbox/dcim/forms/model_forms.py:2171 netbox/dcim/ui/panels.py:651
@@ -3667,11 +3667,11 @@ msgstr "Sanal"
 msgid "Wireless"
 msgstr "Kablosuz"
 
-#: netbox/dcim/choices.py:1197
+#: netbox/dcim/choices.py:1202
 msgid "Virtual interfaces"
 msgstr "Sanal arayüzler"
 
-#: netbox/dcim/choices.py:1200 netbox/dcim/forms/bulk_edit.py:1893
+#: netbox/dcim/choices.py:1205 netbox/dcim/forms/bulk_edit.py:1893
 #: netbox/dcim/forms/bulk_import.py:1153 netbox/dcim/forms/model_forms.py:1557
 #: netbox/dcim/tables/devices.py:777
 #: netbox/virtualization/forms/bulk_edit.py:231
@@ -3680,479 +3680,479 @@ msgstr "Sanal arayüzler"
 msgid "Bridge"
 msgstr "Köprü"
 
-#: netbox/dcim/choices.py:1201
+#: netbox/dcim/choices.py:1206
 msgid "Link Aggregation Group (LAG)"
 msgstr "Bağlantı Toplama Grubu (LAG)"
 
-#: netbox/dcim/choices.py:1202
+#: netbox/dcim/choices.py:1207
 #: netbox/templates/dcim/panels/interface_wireless.html:24
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:24
 msgid "Channel"
 msgstr "Kanal"
 
-#: netbox/dcim/choices.py:1206
+#: netbox/dcim/choices.py:1211
 msgid "FastEthernet (100 Mbps)"
 msgstr "Hızlı Ethernet (100 Mbps)"
 
-#: netbox/dcim/choices.py:1215
+#: netbox/dcim/choices.py:1220
 msgid "GigabitEthernet (1 Gbps)"
 msgstr "GigabitEthernet (1 Gbps)"
 
-#: netbox/dcim/choices.py:1233
+#: netbox/dcim/choices.py:1238
 msgid "2.5/5 Gbps Ethernet"
 msgstr "2,5/5 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1240
+#: netbox/dcim/choices.py:1245
 msgid "10 Gbps Ethernet"
 msgstr "10 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1256
+#: netbox/dcim/choices.py:1261
 msgid "25 Gbps Ethernet"
 msgstr "25 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1266
+#: netbox/dcim/choices.py:1271
 msgid "40 Gbps Ethernet"
 msgstr "40 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1277
+#: netbox/dcim/choices.py:1282
 msgid "50 Gbps Ethernet"
 msgstr "50 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1287
+#: netbox/dcim/choices.py:1292
 msgid "100 Gbps Ethernet"
 msgstr "100 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1308
+#: netbox/dcim/choices.py:1313
 msgid "200 Gbps Ethernet"
 msgstr "200 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1322
+#: netbox/dcim/choices.py:1327
 msgid "400 Gbps Ethernet"
 msgstr "400 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1340
+#: netbox/dcim/choices.py:1345
 msgid "800 Gbps Ethernet"
 msgstr "800 Gb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1349
+#: netbox/dcim/choices.py:1354
 msgid "1.6 Tbps Ethernet"
 msgstr "1.6 Tb/sn Ethernet"
 
-#: netbox/dcim/choices.py:1357
+#: netbox/dcim/choices.py:1362
 msgid "Pluggable transceivers"
 msgstr "Takılabilir alıcı-vericiler"
 
-#: netbox/dcim/choices.py:1399
+#: netbox/dcim/choices.py:1404
 msgid "Backplane Ethernet"
 msgstr "Arka Panel Ethernet"
 
-#: netbox/dcim/choices.py:1432
+#: netbox/dcim/choices.py:1437
 msgid "Cellular"
 msgstr "Hücresel"
 
-#: netbox/dcim/choices.py:1498 netbox/dcim/forms/filtersets.py:466
+#: netbox/dcim/choices.py:1511 netbox/dcim/forms/filtersets.py:466
 #: netbox/dcim/forms/filtersets.py:1041 netbox/dcim/forms/filtersets.py:1253
 #: netbox/dcim/forms/filtersets.py:2384
 #: netbox/templates/dcim/virtualchassis_edit.html:66
 msgid "Serial"
 msgstr "Seri"
 
-#: netbox/dcim/choices.py:1513
+#: netbox/dcim/choices.py:1526
 msgid "Coaxial"
 msgstr "Koaksiyel"
 
-#: netbox/dcim/choices.py:1534
+#: netbox/dcim/choices.py:1547
 msgid "Stacking"
 msgstr "İstifleme"
 
-#: netbox/dcim/choices.py:1590
+#: netbox/dcim/choices.py:1603
 msgid "Half"
 msgstr "Yarım"
 
-#: netbox/dcim/choices.py:1591
+#: netbox/dcim/choices.py:1604
 msgid "Full"
 msgstr "Dolu"
 
-#: netbox/dcim/choices.py:1592 netbox/netbox/preferences.py:33
+#: netbox/dcim/choices.py:1605 netbox/netbox/preferences.py:33
 #: netbox/wireless/choices.py:498
 msgid "Auto"
 msgstr "Oto"
 
-#: netbox/dcim/choices.py:1604
+#: netbox/dcim/choices.py:1617
 msgid "Access"
 msgstr "Erişim"
 
-#: netbox/dcim/choices.py:1604
+#: netbox/dcim/choices.py:1617
 msgid "Untagged traffic for a single VLAN"
 msgstr "Tek bir VLAN için etiketsiz trafik"
 
-#: netbox/dcim/choices.py:1605 netbox/ipam/tables/vlans.py:152
+#: netbox/dcim/choices.py:1618 netbox/ipam/tables/vlans.py:152
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "Etiketlenmiş"
 
-#: netbox/dcim/choices.py:1605
+#: netbox/dcim/choices.py:1618
 msgid "One untagged VLAN plus one or more tagged VLANs"
 msgstr "Bir etiketsiz VLAN artı bir veya daha fazla etiketli VLAN"
 
-#: netbox/dcim/choices.py:1606
+#: netbox/dcim/choices.py:1619
 msgid "Tagged (All)"
 msgstr "Etiketlenmiş (Tümü)"
 
-#: netbox/dcim/choices.py:1606
+#: netbox/dcim/choices.py:1619
 msgid "Untagged VLAN plus all tagged VLANs"
 msgstr "Etiketlenmemiş VLAN artı tüm etiketli VLAN'lar"
 
-#: netbox/dcim/choices.py:1607 netbox/templates/ipam/vlan_edit.html:30
+#: netbox/dcim/choices.py:1620 netbox/templates/ipam/vlan_edit.html:30
 msgid "Q-in-Q (802.1ad)"
 msgstr "Q-in-Q (802.1ad)"
 
-#: netbox/dcim/choices.py:1607
+#: netbox/dcim/choices.py:1620
 msgid "802.1ad service VLAN encapsulating customer VLANs"
 msgstr "Müşteri VLAN'larını kapsülleyen 802.1ad hizmeti VLAN"
 
-#: netbox/dcim/choices.py:1617
+#: netbox/dcim/choices.py:1630
 msgid "Powered device that receives power over Ethernet"
 msgstr "Ethernet üzerinden güç alan güçlendirilmiş cihaz"
 
-#: netbox/dcim/choices.py:1618
+#: netbox/dcim/choices.py:1631
 msgid "Power sourcing equipment that supplies power over Ethernet"
 msgstr "Ethernet üzerinden güç sağlayan güç kaynağı ekipmanı"
 
-#: netbox/dcim/choices.py:1636
+#: netbox/dcim/choices.py:1649
 msgid "IEEE Standard"
 msgstr "IEEE Standardı"
 
-#: netbox/dcim/choices.py:1647
+#: netbox/dcim/choices.py:1660
 msgid "Passive 24V (2-pair)"
 msgstr "Pasif 24V (2 çift)"
 
-#: netbox/dcim/choices.py:1648
+#: netbox/dcim/choices.py:1661
 msgid "Passive 24V (4-pair)"
 msgstr "Pasif 24V (4 çift)"
 
-#: netbox/dcim/choices.py:1649
+#: netbox/dcim/choices.py:1662
 msgid "Passive 48V (2-pair)"
 msgstr "Pasif 48V (2 çift)"
 
-#: netbox/dcim/choices.py:1650
+#: netbox/dcim/choices.py:1663
 msgid "Passive 48V (4-pair)"
 msgstr "Pasif 48V (4 çift)"
 
-#: netbox/dcim/choices.py:1728
+#: netbox/dcim/choices.py:1741
 msgid "Copper"
 msgstr "Bakır"
 
-#: netbox/dcim/choices.py:1751
+#: netbox/dcim/choices.py:1764
 msgid "Fiber Optic"
 msgstr "Fiber Optik"
 
-#: netbox/dcim/choices.py:1792 netbox/dcim/choices.py:2010
+#: netbox/dcim/choices.py:1805 netbox/dcim/choices.py:2023
 msgid "USB"
 msgstr "USB"
 
-#: netbox/dcim/choices.py:1850
+#: netbox/dcim/choices.py:1863
 msgid "Single"
 msgstr "Tek"
 
-#: netbox/dcim/choices.py:1852
+#: netbox/dcim/choices.py:1865
 msgid "1C1P"
 msgstr "1C1P"
 
-#: netbox/dcim/choices.py:1853
+#: netbox/dcim/choices.py:1866
 msgid "1C2P"
 msgstr "1C2P"
 
-#: netbox/dcim/choices.py:1854
+#: netbox/dcim/choices.py:1867
 msgid "1C4P"
 msgstr "1C4P"
 
-#: netbox/dcim/choices.py:1855
+#: netbox/dcim/choices.py:1868
 msgid "1C6P"
 msgstr "1C6P"
 
-#: netbox/dcim/choices.py:1856
+#: netbox/dcim/choices.py:1869
 msgid "1C8P"
 msgstr "1C8P"
 
-#: netbox/dcim/choices.py:1857
+#: netbox/dcim/choices.py:1870
 msgid "1C12P"
 msgstr "1C12P"
 
-#: netbox/dcim/choices.py:1858
+#: netbox/dcim/choices.py:1871
 msgid "1C16P"
 msgstr "1C16P"
 
-#: netbox/dcim/choices.py:1862
+#: netbox/dcim/choices.py:1875
 msgid "Trunk"
 msgstr "Gövde"
 
-#: netbox/dcim/choices.py:1864
+#: netbox/dcim/choices.py:1877
 msgid "2C1P trunk"
 msgstr "2C1P bagaj"
 
-#: netbox/dcim/choices.py:1865
+#: netbox/dcim/choices.py:1878
 msgid "2C2P trunk"
 msgstr "2C2P bagaj"
 
-#: netbox/dcim/choices.py:1866
+#: netbox/dcim/choices.py:1879
 msgid "2C4P trunk"
 msgstr "2C4P bagaj"
 
-#: netbox/dcim/choices.py:1867
+#: netbox/dcim/choices.py:1880
 msgid "2C4P trunk (shuffle)"
 msgstr "2C4P bagaj (karışık)"
 
-#: netbox/dcim/choices.py:1868
+#: netbox/dcim/choices.py:1881
 msgid "2C6P trunk"
 msgstr "2C6P bagaj"
 
-#: netbox/dcim/choices.py:1869
+#: netbox/dcim/choices.py:1882
 msgid "2C8P trunk"
 msgstr "2C8P bagaj"
 
-#: netbox/dcim/choices.py:1870
+#: netbox/dcim/choices.py:1883
 msgid "2C12P trunk"
 msgstr "2C12P bagaj"
 
-#: netbox/dcim/choices.py:1871
+#: netbox/dcim/choices.py:1884
 msgid "4C1P trunk"
 msgstr "4C1P bagaj"
 
-#: netbox/dcim/choices.py:1872
+#: netbox/dcim/choices.py:1885
 msgid "4C2P trunk"
 msgstr "4C2P bagaj"
 
-#: netbox/dcim/choices.py:1873
+#: netbox/dcim/choices.py:1886
 msgid "4C4P trunk"
 msgstr "4C4P bagaj"
 
-#: netbox/dcim/choices.py:1874
+#: netbox/dcim/choices.py:1887
 msgid "4C4P trunk (shuffle)"
 msgstr "4C4P bagaj (karışık)"
 
-#: netbox/dcim/choices.py:1875
+#: netbox/dcim/choices.py:1888
 msgid "4C6P trunk"
 msgstr "4C6P bagaj"
 
-#: netbox/dcim/choices.py:1876
+#: netbox/dcim/choices.py:1889
 msgid "4C8P trunk"
 msgstr "4C8P bagaj"
 
-#: netbox/dcim/choices.py:1877
+#: netbox/dcim/choices.py:1890
 msgid "8C4P trunk"
 msgstr "8C4P bagaj"
 
-#: netbox/dcim/choices.py:1881
+#: netbox/dcim/choices.py:1894
 msgid "Breakout"
 msgstr "Kaçış"
 
-#: netbox/dcim/choices.py:1883
+#: netbox/dcim/choices.py:1896
 msgid "1C2P:2C1P breakout"
 msgstr "1C2P: 2C1P kırılma"
 
-#: netbox/dcim/choices.py:1884
+#: netbox/dcim/choices.py:1897
 msgid "1C4P:4C1P breakout"
 msgstr "1C4P: 4C1P kırılma"
 
-#: netbox/dcim/choices.py:1885
+#: netbox/dcim/choices.py:1898
 msgid "1C6P:6C1P breakout"
 msgstr "1C6P: 6C1P kopma"
 
-#: netbox/dcim/choices.py:1886
+#: netbox/dcim/choices.py:1899
 msgid "1C8P:8C1P breakout"
 msgstr "1C8P: 8C1P kopma"
 
-#: netbox/dcim/choices.py:1887
+#: netbox/dcim/choices.py:1900
 msgid "2C4P:8C1P breakout (shuffle)"
 msgstr "2C4P: 8C1P kopma (karışık)"
 
-#: netbox/dcim/choices.py:1945
+#: netbox/dcim/choices.py:1958
 msgid "Copper - Twisted Pair (UTP/STP)"
 msgstr "Bakır - Bükülmüş Çift (UTP/STP)"
 
-#: netbox/dcim/choices.py:1959
+#: netbox/dcim/choices.py:1972
 msgid "Copper - Twinax (DAC)"
 msgstr "Bakır - Twinax (DAC)"
 
-#: netbox/dcim/choices.py:1966
+#: netbox/dcim/choices.py:1979
 msgid "Copper - Coaxial"
 msgstr "Bakır - Koaksiyel"
 
-#: netbox/dcim/choices.py:1981
+#: netbox/dcim/choices.py:1994
 msgid "Fiber - Multimode"
 msgstr "Fiber - Çok Modlu"
 
-#: netbox/dcim/choices.py:1992
+#: netbox/dcim/choices.py:2005
 msgid "Fiber - Single-mode"
 msgstr "Fiber - Tek modlu"
 
-#: netbox/dcim/choices.py:2000
+#: netbox/dcim/choices.py:2013
 msgid "Fiber - Other"
 msgstr "Elyaf - Diğer"
 
-#: netbox/dcim/choices.py:2025 netbox/dcim/forms/filtersets.py:1690
+#: netbox/dcim/choices.py:2038 netbox/dcim/forms/filtersets.py:1690
 msgid "Connected"
 msgstr "Bağlı"
 
-#: netbox/dcim/choices.py:2025
+#: netbox/dcim/choices.py:2038
 msgid "Link is connected and in service"
 msgstr "Bağlantı bağlı ve hizmette"
 
-#: netbox/dcim/choices.py:2026
+#: netbox/dcim/choices.py:2039
 msgid "Planned for future connection"
 msgstr "Gelecekteki bağlantı için planlanıyor"
 
-#: netbox/dcim/choices.py:2049 netbox/netbox/choices.py:179
+#: netbox/dcim/choices.py:2062 netbox/netbox/choices.py:179
 msgid "Kilometers"
 msgstr "Kilometre"
 
-#: netbox/dcim/choices.py:2050 netbox/netbox/choices.py:180
+#: netbox/dcim/choices.py:2063 netbox/netbox/choices.py:180
 #: netbox/templates/dcim/cable_trace.html:67
 msgid "Meters"
 msgstr "Sayaçlar"
 
-#: netbox/dcim/choices.py:2051 netbox/netbox/choices.py:215
+#: netbox/dcim/choices.py:2064 netbox/netbox/choices.py:215
 msgid "Centimeters"
 msgstr "Santimetre"
 
-#: netbox/dcim/choices.py:2052 netbox/netbox/choices.py:181
+#: netbox/dcim/choices.py:2065 netbox/netbox/choices.py:181
 msgid "Miles"
 msgstr "Mil"
 
-#: netbox/dcim/choices.py:2053 netbox/netbox/choices.py:182
+#: netbox/dcim/choices.py:2066 netbox/netbox/choices.py:182
 #: netbox/templates/dcim/cable_trace.html:68
 msgid "Feet"
 msgstr "Feet"
 
-#: netbox/dcim/choices.py:2090
+#: netbox/dcim/choices.py:2103
 msgid "Installed but not currently supplying power"
 msgstr "Yüklü ancak şu anda güç sağlamıyor"
 
-#: netbox/dcim/choices.py:2092
+#: netbox/dcim/choices.py:2105
 msgid "Supplying power and in service"
 msgstr "Güç kaynağı ve hizmette"
 
-#: netbox/dcim/choices.py:2105
+#: netbox/dcim/choices.py:2118
 msgid "Redundant"
 msgstr "Yedekli"
 
-#: netbox/dcim/choices.py:2126
+#: netbox/dcim/choices.py:2139
 msgid "Single phase"
 msgstr "Tek fazlı"
 
-#: netbox/dcim/choices.py:2127
+#: netbox/dcim/choices.py:2140
 msgid "Three-phase"
 msgstr "Üç fazlı"
 
-#: netbox/dcim/choices.py:2142
+#: netbox/dcim/choices.py:2155
 msgid "Powered on and supplying power"
 msgstr "Güç açıldı ve güç kaynağı"
 
-#: netbox/dcim/choices.py:2143 netbox/extras/choices.py:83
+#: netbox/dcim/choices.py:2156 netbox/extras/choices.py:83
 #: netbox/netbox/preferences.py:46 netbox/netbox/preferences.py:71
 #: netbox/templates/extras/customfield/attrs/search_weight.html:1
 #: netbox/vpn/choices.py:25 netbox/wireless/choices.py:29
 msgid "Disabled"
 msgstr "Engelli"
 
-#: netbox/dcim/choices.py:2143
+#: netbox/dcim/choices.py:2156
 msgid "Powered off and not supplying power"
 msgstr "Kapalı ve güç sağlamıyor"
 
-#: netbox/dcim/choices.py:2144
+#: netbox/dcim/choices.py:2157
 msgid "Faulty"
 msgstr "Arızalı"
 
-#: netbox/dcim/choices.py:2144
+#: netbox/dcim/choices.py:2157
 msgid "Malfunctioning or in an error state"
 msgstr "Arızalı veya hata durumunda"
 
-#: netbox/dcim/choices.py:2159
+#: netbox/dcim/choices.py:2172
 msgid "Air"
 msgstr "Hava"
 
-#: netbox/dcim/choices.py:2160
+#: netbox/dcim/choices.py:2173
 msgid "Liquid"
 msgstr "Sıvı"
 
-#: netbox/dcim/choices.py:2161 netbox/dcim/choices.py:2237
+#: netbox/dcim/choices.py:2174 netbox/dcim/choices.py:2250
 msgid "Hybrid"
 msgstr "Hibrit"
 
-#: netbox/dcim/choices.py:2162
+#: netbox/dcim/choices.py:2175
 msgid "Immersion"
 msgstr "Daldırma"
 
-#: netbox/dcim/choices.py:2176
+#: netbox/dcim/choices.py:2189
 msgid "Chiller"
 msgstr "Soğutucu"
 
-#: netbox/dcim/choices.py:2177
+#: netbox/dcim/choices.py:2190
 msgid "Cooling tower"
 msgstr "Soğutma kulesi"
 
-#: netbox/dcim/choices.py:2178
+#: netbox/dcim/choices.py:2191
 msgid "Dry cooler"
 msgstr "Kuru soğutucu"
 
-#: netbox/dcim/choices.py:2179
+#: netbox/dcim/choices.py:2192
 msgid "CRAC"
 msgstr "ZÜMRÜT"
 
-#: netbox/dcim/choices.py:2180
+#: netbox/dcim/choices.py:2193
 msgid "CRAH"
 msgstr "HIRS"
 
-#: netbox/dcim/choices.py:2223
+#: netbox/dcim/choices.py:2236
 msgid "Water"
 msgstr "Su"
 
-#: netbox/dcim/choices.py:2224
+#: netbox/dcim/choices.py:2237
 msgid "Water/glycol"
 msgstr "Su/glikol"
 
-#: netbox/dcim/choices.py:2225
+#: netbox/dcim/choices.py:2238
 msgid "Dielectric"
 msgstr "Dielektrik"
 
-#: netbox/dcim/choices.py:2226
+#: netbox/dcim/choices.py:2239
 msgid "Refrigerant"
 msgstr "Soğutucu"
 
-#: netbox/dcim/choices.py:2236
+#: netbox/dcim/choices.py:2249
 msgid "Air only"
 msgstr "Sadece hava"
 
-#: netbox/dcim/choices.py:2238
+#: netbox/dcim/choices.py:2251
 msgid "Liquid only"
 msgstr "Sadece sıvı"
 
-#: netbox/dcim/choices.py:2252
+#: netbox/dcim/choices.py:2265
 msgid "UQD (Universal Quick Disconnect)"
 msgstr "UQD (Evrensel Hızlı Bağlantı Kesme)"
 
-#: netbox/dcim/choices.py:2253
+#: netbox/dcim/choices.py:2266
 msgid "UQDB (Universal Quick Disconnect, Blind-mate)"
 msgstr "UQDB (Evrensel Hızlı Bağlantı Kesme, Blind-mate)"
 
-#: netbox/dcim/choices.py:2254
+#: netbox/dcim/choices.py:2267
 msgid "QDC (Quick Disconnect Coupling)"
 msgstr "QDC (Hızlı Bağlantı Kesme Bağlantısı)"
 
-#: netbox/dcim/choices.py:2255
+#: netbox/dcim/choices.py:2268
 msgid "Camlock (cam-and-groove)"
 msgstr "Camlock (kam-oluklu)"
 
-#: netbox/dcim/choices.py:2256
+#: netbox/dcim/choices.py:2269
 msgid "NPT (threaded)"
 msgstr "NPT (dişli)"
 
-#: netbox/dcim/choices.py:2257
+#: netbox/dcim/choices.py:2270
 msgid "BSP (threaded)"
 msgstr "BSP (dişli)"
 
-#: netbox/dcim/choices.py:2275 netbox/wireless/choices.py:31
+#: netbox/dcim/choices.py:2288 netbox/wireless/choices.py:31
 msgid "Configured but not currently in service"
 msgstr "Yapılandırılmış ancak şu anda hizmette değil"
 
@@ -7070,19 +7070,19 @@ msgstr "Uyumsuz sonlandırma türleri: {type_a} ve {type_b}"
 msgid "A and B terminations cannot connect to the same object."
 msgstr "A ve B sonlandırmaları aynı nesneye bağlanamaz."
 
-#: netbox/dcim/models/cables.py:574 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:591 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr "son"
 
-#: netbox/dcim/models/cables.py:645
+#: netbox/dcim/models/cables.py:662
 msgid "cable termination"
 msgstr "kablo sonlandırma"
 
-#: netbox/dcim/models/cables.py:646
+#: netbox/dcim/models/cables.py:663
 msgid "cable terminations"
 msgstr "kablo sonlandırmaları"
 
-#: netbox/dcim/models/cables.py:659
+#: netbox/dcim/models/cables.py:676
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
@@ -7090,7 +7090,7 @@ msgid ""
 msgstr ""
 "Kablo bağlanamıyor {obj_parent} > {obj} çünkü bağlı olarak işaretlenmiştir."
 
-#: netbox/dcim/models/cables.py:676
+#: netbox/dcim/models/cables.py:693
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -7099,7 +7099,7 @@ msgstr ""
 "Yinelenen sonlandırma bulundu {app_label}.{model} {termination_id}: kablo "
 "{cable_pk}"
 
-#: netbox/dcim/models/cables.py:688
+#: netbox/dcim/models/cables.py:705
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
@@ -7107,58 +7107,58 @@ msgstr ""
 "Kablolar doğrudan bir kanal alt arabirimine sonlandırılamaz; bunun yerine "
 "ana arabirimi bağlayın."
 
-#: netbox/dcim/models/cables.py:694
+#: netbox/dcim/models/cables.py:711
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Kablolar sonlandırılamaz {type_display} arayüzleri"
 
-#: netbox/dcim/models/cables.py:701
+#: netbox/dcim/models/cables.py:718
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr "Bir sağlayıcı ağına bağlı devre sonlandırmaları kablolanmayabilir."
 
-#: netbox/dcim/models/cables.py:733
+#: netbox/dcim/models/cables.py:750
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr "Geçersiz kablo sonlandırma: atanan sonlandırma nesnesi mevcut değil."
 
-#: netbox/dcim/models/cables.py:801 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:818 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr "aktiftir"
 
-#: netbox/dcim/models/cables.py:805
+#: netbox/dcim/models/cables.py:822
 msgid "is complete"
 msgstr "tamamlandı"
 
-#: netbox/dcim/models/cables.py:809
+#: netbox/dcim/models/cables.py:826
 msgid "is split"
 msgstr "bölünmüş"
 
-#: netbox/dcim/models/cables.py:822
+#: netbox/dcim/models/cables.py:839
 msgid "cable path"
 msgstr "kablo yolu"
 
-#: netbox/dcim/models/cables.py:823
+#: netbox/dcim/models/cables.py:840
 msgid "cable paths"
 msgstr "kablo yolları"
 
-#: netbox/dcim/models/cables.py:914
+#: netbox/dcim/models/cables.py:931
 msgid "All originating terminations must be attached to the same link"
 msgstr "Tüm kaynak sonlandırmalar aynı bağlantıya eklenmelidir"
 
-#: netbox/dcim/models/cables.py:932
+#: netbox/dcim/models/cables.py:949
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 "Tüm orta açıklıklı sonlandırmalar aynı sonlandırma türüne sahip olmalıdır"
 
-#: netbox/dcim/models/cables.py:940
+#: netbox/dcim/models/cables.py:957
 msgid "All mid-span terminations must have the same parent object"
 msgstr "Tüm orta açıklıklı sonlandırmalar aynı ana nesneye sahip olmalıdır"
 
-#: netbox/dcim/models/cables.py:970
+#: netbox/dcim/models/cables.py:987
 msgid "All links must be cable or wireless"
 msgstr "Tüm bağlantılar kablo veya kablosuz olmalıdır"
 
-#: netbox/dcim/models/cables.py:972
+#: netbox/dcim/models/cables.py:989
 msgid "All links must match first link type"
 msgstr "Tüm bağlantılar ilk bağlantı türüyle eşleşmelidir"
 
@@ -10009,7 +10009,7 @@ msgstr "Özel alan '{name}'bu nesne türü için mevcut değil."
 msgid "Unknown related object(s): {name}"
 msgstr "Bilinmeyen ilgili nesne (ler): {name}"
 
-#: netbox/extras/api/mixins.py:92 netbox/extras/api/views.py:257
+#: netbox/extras/api/mixins.py:92 netbox/extras/api/views.py:258
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw"
 " rendered content is returned in place of the JSON object."
@@ -10021,11 +10021,11 @@ msgstr ""
 msgid "No config template could be resolved for this object."
 msgstr "Bu nesne için yapılandırma şablonu çözülemedi."
 
-#: netbox/extras/api/mixins.py:102 netbox/extras/api/views.py:263
+#: netbox/extras/api/mixins.py:102 netbox/extras/api/views.py:264
 msgid "An error occurred while rendering the config template."
 msgstr "Yapılandırma şablonunu oluştururken bir hata oluştu."
 
-#: netbox/extras/api/mixins.py:125 netbox/extras/views.py:1316
+#: netbox/extras/api/mixins.py:125 netbox/extras/views.py:1317
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr "Kimlik ile yapılandırma şablonu {id} bulunamadı."
@@ -10080,30 +10080,41 @@ msgstr ""
 " üzerine yazmaya izin verecek şekilde yapılandırıldığından emin olun."
 
 #: netbox/extras/api/serializers_/scripts.py:197
+msgid ""
+"Invalid data payload; expected an object mapping variable names to values."
+msgstr ""
+"Geçersiz veri yükü; değişken adlarını değerlerle eşleyen bir nesne "
+"bekleniyordu."
+
 #: netbox/extras/api/serializers_/scripts.py:207
+#: netbox/extras/api/serializers_/scripts.py:217
 msgid "Scheduling is not enabled for this script."
 msgstr "Bu komut dosyası için zamanlama etkin değil."
 
-#: netbox/extras/api/serializers_/scripts.py:199
+#: netbox/extras/api/serializers_/scripts.py:209
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr "Planlanan zaman gelecekte olmalıdır."
 
-#: netbox/extras/api/views.py:371
+#: netbox/extras/api/views.py:372
 msgid "The script has been enqueued for execution."
 msgstr "Komut dosyası yürütme için sıraya alındı."
 
-#: netbox/extras/api/views.py:384
+#: netbox/extras/api/views.py:385
 msgid "This token does not permit write operations (running a script)."
 msgstr "Bu belirteç yazma işlemlerine (komut dosyası çalıştırma) izin vermez."
 
-#: netbox/extras/api/views.py:389
+#: netbox/extras/api/views.py:390
 msgid "This user does not have permission to run this script."
 msgstr "Bu kullanıcının bu komut dosyasını çalıştırma izni yok."
 
-#: netbox/extras/api/views.py:399
+#: netbox/extras/api/views.py:400
 msgid "This script is not currently executable."
 msgstr "Bu komut dosyası şu anda yürütülebilir değil."
+
+#: netbox/extras/api/views.py:429
+msgid "Invalid script input."
+msgstr "Geçersiz komut dosyası girişi."
 
 #: netbox/extras/choices.py:30 netbox/extras/forms/misc.py:14
 msgid "Text"
@@ -10789,7 +10800,7 @@ msgstr "Zaman aşımı"
 msgid "Event types"
 msgstr "Etkinlik türleri"
 
-#: netbox/extras/forms/bulk_edit.py:315 netbox/extras/views.py:847
+#: netbox/extras/forms/bulk_edit.py:315 netbox/extras/views.py:848
 msgid "Conditions"
 msgstr "Koşullar"
 
@@ -11213,7 +11224,7 @@ msgid "Base choices"
 msgstr "Temel Seçenekler"
 
 #: netbox/extras/forms/model_forms.py:224
-#: netbox/extras/models/customfields.py:1265
+#: netbox/extras/models/customfields.py:1266
 msgid "Base set of predefined choices (optional)"
 msgstr "Önceden tanımlanmış seçeneklerin temel kümesi (isteğe bağlı)"
 
@@ -11785,115 +11796,115 @@ msgstr "Yanlış"
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr "Değerler bu normal ifadeyle eşleşmelidir: <code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:1128
-#: netbox/extras/models/customfields.py:1135
+#: netbox/extras/models/customfields.py:1129
+#: netbox/extras/models/customfields.py:1136
 msgid "Value must be a string."
 msgstr "Değer bir dize olmalıdır."
 
-#: netbox/extras/models/customfields.py:1130
-#: netbox/extras/models/customfields.py:1143
+#: netbox/extras/models/customfields.py:1131
+#: netbox/extras/models/customfields.py:1144
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "Değer regex ile eşleşmelidir '{regex}'"
 
-#: netbox/extras/models/customfields.py:1140
+#: netbox/extras/models/customfields.py:1141
 msgid "URLs must use a scheme permitted by ALLOWED_URL_SCHEMES."
 msgstr ""
 "URL'ler, ALLOWED_URL_SCHEMES tarafından izin verilen bir şema kullanmalıdır."
 
-#: netbox/extras/models/customfields.py:1148
+#: netbox/extras/models/customfields.py:1149
 msgid "Value must be an integer."
 msgstr "Değer bir tamsayı olmalıdır."
 
-#: netbox/extras/models/customfields.py:1151
-#: netbox/extras/models/customfields.py:1166
+#: netbox/extras/models/customfields.py:1152
+#: netbox/extras/models/customfields.py:1167
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "Değer en az olmalıdır {minimum}"
 
-#: netbox/extras/models/customfields.py:1155
-#: netbox/extras/models/customfields.py:1170
+#: netbox/extras/models/customfields.py:1156
+#: netbox/extras/models/customfields.py:1171
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "Değer geçmemelidir {maximum}"
 
-#: netbox/extras/models/customfields.py:1163
+#: netbox/extras/models/customfields.py:1164
 msgid "Value must be a decimal."
 msgstr "Değer ondalık olmalıdır."
 
-#: netbox/extras/models/customfields.py:1175
+#: netbox/extras/models/customfields.py:1176
 msgid "Value must be true or false."
 msgstr "Değer doğru veya yanlış olmalıdır."
 
-#: netbox/extras/models/customfields.py:1183
+#: netbox/extras/models/customfields.py:1184
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "Tarih değerleri ISO 8601 biçiminde olmalıdır (YYYY-AA-GG)."
 
-#: netbox/extras/models/customfields.py:1192
+#: netbox/extras/models/customfields.py:1193
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr ""
 "Tarih ve saat değerleri ISO 8601 biçiminde olmalıdır (YYYY-MM-DD HH:MM:SS)."
 
-#: netbox/extras/models/customfields.py:1199
+#: netbox/extras/models/customfields.py:1200
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "Geçersiz seçim ({value}) seçim seti için {choiceset}."
 
-#: netbox/extras/models/customfields.py:1213
+#: netbox/extras/models/customfields.py:1214
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "Geçersiz seçim (ler) ({value}) seçim seti için {choiceset}."
 
-#: netbox/extras/models/customfields.py:1222
+#: netbox/extras/models/customfields.py:1223
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "Değer bir nesne kimliği olmalıdır, değil {type}"
 
-#: netbox/extras/models/customfields.py:1228
+#: netbox/extras/models/customfields.py:1229
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "Değer, nesne kimliklerinin bir listesi olmalıdır, değil {type}"
 
-#: netbox/extras/models/customfields.py:1232
+#: netbox/extras/models/customfields.py:1233
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "Geçersiz nesne kimliği bulundu: {id}"
 
-#: netbox/extras/models/customfields.py:1241
+#: netbox/extras/models/customfields.py:1242
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr "Değer atanan şemaya uymuyor: {error}"
 
-#: netbox/extras/models/customfields.py:1245
+#: netbox/extras/models/customfields.py:1246
 msgid "Required field cannot be empty."
 msgstr "Zorunlu alan boş olamaz."
 
-#: netbox/extras/models/customfields.py:1277
+#: netbox/extras/models/customfields.py:1278
 msgid "Choices are automatically ordered alphabetically"
 msgstr "Seçenekler otomatik olarak alfabetik olarak sıralanır"
 
-#: netbox/extras/models/customfields.py:1284
+#: netbox/extras/models/customfields.py:1285
 msgid "custom field choice set"
 msgstr "özel alan seçim kümesi"
 
-#: netbox/extras/models/customfields.py:1285
+#: netbox/extras/models/customfields.py:1286
 msgid "custom field choice sets"
 msgstr "özel alan seçim kümeleri"
 
-#: netbox/extras/models/customfields.py:1345
+#: netbox/extras/models/customfields.py:1346
 msgid "Must define base or extra choices."
 msgstr "Temel veya ekstra seçenekleri tanımlamalıdır."
 
-#: netbox/extras/models/customfields.py:1351
+#: netbox/extras/models/customfields.py:1352
 msgid "Color mappings must be defined as a JSON object."
 msgstr "Renk eşlemeleri JSON nesnesi olarak tanımlanmalıdır."
 
-#: netbox/extras/models/customfields.py:1363
+#: netbox/extras/models/customfields.py:1364
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr "Yinelenen değer '{value}'Ekstra seçeneklerde bulundu."
 
-#: netbox/extras/models/customfields.py:1380
+#: netbox/extras/models/customfields.py:1381
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
@@ -11902,13 +11913,13 @@ msgstr ""
 "Renk eşlemeleri varolan bir seçim değerine başvurmalıdır. Geçersiz değer "
 "(ler): {values}."
 
-#: netbox/extras/models/customfields.py:1387
+#: netbox/extras/models/customfields.py:1388
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr ""
 "Geçersiz renk değeri: {colors}. Desteklenen adlandırılmış bir renk kullanın."
 
-#: netbox/extras/models/customfields.py:1410
+#: netbox/extras/models/customfields.py:1411
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -12437,7 +12448,7 @@ msgstr "etiketli öğe"
 msgid "tagged items"
 msgstr "etiketli öğeler"
 
-#: netbox/extras/scripts.py:437
+#: netbox/extras/scripts.py:442
 #, python-brace-format
 msgid ""
 "Invalid job_timeout value '{value}': must be an integer (seconds) or a "
@@ -12446,21 +12457,21 @@ msgstr ""
 "Geçersiz job_timeout değeri '{value}': bir tamsayı (saniye) veya' 1h 'veya "
 "'30m' gibi bir süre dizesi olmalıdır."
 
-#: netbox/extras/scripts.py:442
+#: netbox/extras/scripts.py:447
 #, python-brace-format
 msgid "Invalid job_timeout value '{value}': must be a positive duration."
 msgstr "Geçersiz job_timeout değeri '{value}': pozitif bir süre olmalıdır."
 
-#: netbox/extras/scripts.py:451
+#: netbox/extras/scripts.py:456
 #, python-brace-format
 msgid "Invalid notifications value '{value}': must be one of {valid}."
 msgstr "Geçersiz bildirim değeri '{value}': şunlardan biri olmalı {valid}."
 
-#: netbox/extras/scripts.py:556
+#: netbox/extras/scripts.py:561
 msgid "Script Data"
 msgstr "Komut Dosyası Verileri"
 
-#: netbox/extras/scripts.py:563
+#: netbox/extras/scripts.py:568
 msgid "Script Execution Parameters"
 msgstr "Script Yürütme Parametreleri"
 
@@ -12681,8 +12692,8 @@ msgstr "Tarafından kullanılır"
 msgid "Attachment"
 msgstr "Ataşman"
 
-#: netbox/extras/ui/panels.py:264 netbox/extras/views.py:252
-#: netbox/extras/views.py:324
+#: netbox/extras/ui/panels.py:264 netbox/extras/views.py:253
+#: netbox/extras/views.py:325
 msgid "Assigned Models"
 msgstr "Atanan Modeller"
 
@@ -12765,68 +12776,68 @@ msgstr "Geçersiz öznitelik”{name}“istek için"
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr "\"{name}\" niteliği {model} için geçerli değil."
 
-#: netbox/extras/views.py:255
+#: netbox/extras/views.py:256
 msgid "Link Text"
 msgstr "Bağlantı Metni"
 
-#: netbox/extras/views.py:256
+#: netbox/extras/views.py:257
 msgid "Link URL"
 msgstr "Bağlantı URL'si"
 
-#: netbox/extras/views.py:325 netbox/extras/views.py:1219
+#: netbox/extras/views.py:326 netbox/extras/views.py:1220
 msgid "Environment Parameters"
 msgstr "Çevre Parametreleri"
 
-#: netbox/extras/views.py:328 netbox/extras/views.py:1222
+#: netbox/extras/views.py:329 netbox/extras/views.py:1223
 msgid "Template"
 msgstr "Şablon"
 
-#: netbox/extras/views.py:492
+#: netbox/extras/views.py:493
 msgid "Table configurations must be created from an object list view."
 msgstr ""
 "Tablo yapılandırmaları bir nesne listesi görünümünden oluşturulmalıdır."
 
-#: netbox/extras/views.py:777
+#: netbox/extras/views.py:778
 msgid "Additional Headers"
 msgstr "Ek Başlıklar"
 
-#: netbox/extras/views.py:778
+#: netbox/extras/views.py:779
 msgid "Body Template"
 msgstr "Vücut Şablonu"
 
-#: netbox/extras/views.py:921
+#: netbox/extras/views.py:922
 msgid "Tagged Objects"
 msgstr "Etiketli Nesneler"
 
-#: netbox/extras/views.py:1014
+#: netbox/extras/views.py:1015
 msgid "JSON Schema"
 msgstr "JSON Şeması"
 
-#: netbox/extras/views.py:1511
+#: netbox/extras/views.py:1512
 msgid "Your dashboard has been reset."
 msgstr "Kontrol paneliniz sıfırlandı."
 
-#: netbox/extras/views.py:1557
+#: netbox/extras/views.py:1558
 msgid "Added widget: "
 msgstr "Eklenen widget: "
 
-#: netbox/extras/views.py:1598
+#: netbox/extras/views.py:1599
 msgid "Updated widget: "
 msgstr "Güncellenmiş widget: "
 
-#: netbox/extras/views.py:1634
+#: netbox/extras/views.py:1635
 msgid "Deleted widget: "
 msgstr "Silinen widget: "
 
-#: netbox/extras/views.py:1636
+#: netbox/extras/views.py:1637
 msgid "Error deleting widget: "
 msgstr "Widget silinirken hata oluştu: "
 
-#: netbox/extras/views.py:1752
+#: netbox/extras/views.py:1747
 msgid "Unable to run script: RQ worker process not running."
 msgstr "Komut dosyası çalıştırılamıyor: RQ işçi işlemi çalışmıyor."
 
-#: netbox/extras/views.py:1771
+#: netbox/extras/views.py:1766
 #, python-brace-format
 msgid "Unable to run script: {error}"
 msgstr "Komut dosyası çalıştırılamıyor: {error}"

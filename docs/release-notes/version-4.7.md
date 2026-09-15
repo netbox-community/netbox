@@ -1,41 +1,28 @@
 # NetBox v4.7
 
-## v4.7.1 (FUTURE)
+## v4.7.1 (2026-09-15)
 
 !!! warning "Databases Restored From a v4.7.0 Dump"
-    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, because `pg_dump` resets the `search_path` and the triggers' `WHEN` clause depended on it. As `psql` does not stop on error by default, such a restore reported success while leaving the database without those triggers, so renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, or inventory item did not update its descendants.
+    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, so such a restore reported success while leaving the database without those triggers. Renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, inventory item, or inventory item template then did not update its descendants. Upgrading reinstalls the triggers so that all subsequent changes cascade correctly, but does **not** repair values which have already gone stale. See [Repairing Hierarchical Paths](../administration/repairing-hierarchical-paths.md) for how to detect and correct them, and for the steps plugins maintaining their own `ltree` models must take.
 
-    Upgrading reinstalls the triggers, so all subsequent changes are cascaded correctly. It does **not** repair values which have already gone stale. After upgrading, `rebuild_ltree_paths --check` reports which models are affected without modifying anything or taking any locks:
+### Enhancements
 
-    ```no-highlight
-    python netbox/manage.py rebuild_ltree_paths --check
-    ```
+* [#22999](https://github.com/netbox-community/netbox/issues/22999) - Add a default module type profile for transceivers
+* [#23041](https://github.com/netbox-community/netbox/issues/23041) - Add InfiniBand 2X interface types for HDR and later generations (HDR100, NDR200, and XDR400)
 
-    To check before upgrading, the same test can be run as SQL. Substitute each hierarchical table in turn: `dcim_region`, `dcim_sitegroup`, `dcim_location`, `dcim_devicerole`, `dcim_platform`, `dcim_modulebay`, `dcim_inventoryitem`, `dcim_inventoryitemtemplate`, `tenancy_tenantgroup`, `tenancy_contactgroup`, and `wireless_wirelesslangroup`.
+### Bug Fixes
 
-    ```no-highlight
-    SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
-    WHERE c.path <> p.path || lpad(c.id::text, 19, '0')::ltree;
-    ```
-
-    Treat any non-zero result as "this table needs rebuilding" rather than as a count of the damage: a node whose ancestor moved is reported, but its own descendants are consistent with it and so are not, even though they are equally stale.
-
-    The nine tables which order their children by name additionally maintain a `sort_path`, which can go stale on a rename even when `path` is correct. Every table in the list above except `dcim_inventoryitem` and `dcim_inventoryitemtemplate` carries one, and is checked with:
-
-    ```no-highlight
-    SELECT count(*) FROM dcim_region c JOIN dcim_region p ON c.parent_id = p.id
-    WHERE c.sort_path <> p.sort_path || chr(9) || c.name;
-    ```
-
-    Stale `sort_path` values affect only the order in which objects are listed. A stale `path`, by contrast, misplaces an object within the hierarchy, so it can be omitted from its ancestor's list of descendants. Repair an affected table with the [`rebuild_ltree_paths`](../administration/management-commands.md#rebuild_ltree_paths) management command, naming the models the queries above flagged:
-
-    ```no-highlight
-    python netbox/manage.py rebuild_ltree_paths dcim.region
-    ```
-
-    A rebuild rewrites every row of the named tables, locking those rows until it commits, so run it during a maintenance window. Should it report that a table contains rows unreachable from any root, the parent relationships themselves need correcting first: a rebuild walks down from the roots and would skip those rows.
-
-    Plugins which maintain their own `ltree` models via the `InstallLtreeTriggers` migration operation are affected in the same way, and their tables are not touched by the migrations above. Where such a database was restored from a dump, the plugin's cascade triggers are missing entirely; where it was upgraded in place, they carry the old definition and will be lost by its next dump. Either way, a new plugin migration applying `ReinstallLtreeTriggers` (passing the same `name_column` as the original) installs the corrected definitions. Use that operation rather than `InstallLtreeTriggers`: both drop each trigger before recreating it, so either works going forwards, but reversing the corrective migration should not undo the original installation. `InstallLtreeTriggers` reverses by dropping both triggers and their functions, which would leave the table with no path maintenance while the migration that first installed them remains applied. `ReinstallLtreeTriggers` reverses to a no-op instead.
+* [#22750](https://github.com/netbox-community/netbox/issues/22750) - Resolve object IDs to model instances and validate the submitted data when executing a custom script via the REST API
+* [#23012](https://github.com/netbox-community/netbox/issues/23012) - Apply a field's collation to both sides of a case-insensitive comparison, so that names containing characters such as `ß` can be matched
+* [#23096](https://github.com/netbox-community/netbox/issues/23096) - Persist a cable's normalized length when saving only its `length` or `length_unit` field
+* [#23112](https://github.com/netbox-community/netbox/issues/23112) - Initiate SSO logins via script-driven navigation, so that they are not blocked by a restrictive `form-action` content security policy
+* [#23117](https://github.com/netbox-community/netbox/issues/23117) - Fix the negation (`__n`) filter lookup for multiple selection custom fields
+* [#23120](https://github.com/netbox-community/netbox/issues/23120) - Include tags in the REST API representation of a data source, and honor them on write
+* [#23125](https://github.com/netbox-community/netbox/issues/23125) - Add the missing standard fields to the VLAN translation policy & rule REST API serializers
+* [#23130](https://github.com/netbox-community/netbox/issues/23130) - Ensure that the cascade triggers for hierarchical models can be restored from a `pg_dump` (see the warning above)
+* [#23154](https://github.com/netbox-community/netbox/issues/23154) - Correct the optional/required mismatch on the L2VPN `type` and rack type `form_factor` fields
+* [#23166](https://github.com/netbox-community/netbox/issues/23166) - Apply a zero-valued minimum or maximum bound from a module type profile attribute to its form field
+* [#23167](https://github.com/netbox-community/netbox/issues/23167) - Sanitize the JSON schema property descriptions used as form help text for module type profile attributes
 
 ---
 
