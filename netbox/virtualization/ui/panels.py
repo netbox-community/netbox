@@ -66,7 +66,7 @@ class VirtualMachinePlacementPanel(panels.ObjectAttributesPanel):
     title = _('Placement')
 
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
-    cluster = attrs.RelatedObjectAttr('cluster', linkify=True)
+    cluster = attrs.RelatedObjectAttr('cluster', linkify=True, grouped_by='group')
     cluster_type = attrs.RelatedObjectAttr('cluster.type', linkify=True)
     device = attrs.RelatedObjectAttr('device', linkify=True)
 
