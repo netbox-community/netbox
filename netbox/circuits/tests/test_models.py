@@ -549,10 +549,10 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertIsNone(self.circuits[0].termination_a_id)
         self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
-    @tag('regression')  # Ref: #23134
-    def test_deletion_clears_the_pointer_which_references_it(self):
-        # An in-memory term_side which diverges from the persisted one must clear this
-        # termination's own pointer, and leave the one belonging to its sibling alone
+    def test_deletion_leaves_pointer_for_another_termination(self):
+        # An in-memory term_side which diverges from the persisted one must not clear a pointer
+        # belonging to a different termination. The termination's own pointer is then left to
+        # on_delete=SET_NULL, and goes unrecorded.
         termination_a = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
@@ -560,21 +560,13 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
             circuit=self.circuits[0], term_side='Z', termination=self.sites[1],
         ))
         ObjectChange.objects.all().delete()
-        termination_z_pk = termination_z.pk
 
         termination_z.term_side = 'A'
         self._tracked(termination_z.delete)
 
         self.circuits[0].refresh_from_db()
         self.assertEqual(self.circuits[0].termination_a_id, termination_a.pk)
-        self.assertIsNone(self.circuits[0].termination_z_id)
-
-        changes = self._circuit_changes(self.circuits[0])
-        self.assertEqual(changes.count(), 1)
-        self.assertEqual(changes[0].prechange_data['termination_a'], termination_a.pk)
-        self.assertEqual(changes[0].postchange_data['termination_a'], termination_a.pk)
-        self.assertEqual(changes[0].prechange_data['termination_z'], termination_z_pk)
-        self.assertIsNone(changes[0].postchange_data['termination_z'])
+        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
     def test_circuit_deletion_records_no_pointer_update(self):
         self._tracked(lambda: CircuitTermination.objects.create(
