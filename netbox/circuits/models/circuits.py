@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
-from django.db import models, router, transaction
+from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -394,107 +394,72 @@ class CircuitTermination(
 
         circuit_changed = tracking_relevant and self._orig_circuit_id and self._orig_circuit_id != self.circuit_id
         term_side_changed = tracking_relevant and self._orig_term_side and self._orig_term_side != self.term_side
-        pointer_moved = is_new or circuit_changed or term_side_changed
 
         # Cache objects associated with the terminating object (for filtering)
         self.cache_related_objects()
 
-        if not pointer_moved:
-            super().save(*args, **kwargs)
-            return
+        super().save(*args, **kwargs)
 
-        # Collect the pointer writes per circuit, so that a term_side change within one
-        # circuit clears the old side and sets the new one in a single write
-        updates = {}
-
-        # Clear the old termination reference if circuit or term_side changed. Never on insert:
-        # __init__ captured the constructor's values, which may name a live sibling's pointer.
-        if not is_new and (circuit_changed or term_side_changed):
+        # Clear the old termination reference if circuit or term_side changed
+        if circuit_changed or term_side_changed:
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
-            updates.setdefault(self._orig_circuit_id, {})[old_termination_name] = None
+            self._set_circuit_terminations(
+                self._orig_circuit_id, {old_termination_name: None}, only_if_references=self.pk
+            )
 
-        # Write the termination row and the pointers which reference it together
-        using = kwargs.get('using') or router.db_for_write(type(self))
-        with transaction.atomic(using=using):
-            super().save(*args, **kwargs)
-
+        # Update the cache if this is a new termination or circuit/term_side changed
+        if is_new or circuit_changed or term_side_changed:
             # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
-            updates.setdefault(self.circuit_id, {})[termination_name] = self.pk
+            self._set_circuit_terminations(self.circuit_id, {termination_name: self.pk})
 
-            # Ordered by PK so concurrent saves take the circuit locks in the same order
-            for circuit_id in sorted(updates):
-                self._set_circuit_terminations(circuit_id, updates[circuit_id], using=using)
+            # Update cached values for subsequent saves
+            self._orig_circuit_id = self.circuit_id
+            self._orig_term_side = self.term_side
 
-        # Advanced only once the writes have left the block, so that a rolled-back save is still
-        # pending on retry
-        self._orig_circuit_id = self.circuit_id
-        self._orig_term_side = self.term_side
+    def delete(self, *args, **kwargs):
+        # Clear the circuit's reference before the row goes away, so that the change is recorded
+        # and precedes the DELETE. on_delete=SET_NULL would clear it with an unlogged bulk update.
+        self._set_circuit_terminations(
+            self.circuit_id, {'termination_a': None, 'termination_z': None}, only_if_references=self.pk
+        )
+
+        return super().delete(*args, **kwargs)
+
+    delete.alters_data = True
 
     @staticmethod
-    def _set_circuit_terminations(circuit_id, fields, using=None, only_if_references=None):
+    def _set_circuit_terminations(circuit_id, fields, only_if_references=None):
         """
-        Set or clear a Circuit's cached `termination_a`/`termination_z` fields. `fields` maps
-        field name to CircuitTermination PK (or None). `only_if_references` restricts the write
-        to fields which currently hold that PK.
+        Set or clear a Circuit's cached `termination_a`/`termination_z` fields, recording the
+        change. `fields` maps field name to CircuitTermination PK (or None). A queryset update()
+        emits no post_save, and so records nothing in the changelog (#23134).
 
-        Written via snapshot() + save() rather than a queryset update(), which emits no post_save
-        and so records nothing in the changelog. The Circuit is re-fetched under a lock so that
-        the snapshot reflects a sibling pointer written concurrently; without it, a second writer
-        could record the first writer's pointer as null. no_key avoids blocking the foreign key
-        inserts which reference this circuit.
-
-        Does nothing if the Circuit no longer exists, or if every field already holds its
-        intended value.
+        Args:
+            circuit_id: PK of the Circuit to update
+            fields: Mapping of field name to the value to assign
+            only_if_references: If set, restricts the write to fields which currently hold this PK
         """
-        using = using or router.db_for_write(Circuit)
-
-        # order_by() clears the default ordering, whose JOIN would leave the row unlockable
-        circuit = Circuit.objects.using(using).filter(
-            pk=circuit_id
-        ).order_by().select_for_update(no_key=True).first()
+        # Re-fetched rather than reusing a cached circuit, whose pointers may predate a sibling write
+        circuit = Circuit.objects.filter(pk=circuit_id).first()
         if circuit is None:
             return
 
-        def needs_write(field_name, value):
+        updates = {}
+        for field_name, value in fields.items():
             current = getattr(circuit, f'{field_name}_id')
             if current == value:
-                return False
-            # Match what on_delete=SET_NULL would have cleared
-            return only_if_references is None or current == only_if_references
-
-        fields = {name: value for name, value in fields.items() if needs_write(name, value)}
-        if not fields:
+                continue
+            if only_if_references is not None and current != only_if_references:
+                continue
+            updates[field_name] = value
+        if not updates:
             return
 
         circuit.snapshot()
-        for field_name, value in fields.items():
+        for field_name, value in updates.items():
             setattr(circuit, f'{field_name}_id', value)
-
-        # Saved in full, not with update_fields: the mixin chain also mutates custom_field_data
-        # and the distance fields, which would reach postchange_data but not the database.
-        circuit.save(using=using)
-
-    def delete(self, *args, **kwargs):
-        # Clear the pointer first, so its record precedes this DELETE. Not a pre_delete receiver:
-        # handle_deleted_object connects earlier and would record the DELETE first. (#23134)
-        using = kwargs.get('using') or (args[0] if args else None) or router.db_for_write(type(self))
-        with transaction.atomic(using=using):
-            # Locked before the circuit, matching the order super().save() takes them in
-            CircuitTermination.objects.using(using).filter(
-                pk=self.pk
-            ).order_by().select_for_update().first()
-
-            if self.term_side:
-                self._set_circuit_terminations(
-                    self.circuit_id,
-                    {f'termination_{self.term_side.lower()}': None},
-                    using=using,
-                    only_if_references=self.pk,
-                )
-            return super().delete(*args, **kwargs)
-
-    delete.alters_data = True
+        circuit.save(update_fields=[*updates, 'last_updated'])
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None
