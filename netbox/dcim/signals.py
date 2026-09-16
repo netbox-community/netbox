@@ -318,7 +318,7 @@ def update_passthrough_port_paths(instance, **kwargs):
 
 
 @receiver(post_delete, sender=CableTermination)
-def nullify_connected_endpoints(instance, **kwargs):
+def nullify_connected_endpoints(instance, using, **kwargs):
     """
     Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
@@ -334,8 +334,9 @@ def nullify_connected_endpoints(instance, **kwargs):
     if Cable._is_being_deleted(instance.cable_id):
         # The change record serializes the object twice (before and after), and ComponentModel.save()
         # re-caches its denormalized references off the parent device: fetch both up front so neither
-        # costs a round trip per terminating object.
-        queryset = model.objects.filter(pk=instance.termination_id).prefetch_related('tags')
+        # costs a round trip per terminating object. Both the read and the save below use the alias the
+        # deletion ran on, so routing can't return a stale row or miss the object entirely.
+        queryset = model.objects.using(using).filter(pk=instance.termination_id).prefetch_related('tags')
         if hasattr(model, 'device'):
             queryset = queryset.select_related('device__site', 'device__location', 'device__rack')
         termination = queryset.first()
@@ -357,7 +358,7 @@ def nullify_connected_endpoints(instance, **kwargs):
             update_fields.append('_path')
 
         # A narrow write: this row was read mid-cascade, and its full save() would pull in unrelated work
-        termination.save(update_fields=update_fields)
+        termination.save(using=using, update_fields=update_fields)
     else:
         # Already recorded by CableTermination.delete(), or the terminating object is going away too.
         model.objects.filter(pk=instance.termination_id).update(
@@ -370,8 +371,9 @@ def nullify_connected_endpoints(instance, **kwargs):
         # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto
         # its channel subinterfaces. This must happen before the retrace below so that each channel's (now dead)
         # path is torn down rather than rebuilt from a stale cable reference. These writes are deliberately not
-        # change-logged: propagate_channel_cables() doesn't log the mirrored attributes when it sets them
-        # either, so a channel subinterface has no recorded cable state for this to contradict.
+        # change-logged, matching propagate_channel_cables(), which doesn't log them when it sets them either.
+        # A subinterface saved through a change-logged path while connected does record its mirrored cable
+        # fields, so its disconnect goes unlogged here; that gap predates this receiver and is untouched by it.
         if model is Interface:
             Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
                 cable=None, cable_end='', cable_connector=None, cable_positions=None

@@ -3027,7 +3027,7 @@ class CableDisconnectChangeLoggingTestCase(TestCase):
         self.assertIsNone(change.postchange_data['cable_positions'])
 
     def test_queryset_deletion_records_disconnect(self):
-        # A queryset delete never calls Cable.delete(), so the disconnect is tracked by a pre_delete receiver
+        # A queryset delete never calls Cable.delete(), so the tracking is done by CableQuerySet.delete()
         cable = self._connect(self.interface1, self.interface2)
         cable_pk = cable.pk
 

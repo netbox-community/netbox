@@ -80,7 +80,9 @@ class CableQuerySet(RestrictedQuerySet):
         # Track these Cables as being deleted for the duration, as Cable.delete() does for a single
         # instance: a queryset delete never calls it. Between them the two cover every deletion, as a
         # Cable is never itself cascade-deleted (nothing points at it with on_delete=CASCADE).
-        pks = list(self.values_list('pk', flat=True))
+        # Resolve the PKs on the DB the delete will use, so read routing can't miss a lagging replica.
+        using = self._db or router.db_for_write(self.model, **self._hints)
+        pks = list(self.using(using).values_list('pk', flat=True))
         for pk in pks:
             Cable._track_deletion(pk)
         try:
@@ -403,9 +405,9 @@ class Cable(PrimaryModel):
         self._terminations_modified = False
 
     def delete(self, *args, **kwargs):
-        # Cache the PK locally because super().delete() clears self.pk before the finally block runs. The
-        # tracking itself is done by the pre_delete/post_delete receivers in dcim.signals, which also cover a
-        # queryset delete; this pairing just guarantees the PK is discarded if the delete raises.
+        # Cache the PK locally because super().delete() clears self.pk before the finally block runs; the
+        # finally also guarantees the PK is discarded if the delete raises. CableQuerySet.delete() tracks
+        # the same way for a queryset delete, which never calls this.
         pk = self.pk
         Cable._track_deletion(pk)
         try:
