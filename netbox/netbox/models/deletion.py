@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db import router
+from django.db import router, transaction
 from django.db.models.deletion import CASCADE, Collector
 from django.utils.translation import gettext as _
 
@@ -125,6 +125,18 @@ class CustomCollector(Collector):
 
                         # Add the model that the generic relation points to as a dependency
                         self.add_dependency(field.related_model, instance, reverse_dependency=True)
+
+    def delete(self):
+        # Clear any cached references to the objects being deleted first, so that each clear is
+        # recorded and precedes the DELETE. Django nulls a SET_NULL column with a bulk UPDATE,
+        # which emits no post_save and so is never change-logged. Models opt in by defining
+        # clear_cached_references(); cascaded objects reach this the same as explicit deletions.
+        with transaction.atomic(using=self.using):
+            for model, instances in self.data.items():
+                if clear_references := getattr(model, 'clear_cached_references', None):
+                    clear_references(instances, self)
+
+            return super().delete()
 
 
 class DeleteMixin:

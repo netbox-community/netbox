@@ -507,8 +507,9 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertIsNone(changes[0].postchange_data['termination_a'])
 
     @tag('regression')  # Ref: #23134
-    def test_deletion_leaves_another_terminations_pointer_alone(self):
-        # A pointer referencing a different termination must never be cleared
+    def test_deletion_resolves_the_pointer_from_the_database(self):
+        # The pointer cleared is the one which references this termination, not the one named by
+        # a stale in-memory term_side
         termination_a = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
@@ -516,12 +517,52 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
             circuit=self.circuits[0], term_side='Z', termination=self.sites[1],
         ))
         ObjectChange.objects.all().delete()
+        termination_z_pk = termination_z.pk
 
         termination_z.term_side = 'A'
         self._tracked(termination_z.delete)
 
         self.circuits[0].refresh_from_db()
         self.assertEqual(self.circuits[0].termination_a_id, termination_a.pk)
+        self.assertIsNone(self.circuits[0].termination_z_id)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_z'], termination_z_pk)
+        self.assertIsNone(changes[0].postchange_data['termination_z'])
+        self.assertEqual(changes[0].postchange_data['termination_a'], termination_a.pk)
+
+    @tag('regression')  # Ref: #23134
+    def test_cascade_deletion_records_circuit_update(self):
+        # Deleting the terminating Site reaches the termination through the collector, which does
+        # not call delete(). Both sides go in one record.
+        termination_a = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+        termination_z = self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='Z', termination=self.sites[0],
+        ))
+        ObjectChange.objects.all().delete()
+        termination_a_pk, termination_z_pk = termination_a.pk, termination_z.pk
+
+        self._tracked(self.sites[0].delete)
+
+        self.circuits[0].refresh_from_db()
+        self.assertIsNone(self.circuits[0].termination_a_id)
+        self.assertIsNone(self.circuits[0].termination_z_id)
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['termination_a'], termination_a_pk)
+        self.assertEqual(changes[0].prechange_data['termination_z'], termination_z_pk)
+        self.assertIsNone(changes[0].postchange_data['termination_a'])
+        self.assertIsNone(changes[0].postchange_data['termination_z'])
+
+        # The clear must precede the DELETEs which the cascade emits for the terminations
+        termination_delete = self._termination_change(
+            termination_a_pk, ObjectChangeActionChoices.ACTION_DELETE
+        )
+        self.assertLess(changes[0].pk, termination_delete.pk)
 
     def test_circuit_deletion_records_no_pointer_update(self):
         self._tracked(lambda: CircuitTermination.objects.create(
