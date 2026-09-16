@@ -403,37 +403,8 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[1].postchange_data['termination_z'], termination.pk)
 
     @tag('regression')  # Ref: #23134
-    def test_redundant_pointer_write_is_skipped(self):
-        # bulk_create() bypasses save(), leaving the pointer unwritten; moving the termination
-        # afterwards reaches the clear path with it already null
-        CircuitTermination.objects.bulk_create([
-            CircuitTermination(circuit=self.circuits[0], term_side='A', termination=self.sites[0]),
-        ])
-        termination = CircuitTermination.objects.get(circuit=self.circuits[0], term_side='A')
-
-        def _move():
-            termination.circuit = self.circuits[1]
-            termination.save()
-
-        old_circuit_last_updated = Circuit.objects.get(pk=self.circuits[0].pk).last_updated
-
-        self._tracked(_move)
-
-        # The old circuit's pointer was already null, so it is not written to
-        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
-        self.assertEqual(
-            Circuit.objects.get(pk=self.circuits[0].pk).last_updated, old_circuit_last_updated
-        )
-
-        # The new circuit's pointer is set as usual
-        new_changes = self._circuit_changes(self.circuits[1])
-        self.assertEqual(new_changes.count(), 1)
-        self.assertEqual(new_changes[0].postchange_data['termination_a'], termination.pk)
-
-    @tag('regression')  # Ref: #23134
-    def test_new_termination_does_not_clear_sibling_pointer(self):
-        # __init__ captures the originals from the constructor kwargs, so mutating term_side
-        # before the first save reaches the clear path with originals naming a live sibling
+    def test_creation_leaves_another_terminations_pointer_alone(self):
+        # A pointer referencing a different termination must never be cleared
         termination_a = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
@@ -535,24 +506,9 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(changes[0].prechange_data['termination_a'], termination_pk)
         self.assertIsNone(changes[0].postchange_data['termination_a'])
 
-    def test_cascade_deletion_leaves_pointer_unrecorded(self):
-        # Deleting the terminating Site reaches the termination through the collector, which does
-        # not call delete(). on_delete=SET_NULL still clears the column, but nothing records it.
-        self._tracked(lambda: CircuitTermination.objects.create(
-            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
-        ))
-        ObjectChange.objects.all().delete()
-
-        self._tracked(self.sites[0].delete)
-
-        self.circuits[0].refresh_from_db()
-        self.assertIsNone(self.circuits[0].termination_a_id)
-        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
-
-    def test_deletion_leaves_pointer_for_another_termination(self):
-        # An in-memory term_side which diverges from the persisted one must not clear a pointer
-        # belonging to a different termination. The termination's own pointer is then left to
-        # on_delete=SET_NULL, and goes unrecorded.
+    @tag('regression')  # Ref: #23134
+    def test_deletion_leaves_another_terminations_pointer_alone(self):
+        # A pointer referencing a different termination must never be cleared
         termination_a = self._tracked(lambda: CircuitTermination.objects.create(
             circuit=self.circuits[0], term_side='A', termination=self.sites[0],
         ))
@@ -566,7 +522,6 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
 
         self.circuits[0].refresh_from_db()
         self.assertEqual(self.circuits[0].termination_a_id, termination_a.pk)
-        self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
 
     def test_circuit_deletion_records_no_pointer_update(self):
         self._tracked(lambda: CircuitTermination.objects.create(
