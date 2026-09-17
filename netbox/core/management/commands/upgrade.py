@@ -58,7 +58,7 @@ class Command(BaseCommand):
             out.write("Skipping cable path check.")
         else:
             out.write("Checking for missing cable paths...")
-            call_command('trace_paths', no_input=options['no_input'], stdout=out)
+            call_command('trace_paths', no_input=options['no_input'], stdout=out, stderr=self.stderr)
 
         # Documentation (filesystem; needs the documentation source tree)
         if options['readonly'] and options['build_docs']:

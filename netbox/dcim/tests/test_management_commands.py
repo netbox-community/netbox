@@ -49,9 +49,18 @@ class TracePathsTestCase(TestCase):
         self.assertIn('Finished.', out.getvalue())
 
     def test_retraces_missing_cabled_endpoint_path(self):
-        endpoint = object()
+        endpoint = SimpleNamespace(pk=1, _trace_cable_id=None, _trace_cable_end=None)
 
         class FakeQuerySet(list):
+            def annotate(self, **kwargs):
+                return self
+
+            def order_by(self, *fields):
+                return self
+
+            def iterator(self, chunk_size):
+                return iter(self)
+
             def filter(self, *args, **kwargs):
                 return self
 
@@ -81,9 +90,20 @@ class TracePathsTestCase(TestCase):
         self.assertIn('Finished.', out.getvalue())
 
     def test_progress_bar_drawn_every_100_endpoints(self):
-        endpoints = [object() for _ in range(100)]
+        endpoints = [
+            SimpleNamespace(pk=i, _trace_cable_id=None, _trace_cable_end=None) for i in range(100)
+        ]
 
         class FakeQuerySet(list):
+            def annotate(self, **kwargs):
+                return self
+
+            def order_by(self, *fields):
+                return self
+
+            def iterator(self, chunk_size):
+                return iter(self)
+
             def filter(self, *args, **kwargs):
                 return self
 
