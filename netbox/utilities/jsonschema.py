@@ -11,6 +11,7 @@ from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
 from utilities.string import title
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import MultipleOfValidator
 
 __all__ = (
@@ -86,9 +87,10 @@ class JSONSchemaProperty:
         """
         Instantiate and return a Django form field suitable for editing the property's value.
         """
+        field_class = self.field_class
         field_kwargs = {
             'label': self.title or title(name),
-            'help_text': self.description,
+            'help_text': render_markdown(self.description),
             'required': required,
             'initial': self.default,
         }
@@ -110,10 +112,14 @@ class JSONSchemaProperty:
 
         # String validation
         if self.type == PropertyTypeEnum.STRING.value:
-            if self.minLength is not None:
-                field_kwargs['min_length'] = self.minLength
-            if self.maxLength is not None:
-                field_kwargs['max_length'] = self.maxLength
+            # Checking against CharField is safe because the other CharField-derived fields are
+            # ruled out by the "is a string" check above. UUIDField is the exception: it cleans to
+            # a uuid.UUID, which the length validators can't call len() on.
+            if issubclass(field_class, forms.CharField) and not issubclass(field_class, forms.UUIDField):
+                if self.minLength is not None:
+                    field_kwargs['min_length'] = self.minLength
+                if self.maxLength is not None:
+                    field_kwargs['max_length'] = self.maxLength
             if self.pattern is not None:
                 field_kwargs['validators'] = [
                     RegexValidator(regex=self.pattern)
@@ -121,11 +127,12 @@ class JSONSchemaProperty:
 
         # Integer/number validation
         elif self.type in (PropertyTypeEnum.INTEGER.value, PropertyTypeEnum.NUMBER.value):
-            field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
-            if self.minimum:
-                field_kwargs['min_value'] = self.minimum
-            if self.maximum:
-                field_kwargs['max_value'] = self.maximum
+            if issubclass(field_class, forms.IntegerField):
+                field_kwargs['widget'] = forms.NumberInput(attrs={'step': 'any'})
+                if self.minimum is not None:
+                    field_kwargs['min_value'] = self.minimum
+                if self.maximum is not None:
+                    field_kwargs['max_value'] = self.maximum
             if self.multipleOf:
                 field_kwargs['validators'] = [
                     MultipleOfValidator(multiple=self.multipleOf)

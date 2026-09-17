@@ -83,11 +83,15 @@
             {% if login_form_hidden %}
               <h2 class="text-center mb-4">{% trans "Log In" %}</h2>
             {% endif %}
+            {# Revealed and focused by initSSOForms() when a login cannot be initiated #}
+            <div id="sso-error" class="alert alert-danger d-none" role="alert" tabindex="-1">
+              {% trans "Unable to begin single sign-on. Please try again." %}
+            </div>
             <div class="row">
               {% for backend in auth_backends %}
                 <div class="col">
-                  {# The social auth begin view accepts only POST requests #}
-                  <form action="{{ backend.url }}" method="post">
+                  {# SSO logins are initiated by POST; see SocialAuthBeginView #}
+                  <form action="{{ backend.url }}" method="post" class="sso-login-form">
                     {% csrf_token %}
                     {% for param, value in backend.params.items %}
                       <input type="hidden" name="{{ param }}" value="{{ value }}" />

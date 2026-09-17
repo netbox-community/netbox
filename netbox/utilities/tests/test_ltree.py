@@ -1,11 +1,15 @@
 """Tests for the ltree-based hierarchical model infrastructure."""
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase, TransactionTestCase
 
 from core.models import ObjectChange
 from dcim.models import Region, Site
+from netbox.models.ltree import LtreeModel
+from netbox.plugins import PluginConfig
 from tenancy.models import Contact, ContactGroup
+from utilities.ltree import ReinstallLtreeTriggers, ltree_trigger_sql
 from utilities.mptt_to_ltree import populate_paths_sql
 
 
@@ -992,3 +996,240 @@ class RestrictedSearchPathBackfillTests(TestCase):
 
         self.assertEqual(len(plain_rows), 2)
         self.assertEqual([r[0] for r in plain_rows], [_path(1), _path(1, 2)])
+
+
+class RestoreUnderRestrictedSearchPathTests(TestCase):
+    """
+    The generated trigger DDL must create with the ltree extension's schema off the
+    search_path, because that is how pg_dump replays it: dumps begin with
+    `set_config('search_path', '', false)` and schema-qualify every name they can.
+
+    `IS DISTINCT FROM` cannot be schema-qualified — it expands to the operand type's
+    `=` operator, resolved at CREATE TRIGGER time — so comparing two ltree values in a
+    WHEN clause produced a cascade trigger which silently failed to restore, leaving
+    descendant paths to go stale on the next rename or reparent (#23130). Comparing
+    `path::text` resolves `pg_catalog.text =` instead, which is always available.
+
+    The trigger functions are created with the extension's schema on the path: they
+    legitimately declare `parent_path ltree`, and pg_dump schema-qualifies those
+    declarations, so only the CREATE TRIGGER statements are under test here.
+    """
+
+    def _install_with_extension_off_path(self, schema, table, name_column):
+        with connection.cursor() as cursor:
+            cursor.execute(f'CREATE SCHEMA {schema}')
+            columns = 'id bigint PRIMARY KEY, parent_id bigint, path ltree, name text'
+            if name_column:
+                columns += ', sort_path text'
+            cursor.execute(f'SET LOCAL search_path = {schema}, public')
+            cursor.execute(f'CREATE TABLE {schema}.{table} ({columns})')
+
+            statements = ltree_trigger_sql(table, name_column)
+            functions = [s for s in statements if 'CREATE OR REPLACE FUNCTION' in s]
+            triggers = [s for s in statements if 'CREATE TRIGGER' in s]
+            self.assertEqual(len(functions), 2)
+            self.assertEqual(len(triggers), 2)
+
+            # Pass an empty parameter list, as schema_editor.execute() does during a
+            # migration: the function bodies double their literal percent signs for
+            # .format(), and psycopg only collapses `%%` to `%` when parameters are
+            # given. Executing them without it fails to compile the plpgsql.
+            for statement in functions:
+                cursor.execute(statement, ())
+
+            # Drop the extension's schema, as a pg_dump restore does, and create only
+            # the triggers.
+            cursor.execute(f'SET LOCAL search_path = {schema}')
+            for statement in triggers:
+                cursor.execute(statement, ())
+
+            cursor.execute(
+                'SELECT tgname FROM pg_trigger t '
+                'JOIN pg_class c ON t.tgrelid = c.oid '
+                'JOIN pg_namespace n ON c.relnamespace = n.oid '
+                'WHERE n.nspname = %s AND NOT t.tgisinternal ORDER BY tgname',
+                [schema],
+            )
+            return [row[0] for row in cursor.fetchall()]
+
+    def test_path_and_sort_triggers_create_with_extension_off_search_path(self):
+        installed = self._install_with_extension_off_path('sp_sorted', 'sorted', 'name')
+        self.assertEqual(installed, ['sorted_ltree_cascade_path', 'sorted_ltree_compute_path'])
+
+    def test_path_only_triggers_create_with_extension_off_search_path(self):
+        installed = self._install_with_extension_off_path('sp_plain', 'plain', None)
+        self.assertEqual(installed, ['plain_ltree_cascade_path', 'plain_ltree_compute_path'])
+
+
+class CascadeTriggerDefinitionTests(TestCase):
+    """
+    Every core LtreeModel's cascade trigger must compare `path` as text.
+
+    This covers the templates as they are installed, catching a new hierarchical model
+    which ships without triggers at all. It cannot tell whether the corrective migrations
+    reached a given table: a test database is built by migrating forward, so the original
+    migrations install the current, already-corrected definitions. See
+    `CorrectiveMigrationTests` for the seeded states which do exercise that.
+
+    The expected tables are derived from the model layer and plugin models are excluded,
+    so installing a plugin with its own ltree model cannot fail this.
+    """
+
+    @staticmethod
+    def _core_ltree_tables():
+        def concrete_subclasses(base):
+            for subclass in base.__subclasses__():
+                if subclass._meta.abstract:
+                    yield from concrete_subclasses(subclass)
+                elif not isinstance(apps.get_app_config(subclass._meta.app_label), PluginConfig):
+                    yield subclass
+
+        return {model._meta.db_table for model in concrete_subclasses(LtreeModel)}
+
+    def test_core_cascade_triggers_compare_path_as_text(self):
+        expected = self._core_ltree_tables()
+        self.assertTrue(expected, 'no core LtreeModel subclasses found')
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT c.relname, pg_get_triggerdef(t.oid) FROM pg_trigger t '
+                'JOIN pg_class c ON t.tgrelid = c.oid '
+                'WHERE NOT t.tgisinternal AND t.tgname = c.relname || %s',
+                ['_ltree_cascade_path'],
+            )
+            definitions = dict(cursor.fetchall())
+
+        self.assertSetEqual(
+            expected - set(definitions), set(),
+            msg='these core ltree tables have no cascade trigger installed',
+        )
+        # Assert on the cast rather than on PostgreSQL's exact rendering of the clause:
+        # the parenthesization pg_get_triggerdef() emits is an implementation detail.
+        for table in sorted(expected):
+            definition = definitions[table]
+            self.assertIn(
+                '::text IS DISTINCT FROM', definition,
+                msg=f'{table}: the cascade trigger compares ltree values directly, so it '
+                    f'will not survive a pg_dump restore (see #23130)',
+            )
+            self.assertNotRegex(
+                definition, r'old\.path\s+IS DISTINCT FROM\s+new\.path',
+                msg=f'{table}: the cascade trigger compares path without a cast to text',
+            )
+
+
+class LtreeTriggerSqlTests(SimpleTestCase):
+    """The generated cascade DDL must not compare ltree values directly (#23130)."""
+
+    def test_cascade_when_clause_casts_path_to_text(self):
+        for name_column in ('name', None):
+            with self.subTest(name_column=name_column):
+                sql = '\n'.join(ltree_trigger_sql('probe', name_column))
+                self.assertIn('OLD.path::text IS DISTINCT FROM NEW.path::text', sql)
+                self.assertNotIn('OLD.path IS DISTINCT FROM NEW.path', sql)
+
+    def test_triggers_are_dropped_before_creation(self):
+        sql = ltree_trigger_sql('probe', 'name')
+        for trigger in ('probe_ltree_cascade_path', 'probe_ltree_compute_path'):
+            drop = f'DROP TRIGGER IF EXISTS "{trigger}" ON "probe";'
+            self.assertIn(drop, sql)
+            create = next(s for s in sql if f'CREATE TRIGGER "{trigger}"' in s)
+            self.assertLess(sql.index(drop), sql.index(create))
+
+
+class CorrectiveMigrationTests(TransactionTestCase):
+    """
+    `ReinstallLtreeTriggers` must repair both states a v4.7.0 database can be in.
+
+    A test database is built by migrating forward, so `0242_ltree_paths` installs its
+    triggers from the current templates and every table already carries the corrected
+    definition before `0251_fix_ltree_cascade_triggers` runs. Nothing asserted about the
+    end state of that database says whether the corrective migration did anything. Seed
+    each state a real database can be in instead:
+
+    - the definition v4.7.0 shipped, which an upgraded-in-place database still carries
+    - no cascade trigger, which is what a database restored from a v4.7.0 dump has
+
+    then apply the operation those migrations are built from and assert the repair.
+
+    Scope: this covers the operation, not the migrations which call it. The tables each
+    corrective migration names are hand-maintained lists, and a table omitted from one
+    would not fail here. Catching that needs the pre-migration state a forward-migrated
+    test database does not have, i.e. replaying `0250 -> 0251` against a seeded fixture.
+
+    TransactionTestCase, because the seeded DDL has to be committed for the operation's
+    own transaction to see it.
+    """
+
+    TABLE = 'dcim_region'
+    TRIGGER = 'dcim_region_ltree_cascade_path'
+
+    def tearDown(self):
+        # Leave the trigger as the migrations would have it, for whatever runs next.
+        self.apply_corrective_operation()
+
+    def cascade_triggerdef(self):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT pg_get_triggerdef(oid) FROM pg_trigger '
+                'WHERE tgname = %s AND NOT tgisinternal',
+                [self.TRIGGER],
+            )
+            row = cursor.fetchone()
+        return row[0] if row else None
+
+    def drop_cascade_trigger(self):
+        """Leave the table as a database restored from a v4.7.0 dump: no cascade trigger."""
+        with connection.cursor() as cursor:
+            cursor.execute(f'DROP TRIGGER IF EXISTS "{self.TRIGGER}" ON "{self.TABLE}"')
+
+    def install_v470_cascade_trigger(self):
+        """
+        Install the definition v4.7.0 shipped: bare ltree comparisons, which a dump cannot
+        restore because the `ltree` operator is unresolvable under an empty search_path.
+        """
+        self.drop_cascade_trigger()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f'CREATE TRIGGER "{self.TRIGGER}" '
+                f'AFTER UPDATE OF parent_id, "name" ON "{self.TABLE}" '
+                f'FOR EACH ROW WHEN ('
+                f'  OLD.path IS DISTINCT FROM NEW.path'
+                f'  OR OLD.sort_path IS DISTINCT FROM NEW.sort_path'
+                f') EXECUTE FUNCTION "{self.TABLE}_ltree_cascade_path_fn"()'
+            )
+
+    def apply_corrective_operation(self):
+        with connection.schema_editor() as schema_editor:
+            ReinstallLtreeTriggers(self.TABLE, name_column='name').database_forwards(
+                'dcim', schema_editor, None, None,
+            )
+
+    def test_replaces_the_definition_shipped_in_v470(self):
+        self.install_v470_cascade_trigger()
+        self.assertNotIn('::text', self.cascade_triggerdef())
+
+        self.apply_corrective_operation()
+
+        self.assertIn('::text IS DISTINCT FROM', self.cascade_triggerdef())
+
+    def test_reinstalls_a_cascade_trigger_lost_in_a_restore(self):
+        self.drop_cascade_trigger()
+        self.assertIsNone(self.cascade_triggerdef())
+
+        self.apply_corrective_operation()
+
+        self.assertIn('::text IS DISTINCT FROM', self.cascade_triggerdef())
+
+    def test_the_repaired_trigger_cascades_a_rename(self):
+        """The reinstalled trigger has to work, not merely exist."""
+        self.drop_cascade_trigger()
+        self.apply_corrective_operation()
+
+        parent = Region.objects.create(name='Before', slug='before-cm')
+        child = Region.objects.create(name='Child', slug='child-cm', parent=parent)
+        parent.name = 'After'
+        parent.save()
+
+        child.refresh_from_db()
+        self.assertEqual(child.sort_path, f'After{chr(9)}Child')

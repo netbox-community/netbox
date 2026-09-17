@@ -16,7 +16,7 @@ __all__ = (
 
 
 class L2VPNSerializer(PrimaryModelSerializer):
-    type = ChoiceField(choices=L2VPNTypeChoices, required=False)
+    type = ChoiceField(choices=L2VPNTypeChoices, required=True)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
         serializer=RouteTargetSerializer,

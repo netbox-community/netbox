@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 16:46+0000\n"
+"POT-Creation-Date: 2026-09-15 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Korean (https://app.transifex.com/netbox-community/teams/178115/ko/)\n"
@@ -50,9 +50,9 @@ msgstr "내 API 토큰"
 #: netbox/circuits/choices.py:22 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:44 netbox/dcim/choices.py:114
 #: netbox/dcim/choices.py:216 netbox/dcim/choices.py:274
-#: netbox/dcim/choices.py:2026 netbox/dcim/choices.py:2093
-#: netbox/dcim/choices.py:2195 netbox/dcim/choices.py:2211
-#: netbox/dcim/choices.py:2274 netbox/dcim/choices.py:2296
+#: netbox/dcim/choices.py:2039 netbox/dcim/choices.py:2106
+#: netbox/dcim/choices.py:2208 netbox/dcim/choices.py:2224
+#: netbox/dcim/choices.py:2287 netbox/dcim/choices.py:2309
 #: netbox/virtualization/choices.py:21 netbox/virtualization/choices.py:68
 #: netbox/vpn/choices.py:20 netbox/vpn/choices.py:316
 msgid "Planned"
@@ -75,9 +75,9 @@ msgstr "서비스를 위한 구성 중"
 #: netbox/core/tables/tasks.py:23 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:46 netbox/dcim/choices.py:115
 #: netbox/dcim/choices.py:167 netbox/dcim/choices.py:215
-#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2092
-#: netbox/dcim/choices.py:2194 netbox/dcim/choices.py:2210
-#: netbox/dcim/choices.py:2273 netbox/dcim/choices.py:2295
+#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2105
+#: netbox/dcim/choices.py:2207 netbox/dcim/choices.py:2223
+#: netbox/dcim/choices.py:2286 netbox/dcim/choices.py:2308
 #: netbox/extras/choices.py:63 netbox/extras/tables/tables.py:673
 #: netbox/extras/ui/panels.py:456 netbox/ipam/choices.py:31
 #: netbox/ipam/choices.py:49 netbox/ipam/choices.py:69
@@ -89,21 +89,21 @@ msgid "Active"
 msgstr "활성"
 
 #: netbox/circuits/choices.py:26 netbox/dcim/choices.py:215
-#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2273
-#: netbox/dcim/choices.py:2295 netbox/virtualization/choices.py:30
+#: netbox/dcim/choices.py:273 netbox/dcim/choices.py:2286
+#: netbox/dcim/choices.py:2308 netbox/virtualization/choices.py:30
 msgid "Fully operational and in service"
 msgstr "완전 작동 및 서비스 중"
 
 #: netbox/circuits/choices.py:27 netbox/dcim/choices.py:214
-#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2088
-#: netbox/dcim/choices.py:2193 netbox/dcim/choices.py:2209
-#: netbox/dcim/choices.py:2275 netbox/dcim/choices.py:2294
+#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2101
+#: netbox/dcim/choices.py:2206 netbox/dcim/choices.py:2222
+#: netbox/dcim/choices.py:2288 netbox/dcim/choices.py:2307
 #: netbox/virtualization/choices.py:37 netbox/virtualization/choices.py:60
 msgid "Offline"
 msgstr "오프라인"
 
 #: netbox/circuits/choices.py:27 netbox/dcim/choices.py:214
-#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2294
+#: netbox/dcim/choices.py:272 netbox/dcim/choices.py:2307
 msgid "Installed but not currently in service"
 msgstr "설치되었지만 현재 서비스 중이지 않음"
 
@@ -113,8 +113,8 @@ msgstr "디프로비저닝 중"
 
 #: netbox/circuits/choices.py:28 netbox/dcim/choices.py:24
 #: netbox/dcim/choices.py:48 netbox/dcim/choices.py:224
-#: netbox/dcim/choices.py:281 netbox/dcim/choices.py:2031
-#: netbox/dcim/choices.py:2303 netbox/virtualization/choices.py:34
+#: netbox/dcim/choices.py:281 netbox/dcim/choices.py:2044
+#: netbox/dcim/choices.py:2316 netbox/virtualization/choices.py:34
 #: netbox/virtualization/choices.py:81
 msgid "Being removed from service"
 msgstr "서비스에서 제거됨"
@@ -127,7 +127,7 @@ msgstr "폐기됨"
 msgid "Retired and no longer in service"
 msgstr "은퇴하여 더 이상 서비스를 제공하지 않음"
 
-#: netbox/circuits/choices.py:96 netbox/dcim/choices.py:2104
+#: netbox/circuits/choices.py:96 netbox/dcim/choices.py:2117
 #: netbox/dcim/tables/devices.py:1313
 #: netbox/templates/dcim/interface/attrs/mac_address.html:3
 #: netbox/tenancy/choices.py:17
@@ -367,7 +367,7 @@ msgstr "종단 A (ID)"
 #: netbox/extras/filtersets.py:514 netbox/extras/filtersets.py:573
 #: netbox/extras/filtersets.py:634 netbox/extras/filtersets.py:673
 #: netbox/extras/filtersets.py:706 netbox/extras/filtersets.py:880
-#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:324
+#: netbox/ipam/forms/model_forms.py:559 netbox/netbox/filtersets.py:331
 #: netbox/netbox/forms/filtersets.py:32 netbox/netbox/forms/search.py:20
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:43
@@ -2053,8 +2053,8 @@ msgstr "가장 최근의 동기화 성공"
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:21 netbox/core/tables/tasks.py:35
 #: netbox/dcim/choices.py:218 netbox/dcim/choices.py:276
-#: netbox/dcim/choices.py:2094 netbox/dcim/choices.py:2196
-#: netbox/dcim/choices.py:2212 netbox/dcim/choices.py:2298
+#: netbox/dcim/choices.py:2107 netbox/dcim/choices.py:2209
+#: netbox/dcim/choices.py:2225 netbox/dcim/choices.py:2311
 #: netbox/virtualization/choices.py:76
 msgid "Failed"
 msgstr "실패"
@@ -2307,7 +2307,7 @@ msgid "User name"
 msgstr "사용자 이름"
 
 #: netbox/core/forms/bulk_edit.py:26 netbox/core/forms/filtersets.py:47
-#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2142
+#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2155
 #: netbox/dcim/forms/bulk_edit.py:1500 netbox/dcim/forms/bulk_edit.py:1609
 #: netbox/dcim/forms/bulk_edit.py:1646 netbox/dcim/forms/bulk_edit.py:1880
 #: netbox/dcim/forms/bulk_edit.py:2148 netbox/dcim/forms/bulk_edit.py:2176
@@ -2339,7 +2339,7 @@ msgid "Sync interval"
 msgstr "동기화 간격"
 
 #: netbox/core/forms/bulk_edit.py:34 netbox/extras/forms/model_forms.py:429
-#: netbox/extras/views.py:399 netbox/vpn/forms/filtersets.py:107
+#: netbox/extras/views.py:400 netbox/vpn/forms/filtersets.py:107
 #: netbox/vpn/forms/filtersets.py:138 netbox/vpn/forms/filtersets.py:163
 #: netbox/vpn/forms/filtersets.py:183 netbox/vpn/forms/model_forms.py:335
 #: netbox/vpn/forms/model_forms.py:361 netbox/vpn/forms/model_forms.py:387
@@ -2498,7 +2498,7 @@ msgstr "동기화할 파일을 업로드하거나 데이터 파일을 선택해�
 msgid "Rack Elevations"
 msgstr "랙 배치도"
 
-#: netbox/core/forms/model_forms.py:152 netbox/dcim/choices.py:2004
+#: netbox/core/forms/model_forms.py:152 netbox/dcim/choices.py:2017
 #: netbox/dcim/forms/bulk_edit.py:1084 netbox/dcim/forms/bulk_edit.py:1769
 #: netbox/dcim/forms/bulk_edit.py:1790 netbox/dcim/tables/racks.py:178
 #: netbox/netbox/navigation/menu.py:327 netbox/netbox/navigation/menu.py:331
@@ -2748,7 +2748,7 @@ msgstr "백엔드 초기화 중 오류가 발생했습니다. 다음 의존성�
 msgid "last updated"
 msgstr "최종 수정"
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:797
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:814
 msgid "path"
 msgstr "경로"
 
@@ -3305,8 +3305,8 @@ msgstr "케이블 B측에 {count}개 종단이 있지만 프로필 {profile}에�
 
 #: netbox/dcim/choices.py:20 netbox/dcim/choices.py:44
 #: netbox/dcim/choices.py:114 netbox/dcim/choices.py:216
-#: netbox/dcim/choices.py:274 netbox/dcim/choices.py:2093
-#: netbox/dcim/choices.py:2274 netbox/dcim/choices.py:2296
+#: netbox/dcim/choices.py:274 netbox/dcim/choices.py:2106
+#: netbox/dcim/choices.py:2287 netbox/dcim/choices.py:2309
 msgid "Planned for future deployment"
 msgstr "향후 배포 예정"
 
@@ -3326,7 +3326,7 @@ msgstr "현재 서비스 중"
 
 #: netbox/dcim/choices.py:24 netbox/dcim/choices.py:48
 #: netbox/dcim/choices.py:222 netbox/dcim/choices.py:279
-#: netbox/dcim/choices.py:2029 netbox/dcim/choices.py:2301
+#: netbox/dcim/choices.py:2042 netbox/dcim/choices.py:2314
 #: netbox/virtualization/choices.py:33 netbox/virtualization/choices.py:80
 #: netbox/vpn/choices.py:320
 msgid "Decommissioning"
@@ -3437,7 +3437,7 @@ msgstr "더 이상 사용하지 않는 것이 좋습니다."
 msgid "Millimeters"
 msgstr "밀리미터"
 
-#: netbox/dcim/choices.py:127 netbox/dcim/choices.py:2054
+#: netbox/dcim/choices.py:127 netbox/dcim/choices.py:2067
 #: netbox/netbox/choices.py:216
 msgid "Inches"
 msgstr "인치"
@@ -3531,17 +3531,17 @@ msgid "Rear"
 msgstr "후면"
 
 #: netbox/dcim/choices.py:217 netbox/dcim/choices.py:275
-#: netbox/dcim/choices.py:2297 netbox/virtualization/choices.py:72
+#: netbox/dcim/choices.py:2310 netbox/virtualization/choices.py:72
 msgid "Staged"
 msgstr "스테이징됨"
 
 #: netbox/dcim/choices.py:217 netbox/dcim/choices.py:275
-#: netbox/dcim/choices.py:2297
+#: netbox/dcim/choices.py:2310
 msgid "Installed and being prepared for service"
 msgstr "설치 및 서비스 준비 중"
 
 #: netbox/dcim/choices.py:218 netbox/dcim/choices.py:276
-#: netbox/dcim/choices.py:2094 netbox/dcim/choices.py:2298
+#: netbox/dcim/choices.py:2107 netbox/dcim/choices.py:2311
 msgid "Malfunctioning or out of service"
 msgstr "오작동 또는 서비스 중단"
 
@@ -3578,7 +3578,7 @@ msgid "Top to bottom"
 msgstr "위에서 아래로"
 
 #: netbox/dcim/choices.py:252 netbox/dcim/choices.py:302
-#: netbox/dcim/choices.py:1645
+#: netbox/dcim/choices.py:1658
 msgid "Passive"
 msgstr "패시브"
 
@@ -3603,13 +3603,13 @@ msgid "International/ITA"
 msgstr "International/ITA"
 
 #: netbox/dcim/choices.py:620 netbox/dcim/choices.py:865
-#: netbox/dcim/choices.py:2258
+#: netbox/dcim/choices.py:2271
 msgid "Proprietary"
 msgstr "독자 규격"
 
 #: netbox/dcim/choices.py:628 netbox/dcim/choices.py:875
-#: netbox/dcim/choices.py:1554 netbox/dcim/choices.py:1556
-#: netbox/dcim/choices.py:1805 netbox/dcim/choices.py:1807
+#: netbox/dcim/choices.py:1567 netbox/dcim/choices.py:1569
+#: netbox/dcim/choices.py:1818 netbox/dcim/choices.py:1820
 #: netbox/netbox/navigation/menu.py:222
 msgid "Other"
 msgstr "기타"
@@ -3622,11 +3622,11 @@ msgstr "ITA/International"
 msgid "Physical"
 msgstr "물리"
 
-#: netbox/dcim/choices.py:906 netbox/dcim/choices.py:1199
+#: netbox/dcim/choices.py:906 netbox/dcim/choices.py:1204
 msgid "Virtual"
 msgstr "가상"
 
-#: netbox/dcim/choices.py:907 netbox/dcim/choices.py:1416
+#: netbox/dcim/choices.py:907 netbox/dcim/choices.py:1421
 #: netbox/dcim/forms/bulk_edit.py:2040 netbox/dcim/forms/filtersets.py:2013
 #: netbox/dcim/forms/filtersets.py:2147 netbox/dcim/forms/model_forms.py:1576
 #: netbox/dcim/forms/model_forms.py:2171 netbox/dcim/ui/panels.py:651
@@ -3634,11 +3634,11 @@ msgstr "가상"
 msgid "Wireless"
 msgstr "무선"
 
-#: netbox/dcim/choices.py:1197
+#: netbox/dcim/choices.py:1202
 msgid "Virtual interfaces"
 msgstr "가상 인터페이스"
 
-#: netbox/dcim/choices.py:1200 netbox/dcim/forms/bulk_edit.py:1893
+#: netbox/dcim/choices.py:1205 netbox/dcim/forms/bulk_edit.py:1893
 #: netbox/dcim/forms/bulk_import.py:1153 netbox/dcim/forms/model_forms.py:1557
 #: netbox/dcim/tables/devices.py:777
 #: netbox/virtualization/forms/bulk_edit.py:231
@@ -3647,479 +3647,479 @@ msgstr "가상 인터페이스"
 msgid "Bridge"
 msgstr "브리지"
 
-#: netbox/dcim/choices.py:1201
+#: netbox/dcim/choices.py:1206
 msgid "Link Aggregation Group (LAG)"
 msgstr "링크 애그리게이션 그룹 (LAG)"
 
-#: netbox/dcim/choices.py:1202
+#: netbox/dcim/choices.py:1207
 #: netbox/templates/dcim/panels/interface_wireless.html:24
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:24
 msgid "Channel"
 msgstr "채널"
 
-#: netbox/dcim/choices.py:1206
+#: netbox/dcim/choices.py:1211
 msgid "FastEthernet (100 Mbps)"
 msgstr "패스트이더넷 (100Mbps)"
 
-#: netbox/dcim/choices.py:1215
+#: netbox/dcim/choices.py:1220
 msgid "GigabitEthernet (1 Gbps)"
 msgstr "기가비트이더넷 (1Gbps)"
 
-#: netbox/dcim/choices.py:1233
+#: netbox/dcim/choices.py:1238
 msgid "2.5/5 Gbps Ethernet"
 msgstr "2.5/5Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1240
+#: netbox/dcim/choices.py:1245
 msgid "10 Gbps Ethernet"
 msgstr "10Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1256
+#: netbox/dcim/choices.py:1261
 msgid "25 Gbps Ethernet"
 msgstr "25Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1266
+#: netbox/dcim/choices.py:1271
 msgid "40 Gbps Ethernet"
 msgstr "40Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1277
+#: netbox/dcim/choices.py:1282
 msgid "50 Gbps Ethernet"
 msgstr "50Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1287
+#: netbox/dcim/choices.py:1292
 msgid "100 Gbps Ethernet"
 msgstr "100Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1308
+#: netbox/dcim/choices.py:1313
 msgid "200 Gbps Ethernet"
 msgstr "200Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1322
+#: netbox/dcim/choices.py:1327
 msgid "400 Gbps Ethernet"
 msgstr "400Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1340
+#: netbox/dcim/choices.py:1345
 msgid "800 Gbps Ethernet"
 msgstr "800Gbps 이더넷"
 
-#: netbox/dcim/choices.py:1349
+#: netbox/dcim/choices.py:1354
 msgid "1.6 Tbps Ethernet"
 msgstr "1.6Tbps 이더넷"
 
-#: netbox/dcim/choices.py:1357
+#: netbox/dcim/choices.py:1362
 msgid "Pluggable transceivers"
 msgstr "탈착형 트랜시버"
 
-#: netbox/dcim/choices.py:1399
+#: netbox/dcim/choices.py:1404
 msgid "Backplane Ethernet"
 msgstr "백플레인 이더넷"
 
-#: netbox/dcim/choices.py:1432
+#: netbox/dcim/choices.py:1437
 msgid "Cellular"
 msgstr "셀룰러"
 
-#: netbox/dcim/choices.py:1498 netbox/dcim/forms/filtersets.py:466
+#: netbox/dcim/choices.py:1511 netbox/dcim/forms/filtersets.py:466
 #: netbox/dcim/forms/filtersets.py:1041 netbox/dcim/forms/filtersets.py:1253
 #: netbox/dcim/forms/filtersets.py:2384
 #: netbox/templates/dcim/virtualchassis_edit.html:66
 msgid "Serial"
 msgstr "시리얼"
 
-#: netbox/dcim/choices.py:1513
+#: netbox/dcim/choices.py:1526
 msgid "Coaxial"
 msgstr "동축"
 
-#: netbox/dcim/choices.py:1534
+#: netbox/dcim/choices.py:1547
 msgid "Stacking"
 msgstr "스태킹"
 
-#: netbox/dcim/choices.py:1590
+#: netbox/dcim/choices.py:1603
 msgid "Half"
 msgstr "반이중"
 
-#: netbox/dcim/choices.py:1591
+#: netbox/dcim/choices.py:1604
 msgid "Full"
 msgstr "전이중"
 
-#: netbox/dcim/choices.py:1592 netbox/netbox/preferences.py:33
+#: netbox/dcim/choices.py:1605 netbox/netbox/preferences.py:33
 #: netbox/wireless/choices.py:498
 msgid "Auto"
 msgstr "자동"
 
-#: netbox/dcim/choices.py:1604
+#: netbox/dcim/choices.py:1617
 msgid "Access"
 msgstr "액세스"
 
-#: netbox/dcim/choices.py:1604
+#: netbox/dcim/choices.py:1617
 msgid "Untagged traffic for a single VLAN"
 msgstr "단일 VLAN에 대한 태그가 지정되지 않은 트래픽"
 
-#: netbox/dcim/choices.py:1605 netbox/ipam/tables/vlans.py:152
+#: netbox/dcim/choices.py:1618 netbox/ipam/tables/vlans.py:152
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "태그됨"
 
-#: netbox/dcim/choices.py:1605
+#: netbox/dcim/choices.py:1618
 msgid "One untagged VLAN plus one or more tagged VLANs"
 msgstr "태그가 지정되지 않은 VLAN 1개와 태그가 지정된 VLAN 하나 이상"
 
-#: netbox/dcim/choices.py:1606
+#: netbox/dcim/choices.py:1619
 msgid "Tagged (All)"
 msgstr "태그됨 (전체)"
 
-#: netbox/dcim/choices.py:1606
+#: netbox/dcim/choices.py:1619
 msgid "Untagged VLAN plus all tagged VLANs"
 msgstr "태그가 지정되지 않은 VLAN과 태그가 지정된 모든 VLAN"
 
-#: netbox/dcim/choices.py:1607 netbox/templates/ipam/vlan_edit.html:30
+#: netbox/dcim/choices.py:1620 netbox/templates/ipam/vlan_edit.html:30
 msgid "Q-in-Q (802.1ad)"
 msgstr "Q-in-Q (802.1ad)"
 
-#: netbox/dcim/choices.py:1607
+#: netbox/dcim/choices.py:1620
 msgid "802.1ad service VLAN encapsulating customer VLANs"
 msgstr "고객 VLAN을 캡슐화하는 802.1ad 서비스 VLAN"
 
-#: netbox/dcim/choices.py:1617
+#: netbox/dcim/choices.py:1630
 msgid "Powered device that receives power over Ethernet"
 msgstr "이더넷을 통해 전원을 공급받는 전원 공급 장치"
 
-#: netbox/dcim/choices.py:1618
+#: netbox/dcim/choices.py:1631
 msgid "Power sourcing equipment that supplies power over Ethernet"
 msgstr "이더넷을 통해 전원을 공급하는 전원 공급 장치"
 
-#: netbox/dcim/choices.py:1636
+#: netbox/dcim/choices.py:1649
 msgid "IEEE Standard"
 msgstr "IEEE 표준"
 
-#: netbox/dcim/choices.py:1647
+#: netbox/dcim/choices.py:1660
 msgid "Passive 24V (2-pair)"
 msgstr "패시브 24V (2페어)"
 
-#: netbox/dcim/choices.py:1648
+#: netbox/dcim/choices.py:1661
 msgid "Passive 24V (4-pair)"
 msgstr "패시브 24V (4페어)"
 
-#: netbox/dcim/choices.py:1649
+#: netbox/dcim/choices.py:1662
 msgid "Passive 48V (2-pair)"
 msgstr "패시브 48V (2페어)"
 
-#: netbox/dcim/choices.py:1650
+#: netbox/dcim/choices.py:1663
 msgid "Passive 48V (4-pair)"
 msgstr "패시브 48V (4페어)"
 
-#: netbox/dcim/choices.py:1728
+#: netbox/dcim/choices.py:1741
 msgid "Copper"
 msgstr "구리"
 
-#: netbox/dcim/choices.py:1751
+#: netbox/dcim/choices.py:1764
 msgid "Fiber Optic"
 msgstr "광섬유"
 
-#: netbox/dcim/choices.py:1792 netbox/dcim/choices.py:2010
+#: netbox/dcim/choices.py:1805 netbox/dcim/choices.py:2023
 msgid "USB"
 msgstr "USB"
 
-#: netbox/dcim/choices.py:1850
+#: netbox/dcim/choices.py:1863
 msgid "Single"
 msgstr "단일"
 
-#: netbox/dcim/choices.py:1852
+#: netbox/dcim/choices.py:1865
 msgid "1C1P"
 msgstr "1C1P"
 
-#: netbox/dcim/choices.py:1853
+#: netbox/dcim/choices.py:1866
 msgid "1C2P"
 msgstr "1C2P"
 
-#: netbox/dcim/choices.py:1854
+#: netbox/dcim/choices.py:1867
 msgid "1C4P"
 msgstr "1C4P"
 
-#: netbox/dcim/choices.py:1855
+#: netbox/dcim/choices.py:1868
 msgid "1C6P"
 msgstr "1C6P"
 
-#: netbox/dcim/choices.py:1856
+#: netbox/dcim/choices.py:1869
 msgid "1C8P"
 msgstr "1C8P"
 
-#: netbox/dcim/choices.py:1857
+#: netbox/dcim/choices.py:1870
 msgid "1C12P"
 msgstr "1C12P"
 
-#: netbox/dcim/choices.py:1858
+#: netbox/dcim/choices.py:1871
 msgid "1C16P"
 msgstr "1C16P"
 
-#: netbox/dcim/choices.py:1862
+#: netbox/dcim/choices.py:1875
 msgid "Trunk"
 msgstr "트렁크"
 
-#: netbox/dcim/choices.py:1864
+#: netbox/dcim/choices.py:1877
 msgid "2C1P trunk"
 msgstr "2C1P 트렁크"
 
-#: netbox/dcim/choices.py:1865
+#: netbox/dcim/choices.py:1878
 msgid "2C2P trunk"
 msgstr "2C2P 트렁크"
 
-#: netbox/dcim/choices.py:1866
+#: netbox/dcim/choices.py:1879
 msgid "2C4P trunk"
 msgstr "2C4P 트렁크"
 
-#: netbox/dcim/choices.py:1867
+#: netbox/dcim/choices.py:1880
 msgid "2C4P trunk (shuffle)"
 msgstr "2C4P 트렁크 (셔플)"
 
-#: netbox/dcim/choices.py:1868
+#: netbox/dcim/choices.py:1881
 msgid "2C6P trunk"
 msgstr "2C6P 트렁크"
 
-#: netbox/dcim/choices.py:1869
+#: netbox/dcim/choices.py:1882
 msgid "2C8P trunk"
 msgstr "2C8P 트렁크"
 
-#: netbox/dcim/choices.py:1870
+#: netbox/dcim/choices.py:1883
 msgid "2C12P trunk"
 msgstr "2C12P 트렁크"
 
-#: netbox/dcim/choices.py:1871
+#: netbox/dcim/choices.py:1884
 msgid "4C1P trunk"
 msgstr "4C1P 트렁크"
 
-#: netbox/dcim/choices.py:1872
+#: netbox/dcim/choices.py:1885
 msgid "4C2P trunk"
 msgstr "4C2P 트렁크"
 
-#: netbox/dcim/choices.py:1873
+#: netbox/dcim/choices.py:1886
 msgid "4C4P trunk"
 msgstr "4C4P 트렁크"
 
-#: netbox/dcim/choices.py:1874
+#: netbox/dcim/choices.py:1887
 msgid "4C4P trunk (shuffle)"
 msgstr "4C4P 트렁크 (셔플)"
 
-#: netbox/dcim/choices.py:1875
+#: netbox/dcim/choices.py:1888
 msgid "4C6P trunk"
 msgstr "4C6P 트렁크"
 
-#: netbox/dcim/choices.py:1876
+#: netbox/dcim/choices.py:1889
 msgid "4C8P trunk"
 msgstr "4C8P 트렁크"
 
-#: netbox/dcim/choices.py:1877
+#: netbox/dcim/choices.py:1890
 msgid "8C4P trunk"
 msgstr "8C4P 트렁크"
 
-#: netbox/dcim/choices.py:1881
+#: netbox/dcim/choices.py:1894
 msgid "Breakout"
 msgstr "브레이크아웃"
 
-#: netbox/dcim/choices.py:1883
+#: netbox/dcim/choices.py:1896
 msgid "1C2P:2C1P breakout"
 msgstr "1C2P:2C1P 브레이크아웃"
 
-#: netbox/dcim/choices.py:1884
+#: netbox/dcim/choices.py:1897
 msgid "1C4P:4C1P breakout"
 msgstr "1C4P:4C1P 브레이크아웃"
 
-#: netbox/dcim/choices.py:1885
+#: netbox/dcim/choices.py:1898
 msgid "1C6P:6C1P breakout"
 msgstr "1C6P:6C1P 브레이크아웃"
 
-#: netbox/dcim/choices.py:1886
+#: netbox/dcim/choices.py:1899
 msgid "1C8P:8C1P breakout"
 msgstr "1C8P:8C1P 브레이크아웃"
 
-#: netbox/dcim/choices.py:1887
+#: netbox/dcim/choices.py:1900
 msgid "2C4P:8C1P breakout (shuffle)"
 msgstr "2C4P:8C1P 브레이크아웃 (셔플)"
 
-#: netbox/dcim/choices.py:1945
+#: netbox/dcim/choices.py:1958
 msgid "Copper - Twisted Pair (UTP/STP)"
 msgstr "구리 - 트위스티드 페어 (UTP/STP)"
 
-#: netbox/dcim/choices.py:1959
+#: netbox/dcim/choices.py:1972
 msgid "Copper - Twinax (DAC)"
 msgstr "구리 - 트위낙스 (DAC)"
 
-#: netbox/dcim/choices.py:1966
+#: netbox/dcim/choices.py:1979
 msgid "Copper - Coaxial"
 msgstr "구리 - 동축"
 
-#: netbox/dcim/choices.py:1981
+#: netbox/dcim/choices.py:1994
 msgid "Fiber - Multimode"
 msgstr "광섬유 - 멀티모드"
 
-#: netbox/dcim/choices.py:1992
+#: netbox/dcim/choices.py:2005
 msgid "Fiber - Single-mode"
 msgstr "광섬유 - 싱글모드"
 
-#: netbox/dcim/choices.py:2000
+#: netbox/dcim/choices.py:2013
 msgid "Fiber - Other"
 msgstr "광섬유 - 기타"
 
-#: netbox/dcim/choices.py:2025 netbox/dcim/forms/filtersets.py:1690
+#: netbox/dcim/choices.py:2038 netbox/dcim/forms/filtersets.py:1690
 msgid "Connected"
 msgstr "연결됨"
 
-#: netbox/dcim/choices.py:2025
+#: netbox/dcim/choices.py:2038
 msgid "Link is connected and in service"
 msgstr "링크가 연결되고 서비스 중입니다"
 
-#: netbox/dcim/choices.py:2026
+#: netbox/dcim/choices.py:2039
 msgid "Planned for future connection"
 msgstr "향후 연결 예정"
 
-#: netbox/dcim/choices.py:2049 netbox/netbox/choices.py:179
+#: netbox/dcim/choices.py:2062 netbox/netbox/choices.py:179
 msgid "Kilometers"
 msgstr "킬로미터"
 
-#: netbox/dcim/choices.py:2050 netbox/netbox/choices.py:180
+#: netbox/dcim/choices.py:2063 netbox/netbox/choices.py:180
 #: netbox/templates/dcim/cable_trace.html:67
 msgid "Meters"
 msgstr "미터"
 
-#: netbox/dcim/choices.py:2051 netbox/netbox/choices.py:215
+#: netbox/dcim/choices.py:2064 netbox/netbox/choices.py:215
 msgid "Centimeters"
 msgstr "센티미터"
 
-#: netbox/dcim/choices.py:2052 netbox/netbox/choices.py:181
+#: netbox/dcim/choices.py:2065 netbox/netbox/choices.py:181
 msgid "Miles"
 msgstr "마일"
 
-#: netbox/dcim/choices.py:2053 netbox/netbox/choices.py:182
+#: netbox/dcim/choices.py:2066 netbox/netbox/choices.py:182
 #: netbox/templates/dcim/cable_trace.html:68
 msgid "Feet"
 msgstr "피트"
 
-#: netbox/dcim/choices.py:2090
+#: netbox/dcim/choices.py:2103
 msgid "Installed but not currently supplying power"
 msgstr "설치되었지만 현재 전원이 공급되지 않음"
 
-#: netbox/dcim/choices.py:2092
+#: netbox/dcim/choices.py:2105
 msgid "Supplying power and in service"
 msgstr "전원 공급 및 사용 중"
 
-#: netbox/dcim/choices.py:2105
+#: netbox/dcim/choices.py:2118
 msgid "Redundant"
 msgstr "이중화"
 
-#: netbox/dcim/choices.py:2126
+#: netbox/dcim/choices.py:2139
 msgid "Single phase"
 msgstr "단상"
 
-#: netbox/dcim/choices.py:2127
+#: netbox/dcim/choices.py:2140
 msgid "Three-phase"
 msgstr "3상"
 
-#: netbox/dcim/choices.py:2142
+#: netbox/dcim/choices.py:2155
 msgid "Powered on and supplying power"
 msgstr "전원 켜짐 및 전원 공급"
 
-#: netbox/dcim/choices.py:2143 netbox/extras/choices.py:83
+#: netbox/dcim/choices.py:2156 netbox/extras/choices.py:83
 #: netbox/netbox/preferences.py:46 netbox/netbox/preferences.py:71
 #: netbox/templates/extras/customfield/attrs/search_weight.html:1
 #: netbox/vpn/choices.py:25 netbox/wireless/choices.py:29
 msgid "Disabled"
 msgstr "비활성화"
 
-#: netbox/dcim/choices.py:2143
+#: netbox/dcim/choices.py:2156
 msgid "Powered off and not supplying power"
 msgstr "전원이 꺼져 있고 전원이 공급되지 않음"
 
-#: netbox/dcim/choices.py:2144
+#: netbox/dcim/choices.py:2157
 msgid "Faulty"
 msgstr "불량"
 
-#: netbox/dcim/choices.py:2144
+#: netbox/dcim/choices.py:2157
 msgid "Malfunctioning or in an error state"
 msgstr "오작동 또는 오류 상태"
 
-#: netbox/dcim/choices.py:2159
+#: netbox/dcim/choices.py:2172
 msgid "Air"
 msgstr "에어"
 
-#: netbox/dcim/choices.py:2160
+#: netbox/dcim/choices.py:2173
 msgid "Liquid"
 msgstr "액상"
 
-#: netbox/dcim/choices.py:2161 netbox/dcim/choices.py:2237
+#: netbox/dcim/choices.py:2174 netbox/dcim/choices.py:2250
 msgid "Hybrid"
 msgstr "하이브리드"
 
-#: netbox/dcim/choices.py:2162
+#: netbox/dcim/choices.py:2175
 msgid "Immersion"
 msgstr "몰입"
 
-#: netbox/dcim/choices.py:2176
+#: netbox/dcim/choices.py:2189
 msgid "Chiller"
 msgstr "냉각기"
 
-#: netbox/dcim/choices.py:2177
+#: netbox/dcim/choices.py:2190
 msgid "Cooling tower"
 msgstr "쿨링 타워"
 
-#: netbox/dcim/choices.py:2178
+#: netbox/dcim/choices.py:2191
 msgid "Dry cooler"
 msgstr "드라이 쿨러"
 
-#: netbox/dcim/choices.py:2179
+#: netbox/dcim/choices.py:2192
 msgid "CRAC"
 msgstr "크랙"
 
-#: netbox/dcim/choices.py:2180
+#: netbox/dcim/choices.py:2193
 msgid "CRAH"
 msgstr "추락"
 
-#: netbox/dcim/choices.py:2223
+#: netbox/dcim/choices.py:2236
 msgid "Water"
 msgstr "물"
 
-#: netbox/dcim/choices.py:2224
+#: netbox/dcim/choices.py:2237
 msgid "Water/glycol"
 msgstr "물/글리콜"
 
-#: netbox/dcim/choices.py:2225
+#: netbox/dcim/choices.py:2238
 msgid "Dielectric"
 msgstr "유전체"
 
-#: netbox/dcim/choices.py:2226
+#: netbox/dcim/choices.py:2239
 msgid "Refrigerant"
 msgstr "냉매"
 
-#: netbox/dcim/choices.py:2236
+#: netbox/dcim/choices.py:2249
 msgid "Air only"
 msgstr "항공 전용"
 
-#: netbox/dcim/choices.py:2238
+#: netbox/dcim/choices.py:2251
 msgid "Liquid only"
 msgstr "액체만"
 
-#: netbox/dcim/choices.py:2252
+#: netbox/dcim/choices.py:2265
 msgid "UQD (Universal Quick Disconnect)"
 msgstr "UQD (범용 퀵 디스커넥트)"
 
-#: netbox/dcim/choices.py:2253
+#: netbox/dcim/choices.py:2266
 msgid "UQDB (Universal Quick Disconnect, Blind-mate)"
 msgstr "UQDB (유니버셜 퀵 디스커넥트, 블라인드 메이트)"
 
-#: netbox/dcim/choices.py:2254
+#: netbox/dcim/choices.py:2267
 msgid "QDC (Quick Disconnect Coupling)"
 msgstr "QDC (퀵 디스커넥트 커플링)"
 
-#: netbox/dcim/choices.py:2255
+#: netbox/dcim/choices.py:2268
 msgid "Camlock (cam-and-groove)"
 msgstr "캠록 (캠 앤 그루브)"
 
-#: netbox/dcim/choices.py:2256
+#: netbox/dcim/choices.py:2269
 msgid "NPT (threaded)"
 msgstr "NPT (스레드)"
 
-#: netbox/dcim/choices.py:2257
+#: netbox/dcim/choices.py:2270
 msgid "BSP (threaded)"
 msgstr "BSP (스레드)"
 
-#: netbox/dcim/choices.py:2275 netbox/wireless/choices.py:31
+#: netbox/dcim/choices.py:2288 netbox/wireless/choices.py:31
 msgid "Configured but not currently in service"
 msgstr "구성되었지만 현재 사용 중이 아님"
 
@@ -6981,89 +6981,89 @@ msgstr "호환되지 않는 종단 유형: {type_a} 및 {type_b}"
 msgid "A and B terminations cannot connect to the same object."
 msgstr "A 종단과 B 종단은 같은 객체에 연결할 수 없습니다."
 
-#: netbox/dcim/models/cables.py:574 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:591 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr "끝"
 
-#: netbox/dcim/models/cables.py:645
+#: netbox/dcim/models/cables.py:662
 msgid "cable termination"
 msgstr "케이블 종단"
 
-#: netbox/dcim/models/cables.py:646
+#: netbox/dcim/models/cables.py:663
 msgid "cable terminations"
 msgstr "케이블 종단"
 
-#: netbox/dcim/models/cables.py:659
+#: netbox/dcim/models/cables.py:676
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr "{obj_parent} > {obj}은(는) 연결됨으로 표시되어 있어 케이블을 연결할 수 없습니다."
 
-#: netbox/dcim/models/cables.py:676
+#: netbox/dcim/models/cables.py:693
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr "{app_label}.{model} {termination_id}에 대한 중복 종단 발견: 케이블 {cable_pk}"
 
-#: netbox/dcim/models/cables.py:688
+#: netbox/dcim/models/cables.py:705
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr "케이블은 채널 하위 인터페이스로 직접 종단할 수 없습니다. 대신 상위 인터페이스에 케이블을 연결합니다."
 
-#: netbox/dcim/models/cables.py:694
+#: netbox/dcim/models/cables.py:711
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "{type_display} 인터페이스에는 케이블을 종단할 수 없습니다"
 
-#: netbox/dcim/models/cables.py:701
+#: netbox/dcim/models/cables.py:718
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr "프로바이더 네트워크에 연결된 회선 종단에는 케이블을 연결할 수 없습니다."
 
-#: netbox/dcim/models/cables.py:733
+#: netbox/dcim/models/cables.py:750
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr "잘못된 케이블 종단: 할당된 종단 객체가 존재하지 않습니다."
 
-#: netbox/dcim/models/cables.py:801 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:818 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr "활성 여부"
 
-#: netbox/dcim/models/cables.py:805
+#: netbox/dcim/models/cables.py:822
 msgid "is complete"
 msgstr "완료됨"
 
-#: netbox/dcim/models/cables.py:809
+#: netbox/dcim/models/cables.py:826
 msgid "is split"
 msgstr "분할됨"
 
-#: netbox/dcim/models/cables.py:822
+#: netbox/dcim/models/cables.py:839
 msgid "cable path"
 msgstr "케이블 경로"
 
-#: netbox/dcim/models/cables.py:823
+#: netbox/dcim/models/cables.py:840
 msgid "cable paths"
 msgstr "케이블 경로"
 
-#: netbox/dcim/models/cables.py:914
+#: netbox/dcim/models/cables.py:931
 msgid "All originating terminations must be attached to the same link"
 msgstr "모든 시작 종단은 동일한 링크에 연결되어야 합니다"
 
-#: netbox/dcim/models/cables.py:932
+#: netbox/dcim/models/cables.py:949
 msgid "All mid-span terminations must have the same termination type"
 msgstr "모든 중간 지점 종단은 동일한 종단 유형이어야 합니다"
 
-#: netbox/dcim/models/cables.py:940
+#: netbox/dcim/models/cables.py:957
 msgid "All mid-span terminations must have the same parent object"
 msgstr "모든 중간 지점 종단은 동일한 상위 객체를 가져야 합니다"
 
-#: netbox/dcim/models/cables.py:970
+#: netbox/dcim/models/cables.py:987
 msgid "All links must be cable or wireless"
 msgstr "모든 링크는 케이블 또는 무선이어야 합니다"
 
-#: netbox/dcim/models/cables.py:972
+#: netbox/dcim/models/cables.py:989
 msgid "All links must match first link type"
 msgstr "모든 링크는 첫 번째 링크 유형과 일치해야 합니다"
 
@@ -9813,7 +9813,7 @@ msgstr "이 객체 유형에는 사용자 정의 필드 '{name}'이(가) 존재�
 msgid "Unknown related object(s): {name}"
 msgstr "알 수 없는 관련 객체: {name}"
 
-#: netbox/extras/api/mixins.py:92 netbox/extras/api/views.py:257
+#: netbox/extras/api/mixins.py:92 netbox/extras/api/views.py:258
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw"
 " rendered content is returned in place of the JSON object."
@@ -9823,11 +9823,11 @@ msgstr "렌더링된 설정 템플릿. 클라이언트가 `text/plain`을 요청
 msgid "No config template could be resolved for this object."
 msgstr "이 객체에 대한 설정 템플릿을 결정할 수 없습니다."
 
-#: netbox/extras/api/mixins.py:102 netbox/extras/api/views.py:263
+#: netbox/extras/api/mixins.py:102 netbox/extras/api/views.py:264
 msgid "An error occurred while rendering the config template."
 msgstr "설정 템플릿 렌더링 중 오류가 발생했습니다."
 
-#: netbox/extras/api/mixins.py:125 netbox/extras/views.py:1316
+#: netbox/extras/api/mixins.py:125 netbox/extras/views.py:1317
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr "ID {id}인 설정 템플릿을 찾을 수 없습니다."
@@ -9878,30 +9878,39 @@ msgid ""
 msgstr "스크립트 스토리지 백엔드가 기존 파일을 덮어쓰지 않았습니다.백엔드가 덮어쓰기를 허용하도록 구성되어 있는지 확인하세요."
 
 #: netbox/extras/api/serializers_/scripts.py:197
+msgid ""
+"Invalid data payload; expected an object mapping variable names to values."
+msgstr "데이터 페이로드가 잘못되었습니다. 변수 이름을 값에 매핑하는 객체가 필요합니다."
+
 #: netbox/extras/api/serializers_/scripts.py:207
+#: netbox/extras/api/serializers_/scripts.py:217
 msgid "Scheduling is not enabled for this script."
 msgstr "이 스크립트에는 스케줄링이 활성화되어 있지 않습니다."
 
-#: netbox/extras/api/serializers_/scripts.py:199
+#: netbox/extras/api/serializers_/scripts.py:209
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr "예약 시간은 미래여야 합니다."
 
-#: netbox/extras/api/views.py:371
+#: netbox/extras/api/views.py:372
 msgid "The script has been enqueued for execution."
 msgstr "스크립트가 실행 대기열에 추가되었습니다."
 
-#: netbox/extras/api/views.py:384
+#: netbox/extras/api/views.py:385
 msgid "This token does not permit write operations (running a script)."
 msgstr "이 토큰은 쓰기 작업 (스크립트 실행) 을 허용하지 않습니다."
 
-#: netbox/extras/api/views.py:389
+#: netbox/extras/api/views.py:390
 msgid "This user does not have permission to run this script."
 msgstr "이 사용자는 이 스크립트를 실행할 권한이 없습니다."
 
-#: netbox/extras/api/views.py:399
+#: netbox/extras/api/views.py:400
 msgid "This script is not currently executable."
 msgstr "이 스크립트는 현재 실행 가능하지 않습니다."
+
+#: netbox/extras/api/views.py:429
+msgid "Invalid script input."
+msgstr "스크립트 입력이 잘못되었습니다."
 
 #: netbox/extras/choices.py:30 netbox/extras/forms/misc.py:14
 msgid "Text"
@@ -10576,7 +10585,7 @@ msgstr "타임아웃"
 msgid "Event types"
 msgstr "이벤트 유형"
 
-#: netbox/extras/forms/bulk_edit.py:315 netbox/extras/views.py:847
+#: netbox/extras/forms/bulk_edit.py:315 netbox/extras/views.py:848
 msgid "Conditions"
 msgstr "조건"
 
@@ -10984,7 +10993,7 @@ msgid "Base choices"
 msgstr "기본 선택"
 
 #: netbox/extras/forms/model_forms.py:224
-#: netbox/extras/models/customfields.py:1265
+#: netbox/extras/models/customfields.py:1266
 msgid "Base set of predefined choices (optional)"
 msgstr "사전 정의된 선택지 기본 세트 (선택)"
 
@@ -11522,125 +11531,125 @@ msgstr "거짓"
 msgid "Values must match this regex: <code>{regex}</code>"
 msgstr "값은 다음 정규식과 일치해야 합니다: <code>{regex}</code>"
 
-#: netbox/extras/models/customfields.py:1128
-#: netbox/extras/models/customfields.py:1135
+#: netbox/extras/models/customfields.py:1129
+#: netbox/extras/models/customfields.py:1136
 msgid "Value must be a string."
 msgstr "값은 문자열이어야 합니다."
 
-#: netbox/extras/models/customfields.py:1130
-#: netbox/extras/models/customfields.py:1143
+#: netbox/extras/models/customfields.py:1131
+#: netbox/extras/models/customfields.py:1144
 #, python-brace-format
 msgid "Value must match regex '{regex}'"
 msgstr "값은 정규식 '{regex}'과(와) 일치해야 합니다"
 
-#: netbox/extras/models/customfields.py:1140
+#: netbox/extras/models/customfields.py:1141
 msgid "URLs must use a scheme permitted by ALLOWED_URL_SCHEMES."
 msgstr "URL은 ALLOWED_URL_SCHEMES에서 허용하는 스키마를 사용해야 합니다."
 
-#: netbox/extras/models/customfields.py:1148
+#: netbox/extras/models/customfields.py:1149
 msgid "Value must be an integer."
 msgstr "값은 정수여야 합니다."
 
-#: netbox/extras/models/customfields.py:1151
-#: netbox/extras/models/customfields.py:1166
+#: netbox/extras/models/customfields.py:1152
+#: netbox/extras/models/customfields.py:1167
 #, python-brace-format
 msgid "Value must be at least {minimum}"
 msgstr "값은 최소 {minimum} 이상이어야 합니다"
 
-#: netbox/extras/models/customfields.py:1155
-#: netbox/extras/models/customfields.py:1170
+#: netbox/extras/models/customfields.py:1156
+#: netbox/extras/models/customfields.py:1171
 #, python-brace-format
 msgid "Value must not exceed {maximum}"
 msgstr "값은 {maximum}을(를) 초과할 수 없습니다"
 
-#: netbox/extras/models/customfields.py:1163
+#: netbox/extras/models/customfields.py:1164
 msgid "Value must be a decimal."
 msgstr "값은 소수여야 합니다."
 
-#: netbox/extras/models/customfields.py:1175
+#: netbox/extras/models/customfields.py:1176
 msgid "Value must be true or false."
 msgstr "값은 true 또는 false여야 합니다."
 
-#: netbox/extras/models/customfields.py:1183
+#: netbox/extras/models/customfields.py:1184
 msgid "Date values must be in ISO 8601 format (YYYY-MM-DD)."
 msgstr "날짜 값은 ISO 8601 형식(YYYY-MM-DD)이어야 합니다."
 
-#: netbox/extras/models/customfields.py:1192
+#: netbox/extras/models/customfields.py:1193
 msgid "Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS)."
 msgstr "날짜와 시간 값은 ISO 8601 형식(YYYY-MM-DD HH:MM:SS)이어야 합니다."
 
-#: netbox/extras/models/customfields.py:1199
+#: netbox/extras/models/customfields.py:1200
 #, python-brace-format
 msgid "Invalid choice ({value}) for choice set {choiceset}."
 msgstr "선택지 세트 {choiceset}에 없는 잘못된 선택 ({value})."
 
-#: netbox/extras/models/customfields.py:1213
+#: netbox/extras/models/customfields.py:1214
 #, python-brace-format
 msgid "Invalid choice(s) ({value}) for choice set {choiceset}."
 msgstr "선택지 세트 {choiceset}에 없는 잘못된 선택 ({value})."
 
-#: netbox/extras/models/customfields.py:1222
+#: netbox/extras/models/customfields.py:1223
 #, python-brace-format
 msgid "Value must be an object ID, not {type}"
 msgstr "값은 {type}이(가) 아닌 객체 ID여야 합니다"
 
-#: netbox/extras/models/customfields.py:1228
+#: netbox/extras/models/customfields.py:1229
 #, python-brace-format
 msgid "Value must be a list of object IDs, not {type}"
 msgstr "값은 {type}이(가) 아닌 객체 ID 목록이어야 합니다"
 
-#: netbox/extras/models/customfields.py:1232
+#: netbox/extras/models/customfields.py:1233
 #, python-brace-format
 msgid "Found invalid object ID: {id}"
 msgstr "잘못된 객체 ID 발견: {id}"
 
-#: netbox/extras/models/customfields.py:1241
+#: netbox/extras/models/customfields.py:1242
 #, python-brace-format
 msgid "Value does not conform to the assigned schema: {error}"
 msgstr "값이 할당된 스키마에 맞지 않습니다: {error}"
 
-#: netbox/extras/models/customfields.py:1245
+#: netbox/extras/models/customfields.py:1246
 msgid "Required field cannot be empty."
 msgstr "필수 필드는 비워 둘 수 없습니다."
 
-#: netbox/extras/models/customfields.py:1277
+#: netbox/extras/models/customfields.py:1278
 msgid "Choices are automatically ordered alphabetically"
 msgstr "선택지는 자동으로 알파벳순 정렬됩니다"
 
-#: netbox/extras/models/customfields.py:1284
+#: netbox/extras/models/customfields.py:1285
 msgid "custom field choice set"
 msgstr "사용자 정의 필드 선택지 세트"
 
-#: netbox/extras/models/customfields.py:1285
+#: netbox/extras/models/customfields.py:1286
 msgid "custom field choice sets"
 msgstr "사용자 정의 필드 선택지 세트"
 
-#: netbox/extras/models/customfields.py:1345
+#: netbox/extras/models/customfields.py:1346
 msgid "Must define base or extra choices."
 msgstr "기본 또는 추가 선택지를 정의해야 합니다."
 
-#: netbox/extras/models/customfields.py:1351
+#: netbox/extras/models/customfields.py:1352
 msgid "Color mappings must be defined as a JSON object."
 msgstr "색상 매핑은 JSON 객체로 정의해야 합니다."
 
-#: netbox/extras/models/customfields.py:1363
+#: netbox/extras/models/customfields.py:1364
 #, python-brace-format
 msgid "Duplicate value '{value}' found in extra choices."
 msgstr "추가 선택지에서 중복 값 '{value}'이(가) 발견되었습니다."
 
-#: netbox/extras/models/customfields.py:1380
+#: netbox/extras/models/customfields.py:1381
 #, python-brace-format
 msgid ""
 "Color mappings must reference an existing choice value. Invalid value(s): "
 "{values}."
 msgstr "색상 매핑은 기존 선택지 값을 참조해야 합니다. 잘못된 값: {values}."
 
-#: netbox/extras/models/customfields.py:1387
+#: netbox/extras/models/customfields.py:1388
 #, python-brace-format
 msgid "Invalid color value(s): {colors}. Use a supported named color."
 msgstr "잘못된 색상 값: {colors}. 지원되는 이름 있는 색상을 사용하세요."
 
-#: netbox/extras/models/customfields.py:1410
+#: netbox/extras/models/customfields.py:1411
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -12144,7 +12153,7 @@ msgstr "태그된 항목"
 msgid "tagged items"
 msgstr "태그된 항목"
 
-#: netbox/extras/scripts.py:437
+#: netbox/extras/scripts.py:442
 #, python-brace-format
 msgid ""
 "Invalid job_timeout value '{value}': must be an integer (seconds) or a "
@@ -12153,21 +12162,21 @@ msgstr ""
 "작업_타임아웃 값이 잘못되었습니다. '{value}': 정수 (초) 이거나' 1h '또는 '30m'과 같은 지속 시간 문자열이어야 "
 "합니다."
 
-#: netbox/extras/scripts.py:442
+#: netbox/extras/scripts.py:447
 #, python-brace-format
 msgid "Invalid job_timeout value '{value}': must be a positive duration."
 msgstr "작업_타임아웃 값이 잘못되었습니다. '{value}': 지속 시간이 양수여야 합니다."
 
-#: netbox/extras/scripts.py:451
+#: netbox/extras/scripts.py:456
 #, python-brace-format
 msgid "Invalid notifications value '{value}': must be one of {valid}."
 msgstr "잘못된 알림 값 '{value}': 다음 중 하나여야 합니다. {valid}."
 
-#: netbox/extras/scripts.py:556
+#: netbox/extras/scripts.py:561
 msgid "Script Data"
 msgstr "스크립트 데이터"
 
-#: netbox/extras/scripts.py:563
+#: netbox/extras/scripts.py:568
 msgid "Script Execution Parameters"
 msgstr "스크립트 실행 매개변수"
 
@@ -12386,8 +12395,8 @@ msgstr "사용처"
 msgid "Attachment"
 msgstr "첨부 파일"
 
-#: netbox/extras/ui/panels.py:264 netbox/extras/views.py:252
-#: netbox/extras/views.py:324
+#: netbox/extras/ui/panels.py:264 netbox/extras/views.py:253
+#: netbox/extras/views.py:325
 msgid "Assigned Models"
 msgstr "할당된 모델"
 
@@ -12470,67 +12479,67 @@ msgstr "요청에 대한 잘못된 속성 \"{name}\""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr "{model}에 대한 잘못된 속성 \"{name}\""
 
-#: netbox/extras/views.py:255
+#: netbox/extras/views.py:256
 msgid "Link Text"
 msgstr "링크 텍스트"
 
-#: netbox/extras/views.py:256
+#: netbox/extras/views.py:257
 msgid "Link URL"
 msgstr "링크 URL"
 
-#: netbox/extras/views.py:325 netbox/extras/views.py:1219
+#: netbox/extras/views.py:326 netbox/extras/views.py:1220
 msgid "Environment Parameters"
 msgstr "환경 매개변수"
 
-#: netbox/extras/views.py:328 netbox/extras/views.py:1222
+#: netbox/extras/views.py:329 netbox/extras/views.py:1223
 msgid "Template"
 msgstr "템플릿"
 
-#: netbox/extras/views.py:492
+#: netbox/extras/views.py:493
 msgid "Table configurations must be created from an object list view."
 msgstr "테이블 구성은 객체 목록 보기에서 생성해야 합니다."
 
-#: netbox/extras/views.py:777
+#: netbox/extras/views.py:778
 msgid "Additional Headers"
 msgstr "추가 헤더"
 
-#: netbox/extras/views.py:778
+#: netbox/extras/views.py:779
 msgid "Body Template"
 msgstr "본문 템플릿"
 
-#: netbox/extras/views.py:921
+#: netbox/extras/views.py:922
 msgid "Tagged Objects"
 msgstr "태그된 객체"
 
-#: netbox/extras/views.py:1014
+#: netbox/extras/views.py:1015
 msgid "JSON Schema"
 msgstr "JSON 스키마"
 
-#: netbox/extras/views.py:1511
+#: netbox/extras/views.py:1512
 msgid "Your dashboard has been reset."
 msgstr "대시보드가 초기화되었습니다."
 
-#: netbox/extras/views.py:1557
+#: netbox/extras/views.py:1558
 msgid "Added widget: "
 msgstr "추가된 위젯: "
 
-#: netbox/extras/views.py:1598
+#: netbox/extras/views.py:1599
 msgid "Updated widget: "
 msgstr "수정된 위젯: "
 
-#: netbox/extras/views.py:1634
+#: netbox/extras/views.py:1635
 msgid "Deleted widget: "
 msgstr "삭제된 위젯: "
 
-#: netbox/extras/views.py:1636
+#: netbox/extras/views.py:1637
 msgid "Error deleting widget: "
 msgstr "위젯 삭제 중 오류 발생: "
 
-#: netbox/extras/views.py:1752
+#: netbox/extras/views.py:1747
 msgid "Unable to run script: RQ worker process not running."
 msgstr "스크립트를 실행할 수 없음: RQ 워커 프로세스가 실행 중이 아닙니다."
 
-#: netbox/extras/views.py:1771
+#: netbox/extras/views.py:1766
 #, python-brace-format
 msgid "Unable to run script: {error}"
 msgstr "스크립트를 실행할 수 없음: {error}"

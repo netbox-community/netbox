@@ -1206,6 +1206,28 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_form_factor_required(self):
+        """
+        form_factor must be reported as required by OPTIONS, and a POST omitting it
+        must be rejected with a normal "required" validation error rather than a
+        model-level "cannot be blank" error.
+        """
+        self.add_permissions('dcim.add_racktype')
+
+        response = self.client.options(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertTrue(response.data['actions']['POST']['form_factor']['required'])
+
+        manufacturer = Manufacturer.objects.first()
+        data = {
+            'manufacturer': manufacturer.pk,
+            'model': 'Rack Type Missing Form Factor',
+            'slug': 'rack-type-missing-form-factor',
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['form_factor'][0].code, 'required')
+
 
 class RackTestCase(APIViewTestCases.APIViewTestCase):
     model = Rack

@@ -1757,12 +1757,17 @@ class ModuleBayTypeView(generic.ObjectView):
         left_panels=[
             panels.ModuleBayTypePanel(),
             TagsPanel(),
-            CommentsPanel(),
         ],
         right_panels=[
             CustomFieldsPanel(),
+            CommentsPanel(),
         ],
         bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.ModuleType',
+                title=_('Compatible Module Types'),
+                filters={'module_bay_type_id': lambda ctx: ctx['object'].pk},
+            ),
             ObjectsTablePanel(
                 model='dcim.ModuleBay',
                 title=_('Module Bays'),

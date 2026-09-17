@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, router
 from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -74,13 +74,31 @@ class CableBundle(PrimaryModel):
 # Cables
 #
 
+class CableQuerySet(RestrictedQuerySet):
+
+    def delete(self):
+        # Track these Cables as being deleted for the duration, as Cable.delete() does for a single
+        # instance: a queryset delete never calls it. Between them the two cover every deletion, as a
+        # Cable is never itself cascade-deleted (nothing points at it with on_delete=CASCADE).
+        # Resolve the PKs on the DB the delete will use, so read routing can't miss a lagging replica.
+        using = self._db or router.db_for_write(self.model, **self._hints)
+        pks = list(self.using(using).values_list('pk', flat=True))
+        for pk in pks:
+            Cable._track_deletion(pk)
+        try:
+            return super().delete()
+        finally:
+            for pk in pks:
+                Cable._untrack_deletion(pk)
+
+
 class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """
-    # Per-thread tracking of Cable PKs currently in delete(); referenced by
-    # dcim.signals.nullify_connected_endpoints to skip per-CableTermination
-    # cable path retracing during cascade (retrace_cable_paths handles it once).
+    # Per-thread tracking of Cable PKs currently being deleted; referenced by
+    # dcim.signals.nullify_connected_endpoints to record the disconnect on each terminating object and
+    # to skip per-CableTermination path retracing during the cascade (retrace_cable_paths does it once).
     _deletion_tracking = threading.local()
 
     type = models.CharField(
@@ -149,6 +167,8 @@ class Cable(PrimaryModel):
     )
 
     clone_fields = ('tenant', 'type', 'profile', 'bundle')
+
+    objects = CableQuerySet.as_manager()
 
     class Meta:
         ordering = ('pk',)
@@ -328,15 +348,32 @@ class Cable(PrimaryModel):
         }
         update_fields = normalize_update_fields(save_kwargs)
 
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length is not None and self.length_unit:
-            self._abs_length = to_meters(self.length, self.length_unit)
-        else:
-            self._abs_length = None
+        length_written = update_fields is None or 'length' in update_fields
+        length_unit_written = update_fields is None or 'length_unit' in update_fields
 
-        # Clear length_unit if no length is defined
-        if self.length is None:
-            self.length_unit = None
+        if length_written or length_unit_written:
+            if length_written and length_unit_written:
+                stored = {}
+            else:
+                # Read from the database this save will write, so a router cannot split the two
+                db = using or router.db_for_write(Cable, instance=self)
+                stored = Cable.objects.using(db).filter(pk=self.pk).values('length', 'length_unit').first() or {}
+            length = self.length if length_written else stored.get('length')
+            length_unit = self.length_unit if length_unit_written else stored.get('length_unit')
+
+            # Clear length_unit if no length is defined
+            if length is None and length_unit_written:
+                self.length_unit = None
+
+            # Store the given length (if any) in meters for use in database ordering
+            if length is not None and length_unit:
+                self._abs_length = to_meters(length, length_unit)
+            else:
+                self._abs_length = None
+
+            # _abs_length is a denormalized cache of length and length_unit, so persist them together
+            if update_fields is not None:
+                save_kwargs['update_fields'] = update_fields | {'_abs_length'}
 
         # A field counts as changed only when this save actually writes it
         status_written = update_fields is None or 'status' in update_fields
@@ -368,20 +405,32 @@ class Cable(PrimaryModel):
         self._terminations_modified = False
 
     def delete(self, *args, **kwargs):
-        # Track this Cable as being deleted so the post_delete signal handler
-        # for cascaded CableTerminations can skip redundant path retracing;
-        # retrace_cable_paths() will retrace each affected path once after the
-        # Cable itself is deleted. Cache the PK locally because super().delete()
-        # clears self.pk before the finally block runs. The tracking set lives
-        # on a threading.local() to isolate concurrent deletions across threads.
-        if not hasattr(Cable._deletion_tracking, 'pks'):
-            Cable._deletion_tracking.pks = set()
+        # Cache the PK locally because super().delete() clears self.pk before the finally block runs; the
+        # finally also guarantees the PK is discarded if the delete raises. CableQuerySet.delete() tracks
+        # the same way for a queryset delete, which never calls this.
         pk = self.pk
-        Cable._deletion_tracking.pks.add(pk)
+        Cable._track_deletion(pk)
         try:
             return super().delete(*args, **kwargs)
         finally:
-            Cable._deletion_tracking.pks.discard(pk)
+            Cable._untrack_deletion(pk)
+
+    @classmethod
+    def _track_deletion(cls, pk):
+        """
+        Track a Cable as being deleted, so that the post_delete handler for its cascaded CableTerminations can
+        record the disconnect on each terminating object and skip redundant path retracing (retrace_cable_paths()
+        retraces each affected path once, after the Cable itself is deleted). The tracking set lives on a
+        threading.local() to isolate concurrent deletions across threads.
+        """
+        if not hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks = set()
+        cls._deletion_tracking.pks.add(pk)
+
+    @classmethod
+    def _untrack_deletion(cls, pk):
+        if hasattr(cls._deletion_tracking, 'pks'):
+            cls._deletion_tracking.pks.discard(pk)
 
     @classmethod
     def _is_being_deleted(cls, pk):

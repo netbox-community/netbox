@@ -208,7 +208,6 @@ class ModuleBayTypePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     color = attrs.ColorAttr('color')
     description = attrs.TextAttr('description')
-    module_types = attrs.RelatedObjectListAttr('module_types', label=_('Compatible Module Types'), linkify=True)
 
 
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):

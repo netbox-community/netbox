@@ -86,6 +86,9 @@ class RackBaseSerializer(PrimaryModelSerializer):
 
 
 class RackTypeSerializer(RackBaseSerializer):
+    # Unlike Rack.form_factor (optional & nullable), RackType.form_factor is required
+    # (blank=False, no default), so override RackBaseSerializer's optional declaration.
+    form_factor = ChoiceField(choices=RackFormFactorChoices, required=True)
     manufacturer = ManufacturerSerializer(nested=True)
     rack_count = serializers.IntegerField(read_only=True)
 

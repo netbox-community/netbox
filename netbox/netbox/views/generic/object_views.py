@@ -539,6 +539,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
     form = None
     model_form = None
 
+    # Parent assignments carried into the "Add Another" redirect, which cloning cannot supply
+    parent_fields = ('device', 'module', 'device_type', 'module_type', 'virtual_machine')
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
 
@@ -623,8 +626,13 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
 
                         # Redirect user on success
                         if '_addanother' in request.POST:
+                            # A name pattern may create several components, so follow the last one
+                            new_obj = new_objs[-1]
                             redirect_url = request.path
-                            params = prepare_cloned_fields(new_objs[-1])
+                            params = prepare_cloned_fields(new_obj)
+                            for field_name in self.parent_fields:
+                                if (parent_id := getattr(new_obj, f'{field_name}_id', None)) is not None:
+                                    params[field_name] = parent_id
                             if 'return_url' in request.GET:
                                 params['return_url'] = request.GET.get('return_url')
                             if params:

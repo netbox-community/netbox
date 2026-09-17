@@ -1,19 +1,25 @@
+import uuid
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, tag
+from django.test import RequestFactory, TestCase, tag
+from django.test.utils import CaptureQueriesContext
 
 from circuits.models import *
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
+from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
+from users.models import User
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
 
@@ -2700,6 +2706,213 @@ class CableTestCase(TestCase):
 
         self.assertEqual(cable._abs_length, Decimal('1609343983.9066'))
 
+    def test_partial_save_persists_normalized_length(self):
+        """
+        A save naming only length must persist the normalized length alongside it.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.save(update_fields=['length'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('2.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertEqual(cable._abs_length, Decimal('2.0000'))
+
+    def test_partial_save_persists_normalized_length_for_a_unit_change(self):
+        """
+        A save naming only length_unit must renormalize against the stored length.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('10')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_FOOT
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('10.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_FOOT)
+        self.assertEqual(cable._abs_length, Decimal('3.0480'))
+
+    def test_partial_save_persists_normalized_length_for_both_source_fields(self):
+        """
+        A save naming both source fields must normalize from the values being written.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_KILOMETER
+        cable.save(update_fields=['length', 'length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable._abs_length, Decimal('2000.0000'))
+
+    def test_partial_save_normalizes_against_an_unwritten_length_unit(self):
+        """
+        A save naming only length must normalize against the stored unit, not an unwritten one.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_KILOMETER
+        cable.save(update_fields=['length'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertEqual(cable._abs_length, Decimal('2.0000'))
+
+    def test_partial_save_normalizes_against_an_unwritten_length(self):
+        """
+        A save naming only length_unit must normalize against the stored length, not an unwritten one.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('2')
+        cable.length_unit = CableLengthUnitChoices.UNIT_CENTIMETER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_CENTIMETER)
+        self.assertEqual(cable._abs_length, Decimal('0.0100'))
+
+    def test_partial_save_normalizes_against_an_unwritten_cleared_length(self):
+        """
+        A save naming only length_unit must keep the unit when the excluded length is cleared in memory.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.length_unit = CableLengthUnitChoices.UNIT_CENTIMETER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_CENTIMETER)
+        self.assertEqual(cable._abs_length, Decimal('0.0100'))
+
+    def test_partial_save_clearing_length_keeps_the_stored_unit(self):
+        """
+        A save naming only length must clear the normalized length without writing length_unit.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.save(update_fields=['length'])
+
+        # The unit was not written, so the instance must still agree with the row
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertEqual(cable.length_unit, CableLengthUnitChoices.UNIT_METER)
+        self.assertIsNone(cable._abs_length)
+
+    def test_partial_save_leaves_an_unwritten_length_alone(self):
+        """
+        A save naming an unrelated field must not persist an in-memory length change.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = Decimal('99')
+        cable.label = 'Renamed'
+        cable.save(update_fields=['label'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.label, 'Renamed')
+        self.assertEqual(cable.length, Decimal('1.00'))
+        self.assertEqual(cable._abs_length, Decimal('1.0000'))
+
+    def test_partial_save_normalizes_against_an_out_of_band_length(self):
+        """
+        A save naming only length_unit must read the stored length, not one cached on the instance.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        Cable.objects.filter(pk=cable.pk).update(length=Decimal('7'))
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_FOOT
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertEqual(cable.length, Decimal('7.00'))
+        self.assertEqual(cable._abs_length, Decimal('2.1336'))
+
+    def test_partial_save_clears_a_unit_written_without_a_stored_length(self):
+        """
+        A save naming only length_unit must drop the unit when the row holds no length.
+        """
+        cable = Cable.objects.first()
+
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save(update_fields=['length_unit'])
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertIsNone(cable.length_unit)
+        self.assertIsNone(cable._abs_length)
+
+    def test_full_save_clears_the_unit_when_the_length_is_removed(self):
+        """
+        A full save with no length must clear the stored unit.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        cable.length = None
+        cable.save()
+        cable.refresh_from_db()
+
+        self.assertIsNone(cable.length)
+        self.assertIsNone(cable.length_unit)
+        self.assertIsNone(cable._abs_length)
+
+    def test_partial_save_reads_the_stored_pair_only_for_an_excluded_field(self):
+        """
+        A save writing both source fields must normalize without reading the row back.
+        """
+        cable = Cable.objects.first()
+        cable.length = Decimal('1')
+        cable.length_unit = CableLengthUnitChoices.UNIT_METER
+        cable.save()
+
+        with CaptureQueriesContext(connection) as both_written:
+            cable.save(update_fields=['length', 'length_unit'])
+        with CaptureQueriesContext(connection) as one_written:
+            cable.save(update_fields=['length'])
+
+        def cable_reads(queries):
+            return [q for q in queries if q['sql'].startswith('SELECT') and 'FROM "dcim_cable"' in q['sql']]
+
+        self.assertEqual(cable_reads(both_written), [])
+        self.assertEqual(len(cable_reads(one_written)), 1)
+
 
 class CableTerminationTestCase(TestCase):
 
@@ -2711,6 +2924,160 @@ class CableTerminationTestCase(TestCase):
         )
         with self.assertRaises(ValueError):
             cable_termination.cache_related_objects()
+
+
+class CableDisconnectChangeLoggingTestCase(TestCase):
+    """
+    Deleting a Cable must change-log the disconnect on each terminating object. Its CableTerminations are
+    deleted by the cascade, so CableTermination.delete() -- which records the disconnect when a termination
+    is removed from a Cable -- never runs.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1')
+        cls.device1 = Device.objects.create(
+            name='Device 1', site=site, device_type=device_type, role=role
+        )
+        cls.device2 = Device.objects.create(
+            name='Device 2', site=site, device_type=device_type, role=role
+        )
+        cls.interface1 = Interface.objects.create(
+            device=cls.device1, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        cls.interface2 = Interface.objects.create(
+            device=cls.device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        cls.interface3 = Interface.objects.create(
+            device=cls.device2, name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+        cls.rear_port = RearPort.objects.create(
+            device=cls.device2, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C, positions=4
+        )
+        cls.front_port = FrontPort.objects.create(
+            device=cls.device2, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, positions=4
+        )
+        cls.user = User.objects.create_user(username='testuser')
+
+    def _request(self):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        return request
+
+    def _connect(self, termination_a, termination_b, **kwargs):
+        with event_tracking(self._request()):
+            cable = Cable(a_terminations=[termination_a], b_terminations=[termination_b], **kwargs)
+            cable.save()
+        return cable
+
+    def _updates(self, obj):
+        return ObjectChange.objects.filter(
+            changed_object_type=ObjectType.objects.get_for_model(obj),
+            changed_object_id=obj.pk,
+            action=ObjectChangeActionChoices.ACTION_UPDATE,
+        ).order_by('time')
+
+    @tag('regression')  # Ref: netbox-branching#631
+    def test_cable_deletion_records_disconnect(self):
+        cable = self._connect(self.interface1, self.interface2)
+        cable_pk = cable.pk
+
+        with event_tracking(self._request()):
+            Cable.objects.get(pk=cable_pk).delete()
+
+        for interface in (self.interface1, self.interface2):
+            # One update for the connect, one for the disconnect
+            self.assertEqual(self._updates(interface).count(), 2, f'No disconnect recorded for {interface}')
+            change = self._updates(interface).last()
+
+            # The cable attributes are cleared in the database before this is recorded, so the pre-change
+            # data is only correct if they were restored before the snapshot was taken
+            self.assertEqual(change.prechange_data['cable'], cable_pk)
+            self.assertIn(change.prechange_data['cable_end'], (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B))
+
+            self.assertIsNone(change.postchange_data['cable'])
+            self.assertIsNone(change.postchange_data['cable_end'])
+            # The originating path is deleted along with the Cable, outside the changelog
+            self.assertIsNone(change.postchange_data['_path'])
+
+            self.assertIsNone(Interface.objects.get(pk=interface.pk).cable_id)
+        self.assertFalse(CablePath.objects.exists())
+
+    def test_profiled_cable_deletion_records_connector_and_positions(self):
+        cable = self._connect(self.interface1, self.rear_port, profile=CableProfileChoices.SINGLE_1C4P)
+        cable_pk = cable.pk
+        connector = Interface.objects.get(pk=self.interface1.pk).cable_connector
+        positions = Interface.objects.get(pk=self.interface1.pk).cable_positions
+        self.assertIsNotNone(connector)
+        self.assertTrue(positions)
+
+        with event_tracking(self._request()):
+            Cable.objects.get(pk=cable_pk).delete()
+
+        change = self._updates(self.interface1).last()
+        self.assertEqual(change.prechange_data['cable_connector'], connector)
+        self.assertEqual(change.prechange_data['cable_positions'], positions)
+        self.assertIsNone(change.postchange_data['cable_connector'])
+        self.assertIsNone(change.postchange_data['cable_positions'])
+
+    def test_queryset_deletion_records_disconnect(self):
+        # A queryset delete never calls Cable.delete(), so the tracking is done by CableQuerySet.delete()
+        cable = self._connect(self.interface1, self.interface2)
+        cable_pk = cable.pk
+
+        with event_tracking(self._request()):
+            Cable.objects.filter(pk=cable_pk).delete()
+
+        change = self._updates(self.interface1).last()
+        self.assertEqual(change.prechange_data['cable'], cable_pk)
+        self.assertIsNone(change.postchange_data['cable'])
+
+    def test_non_path_endpoint_termination(self):
+        # A front port carries no _path of its own; the disconnect is recorded the same way
+        cable = self._connect(self.interface1, self.front_port)
+        cable_pk = cable.pk
+
+        with event_tracking(self._request()):
+            Cable.objects.get(pk=cable_pk).delete()
+
+        change = self._updates(self.front_port).last()
+        self.assertEqual(change.prechange_data['cable'], cable_pk)
+        self.assertIsNone(change.postchange_data['cable'])
+        self.assertIsNone(FrontPort.objects.get(pk=self.front_port.pk).cable_id)
+
+    def test_termination_removal_records_disconnect(self):
+        # Removing a termination from a Cable (rather than deleting the Cable) is recorded by
+        # CableTermination.delete(); the disconnect must not be logged twice or logged as a no-op.
+        cable = self._connect(self.interface1, self.interface2)
+        cable_pk = cable.pk
+
+        request = self._request()
+        with event_tracking(request):
+            cable = Cable.objects.get(pk=cable_pk)
+            cable.b_terminations = [self.interface3]
+            cable.save()
+
+        changes = self._updates(self.interface2).filter(request_id=request.id)
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(changes[0].prechange_data['cable'], cable_pk)
+        self.assertIsNone(changes[0].postchange_data['cable'])
+
+    def test_terminating_object_deletion_records_no_update(self):
+        # The cascade from deleting the terminating object itself reaches the same handler, but the object
+        # is on its way out: it must be left alone rather than resurrected as an update.
+        self._connect(self.interface1, self.interface2)
+
+        request = self._request()
+        with event_tracking(request):
+            Interface.objects.get(pk=self.interface1.pk).delete()
+
+        self.assertFalse(self._updates(self.interface1).filter(request_id=request.id).exists())
 
 
 class VirtualDeviceContextTestCase(TestCase):

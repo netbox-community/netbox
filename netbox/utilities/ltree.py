@@ -9,11 +9,43 @@ not on the model definitions.
 
 The paths maintained by these triggers are never computed or mutated from Python;
 the model layer only reads `path`/`sort_path` back from the database.
+
+Trigger DDL and search_path
+---------------------------
+Everything this module emits is replayed verbatim by `pg_restore`, which runs with
+`search_path` set to the empty string and schema-qualifies every name it can (a
+CVE-2018-1058 hardening). Unqualified names in the SQL below therefore have to
+resolve without help from the path, and the two halves of a trigger differ in when
+that resolution happens:
+
+* A trigger's WHEN clause is resolved at CREATE TRIGGER time. `IS DISTINCT FROM`
+  (like `=`, `<`, ...) is grammar which expands to the operand type's operator, and
+  there is no syntax to schema-qualify it. An extension type whose operators live
+  outside `pg_catalog` — `ltree` installs into `public` — makes that CREATE TRIGGER
+  unrestorable, and because `psql` does not stop on error by default the restore
+  appears to succeed with the trigger silently missing (#23130).
+* A trigger FUNCTION's body survives only because pg_dump emits
+  `SET check_function_bodies = false`, which suppresses the validation that would
+  otherwise reject the unqualified `ltree` declarations below at CREATE FUNCTION
+  time. Under the default `check_function_bodies = on` they fail with
+  `type "ltree" does not exist`. So the bodies are not inherently path-independent;
+  they are exempted by the restore's own configuration. Anything replaying this DDL
+  outside a pg_dump context must either put the extension's schema on the path or
+  set that GUC itself.
+
+    Rule: keep WHEN-clause operand types inside `pg_catalog`. Cast an
+    extension-typed column with `::text` (ltree's text I/O is byte-canonical, so
+    `::text` equality is exactly ltree equality).
+
+`RestoreUnderRestrictedSearchPathTests` in `utilities/tests/test_ltree.py` enforces
+this by creating the generated DDL with the extension's schema off the search_path.
 """
 from django.db import migrations
 
 __all__ = (
     'InstallLtreeTriggers',
+    'ReinstallLtreeTriggers',
+    'ltree_trigger_sql',
 )
 
 
@@ -220,10 +252,35 @@ CREATE TRIGGER "{table}_ltree_compute_path"
 # because that statement does not touch parent_id or {name_col}, the AFTER
 # trigger does not re-fire on those descendant rows. This prevents the
 # quadratic re-cascade that would otherwise occur for any deep subtree.
+#
+# `path` is compared as text rather than as ltree. `IS DISTINCT FROM` is SQL
+# grammar, not an operator: it has no schema-qualification syntax, and it expands
+# to the operand type's `=` operator, which is resolved from search_path at
+# CREATE TRIGGER time. `ltree =` lives in whichever schema the extension was
+# installed into (normally `public`), so a CREATE TRIGGER replayed by pg_restore
+# — which runs with `search_path` set to the empty string and schema-qualifies
+# every name it can — cannot resolve it and fails with "operator does not exist:
+# public.ltree = public.ltree", silently dropping the cascade trigger from the
+# restored database (#23130). `text =` is in `pg_catalog`, which is always on the
+# effective path, so the cast makes the DDL search_path-independent.
+#
+# The comparison is equivalent: ltree's text I/O is byte-preserving (parse_ltree
+# and deparse_ltree copy label bytes with memcpy, and ltree_eq is a memcmp over
+# those same bytes), so two ltree values are equal iff their text renderings are
+# — see contrib/ltree/ltree_io.c and ltree_op.c. PostgreSQL publishes no explicit
+# guarantee of this; it is a property of the implementation, which cannot change
+# without breaking ltree's on-disk format and every existing ltree index.
+#
+# `sort_path` needs no cast: it is already a text column.
+#
+# See also the module docstring ("Trigger DDL and search_path") and
+# RestoreUnderRestrictedSearchPathTests in utilities/tests/test_ltree.py, which
+# enforces this by creating the generated DDL with the extension's schema off the
+# search_path.
 _AFTER_TRIGGER_PATH_ONLY = '''
 CREATE TRIGGER "{table}_ltree_cascade_path"
     AFTER UPDATE OF parent_id ON "{table}"
-    FOR EACH ROW WHEN (OLD.path IS DISTINCT FROM NEW.path)
+    FOR EACH ROW WHEN (OLD.path::text IS DISTINCT FROM NEW.path::text)
     EXECUTE FUNCTION "{table}_ltree_cascade_path_fn"();
 '''
 
@@ -231,11 +288,55 @@ _AFTER_TRIGGER_PATH_AND_SORT = '''
 CREATE TRIGGER "{table}_ltree_cascade_path"
     AFTER UPDATE OF parent_id, "{name_col}" ON "{table}"
     FOR EACH ROW WHEN (
-        OLD.path IS DISTINCT FROM NEW.path
+        OLD.path::text IS DISTINCT FROM NEW.path::text
         OR OLD.sort_path IS DISTINCT FROM NEW.sort_path
     )
     EXECUTE FUNCTION "{table}_ltree_cascade_path_fn"();
 '''
+
+
+def ltree_trigger_sql(table, name_column=None):
+    """
+    Return the DDL statements which install ltree path-maintenance triggers on `table`.
+
+    Two functions and two triggers, in dependency order. If `name_column` is given, the
+    table is expected to carry a `sort_path` column and gets the variants which maintain
+    it alongside `path`.
+
+    The triggers are dropped before being created, so re-running this SQL converges
+    instead of failing: a plain `CREATE TRIGGER` raises 42710 when the trigger already
+    exists, which a re-run, a partially-applied migration, or a later migration
+    reinstalling a corrected definition (#23130) would all hit. The functions already use
+    CREATE OR REPLACE. This mirrors `utilities.migration.InstallDenormalizationTrigger`.
+
+    `InstallLtreeTriggers` executes exactly this SQL, so tests can assert against the
+    statements migrations really run rather than a copy which can drift.
+    """
+    if name_column:
+        function_sql = (
+            _COMPUTE_PATH_AND_SORT_FN.format(table=table, name_col=name_column),
+            _CASCADE_PATH_AND_SORT_FN.format(table=table),
+        )
+        trigger_sql = (
+            _BEFORE_TRIGGER_PATH_AND_SORT.format(table=table, name_col=name_column),
+            _AFTER_TRIGGER_PATH_AND_SORT.format(table=table, name_col=name_column),
+        )
+    else:
+        function_sql = (
+            _COMPUTE_PATH_ONLY_FN.format(table=table),
+            _CASCADE_PATH_ONLY_FN.format(table=table),
+        )
+        trigger_sql = (
+            _BEFORE_TRIGGER_PATH_ONLY.format(table=table),
+            _AFTER_TRIGGER_PATH_ONLY.format(table=table),
+        )
+
+    return (
+        *function_sql,
+        f'DROP TRIGGER IF EXISTS "{table}_ltree_cascade_path" ON "{table}";',
+        f'DROP TRIGGER IF EXISTS "{table}_ltree_compute_path" ON "{table}";',
+        *trigger_sql,
+    )
 
 
 class InstallLtreeTriggers(migrations.operations.base.Operation):
@@ -252,6 +353,10 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
     ancestor names. This implements MPTT's `order_insertion_by=(name,)`
     semantics: insert, reparent, and rename all honor the current value of
     `name_column`, with renames cascaded into descendants' sort_paths.
+
+    Applying this operation is idempotent (see `ltree_trigger_sql`), so it can be
+    re-run to reinstall a corrected trigger definition on a table which already has
+    one.
     """
     reversible = True
 
@@ -263,24 +368,8 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        if self.name_column:
-            schema_editor.execute(_COMPUTE_PATH_AND_SORT_FN.format(
-                table=self.table_name, name_col=self.name_column,
-            ))
-            schema_editor.execute(_CASCADE_PATH_AND_SORT_FN.format(
-                table=self.table_name,
-            ))
-            schema_editor.execute(_BEFORE_TRIGGER_PATH_AND_SORT.format(
-                table=self.table_name, name_col=self.name_column,
-            ))
-            schema_editor.execute(_AFTER_TRIGGER_PATH_AND_SORT.format(
-                table=self.table_name, name_col=self.name_column,
-            ))
-        else:
-            schema_editor.execute(_COMPUTE_PATH_ONLY_FN.format(table=self.table_name))
-            schema_editor.execute(_CASCADE_PATH_ONLY_FN.format(table=self.table_name))
-            schema_editor.execute(_BEFORE_TRIGGER_PATH_ONLY.format(table=self.table_name))
-            schema_editor.execute(_AFTER_TRIGGER_PATH_ONLY.format(table=self.table_name))
+        for sql in ltree_trigger_sql(self.table_name, self.name_column):
+            schema_editor.execute(sql)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         t = self.table_name
@@ -291,3 +380,23 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
 
     def describe(self):
         return f"Install ltree path triggers on {self.table_name}"
+
+
+class ReinstallLtreeTriggers(InstallLtreeTriggers):
+    """
+    Reinstall a table's ltree path-maintenance triggers, replacing an earlier definition.
+
+    Identical to `InstallLtreeTriggers` going forwards, but a no-op in reverse. The
+    parent operation's reverse drops both triggers and both functions, which is right
+    when reversing the migration that first installed them and wrong when reversing one
+    that merely corrected them: it would leave the table with no path maintenance at all
+    — a state no release ever shipped — and every subsequent INSERT failing on `path`'s
+    NOT NULL constraint. The triggers this replaces are recreated by reversing back to
+    the migration which installed them, so there is nothing for this operation to undo.
+    """
+
+    def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        pass
+
+    def describe(self):
+        return f"Reinstall ltree path triggers on {self.table_name}"

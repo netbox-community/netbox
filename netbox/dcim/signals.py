@@ -318,25 +318,66 @@ def update_passthrough_port_paths(instance, **kwargs):
 
 
 @receiver(post_delete, sender=CableTermination)
-def nullify_connected_endpoints(instance, **kwargs):
+def nullify_connected_endpoints(instance, using, **kwargs):
     """
     Disassociate the Cable from the termination object, and retrace any affected CablePaths.
     """
     model = instance.termination_type.model_class()
-    model.objects.filter(pk=instance.termination_id).update(
-        cable=None,
-        cable_end=None,
-        cable_connector=None,
-        cable_positions=None,
-    )
 
-    # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto its channel
-    # subinterfaces. This must happen before the retrace below so that each channel's (now dead) path is torn down
-    # rather than rebuilt from a stale cable reference.
-    if model is Interface:
-        Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
-            cable=None, cable_end='', cable_connector=None, cable_positions=None
+    # Deleting a Cable deletes its terminations in bulk, bypassing CableTermination.delete() and the
+    # change-logged clear it performs on the terminating object; do the same here so the disconnect is
+    # recorded. `cable` is a SET_NULL FK which the deletion collector has already nulled by now, so the
+    # pre-delete values are restored before snapshotting, or the record would show no change. They are
+    # restored field by field rather than via set_cable_termination(), whose Interface override would
+    # propagate the cable back onto the channel subinterfaces we are about to clear.
+    termination = None
+    if Cable._is_being_deleted(instance.cable_id):
+        # The change record serializes the object twice (before and after), and ComponentModel.save()
+        # re-caches its denormalized references off the parent device: fetch both up front so neither
+        # costs a round trip per terminating object. Both the read and the save below use the alias the
+        # deletion ran on, so routing can't return a stale row or miss the object entirely.
+        queryset = model.objects.using(using).filter(pk=instance.termination_id).prefetch_related('tags')
+        if hasattr(model, 'device'):
+            queryset = queryset.select_related('device__site', 'device__location', 'device__rack')
+        termination = queryset.first()
+
+    if termination is not None:
+        termination.cable_id = instance.cable_id
+        termination.cable_end = instance.cable_end
+        termination.cable_connector = instance.connector
+        termination.cable_positions = instance.positions
+        termination.snapshot()
+        # clear_cable_termination() also clears the mirrored attributes on any channel subinterfaces
+        termination.clear_cable_termination(instance)
+        update_fields = ['cable', 'cable_end', 'cable_connector', 'cable_positions', 'last_updated']
+
+        # retrace_cable_paths() tears down the originating path once the Cable itself is deleted, clearing
+        # _path outside the changelog. Clear it here so the recorded state doesn't outlive the path.
+        if isinstance(termination, PathEndpoint):
+            termination._path = None
+            update_fields.append('_path')
+
+        # A narrow write: this row was read mid-cascade, and its full save() would pull in unrelated work
+        termination.save(using=using, update_fields=update_fields)
+    else:
+        # Already recorded by CableTermination.delete(), or the terminating object is going away too.
+        model.objects.filter(pk=instance.termination_id).update(
+            cable=None,
+            cable_end=None,
+            cable_connector=None,
+            cable_positions=None,
         )
+
+        # If the removed termination was a channelized interface, also clear the cable attributes mirrored onto
+        # its channel subinterfaces. This must happen before the retrace below so that each channel's (now dead)
+        # path is torn down rather than rebuilt from a stale cable reference. These writes are deliberately not
+        # change-logged, matching propagate_channel_cables(), which doesn't log them when it sets them either.
+        # A subinterface saved through a change-logged path while connected does record its mirrored cable
+        # fields, so its disconnect goes unlogged here; that gap predates this receiver and is untouched by it.
+        if model is Interface:
+            Interface.objects.filter(parent_id=instance.termination_id, channel_id__isnull=False).update(
+                cable=None, cable_end='', cable_connector=None, cable_positions=None
+            )
 
     # If the parent Cable is being deleted in this same operation, skip the
     # per-termination retrace; retrace_cable_paths() will retrace each affected

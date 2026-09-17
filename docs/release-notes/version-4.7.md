@@ -1,5 +1,31 @@
 # NetBox v4.7
 
+## v4.7.1 (2026-09-15)
+
+!!! warning "Databases Restored From a v4.7.0 Dump"
+    The triggers which cascade a hierarchical object's path to its descendants could not be recreated when restoring a `pg_dump` of a v4.7.0 database, so such a restore reported success while leaving the database without those triggers. Renaming or moving a region, site group, location, device role, platform, tenant group, contact group, wireless LAN group, module bay, inventory item, or inventory item template then did not update its descendants. Upgrading reinstalls the triggers so that all subsequent changes cascade correctly, but does **not** repair values which have already gone stale. See [Repairing Hierarchical Paths](../administration/repairing-hierarchical-paths.md) for how to detect and correct them, and for the steps plugins maintaining their own `ltree` models must take.
+
+### Enhancements
+
+* [#22999](https://github.com/netbox-community/netbox/issues/22999) - Add a default module type profile for transceivers
+* [#23041](https://github.com/netbox-community/netbox/issues/23041) - Add InfiniBand 2X interface types for HDR and later generations (HDR100, NDR200, and XDR400)
+
+### Bug Fixes
+
+* [#22750](https://github.com/netbox-community/netbox/issues/22750) - Resolve object IDs to model instances and validate the submitted data when executing a custom script via the REST API
+* [#23012](https://github.com/netbox-community/netbox/issues/23012) - Apply a field's collation to both sides of a case-insensitive comparison, so that names containing characters such as `ß` can be matched
+* [#23096](https://github.com/netbox-community/netbox/issues/23096) - Persist a cable's normalized length when saving only its `length` or `length_unit` field
+* [#23112](https://github.com/netbox-community/netbox/issues/23112) - Initiate SSO logins via script-driven navigation, so that they are not blocked by a restrictive `form-action` content security policy
+* [#23117](https://github.com/netbox-community/netbox/issues/23117) - Fix the negation (`__n`) filter lookup for multiple selection custom fields
+* [#23120](https://github.com/netbox-community/netbox/issues/23120) - Include tags in the REST API representation of a data source, and honor them on write
+* [#23125](https://github.com/netbox-community/netbox/issues/23125) - Add the missing standard fields to the VLAN translation policy & rule REST API serializers
+* [#23130](https://github.com/netbox-community/netbox/issues/23130) - Ensure that the cascade triggers for hierarchical models can be restored from a `pg_dump` (see the warning above)
+* [#23154](https://github.com/netbox-community/netbox/issues/23154) - Correct the optional/required mismatch on the L2VPN `type` and rack type `form_factor` fields
+* [#23166](https://github.com/netbox-community/netbox/issues/23166) - Apply a zero-valued minimum or maximum bound from a module type profile attribute to its form field
+* [#23167](https://github.com/netbox-community/netbox/issues/23167) - Sanitize the JSON schema property descriptions used as form help text for module type profile attributes
+
+---
+
 ## v4.7.0 (2026-09-02)
 
 !!! warning "PostgreSQL 15 or Later Required"

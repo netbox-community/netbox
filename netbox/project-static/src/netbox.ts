@@ -14,6 +14,7 @@ import { initRackElevation } from './racks';
 import { initHtmx } from './htmx';
 import { initSavedFilterSelect } from './forms/savedFiltersSelect';
 import { initHotkeys } from './hotkeys';
+import { initSSOForms } from './sso';
 
 function initDocument(): void {
   for (const init of [
@@ -33,6 +34,7 @@ function initDocument(): void {
     initHtmx,
     initSavedFilterSelect,
     initHotkeys,
+    initSSOForms,
   ]) {
     init();
   }

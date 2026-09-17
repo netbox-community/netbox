@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.http import StreamingHttpResponse
+from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -503,10 +503,10 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
-            "Manufacturer 1,RackType 4,rack-type-4,19,42,100,2000,kg",
-            "Manufacturer 1,RackType 5,rack-type-5,19,42,100,2000,kg",
-            "Manufacturer 1,RackType 6,rack-type-6,19,42,100,2000,kg",
+            "manufacturer,model,slug,form_factor,width,u_height,weight,max_weight,weight_unit",
+            f"Manufacturer 1,RackType 4,rack-type-4,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
+            f"Manufacturer 1,RackType 5,rack-type-5,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
+            f"Manufacturer 1,RackType 6,rack-type-6,{RackFormFactorChoices.TYPE_CABINET},19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
@@ -530,6 +530,30 @@ class RackTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'weight_unit': WeightUnitChoices.UNIT_POUND,
             'comments': 'New comments',
         }
+
+    def test_bulk_import_objects_without_form_factor(self):
+        """
+        A CSV import row omitting form_factor must be rejected, not silently saved
+        with form_factor=''.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        initial_count = self._get_queryset().count()
+        csv_data = (
+            "manufacturer,model,slug,width,u_height,weight,max_weight,weight_unit",
+            "Manufacturer 1,RackType Missing Form Factor,rack-type-missing-form-factor,19,42,100,2000,kg",
+        )
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+        response = self.client.post(self._get_url('bulk_import'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(self._get_queryset().count(), initial_count)
 
 
 class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -2456,6 +2480,31 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mgmt_only': True,
         }
+
+    def test_addanother_preserves_saved_parent(self):
+        """The Add Another redirect names the saved module type, not the device type the form was opened with."""
+        device_type = DeviceType.objects.get(pk=self.form_data['device_type'])
+        module_type = ModuleType.objects.create(manufacturer=device_type.manufacturer, model='Module Type 1')
+        return_url = reverse('dcim:moduletype_interfaces', kwargs={'pk': module_type.pk})
+
+        self.add_permissions('dcim.add_interfacetemplate')
+
+        response = self.client.post(
+            f"{self._get_url('add')}?device_type={device_type.pk}&return_url={return_url}",
+            post_data({
+                'module_type': module_type.pk,
+                'name': 'Interface Template [7-8]',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+                '_addanother': True,
+            })
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(InterfaceTemplate.objects.filter(module_type=module_type).count(), 2)
+
+        params = QueryDict(response['Location'].partition('?')[2])
+        self.assertEqual(params.get('module_type'), str(module_type.pk))
+        self.assertIsNone(params.get('device_type'))
+        self.assertEqual(params.get('return_url'), return_url)
 
 
 class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):

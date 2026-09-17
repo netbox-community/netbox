@@ -176,6 +176,7 @@ nav:
         - Error Reporting: 'administration/error-reporting.md'
         - Management Commands: 'administration/management-commands.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
+        - Repairing Hierarchical Paths: 'administration/repairing-hierarchical-paths.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - Data Model:
         - Circuits:

@@ -20,7 +20,8 @@ def load_initial_data(apps, schema_editor):
         'hard_disk',
         'memory',
         'power_supply',
-        'expansion_card'
+        'expansion_card',
+        'transceiver'
     )
     profile_objects = []
 

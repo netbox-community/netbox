@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django import forms
+from django.template.loader import render_to_string
 from django.test import TestCase
 
 from dcim.choices import (
@@ -227,6 +228,73 @@ class ModuleTypeFormTestCase(TestCase):
 
             module_type = form.save()
             self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
+
+    def test_zero_bound_attribute_is_enforced_by_the_form(self):
+        profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 2',
+            schema={
+                'properties': {
+                    'offset': {
+                        'title': 'Offset',
+                        'type': 'number',
+                        'minimum': 0,
+                        'maximum': 0,
+                    },
+                },
+            },
+        )
+        form = ModuleTypeForm(data={
+            'manufacturer': self.manufacturer.pk,
+            'model': 'Module Type 2',
+            'profile': profile.pk,
+            'attr_offset': -5,
+        })
+
+        self.assertEqual(form.fields['attr_offset'].min_value, 0)
+        self.assertEqual(form.fields['attr_offset'].max_value, 0)
+        with patch('utilities.forms.fields.dynamic.get_action_url', return_value='/'):
+            self.assertFalse(form.is_valid())
+        self.assertIn('attr_offset', form.errors)
+
+
+class ModuleTypeProfileDescriptionRenderingTestCase(TestCase):
+    """
+    A profile schema property's description is rendered as the attribute field's help text via the
+    `safe` filter, so markup outside HTML_ALLOWED_TAGS must not reach the DOM as a live element.
+    Verified end to end because the sanitization and the `safe` filter that makes it necessary sit
+    in different layers.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.profile = ModuleTypeProfile.objects.create(
+            name='Disk',
+            schema={
+                'properties': {
+                    'capacity': {
+                        'type': 'integer',
+                        'title': 'Capacity (GB)',
+                        'description': 'Gross disk size <iframe src="https://example.com"></iframe>',
+                    },
+                },
+            },
+        )
+
+    def test_help_text_is_rendered_without_disallowed_markup(self):
+        form = ModuleTypeForm(data={
+            'manufacturer': self.manufacturer.pk,
+            'model': 'Module Type 1',
+            'profile': self.profile.pk,
+            'attr_capacity': 500,
+        })
+        rendered = render_to_string('form_helpers/render_field.html', {'field': form['attr_capacity']})
+
+        self.assertInHTML(
+            '<span class="form-text" id="id_attr_capacity_helptext">'
+            '<div class="rendered-markdown"><p>Gross disk size</p></div></span>',
+            rendered,
+        )
 
 
 class ModuleBayTemplateImportFormTestCase(TestCase):
