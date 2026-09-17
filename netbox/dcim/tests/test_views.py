@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import yaml
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.http import StreamingHttpResponse
+from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -2480,6 +2480,31 @@ class InterfaceTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
             'mgmt_only': True,
         }
+
+    def test_addanother_preserves_saved_parent(self):
+        """The Add Another redirect names the saved module type, not the device type the form was opened with."""
+        device_type = DeviceType.objects.get(pk=self.form_data['device_type'])
+        module_type = ModuleType.objects.create(manufacturer=device_type.manufacturer, model='Module Type 1')
+        return_url = reverse('dcim:moduletype_interfaces', kwargs={'pk': module_type.pk})
+
+        self.add_permissions('dcim.add_interfacetemplate')
+
+        response = self.client.post(
+            f"{self._get_url('add')}?device_type={device_type.pk}&return_url={return_url}",
+            post_data({
+                'module_type': module_type.pk,
+                'name': 'Interface Template [7-8]',
+                'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+                '_addanother': True,
+            })
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(InterfaceTemplate.objects.filter(module_type=module_type).count(), 2)
+
+        params = QueryDict(response['Location'].partition('?')[2])
+        self.assertEqual(params.get('module_type'), str(module_type.pk))
+        self.assertIsNone(params.get('device_type'))
+        self.assertEqual(params.get('return_url'), return_url)
 
 
 class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):

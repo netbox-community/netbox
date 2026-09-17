@@ -3,6 +3,7 @@ import csv
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import QueryDict
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -615,6 +616,37 @@ class ViewTestCases:
             self.assertEqual(initial_count + self.bulk_create_count, self._get_queryset().count())
             for instance in self._get_queryset().order_by('-pk')[: self.bulk_create_count]:
                 self.assertInstanceEqual(instance, self.bulk_create_data, exclude=self.validation_excluded_fields)
+
+        def test_create_multiple_objects_addanother(self):
+            """The "Create & Add Another" redirect retains the parent the objects were created under."""
+            parent_fields = ('device', 'module', 'device_type', 'module_type', 'virtual_machine')
+            parents = {
+                field: getattr(value, 'pk', value) for field, value in self.bulk_create_data.items()
+                if field in parent_fields and value
+            }
+            if not parents:
+                self.skipTest("bulk_create_data declares no parent assignment")
+
+            # Assign non-constrained permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add'],
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            response = self.client.post(
+                path=self._get_url('add'),
+                data=post_data({**self.bulk_create_data, '_addanother': True}),
+            )
+            self.assertHttpStatus(response, 302)
+
+            path, _sep, query = response['Location'].partition('?')
+            self.assertEqual(path, self._get_url('add'))
+            params = QueryDict(query)
+            for field, value in parents.items():
+                self.assertEqual(params.getlist(field), [str(value)])
 
     class BulkImportObjectsViewTestCase(ModelViewTestCase):
         """
