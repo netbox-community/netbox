@@ -22,7 +22,7 @@ from dcim.constants import *
 from dcim.models import *
 from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigContext, ConfigTemplate
-from ipam.models import ASN, RIR, VLAN, VRF
+from ipam.models import ASN, RIR, VLAN, VRF, VLANGroup
 from netbox.choices import (
     CSVDelimiterChoices,
     DiameterUnitChoices,
@@ -231,6 +231,84 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ):
             with self.subTest(panel=panel):
                 self.assertNotContains(response, url)
+
+    def test_get_object_vlan_row_covers_group_scopes(self):
+        """The VLANs row counts direct, site-scoped and site-group-scoped VLANs and links to the filter."""
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan')
+        site = Site.objects.get(slug='site-1')
+
+        direct_vlan = VLAN.objects.create(vid=100, name='Direct', site=site)
+        site_scoped_group = VLANGroup.objects.create(name='Site scope', slug='site-scope', scope=site)
+        site_vlan = VLAN.objects.create(vid=200, name='Site scoped', group=site_scoped_group)
+        group_scoped_group = VLANGroup.objects.create(
+            name='Site group scope', slug='site-group-scope', scope=site.group
+        )
+        group_vlan = VLAN.objects.create(vid=300, name='Site group scoped', group=group_scoped_group)
+        VLAN.objects.create(vid=400, name='Unrelated')
+
+        response = self.client.get(site.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        rows = [row for row in response.context['related_models'] if row.queryset.model is VLAN]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].filter_param, 'related_to_site')
+        self.assertEqual(set(rows[0].queryset), {direct_vlan, site_vlan, group_vlan})
+
+        list_url = f"{reverse('ipam:vlan_list')}?related_to_site={site.pk}"
+        self.assertContains(response, list_url)
+
+        list_response = self.client.get(list_url)
+        self.assertHttpStatus(list_response, 200)
+        self.assertEqual(
+            {vlan.pk for vlan in list_response.context['table'].data},
+            {direct_vlan.pk, site_vlan.pk, group_vlan.pk}
+        )
+
+    def test_get_object_vlan_row_without_direct_site_assignment(self):
+        """The VLANs row appears when a site's only VLANs arrive through a group scope."""
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan')
+        site = Site.objects.get(slug='site-3')
+
+        group = VLANGroup.objects.create(name='Site 3 scope', slug='site-3-scope', scope=site)
+        vlan = VLAN.objects.create(vid=500, name='Group only', group=group)
+
+        response = self.client.get(site.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        rows = [row for row in response.context['related_models'] if row.queryset.model is VLAN]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(list(rows[0].queryset), [vlan])
+
+    def test_get_object_vlan_row_respects_constrained_permissions(self):
+        """A VLAN constraint narrows both the related objects count and the linked list."""
+        self.add_permissions('dcim.view_site')
+        site = Site.objects.get(slug='site-1')
+        tenant = Tenant.objects.create(name='Visible', slug='visible')
+
+        group = VLANGroup.objects.create(name='Site scope', slug='site-scope', scope=site)
+        visible_vlan = VLAN.objects.create(vid=200, name='Visible', group=group, tenant=tenant)
+        VLAN.objects.create(vid=201, name='Hidden', group=group)
+
+        obj_perm = ObjectPermission(
+            name='Visible VLANs',
+            actions=['view'],
+            constraints={'tenant__slug': 'visible'}
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(VLAN))
+
+        response = self.client.get(site.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        rows = [row for row in response.context['related_models'] if row.queryset.model is VLAN]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(list(rows[0].queryset), [visible_vlan])
+
+        list_url = f"{reverse('ipam:vlan_list')}?related_to_site={site.pk}"
+        list_response = self.client.get(list_url)
+        self.assertHttpStatus(list_response, 200)
+        self.assertEqual([vlan.pk for vlan in list_response.context['table'].data], [visible_vlan.pk])
 
 
 class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

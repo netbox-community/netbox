@@ -432,3 +432,26 @@ class VLANQuerySet(RestrictedQuerySet):
             q |= Q(site=site)
 
         return self.filter(q)
+
+    def get_related_to_sites(self, sites):
+        """
+        Return VLANs related to any of the given sites, directly or through a scoped group.
+        Unlike get_for_site(), region-scoped and globally available VLANs are excluded.
+        """
+        q = Q()
+
+        for site in sites:
+            q |= Q(site=site) | Q(
+                group__scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
+                group__scope_id=site.pk
+            )
+            if site.group:
+                q |= Q(
+                    group__scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+                    group__scope_id__in=site.group.get_ancestors(include_self=True)
+                )
+
+        if not q:
+            return self.none()
+
+        return self.filter(q)
