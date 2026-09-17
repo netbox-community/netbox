@@ -130,7 +130,8 @@ class CustomCollector(Collector):
         # Clear any cached references to the objects being deleted first, so that each clear is
         # recorded and precedes the DELETE. Django nulls a SET_NULL column with a bulk UPDATE,
         # which emits no post_save and so is never change-logged. Models opt in by defining
-        # clear_cached_references(); cascaded objects reach this the same as explicit deletions.
+        # clear_cached_references(); it covers cascaded objects as well as directly deleted ones,
+        # but only on this collector -- a queryset delete uses Django's and bypasses it.
         with transaction.atomic(using=self.using, savepoint=False):
             for model, instances in self.data.items():
                 if clear_references := getattr(model, 'clear_cached_references', None):
