@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-16 05:02+0000\n"
+"POT-Creation-Date: 2026-09-17 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1377,7 +1377,7 @@ msgstr ""
 msgid "Group Assignment"
 msgstr ""
 
-#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:118
+#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:136
 #: netbox/dcim/models/device_component_templates.py:373
 #: netbox/dcim/models/device_component_templates.py:801
 #: netbox/dcim/models/device_component_templates.py:874
@@ -1410,7 +1410,7 @@ msgstr ""
 
 #: netbox/circuits/models/circuits.py:74
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
-#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:94
+#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/cooling.py:46 netbox/dcim/models/cooling.py:130
 #: netbox/dcim/models/device_components.py:643
 #: netbox/dcim/models/device_components.py:1844
@@ -2616,7 +2616,7 @@ msgstr ""
 msgid "Config revision #{id}"
 msgstr ""
 
-#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:87
+#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:105
 #: netbox/dcim/models/cooling.py:41
 #: netbox/dcim/models/device_component_templates.py:230
 #: netbox/dcim/models/device_component_templates.py:265
@@ -2715,7 +2715,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:814
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:846
 msgid "path"
 msgstr ""
 
@@ -6876,141 +6876,141 @@ msgstr ""
 msgid "cable bundles"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:100
+#: netbox/dcim/models/cables.py:118
 msgid "profile"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:113
+#: netbox/dcim/models/cables.py:131
 #: netbox/dcim/models/device_component_templates.py:69
 #: netbox/dcim/models/device_components.py:70
 #: netbox/extras/models/customfields.py:191
 msgid "label"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:122 netbox/utilities/conversion.py:71
+#: netbox/dcim/models/cables.py:140 netbox/utilities/conversion.py:71
 msgid "length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:129
+#: netbox/dcim/models/cables.py:147
 msgid "length unit"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:148
+#: netbox/dcim/models/cables.py:166
 msgid "bundle"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:155
+#: netbox/dcim/models/cables.py:175
 msgid "cable"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:156
+#: netbox/dcim/models/cables.py:176
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:282
+#: netbox/dcim/models/cables.py:302
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:285
+#: netbox/dcim/models/cables.py:305
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:296
+#: netbox/dcim/models/cables.py:316
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:304
+#: netbox/dcim/models/cables.py:324
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:314
+#: netbox/dcim/models/cables.py:334
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:591 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:623 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:662
+#: netbox/dcim/models/cables.py:694
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:663
+#: netbox/dcim/models/cables.py:695
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:676
+#: netbox/dcim/models/cables.py:708
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:693
+#: netbox/dcim/models/cables.py:725
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:705
+#: netbox/dcim/models/cables.py:737
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:711
+#: netbox/dcim/models/cables.py:743
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:718
+#: netbox/dcim/models/cables.py:750
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:750
+#: netbox/dcim/models/cables.py:782
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:818 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:850 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:822
+#: netbox/dcim/models/cables.py:854
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:826
+#: netbox/dcim/models/cables.py:858
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:839
+#: netbox/dcim/models/cables.py:871
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:840
+#: netbox/dcim/models/cables.py:872
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:931
+#: netbox/dcim/models/cables.py:963
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:949
+#: netbox/dcim/models/cables.py:981
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:957
+#: netbox/dcim/models/cables.py:989
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:987
+#: netbox/dcim/models/cables.py:1019
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:989
+#: netbox/dcim/models/cables.py:1021
 msgid "All links must match first link type"
 msgstr ""
 
