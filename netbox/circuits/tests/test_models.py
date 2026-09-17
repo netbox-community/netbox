@@ -8,6 +8,8 @@ from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
 from dcim.models import Location, Region, Site, SiteGroup
+from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
+from extras.models import CustomField
 from netbox.context_managers import event_tracking
 from users.models import User
 
@@ -573,3 +575,31 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self._tracked(self.circuits[0].delete)
 
         self.assertFalse(self._circuit_changes(self.circuits[0]).exists())
+
+    @tag('regression')  # Ref: #23134
+    def test_pointer_update_persists_populated_custom_field_defaults(self):
+        # The pointer is written with update_fields, but CustomFieldsMixin.save() populates defaults
+        # into custom_field_data, which the change log serializes. Both must reach the database.
+        custom_field = CustomField.objects.create(
+            name='probe_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='default-value',
+            status=CustomFieldStatusChoices.STATUS_ACTIVE,
+        )
+        custom_field.object_types.set([ContentType.objects.get_for_model(Circuit)])
+        CustomField.objects.clear_cache()
+        Circuit.objects.filter(pk=self.circuits[0].pk).update(custom_field_data={})
+        ObjectChange.objects.all().delete()
+
+        self._tracked(lambda: CircuitTermination.objects.create(
+            circuit=self.circuits[0], term_side='A', termination=self.sites[0],
+        ))
+
+        self.circuits[0].refresh_from_db()
+        self.assertEqual(self.circuits[0].custom_field_data, {'probe_field': 'default-value'})
+
+        changes = self._circuit_changes(self.circuits[0])
+        self.assertEqual(changes.count(), 1)
+        self.assertEqual(
+            changes[0].postchange_data['custom_fields'], self.circuits[0].custom_field_data
+        )
