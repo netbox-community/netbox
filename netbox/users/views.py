@@ -461,6 +461,7 @@ class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
                 request,
                 instance,
                 omit=(Group, User),
+                include_hidden=True,
             ),
         }
 
