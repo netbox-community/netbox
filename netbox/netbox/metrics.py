@@ -1,9 +1,11 @@
+from django.conf import settings
 from django_prometheus import middleware
 from django_prometheus.conf import NAMESPACE
 from prometheus_client import Counter
 
 __all__ = (
     'Metrics',
+    'increment_client_disconnects',
 )
 
 
@@ -38,3 +40,27 @@ class Metrics(middleware.Metrics):
             "Count of total GraphQL API requests",
             namespace=NAMESPACE,
         )
+
+        # Client disconnect metrics
+        self.client_disconnects = self.register_metric(
+            Counter,
+            "netbox_client_disconnects_total",
+            "Count of requests aborted because the HTTP client disconnected, by method & view",
+            ["method", "view"],
+            namespace=NAMESPACE,
+        )
+
+
+def increment_client_disconnects(method, view):
+    """
+    Increment the client disconnect counter.
+
+    ClientDisconnectMiddleware is not a django_prometheus middleware and so has no Metrics instance
+    of its own. Instantiating the singleton unconditionally would register the entire django_prometheus
+    metric set on installations which never expose /metrics, so this is a no-op unless metric
+    exposition is enabled. Always go through get_instance(): calling Metrics() directly bypasses the
+    singleton and re-registers every metric name in the global registry.
+    """
+    if not settings.METRICS_ENABLED:
+        return
+    Metrics.get_instance().client_disconnects.labels(method=method, view=view).inc()
