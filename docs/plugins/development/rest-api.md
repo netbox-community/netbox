@@ -75,6 +75,21 @@ class MyModelViewSet(NetBoxModelViewSet):
     serializer_class = MyModelSerializer
 ```
 
+### Background Processing
+
+Viewsets derived from `NetBoxModelViewSet` accept `?background=true` on bulk write requests, which defers the write to a background job and returns `HTTP 202 Accepted`. The job's result, including the serialized response body, is stored on the job record and is readable by any user permitted to view jobs.
+
+If a viewset's response can contain a value that must not be retained, such as a secret returned only at creation time, disable background processing for that endpoint:
+
+```python
+class MyModelViewSet(NetBoxModelViewSet):
+    queryset = MyModel.objects.all()
+    serializer_class = MyModelSerializer
+    background_enabled = False
+```
+
+A bulk write to that endpoint with `background=true` is then rejected with an `HTTP 400` response.
+
 ## Routers
 
 Routers map URLs to REST API views (endpoints). NetBox does not provide any custom components for this; the [`DefaultRouter`](https://www.django-rest-framework.org/api-guide/routers/#defaultrouter) class provided by DRF should suffice for most use cases.

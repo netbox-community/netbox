@@ -385,6 +385,9 @@ class AsyncAPIJob(JobRunner):
         #   - AbortRequest / ProtectedError / RestrictedError -> exception_to_response()
         with apply_request_processors(drf_request):
             try:
+                # A job queued before the endpoint opted out carries no query parameter to catch.
+                if check_background_enabled := getattr(viewset, '_check_background_enabled', None):
+                    check_background_enabled()
                 response = getattr(viewset, action)(drf_request, **action_kwargs)
             except (APIException, Http404, PermissionDenied) as e:
                 response = viewset.handle_exception(e)
