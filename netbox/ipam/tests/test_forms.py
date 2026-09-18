@@ -7,13 +7,14 @@ from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
 from ipam.choices import PrefixStatusChoices
 from ipam.constants import SERVICE_PORT_MAX, VLANGROUP_SCOPE_TYPES
-from ipam.filtersets import ServiceFilterSet, ServiceTemplateFilterSet
+from ipam.filtersets import ServiceFilterSet, ServiceTemplateFilterSet, VLANFilterSet
 from ipam.forms import PrefixForm, VLANGroupBulkEditForm, VLANGroupForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm, ServiceTemplateImportForm
 from ipam.forms.fields import PortMappingField
-from ipam.forms.filtersets import ServiceFilterForm, ServiceTemplateFilterForm
+from ipam.forms.filtersets import ServiceFilterForm, ServiceTemplateFilterForm, VLANFilterForm
 from ipam.forms.widgets import PortMappingWidget
 from ipam.models import Prefix, VLANGroup
+from utilities.forms.widgets import FilterModifierWidget
 
 
 class PrefixFormTestCase(TestCase):
@@ -233,6 +234,28 @@ class VLANFormTestCase(TestCase):
                 form = VLANIDBulkCreateForm({'pattern': pattern})
                 self.assertFalse(form.is_valid())
                 self.assertIn('pattern', form.errors)
+
+    def test_vlan_filter_form_exposes_related_to_site(self):
+        """The Location fieldset offers related to site under the same name as the filter."""
+        form = VLANFilterForm()
+        fieldset_items = [item for fieldset in VLANFilterForm.fieldsets for item in fieldset.items]
+
+        self.assertIn('related_to_site', fieldset_items)
+        self.assertIn('related_to_site', form.fields)
+        self.assertFalse(form.fields['related_to_site'].required)
+        # The form field's name must match the filter's, or the rendered query does nothing
+        self.assertIn('related_to_site', VLANFilterSet.get_filters())
+        template = Template('{% load form_helpers %}{% render_form form %}')
+        html = template.render(Context({'form': VLANFilterForm()}))
+        self.assertIn('id_related_to_site', html)
+
+    def test_vlan_filter_form_offers_related_to_site_operators(self):
+        """The declared negation filter is what puts an is/is not operator on the field."""
+        widget = VLANFilterForm().fields['related_to_site'].widget
+
+        self.assertIsInstance(widget, FilterModifierWidget)
+        self.assertEqual([lookup for lookup, _label in widget.lookups], ['exact', 'n'])
+        self.assertIn('related_to_site__n', VLANFilterSet.get_filters())
 
 
 class PortMappingFieldTestCase(TestCase):
