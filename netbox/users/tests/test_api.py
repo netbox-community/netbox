@@ -1,10 +1,15 @@
-from django.test import override_settings
+import uuid
+
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
-from core.models import ObjectType
+from core.exceptions import JobFailed
+from core.models import Job, ObjectType
+from netbox.jobs import AsyncAPIJob
 from users.constants import TOKEN_DEFAULT_LENGTH
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.data import deepmerge
+from utilities.request import copy_safe_request
 from utilities.testing import APITestCase, APIViewTestCases, create_test_user
 
 
@@ -459,6 +464,152 @@ class TokenTestCase(
 
         # Each token should be unique
         self.assertEqual(len(plaintexts), len(data))
+
+    def test_background_bulk_create_tokens_rejected(self):
+        """
+        Bulk Token creation cannot be backgrounded. The plaintext of a created v2 Token would
+        otherwise be captured into the job's data, where it is readable for the job's lifetime.
+        """
+        self.add_permissions('users.add_token')
+        users = [
+            User.objects.create_user(username='token_bg_user1'),
+            User.objects.create_user(username='token_bg_user2'),
+        ]
+        data = [{'user': u.pk} for u in users]
+        url = reverse('users-api:token-list')
+
+        response = self.client.post(f'{url}?background=true', data, format='json', **self.header)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data['detail'], 'Background processing is not supported for this endpoint.'
+        )
+        self.assertEqual(Job.objects.count(), 0)
+        for user in users:
+            self.assertFalse(Token.objects.filter(user=user).exists())
+
+    def test_background_bulk_update_and_delete_tokens_rejected(self):
+        """
+        The opt-out covers the whole Token endpoint, not only creation, and the requested
+        modifications and deletions do not occur.
+        """
+        self.add_permissions('users.change_token', 'users.delete_token')
+        # Token orders by '-created', so first() would return the test user's own auth Token.
+        token = Token.objects.get(user__username='User 1')
+        url = reverse('users-api:token-list')
+
+        for method in (self.client.put, self.client.patch):
+            with self.subTest(method=method.__name__):
+                response = method(
+                    f'{url}?background=true', [{'id': token.pk, 'description': 'bg'}],
+                    format='json', **self.header
+                )
+                self.assertEqual(response.status_code, 400)
+
+        response = self.client.delete(
+            f'{url}?background=true', [{'id': token.pk}], format='json', **self.header
+        )
+        self.assertEqual(response.status_code, 400)
+
+        self.assertEqual(Job.objects.count(), 0)
+        token.refresh_from_db()
+        self.assertNotEqual(token.description, 'bg')
+
+    def test_synchronous_token_creation_unaffected_by_opt_out(self):
+        """
+        The opt-out only refuses background processing. A single-object write with
+        `background=true` and a bulk write with `background=false` both run synchronously and
+        still return a usable plaintext.
+        """
+        self.add_permissions('users.add_token')
+        url = reverse('users-api:token-list')
+
+        single_user = User.objects.create_user(username='token_bg_single_user')
+        response = self.client.post(
+            f'{url}?background=true', {'user': single_user.pk}, format='json', **self.header
+        )
+        self.assertEqual(response.status_code, 201)
+        token = Token.objects.get(pk=response.data['id'])
+        self.assertTrue(token.validate(response.data['token']))
+
+        bulk_users = [
+            User.objects.create_user(username='token_bg_false_user1'),
+            User.objects.create_user(username='token_bg_false_user2'),
+        ]
+        response = self.client.post(
+            f'{url}?background=false', [{'user': u.pk} for u in bulk_users],
+            format='json', **self.header
+        )
+        self.assertEqual(response.status_code, 201)
+        for obj in response.data:
+            self.assertEqual(len(obj['token']), TOKEN_DEFAULT_LENGTH)
+            self.assertTrue(Token.objects.get(pk=obj['id']).validate(obj['token']))
+
+        self.assertEqual(Job.objects.count(), 0)
+
+    def test_token_plaintext_is_not_returned_on_subsequent_reads(self):
+        """
+        A v2 Token's plaintext is returned only by the creating response. Any later read of the
+        same object returns no usable value.
+        """
+        self.add_permissions('users.add_token', 'users.view_token')
+        user = User.objects.create_user(username='token_reread_user')
+
+        response = self.client.post(
+            reverse('users-api:token-list'), {'user': user.pk, 'version': 2},
+            format='json', **self.header
+        )
+        self.assertEqual(response.status_code, 201)
+        plaintext = response.data['token']
+        self.assertEqual(len(plaintext), TOKEN_DEFAULT_LENGTH)
+
+        detail = self.client.get(
+            reverse('users-api:token-detail', kwargs={'pk': response.data['id']}), **self.header
+        )
+        self.assertEqual(detail.status_code, 200)
+        self.assertFalse(detail.data.get('token'))
+
+    def test_queued_background_token_job_creates_nothing(self):
+        """
+        A Token job enqueued before the endpoint opted out is refused when the worker picks it
+        up, so no Token is created and no plaintext is captured into the job's data.
+        """
+        self.add_permissions('users.add_token')
+        user = User.objects.create_user(username='token_queued_user')
+        token_count = Token.objects.count()
+
+        raw_request = RequestFactory().post(
+            '/api/users/tokens/', data=[], content_type='application/json'
+        )
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
+        for action in ('create', 'bulk_create'):
+            with self.subTest(action=action):
+                job = Job.objects.create(
+                    name='Bulk create tokens', user=self.user, job_id=uuid.uuid4()
+                )
+                with self.assertRaises(JobFailed):
+                    AsyncAPIJob(job).run(
+                        viewset_class='users.api.views.TokenViewSet',
+                        action=action,
+                        payload=[{'user': user.pk}],
+                        user_pk=self.user.pk,
+                        request=request_copy,
+                        scheme='http',
+                    )
+
+                job.refresh_from_db()
+                self.assertEqual(job.data['status_code'], 400)
+                self.assertEqual(
+                    job.error, 'Background processing is not supported for this endpoint.'
+                )
+                # Pinning the whole body is what fails if the guard moves below the action.
+                self.assertEqual(
+                    job.data['data'],
+                    {'detail': 'Background processing is not supported for this endpoint.'}
+                )
+                self.assertEqual(Token.objects.count(), token_count)
 
     def test_create_token_ignores_client_supplied_plaintext(self):
         """
