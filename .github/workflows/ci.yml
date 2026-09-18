@@ -122,6 +122,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install coverage tblib
+          # dulwich is the optional 'git' extra, so it is absent from requirements.txt.
+          # The Git data backend tests mock dulwich.porcelain.clone and only need the
+          # module to be importable; without it they skip silently.
+          pip install dulwich
 
       - name: Check for missing migrations
         run: python netbox/manage.py makemigrations --check

@@ -28,6 +28,9 @@ class TenantGroupTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'comments': 'New Comment',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -119,6 +122,9 @@ class TenantTestCase(APIViewTestCases.APIViewTestCase):
         'group': None,
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -159,6 +165,9 @@ class ContactGroupTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_depth', 'contact_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -219,6 +228,9 @@ class ContactRoleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -237,6 +249,9 @@ class ContactTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'groups': [],
         'comments': 'New comments',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -276,6 +291,9 @@ class ContactAssignmentTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['contact', 'display', 'id', 'priority', 'role', 'url']
     bulk_update_data = {
         'priority': ContactPriorityChoices.PRIORITY_INACTIVE,
+    }
+    bulk_update_invalid_data = {
+        'priority': 'not-a-valid-priority',
     }
     user_permissions = ('tenancy.view_contact', )
 
