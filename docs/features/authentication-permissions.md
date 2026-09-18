@@ -46,4 +46,4 @@ NetBox integrates with the open source [python-social-auth](https://github.com/p
 * Okta
 * OIDC
 
-...and many others. It's also possible to build your own custom backends as needed using python-social-auth's base OAuth, OpenID, and SAML classes. You can find some examples of configuring SSO in NetBox' [authentication documentation](../administration/authentication/overview.md).
+...and many others. It's also possible to build your own custom backends as needed using python-social-auth's base OAuth, OpenID, and SAML classes. You can find some examples of configuring SSO in NetBox' [authentication documentation](../administration/authentication/index.md).

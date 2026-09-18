@@ -168,7 +168,7 @@ nav:
             - Migrating to v4.0: 'plugins/development/migration-v4.md'
     - Administration:
         - Authentication:
-            - Overview: 'administration/authentication/overview.md'
+            - Overview: 'administration/authentication/index.md'
             - Google: 'administration/authentication/google.md'
             - Microsoft Entra ID: 'administration/authentication/microsoft-entra-id.md'
             - Okta: 'administration/authentication/okta.md'

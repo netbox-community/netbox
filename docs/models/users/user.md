@@ -2,7 +2,7 @@
 
 A user represents an individual account in NetBox. Users authenticate to access the application, and may be granted permissions either directly or through their assigned [groups](./group.md). Each user can hold one or more API [tokens](./token.md) for use with the REST and GraphQL APIs.
 
-NetBox extends Django's stock user model to support multiple API tokens per user, configurable [object permissions](./objectpermission.md), and integration with [remote authentication backends](../../administration/authentication/overview.md).
+NetBox extends Django's stock user model to support multiple API tokens per user, configurable [object permissions](./objectpermission.md), and integration with [remote authentication backends](../../administration/authentication/index.md).
 
 ## Fields
 
