@@ -2077,6 +2077,72 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for objectchange in objectchanges:
             self.assertEqual(objectchange.message, changelog_message)
 
+    def test_ipaddress_assign_return_url(self):
+        """The Cancel link keeps a safe return_url and falls back to the list for unsafe ones."""
+        self.add_permissions('ipam.view_ipaddress')
+        url = self._get_url('assign')
+        fallback = reverse('ipam:ipaddress_list')
+        safe_url = '/dcim/interfaces/1/?tab=main#ipaddresses'
+
+        # No return_url at all falls back to the list.
+        response = self.client.get(url, data={'interface': 1})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.context['return_url'], fallback)
+
+        cases = (
+            (safe_url, safe_url),
+            ('', fallback),
+            ('javascript:void(0)', fallback),
+            ('data:text/html,test', fallback),
+            ('https://example.invalid/', fallback),
+            ('//example.invalid/', fallback),
+            # safe_for_redirect() passes allowed_hosts=None, so a URL with any netloc is
+            # rejected even when the host is the one serving the request.
+            ('http://testserver/ipam/ip-addresses/', fallback),
+        )
+        for return_url, expected in cases:
+            with self.subTest(return_url=return_url):
+                response = self.client.get(url, data={'interface': 1, 'return_url': return_url})
+                self.assertHttpStatus(response, 200)
+                self.assertEqual(response.context['return_url'], expected)
+                self.assertContains(response, f'<a href="{expected}" class="btn btn-outline-secondary">')
+
+    def test_ipaddress_assign_search_return_url(self):
+        """A search POST renders a safe Cancel link when the query string carries an unsafe return_url."""
+        self.add_permissions('ipam.view_ipaddress')
+        fallback = reverse('ipam:ipaddress_list')
+        # The payload stays in the query string: post() reads request.GET, as the form action does.
+        url = f"{self._get_url('assign')}?interface=1&return_url=javascript:alert(document.cookie)"
+        cancel_link = f'<a href="{fallback}" class="btn btn-outline-secondary">'
+
+        # A valid search renders the results table.
+        response = self.client.post(url, data={'q': '192.0.2.1'})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.context['return_url'], fallback)
+        self.assertContains(response, cancel_link)
+        self.assertIsNotNone(response.context['table'])
+
+        # An invalid search redisplays the form with no table.
+        response = self.client.post(url, data={'vrf_id': '99999'})
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(response.context['return_url'], fallback)
+        self.assertContains(response, cancel_link)
+        self.assertIsNone(response.context['table'])
+
+    def test_ipaddress_assign_return_url_from_post_data(self):
+        """Absent a query-string value, the Cancel link honors a safe POST return_url and rejects an unsafe one."""
+        self.add_permissions('ipam.view_ipaddress')
+        url = f"{self._get_url('assign')}?vminterface=1"
+        fallback = reverse('ipam:ipaddress_list')
+        safe_url = '/virtualization/virtual-machines/1/interfaces/'
+
+        for return_url, expected in ((safe_url, safe_url), ('javascript:void(0)', fallback)):
+            with self.subTest(return_url=return_url):
+                response = self.client.post(url, data={'q': '192.0.2.1', 'return_url': return_url})
+                self.assertHttpStatus(response, 200)
+                self.assertEqual(response.context['return_url'], expected)
+                self.assertContains(response, f'<a href="{expected}" class="btn btn-outline-secondary">')
+
 
 class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = FHRPGroup
