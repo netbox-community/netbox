@@ -19,7 +19,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.exceptions import UnsupportedCablePath
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node, object_to_path_node
+from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
@@ -507,6 +507,20 @@ class Cable(PrimaryModel):
         ]
 
         return instance
+
+    def update_dependent_objects(self):
+        """
+        Recreate the CablePaths traversing this Cable from its current terminations.
+        """
+        a_terminations, b_terminations = self.get_terminations()
+
+        # A channelized parent mirrors its cable attributes onto its channel subinterfaces with a bulk write,
+        # which emits no change record: remirror them, or the retrace below expands the parent to nothing
+        for termination in (*a_terminations, *b_terminations):
+            if getattr(termination, 'channels', None):
+                termination.propagate_channel_cables()
+
+        rebuild_cable_paths(self)
 
     def get_terminations(self):
         """

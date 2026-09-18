@@ -468,6 +468,44 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
         self.assertIsNone(channel.cable_positions)
         self.assertPathIsNotSet(channel)
 
+    def test_114_update_dependent_objects_restores_channel_paths(self):
+        """
+        Cable.update_dependent_objects() must remirror the parent's cable attributes onto its channel
+        subinterfaces before retracing. Those attributes are written by a bulk update and so are never
+        change-logged: a caller replaying serialized changes leaves them empty, and the retrace would
+        otherwise expand the channelized origin to nothing and create no paths at all.
+        """
+        parent, channels = self._create_channelized_interface('et0', 4)
+        far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        cable = Cable(profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[parent], b_terminations=far)
+        cable.clean()
+        cable.save()
+        self.assertEqual(CablePath.objects.count(), 8)
+
+        # Reduce the cable to the state a replayed create leaves behind: no paths, and no mirrored cable
+        # attributes on the channel subinterfaces
+        for cablepath in CablePath.objects.all():
+            cablepath.delete()
+        Interface.objects.filter(channel_id__isnull=False).update(
+            cable=None, cable_end='', cable_connector=None, cable_positions=None
+        )
+
+        Cable.objects.get(pk=cable.pk).update_dependent_objects()
+
+        self.assertEqual(CablePath.objects.count(), 8)
+        for i, (channel, far_iface) in enumerate(zip(channels, far), start=1):
+            channel.refresh_from_db()
+            far_iface.refresh_from_db()
+            self.assertEqual(channel.cable_id, cable.pk)
+            self.assertEqual(channel.cable_positions, [i])
+            forward = self.assertPathExists((channel, cable, far_iface), is_complete=True, is_active=True)
+            reverse = self.assertPathExists((far_iface, cable, channel), is_complete=True, is_active=True)
+            self.assertPathIsSet(channel, forward)
+            self.assertPathIsSet(far_iface, reverse)
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """
