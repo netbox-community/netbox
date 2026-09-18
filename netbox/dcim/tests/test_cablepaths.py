@@ -3040,11 +3040,12 @@ class CableDependentObjectsTestCase(BaseCablePathTestCase):
     Test Cable.update_dependent_objects(), which retraces the paths of a Cable written to the database
     by a process that bypasses save() (e.g. a tool replaying serialized changes).
     """
-    def _create_cable_raw(self, termination_a, termination_b):
+    def _create_cable_raw(self, termination_a, termination_b, status=LinkStatusChoices.STATUS_CONNECTED):
         """
-        Write a Cable and its terminations directly to the database, bypassing Cable.save().
+        Write a Cable and its terminations directly to the database, bypassing Cable.save(). Unprofiled
+        cables only: the connector & positions a profile assigns are not replicated here.
         """
-        cable = Cable(status=LinkStatusChoices.STATUS_CONNECTED)
+        cable = Cable(status=status)
         cable.save_base(raw=True)
 
         for termination, cable_end in (
@@ -3071,6 +3072,59 @@ class CableDependentObjectsTestCase(BaseCablePathTestCase):
 
         self.assertPathExists((interface1, cable, interface2), is_complete=True, is_active=True)
         self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_retrace_extends_path_via_pass_through(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2], with C2 written raw. Retracing from a termination which is not
+        itself a path endpoint must extend the existing incomplete path.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
+        )
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        self.assertPathExists((interface1, cable1, frontport1, rearport1), is_complete=False)
+
+        cable2 = self._create_cable_raw(rearport1, interface2)
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        cable2.update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, frontport1, rearport1, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_retrace_takes_status_from_database(self):
+        """
+        A raw write leaves no in-memory record of the Cable's status, so path activity must come from the
+        stored value.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+
+        cable = self._create_cable_raw(interface1, interface2, status=LinkStatusChoices.STATUS_PLANNED)
+        cable.update_dependent_objects()
+
+        self.assertPathExists((interface1, cable, interface2), is_complete=True, is_active=False)
+        self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=False)
         self.assertEqual(CablePath.objects.count(), 2)
 
     def test_retrace_is_idempotent(self):

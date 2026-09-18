@@ -512,6 +512,14 @@ class Cable(PrimaryModel):
         """
         Recreate the CablePaths traversing this Cable from its current terminations.
         """
+        a_terminations, b_terminations = self.get_terminations()
+
+        # A channelized parent mirrors its cable attributes onto its channel subinterfaces with a bulk write,
+        # which emits no change record: remirror them, or the retrace below expands the parent to nothing
+        for termination in (*a_terminations, *b_terminations):
+            if getattr(termination, 'channels', None):
+                termination.propagate_channel_cables()
+
         rebuild_cable_paths(self)
 
     def get_terminations(self):

@@ -203,6 +203,7 @@ Two constraints apply to an implementation:
 
 * It must derive its work entirely from the database. The in-memory state a normal `save()` relies on (which fields changed, for instance) is not available to a caller replaying serialized data.
 * It must be idempotent and safe to call when nothing needs to change, as a caller will generally invoke it for every object it has written.
+* Exceptions propagate to the caller unchanged. `Cable.update_dependent_objects()`, for instance, raises `UnsupportedCablePath` where `Cable.save()` converts it to `AbortRequest`: the hook is not tied to a request, so it is for the caller to decide how a failure is handled.
 
 The caller is responsible for calling the method only once every related object is in place: `Cable.update_dependent_objects()` retraces the cable's paths, which requires its `CableTermination` objects to exist.
 
