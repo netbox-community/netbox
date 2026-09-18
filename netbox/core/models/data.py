@@ -353,10 +353,13 @@ class DataFile(models.Model):
 
     def get_data(self):
         """
-        Attempt to read the file data as JSON/YAML and return a native Python object.
+        Attempt to read the file data as JSON/YAML and return a native Python object. Returns None if the file
+        content cannot be decoded.
         """
         # TODO: Something more robust
-        return yaml.safe_load(self.data_as_string)
+        if (data := self.data_as_string) is None:
+            return None
+        return yaml.safe_load(data)
 
     def refresh_from_disk(self, source_root):
         """

@@ -1,14 +1,23 @@
+import hashlib
 from unittest import skipIf
 
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils.timezone import now
 from taggit.models import Tag
 
-from core.models import AutoSyncRecord, DataSource
+from core.models import AutoSyncRecord, DataFile, DataSource
 from dcim.models import Site
-from extras.models import CustomLink
+from extras.models import (
+    ConfigContext,
+    ConfigContextProfile,
+    ConfigTemplate,
+    CustomLink,
+    ExportTemplate,
+)
 from ipam.models import Prefix
 from netbox.constants import CORE_APPS
 from netbox.models.features import CloningMixin, get_model_features, has_feature, model_is_public
@@ -81,6 +90,74 @@ class ModelFeaturesTestCase(TestCase):
             model._meta.label for model in declaring if not issubclass(model, CloningMixin)
         )
         self.assertEqual(offenders, [], "clone_fields is inert on models which do not inherit CloningMixin")
+
+    def _create_data_file(self, path, file_data):
+        source, _ = DataSource.objects.get_or_create(
+            name='Data Source 1',
+            defaults={'type': 'local', 'source_url': 'file:///tmp/netbox-datasource/'},
+        )
+        return DataFile.objects.create(
+            source=source,
+            path=path,
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+    def test_synceddatamixin_rejects_unreadable_file(self):
+        """An empty or undecodable data file raises a validation error rather than reaching the database."""
+        models = (ConfigContext, ConfigTemplate, ExportTemplate)
+
+        for label, file_data in (('empty', b''), ('non-utf8', b'\xff\xfe\x00\x01')):
+            datafile = self._create_data_file(f'{label}.j2', file_data)
+            for model in models:
+                with self.subTest(content=label, model=model.__name__):
+                    with self.assertRaises(ValidationError):
+                        model(name='Test', data_file=datafile).clean()
+
+    def test_synceddatamixin_rejects_file_holding_no_document(self):
+        """A data file parsing to no document is rejected only where the target field cannot store null."""
+        datafile = self._create_data_file('comment-only.yml', b'# nothing here\n')
+
+        with self.assertRaises(ValidationError):
+            ConfigContext(name='Test', data_file=datafile).clean()
+
+        profile = ConfigContextProfile(name='Test', data_file=datafile)
+        profile.clean()
+        profile.save()
+        self.assertIsNone(profile.schema)
+
+    def test_synceddatamixin_rejects_unserializable_document(self):
+        """A parsed document holding a non-JSON type is rejected before it reaches the database."""
+        datafile = self._create_data_file('dates.yml', b'activation_date: 2026-09-18\n')
+
+        for model in (ConfigContext, ConfigContextProfile):
+            with self.subTest(model=model.__name__):
+                with self.assertRaises(ValidationError):
+                    model(name='Test', data_file=datafile).clean()
+
+    def test_synceddatamixin_synchronizes_empty_object(self):
+        """An empty object is valid synced content, so it must keep synchronizing and persisting."""
+        datafile = self._create_data_file('empty-object.yml', b'{}\n')
+
+        for model, field_name in ((ConfigContext, 'data'), (ConfigContextProfile, 'schema')):
+            with self.subTest(model=model.__name__):
+                obj = model(name='Test', data_file=datafile)
+                obj.clean()
+                obj.save()
+                obj.refresh_from_db()
+                self.assertEqual(getattr(obj, field_name), {})
+
+    def test_synceddatamixin_accepts_plain_text_template(self):
+        """Text which is not a YAML document is still valid template content."""
+        datafile = self._create_data_file('comment-only.j2', b'{# nothing here #}\n')
+
+        for model in (ConfigTemplate, ExportTemplate):
+            with self.subTest(model=model.__name__):
+                obj = model(name='Test', data_file=datafile)
+                obj.clean()
+                self.assertEqual(obj.template_code, '{# nothing here #}\n')
 
     def test_cloningmixin_emits_gfk_subwidget_params(self):
         """A cloned GFK is exposed as the GenericObjectChoiceField subwidget params."""

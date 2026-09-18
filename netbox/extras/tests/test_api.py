@@ -15,7 +15,7 @@ from rest_framework import status
 
 from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
-from core.models import DataFile, DataSource, Job, ObjectType
+from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
@@ -967,6 +967,272 @@ class ExportTemplateTestCase(APIViewTestCases.APIViewTestCase):
         for et in export_templates:
             et.object_types.set([device_object_type])
 
+    def test_create_with_data_file(self):
+        """Creating a template from a data file persists the synced content and metadata."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/devices.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        object_type = ObjectType.objects.get_for_model(ExportTemplate)
+
+        # data_source is omitted deliberately: clean() must derive it from the file
+        for auto_sync_enabled in (False, True):
+            with self.subTest(auto_sync_enabled=auto_sync_enabled):
+                payload = {
+                    'name': f'Export Template {auto_sync_enabled}',
+                    'object_types': ['dcim.device'],
+                    'template_code': '{# placeholder #}',
+                    'data_file': datafile.pk,
+                    'auto_sync_enabled': auto_sync_enabled,
+                }
+                response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+                export_template = ExportTemplate.objects.get(pk=response.data['id'])
+                self.assertEqual(export_template.data_file_id, datafile.pk)
+                self.assertEqual(export_template.data_source_id, datasource.pk)
+                self.assertEqual(export_template.data_path, datafile.path)
+                self.assertEqual(export_template.template_code, file_data.decode('utf-8'))
+                self.assertIsNotNone(export_template.data_synced)
+                self.assertEqual(export_template.auto_sync_enabled, auto_sync_enabled)
+                self.assertEqual(response.data['data_file']['id'], datafile.pk)
+                self.assertEqual(response.data['template_code'], export_template.template_code)
+                self.assertEqual(response.data['auto_sync_enabled'], auto_sync_enabled)
+                self.assertEqual(
+                    AutoSyncRecord.objects.filter(
+                        object_type=object_type,
+                        object_id=export_template.pk,
+                        datafile=datafile,
+                    ).exists(),
+                    auto_sync_enabled,
+                )
+
+    def test_create_with_unreadable_data_file(self):
+        """A data file with no readable content is rejected rather than raising a server error."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b''
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/empty.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        payload = {
+            'name': 'Export Template X',
+            'object_types': ['dcim.device'],
+            'template_code': '{# placeholder #}',
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('data_file', response.data)
+
+    def test_update_with_data_file(self):
+        """Assigning a data file on update replaces submitted template code with the file content."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.change_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/devices.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        export_template = ExportTemplate.objects.first()
+
+        payload = {
+            'data_file': datafile.pk,
+            'template_code': '{# placeholder #}',
+        }
+        response = self.client.patch(
+            self._get_detail_url(export_template), payload, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        export_template.refresh_from_db()
+        self.assertEqual(export_template.data_file_id, datafile.pk)
+        self.assertEqual(export_template.data_source_id, datasource.pk)
+        self.assertEqual(export_template.data_path, datafile.path)
+        self.assertEqual(export_template.template_code, file_data.decode('utf-8'))
+        self.assertIsNotNone(export_template.data_synced)
+
+    def test_update_with_unreadable_data_file_is_atomic(self):
+        """A rejected rebind leaves the stored content, binding and auto sync record untouched."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.change_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{{ original }}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/original.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        empty_datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/empty.j2',
+            last_updated=now(),
+            size=0,
+            hash=hashlib.sha256(b'').hexdigest(),
+            data=b'',
+        )
+
+        export_template = ExportTemplate.objects.first()
+        export_template.data_file = datafile
+        export_template.auto_sync_enabled = True
+        export_template.clean()
+        export_template.save()
+        synced_at = ExportTemplate.objects.get(pk=export_template.pk).data_synced
+        object_type = ObjectType.objects.get_for_model(ExportTemplate)
+
+        response = self.client.patch(
+            self._get_detail_url(export_template), {'data_file': empty_datafile.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        export_template.refresh_from_db()
+        self.assertEqual(export_template.data_file_id, datafile.pk)
+        self.assertEqual(export_template.data_path, datafile.path)
+        self.assertEqual(export_template.template_code, '{{ original }}')
+        self.assertEqual(export_template.data_synced, synced_at)
+
+        autosync_record = AutoSyncRecord.objects.get(object_type=object_type, object_id=export_template.pk)
+        self.assertEqual(autosync_record.datafile_id, datafile.pk)
+
+    def test_update_rebinds_data_file(self):
+        """Rebinding to a different file moves the content, the metadata and the auto sync record."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.change_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        datafiles = []
+        for index, file_data in enumerate((b'{{ first }}', b'{{ second }}'), start=1):
+            datafiles.append(DataFile.objects.create(
+                source=datasource,
+                path=f'exports/file{index}.j2',
+                last_updated=now(),
+                size=len(file_data),
+                hash=hashlib.sha256(file_data).hexdigest(),
+                data=file_data,
+            ))
+        first_file, second_file = datafiles
+
+        export_template = ExportTemplate.objects.first()
+        export_template.data_file = first_file
+        export_template.auto_sync_enabled = True
+        export_template.clean()
+        export_template.save()
+        object_type = ObjectType.objects.get_for_model(ExportTemplate)
+
+        response = self.client.patch(
+            self._get_detail_url(export_template), {'data_file': second_file.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        export_template.refresh_from_db()
+        self.assertEqual(export_template.data_file_id, second_file.pk)
+        self.assertEqual(export_template.data_path, second_file.path)
+        self.assertEqual(export_template.template_code, '{{ second }}')
+        self.assertTrue(export_template.auto_sync_enabled)
+
+        autosync_record = AutoSyncRecord.objects.get(object_type=object_type, object_id=export_template.pk)
+        self.assertEqual(autosync_record.datafile_id, second_file.pk)
+
+    def test_update_clears_data_file(self):
+        """Clearing the data file drops the sync metadata but retains the synced content."""
+        self.add_permissions(
+            'extras.change_exporttemplate',
+            'extras.view_exporttemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{% for obj in queryset %}{{ obj.name }}\n{% endfor %}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/devices.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        export_template = ExportTemplate.objects.first()
+        export_template.data_file = datafile
+        export_template.auto_sync_enabled = True
+        export_template.clean()
+        export_template.save()
+        object_type = ObjectType.objects.get_for_model(ExportTemplate)
+
+        response = self.client.patch(
+            self._get_detail_url(export_template), {'data_file': None}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        export_template.refresh_from_db()
+        self.assertIsNone(export_template.data_file_id)
+        self.assertIsNone(export_template.data_source_id)
+        self.assertEqual(export_template.data_path, '')
+        self.assertIsNone(export_template.data_synced)
+        self.assertFalse(export_template.auto_sync_enabled)
+        self.assertEqual(export_template.template_code, file_data.decode('utf-8'))
+        self.assertFalse(
+            AutoSyncRecord.objects.filter(object_type=object_type, object_id=export_template.pk).exists()
+        )
+
 
 class TagTestCase(APIViewTestCases.APIViewTestCase):
     model = Tag
@@ -1215,6 +1481,71 @@ class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
         )
         ConfigContextProfile.objects.bulk_create(profiles)
 
+    def test_create_with_invalid_schema_data_file(self):
+        """A data file holding an invalid JSON schema is rejected rather than persisted."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_configcontextprofile',
+            'extras.view_configcontextprofile',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'type: definitely-not-a-json-type\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/bad-schema.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        payload = {
+            'name': 'Config Context Profile X',
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(ConfigContextProfile.objects.filter(name='Config Context Profile X').exists())
+
+    def test_create_with_data_file(self):
+        """Creating a profile from a data file persists the synced schema and metadata."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_configcontextprofile',
+            'extras.view_configcontextprofile',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'profile: configcontext\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/file1.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        payload = {
+            'name': 'Config Context Profile X',
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        profile = ConfigContextProfile.objects.get(pk=response.data['id'])
+        self.assertEqual(profile.data_source_id, datasource.pk)
+        self.assertEqual(profile.data_path, datafile.path)
+        self.assertEqual(profile.schema, {'profile': 'configcontext'})
+        self.assertIsNotNone(profile.data_synced)
+
     def test_update_data_source_and_data_file(self):
         """
         Regression test: Ensure data_source and data_file can be assigned via the API.
@@ -1291,6 +1622,127 @@ class ConfigContextTestCase(APIViewTestCases.APIViewTestCase):
             ConfigContext(name='Config Context 3', weight=300, data={'baz': 789}),
         )
         ConfigContext.objects.bulk_create(config_contexts)
+
+    def test_create_with_unserializable_data_file(self):
+        """A data file parsing to a non-JSON type is rejected rather than raising a server error."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_configcontext',
+            'extras.view_configcontext',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'activation_date: 2026-09-18\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/dates.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        payload = {
+            'name': 'Config Context X',
+            'data': {'placeholder': True},
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(ConfigContext.objects.filter(name='Config Context X').exists())
+
+    def test_update_with_unserializable_data_file_is_atomic(self):
+        """A rejected rebind leaves the stored data and binding untouched."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.change_configcontext',
+            'extras.view_configcontext',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        good_data = b'foo: 123\n'
+        good_file = DataFile.objects.create(
+            source=datasource,
+            path='dir1/good.yml',
+            last_updated=now(),
+            size=len(good_data),
+            hash=hashlib.sha256(good_data).hexdigest(),
+            data=good_data,
+        )
+        bad_data = b'activation_date: 2026-09-18\n'
+        bad_file = DataFile.objects.create(
+            source=datasource,
+            path='dir1/dates.yml',
+            last_updated=now(),
+            size=len(bad_data),
+            hash=hashlib.sha256(bad_data).hexdigest(),
+            data=bad_data,
+        )
+
+        config_context = ConfigContext.objects.first()
+        config_context.data_file = good_file
+        config_context.auto_sync_enabled = True
+        config_context.clean()
+        config_context.save()
+        synced_at = ConfigContext.objects.get(pk=config_context.pk).data_synced
+        object_type = ObjectType.objects.get_for_model(ConfigContext)
+
+        response = self.client.patch(
+            self._get_detail_url(config_context), {'data_file': bad_file.pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        config_context.refresh_from_db()
+        self.assertEqual(config_context.data_file_id, good_file.pk)
+        self.assertEqual(config_context.data_path, good_file.path)
+        self.assertEqual(config_context.data, {'foo': 123})
+        self.assertEqual(config_context.data_synced, synced_at)
+
+        autosync_record = AutoSyncRecord.objects.get(object_type=object_type, object_id=config_context.pk)
+        self.assertEqual(autosync_record.datafile_id, good_file.pk)
+
+    def test_create_with_data_file(self):
+        """Creating a config context from a data file persists the synced data and metadata."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_configcontext',
+            'extras.view_configcontext',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'foo: 123\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/context1.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        # {} counts as blank for a required JSONField
+        payload = {
+            'name': 'Config Context X',
+            'data': {'placeholder': True},
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        config_context = ConfigContext.objects.get(pk=response.data['id'])
+        self.assertEqual(config_context.data_source_id, datasource.pk)
+        self.assertEqual(config_context.data_path, datafile.path)
+        self.assertEqual(config_context.data, {'foo': 123})
+        self.assertIsNotNone(config_context.data_synced)
 
     def test_render_configcontext_for_object(self):
         """
@@ -1429,6 +1881,42 @@ class ConfigTemplateTestCase(APIViewTestCases.APIViewTestCase):
             ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
+
+    def test_create_with_data_file(self):
+        """Creating a template from a data file persists the synced content and metadata."""
+        self.add_permissions(
+            'core.view_datafile',
+            'extras.add_configtemplate',
+            'extras.view_configtemplate',
+        )
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'Foo: {{ foo }}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='configs/foo.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        payload = {
+            'name': 'Config Template X',
+            'template_code': '{# placeholder #}',
+            'data_file': datafile.pk,
+        }
+        response = self.client.post(self._get_list_url(), payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        config_template = ConfigTemplate.objects.get(pk=response.data['id'])
+        self.assertEqual(config_template.data_source_id, datasource.pk)
+        self.assertEqual(config_template.data_path, datafile.path)
+        self.assertEqual(config_template.template_code, file_data.decode('utf-8'))
+        self.assertIsNotNone(config_template.data_synced)
 
     def test_render(self):
         configtemplate = ConfigTemplate.objects.first()

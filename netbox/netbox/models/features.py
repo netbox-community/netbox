@@ -675,6 +675,26 @@ class SyncedDataMixin(models.Model):
                 pass
         return None
 
+    def validate_synced_value(self, field_name, value):
+        """
+        Validate content synchronized from the assigned DataFile. Model validation checks fields before clean()
+        runs, so synced values are otherwise never checked.
+        """
+        field = self._meta.get_field(field_name)
+        if value is None and not field.null:
+            raise ValidationError({
+                'data_file': _("The selected data file is empty or its content could not be read.")
+            })
+        try:
+            # Blank and null rules govern user input, so only non-empty content is put through the field
+            if value not in field.empty_values:
+                field.validate(value, self)
+            field.run_validators(value)
+        except ValidationError as e:
+            raise ValidationError({'data_file': e.messages}) from e
+
+        return value
+
     def sync(self, save=False):
         """
         Synchronize the object from it's assigned DataFile (if any). This wraps sync_data() and updates
