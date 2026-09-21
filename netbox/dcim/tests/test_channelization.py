@@ -548,6 +548,69 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
         )
         self.assertEqual(CablePath.objects.count(), 1)
 
+    def _move_channel_between_cabled_parents(self, old_name, new_name):
+        """
+        Cable two channelized parents, then move a channel subinterface from the first to the second. The
+        parents are retraced in name order, so the caller's naming decides which is processed first.
+        """
+        old_parent, old_channels = self._create_channelized_interface(old_name, 4)
+        new_parent, new_channels = self._create_channelized_interface(new_name, 4)
+        old_far = [
+            Interface.objects.create(device=self.device, name=f'xe{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        new_far = [
+            Interface.objects.create(device=self.device, name=f'ye{i}', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS)
+            for i in range(4)
+        ]
+        old_cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[old_parent], b_terminations=old_far
+        )
+        old_cable.clean()
+        old_cable.save()
+        new_cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P, a_terminations=[new_parent], b_terminations=new_far
+        )
+        new_cable.clean()
+        new_cable.save()
+
+        # Free position 4 on the new parent, then move the old parent's fourth channel onto it. Both the
+        # channel and its new parent must be refetched: the in-memory instances predate the cables.
+        new_channels[3].delete()
+        channel = Interface.objects.get(pk=old_channels[3].pk)
+        channel.parent = Interface.objects.get(pk=new_parent.pk)
+        channel.save()
+
+        return channel, old_cable, new_cable, old_far[3], new_far[3]
+
+    def _assert_single_origin_path(self, channel, cable, far):
+        """Assert the channel originates exactly one path, traced through the given cable."""
+        originating = [
+            cp for cp in CablePath.objects.filter(_nodes__contains=channel) if channel in cp.origins
+        ]
+        self.assertEqual(len(originating), 1, msg=f'{len(originating)} paths originate at {channel}; expected 1')
+        self.assertPathExists((channel, cable, far), is_complete=True, is_active=True)
+
+    def test_116_move_channel_between_cabled_parents_old_first(self):
+        """
+        Moving a channel subinterface between two cabled channelized parents, the old parent retraced first.
+        The channel's stale mirrored cable must not resurrect a path through the old cable.
+        """
+        channel, old_cable, new_cable, old_far, new_far = self._move_channel_between_cabled_parents('et0', 'et1')
+
+        self._assert_single_origin_path(channel, new_cable, new_far)
+        self.assertPathDoesNotExist((channel, old_cable, old_far))
+
+    def test_117_move_channel_between_cabled_parents_new_first(self):
+        """
+        The same move with the new parent retraced first: restoring the old path must not duplicate the one
+        already traced through the new cable.
+        """
+        channel, old_cable, new_cable, old_far, new_far = self._move_channel_between_cabled_parents('et1', 'et0')
+
+        self._assert_single_origin_path(channel, new_cable, new_far)
+        self.assertPathDoesNotExist((channel, old_cable, old_far))
+
 
 class ChannelizedInterfaceTestCase(TestCase):
     """

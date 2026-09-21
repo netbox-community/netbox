@@ -201,9 +201,9 @@ def rebuild_cable_paths(cable):
             if not isinstance(termination, PathEndpoint):
                 affected.update({cp.pk: cp for cp in CablePath.objects.filter(_nodes__contains=termination)})
 
-        # Record each affected path's originating node(s) before deleting it. A path which merely passes through
-        # the Cable originates elsewhere, and can only be retraced from its own origins.
-        origins = {tuple(cp.path[0]): cp.origins for cp in affected.values()}
+        # Record each affected path's originating node(s) before deleting it. These are kept as compiled path
+        # nodes; resolving them to objects is deferred to the paths which actually need restoring.
+        origin_keys = {tuple(cp.path[0]) for cp in affected.values()}
 
         # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
         for cp in affected.values():
@@ -211,17 +211,28 @@ def rebuild_cable_paths(cable):
 
         # Trace from the Cable's own terminations first, so that a channelized origin is expanded into its channel
         # subinterfaces exactly once
-        retraced = set()
         for nodes in (a_terminations, b_terminations):
             if nodes and isinstance(nodes[0], PathEndpoint):
                 create_cablepaths(nodes)
-                retraced.add(tuple(object_to_path_node(node) for node in nodes))
+        retraced = {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=cable)}
 
-        # Restore any affected path the tracing above did not reproduce
-        retraced |= {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=cable)}
-        for key, nodes in origins.items():
-            if key not in retraced:
-                create_cablepaths(nodes)
+        # Restore the affected paths which merely passed through the Cable: those originate elsewhere, so the
+        # tracing above cannot reproduce them.
+        for key in origin_keys - retraced:
+            nodes = [obj for node in key if (obj := path_node_to_object(node))]
+            if not nodes:
+                continue
+
+            # An origin which terminates this Cable belongs to the tracing above: that it produced no path means
+            # the origin no longer has one (e.g. a channel subinterface moved to another parent).
+            if any(getattr(obj, 'cable_id', None) == cable.pk for obj in nodes):
+                continue
+
+            # Nor restore an origin whose path has already been traced through another Cable
+            if key in {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=nodes[0])}:
+                continue
+
+            create_cablepaths(nodes)
 
 
 def update_interface_parents(device, interface_templates, module=None):
