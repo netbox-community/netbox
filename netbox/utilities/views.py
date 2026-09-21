@@ -200,7 +200,7 @@ class GetRelatedModelsMixin:
         def name(self):
             return self.label or title(_(self.queryset.model._meta.verbose_name_plural))
 
-    def get_related_models(self, request, instance, omit=None, extra=None):
+    def get_related_models(self, request, instance, omit=None, extra=None, include_hidden=False):
         """
         Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
 
@@ -212,12 +212,13 @@ class GetRelatedModelsMixin:
                 provide a `_list` view.
             extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
                 relationships.
+            include_hidden: Also match relationships declared with `related_name='+'`.
         """
         omit = omit or []
         model = self.queryset.model
         related = filter(
             lambda m: m[0] is not model and m[0] not in omit,
-            get_related_models(model, False)
+            get_related_models(model, ordered=False, include_hidden=include_hidden)
         )
 
         related_models = [
