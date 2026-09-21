@@ -1,5 +1,26 @@
 # NetBox v4.7
 
+## v4.7.2 (FUTURE)
+
+!!! warning "API Tokens Created by Background Bulk Requests"
+    NetBox v4.7.0 and v4.7.1 accepted `background=true` on a bulk write to the `/api/users/tokens/` endpoint, and recorded each created token's plaintext in the job's result. Any user permitted to view those jobs (`core.view_job`, subject to object permissions) could read it.
+
+    This release rejects background bulk creations, updates, and deletions on that endpoint with an `HTTP 400` response. A token job queued before the upgrade is rejected the same way when an upgraded worker picks it up. Integrations which set `background=true` on these operations must drop the parameter. Synchronous writes are unaffected.
+
+    This does not remove the plaintexts already recorded, and it does not revoke the affected tokens. Treat a token created this way as potentially exposed. After upgrading and restarting the workers, revoke and replace the affected tokens, then delete the job records which captured them.
+
+    Job names are localized to the requesting user's language, so identify candidate records by their stored result instead:
+
+    ```no-highlight
+    SELECT id, name, created
+    FROM core_job
+    WHERE jsonb_path_exists(data, '$.data[*].token ? (@ != null)');
+    ```
+
+    The query returns job metadata only, never the stored values. Confirm that a match really holds an API token response before deleting it, as an unrelated result may also carry a `token` field. An empty result does not rule out earlier exposure, because the affected records may already have been deleted. Deleting the records does not invalidate the tokens.
+
+---
+
 ## v4.7.1 (2026-09-15)
 
 !!! warning "Databases Restored From a v4.7.0 Dump"
