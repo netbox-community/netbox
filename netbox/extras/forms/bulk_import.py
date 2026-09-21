@@ -179,13 +179,56 @@ class ExportTemplateImportForm(OwnerCSVMixin, CSVModelForm):
         queryset=ObjectType.objects.with_feature('export_templates'),
         help_text=_("One or more assigned object types")
     )
+    template_code = forms.CharField(
+        label=_('Template code'),
+        required=False,
+        help_text=_('Jinja2 template code, if not sourced from a data file')
+    )
+    data_source = CSVModelChoiceField(
+        label=_('Data source'),
+        queryset=DataSource.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Data source which provides the data file')
+    )
+    data_file = CSVModelChoiceField(
+        label=_('Data file'),
+        queryset=DataFile.objects.all(),
+        required=False,
+        to_field_name='path',
+        help_text=_('Data file containing the template code')
+    )
+    auto_sync_enabled = forms.BooleanField(
+        required=False,
+        label=_('Auto sync enabled'),
+        help_text=_("Enable automatic synchronization of template content when the data file is updated")
+    )
 
     class Meta:
         model = ExportTemplate
         fields = (
             'name', 'object_types', 'description', 'environment_params', 'mime_type', 'file_name', 'file_extension',
-            'as_attachment', 'template_code', 'owner',
+            'as_attachment', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled', 'owner',
         )
+
+    def clean_data_source(self):
+        # Paths are unique only within a source, and Meta.fields cleans data_source before data_file
+        data_source = self.cleaned_data.get('data_source')
+        if data_source and 'data_file' in self.fields:
+            self.fields['data_file'].queryset = self.fields['data_file'].queryset.filter(source=data_source)
+
+        return data_source
+
+    def clean(self):
+        super().clean()
+
+        # An update record carries only the fields being changed, so fall back to the stored values
+        template_code = self.cleaned_data.get('template_code', self.instance.template_code)
+        data_file = self.cleaned_data.get('data_file', self.instance.data_file)
+        if not template_code and not data_file:
+            raise forms.ValidationError(_("Must specify either local content or a data file"))
+
+        return self.cleaned_data
 
 
 class ConfigContextProfileImportForm(PrimaryModelImportForm):
@@ -226,13 +269,21 @@ class ConfigTemplateImportForm(OwnerCSVMixin, CSVModelForm):
             'tags',
         )
 
+    def clean_data_source(self):
+        # Paths are unique only within a source, and Meta.fields cleans data_source before data_file
+        data_source = self.cleaned_data.get('data_source')
+        if data_source and 'data_file' in self.fields:
+            self.fields['data_file'].queryset = self.fields['data_file'].queryset.filter(source=data_source)
+
+        return data_source
+
     def clean(self):
         super().clean()
 
         # Make sure template_code is None when it's not included in the uploaded data
         if not self.data.get('template_code') and not self.data.get('data_file'):
             raise forms.ValidationError(_("Must specify either local content or a data file"))
-        return self.cleaned_data['template_code']
+        return self.cleaned_data
 
 
 class SavedFilterImportForm(OwnerCSVMixin, CSVModelForm):

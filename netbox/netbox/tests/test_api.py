@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 
 from django.contrib.contenttypes.models import ContentType
@@ -5,16 +6,21 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from django.utils.timezone import now
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.settings import api_settings
 
+from core.models import DataFile, DataSource, ObjectType
 from dcim.api.serializers import RackSerializer
 from dcim.models import Device, Site
-from netbox.api.exceptions import QuerySetNotOrdered
+from extras.models import ExportTemplate
+from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
+from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Token
+from utilities.api import get_serializer_for_model
 from utilities.testing import APITestCase
 
 
@@ -277,3 +283,85 @@ class ContentTypeFieldTestCase(TestCase):
         self.assertEqual(field.to_internal_value(['dcim.device']), [device_ct])
         with self.assertRaises(ValidationError):
             field.to_internal_value(['dcim.device', 'dcim.site'])
+
+
+class ValidatedModelSerializerTestCase(TestCase):
+
+    def test_serializers_declare_model_clean_fields(self):
+        """Serializers accepting a data file must declare the fields SyncedDataMixin.clean() normalizes."""
+        normalized_fields = {'data_source', 'data_path', 'auto_sync_enabled', 'data_synced'}
+
+        for object_type in ObjectType.objects.with_feature('synced_data'):
+            model = object_type.model_class()
+            if model is None:
+                continue
+            try:
+                serializer = get_serializer_for_model(model)
+            except SerializerNotFound:
+                continue
+            # Only serializers that let a client bind a data file have normalization to preserve
+            data_file = serializer().fields.get('data_file')
+            if data_file is None or data_file.read_only:
+                continue
+            with self.subTest(model=model._meta.label):
+                declared = set(getattr(serializer.Meta, 'model_clean_fields', ()))
+                self.assertTrue(
+                    normalized_fields.issubset(declared),
+                    f'{serializer.__name__}.Meta.model_clean_fields is missing '
+                    f'{sorted(normalized_fields - declared)}'
+                )
+
+    def test_model_clean_fields_is_opt_in(self):
+        """A declared field takes its value from the cleaned instance, while an undeclared one keeps the input."""
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{{ synced }}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/devices.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        class PlainSerializer(ValidatedModelSerializer):
+            class Meta:
+                model = ExportTemplate
+                fields = ['name', 'template_code', 'data_file']
+
+        class OptedInSerializer(PlainSerializer):
+            class Meta(PlainSerializer.Meta):
+                model_clean_fields = ('template_code',)
+
+        payload = {
+            'name': 'Export Template X',
+            'template_code': '{# placeholder #}',
+            'data_file': datafile.pk,
+        }
+
+        plain = PlainSerializer(data=payload)
+        self.assertTrue(plain.is_valid(), plain.errors)
+        self.assertEqual(plain.validated_data['template_code'], '{# placeholder #}')
+
+        opted_in = OptedInSerializer(data=payload)
+        self.assertTrue(opted_in.is_valid(), opted_in.errors)
+        self.assertEqual(opted_in.validated_data['template_code'], '{{ synced }}')
+
+    def test_nested_serializer_skips_model_validation(self):
+        """A serializer representing a nested object returns its input untouched."""
+
+        class OptedInSerializer(ValidatedModelSerializer):
+            class Meta:
+                model = ExportTemplate
+                fields = ['name', 'template_code']
+                brief_fields = ('name',)
+                model_clean_fields = ('template_code',)
+
+        serializer = OptedInSerializer(nested=True)
+        data = {'template_code': '{# untouched #}'}
+
+        self.assertEqual(serializer.validate(data), data)
