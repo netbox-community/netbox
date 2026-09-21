@@ -19,9 +19,12 @@ from dcim.models import (
     Device,
     DeviceRole,
     DeviceType,
+    FrontPort,
     Interface,
     InterfaceTemplate,
     Manufacturer,
+    PortMapping,
+    RearPort,
     Site,
 )
 from dcim.svg import CableTraceSVG
@@ -505,6 +508,45 @@ class ChannelizedCablePathTestCase(BaseCablePathTestCase):
             reverse = self.assertPathExists((far_iface, cable, channel), is_complete=True, is_active=True)
             self.assertPathIsSet(channel, forward)
             self.assertPathIsSet(far_iface, reverse)
+
+    def test_115_channelizing_cabled_interface_preserves_far_side_path(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2]. Channelizing IF1 retraces C1's paths; the path originating at
+        IF2 traverses C1 without terminating to it, and must survive the retrace.
+        """
+        interface1 = Interface.objects.create(
+            device=self.device, name='et0', type=InterfaceTypeChoices.TYPE_40GE_QSFP_PLUS
+        )
+        interface2 = Interface.objects.create(
+            device=self.device, name='xe0', type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+        rearport = RearPort.objects.create(device=self.device, name='rear')
+        frontport = FrontPort.objects.create(device=self.device, name='front')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport,
+            front_port_position=1,
+            rear_port=rearport,
+            rear_port_position=1
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport], b_terminations=[interface2])
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Channelize the near-end interface. It originates no path of its own from here on, but the far end's
+        # path to it is unaffected. Must be refetched: the in-memory instance predates the cable.
+        interface1.refresh_from_db()
+        interface1.channels = 4
+        interface1.save()
+
+        self.assertPathExists(
+            (interface2, cable2, rearport, frontport, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
 
 
 class ChannelizedInterfaceTestCase(TestCase):

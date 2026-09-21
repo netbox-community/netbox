@@ -3127,6 +3127,124 @@ class CableDependentObjectsTestCase(BaseCablePathTestCase):
         self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=False)
         self.assertEqual(CablePath.objects.count(), 2)
 
+    def test_retrace_preserves_path_through_pass_through(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2]. Retracing C1, whose B side is not a path endpoint, must
+        preserve the reverse path originating at IF2.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[interface2])
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, frontport1, rearport1, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_retrace_preserves_paths_of_mid_span_cable(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]. Retracing C2, which originates nothing
+        itself (both sides are rear ports), must preserve both paths.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        ports = {}
+        for i in (1, 2):
+            ports[f'rear{i}'] = RearPort.objects.create(device=self.device, name=f'Rear Port {i}')
+            ports[f'front{i}'] = FrontPort.objects.create(device=self.device, name=f'Front Port {i}')
+            PortMapping.objects.create(
+                device=self.device,
+                front_port=ports[f'front{i}'],
+                front_port_position=1,
+                rear_port=ports[f'rear{i}'],
+                rear_port_position=1
+            )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[ports['front1']])
+        cable1.save()
+        cable2 = Cable(a_terminations=[ports['rear1']], b_terminations=[ports['rear2']])
+        cable2.save()
+        cable3 = Cable(a_terminations=[ports['front2']], b_terminations=[interface2])
+        cable3.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Twice: with no path endpoint of its own, every path this Cable carries is restored from the
+        # origins of the paths it replaces, so a repeat call must neither duplicate nor drop them
+        for _ in range(2):
+            Cable.objects.get(pk=cable2.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (
+                interface1, cable1, ports['front1'], ports['rear1'], cable2, ports['rear2'], ports['front2'],
+                cable3, interface2
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (
+                interface2, cable3, ports['front2'], ports['rear2'], cable2, ports['rear1'], ports['front1'],
+                cable1, interface1
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_retrace_preserves_path_through_circuit(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --C2-- [IF2]. Retracing C1, whose B side is a circuit termination, must
+        preserve the reverse path originating at IF2.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit, termination=self.site, term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit, termination=self.site, term_side='Z'
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[circuittermination1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[circuittermination2], b_terminations=[interface2])
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, circuittermination1, circuittermination2, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, circuittermination2, circuittermination1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
     def test_retrace_is_idempotent(self):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')

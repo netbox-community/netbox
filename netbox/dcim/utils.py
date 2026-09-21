@@ -177,32 +177,51 @@ def rebuild_paths(terminations):
 
 def rebuild_cable_paths(cable):
     """
-    Delete and rebuild every CablePath traversing the given Cable, tracing freshly from the Cable's current
-    terminations in both directions. Used when the channelization of a terminated interface changes (e.g. a channel
-    subinterface is added, moved, or removed) without the Cable itself being modified.
+    Delete and rebuild every CablePath affected by the given Cable, tracing freshly from the Cable's current
+    terminations and from the origins of the affected paths. Used when a Cable's connectivity must be reconciled
+    without its own save() having traced it: the channelization of a terminated interface has changed, or the Cable
+    was written by a process which bypasses save().
     """
     from dcim.choices import CableEndChoices
     from dcim.models import CablePath, CableTermination, PathEndpoint
 
     with transaction.atomic(using=router.db_for_write(CablePath)):
-        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
-        for cp in CablePath.objects.filter(_nodes__contains=cable):
-            cp.delete()
-
         a_terminations, b_terminations = [], []
-        for ct in CableTermination.objects.filter(cable=cable):
+        for ct in CableTermination.objects.filter(cable=cable).prefetch_related('termination'):
             if ct.cable_end == CableEndChoices.SIDE_A:
                 a_terminations.append(ct.termination)
             else:
                 b_terminations.append(ct.termination)
 
+        # Every path traversing the Cable, plus those traversing a termination which is not itself a path endpoint:
+        # the latter may not reach the Cable yet (e.g. an incomplete path through a pass-through port which this
+        # Cable completes).
+        affected = {cp.pk: cp for cp in CablePath.objects.filter(_nodes__contains=cable)}
+        for termination in (*a_terminations, *b_terminations):
+            if not isinstance(termination, PathEndpoint):
+                affected.update({cp.pk: cp for cp in CablePath.objects.filter(_nodes__contains=termination)})
+
+        # Record each affected path's originating node(s) before deleting it. A path which merely passes through
+        # the Cable originates elsewhere, and can only be retraced from its own origins.
+        origins = {tuple(cp.path[0]): cp.origins for cp in affected.values()}
+
+        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
+        for cp in affected.values():
+            cp.delete()
+
+        # Trace from the Cable's own terminations first, so that a channelized origin is expanded into its channel
+        # subinterfaces exactly once
+        retraced = set()
         for nodes in (a_terminations, b_terminations):
-            if not nodes:
-                continue
-            if isinstance(nodes[0], PathEndpoint):
+            if nodes and isinstance(nodes[0], PathEndpoint):
                 create_cablepaths(nodes)
-            else:
-                rebuild_paths(nodes)
+                retraced.add(tuple(object_to_path_node(node) for node in nodes))
+
+        # Restore any affected path the tracing above did not reproduce
+        retraced |= {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=cable)}
+        for key, nodes in origins.items():
+            if key not in retraced:
+                create_cablepaths(nodes)
 
 
 def update_interface_parents(device, interface_templates, module=None):
