@@ -136,7 +136,10 @@ class RestrictedGenericForeignKey(GenericForeignKey):
             else:
                 instance = instance_dict[ct_id]
                 ct = self.get_content_type(id=ct_id, using=instance._state.db)
-                qs = ct.model_class().objects.filter(pk__in=fkeys)
+                model = ct.model_class()
+                # A model may declare its manager under a name other than `objects`
+                manager = getattr(model, 'objects', model._default_manager)
+                qs = manager.filter(pk__in=fkeys)
                 if restrict_params:
                     qs = qs.restrict(**restrict_params)
             # Carry the fetch mode of the objects being prefetched over to the objects prefetched

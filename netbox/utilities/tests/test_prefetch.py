@@ -1,3 +1,5 @@
+from unittest.mock import PropertyMock, patch
+
 from django.db.models import FETCH_ONE, FETCH_RAISE
 
 from circuits.models import Circuit, Provider
@@ -62,3 +64,16 @@ class RestrictedGenericForeignKeyTestCase(TestCase):
 
         self.assertEqual(obj, self.provider)
         self.assertIs(obj._state.fetch_mode, FETCH_ONE)
+
+    def test_prefetch_resolves_target_without_objects_manager(self):
+        """
+        A target model which names its manager something other than `objects` resolves through
+        the default manager.
+        """
+        with patch.object(Provider, 'objects', new_callable=PropertyMock, side_effect=AttributeError):
+            cached_value = list(CachedValue.objects.prefetch_related('object'))[0]
+            # A resolved prefetch leaves nothing for the relation access to fetch
+            with self.assertNumQueries(0):
+                obj = cached_value.object
+
+        self.assertEqual(obj, self.provider)

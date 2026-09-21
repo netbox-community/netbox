@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 import yaml
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -18,6 +17,7 @@ from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
+from utilities.fields import RestrictedGenericForeignKey
 from utilities.querysets import RestrictedQuerySet
 
 from ..choices import *
@@ -393,7 +393,7 @@ class AutoSyncRecord(models.Model):
         related_name='+'
     )
     object_id = models.PositiveBigIntegerField()
-    object = GenericForeignKey(
+    object = RestrictedGenericForeignKey(
         ct_field='object_type',
         fk_field='object_id'
     )
