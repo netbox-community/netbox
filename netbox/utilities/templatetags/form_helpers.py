@@ -157,8 +157,16 @@ def render_fieldset(form, fieldset):
                     'fields': [form[name] for name in tab['fields'] if name in form.fields]
                 } for tab in item.tabs
             ]
-            # If none of the tabs has been marked as active, activate the first one
-            if not any(tab['active'] for tab in tabs):
+            # A field error wins over initial data so a failed submission is not hidden in a tab
+            errored = next(
+                (tab for tab in tabs if any(field.errors for field in tab['fields'])),
+                None,
+            )
+            if errored is not None:
+                for tab in tabs:
+                    tab['active'] = tab is errored
+            elif not any(tab['active'] for tab in tabs):
+                # If none of the tabs has been marked as active, activate the first one
                 tabs[0]['active'] = True
             rows.append(
                 FieldsetRow('tabs', tabs)
