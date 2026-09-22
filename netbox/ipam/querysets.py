@@ -432,3 +432,39 @@ class VLANQuerySet(RestrictedQuerySet):
             q |= Q(site=site)
 
         return self.filter(q)
+
+    def get_related_to_sites(self, sites, *, negate=False):
+        """
+        Return VLANs related to any of the given sites, directly or through a scoped group.
+        Unlike get_for_site(), region-scoped and globally available VLANs are excluded.
+        Pass negate=True to exclude the related VLANs instead.
+        """
+        from dcim.models import SiteGroup
+
+        site_ids = set()
+        site_group_ids = set()
+        for site in sites:
+            site_ids.add(site.pk)
+            if site.group_id:
+                site_group_ids.add(site.group_id)
+
+        if not site_ids:
+            return self if negate else self.none()
+
+        q = Q(site_id__in=site_ids) | Q(
+            group__scope_type=ContentType.objects.get_by_natural_key('dcim', 'site'),
+            group__scope_id__in=site_ids
+        )
+
+        if site_group_ids:
+            # A site group scope reaches its descendants, so match the selected groups' ancestors.
+            ancestor_groups = SiteGroup.objects.none()
+            for site_group in SiteGroup.objects.filter(pk__in=site_group_ids):
+                ancestor_groups |= site_group.get_ancestors(include_self=True)
+
+            q |= Q(
+                group__scope_type=ContentType.objects.get_by_natural_key('dcim', 'sitegroup'),
+                group__scope_id__in=ancestor_groups.values('pk')
+            )
+
+        return self.exclude(q) if negate else self.filter(q)
