@@ -183,6 +183,17 @@ class TokenWritePermission(BasePermission):
         return bool(request.method in SAFE_METHODS or request.auth.write_enabled)
 
 
+class TokenSyncPermission(TokenPermissions):
+    """
+    Require a model's sync permission for the sync action, in place of the add permission a POST otherwise
+    maps to. Token write ability is still enforced by the parent class.
+    """
+    perms_map = {
+        **TokenPermissions.perms_map,
+        'POST': ['%(app_label)s.sync_%(model_name)s'],
+    }
+
+
 class IsAuthenticatedOrLoginNotRequired(BasePermission):
     """
     Returns True if the user is authenticated or LOGIN_REQUIRED is False.
