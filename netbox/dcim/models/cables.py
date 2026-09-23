@@ -514,8 +514,7 @@ class Cable(PrimaryModel):
         """
         with transaction.atomic(using=router.db_for_write(CablePath)):
 
-            # A channelized parent mirrors its cable attributes onto its channel subinterfaces with a bulk
-            # write, which emits no change record: remirror them, or the retrace expands it to nothing
+            # Restore channel cable attributes omitted by bulk-update change logging.
             for ct in CableTermination.objects.filter(cable=self).prefetch_related('termination'):
                 if isinstance(ct.termination, Interface) and ct.termination.channels:
                     ct.termination.propagate_channel_cables()
