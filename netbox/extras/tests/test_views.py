@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import uuid
 from unittest.mock import PropertyMock, patch
@@ -7,15 +8,17 @@ from django.contrib.messages import get_messages
 from django.test import tag
 from django.urls import reverse
 from django.utils.html import escape
+from django.utils.timezone import now
 
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.events import *
-from core.models import Job, ObjectType
+from core.models import DataFile, DataSource, Job, ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, MultiChoiceVar, StringVar
 from extras.scripts import Script as PythonClass
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
 
@@ -561,6 +564,45 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for et in export_templates:
             et.object_types.set([site_type])
 
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        cls.file_data = b'{% for object in queryset %}{{ object.name }}{% endfor %}'
+        cls.datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/sites.j2',
+            last_updated=now(),
+            size=len(cls.file_data),
+            hash=hashlib.sha256(cls.file_data).hexdigest(),
+            data=cls.file_data,
+        )
+
+        # The same path in two sources, so a path alone cannot identify the file
+        other_datasource = DataSource.objects.create(
+            name='Data Source 2',
+            type='local',
+            source_url='file:///tmp/netbox-datasource-2/',
+        )
+        cls.shared_path = 'exports/shared.j2'
+        cls.shared_datafile = DataFile.objects.create(
+            source=datasource,
+            path=cls.shared_path,
+            last_updated=now(),
+            size=len(cls.file_data),
+            hash=hashlib.sha256(cls.file_data).hexdigest(),
+            data=cls.file_data,
+        )
+        DataFile.objects.create(
+            source=other_datasource,
+            path=cls.shared_path,
+            last_updated=now(),
+            size=len(cls.file_data),
+            hash=hashlib.sha256(cls.file_data).hexdigest(),
+            data=cls.file_data,
+        )
+
         cls.form_data = {
             'name': 'Export Template X',
             'object_types': [site_type.pk],
@@ -569,12 +611,22 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'file_name': 'template_x',
         }
 
-        cls.csv_data = (
-            "name,object_types,template_code,file_name",
-            f"Export Template 4,dcim.site,{TEMPLATE_CODE},",
-            f"Export Template 5,dcim.site,{TEMPLATE_CODE},template_5",
-            f"Export Template 6,dcim.site,{TEMPLATE_CODE},",
-        )
+        cls.csv_data = {
+            'default': (
+                "name,object_types,template_code,file_name",
+                f"Export Template 4,dcim.site,{TEMPLATE_CODE},",
+                f"Export Template 5,dcim.site,{TEMPLATE_CODE},template_5",
+                f"Export Template 6,dcim.site,{TEMPLATE_CODE},",
+            ),
+            'with_data_file': (
+                "name,object_types,data_file,auto_sync_enabled",
+                f"Export Template 10,dcim.site,{cls.datafile.path},true",
+            ),
+            'with_duplicate_path': (
+                "name,object_types,data_source,data_file",
+                f"Export Template 12,dcim.site,{datasource.name},{cls.shared_path}",
+            ),
+        }
 
         cls.csv_update_data = (
             "id,name",
@@ -588,6 +640,96 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'file_extension': 'html',
             'as_attachment': True,
         }
+
+    def test_bulk_import_objects_with_permission(self):
+        def verify_data_file(scenario_name):
+            if scenario_name != 'with_data_file':
+                return
+            export_template = ExportTemplate.objects.get(name='Export Template 10')
+            self.assertEqual(export_template.data_file, self.datafile)
+            self.assertEqual(export_template.data_source, self.datafile.source)
+            self.assertEqual(export_template.data_path, self.datafile.path)
+            self.assertEqual(export_template.template_code, self.file_data.decode('utf-8'))
+            self.assertTrue(export_template.auto_sync_enabled)
+
+        def verify_duplicate_path(scenario_name):
+            if scenario_name != 'with_duplicate_path':
+                return
+            export_template = ExportTemplate.objects.get(name='Export Template 12')
+            self.assertEqual(export_template.data_file, self.shared_datafile)
+
+        def verify(scenario_name):
+            verify_data_file(scenario_name)
+            verify_duplicate_path(scenario_name)
+
+        super().test_bulk_import_objects_with_permission(post_import_callback=verify)
+
+    def test_bulk_import_without_content_or_data_file(self):
+        """A row supplying neither template code nor a data file is rejected."""
+        self.add_permissions('extras.add_exporttemplate')
+        initial_count = ExportTemplate.objects.count()
+
+        response = self.client.post(self._get_url('bulk_import'), {
+            'data': "name,object_types\nExport Template 11,dcim.site",
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(ExportTemplate.objects.count(), initial_count)
+
+    def test_bulk_import_with_source_id_column(self):
+        """A data_source.id column scopes the file lookup, and a malformed id is a row error."""
+        self.add_permissions('core.view_datafile', 'core.view_datasource', 'extras.add_exporttemplate')
+        source_id = self.shared_datafile.source_id
+
+        for label, value, expected_status in (
+            ('valid', str(source_id), 302),
+            ('malformed', 'not-a-number', 200),
+        ):
+            with self.subTest(source_id=label):
+                response = self.client.post(self._get_url('bulk_import'), {
+                    'data': f"name,object_types,data_source.id,data_file\n"
+                            f"Export Template {label},dcim.site,{value},{self.shared_path}",
+                    'format': ImportFormatChoices.CSV,
+                    'csv_delimiter': CSVDelimiterChoices.AUTO,
+                })
+                self.assertHttpStatus(response, expected_status)
+
+        export_template = ExportTemplate.objects.get(name='Export Template valid')
+        self.assertEqual(export_template.data_file, self.shared_datafile)
+        self.assertFalse(ExportTemplate.objects.filter(name='Export Template malformed').exists())
+
+    def test_bulk_import_update_with_source_but_no_file_column(self):
+        """An update record naming a source but no file does not trip the scoped file lookup."""
+        self.add_permissions(
+            'core.view_datafile',
+            'core.view_datasource',
+            'extras.add_exporttemplate',
+            'extras.change_exporttemplate',
+        )
+        export_template = ExportTemplate.objects.get(name='Export Template 1')
+
+        response = self.client.post(self._get_url('bulk_import'), {
+            'data': f"id,data_source\n{export_template.pk},{self.datafile.source.name}",
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertHttpStatus(response, 302)
+
+    def test_bulk_import_update_cannot_blank_template_code(self):
+        """An update row clearing template code on a template with no data file is rejected."""
+        self.add_permissions('extras.add_exporttemplate', 'extras.change_exporttemplate')
+        export_template = ExportTemplate.objects.get(name='Export Template 1')
+
+        response = self.client.post(self._get_url('bulk_import'), {
+            'data': f"id,template_code\n{export_template.pk},",
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertHttpStatus(response, 200)
+
+        export_template.refresh_from_db()
+        self.assertNotEqual(export_template.template_code, '')
 
     def test_content_is_not_cacheable(self):
         """

@@ -70,7 +70,7 @@ class ConfigContextProfile(SyncedDataMixin, PrimaryModel):
         """
         Synchronize schema from the designated DataFile (if any).
         """
-        self.schema = self.data_file.get_data()
+        self.schema = self.validate_synced_value('schema', self.data_file.get_data())
     sync_data.alters_data = True
 
 
@@ -217,7 +217,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         """
         Synchronize context data from the designated DataFile (if any).
         """
-        self.data = self.data_file.get_data()
+        self.data = self.validate_synced_value('data', self.data_file.get_data())
     sync_data.alters_data = True
 
     def get_affected_objects(self, using=None):
@@ -468,7 +468,7 @@ class ConfigTemplate(
         """
         Synchronize template content from the designated DataFile (if any).
         """
-        self.template_code = self.data_file.data_as_string
+        self.template_code = self.validate_synced_value('template_code', self.data_file.data_as_string)
     sync_data.alters_data = True
 
     def get_environment_params(self):
