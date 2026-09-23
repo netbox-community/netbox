@@ -3115,6 +3115,37 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         self.assertPathIsSet(interface1, path1)
         self.assertPathIsSet(interface2, path2)
 
+    def test_311_retrace_cable_preserves_circuittermination_origin(self):
+        """
+        [CT1] --C1-- [RP1] [FP1]
+
+        A CircuitTermination origin is not a PathEndpoint, so the retrace cannot reproduce its path by
+        tracing the Cable's terminations; it must be restored from the recorded origin instead.
+        """
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device, front_port=frontport1, front_port_position=1,
+            rear_port=rearport1, rear_port_position=1,
+        )
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        cable1 = Cable(a_terminations=[circuittermination1], b_terminations=[rearport1])
+        cable1.save()
+
+        circuittermination1.refresh_from_db()
+        CablePath.from_origin([circuittermination1]).save()
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        for _ in range(2):
+            Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+            self.assertPathExists((circuittermination1, cable1, rearport1, frontport1), is_complete=False)
+            self.assertEqual(CablePath.objects.count(), 1)
+
     def test_401_exclude_midspan_devices(self):
         """
         [IF1] --C1-- [FP1][Test Device][RP1] --C2-- [RP2][Test Device][FP2] --C3-- [IF2]

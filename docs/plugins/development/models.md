@@ -196,6 +196,7 @@ class MyModel(NetBoxModel):
     def update_dependent_objects(self):
         # Recreate any objects derived from this one
         ...
+    update_dependent_objects.alters_data = True
 ```
 
 The method is optional; callers should check for its presence before calling it. NetBox never calls it during a normal save.

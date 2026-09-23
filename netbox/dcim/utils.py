@@ -223,9 +223,9 @@ def rebuild_cable_paths(cable):
             if not nodes:
                 continue
 
-            # An origin which terminates this Cable belongs to the tracing above: that it produced no path means
-            # the origin no longer has one (e.g. a channel subinterface moved to another parent).
-            if any(getattr(obj, 'cable_id', None) == cable.pk for obj in nodes):
+            # A path endpoint terminating this Cable belongs to the tracing above: that it produced no path
+            # means the origin no longer has one (e.g. a channel subinterface moved to another parent).
+            if any(isinstance(obj, PathEndpoint) and obj.cable_id == cable.pk for obj in nodes):
                 continue
 
             # Nor restore an origin whose path has already been traced through another Cable

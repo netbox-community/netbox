@@ -520,6 +520,7 @@ class Cable(PrimaryModel):
                     ct.termination.propagate_channel_cables()
 
             rebuild_cable_paths(self)
+    update_dependent_objects.alters_data = True
 
     def get_terminations(self):
         """
