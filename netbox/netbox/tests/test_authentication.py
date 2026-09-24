@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import re
 import sys
 from types import ModuleType
@@ -11,14 +12,15 @@ from django.test import Client, RequestFactory, SimpleTestCase
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.timezone import now
 from rest_framework.test import APIClient
 from social_core.exceptions import AuthFailed
 
 from account.views import LoginView
 from core.choices import ManagedFileRootPathChoices
-from core.models import ManagedFile, ObjectType
+from core.models import DataFile, DataSource, ManagedFile, ObjectType
 from dcim.models import Rack, Site
-from extras.models import ScriptModule
+from extras.models import ConfigTemplate, ExportTemplate, ScriptModule
 from netbox.authentication import LDAPBackend
 from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
@@ -789,6 +791,124 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_sync_object(self):
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{{ synced }}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='exports/devices.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        # Bind the file without calling clean(), leaving the stored content unsynchronized
+        allowed = ExportTemplate.objects.create(
+            name='Allowed',
+            template_code='{# placeholder #}',
+            data_source=datasource,
+            data_file=datafile,
+            data_path=datafile.path,
+        )
+        forbidden = ExportTemplate.objects.create(
+            name='Forbidden',
+            template_code='{# placeholder #}',
+            data_source=datasource,
+            data_file=datafile,
+            data_path=datafile.path,
+        )
+        url_allowed = reverse('extras-api:exporttemplate-sync', kwargs={'pk': allowed.pk})
+        url_forbidden = reverse('extras-api:exporttemplate-sync', kwargs={'pk': forbidden.pk})
+
+        # Attempt to sync an object without permission
+        response = self.client.post(url_allowed, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Assign object permission. No add permission is granted: the sync action is governed by its own.
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            constraints={'name': 'Allowed'},
+            actions=['sync']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ExportTemplate))
+
+        # Attempt to sync a non-permitted object
+        response = self.client.post(url_forbidden, **self.header)
+        self.assertEqual(response.status_code, 404)
+        forbidden.refresh_from_db()
+        self.assertEqual(forbidden.template_code, '{# placeholder #}')
+        self.assertIsNone(forbidden.data_synced)
+
+        # Sync a permitted object
+        response = self.client.post(url_allowed, **self.header)
+        self.assertEqual(response.status_code, 200)
+        allowed.refresh_from_db()
+        self.assertEqual(allowed.template_code, '{{ synced }}')
+        self.assertIsNotNone(allowed.data_synced)
+
+        # Session authentication is permitted alongside token authentication
+        self.client.force_login(self.user)
+        response = self.client.post(url_allowed)
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
+        # A read-only token cannot sync, and is refused before the object is touched
+        allowed.refresh_from_db()
+        data_synced = allowed.data_synced
+        self.token.write_enabled = False
+        self.token.save()
+        response = self.client.post(url_allowed, **self.header)
+        self.assertEqual(response.status_code, 403)
+        allowed.refresh_from_db()
+        self.assertEqual(allowed.data_synced, data_synced)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_sync_object_with_permissions_override(self):
+        """A viewset declaring its own get_permissions() still reaches the mixin's sync branch."""
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        file_data = b'{{ synced }}'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='configs/device.j2',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='{# placeholder #}',
+            data_source=datasource,
+            data_file=datafile,
+            data_path=datafile.path,
+        )
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['sync']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(ConfigTemplate))
+
+        url = reverse('extras-api:configtemplate-sync', kwargs={'pk': configtemplate.pk})
+        response = self.client.post(url, **self.header)
+        self.assertEqual(response.status_code, 200)
+        configtemplate.refresh_from_db()
+        self.assertEqual(configtemplate.template_code, '{{ synced }}')
+        self.assertIsNotNone(configtemplate.data_synced)
 
 
 class ObjectPermissionProxyModelTestCase(TestCase):
