@@ -202,6 +202,20 @@ class DeepCompareDictTestCase(TestCase):
         self.assertEqual(added, {'name': 'new', 'custom_fields': {'cf1': 'new'}})
         self.assertEqual(removed, {'name': 'old', 'custom_fields': {'cf1': 'old'}})
 
+    def test_list_added(self):
+        source = {"a": [1]}
+        dest = {"a": [1, 2]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [2]})
+        self.assertEqual(removed, {"a": []})
+
+    def test_list_change(self):
+        source = {"a": [1, 2]}
+        dest = {"a": [1, 3]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3]})
+        self.assertEqual(removed, {"a": [2]})
+
     def test_exclude(self):
         source = {'a': 1, 'last_updated': '2024-01-01'}
         dest = {'a': 2, 'last_updated': '2024-06-01'}

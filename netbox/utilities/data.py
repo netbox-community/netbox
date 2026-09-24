@@ -91,7 +91,8 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
     """
     Return a two-tuple of dictionaries (added, removed) representing the differences between source_dict and
     destination_dict. For values which are themselves dicts, the comparison is performed recursively such that only
-    the changed keys within the nested dict are included. `exclude` is a list or tuple of keys to be ignored.
+    the changed keys within the nested dict are included. For values which are lists,
+    the comparison returns only elements that were added or removed. `exclude` is a list or tuple of keys to be ignored.
     """
     added = {}
     removed = {}
@@ -109,6 +110,9 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
             if sub_added or sub_removed:
                 added[key] = sub_added
                 removed[key] = sub_removed
+        elif isinstance(src_val, list) and isinstance(dst_val, list):
+            added[key] = [elm for elm in dst_val if elm not in src_val]
+            removed[key] = [elm for elm in src_val if elm not in dst_val]
         else:
             added[key] = dst_val
             removed[key] = src_val
