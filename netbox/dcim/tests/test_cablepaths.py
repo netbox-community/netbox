@@ -1,5 +1,5 @@
 from circuits.models import *
-from dcim.choices import LinkStatusChoices
+from dcim.choices import CableEndChoices, LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
@@ -16,6 +16,27 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         3XX: Test responses to changes in existing objects
         4XX: Test to exclude specific cable topologies
     """
+    def _create_cable_raw(self, termination_a, termination_b, status=LinkStatusChoices.STATUS_CONNECTED):
+        """
+        Write a Cable and its terminations directly to the database, bypassing Cable.save(). Unprofiled
+        cables only: the connector & positions a profile assigns are not replicated here.
+        """
+        cable = Cable(status=status)
+        cable.save_base(raw=True)
+
+        for termination, cable_end in (
+            (termination_a, CableEndChoices.SIDE_A),
+            (termination_b, CableEndChoices.SIDE_B),
+        ):
+            ct = CableTermination(cable=cable, cable_end=cable_end, termination=termination)
+            ct.cache_related_objects()
+            ct.save_base(raw=True)
+            termination.cable = cable
+            termination.cable_end = cable_end
+            termination.save()
+
+        return cable
+
     def test_101_interface_to_interface(self):
         """
         [IF1] --C1-- [IF2]
@@ -2891,6 +2912,239 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         # Verify _path is cleared on removed interface (#21127)
         interface3.refresh_from_db()
         self.assertPathIsNotSet(interface3)
+
+    def test_304_retrace_cable_created_without_save(self):
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+
+        cable = self._create_cable_raw(interface1, interface2)
+        self.assertEqual(CablePath.objects.count(), 0)
+
+        cable.update_dependent_objects()
+
+        self.assertPathExists((interface1, cable, interface2), is_complete=True, is_active=True)
+        self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_305_retrace_cable_extends_incomplete_path(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2], with C2 written raw. Retracing from a termination which is not
+        itself a path endpoint must extend the existing incomplete path.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
+        )
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        self.assertPathExists((interface1, cable1, frontport1, rearport1), is_complete=False)
+
+        cable2 = self._create_cable_raw(rearport1, interface2)
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        cable2.update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, frontport1, rearport1, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_306_retrace_cable_status_from_database(self):
+        """
+        A raw write leaves no in-memory record of the Cable's status, so path activity must come from the
+        stored value.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+
+        cable = self._create_cable_raw(interface1, interface2, status=LinkStatusChoices.STATUS_PLANNED)
+        cable.update_dependent_objects()
+
+        self.assertPathExists((interface1, cable, interface2), is_complete=True, is_active=False)
+        self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=False)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_307_retrace_cable_preserves_path_via_pass_through(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF2]. Retracing C1, whose B side is not a path endpoint, must
+        preserve the reverse path originating at IF2.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[frontport1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[rearport1], b_terminations=[interface2])
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, frontport1, rearport1, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, rearport1, frontport1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_308_retrace_midspan_cable_preserves_paths(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]. Retracing C2, which originates nothing
+        itself (both sides are rear ports), must preserve both paths.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        ports = {}
+        for i in (1, 2):
+            ports[f'rear{i}'] = RearPort.objects.create(device=self.device, name=f'Rear Port {i}')
+            ports[f'front{i}'] = FrontPort.objects.create(device=self.device, name=f'Front Port {i}')
+            PortMapping.objects.create(
+                device=self.device,
+                front_port=ports[f'front{i}'],
+                front_port_position=1,
+                rear_port=ports[f'rear{i}'],
+                rear_port_position=1
+            )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[ports['front1']])
+        cable1.save()
+        cable2 = Cable(a_terminations=[ports['rear1']], b_terminations=[ports['rear2']])
+        cable2.save()
+        cable3 = Cable(a_terminations=[ports['front2']], b_terminations=[interface2])
+        cable3.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Twice: with no path endpoint of its own, every path this Cable carries is restored from the
+        # origins of the paths it replaces, so a repeat call must neither duplicate nor drop them
+        for _ in range(2):
+            Cable.objects.get(pk=cable2.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (
+                interface1, cable1, ports['front1'], ports['rear1'], cable2, ports['rear2'], ports['front2'],
+                cable3, interface2
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (
+                interface2, cable3, ports['front2'], ports['rear2'], cable2, ports['rear1'], ports['front1'],
+                cable1, interface1
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_309_retrace_cable_preserves_path_via_circuit(self):
+        """
+        [IF1] --C1-- [CT1] [CT2] --C2-- [IF2]. Retracing C1, whose B side is a circuit termination, must
+        preserve the reverse path originating at IF2.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit, termination=self.site, term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit, termination=self.site, term_side='Z'
+        )
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[circuittermination1])
+        cable1.save()
+        cable2 = Cable(a_terminations=[circuittermination2], b_terminations=[interface2])
+        cable2.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+        self.assertPathExists(
+            (interface1, cable1, circuittermination1, circuittermination2, cable2, interface2),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (interface2, cable2, circuittermination2, circuittermination1, cable1, interface1),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_310_retrace_cable_is_idempotent(self):
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+
+        cable = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        cable.update_dependent_objects()
+
+        path1 = self.assertPathExists((interface1, cable, interface2), is_complete=True, is_active=True)
+        path2 = self.assertPathExists((interface2, cable, interface1), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+        self.assertPathIsSet(interface2, path2)
+
+    def test_311_retrace_cable_preserves_circuittermination_origin(self):
+        """
+        [CT1] --C1-- [RP1] [FP1]
+
+        A CircuitTermination origin is not a PathEndpoint, so the retrace cannot reproduce its path by
+        tracing the Cable's terminations; it must be restored from the recorded origin instead.
+        """
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device, front_port=frontport1, front_port_position=1,
+            rear_port=rearport1, rear_port_position=1,
+        )
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        cable1 = Cable(a_terminations=[circuittermination1], b_terminations=[rearport1])
+        cable1.save()
+
+        circuittermination1.refresh_from_db()
+        CablePath.from_origin([circuittermination1]).save()
+        self.assertEqual(CablePath.objects.count(), 1)
+
+        for _ in range(2):
+            Cable.objects.get(pk=cable1.pk).update_dependent_objects()
+
+            self.assertPathExists((circuittermination1, cable1, rearport1, frontport1), is_complete=False)
+            self.assertEqual(CablePath.objects.count(), 1)
 
     def test_401_exclude_midspan_devices(self):
         """

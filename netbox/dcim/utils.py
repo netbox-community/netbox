@@ -177,32 +177,62 @@ def rebuild_paths(terminations):
 
 def rebuild_cable_paths(cable):
     """
-    Delete and rebuild every CablePath traversing the given Cable, tracing freshly from the Cable's current
-    terminations in both directions. Used when the channelization of a terminated interface changes (e.g. a channel
-    subinterface is added, moved, or removed) without the Cable itself being modified.
+    Delete and rebuild every CablePath affected by the given Cable, tracing freshly from the Cable's current
+    terminations and from the origins of the affected paths. Used when a Cable's connectivity must be reconciled
+    without its own save() having traced it: the channelization of a terminated interface has changed, or the Cable
+    was written by a process which bypasses save().
     """
     from dcim.choices import CableEndChoices
     from dcim.models import CablePath, CableTermination, PathEndpoint
 
     with transaction.atomic(using=router.db_for_write(CablePath)):
-        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
-        for cp in CablePath.objects.filter(_nodes__contains=cable):
-            cp.delete()
-
         a_terminations, b_terminations = [], []
-        for ct in CableTermination.objects.filter(cable=cable):
+        for ct in CableTermination.objects.filter(cable=cable).prefetch_related('termination'):
             if ct.cable_end == CableEndChoices.SIDE_A:
                 a_terminations.append(ct.termination)
             else:
                 b_terminations.append(ct.termination)
 
+        # Every path traversing the Cable, plus those traversing a termination which is not itself a path endpoint:
+        # the latter may not reach the Cable yet (e.g. an incomplete path through a pass-through port which this
+        # Cable completes).
+        affected = {cp.pk: cp for cp in CablePath.objects.filter(_nodes__contains=cable)}
+        for termination in (*a_terminations, *b_terminations):
+            if not isinstance(termination, PathEndpoint):
+                affected.update({cp.pk: cp for cp in CablePath.objects.filter(_nodes__contains=termination)})
+
+        # Record each affected path's originating node(s) before deleting it. These are kept as compiled path
+        # nodes; resolving them to objects is deferred to the paths which actually need restoring.
+        origin_keys = {tuple(cp.path[0]) for cp in affected.values()}
+
+        # Delete existing paths individually so each clears its `_path` back-reference on the originating endpoints.
+        for cp in affected.values():
+            cp.delete()
+
+        # Trace from the Cable's own terminations first, so that a channelized origin is expanded into its channel
+        # subinterfaces exactly once
         for nodes in (a_terminations, b_terminations):
+            if nodes and isinstance(nodes[0], PathEndpoint):
+                create_cablepaths(nodes)
+        retraced = {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=cable)}
+
+        # Restore the affected paths which merely passed through the Cable: those originate elsewhere, so the
+        # tracing above cannot reproduce them.
+        for key in origin_keys - retraced:
+            nodes = [obj for node in key if (obj := path_node_to_object(node))]
             if not nodes:
                 continue
-            if isinstance(nodes[0], PathEndpoint):
-                create_cablepaths(nodes)
-            else:
-                rebuild_paths(nodes)
+
+            # A path endpoint terminating this Cable belongs to the tracing above: that it produced no path
+            # means the origin no longer has one (e.g. a channel subinterface moved to another parent).
+            if any(isinstance(obj, PathEndpoint) and obj.cable_id == cable.pk for obj in nodes):
+                continue
+
+            # Nor restore an origin whose path has already been traced through another Cable
+            if key in {tuple(cp.path[0]) for cp in CablePath.objects.filter(_nodes__contains=nodes[0])}:
+                continue
+
+            create_cablepaths(nodes)
 
 
 def update_interface_parents(device, interface_templates, module=None):
