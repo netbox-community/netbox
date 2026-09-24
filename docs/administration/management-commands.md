@@ -158,6 +158,39 @@ Generate any missing cable paths among all cable termination objects. This is us
 python3 netbox/manage.py trace_paths
 ```
 
+Use `--force` to delete existing cable paths before rebuilding them. Add `--no-input` to skip the
+confirmation prompt.
+
+### Failures and upgrades
+
+Groups that raise `UnsupportedCablePath` are reported while tracing continues for other groups. Other
+exceptions, including database errors, abort the command. If any group cannot be traced, `trace_paths` exits
+with a nonzero status after processing the remaining groups. A selected cable end that resolves
+to no live terminations is also reported as a failure, rather than counted as successfully retraced. This can happen
+if membership changes while the command is running.
+
+The per-model summaries count selected endpoints, not paths written or every sibling retraced on a selected end.
+The failure summary also counts the groups that failed. The final error counts failed groups across all endpoint
+models.
+
+Channelized parent interfaces do not own cable paths. They may therefore be selected on repeated runs without
+`--force`, which rebuild the paths of their channels even where those paths already exist.
+
+Cable-end membership and connector grouping are resolved from `CableTermination`. The command does not repair
+persisted endpoint fields such as `cable`, `cable_end`, `cable_connector`, or `cable_positions`. Inconsistent cached
+links, ends, or positions can prevent tracing or produce incorrect paths. For a linked co-origin considered for
+recovery, a cached cable that disagrees with its termination row, or a disagreeing cached end on a profiled cable,
+makes recovery log a warning and leave that endpoint without a path. Repeated runs do not repair these fields.
+Do not assume that every reported failure can be corrected by editing topology in the UI.
+
+When invoked during an upgrade, this failure stops the remaining upgrade steps. Investigate the reported topology
+or data inconsistency, correct its underlying cause, and rerun the upgrade. When an end changed concurrently,
+rerun tracing after the changes have completed.
+
+With `--force`, existing cable paths are deleted before rebuilding starts. A failed group can therefore remain
+without paths until the underlying problem is corrected and tracing is run again. A group-level rollback does not
+undo the initial deletion of all paths.
+
 ## webhook_receiver
 
 Start a simple HTTP listener that prints any requests it receives. This is a debugging aid for testing webhooks: point a webhook at the listener and inspect exactly what NetBox sends. It listens on port 9000 by default; pass `--port` to change it and `--no-headers` to suppress the request headers.

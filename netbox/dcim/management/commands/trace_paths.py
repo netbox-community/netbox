@@ -1,10 +1,15 @@
-from django.core.management.base import BaseCommand
+from itertools import groupby, islice
+
+from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.db import connection
-from django.db.models import Q
+from django.db.models import F, Q
 
+from dcim.exceptions import UnsupportedCablePath
 from dcim.models import CablePath, ConsolePort, ConsoleServerPort, Interface, PowerFeed, PowerOutlet, PowerPort
-from dcim.signals import create_cablepaths
+from dcim.utils import create_cablepaths, get_cable_end_terminations
+
+ORIGIN_GROUP_BATCH_SIZE = 100
 
 ENDPOINT_MODELS = (
     ConsolePort,
@@ -33,8 +38,21 @@ class Command(BaseCommand):
         """
         Draw a simple progress bar 20 increments wide illustrating the specified percentage.
         """
+        # The denominator is counted before iteration, so treat the percentage as approximate.
+        percentage = min(100, percentage)
         bar_size = int(percentage / 5)
         self.stdout.write(f"\r  [{'#' * bar_size}{' ' * (20 - bar_size)}] {int(percentage)}%", ending='')
+
+    @staticmethod
+    def group_key(obj):
+        """
+        Key an annotated endpoint by its cable end, falling back to its own PK when it has no termination row.
+        """
+        if obj._trace_cable_id is not None:
+            return (obj._trace_cable_id, obj._trace_cable_end)
+
+        # Wireless endpoints and missing CableTermination rows retain the singleton fallback.
+        return obj.pk
 
     def handle(self, *model_names, **options):
 
@@ -66,7 +84,8 @@ class Command(BaseCommand):
                 for sql in sequence_sql:
                     cursor.execute(sql)
 
-        # Retrace paths
+        # Retrace paths. A failed group must roll back, but must not prevent repairing independent groups.
+        failures = 0
         for model in ENDPOINT_MODELS:
             params = Q(cable__isnull=False)
             if hasattr(model, 'wireless_link'):
@@ -79,12 +98,66 @@ class Command(BaseCommand):
                 self.stdout.write(f'Found no missing {model._meta.verbose_name} paths; skipping')
                 continue
             self.stdout.write(f'Retracing {origins_count} cabled {model._meta.verbose_name_plural}...')
-            i = 0
-            for i, obj in enumerate(origins, start=1):
-                create_cablepaths([obj])
-                if not i % 100:
-                    self.draw_progress_bar(i * 100 / origins_count)
-            self.draw_progress_bar(100)
-            self.stdout.write(self.style.SUCCESS(f'\n  Retraced {i} {model._meta.verbose_name_plural}'))
+            # The unique termination relation gives each selected endpoint at most one authoritative end.
+            # Adjacent cable ends can be processed together without keeping a set of all previously seen ends.
+            origins = origins.annotate(
+                _trace_cable_id=F('cable_terminations__cable_id'),
+                _trace_cable_end=F('cable_terminations__cable_end'),
+            ).order_by('_trace_cable_id', '_trace_cable_end', 'pk')
 
+            grouped_origins = groupby(origins.iterator(chunk_size=1000), key=self.group_key)
+            retraced = i = model_failures = 0
+            while True:
+                batch = []
+                # Consume each group before advancing groupby: its iterators share the underlying stream.
+                # Keep only a representative and count, not all selected endpoints on each end.
+                for key, selected in islice(grouped_origins, ORIGIN_GROUP_BATCH_SIZE):
+                    first = next(selected)
+                    selected_count = 1 + sum(1 for _ in selected)
+                    batch.append((key, first, selected_count))
+                if not batch:
+                    break
+
+                cable_keys = [key for key, _, _ in batch if isinstance(key, tuple)]
+                cable_ends = get_cable_end_terminations(cable_keys)
+                for key, first, selected_count in batch:
+                    group = cable_ends[key] if isinstance(key, tuple) else [first]
+                    try:
+                        if not group:
+                            raise UnsupportedCablePath(
+                                'No current terminations remain for the selected cable end. '
+                                'Its membership may have changed during tracing.'
+                            )
+                        create_cablepaths(group)
+                    except UnsupportedCablePath as error:
+                        # The helper's savepoint has unwound, so other groups can still be repaired.
+                        model_failures += 1
+                        if isinstance(key, tuple):
+                            target = f'cable #{key[0]} end {key[1]}'
+                        else:
+                            target = f'{first._meta.label} #{first.pk}'
+                        self.stderr.write(self.style.ERROR(f'Unable to trace {target}: {error}'))
+                    else:
+                        retraced += selected_count
+
+                    # Advance progress for every selected endpoint, even in a failed or shared group.
+                    for completed in range((i // 100 + 1) * 100, i + selected_count + 1, 100):
+                        self.draw_progress_bar(completed * 100 / origins_count)
+                    i += selected_count
+            self.draw_progress_bar(100)
+            self.stdout.write(self.style.SUCCESS(f'\n  Retraced {retraced} {model._meta.verbose_name_plural}'))
+            if model_failures:
+                # Both counters track endpoints actually processed, unlike the pre-iteration count.
+                failed = i - retraced
+                self.stdout.write(self.style.WARNING(
+                    f'  Failed to retrace {failed} selected {model._meta.verbose_name_plural} '
+                    f'in {model_failures} origin group(s)'
+                ))
+                failures += model_failures
+
+        if failures:
+            raise CommandError(
+                f'Unable to trace {failures} origin group(s) across all endpoint models. Other groups were processed. '
+                'Correct the reported topology or data inconsistencies and rerun trace_paths.'
+            )
         self.stdout.write(self.style.SUCCESS('Finished.'))
