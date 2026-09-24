@@ -799,6 +799,13 @@ A `202` response indicates that the request was accepted and queued, not that it
 
 Background processing applies only to bulk operations (a JSON list) on a model's list endpoint. For a single-object write the `background` parameter is ignored and the request is processed synchronously. It cannot be combined with an [`If-Match`](#if-match) precondition (which cannot be evaluated reliably once execution is deferred); such a request is rejected with an `HTTP 400` response. If no background worker is running to service the queue, the request is rejected with an `HTTP 503` response rather than enqueuing a job that would never run.
 
+Some endpoints do not support background processing at all, because their response carries a value that exists only once and cannot be delivered by an `HTTP 202` response. The API tokens endpoint (`/api/users/tokens/`) is one such endpoint: a created token's plaintext is returned only by the request that creates it. A bulk write to such an endpoint with `background=true` is rejected with an `HTTP 400` response and no job is enqueued.
+
+!!! warning "API Tokens Created by Background Bulk Requests"
+    NetBox v4.7.0 and v4.7.1 accepted `background=true` on a bulk write to the tokens endpoint, and recorded each created token's plaintext in the job's result. Any user permitted to view those jobs could read it.
+
+    Restricting the endpoint prevents further exposure. It does not remove the plaintexts already recorded, and it does not revoke the affected tokens. Treat a token created that way as potentially exposed: after upgrading and restarting the workers, revoke and replace it, then delete the job records which captured it. Deleting those records does not invalidate the tokens.
+
 Two behaviors differ from a synchronous request and may change in a future release: field selection via [`fields`/`omit`](#specifying-fields) (and brief mode) is not applied to the stored result, and the authorization captured when the request is accepted is not re-checked if the token is later disabled or expires before the job runs.
 
 ## Changelog Messages
