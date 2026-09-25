@@ -16,9 +16,9 @@ from PIL import Image
 from requests import Session
 from rest_framework import status
 
-from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
+from core.choices import JobNotificationChoices, ManagedFileRootPathChoices, ObjectChangeActionChoices
 from core.events import *
-from core.models import Job, ObjectType
+from core.models import Job, ObjectChange, ObjectType
 from dcim.choices import DeviceStatusChoices, InterfaceTypeChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
@@ -57,6 +57,21 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
         # Clear the queue so leftover jobs do not leak to the next test suite
         self.queue.empty()
+
+    def assertWebhookObjectChangeId(self, job, action):
+        change = ObjectChange.objects.filter(
+            changed_object_type=job.kwargs['object_type'],
+            changed_object_id=job.kwargs['data']['id'],
+            request_id=job.kwargs['request'].id,
+        ).latest('pk')
+        self.assertEqual(change.action, action)
+        self.assertEqual(job.kwargs['object_change_id'], change.pk)
+        self.assertEqual(change.postchange_data, job.kwargs['snapshots']['postchange'])
+
+        with patch.object(Session, 'send', return_value=HttpResponse()) as send:
+            send_webhook(**job.kwargs)
+        body = json.loads(send.call_args.args[0].body)
+        self.assertEqual(body['object_change_id'], change.pk)
 
     def test_enqueue_event_requires_saved_instance(self):
         """enqueue_event raises ValueError for an unsaved instance."""
@@ -220,6 +235,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(len(job.kwargs['data']['tags']), len(response.data['tags']))
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_CREATE)
 
     def test_single_create_rollback_discards_events(self):
         """
@@ -297,6 +313,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(len(job.kwargs['data']['tags']), len(response.data[i]['tags']))
             self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
+            self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_CREATE)
 
     def test_bulk_create_rollback_discards_events(self):
         """
@@ -397,6 +414,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_UPDATE)
 
     def test_single_update_rollback_discards_events(self):
         """
@@ -485,6 +503,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
+            self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_UPDATE)
 
     def test_bulk_update_rollback_discards_events(self):
         """
@@ -541,6 +560,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.kwargs['data']['foo'], 3)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_DELETE)
 
     def test_single_delete_rollback_discards_events(self):
         """
@@ -604,6 +624,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             self.assertEqual(job.kwargs['data']['foo'], 3)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
+            self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_DELETE)
 
     def test_bulk_delete_rollback_discards_events(self):
         """
@@ -687,6 +708,8 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
             # Validate the outgoing request body
             body = json.loads(request.body)
             self.assertEqual(body['event'], 'created')
+            # Legacy jobs and callers which supply no changelog ID remain supported.
+            self.assertIsNone(body['object_change_id'])
             self.assertEqual(body['timestamp'], job.kwargs['timestamp'])
             self.assertEqual(body['object_type'], 'dcim.site')
             self.assertEqual(body['data']['name'], 'Site 1')
@@ -721,6 +744,76 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
+            legacy_kwargs = job.kwargs.copy()
+            legacy_kwargs.pop('object_change_id')
+            send_webhook(**legacy_kwargs)
+
+    @override_settings(RQ_RETRY_MAX=1, RQ_RETRY_INTERVAL=0)
+    def test_webhook_retry_preserves_object_change_id(self):
+        self._test_webhook_retry_preserves_object_change_id(automatic_retry=True)
+
+    @override_settings(RQ_RETRY_MAX=0)
+    def test_webhook_requeue_preserves_object_change_id(self):
+        self._test_webhook_retry_preserves_object_change_id(automatic_retry=False)
+
+    def _test_webhook_retry_preserves_object_change_id(self, automatic_retry):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        with event_tracking(request):
+            site = Site.objects.create(name='Site 1', slug='site-1')
+        job = self.queue.jobs[0]
+        object_change_id = job.kwargs['object_change_id']
+        self.assertIsInstance(object_change_id, int)
+
+        # Record a later change without enqueueing another webhook, then simulate changelog pruning.
+        EventRule.objects.update(enabled=False)
+        request.id = uuid.uuid4()
+        with event_tracking(request):
+            site.snapshot()
+            site.description = 'Later state'
+            site.save()
+        self.assertNotEqual(ObjectChange.objects.latest('pk').pk, object_change_id)
+        ObjectChange.objects.filter(pk=object_change_id).delete()
+
+        with patch.object(Session, 'send', side_effect=[requests.exceptions.Timeout(), HttpResponse()]) as send:
+            self.run_rq_jobs()
+            if not automatic_retry:
+                job.refresh()
+                self.assertTrue(job.is_failed)
+                job.requeue()
+                self.run_rq_jobs()
+
+        job.refresh()
+        self.assertTrue(job.is_finished)
+        self.assertEqual(send.call_count, 2)
+        bodies = [json.loads(call.args[0].body) for call in send.call_args_list]
+        for body in bodies:
+            self.assertEqual(body['object_change_id'], object_change_id)
+            self.assertEqual(body['data']['description'], '')
+        self.assertEqual(bodies[0], bodies[1])
+        self.assertEqual(job.kwargs['object_change_id'], object_change_id)
+
+    def test_webhook_object_change_id_in_templates(self):
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        webhook = Webhook.objects.get(name='Webhook 1')
+        webhook.payload_url = 'http://localhost:9000/{{ object_change_id }}/'
+        webhook.additional_headers = 'X-Object-Change-ID: {{ object_change_id }}'
+        webhook.body_template = '{"object_change_id": {{ object_change_id }}}'
+        webhook.save()
+        with event_tracking(request):
+            Site.objects.create(name='Site 1', slug='site-1')
+
+        job = self.queue.jobs[0]
+        object_change_id = ObjectChange.objects.get(request_id=request.id).pk
+        with patch.object(Session, 'send', return_value=HttpResponse()) as send:
+            send_webhook(**job.kwargs)
+        outgoing = send.call_args.args[0]
+        self.assertEqual(outgoing.url, f'http://localhost:9000/{object_change_id}/')
+        self.assertEqual(outgoing.headers['X-Object-Change-ID'], str(object_change_id))
+        self.assertEqual(json.loads(outgoing.body), {'object_change_id': object_change_id})
 
     def test_send_webhook_per_webhook_timeout(self):
         """
@@ -845,6 +938,7 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         job = self.queue.jobs[0]
         self.assertEqual(job.kwargs['event_rule'], event_rule)
         self.assertEqual(job.kwargs['event_type'], JOB_COMPLETED)
+        self.assertIsNone(job.kwargs['object_change_id'])
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertNotIn('request', job.kwargs)
 
@@ -1116,6 +1210,8 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
         self.assertEqual(job.kwargs['event_type'], OBJECT_CREATED)
+        self.assertEqual(job.kwargs['data']['description'], 'foo')
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_UPDATE)
         self.queue.empty()
 
         # Test multiple updates
@@ -1128,6 +1224,8 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
         self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)
+        self.assertEqual(job.kwargs['data']['description'], 'bar')
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_UPDATE)
         self.queue.empty()
 
         # Test update & delete
@@ -1139,6 +1237,8 @@ class EventRuleTestCase(RQQueueTestMixin, APITestCase):
         self.assertEqual(self.queue.count, 1, msg="Duplicate jobs found in queue")
         job = self.queue.get_jobs()[0]
         self.assertEqual(job.kwargs['event_type'], OBJECT_DELETED)
+        self.assertEqual(job.kwargs['data']['description'], 'foo')
+        self.assertWebhookObjectChangeId(job, ObjectChangeActionChoices.ACTION_DELETE)
         self.queue.empty()
 
     def test_non_dict_action_data_does_not_crash_flush(self):

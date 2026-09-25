@@ -24,6 +24,7 @@ For example, you might create a NetBox webhook to [trigger a Slack message](http
 The following data is available as context for Jinja2 templates:
 
 * `event` - The type of event which triggered the webhook: `created`, `updated`, or `deleted`.
+* `object_change_id` - The integer ID of the corresponding `ObjectChange` changelog entry, or `null` if no change was recorded (for example, a job lifecycle event or a save with no changes).
 * `timestamp` - The time at which the event occurred (in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format).
 * `object_type` - The NetBox model which triggered the change in the form `app_label.model_name`.
 * `request` - Data about the triggering request (if available).
@@ -53,6 +54,7 @@ If no body template is specified, the request body will be populated with a JSON
 ```json
 {
     "event": "created",
+    "object_change_id": 123,
     "timestamp": "2026-03-06T15:11:23.503186+00:00",
     "object_type": "dcim.site",
     "data": {
@@ -99,6 +101,12 @@ If no body template is specified, the request body will be populated with a JSON
 Using [Event Rules](../features/event-rules.md), when a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected under System > Background Tasks.
 
 A request is considered successful if the response has a 2XX status code; otherwise, the request is marked as having failed. Failed requests may be requeued manually under System > Background Tasks.
+
+### Changelog IDs and Combined Events
+
+`object_change_id` is captured when the change is recorded and stored with the queued webhook. Automatic retries and manual requeues retain this ID, even if the object changes again or the changelog entry is later removed. Custom body templates must include `object_change_id` explicitly to send it to the receiver.
+
+Multiple changes to the same object within a request are combined into one event. Its `object_change_id` identifies the last recorded change contributing to the included state (`data` and `snapshots.postchange`); `snapshots.prechange` still reflects the state before the first combined event. A create followed by updates retains the `created` event type but uses the final update's change ID. If the object is deleted, the event uses the deletion's change ID, `data` contains the state just before deletion, and `snapshots.postchange` is `null`. Many-to-many changes which update an existing changelog entry retain that entry's ID. A subsequent save without a recorded change does not replace an already captured ID.
 
 ## Troubleshooting
 

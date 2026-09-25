@@ -149,6 +149,8 @@ Default: `['extras.events.process_event_queue',]`
 
 NetBox will call dotted paths to the functions listed here for events (create, update, delete) on models as well as when custom EventRules are fired.
 
+Object change events include `object_change_id`, the integer ID of the corresponding `ObjectChange` (or `None` when no change was recorded). When several changes to an object are combined, this identifies the last recorded change contributing to the included state; see [Changelog IDs and Combined Events](../integrations/webhooks.md#changelog-ids-and-combined-events).
+
 ---
 
 ## FILE_UPLOAD_MAX_MEMORY_SIZE
