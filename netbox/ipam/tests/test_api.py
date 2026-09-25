@@ -542,6 +542,21 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('prefix_length', response.data[0])
 
+    def test_create_available_prefix_inherits_parent_vrf(self):
+        """
+        A caller-supplied VRF is ignored: a prefix created from the available-prefixes endpoint always inherits
+        the parent prefix's VRF. This is why `vrf` is not advertised as a writable field on the request.
+        """
+        parent_vrf = VRF.objects.create(name='VRF 1')
+        other_vrf = VRF.objects.create(name='VRF 2')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=parent_vrf, is_pool=True)
+        url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        response = self.client.post(url, {'prefix_length': 30, 'vrf': other_vrf.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['vrf']['id'], parent_vrf.pk)
+
     def test_create_multiple_available_prefixes(self):
         """
         Test the creation of available prefixes within a parent prefix.

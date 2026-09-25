@@ -7,7 +7,7 @@ from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
-from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from ..field_serializers import IPAddressField, IPNetworkField
@@ -103,14 +103,14 @@ class PrefixLengthSerializer(serializers.Serializer):
         return data
 
 
-class CreateAvailablePrefixSerializer(NetBoxModelSerializer):
+class CreateAvailablePrefixSerializer(PrimaryModelSerializer):
     """
-    Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies the
-    `prefix` value (via a requested `prefix_length`), so `prefix` is omitted here. The writable fields mirror
-    those of PrefixSerializer (minus read-only/computed fields); keep them in sync if PrefixSerializer changes.
+    Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies both
+    the `prefix` value (via a requested `prefix_length`) and the `vrf`, so neither is accepted here. The remaining
+    writable fields mirror those of PrefixSerializer (minus read-only/computed fields); keep them in sync if
+    PrefixSerializer changes.
     """
     prefix_length = serializers.IntegerField()
-    vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=LOCATION_SCOPE_TYPES
@@ -128,7 +128,7 @@ class CreateAvailablePrefixSerializer(NetBoxModelSerializer):
     class Meta:
         model = Prefix
         fields = [
-            'prefix_length', 'vrf', 'scope_type', 'scope_id', 'tenant', 'vlan', 'status', 'role', 'is_pool',
+            'prefix_length', 'scope_type', 'scope_id', 'tenant', 'vlan', 'status', 'role', 'is_pool',
             'mark_utilized', 'description', 'owner', 'comments', 'tags', 'custom_fields',
         ]
 
