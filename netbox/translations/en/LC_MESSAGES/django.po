@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 05:01+0000\n"
+"POT-Creation-Date: 2026-09-25 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2716,7 +2716,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:846
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:860
 msgid "path"
 msgstr ""
 
@@ -2869,10 +2869,24 @@ msgstr ""
 msgid "Sync Data"
 msgstr ""
 
-#: netbox/core/signals.py:178
+#: netbox/core/signals.py:184
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
+
+#: netbox/core/signals.py:358
+#, python-brace-format
+msgid "Automatic synchronization failed for {count} object:"
+msgid_plural "Automatic synchronization failed for {count} objects:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: netbox/core/signals.py:364
+#, python-brace-format
+msgid "{count} additional failure is not shown."
+msgid_plural "{count} additional failures are not shown."
+msgstr[0] ""
+msgstr[1] ""
 
 #: netbox/core/tables/change_logging.py:26
 #: netbox/templates/account/profile.html:17
@@ -6929,89 +6943,89 @@ msgstr ""
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:623 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:637 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:694
+#: netbox/dcim/models/cables.py:708
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:695
+#: netbox/dcim/models/cables.py:709
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:708
+#: netbox/dcim/models/cables.py:722
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:725
+#: netbox/dcim/models/cables.py:739
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:737
+#: netbox/dcim/models/cables.py:751
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:743
+#: netbox/dcim/models/cables.py:757
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:750
+#: netbox/dcim/models/cables.py:764
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:782
+#: netbox/dcim/models/cables.py:796
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:850 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:864 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:854
+#: netbox/dcim/models/cables.py:868
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:858
+#: netbox/dcim/models/cables.py:872
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:871
+#: netbox/dcim/models/cables.py:885
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:872
+#: netbox/dcim/models/cables.py:886
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:963
+#: netbox/dcim/models/cables.py:977
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:981
+#: netbox/dcim/models/cables.py:995
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:989
+#: netbox/dcim/models/cables.py:1003
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1019
+#: netbox/dcim/models/cables.py:1033
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1021
+#: netbox/dcim/models/cables.py:1035
 msgid "All links must match first link type"
 msgstr ""
 
@@ -14299,49 +14313,53 @@ msgstr ""
 msgid "{failed_count} of {total} objects could not be found."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:321
-msgid "The If-Match header is not supported with background processing."
-msgstr ""
-
-#: netbox/netbox/api/viewsets/mixins.py:331
-#: netbox/netbox/api/viewsets/mixins.py:332
-msgid "create"
+#: netbox/netbox/api/viewsets/mixins.py:299
+msgid "Background processing is not supported for this endpoint."
 msgstr ""
 
 #: netbox/netbox/api/viewsets/mixins.py:333
+msgid "The If-Match header is not supported with background processing."
+msgstr ""
+
+#: netbox/netbox/api/viewsets/mixins.py:343
+#: netbox/netbox/api/viewsets/mixins.py:344
+msgid "create"
+msgstr ""
+
+#: netbox/netbox/api/viewsets/mixins.py:345
 msgid "delete"
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:334
+#: netbox/netbox/api/viewsets/mixins.py:346
 msgid "update"
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:335
+#: netbox/netbox/api/viewsets/mixins.py:347
 #, python-brace-format
 msgid "Bulk {verb} {object_type}"
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:428
+#: netbox/netbox/api/viewsets/mixins.py:440
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be created."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:468
+#: netbox/netbox/api/viewsets/mixins.py:480
 #, python-brace-format
 msgid "Invalid data. Expected a dictionary, but got {datatype}."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:575
+#: netbox/netbox/api/viewsets/mixins.py:587
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be updated."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:714
+#: netbox/netbox/api/viewsets/mixins.py:726
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be deleted."
 msgstr ""
 
-#: netbox/netbox/api/viewsets/mixins.py:766
+#: netbox/netbox/api/viewsets/mixins.py:778
 #, python-brace-format
 msgid "Unable to delete: {n} dependent object(s) prevent deletion."
 msgstr ""
@@ -18747,14 +18765,14 @@ msgstr ""
 msgid "Invalid delimiter name: {name}"
 msgstr ""
 
-#: netbox/utilities/fields.py:180
+#: netbox/utilities/fields.py:183
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_model parameter to CounterCacheField must be a string "
 "in the format 'app.model'"
 msgstr ""
 
-#: netbox/utilities/fields.py:190
+#: netbox/utilities/fields.py:193
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_field parameter to CounterCacheField must be a string "
