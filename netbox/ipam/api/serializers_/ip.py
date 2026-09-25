@@ -7,7 +7,7 @@ from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
-from netbox.api.serializers import PrimaryModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from ..field_serializers import IPAddressField, IPNetworkField
@@ -22,6 +22,7 @@ __all__ = (
     'AvailableIPRequestSerializer',
     'AvailableIPSerializer',
     'AvailablePrefixSerializer',
+    'CreateAvailablePrefixSerializer',
     'IPAddressSerializer',
     'IPRangeSerializer',
     'PrefixLengthSerializer',
@@ -99,6 +100,40 @@ class PrefixLengthSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(requested_prefix)
             })
+        return data
+
+
+class CreateAvailablePrefixSerializer(NetBoxModelSerializer):
+    """
+    Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies the
+    `prefix` value (via a requested `prefix_length`), so `prefix` is omitted here. The writable fields mirror
+    those of PrefixSerializer (minus read-only/computed fields); keep them in sync if PrefixSerializer changes.
+    """
+    prefix_length = serializers.IntegerField()
+    vrf = VRFSerializer(nested=True, required=False, allow_null=True)
+    scope_type = ContentTypeField(
+        queryset=ContentType.objects.filter(
+            model__in=LOCATION_SCOPE_TYPES
+        ),
+        allow_null=True,
+        required=False,
+        default=None
+    )
+    scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    vlan = VLANSerializer(nested=True, required=False, allow_null=True)
+    status = ChoiceField(choices=PrefixStatusChoices, required=False)
+    role = RoleSerializer(nested=True, required=False, allow_null=True)
+
+    class Meta:
+        model = Prefix
+        fields = [
+            'prefix_length', 'vrf', 'scope_type', 'scope_id', 'tenant', 'vlan', 'status', 'role', 'is_pool',
+            'mark_utilized', 'description', 'owner', 'comments', 'tags', 'custom_fields',
+        ]
+
+    def validate(self, data):
+        # Bypass model validation since we don't have an allocated prefix yet
         return data
 
 
