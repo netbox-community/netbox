@@ -513,6 +513,8 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         Test retrieval of the first available prefix within a parent prefix.
         """
         vrf = VRF.objects.create(name='VRF 1')
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
+        role = Role.objects.create(name='Role 1', slug='role-1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
@@ -527,13 +529,22 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         for i in range(4):
             data = {
                 'prefix_length': 30,
-                'description': 'Test Prefix {}'.format(i + 1)
+                'description': 'Test Prefix {}'.format(i + 1),
+                'status': 'reserved',
+                'is_pool': True,
+                'tenant': tenant.pk,
+                'role': role.pk,
             }
             response = self.client.post(url, data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_201_CREATED)
             self.assertEqual(response.data['prefix'], prefixes_to_be_created[i])
             self.assertEqual(response.data['vrf']['id'], vrf.pk)
             self.assertEqual(response.data['description'], data['description'])
+            # Verify that additional writable fields advertised by the schema are accepted and persisted
+            self.assertEqual(response.data['status']['value'], 'reserved')
+            self.assertEqual(response.data['is_pool'], True)
+            self.assertEqual(response.data['tenant']['id'], tenant.pk)
+            self.assertEqual(response.data['role']['id'], role.pk)
 
         # Try to create one more prefix
         response = self.client.post(url, {'prefix_length': 30}, format='json', **self.header)
@@ -545,19 +556,35 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('prefix_length', response.data[0])
 
+    def test_create_available_prefix_inherits_parent_vrf(self):
+        """
+        A caller-supplied VRF is ignored: a prefix created from the available-prefixes endpoint always inherits
+        the parent prefix's VRF. This is why `vrf` is not advertised as a writable field on the request.
+        """
+        parent_vrf = VRF.objects.create(name='VRF 1')
+        other_vrf = VRF.objects.create(name='VRF 2')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=parent_vrf, is_pool=True)
+        url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        response = self.client.post(url, {'prefix_length': 30, 'vrf': other_vrf.pk}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['vrf']['id'], parent_vrf.pk)
+
     def test_create_multiple_available_prefixes(self):
         """
         Test the creation of available prefixes within a parent prefix.
         """
         vrf = VRF.objects.create(name='VRF 1')
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
         self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
 
         # Try to create five /30s (only four are available)
         data = [
-            {'prefix_length': 30, 'description': 'Prefix 1'},
-            {'prefix_length': 30, 'description': 'Prefix 2'},
+            {'prefix_length': 30, 'description': 'Prefix 1', 'status': 'reserved', 'tenant': tenant.pk},
+            {'prefix_length': 30, 'description': 'Prefix 2', 'status': 'reserved', 'tenant': tenant.pk},
             {'prefix_length': 30, 'description': 'Prefix 3'},
             {'prefix_length': 30, 'description': 'Prefix 4'},
             {'prefix_length': 30, 'description': 'Prefix 5'},
@@ -575,6 +602,11 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, data[:4], format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 4)
+        # Verify that additional writable fields advertised by the schema round-trip in list mode
+        self.assertEqual(response.data[0]['status']['value'], 'reserved')
+        self.assertEqual(response.data[0]['tenant']['id'], tenant.pk)
+        self.assertEqual(response.data[1]['status']['value'], 'reserved')
+        self.assertEqual(response.data[1]['tenant']['id'], tenant.pk)
 
     def test_list_available_ips(self):
         """
