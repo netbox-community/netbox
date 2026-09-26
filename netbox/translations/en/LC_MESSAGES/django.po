@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 05:01+0000\n"
+"POT-Creation-Date: 2026-09-26 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -887,7 +887,7 @@ msgstr ""
 #: netbox/templates/dcim/cablebundle.html:17
 #: netbox/templates/extras/dashboard/widget_add.html:14
 #: netbox/templates/extras/inc/script_list_content.html:33
-#: netbox/templates/generic/bulk_import.html:151
+#: netbox/templates/generic/bulk_import.html:152
 #: netbox/users/forms/bulk_edit.py:62 netbox/users/forms/bulk_edit.py:80
 #: netbox/users/forms/bulk_edit.py:115 netbox/users/forms/bulk_edit.py:143
 #: netbox/users/forms/bulk_edit.py:166
@@ -3085,7 +3085,7 @@ msgstr ""
 #: netbox/templates/core/inc/datafile_panel.html:4
 #: netbox/templates/core/inc/datafile_panel.html:17
 #: netbox/templates/extras/object_render_config.html:23
-#: netbox/templates/generic/bulk_import.html:35
+#: netbox/templates/generic/bulk_import.html:36
 msgid "Data File"
 msgstr ""
 
@@ -5243,7 +5243,7 @@ msgstr ""
 #: netbox/templates/dcim/inc/panels/inventory_items.html:19
 #: netbox/templates/dcim/panels/component_inventory_items.html:9
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:10
-#: netbox/templates/generic/bulk_import.html:193
+#: netbox/templates/generic/bulk_import.html:194
 msgid "Label"
 msgstr ""
 
@@ -10391,7 +10391,7 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_edit.py:47 netbox/extras/forms/filtersets.py:86
 #: netbox/extras/tables/tables.py:83
-#: netbox/templates/generic/bulk_import.html:149
+#: netbox/templates/generic/bulk_import.html:150
 msgid "Required"
 msgstr ""
 
@@ -10759,7 +10759,7 @@ msgstr ""
 
 #: netbox/extras/forms/filtersets.py:146 netbox/extras/forms/model_forms.py:212
 #: netbox/extras/tables/tables.py:112
-#: netbox/templates/generic/bulk_import.html:185
+#: netbox/templates/generic/bulk_import.html:186
 msgid "Choices"
 msgstr ""
 
@@ -14303,7 +14303,7 @@ msgid "{failed_count} of {total} objects are listed more than once."
 msgstr ""
 
 #: netbox/netbox/api/viewsets/mixins.py:218
-#: netbox/netbox/views/generic/bulk_views.py:601
+#: netbox/netbox/views/generic/bulk_views.py:602
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr ""
@@ -15643,7 +15643,7 @@ msgid "No {model_name} found"
 msgstr ""
 
 #: netbox/netbox/tables/tables.py:462
-#: netbox/templates/generic/bulk_import.html:148
+#: netbox/templates/generic/bulk_import.html:149
 msgid "Field"
 msgstr ""
 
@@ -15677,37 +15677,37 @@ msgstr ""
 msgid "GPS coordinates"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:171
+#: netbox/netbox/views/generic/bulk_views.py:172
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:352
+#: netbox/netbox/views/generic/bulk_views.py:353
 msgid "General"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:362
+#: netbox/netbox/views/generic/bulk_views.py:363
 #, python-brace-format
 msgid "{value}: {field}: {error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:534
+#: netbox/netbox/views/generic/bulk_views.py:535
 msgid "Must be a list."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:544
+#: netbox/netbox/views/generic/bulk_views.py:545
 msgid "Must be a dictionary."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:664
+#: netbox/netbox/views/generic/bulk_views.py:665
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:681
+#: netbox/netbox/views/generic/bulk_views.py:682
 #, python-brace-format
 msgid ""
 "This import includes {count} record(s) that reference an existing object by "
@@ -15715,71 +15715,71 @@ msgid ""
 "the ID column to create new objects instead."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:744
+#: netbox/netbox/views/generic/bulk_views.py:746
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:757
+#: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:880
+#: netbox/netbox/views/generic/bulk_views.py:884
 #, python-brace-format
 msgid "Custom field form field name must begin with 'cf_': {name}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:972
+#: netbox/netbox/views/generic/bulk_views.py:976
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:988
+#: netbox/netbox/views/generic/bulk_views.py:992
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1021
-#: netbox/netbox/views/generic/bulk_views.py:1297
-#: netbox/netbox/views/generic/bulk_views.py:1345
+#: netbox/netbox/views/generic/bulk_views.py:1025
+#: netbox/netbox/views/generic/bulk_views.py:1301
+#: netbox/netbox/views/generic/bulk_views.py:1349
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1128
+#: netbox/netbox/views/generic/bulk_views.py:1132
 msgid "Select at least one field to rename."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1153
+#: netbox/netbox/views/generic/bulk_views.py:1157
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1224
+#: netbox/netbox/views/generic/bulk_views.py:1228
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1251
+#: netbox/netbox/views/generic/bulk_views.py:1255
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1269
+#: netbox/netbox/views/generic/bulk_views.py:1273
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1358
+#: netbox/netbox/views/generic/bulk_views.py:1362
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1411
+#: netbox/netbox/views/generic/bulk_views.py:1415
 msgid "An integrity error occurred while creating components"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1423
+#: netbox/netbox/views/generic/bulk_views.py:1427
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr ""
@@ -15903,9 +15903,9 @@ msgstr ""
 #: netbox/templates/generic/bulk_add_component.html:81
 #: netbox/templates/generic/bulk_delete.html:78
 #: netbox/templates/generic/bulk_edit.html:130
-#: netbox/templates/generic/bulk_import.html:66
-#: netbox/templates/generic/bulk_import.html:98
-#: netbox/templates/generic/bulk_import.html:131
+#: netbox/templates/generic/bulk_import.html:67
+#: netbox/templates/generic/bulk_import.html:99
+#: netbox/templates/generic/bulk_import.html:132
 #: netbox/templates/generic/bulk_rename.html:101
 #: netbox/templates/generic/confirmation_form.html:19
 #: netbox/templates/generic/object_edit.html:74
@@ -17151,7 +17151,7 @@ msgid ""
 msgstr ""
 
 #: netbox/templates/extras/customfield/attrs/choice_set.html:1
-#: netbox/templates/generic/bulk_import.html:179
+#: netbox/templates/generic/bulk_import.html:180
 msgid "choices"
 msgstr ""
 
@@ -17451,49 +17451,49 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:19
+#: netbox/templates/generic/bulk_import.html:20
 msgid "Bulk Import"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:25
+#: netbox/templates/generic/bulk_import.html:26
 msgid "Direct Import"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:30
+#: netbox/templates/generic/bulk_import.html:31
 msgid "Upload File"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:68
-#: netbox/templates/generic/bulk_import.html:100
-#: netbox/templates/generic/bulk_import.html:133
+#: netbox/templates/generic/bulk_import.html:69
+#: netbox/templates/generic/bulk_import.html:101
+#: netbox/templates/generic/bulk_import.html:134
 msgid "Submit"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:144
+#: netbox/templates/generic/bulk_import.html:145
 msgid "Field Options"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:150
+#: netbox/templates/generic/bulk_import.html:151
 msgid "Accessor"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:192
+#: netbox/templates/generic/bulk_import.html:193
 msgid "Import Value"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:212
+#: netbox/templates/generic/bulk_import.html:213
 msgid "Format: YYYY-MM-DD"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:214
+#: netbox/templates/generic/bulk_import.html:215
 msgid "Specify true or false"
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:226
+#: netbox/templates/generic/bulk_import.html:227
 msgid "Required fields <strong>must</strong> be specified for all objects."
 msgstr ""
 
-#: netbox/templates/generic/bulk_import.html:232
+#: netbox/templates/generic/bulk_import.html:233
 #, python-format
 msgid ""
 "Related objects may be referenced by any unique attribute. For example, "
@@ -18791,20 +18791,20 @@ msgstr ""
 msgid "Form data must be empty when uploading/selecting a file."
 msgstr ""
 
-#: netbox/utilities/forms/bulk_import.py:82
+#: netbox/utilities/forms/bulk_import.py:83
 #, python-brace-format
 msgid "Unknown data format: {format}"
 msgstr ""
 
-#: netbox/utilities/forms/bulk_import.py:102
+#: netbox/utilities/forms/bulk_import.py:103
 msgid "Unable to detect data format. Please specify."
 msgstr ""
 
-#: netbox/utilities/forms/bulk_import.py:125
+#: netbox/utilities/forms/bulk_import.py:126
 msgid "Invalid CSV delimiter"
 msgstr ""
 
-#: netbox/utilities/forms/bulk_import.py:169
+#: netbox/utilities/forms/bulk_import.py:170
 msgid ""
 "Invalid YAML data. Data must be in the form of multiple documents, or a "
 "single document comprising a list of dictionaries."
