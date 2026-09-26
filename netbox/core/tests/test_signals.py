@@ -12,6 +12,7 @@ from rq.timeouts import JobTimeoutException
 
 from core import signals
 from core.choices import DataSourceStatusChoices, JobStatusChoices, ObjectChangeActionChoices
+from core.events import OBJECT_UPDATED
 from core.exceptions import SyncError
 from core.models import AutoSyncRecord, ConfigRevision, DataFile, DataSource, ObjectChange, ObjectType
 from core.signals import _signals_received, clear_events, post_sync
@@ -64,6 +65,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         request = _build_request(self.user)
         with event_tracking(request):
             site = Site.objects.create(name='Site 1', slug='site-1')
+            event = events_queue.get()[f'dcim.site:{site.pk}']
 
         oc = ObjectChange.objects.get(
             changed_object_type=ContentType.objects.get_for_model(Site),
@@ -72,6 +74,7 @@ class HandleChangedObjectSignalTestCase(TestCase):
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
         self.assertEqual(oc.user, self.user)
         self.assertEqual(oc.request_id, request.id)
+        self.assertEqual(event['object_change_id'], oc.pk)
 
     def test_update_records_an_objectchange(self):
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -80,12 +83,14 @@ class HandleChangedObjectSignalTestCase(TestCase):
         with event_tracking(request):
             site.description = 'updated'
             site.save()
+            event = events_queue.get()[f'dcim.site:{site.pk}']
 
         ocs = ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk,
         ).order_by('-pk')
         self.assertEqual(ocs.first().action, ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(event['object_change_id'], ocs.first().pk)
 
     def test_no_request_skips_objectchange(self):
         # Saving outside a request context (no event_tracking) should not record any
@@ -100,12 +105,39 @@ class HandleChangedObjectSignalTestCase(TestCase):
 
         with event_tracking(request):
             site.tags.add(tag)
+            event = events_queue.get()[f'dcim.site:{site.pk}']
 
         oc = ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(Site),
             changed_object_id=site.pk,
         ).first()
         self.assertEqual(oc.postchange_data['tags'], ['Important'])
+        self.assertEqual(event['object_change_id'], oc.pk)
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_save_without_changes_preserves_queued_object_change_id(self):
+        request = _build_request(self.user)
+        with event_tracking(request):
+            site = Site.objects.create(name='Site 1', slug='site-1')
+            change = ObjectChange.objects.get(request_id=request.id)
+            site.snapshot()
+            site.save()
+            event = events_queue.get()[f'dcim.site:{site.pk}']
+
+        self.assertEqual(ObjectChange.objects.filter(request_id=request.id).count(), 1)
+        self.assertEqual(event['object_change_id'], change.pk)
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_save_without_changes_has_no_object_change_id(self):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        request = _build_request(self.user)
+        with event_tracking(request):
+            site.snapshot()
+            site.save()
+            event = events_queue.get()[f'dcim.site:{site.pk}']
+
+        self.assertFalse(ObjectChange.objects.filter(request_id=request.id).exists())
+        self.assertIsNone(event['object_change_id'])
 
 
 class HandleDeletedObjectSignalTestCase(TestCase):
@@ -131,10 +163,12 @@ class HandleDeletedObjectSignalTestCase(TestCase):
 
         with event_tracking(request):
             site.delete()
+            event = events_queue.get()[f'dcim.site:{site_pk}']
 
         oc = ObjectChange.objects.get(changed_object_type=site_type, changed_object_id=site_pk)
         self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_DELETE)
         self.assertIsNone(oc.postchange_data)
+        self.assertEqual(event['object_change_id'], oc.pk)
 
     @override_settings(PROTECTION_RULES={'dcim.site': [CustomValidator({'name': {'neq': 'protected'}})]})
     def test_protection_rule_violation_aborts_deletion(self):
@@ -644,7 +678,7 @@ class HandleChangedObjectDirectHandlerTestCase(SimpleTestCase):
         objectchange.save.assert_not_called()
         # … but metric counters and event enqueueing still run.
         update_metric.inc.assert_called_once_with()
-        enqueue_event.assert_called_once()
+        enqueue_event.assert_called_once_with({}, instance, request, OBJECT_UPDATED, object_change_id=None)
 
     def test_m2m_change_updates_existing_objectchange_in_same_request(self):
         request = SimpleNamespace(id='request-id', user='alice')
@@ -664,7 +698,7 @@ class HandleChangedObjectDirectHandlerTestCase(SimpleTestCase):
             patch.object(signals, 'events_queue', events_queue_mock),
             patch.object(signals, 'ObjectChange', objectchange_model),
             patch.object(signals, 'ContentType', content_type_model),
-            patch.object(signals, 'enqueue_event'),
+            patch.object(signals, 'enqueue_event') as enqueue_event,
             patch.object(signals.model_updates, 'labels', return_value=MagicMock()),
         ):
             signals.handle_changed_object(
@@ -679,6 +713,9 @@ class HandleChangedObjectDirectHandlerTestCase(SimpleTestCase):
         previous_change.save.assert_called_once_with()
         objectchange.save.assert_not_called()
         instance.refresh_from_db.assert_called_once_with()
+        enqueue_event.assert_called_once_with(
+            {}, instance, request, OBJECT_UPDATED, object_change_id=previous_change.pk
+        )
 
 
 class HandleDeletedObjectDirectHandlerTestCase(SimpleTestCase):

@@ -39,6 +39,10 @@ A dotted namespace prefix (e.g. `my_plugin.open_ticket`) is strongly recommended
 !!! warning "Actions must be stateless"
     Registration instantiates the class once, and that single instance serves every event rule, request, and background worker thread for the lifetime of the process. Do not stash per-event data on `self` in `enqueue()` or `validate()` -- concurrent dispatches would race over it. Everything an action needs is passed in as an argument.
 
+## Event Context
+
+The `event_context` passed to `enqueue()` includes `object_change_id` for object change events: the integer ID of the corresponding `ObjectChange`, or `None` if no change was recorded. Other event types may omit this key. Custom publishers (including SNS actions) should carry `event_context.get('object_change_id')` in their queued payload and outgoing message so retries preserve the original ID. For combined events, see [Changelog IDs and Combined Events](../../integrations/webhooks.md#changelog-ids-and-combined-events).
+
 ## Target Objects
 
 If an action operates against a specific object (e.g. a webhook targets a `Webhook` instance, and a script targets a `Script` instance), set `object_model` to the relevant model class. NetBox uses this to render the object-selection field on the event rule form and to validate the selected object's type. `object_required` defaults to `False` (matching `object_model`'s default of `None`); set it to `True` alongside `object_model` if the target object must always be selected. (Setting `object_required` *without* an `object_model` raises `ImproperlyConfigured` at registration, as it could never be satisfied.) Override `get_object_queryset()` to customize which objects are eligible for selection (e.g. to filter or further restrict the queryset).

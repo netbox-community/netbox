@@ -135,6 +135,7 @@ def handle_changed_object(sender, instance, **kwargs):
         OBJECT_DELETED: ObjectChangeActionChoices.ACTION_DELETE,
     }[event_type]
     objectchange = instance.to_objectchange(action)
+    object_change_id = None
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
     if m2m_changed and (
@@ -146,10 +147,12 @@ def handle_changed_object(sender, instance, **kwargs):
     ):
         prev_change.postchange_data = objectchange.postchange_data
         prev_change.save()
+        object_change_id = prev_change.pk
     elif objectchange and objectchange.has_changes:
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()
+        object_change_id = objectchange.pk
 
     # Ensure that we're working with fresh M2M assignments
     if m2m_changed:
@@ -157,7 +160,7 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request, event_type)
+    enqueue_event(queue, instance, request, event_type, object_change_id=object_change_id)
     events_queue.set(queue)
 
     # Increment metric counters
@@ -200,6 +203,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     _signals_received.pre_delete.add(signature)
 
     # Record an ObjectChange if applicable
+    object_change_id = None
     if hasattr(instance, 'to_objectchange'):
         if hasattr(instance, 'snapshot') and not getattr(instance, '_prechange_snapshot', None):
             instance.snapshot()
@@ -207,6 +211,7 @@ def handle_deleted_object(sender, instance, **kwargs):
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()
+        object_change_id = objectchange.pk
 
     # Django does not automatically send an m2m_changed signal for the reverse direction of a
     # many-to-many relationship (see https://code.djangoproject.com/ticket/17688), so we need to
@@ -257,7 +262,7 @@ def handle_deleted_object(sender, instance, **kwargs):
 
     # Enqueue the object for event processing
     queue = events_queue.get()
-    enqueue_event(queue, instance, request, OBJECT_DELETED)
+    enqueue_event(queue, instance, request, OBJECT_DELETED, object_change_id=object_change_id)
     events_queue.set(queue)
 
     # Increment metric counters

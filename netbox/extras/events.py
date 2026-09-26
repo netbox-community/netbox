@@ -106,11 +106,12 @@ def get_snapshots(instance, event_type):
     }
 
 
-def enqueue_event(queue, instance, request, event_type):
+def enqueue_event(queue, instance, request, event_type, object_change_id=None):
     """
     Enqueue (or coalesce) an event for a created/updated/deleted object.
 
-    Events are processed after the request completes.
+    Events are processed after the request completes. object_change_id identifies the saved
+    ObjectChange for the latest queued state, including when events are coalesced.
     """
     # Bail if this type of object does not support event rules
     if not has_feature(instance, 'event_rules'):
@@ -130,6 +131,9 @@ def enqueue_event(queue, instance, request, event_type):
 
     if key in queue:
         queue[key]['snapshots']['postchange'] = get_snapshots(instance, event_type)['postchange']
+        # A save without changes creates no ObjectChange; retain the last recorded ID.
+        if object_change_id is not None:
+            queue[key]['object_change_id'] = object_change_id
 
         # If the object is being deleted, convert any prior update event into a
         # delete event and freeze the payload before the object (or related
@@ -145,6 +149,7 @@ def enqueue_event(queue, instance, request, event_type):
             object_id=instance.pk,
             object=instance,
             event_type=event_type,
+            object_change_id=object_change_id,
             snapshots=get_snapshots(instance, event_type),
             request=request,
             user=request.user,
