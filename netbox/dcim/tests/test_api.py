@@ -106,6 +106,9 @@ class RegionTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'comments': 'New comments',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -138,6 +141,9 @@ class SiteGroupTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
         'comments': 'I do exist!',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -973,6 +979,9 @@ class LocationTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
     user_permissions = ('dcim.view_site',)
     graphql_filter_tests = (
         GraphQLFilterTest(
@@ -1095,6 +1104,9 @@ class RackGroupTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1130,6 +1142,9 @@ class RackRoleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1149,6 +1164,9 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'new description',
         'cooling_capability': RackCoolingCapabilityChoices.CAPABILITY_HYBRID,
         'cooling_capacity': 50,
+    }
+    bulk_update_invalid_data = {
+        'form_factor': 'not-a-valid-form-factor',
     }
     user_permissions = ('dcim.view_manufacturer',)
 
@@ -1234,6 +1252,9 @@ class RackTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_site', )
 
@@ -1361,6 +1382,9 @@ class RackReservationTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
+    }
     user_permissions = ('dcim.view_rack', 'users.view_user')
 
     @classmethod
@@ -1450,6 +1474,9 @@ class ManufacturerTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1468,6 +1495,9 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'part_number': 'ABC123',
         'end_of_life': '2030-01-01',
+    }
+    bulk_update_invalid_data = {
+        'airflow': 'not-a-valid-airflow',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -1516,6 +1546,9 @@ class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'part_number': 'ABC123',
         'end_of_life': '2030-01-01',
+    }
+    bulk_update_invalid_data = {
+        'airflow': 'not-a-valid-airflow',
     }
     user_permissions = ('dcim.view_manufacturer', )
 
@@ -1606,6 +1639,9 @@ class ModuleTypeProfileTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
         'comments': 'New comments',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1631,6 +1667,9 @@ class ModuleBayTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['color', 'description', 'display', 'id', 'manufacturer', 'name', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
     }
 
     @classmethod
@@ -1672,6 +1711,9 @@ class ConsolePortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
     }
 
     @classmethod
@@ -1717,6 +1759,9 @@ class ConsoleServerPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1761,6 +1806,9 @@ class PowerPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1804,6 +1852,9 @@ class PowerOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
     }
     user_permissions = ('dcim.view_devicetype', )
 
@@ -1862,6 +1913,9 @@ class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'poe_mode': 'not-a-valid-poe-mode',
     }
 
     @classmethod
@@ -1927,6 +1981,9 @@ class FrontPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
     }
     user_permissions = ('dcim.view_rearporttemplate', )
 
@@ -2045,6 +2102,9 @@ class RearPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -2161,6 +2221,9 @@ class ModuleBayTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'device_type': 99999,
+    }
     user_permissions = ('dcim.view_devicetype', )
 
     @classmethod
@@ -2213,6 +2276,9 @@ class DeviceBayTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'device_type': 99999,
+    }
     user_permissions = ('dcim.view_devicetype', )
 
     @classmethod
@@ -2254,6 +2320,9 @@ class InventoryItemTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'role': 99999,
     }
     user_permissions = ('dcim.view_devicetype', 'dcim.view_manufacturer',)
 
@@ -2334,6 +2403,9 @@ class DeviceRoleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -2365,6 +2437,9 @@ class PlatformTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -2383,6 +2458,9 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'failed',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = (
         'dcim.view_site', 'dcim.view_rack', 'dcim.view_location', 'dcim.view_devicerole', 'dcim.view_devicetype',
@@ -2842,6 +2920,9 @@ class ModuleTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device', 'display', 'id', 'module_bay', 'module_type', 'url']
     bulk_update_data = {
         'serial': '1234ABCD',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = (
         'dcim.view_modulebay', 'dcim.view_moduletype', 'dcim.view_moduletypeprofile', 'dcim.view_device'
@@ -3339,6 +3420,9 @@ class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
     peer_termination_type = ConsoleServerPort
     user_permissions = ('dcim.view_device', )
 
@@ -3381,6 +3465,9 @@ class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.API
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
     }
     peer_termination_type = ConsolePort
     user_permissions = ('dcim.view_device', )
@@ -3425,6 +3512,9 @@ class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
     peer_termination_type = PowerOutlet
     user_permissions = ('dcim.view_device', )
 
@@ -3464,6 +3554,9 @@ class PowerOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     peer_termination_type = PowerPort
     user_permissions = ('dcim.view_device', )
@@ -3513,6 +3606,9 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'poe_mode': 'not-a-valid-poe-mode',
     }
     peer_termination_type = Interface
     user_permissions = ('dcim.view_device', )
@@ -4073,6 +4169,9 @@ class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
     peer_termination_type = Interface
     user_permissions = ('dcim.view_device', 'dcim.view_rearport')
 
@@ -4192,6 +4291,9 @@ class RearPortTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
     peer_termination_type = Interface
     user_permissions = ('dcim.view_device', )
 
@@ -4307,6 +4409,9 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_occupied', 'description', 'display', 'enabled', 'id', 'installed_module', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
     user_permissions = ('dcim.view_device', )
 
@@ -4439,6 +4544,9 @@ class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
     user_permissions = ('dcim.view_device', )
 
     @classmethod
@@ -4502,6 +4610,9 @@ class InventoryItemTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_depth', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_device', 'dcim.view_manufacturer')
 
@@ -4587,6 +4698,9 @@ class InventoryItemRoleTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'color': 'not-a-color',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -4609,6 +4723,9 @@ class CableBundleTestCase(APIViewTestCases.APIViewTestCase):
     ]
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
@@ -4659,6 +4776,9 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'length': 100,
         'length_unit': 'm',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     # TODO: Allow updating cable terminations
@@ -5116,6 +5236,9 @@ class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
             'domain': 'newdomain',
             'master': None
         }
+        cls.bulk_update_invalid_data = {
+            'owner': 99999,
+        }
 
 
 class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
@@ -5166,6 +5289,9 @@ class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
             'site': sites[1].pk,
             'location': locations[3].pk
         }
+        cls.bulk_update_invalid_data = {
+            'owner': 99999,
+        }
 
 
 class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
@@ -5173,6 +5299,9 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_powerpanel', )
 
@@ -5230,6 +5359,9 @@ class CoolingIntakeTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -5274,6 +5406,9 @@ class CoolingOutflowTemplateTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
     }
     user_permissions = ('dcim.view_devicetype', )
 
@@ -5334,6 +5469,9 @@ class CoolingIntakeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
+    }
     user_permissions = ('dcim.view_device', )
 
     @classmethod
@@ -5377,6 +5515,9 @@ class CoolingOutflowTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'type': 'not-a-valid-type',
     }
     user_permissions = ('dcim.view_device', )
 
@@ -5481,6 +5622,9 @@ class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
             'site': sites[1].pk,
             'location': locations[3].pk
         }
+        cls.bulk_update_invalid_data = {
+            'status': 'not-a-valid-status',
+        }
 
 
 class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
@@ -5488,6 +5632,9 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_coolingsource', )
 
@@ -5549,6 +5696,9 @@ class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'device', 'display', 'id', 'identifier', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -5672,6 +5822,9 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'mac_address', 'url']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'owner': 99999,
     }
 
     @classmethod
