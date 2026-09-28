@@ -87,6 +87,46 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
     return difference
 
 
+def shallow_compare_list(source_list, destination_list):
+    """
+    Return a two-tuple of lists (added, removed) representing the difference between source_list
+    and destination_list.
+    """
+    m = len(source_list)
+    n = len(destination_list)
+
+    lcs_table = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # bottom up longest common subsequence
+    for i in range(m - 1, -1, -1):
+        for j in range(n - 1, -1, -1):
+            if source_list[i] == destination_list[j]:
+                lcs_table[i][j] = 1 + lcs_table[i + 1][j + 1]
+            else:
+                lcs_table[i][j] = max(lcs_table[i + 1][j], lcs_table[i][j + 1])
+
+    removed = []
+    added = []
+    i = 0
+    j = 0
+    # reconstruct the added and removed elements
+    while i < m and j < n:
+        if source_list[i] == destination_list[j]:
+            i += 1
+            j += 1
+        elif lcs_table[i + 1][j] >= lcs_table[i][j + 1]:
+            removed.append(source_list[i])
+            i += 1
+        else:
+            added.append(destination_list[j])
+            j += 1
+
+    removed.extend(source_list[i:])
+    added.extend(destination_list[j:])
+
+    return added, removed
+
+
 def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
     """
     Return a two-tuple of dictionaries (added, removed) representing the differences between source_dict and
@@ -111,8 +151,7 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
                 added[key] = sub_added
                 removed[key] = sub_removed
         elif isinstance(src_val, list) and isinstance(dst_val, list):
-            added[key] = [elm for elm in dst_val if elm not in src_val]
-            removed[key] = [elm for elm in src_val if elm not in dst_val]
+            added[key], removed[key] = shallow_compare_list(src_val, dst_val)
         else:
             added[key] = dst_val
             removed[key] = src_val
