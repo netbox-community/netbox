@@ -13,7 +13,7 @@
     </div>
   </h2>
   <div class="card-body">
-    {% if diff_added == diff_removed %}
+    {% if not diff_added and not diff_removed %}
       <span class="text-muted" style="margin-left: 10px;">
         {% if object.action == 'create' %}
           {% trans "Object Created" %}
