@@ -1,5 +1,45 @@
 # System Parameters
 
+## ABORT_ON_CLIENT_DISCONNECT
+
+!!! info "New in NetBox v4.8"
+
+Default: `False`
+
+When enabled, NetBox watches the client connection for the duration of each read-only request. If the client disconnects before the response has been sent, the database queries that request has in flight are cancelled, returning the worker and its database connections to their pools at the moment the client gives up rather than when the request would otherwise have completed.
+
+This is intended for deployments serving automated API consumers which set aggressive client-side timeouts and retry on failure. WSGI provides no cancellation mechanism, so a worker normally runs an abandoned request to completion and discovers the disconnect only when it attempts to write the response. Each retry therefore adds another orphaned request on top of the one already running, and a single impatient client can saturate every worker and every database connection. Aborting on disconnect caps this at roughly one orphaned request per client.
+
+Every database connection opened by the request is cancelled, not only the connection to the default database. Any open transaction is rolled back, and the affected connections are closed rather than being returned to a persistent connection pool.
+
+Aborted requests are recorded in the `netbox.disconnect` log at the `INFO` level, with the request ID, method, path, elapsed time, and client IP address. When [`METRICS_ENABLED`](./miscellaneous.md#metrics_enabled) is also set, they are counted by the `netbox_client_disconnects_total` metric, labelled by method and view.
+
+!!! warning "Limitations"
+    * Locating the client connection is WSGI server-specific, and only gunicorn and uWSGI are supported. Under the development server (`runserver`) or any other WSGI server, this parameter has no effect: NetBox logs an informational message once per worker process and serves requests exactly as it would with the parameter disabled.
+    * Under uWSGI, the watchdog runs in a Python thread and so requires uWSGI's `enable-threads` option. The configuration shipped in `contrib/uwsgi.ini` sets it, but a copy of that file made from an earlier NetBox release will not, and the watchdog will not run.
+    * Only requests using the `GET`, `HEAD`, and `OPTIONS` methods are watched. Cancelling a `POST`, `PUT`, `PATCH`, or `DELETE` which the client had abandoned would silently roll back a write that client may believe has landed, so requests using unsafe methods always run to completion.
+    * What is observed is the connection from the reverse proxy to NetBox, not the client's own connection. Whether a client abort reaches NetBox is therefore the proxy's decision: nginx propagates it by default, but `proxy_ignore_client_abort on` (or `uwsgi_ignore_client_abort on`) suppresses it.
+    * Cancellation applies to database queries, not to the request as a whole. A request which has finished querying and is busy rendering a template or serializing a response is not interrupted, and neither are streaming exports (see [`STREAMING_EXPORTS`](./miscellaneous.md#streaming_exports)), whose response begins before their content is generated.
+    * GraphQL requests are protected in that their queries are still cancelled and their connections still discarded, but the GraphQL layer reports the resulting error in its own response body rather than as an HTTP 499.
+    * NetBox returns a synthetic `499 Client Closed Request` for an aborted request. This response is never delivered to anyone, as the client has already disconnected; it exists to keep the cancellation out of NetBox's exception handling, so that error-reporting integrations are not flooded with self-inflicted HTTP 500 reports.
+
+A related but distinct control is PostgreSQL's `statement_timeout`, which can be applied to NetBox's database connections via [`DATABASES`](./required-parameters.md#databases):
+
+```python
+DATABASES = {
+    'default': {
+        # ...
+        'OPTIONS': {
+            'options': '-c statement_timeout=30000',  # 30 seconds
+        },
+    }
+}
+```
+
+This imposes a fixed ceiling on every query rather than cancelling only those which nobody is waiting for: it cannot distinguish a legitimately slow query from an orphaned one, and it does not shorten the window during which a worker is occupied by an abandoned request. The two are complementary, and a `statement_timeout` remains a sensible backstop whether or not this parameter is enabled.
+
+---
+
 ## BASE_PATH
 
 Default: `None`
