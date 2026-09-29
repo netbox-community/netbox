@@ -1,23 +1,28 @@
 # NetBox v4.7
 
-## v4.7.2 (FUTURE)
+## v4.7.2 (2026-09-29)
 
 !!! warning "API Tokens Created by Background Bulk Requests"
-    NetBox v4.7.0 and v4.7.1 accepted `background=true` on a bulk write to the `/api/users/tokens/` endpoint, and recorded each created token's plaintext in the job's result. Any user permitted to view those jobs (`core.view_job`, subject to object permissions) could read it.
+    NetBox v4.7.0 and v4.7.1 recorded the plaintext of API tokens created via background bulk requests in the job results, where they were readable by any user permitted to view jobs. This release rejects such requests; any tokens created this way should be considered exposed and replaced. See [#23196](https://github.com/netbox-community/netbox/issues/23196) for details.
 
-    This release rejects background bulk creations, updates, and deletions on that endpoint with an `HTTP 400` response. A token job queued before the upgrade is rejected the same way when an upgraded worker picks it up. Integrations which set `background=true` on these operations must drop the parameter. Synchronous writes are unaffected.
+### Enhancements
 
-    This does not remove the plaintexts already recorded, and it does not revoke the affected tokens. Treat a token created this way as potentially exposed. After upgrading and restarting the workers, revoke and replace the affected tokens, then delete the job records which captured them.
+* [#21879](https://github.com/netbox-community/netbox/issues/21879) - Introduce the `Cable.update_dependent_objects()` hook to rebuild cable paths and related attributes after writes which bypass `save()`
+* [#22886](https://github.com/netbox-community/netbox/issues/22886) - Include VLANs assigned via VLAN groups scoped to a site (or its site group) among the site's related objects
+* [#22949](https://github.com/netbox-community/netbox/issues/22949) - Focus and scroll to the first field with a validation error when a form fails validation
+* [#23095](https://github.com/netbox-community/netbox/issues/23095) - Display the compatible module types for a module bay type in a dedicated, sortable, and paginated table
 
-    Job names are localized to the requesting user's language, so identify candidate records by their stored result instead:
+### Bug Fixes
 
-    ```no-highlight
-    SELECT id, name, created
-    FROM core_job
-    WHERE jsonb_path_exists(data, '$.data[*].token ? (@ != null)');
-    ```
-
-    The query returns job metadata only, never the stored values. Confirm that a match really holds an API token response before deleting it, as an unrelated result may also carry a `token` field. An empty result does not rule out earlier exposure, because the affected records may already have been deleted. Deleting the records does not invalidate the tokens.
+* [#23122](https://github.com/netbox-community/netbox/issues/23122) - Prevent the failure to automatically sync one object from skipping the sync of subsequent objects
+* [#23150](https://github.com/netbox-community/netbox/issues/23150) - Preserve the parent device type assignment when using "Create & Add Another" to add component templates
+* [#23160](https://github.com/netbox-community/netbox/issues/23160) - Record a change log entry for each terminating object when a cable is deleted
+* [#23181](https://github.com/netbox-community/netbox/issues/23181) - Restore the display of the cluster group in the virtual machine detail view
+* [#23187](https://github.com/netbox-community/netbox/issues/23187) - Permit the assignment of a data file when creating an export template via the REST API
+* [#23195](https://github.com/netbox-community/netbox/issues/23195) - Validate the `return_url` parameter used for the cancel button on the IP address assignment view
+* [#23196](https://github.com/netbox-community/netbox/issues/23196) - Ensure plaintext API tokens are never recorded in background job results (see the warning above)
+* [#23197](https://github.com/netbox-community/netbox/issues/23197) - Enforce object permission constraints on the REST API `sync` action for synced data models
+* [#23203](https://github.com/netbox-community/netbox/issues/23203) - Fix the population of the related objects panel for owners
 
 ---
 

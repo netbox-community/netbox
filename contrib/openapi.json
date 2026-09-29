@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.7.1",
+        "version": "4.7.2",
         "license": {
             "name": "Apache v2 License"
         }
@@ -209943,6 +209943,30 @@
                     },
                     {
                         "in": "query",
+                        "name": "related_to_site",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "related_to_site__n",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "role",
                         "schema": {
                             "type": "array",
@@ -270517,7 +270541,7 @@
             },
             "Bookmark": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -270567,7 +270591,7 @@
             },
             "BookmarkRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -271505,7 +271529,7 @@
             },
             "BriefCoolingIntakeTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -271539,7 +271563,7 @@
             },
             "BriefCoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -272042,7 +272066,7 @@
             },
             "BriefGroup": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -273271,7 +273295,7 @@
             },
             "BriefObjectPermission": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -273323,7 +273347,7 @@
             },
             "BriefOwner": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -273356,7 +273380,7 @@
             },
             "BriefOwnerGroup": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -273389,7 +273413,7 @@
             },
             "BriefOwnerGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -273407,7 +273431,7 @@
             },
             "BriefOwnerRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -273640,7 +273664,7 @@
             },
             "BriefPowerPortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -273674,7 +273698,7 @@
             },
             "BriefPowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -274815,7 +274839,7 @@
             },
             "BriefUser": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -274846,7 +274870,7 @@
             },
             "BriefUserRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "username": {
                         "type": "string",
@@ -275950,7 +275974,7 @@
             },
             "BulkBookmarkRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -277366,7 +277390,7 @@
             },
             "BulkConsolePortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -277573,7 +277597,7 @@
             },
             "BulkConsoleServerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -278229,7 +278253,7 @@
             },
             "BulkCoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -278482,7 +278506,7 @@
             },
             "BulkCoolingOutflowTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -279279,7 +279303,7 @@
             },
             "BulkDeviceBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -280120,6 +280144,10 @@
                             }
                         ]
                     },
+                    "auto_sync_enabled": {
+                        "type": "boolean",
+                        "description": "Enable automatic synchronization of data when the data file is updated"
+                    },
                     "owner": {
                         "oneOf": [
                             {
@@ -280453,7 +280481,7 @@
             },
             "BulkFrontPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -280608,7 +280636,7 @@
             },
             "BulkGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -281375,7 +281403,7 @@
             },
             "BulkImageAttachmentRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -282196,7 +282224,7 @@
             },
             "BulkInterfaceTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -282782,7 +282810,7 @@
             },
             "BulkInventoryItemTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -283434,7 +283462,7 @@
             },
             "BulkModuleBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -283907,7 +283935,7 @@
             },
             "BulkNotificationGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -283941,7 +283969,7 @@
             },
             "BulkNotificationRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -283996,7 +284024,7 @@
             },
             "BulkObjectPermissionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -284096,7 +284124,7 @@
             },
             "BulkOwnerGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -284118,7 +284146,7 @@
             },
             "BulkOwnerRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -284665,7 +284693,7 @@
             },
             "BulkPowerOutletTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -285169,7 +285197,7 @@
             },
             "BulkPowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -286697,7 +286725,7 @@
             },
             "BulkRearPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -287522,7 +287550,7 @@
             },
             "BulkSubscriptionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -287556,7 +287584,7 @@
             },
             "BulkTableConfigRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -287807,7 +287835,7 @@
             },
             "BulkTokenRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -288132,7 +288160,7 @@
             },
             "BulkUserRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -292757,7 +292785,12 @@
                         "description": "Path to remote file (relative to data source root)"
                     },
                     "data_file": {
-                        "$ref": "#/components/schemas/BriefDataFile"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BriefDataFile"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "data_synced": {
                         "type": "string",
@@ -292853,7 +292886,12 @@
                         "description": "Path to remote file (relative to data source root)"
                     },
                     "data_file": {
-                        "$ref": "#/components/schemas/BriefDataFile"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BriefDataFile"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "data_synced": {
                         "type": "string",
@@ -293164,7 +293202,12 @@
                         "description": "Path to remote file (relative to data source root)"
                     },
                     "data_file": {
-                        "$ref": "#/components/schemas/BriefDataFile"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BriefDataFile"
+                            }
+                        ],
+                        "nullable": true
                     },
                     "auto_sync_enabled": {
                         "type": "boolean",
@@ -293662,7 +293705,7 @@
             },
             "ConsolePortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -293779,7 +293822,7 @@
             },
             "ConsolePortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -294213,7 +294256,7 @@
             },
             "ConsoleServerPortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -294330,7 +294373,7 @@
             },
             "ConsoleServerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -295718,7 +295761,7 @@
             },
             "CoolingIntakeTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -295889,7 +295932,7 @@
             },
             "CoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -296298,7 +296341,7 @@
             },
             "CoolingOutflowTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -296443,7 +296486,7 @@
             },
             "CoolingOutflowTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -298799,7 +298842,7 @@
             },
             "DeviceBayTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -298859,7 +298902,7 @@
             },
             "DeviceBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -300293,7 +300336,11 @@
                                 "$ref": "#/components/schemas/BriefDataFile"
                             }
                         ],
-                        "readOnly": true
+                        "nullable": true
+                    },
+                    "auto_sync_enabled": {
+                        "type": "boolean",
+                        "description": "Enable automatic synchronization of data when the data file is updated"
                     },
                     "data_synced": {
                         "type": "string",
@@ -300325,7 +300372,6 @@
                 },
                 "required": [
                     "created",
-                    "data_file",
                     "data_path",
                     "data_synced",
                     "display",
@@ -300395,6 +300441,10 @@
                                 "$ref": "#/components/schemas/BriefDataSourceRequest"
                             }
                         ]
+                    },
+                    "auto_sync_enabled": {
+                        "type": "boolean",
+                        "description": "Enable automatic synchronization of data when the data file is updated"
                     },
                     "owner": {
                         "oneOf": [
@@ -301244,7 +301294,7 @@
             },
             "FrontPortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -301523,7 +301573,7 @@
             },
             "FrontPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -301711,7 +301761,7 @@
             },
             "Group": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -301761,7 +301811,7 @@
             },
             "GroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -303635,7 +303685,7 @@
             },
             "ImageAttachment": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -303717,7 +303767,7 @@
             },
             "ImageAttachmentRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -305930,7 +305980,7 @@
             },
             "InterfaceTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -306600,7 +306650,7 @@
             },
             "InterfaceTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -307436,7 +307486,7 @@
             },
             "InventoryItemTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -307540,7 +307590,7 @@
             },
             "InventoryItemTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -309286,7 +309336,7 @@
             },
             "ModuleBayTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -309369,7 +309419,7 @@
             },
             "ModuleBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -311489,7 +311539,7 @@
             },
             "Notification": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -311560,7 +311610,7 @@
             },
             "NotificationGroup": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -311611,7 +311661,7 @@
             },
             "NotificationGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -311641,7 +311691,7 @@
             },
             "NotificationRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -311809,7 +311859,7 @@
             },
             "ObjectPermission": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -311883,7 +311933,7 @@
             },
             "ObjectPermissionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -312015,7 +312065,7 @@
             },
             "Owner": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -312075,7 +312125,7 @@
             },
             "OwnerGroup": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -312120,7 +312170,7 @@
             },
             "OwnerGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -312138,7 +312188,7 @@
             },
             "OwnerRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -316713,7 +316763,7 @@
             },
             "PatchedBookmarkRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -317018,7 +317068,7 @@
             },
             "PatchedBulkBookmarkRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -318405,7 +318455,7 @@
             },
             "PatchedBulkConsolePortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -318609,7 +318659,7 @@
             },
             "PatchedBulkConsoleServerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -319252,7 +319302,7 @@
             },
             "PatchedBulkCoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -319502,7 +319552,7 @@
             },
             "PatchedBulkCoolingOutflowTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -320281,7 +320331,7 @@
             },
             "PatchedBulkDeviceBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -321108,6 +321158,10 @@
                             }
                         ]
                     },
+                    "auto_sync_enabled": {
+                        "type": "boolean",
+                        "description": "Enable automatic synchronization of data when the data file is updated"
+                    },
                     "owner": {
                         "oneOf": [
                             {
@@ -321429,7 +321483,7 @@
             },
             "PatchedBulkFrontPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -321582,7 +321636,7 @@
             },
             "PatchedBulkGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -322333,7 +322387,7 @@
             },
             "PatchedBulkImageAttachmentRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -323148,7 +323202,7 @@
             },
             "PatchedBulkInterfaceTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -323728,7 +323782,7 @@
             },
             "PatchedBulkInventoryItemTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324361,7 +324415,7 @@
             },
             "PatchedBulkModuleBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324825,7 +324879,7 @@
             },
             "PatchedBulkNotificationGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324858,7 +324912,7 @@
             },
             "PatchedBulkNotificationRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324909,7 +324963,7 @@
             },
             "PatchedBulkObjectPermissionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324964,7 +325018,7 @@
             },
             "PatchedBulkOwnerGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -324985,7 +325039,7 @@
             },
             "PatchedBulkOwnerRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -325524,7 +325578,7 @@
             },
             "PatchedBulkPowerOutletTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -326023,7 +326077,7 @@
             },
             "PatchedBulkPowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -327524,7 +327578,7 @@
             },
             "PatchedBulkRearPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -328330,7 +328384,7 @@
             },
             "PatchedBulkSubscriptionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -328361,7 +328415,7 @@
             },
             "PatchedBulkTableConfigRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -328602,7 +328656,7 @@
             },
             "PatchedBulkTokenRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -328918,7 +328972,7 @@
             },
             "PatchedBulkUserRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer"
@@ -331830,7 +331884,7 @@
             },
             "PatchedDeviceBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -331919,6 +331973,10 @@
                                 "$ref": "#/components/schemas/BriefDataSourceRequest"
                             }
                         ]
+                    },
+                    "auto_sync_enabled": {
+                        "type": "boolean",
+                        "description": "Enable automatic synchronization of data when the data file is updated"
                     },
                     "owner": {
                         "oneOf": [
@@ -332050,7 +332108,7 @@
             },
             "PatchedGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -332071,7 +332129,7 @@
             },
             "PatchedImageAttachmentRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -332154,7 +332212,7 @@
             },
             "PatchedInventoryItemTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -332478,7 +332536,7 @@
             },
             "PatchedModuleBayTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -332671,7 +332729,7 @@
             },
             "PatchedNotificationGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -332698,7 +332756,7 @@
             },
             "PatchedNotificationRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -332743,7 +332801,7 @@
             },
             "PatchedObjectPermissionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -332792,7 +332850,7 @@
             },
             "PatchedOwnerGroupRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -332807,7 +332865,7 @@
             },
             "PatchedOwnerRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "name": {
                         "type": "string",
@@ -333437,7 +333495,7 @@
             },
             "PatchedScriptModuleRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "file": {
                         "type": "string",
@@ -333448,7 +333506,7 @@
             },
             "PatchedSubscriptionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -333473,7 +333531,7 @@
             },
             "PatchedTableConfigRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -333632,7 +333690,7 @@
             },
             "PatchedTokenRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "version": {
                         "enum": [
@@ -333738,7 +333796,7 @@
             },
             "PatchedUserRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "username": {
                         "type": "string",
@@ -335062,7 +335120,7 @@
             },
             "PatchedWritableConsolePortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -335260,7 +335318,7 @@
             },
             "PatchedWritableConsoleServerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -335720,7 +335778,7 @@
             },
             "PatchedWritableCoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -335958,7 +336016,7 @@
             },
             "PatchedWritableCoolingOutflowTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -337410,7 +337468,7 @@
             },
             "PatchedWritableFrontPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -339040,7 +339098,7 @@
             },
             "PatchedWritableInterfaceTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -340507,7 +340565,7 @@
             },
             "PatchedWritablePowerOutletTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -340918,7 +340976,7 @@
             },
             "PatchedWritablePowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -342011,7 +342069,7 @@
             },
             "PatchedWritableRearPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -345380,7 +345438,7 @@
             },
             "PowerOutletTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -345716,7 +345774,7 @@
             },
             "PowerOutletTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -346698,7 +346756,7 @@
             },
             "PowerPortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -347013,7 +347071,7 @@
             },
             "PowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -350459,7 +350517,7 @@
             },
             "RearPortTemplate": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -350738,7 +350796,7 @@
             },
             "RearPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -351556,7 +351614,7 @@
             },
             "Script": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -351621,7 +351679,7 @@
             },
             "ScriptDetail": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -351719,7 +351777,7 @@
             },
             "ScriptModule": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -351755,7 +351813,7 @@
             },
             "ScriptModuleRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "file": {
                         "type": "string",
@@ -352726,7 +352784,7 @@
             },
             "Subscription": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -352776,7 +352834,7 @@
             },
             "SubscriptionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -352806,7 +352864,7 @@
             },
             "TableConfig": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -352899,7 +352957,7 @@
             },
             "TableConfigRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "object_type": {
                         "type": "string"
@@ -353510,7 +353568,7 @@
             },
             "Token": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -353602,7 +353660,7 @@
             },
             "TokenProvision": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -353691,7 +353749,7 @@
             },
             "TokenProvisionRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "version": {
                         "enum": [
@@ -353739,7 +353797,7 @@
             },
             "TokenRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "version": {
                         "enum": [
@@ -354409,7 +354467,7 @@
             },
             "User": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -354494,7 +354552,7 @@
             },
             "UserRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "username": {
                         "type": "string",
@@ -359593,7 +359651,7 @@
             },
             "WritableConsolePortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -359798,7 +359856,7 @@
             },
             "WritableConsoleServerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -360278,7 +360336,7 @@
             },
             "WritableCoolingIntakeTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -360523,7 +360581,7 @@
             },
             "WritableCoolingOutflowTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -362021,7 +362079,7 @@
             },
             "WritableFrontPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -363688,7 +363746,7 @@
             },
             "WritableInterfaceTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -365199,7 +365257,7 @@
             },
             "WritablePowerOutletTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -365617,7 +365675,7 @@
             },
             "WritablePowerPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
@@ -366737,7 +366795,7 @@
             },
             "WritableRearPortTemplateRequest": {
                 "type": "object",
-                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)",
+                "description": "Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during\nvalidation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)\n\nSerializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values\nmust reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()\nwrote.",
                 "properties": {
                     "device_type": {
                         "oneOf": [
