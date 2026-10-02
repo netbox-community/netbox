@@ -256,6 +256,34 @@ class ModuleTypeFormTestCase(TestCase):
             self.assertFalse(form.is_valid())
         self.assertIn('attr_offset', form.errors)
 
+    def test_numeric_enum_attribute_is_saved_as_a_number(self):
+        profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 3',
+            schema={
+                'properties': {
+                    'slots': {
+                        'title': 'Slots',
+                        'type': 'integer',
+                        'enum': [0, 1, 2],
+                    },
+                },
+            },
+        )
+        for value in (0, 1):
+            with self.subTest(value=value):
+                form = ModuleTypeForm(data={
+                    'manufacturer': self.manufacturer.pk,
+                    'model': f'Module Type {value}',
+                    'profile': profile.pk,
+                    'attr_slots': str(value),
+                })
+
+                with patch('utilities.forms.fields.dynamic.get_action_url', return_value='/'):
+                    self.assertTrue(form.is_valid(), form.errors)
+
+                    module_type = form.save()
+                    self.assertEqual(module_type.attribute_data, {'slots': value})
+
 
 class ModuleTypeProfileDescriptionRenderingTestCase(TestCase):
     """
