@@ -1,6 +1,8 @@
+import json
 import logging
 import uuid
 from datetime import timedelta
+from html import parser
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
@@ -395,6 +397,242 @@ class ChangeLogViewTestCase(ModelViewTestCase):
             action=ObjectChangeActionChoices.ACTION_DELETE
         )
         self.assertEqual(objectchanges.count(), 2)
+
+
+class ChangelogDiffHTMLParser(parser.HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.data = {}
+        self.current = ''
+
+    def handle_data(self, data):
+        if data.strip():
+            if self.current:
+                self.data[self.current] = json.loads(data.strip())
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'pre':
+            for attr, value in attrs:
+                if attr == 'class':
+                    if 'change-diff' in str(value):
+                        self.current = str(value).split()[1]
+
+    def handle_endtag(self, tag):
+        if tag == 'pre':
+            self.current = ""
+
+
+class ChangeLogViewDiffTestCase(ModelViewTestCase):
+    model = Site
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create a custom field on the Site model
+        site_type = ObjectType.objects.get_for_model(Site)
+        cf = CustomField(
+            type=CustomFieldTypeChoices.TYPE_JSON,
+            name='cf1',
+            required=False
+        )
+        cf.save()
+        cf.object_types.set([site_type])
+
+    def check_pre_post_diff(self, oc: ObjectChange, key, pre, post, added, removed):
+        self.assertEqual(oc.prechange_data[key], pre)
+        self.assertEqual(oc.postchange_data[key], post)
+
+        self.add_permissions('core.view_objectchange')
+        response = self.client.get(reverse('core:objectchange', kwargs={'pk': oc.pk}))
+        self.assertHttpStatus(response, 200)
+
+        ui_parser = ChangelogDiffHTMLParser()
+        ui_parser.feed(response.content.decode("utf8"))
+
+        self.assertEqual(response.context["diff_added"][key], added)
+        self.assertEqual(response.context["diff_removed"][key], removed)
+        self.assertEqual(ui_parser.data["change-added"][key], added)
+        self.assertEqual(ui_parser.data["change-removed"][key], removed)
+
+    def test_change_object(self):
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        site.tags.set(['Tag 1', 'Tag 2'])
+
+        form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'tags': [tags[1].pk, tags[2].pk],
+        }
+
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+        self.check_pre_post_diff(
+            oc,
+            key='tags',
+            pre=['Tag 1', 'Tag 2'],
+            post=['Tag 2', 'Tag 3'],
+            added=['Tag 3'],
+            removed=['Tag 1']
+        )
+
+    def test_change_list_added(self):
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2', 'Tag 3')
+        site.tags.set(['Tag 1', 'Tag 2'])
+
+        form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'tags': [tags[0].pk, tags[1].pk, tags[2].pk],
+        }
+
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+        self.check_pre_post_diff(
+            oc,
+            key='tags',
+            pre=['Tag 1', 'Tag 2'],
+            post=['Tag 1', 'Tag 2', 'Tag 3'],
+            added=['Tag 3'],
+            removed=[]
+        )
+
+    def test_change_list_removed(self):
+        site = Site(name='Site 1', slug='site-1')
+        site.save()
+        tags = create_tags('Tag 1', 'Tag 2')
+        site.tags.set(['Tag 1', 'Tag 2'])
+
+        form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'tags': [tags[0].pk],
+        }
+
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+        self.check_pre_post_diff(
+            oc,
+            key='tags',
+            pre=['Tag 1', 'Tag 2'],
+            post=['Tag 1'],
+            added=[],
+            removed=['Tag 2']
+        )
+
+    def test_change_list_order(self):
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            custom_field_data={
+                'cf1': {"a": [1, 2, 3]}
+            }
+        )
+
+        form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'cf_cf1': json.dumps({"a": [3, 1, 2]}),
+        }
+
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+        self.check_pre_post_diff(
+            oc,
+            key='custom_fields',
+            pre={"cf1": {"a": [1, 2, 3]}},
+            post={"cf1": {"a": [3, 1, 2]}},
+            added={"cf1": {"a": [3]}},
+            removed={"cf1": {"a": [3]}}
+        )
+
+    def test_change_list_nested(self):
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            custom_field_data={
+                'cf1': {"a": {"b": [{"a": 1, "b": 2}, {"c": 3}, {"d": 4}]}}
+            }
+        )
+
+        form_data = {
+            'name': 'Site X',
+            'slug': 'site-x',
+            'status': SiteStatusChoices.STATUS_PLANNED,
+            'cf_cf1': json.dumps({"a": {"b": [{"a": 1, "b": 3}, {"c": 3}]}}),
+        }
+
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        site.refresh_from_db()
+        oc = ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(Site),
+            changed_object_id=site.pk
+        ).first()
+        self.check_pre_post_diff(
+            oc,
+            key='custom_fields',
+            pre={"cf1": {"a": {"b": [{"a": 1, "b": 2}, {"c": 3}, {"d": 4}]}}},
+            post={"cf1": {"a": {"b": [{"a": 1, "b": 3}, {"c": 3}]}}},
+            added={"cf1": {"a": {"b": [{"a": 1, "b": 3}]}}},
+            removed={"cf1": {"a": {"b": [{"a": 1, "b": 2}, {"d": 4}]}}}
+        )
 
 
 class ChangeLogAPITestCase(APITestCase):
