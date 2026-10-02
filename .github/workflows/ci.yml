@@ -40,7 +40,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       docs: ${{ steps.filter.outputs.docs }}
       # Release PRs (feature into main, or a release-vX.Y.Z branch) always run the test suite
-      # and install the [c] psycopg build users get.
+      # against what ships: the [c] psycopg build and a test database Django builds from scratch.
       release_pr: ${{ (github.head_ref == 'feature' && github.base_ref == 'main') || startsWith(github.head_ref, 'release-v') }}
     steps:
       - name: Check out repo
@@ -157,13 +157,70 @@ jobs:
       - name: Collect static files
         run: python netbox/manage.py collectstatic --no-input
 
+      - name: Fingerprint the schema inputs
+        id: schema
+        if: env.RELEASE_PR != 'true'
+        run: |
+          # Path and blob of every file that shapes the migrated schema, so renames count too.
+          inputs=$(git ls-files --stage -- \
+            .github/workflows/ci.yml \
+            requirements.txt \
+            netbox/netbox/settings.py \
+            netbox/netbox/configuration_testing.py \
+            netbox/core/signals.py \
+            ':(glob)netbox/**/migrations/**' \
+            ':(glob)netbox/*/fields.py' \
+            netbox/netbox/models/ltree.py \
+            netbox/ipam/lookups.py \
+            netbox/utilities/query_functions.py \
+            netbox/utilities/ltree.py \
+            netbox/utilities/migration.py \
+            netbox/utilities/mptt_to_ltree.py)
+          echo "hash=$(sha256sum <<< "$inputs" | cut -c1-32)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the migrated test database
+        id: test-db
+        if: env.RELEASE_PR != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/test_netbox.dump
+          key: test-db-py${{ matrix.python-version }}-${{ steps.schema.outputs.hash }}
+          # Push runs migrate from scratch, so every merge re-validates the migration chain.
+          lookup-only: ${{ github.event_name == 'push' }}
+
+      - name: Build the migrated test database
+        if: >-
+          env.RELEASE_PR != 'true'
+          && (github.event_name == 'push' || steps.test-db.outputs.cache-hit != 'true')
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          python netbox/manage.py migrate --no-input --run-syncdb
+          docker exec "$POSTGRES_CONTAINER" pg_dump -U netbox -Fc netbox > "$RUNNER_TEMP/test_netbox.dump"
+
+      - name: Load the test database
+        if: env.RELEASE_PR != 'true'
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          docker exec "$POSTGRES_CONTAINER" createdb -U netbox test_netbox
+          docker exec -i "$POSTGRES_CONTAINER" pg_restore -U netbox -d test_netbox --exit-on-error \
+            < "$RUNNER_TEMP/test_netbox.dump"
+
+      - name: Cache the migrated test database
+        if: env.RELEASE_PR != 'true' && steps.test-db.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/test_netbox.dump
+          key: ${{ steps.test-db.outputs.cache-primary-key }}
+
       - name: Run tests
         if: ${{ ! matrix.coverage }}
-        run: python netbox/manage.py test netbox/ --parallel --timing
+        run: python netbox/manage.py test netbox/ --parallel --keepdb --timing
 
       - name: Run tests with coverage
         if: ${{ matrix.coverage }}
-        run: coverage run netbox/manage.py test netbox/ --parallel --timing
+        run: coverage run netbox/manage.py test netbox/ --parallel --keepdb --timing
 
       - name: Combine coverage data
         if: ${{ matrix.coverage }}
