@@ -304,7 +304,16 @@ class CircuitTermination(
         blank=True
     )
 
-    # Cached associations to enable efficient filtering
+    # Cached associations to enable efficient filtering.
+    #
+    # `_region` and `_site_group` denormalize where the termination's *target*
+    # sits in the location hierarchy; they are not themselves a termination
+    # target, so deleting a Region or SiteGroup must clear the cache rather
+    # than cascade. A SiteGroup deletion leaves the termination's actual target
+    # - the Site, whose `group` is SET_NULL - in place, so cascading from the
+    # cache destroyed terminations (and their cable endpoints) whose targets
+    # still existed. `_site` and `_location` keep CASCADE: when the
+    # termination points at a Site or a Location, that object *is* the target.
     _provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',
         on_delete=models.PROTECT,
@@ -328,14 +337,14 @@ class CircuitTermination(
     )
     _region = models.ForeignKey(
         to='dcim.Region',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='circuit_terminations',
         blank=True,
         null=True
     )
     _site_group = models.ForeignKey(
         to='dcim.SiteGroup',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='circuit_terminations',
         blank=True,
         null=True

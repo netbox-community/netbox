@@ -190,6 +190,90 @@ class CircuitTerminationTestCase(TestCase):
         self.assertNotIn('termination_id', errors)
 
 
+class CircuitTerminationCachedScopeDeletionTestCase(TestCase):
+    """
+    The denormalized scope columns must not take part in the cascade when the
+    object they denormalize is deleted.
+
+    `_region`, `_site` and `_site_group` are caches: they record where a
+    termination's target sits in the location hierarchy so filters can use them.
+    Deleting the SiteGroup must therefore clear the cache and leave the
+    termination alone, because the termination's actual target - the Site - is
+    untouched by a SiteGroup deletion.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        cls.circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+
+        cls.region = Region.objects.create(name='Region A', slug='region-a')
+        cls.site_group = SiteGroup.objects.create(name='Group A', slug='group-a')
+        cls.site = Site.objects.create(
+            name='Site A', slug='site-a', region=cls.region, group=cls.site_group,
+        )
+
+    def _termination(self):
+        return CircuitTermination.objects.create(
+            circuit=self.circuit, term_side='A', termination=self.site,
+        )
+
+    def test_deleting_site_group_preserves_termination(self):
+        termination = self._termination()
+        self.assertEqual(termination._site_group, self.site_group)
+        self.assertEqual(termination._site, self.site)
+
+        self.site_group.delete()
+
+        # The Site survives a SiteGroup deletion (Site.group is SET_NULL), and
+        # the termination's real target is that Site, so it must survive too.
+        self.assertTrue(Site.objects.filter(pk=self.site.pk).exists())
+        self.assertTrue(CircuitTermination.objects.filter(pk=termination.pk).exists())
+
+        # The cache columns are cleared rather than holding a dangling id.
+        termination.refresh_from_db()
+        self.assertIsNone(termination._site_group)
+
+    def test_deleting_region_preserves_termination(self):
+        termination = self._termination()
+        self.assertEqual(termination._region, self.region)
+
+        self.region.delete()
+
+        self.assertTrue(CircuitTermination.objects.filter(pk=termination.pk).exists())
+        termination.refresh_from_db()
+        self.assertIsNone(termination._region)
+
+    def test_deleting_site_still_removes_termination(self):
+        """
+        The Site is the termination's actual target, so deleting it keeps the
+        existing CASCADE. Only the derived caches change behavior; this guards
+        against fixing the bug by clearing every one of them.
+        """
+        termination = self._termination()
+
+        self.site.delete()
+
+        self.assertFalse(CircuitTermination.objects.filter(pk=termination.pk).exists())
+
+    def test_deleting_location_still_removes_termination(self):
+        """
+        `_location` is likewise the termination's real target when the
+        termination is a Location, so its CASCADE is intentional.
+        """
+        site = Site.objects.create(name='Site B', slug='site-b')
+        location = Location.objects.create(name='Loc', slug='loc', site=site)
+        termination = CircuitTermination.objects.create(
+            circuit=self.circuit, term_side='Z', termination=location,
+        )
+        self.assertEqual(termination._location, location)
+
+        location.delete()
+
+        self.assertFalse(CircuitTermination.objects.filter(pk=termination.pk).exists())
+
+
 class CircuitTerminationDenormalizationTriggerTestCase(TestCase):
     """
     Verify the PostgreSQL triggers (installed by circuits migration 0058) that keep a
