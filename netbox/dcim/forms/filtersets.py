@@ -1441,7 +1441,8 @@ class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = PowerFeed
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'power_panel_id', 'rack_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'power_panel_id', 'rack_id',
+         name=_('Location')),
         FieldSet('status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
@@ -1463,6 +1464,14 @@ class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
             'region_id': '$region_id'
         },
         label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Location')
     )
     power_panel_id = DynamicModelMultipleChoiceField(
         queryset=PowerPanel.objects.all(),
