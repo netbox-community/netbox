@@ -35,6 +35,9 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
         'enabled': False,
         'description': 'foo bar baz',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):

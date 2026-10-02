@@ -121,7 +121,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install coverage tblib
+          pip install -r requirements_testing.txt
 
       - name: Check for missing migrations
         run: python netbox/manage.py makemigrations --check

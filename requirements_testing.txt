@@ -1,0 +1,5 @@
+# Packages needed to run the test suite, but not to run NetBox itself.
+# dulwich is the optional 'git' extra, so it is absent from requirements.txt.
+coverage==7.16.0
+dulwich==1.2.14
+tblib==3.2.2
