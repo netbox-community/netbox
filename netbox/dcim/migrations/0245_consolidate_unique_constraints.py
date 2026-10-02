@@ -9,95 +9,33 @@ class Migration(migrations.Migration):
         ('tenancy', '0025_ltree_paths'),
         ('users', '0016_default_ordering_indexes'),
     ]
-
     operations = [
-        migrations.RemoveConstraint(
-            model_name='devicerole',
-            name='dcim_devicerole_parent_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='devicerole',
-            name='dcim_devicerole_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='devicerole',
-            name='dcim_devicerole_parent_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='devicerole',
-            name='dcim_devicerole_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='location',
-            name='dcim_location_parent_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='location',
-            name='dcim_location_parent_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='location',
-            name='dcim_location_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='location',
-            name='dcim_location_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='platform',
-            name='dcim_platform_manufacturer_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='platform',
-            name='dcim_platform_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='platform',
-            name='dcim_platform_manufacturer_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='platform',
-            name='dcim_platform_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='region',
-            name='dcim_region_parent_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='region',
-            name='dcim_region_parent_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='region',
-            name='dcim_region_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='region',
-            name='dcim_region_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sitegroup',
-            name='dcim_sitegroup_parent_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sitegroup',
-            name='dcim_sitegroup_parent_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sitegroup',
-            name='dcim_sitegroup_name',
-        ),
-        migrations.RemoveConstraint(
-            model_name='sitegroup',
-            name='dcim_sitegroup_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='device',
-            name='dcim_device_unique_name_site_tenant',
-        ),
-        migrations.RemoveConstraint(
-            model_name='device',
-            name='dcim_device_unique_name_site',
+        migrations.RunSQL(
+            sql=[
+                "ALTER TABLE dcim_devicerole DROP CONSTRAINT IF EXISTS dcim_devicerole_parent_name",
+                "ALTER TABLE dcim_devicerole DROP CONSTRAINT IF EXISTS dcim_devicerole_name",
+                "ALTER TABLE dcim_devicerole DROP CONSTRAINT IF EXISTS dcim_devicerole_parent_slug",
+                "ALTER TABLE dcim_devicerole DROP CONSTRAINT IF EXISTS dcim_devicerole_slug",
+                "ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_parent_name",
+                "ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_parent_slug",
+                "ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_name",
+                "ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_slug",
+                "ALTER TABLE dcim_platform DROP CONSTRAINT IF EXISTS dcim_platform_manufacturer_name",
+                "ALTER TABLE dcim_platform DROP CONSTRAINT IF EXISTS dcim_platform_name",
+                "ALTER TABLE dcim_platform DROP CONSTRAINT IF EXISTS dcim_platform_manufacturer_slug",
+                "ALTER TABLE dcim_platform DROP CONSTRAINT IF EXISTS dcim_platform_slug",
+                "ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_name",
+                "ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_slug",
+                "ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_name",
+                "ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_slug",
+                "ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_name",
+                "ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_slug",
+                "ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_name",
+                "ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_slug",
+                "ALTER TABLE dcim_device DROP CONSTRAINT IF EXISTS dcim_device_unique_name_site_tenant",
+                "ALTER TABLE dcim_device DROP CONSTRAINT IF EXISTS dcim_device_unique_name_site",
+            ],
+            reverse_sql=migrations.RunSQL.noop,
         ),
         migrations.AddConstraint(
             model_name='devicerole',
