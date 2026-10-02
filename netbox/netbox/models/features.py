@@ -347,9 +347,16 @@ class CustomFieldsMixin(models.Model):
         # covers fields still being provisioned as well as active ones, so that an object created
         # while a new field is being backfilled does not miss its default (see
         # CustomFieldManager.get_defaults_for_model()).
+        populated = False
         for name, default in CustomField.objects.get_defaults_for_model(self).items():
             if name not in self.custom_field_data:
                 self.custom_field_data[name] = default
+                populated = True
+
+        # A partial save must still write any default populated above, or it would reach the change
+        # log (which serializes the instance) without ever reaching the database.
+        if populated and kwargs.get('update_fields') is not None:
+            kwargs['update_fields'] = [*kwargs['update_fields'], 'custom_field_data']
 
         super().save(*args, **kwargs)
 
