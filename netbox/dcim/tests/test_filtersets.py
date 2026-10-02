@@ -8120,6 +8120,14 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         )
         Site.objects.bulk_create(sites)
 
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+            Location(name='Location 3', slug='location-3', site=sites[2]),
+        )
+        for location in locations:
+            location.save()
+
         racks = (
             Rack(name='Rack 1', site=sites[0]),
             Rack(name='Rack 2', site=sites[1]),
@@ -8143,9 +8151,9 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         Tenant.objects.bulk_create(tenants)
 
         power_panels = (
-            PowerPanel(name='Power Panel 1', site=sites[0]),
-            PowerPanel(name='Power Panel 2', site=sites[1]),
-            PowerPanel(name='Power Panel 3', site=sites[2]),
+            PowerPanel(name='Power Panel 1', site=sites[0], location=locations[0]),
+            PowerPanel(name='Power Panel 2', site=sites[1], location=locations[1]),
+            PowerPanel(name='Power Panel 3', site=sites[2], location=locations[2]),
         )
         PowerPanel.objects.bulk_create(power_panels)
 
@@ -8266,6 +8274,13 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_location(self):
+        locations = Location.objects.all()[:2]
+        params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_power_panel_id(self):
