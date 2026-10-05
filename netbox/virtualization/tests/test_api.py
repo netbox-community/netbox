@@ -56,6 +56,9 @@ class ClusterTypeTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -88,6 +91,9 @@ class ClusterGroupTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    bulk_update_invalid_data = {
+        'owner': 99999,
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -106,6 +112,9 @@ class ClusterTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'offline',
         'comments': 'New comment',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
 
     @classmethod
@@ -235,6 +244,9 @@ class VirtualMachineTypeTestCase(APIViewTestCases.APIViewTestCase):
             'default_memory': 8192,
             'description': 'New description',
         }
+        cls.bulk_update_invalid_data = {
+            'owner': 99999,
+        }
 
 
 class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
@@ -242,6 +254,9 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'staged',
+    }
+    bulk_update_invalid_data = {
+        'status': 'not-a-valid-status',
     }
     user_permissions = ('dcim.view_platform', 'virtualization.view_virtualmachinetype')
 
@@ -579,6 +594,24 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
             ('vm4.example.com', 'vm6.example.com'),
         )
 
+    @tag('regression')  # Ref: #23278
+    def test_create_with_unassigned_primary_ip(self):
+        """Creating a VM with an unassigned primary IP returns HTTP 400."""
+        ip4 = IPAddress.objects.create(address='192.0.2.10/24')
+        ip6 = IPAddress.objects.create(address='2001:db8::10/64')
+
+        self.add_permissions('virtualization.add_virtualmachine')
+        for field, ip in (('primary_ip4', ip4), ('primary_ip6', ip6)):
+            with self.subTest(field=field):
+                data = {
+                    'name': 'vm-new',
+                    'site': self.sites[0].pk,
+                    field: ip.pk,
+                }
+                response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(field, response.data)
+
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',
@@ -623,6 +656,9 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtual_machine']
     bulk_update_data = {
         'description': 'New description',
+    }
+    bulk_update_invalid_data = {
+        'mode': 'not-a-valid-mode',
     }
     graphql_base_name = 'vm_interface'
     user_permissions = ('virtualization.view_virtualmachine', )
@@ -914,6 +950,9 @@ class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'size', 'url', 'virtual_machine']
     bulk_update_data = {
         'size': 888,
+    }
+    bulk_update_invalid_data = {
+        'virtual_machine': 99999,
     }
     graphql_base_name = 'virtual_disk'
     user_permissions = ('virtualization.view_virtualmachine', )

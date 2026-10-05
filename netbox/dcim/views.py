@@ -589,12 +589,13 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
             'related_models': self.get_related_models(
                 request,
                 instance,
-                omit=(CableTermination, CircuitTermination, Cluster, Prefix, WirelessLAN),
+                omit=(CableTermination, CircuitTermination, Cluster, Prefix, VLAN, WirelessLAN),
                 extra=(
                     (VLANGroup.objects.restrict(request.user, 'view').filter(
                         scope_type=ContentType.objects.get_for_model(Site),
                         scope_id=instance.pk
                     ), 'site'),
+                    (VLAN.objects.restrict(request.user, 'view').get_related_to_sites([instance]), 'related_to_site'),
                     (ASN.objects.restrict(request.user, 'view').filter(sites=instance), 'site_id'),
                     (
                         Circuit.objects.restrict(request.user, 'view').filter(terminations___site=instance).distinct(),

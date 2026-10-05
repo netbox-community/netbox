@@ -567,7 +567,7 @@ class VLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'related_to_site', name=_('Location')),
         FieldSet('group_id', 'status', 'role_id', 'vid', 'l2vpn_id', name=_('Attributes')),
         FieldSet('qinq_role', 'qinq_svlan_id', name=_('Q-in-Q/802.1ad')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -592,6 +592,11 @@ class VLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
             'region': '$region'
         },
         label=_('Site')
+    )
+    related_to_site = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        label=_('Related to site')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=VLANGroup.objects.all(),

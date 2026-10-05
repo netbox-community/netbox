@@ -15,12 +15,13 @@ from dcim.choices import *
 from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
-from ipam.models import Prefix
+from ipam.models import IPAddress, Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
 from utilities.data import drange
+from utilities.testing import create_test_device
 from virtualization.models import Cluster, ClusterType
 
 
@@ -999,6 +1000,65 @@ class DeviceTestCase(TestCase):
                 role=device_role,
                 cluster=cluster
             ).full_clean()
+
+    @tag('regression')  # Ref: #23274
+    def test_vc_interfaces_unsaved_device(self):
+        """An unsaved device outside a virtual chassis matches no interfaces and runs no query."""
+        device = create_test_device('Device 1')
+        Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_OTHER)
+        unsaved = Device(name='Device 2', site=device.site, device_type=device.device_type, role=device.role)
+
+        for if_master in (True, False):
+            with self.subTest(if_master=if_master), self.assertNumQueries(0):
+                self.assertEqual(list(unsaved.vc_interfaces(if_master=if_master)), [])
+
+    @tag('regression')  # Ref: #23274
+    def test_unsaved_device_rejects_ips_of_other_devices(self):
+        """An unsaved device rejects a primary or OOB IP assigned to another device's interface."""
+        device = create_test_device('Device 1')
+        interface = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_OTHER)
+        ip4 = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        ip6 = IPAddress.objects.create(address='2001:db8::1/64', assigned_object=interface)
+        nat_ip4 = IPAddress.objects.create(address='198.51.100.1/24', nat_inside=ip4)
+
+        for field, ip in (('primary_ip4', ip4), ('primary_ip4', nat_ip4), ('primary_ip6', ip6), ('oob_ip', ip4)):
+            with self.subTest(field=field, ip=ip):
+                unsaved = Device(
+                    name='Device 2', site=device.site, device_type=device.device_type, role=device.role,
+                    **{field: ip}
+                )
+                with self.assertRaises(ValidationError) as cm:
+                    unsaved.full_clean()
+                self.assertIn(field, cm.exception.message_dict)
+
+    @tag('regression')  # Ref: #23274
+    def test_unsaved_device_accepts_ips_of_virtual_chassis_peers(self):
+        """An unsaved virtual chassis member accepts a peer's IP unless its interface is management-only."""
+        virtual_chassis = VirtualChassis.objects.create(name='Virtual Chassis 1')
+        peer = create_test_device('Device 1', virtual_chassis=virtual_chassis, vc_position=1)
+        interface = Interface.objects.create(device=peer, name='eth0', type=InterfaceTypeChoices.TYPE_OTHER)
+        mgmt_interface = Interface.objects.create(
+            device=peer, name='mgmt0', type=InterfaceTypeChoices.TYPE_OTHER, mgmt_only=True
+        )
+        ip4 = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        ip6 = IPAddress.objects.create(address='2001:db8::1/64', assigned_object=interface)
+        mgmt_ip4 = IPAddress.objects.create(address='192.0.2.2/24', assigned_object=mgmt_interface)
+        common_kwargs = {
+            'name': 'Device 2',
+            'site': peer.site,
+            'device_type': peer.device_type,
+            'role': peer.role,
+            'virtual_chassis': virtual_chassis,
+            'vc_position': 2,
+        }
+
+        for field, ip in (('primary_ip4', ip4), ('primary_ip6', ip6), ('oob_ip', ip4)):
+            with self.subTest(field=field):
+                Device(**common_kwargs, **{field: ip}).full_clean()
+
+        with self.assertRaises(ValidationError) as cm:
+            Device(**common_kwargs, primary_ip4=mgmt_ip4).full_clean()
+        self.assertIn('primary_ip4', cm.exception.message_dict)
 
 
 class DeviceBayTestCase(TestCase):
@@ -3131,6 +3191,24 @@ class VirtualDeviceContextTestCase(TestCase):
         vdc2 = VirtualDeviceContext(device=device, name="VDC 2", identifier=1, status='active')
         with self.assertRaises(ValidationError):
             vdc2.full_clean()
+
+    @tag('regression')  # Ref: #23275
+    def test_primary_ip_requires_device(self):
+        """A primary IP on the device's interface is valid only while that device is assigned."""
+        device = Device.objects.first()
+        interface = Interface.objects.create(device=device, name='Eth1/1', type='10gbase-t')
+
+        for family, address in ((4, '192.0.2.1/24'), (6, '2001:db8::1/64')):
+            field = f'primary_ip{family}'
+            ip = IPAddress.objects.create(address=address, assigned_object=interface)
+            with self.subTest(family=family):
+                VirtualDeviceContext(device=device, name='VDC 1', status='active', **{field: ip}).full_clean()
+
+                vdc = VirtualDeviceContext(name='VDC 1', status='active', **{field: ip})
+                with self.assertRaises(ValidationError) as cm:
+                    vdc.full_clean()
+                self.assertIn(field, cm.exception.message_dict)
+                self.assertIn('must belong to an interface', str(cm.exception.message_dict[field]))
 
 
 class VirtualChassisTestCase(TestCase):

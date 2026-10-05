@@ -183,6 +183,33 @@ register_model_feature('foo', supports_foo)
 !!! tip
     Consider performing feature registration inside your PluginConfig's `ready()` method.
 
+## Dependent Objects
+
+Some models maintain dependent objects from their `save()` method: saving a cable, for example, traces and records its cable paths. Callers which write objects directly to the database bypass `save()` — replaying serialized changes, restoring deleted objects, or importing data — and those dependent objects are never created.
+
+A model can implement `update_dependent_objects()` to expose that work to such a caller:
+
+```python
+# models.py
+class MyModel(NetBoxModel):
+
+    def update_dependent_objects(self):
+        # Recreate any objects derived from this one
+        ...
+    update_dependent_objects.alters_data = True
+```
+
+The method is optional; callers should check for its presence before calling it. NetBox never calls it during a normal save.
+
+Two constraints apply to an implementation:
+
+* It must derive its work entirely from the database. The in-memory state a normal `save()` relies on (which fields changed, for instance) is not available to a caller replaying serialized data.
+* It must be idempotent and safe to call when nothing needs to change, as a caller will generally invoke it for every object it has written.
+
+Exceptions raised by an implementation propagate to the caller unchanged: `Cable.update_dependent_objects()` raises `UnsupportedCablePath` where `Cable.save()` converts it to `AbortRequest`. The hook is not tied to a request, so it is for the caller to decide how a failure is handled.
+
+The caller is responsible for calling the method only once every related object is in place: `Cable.update_dependent_objects()` retraces the cable's paths, which requires its `CableTermination` objects to exist.
+
 ## Choice Sets
 
 For model fields which support the selection of one or more values from a predefined list of choices, NetBox provides the `ChoiceSet` utility class. This can be used in place of a regular choices tuple to provide enhanced functionality, namely dynamic configuration and colorization. (See [Django's documentation](https://docs.djangoproject.com/en/stable/ref/models/fields/#choices) on the `choices` parameter for supported model fields.)

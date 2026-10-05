@@ -92,6 +92,10 @@ class ValidatedModelSerializer(BaseModelSerializer):
     """
     Extends the built-in ModelSerializer to enforce calling full_clean() on a copy of the associated instance during
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
+
+    Serializers may declare `model_clean_fields` in Meta, naming scalar model fields whose clean()-normalized values
+    must reach the database. DRF builds a fresh instance from the validated data on create, discarding what clean()
+    wrote.
     """
 
     # Bypass DRF's built-in validation of unique constraints due to DRF bug #9410. Rely instead
@@ -128,5 +132,8 @@ class ValidatedModelSerializer(BaseModelSerializer):
         # Preserve any normalization performed by model.clean() (e.g. stale custom field pruning)
         if 'custom_field_data' in attrs:
             data['custom_field_data'] = instance.custom_field_data
+
+        for field_name in getattr(self.Meta, 'model_clean_fields', ()):
+            data[field_name] = getattr(instance, field_name)
 
         return data

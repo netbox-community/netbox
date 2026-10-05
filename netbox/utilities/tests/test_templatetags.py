@@ -9,7 +9,7 @@ from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
-from utilities.forms.rendering import FieldSet, InlineFields
+from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
 from utilities.templatetags.form_helpers import any_required, render_field_with_aria, render_fieldset
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
@@ -457,3 +457,62 @@ class RenderFieldsetInlineRequiredTestCase(TestCase):
         html = self._render(fieldset)
         # With no help text, the shared help-text row (col offset-3) must not be rendered
         self.assertNotIn('col offset-3', html)
+
+
+class RenderFieldsetTabsTestCase(TestCase):
+    """
+    Verify tab selection for a TabbedGroups row.
+    """
+
+    class TestForm(forms.Form):
+        first = forms.CharField(required=True)
+        second = forms.CharField(required=True)
+
+    fieldset = FieldSet(
+        TabbedGroups(
+            FieldSet('first', name='First'),
+            FieldSet('second', name='Second'),
+        ),
+    )
+
+    def _tabs(self, form):
+        return render_fieldset(form, self.fieldset)['rows'][0].items
+
+    def test_first_tab_active_without_initial_data(self):
+        """An unbound form activates the first tab."""
+        tabs = self._tabs(self.TestForm())
+        self.assertEqual([tab['active'] for tab in tabs], [True, False])
+
+    def test_initial_data_selects_its_tab(self):
+        """Initial data on a tab's leading field activates that tab."""
+        tabs = self._tabs(self.TestForm(initial={'second': 'x'}))
+        self.assertEqual([tab['active'] for tab in tabs], [False, True])
+
+    def test_errored_tab_is_activated(self):
+        """A field error overrides initial data and activates its own tab."""
+        form = self.TestForm({'first': 'x', 'second': ''}, initial={'first': 'x'})
+        self.assertFalse(form.is_valid())
+
+        tabs = self._tabs(form)
+
+        self.assertEqual([tab['active'] for tab in tabs], [False, True])
+
+    def test_first_errored_tab_wins(self):
+        """With both tabs errored, only the first errored tab is active."""
+        form = self.TestForm({'first': '', 'second': ''}, initial={'second': 'x'})
+        self.assertFalse(form.is_valid())
+
+        tabs = self._tabs(form)
+
+        self.assertEqual([tab['active'] for tab in tabs], [True, False])
+
+    def test_errored_pane_rendered_active(self):
+        """The errored tab's pane carries the active class."""
+        form = self.TestForm({'first': 'x', 'second': ''}, initial={'first': 'x'})
+        self.assertFalse(form.is_valid())
+
+        context = render_fieldset(form, self.fieldset)
+        html = render_to_string('form_helpers/render_fieldset.html', context)
+        pane_id = context['rows'][0].items[1]['id']
+
+        self.assertIn(f'class="tab-pane active" id="{pane_id}"', html)

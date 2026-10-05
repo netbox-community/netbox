@@ -51,6 +51,8 @@ class TokenViewSet(NetBoxModelViewSet):
     queryset = Token.objects.all()
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
+    # A created v2 Token's plaintext must not be retained in a job record.
+    background_enabled = False
 
 
 class TokenProvisionView(APIView):

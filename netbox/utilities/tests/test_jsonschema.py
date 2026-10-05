@@ -140,6 +140,29 @@ class JSONSchemaPropertyTestCase(TestCase):
         self.assertEqual(len(field.validators), 1)
         self.assertIsInstance(field.validators[0], MultipleOfValidator)
 
+    def test_numeric_enum_cleans_to_the_enum_member(self):
+        """The widget submits a choice as a string, so a numeric enum must be coerced back.
+
+        ModuleType.clean() validates the attribute data against the schema, which rejects the
+        string '1' for an integer enum.
+        """
+        prop = JSONSchemaProperty(type='integer', title='Slots', enum=[0, 1, 2])
+
+        field = prop.to_form_field('slots')
+
+        self.assertEqual(field.clean('0'), 0)
+        self.assertEqual(field.clean('2'), 2)
+        self.assertEqual(field.clean(''), '')
+        with self.assertRaises(ValidationError):
+            field.clean('3')
+
+    def test_float_enum_cleans_to_the_enum_member(self):
+        prop = JSONSchemaProperty(type='number', title='Ratio', enum=[0.5, 1.5])
+
+        field = prop.to_form_field('ratio')
+
+        self.assertEqual(field.clean('1.5'), 1.5)
+
     def test_string_enum_with_min_length_builds_choice_field(self):
         """A string property carrying both an enum and a length bound resolves to a ChoiceField.
 

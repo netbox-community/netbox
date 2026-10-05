@@ -103,6 +103,10 @@ class JSONSchemaProperty:
             if not required:
                 choices = [(None, ''), *choices]
             field_kwargs['choices'] = choices
+            if issubclass(field_class, forms.TypedChoiceField):
+                # The widget submits each choice as a string; map it back to the enum member so a
+                # non-string enum (e.g. integer) keeps the type the schema validates it against.
+                field_kwargs['coerce'] = {str(v): v for v in self.enum}.get
 
         # Arrays
         if self.type == PropertyTypeEnum.ARRAY.value:
@@ -150,7 +154,7 @@ class JSONSchemaProperty:
         if self.enum:
             if self.type == PropertyTypeEnum.ARRAY.value:
                 return forms.MultipleChoiceField
-            return forms.ChoiceField
+            return forms.TypedChoiceField
         if self.type == PropertyTypeEnum.STRING.value and self.format is not None:
             try:
                 return STRING_FORM_FIELDS[self.format]

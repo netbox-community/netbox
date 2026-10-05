@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models, router
+from django.db import models, router, transaction
 from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -19,7 +19,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.exceptions import UnsupportedCablePath
 from dcim.fields import PathField
-from dcim.utils import decompile_path_node, object_to_path_node
+from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from utilities.conversion import to_meters
@@ -30,7 +30,7 @@ from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
 
-from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
+from .device_components import FrontPort, Interface, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
     'Cable',
@@ -507,6 +507,20 @@ class Cable(PrimaryModel):
         ]
 
         return instance
+
+    def update_dependent_objects(self):
+        """
+        Recreate the CablePaths traversing this Cable from its current terminations.
+        """
+        with transaction.atomic(using=router.db_for_write(CablePath)):
+
+            # Restore channel cable attributes omitted by bulk-update change logging.
+            for ct in CableTermination.objects.filter(cable=self).prefetch_related('termination'):
+                if isinstance(ct.termination, Interface) and ct.termination.channels:
+                    ct.termination.propagate_channel_cables()
+
+            rebuild_cable_paths(self)
+    update_dependent_objects.alters_data = True
 
     def get_terminations(self):
         """

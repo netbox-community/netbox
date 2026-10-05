@@ -21,6 +21,7 @@ from core.exceptions import JobFailed
 from core.models import Job, ObjectChange
 from dcim.api.views import RegionViewSet
 from dcim.models import DeviceType, Manufacturer, Region
+from netbox.jobs import AsyncAPIJob
 from users.models import ObjectPermission
 from utilities.request import copy_safe_request
 from utilities.testing.api import APITestCase
@@ -305,6 +306,37 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
         self.assertEqual(Job.objects.count(), 0)
 
+    def test_background_disabled_rejected_before_worker_check(self):
+        # The rejection precedes the worker-liveness probe, so it does not depend on a live worker.
+        self.grant('add', 'change', 'delete', 'view')
+        requests = (
+            (self.client.post, [{'name': 'Region A', 'slug': 'region-a'}]),
+            (self.client.put, [{'id': self.regions[0].pk, 'name': 'X', 'slug': 'x'}]),
+            (self.client.patch, [{'id': self.regions[0].pk, 'description': 'x'}]),
+            (self.client.delete, [{'id': self.regions[0].pk}]),
+        )
+        with patch.object(RegionViewSet, 'background_enabled', False):
+            with patch(
+                'netbox.api.viewsets.mixins.any_workers_for_queue', return_value=True
+            ) as any_workers:
+                for method, payload in requests:
+                    with self.subTest(method=method.__name__):
+                        response = method(
+                            '/api/dcim/regions/?background=true', payload,
+                            format='json', **self.header
+                        )
+                        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                        self.assertEqual(
+                            response.data['detail'],
+                            'Background processing is not supported for this endpoint.'
+                        )
+
+        any_workers.assert_not_called()
+        self.assertEqual(Job.objects.count(), 0)
+        self.assertEqual(Region.objects.count(), len(self.regions))
+        self.regions[0].refresh_from_db()
+        self.assertEqual(self.regions[0].description, '')
+
     def test_get_with_background_is_ignored(self):
         self.grant('view')
         response = self.client.get('/api/dcim/regions/?background=true', **self.header)
@@ -375,8 +407,6 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         # user was active at enqueue), but the user is deactivated before the worker runs.
         # We drive AsyncAPIJob directly because the HTTP layer would otherwise reject an
         # inactive user's token at authentication time, never reaching the worker.
-        from netbox.jobs import AsyncAPIJob
-
         self.grant('change', 'view')
         self.user.is_active = False
         self.user.save()
@@ -404,13 +434,38 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
 
     # ------------------------------------------------------------------ host parsing
 
+    def test_background_disabled_fails_queued_job(self):
+        # Models the upgrade window: enqueued while the endpoint still accepted background work.
+        self.grant('add', 'view')
+
+        factory = RequestFactory()
+        raw_request = factory.post('/api/dcim/regions/', data=[], content_type='application/json')
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
+        job = Job.objects.create(name='Bulk create regions', user=self.user, job_id=uuid.uuid4())
+        with patch.object(RegionViewSet, 'background_enabled', False):
+            AsyncAPIJob.handle(
+                job=job,
+                viewset_class='dcim.api.views.RegionViewSet',
+                action='bulk_create',
+                payload=[{'name': 'Region A', 'slug': 'region-a'}],
+                user_pk=self.user.pk,
+                request=request_copy,
+                scheme='http',
+            )
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.data['status_code'], status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(job.error, 'Background processing is not supported for this endpoint.')
+        self.assertFalse(Region.objects.filter(slug='region-a').exists())
+
     def test_ipv6_host_builds_correct_request(self):
         # A bracketed IPv6 host:port must round-trip through the request snapshot without being
         # split on its inner colons. copy_safe_request() carries SERVER_NAME/SERVER_PORT/HTTP_HOST
         # verbatim (already separated when the original request was received), so _build_request()
         # needs no host parsing of its own.
-        from netbox.jobs import AsyncAPIJob
-
         factory = RequestFactory()
         raw_request = factory.patch(
             '/api/dcim/regions/', data=[], content_type='application/json',

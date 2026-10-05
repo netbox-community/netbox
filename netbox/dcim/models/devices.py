@@ -1177,7 +1177,8 @@ class Device(
 
         :param if_master: If True, return VC member interfaces only if this Device is the VC master.
         """
-        filter = Q(device=self) if self.pk else Q()
+        # An unsaved device owns no interfaces. Q() would match all of them.
+        filter = Q(device=self) if self.pk else Q(pk__in=[])
         if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
@@ -1404,7 +1405,7 @@ class VirtualDeviceContext(PrimaryModel):
                         "{ip} is not an IPv{family} address."
                     ).format(family=family, ip=primary_ip)
                 })
-            device_interfaces = self.device.vc_interfaces(if_master=False)
+            device_interfaces = self.device.vc_interfaces(if_master=False) if self.device_id else []
             if primary_ip.assigned_object not in device_interfaces:
                 raise ValidationError({
                     f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')

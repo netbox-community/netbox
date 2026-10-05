@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 05:02+0000\n"
+"POT-Creation-Date: 2026-09-26 05:02+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Ukrainian (https://app.transifex.com/netbox-community/teams/178115/uk/)\n"
@@ -23,29 +23,29 @@ msgstr ""
 "Language: uk\n"
 "Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
 
-#: netbox/account/views.py:126
+#: netbox/account/views.py:128
 #, python-brace-format
 msgid "Logged in as {user}."
 msgstr "Ввійшов в систему як {user}."
 
-#: netbox/account/views.py:181
+#: netbox/account/views.py:183
 msgid "You have logged out."
 msgstr "Ви вийшли з системи."
 
-#: netbox/account/views.py:231
+#: netbox/account/views.py:277
 msgid "Your preferences have been updated."
 msgstr "Ваші налаштування було оновлено."
 
-#: netbox/account/views.py:259
+#: netbox/account/views.py:305
 msgid "LDAP-authenticated user credentials cannot be changed within NetBox."
 msgstr ""
 "Облікові дані користувача, підтверджені LDAP, неможливо змінити в NetBox."
 
-#: netbox/account/views.py:274
+#: netbox/account/views.py:320
 msgid "Your password has been changed successfully."
 msgstr "Ваш пароль успішно змінено."
 
-#: netbox/account/views.py:356 netbox/templates/account/token_list.html:6
+#: netbox/account/views.py:402 netbox/templates/account/token_list.html:6
 msgid "My API Tokens"
 msgstr "Мої жетони API"
 
@@ -234,10 +234,10 @@ msgstr "Група тех. майданчиків (скорочення)"
 #: netbox/circuits/tables/circuits.py:125 netbox/dcim/forms/bulk_edit.py:186
 #: netbox/dcim/forms/bulk_edit.py:360 netbox/dcim/forms/bulk_edit.py:785
 #: netbox/dcim/forms/bulk_edit.py:1000 netbox/dcim/forms/bulk_edit.py:1111
-#: netbox/dcim/forms/bulk_import.py:160 netbox/dcim/forms/bulk_import.py:274
-#: netbox/dcim/forms/bulk_import.py:389 netbox/dcim/forms/bulk_import.py:701
-#: netbox/dcim/forms/bulk_import.py:2181 netbox/dcim/forms/bulk_import.py:2209
-#: netbox/dcim/forms/bulk_import.py:2291 netbox/dcim/forms/bulk_import.py:2338
+#: netbox/dcim/forms/bulk_import.py:160 netbox/dcim/forms/bulk_import.py:273
+#: netbox/dcim/forms/bulk_import.py:388 netbox/dcim/forms/bulk_import.py:700
+#: netbox/dcim/forms/bulk_import.py:2180 netbox/dcim/forms/bulk_import.py:2208
+#: netbox/dcim/forms/bulk_import.py:2290 netbox/dcim/forms/bulk_import.py:2337
 #: netbox/dcim/forms/filtersets.py:120 netbox/dcim/forms/filtersets.py:270
 #: netbox/dcim/forms/filtersets.py:414 netbox/dcim/forms/filtersets.py:524
 #: netbox/dcim/forms/filtersets.py:980 netbox/dcim/forms/filtersets.py:1207
@@ -517,7 +517,7 @@ msgstr "Ідентифікатор служби"
 #: netbox/dcim/forms/bulk_edit.py:617 netbox/dcim/forms/bulk_edit.py:717
 #: netbox/dcim/forms/bulk_edit.py:943 netbox/dcim/forms/bulk_edit.py:1325
 #: netbox/dcim/forms/bulk_edit.py:1551 netbox/dcim/forms/bulk_edit.py:1578
-#: netbox/dcim/forms/bulk_edit.py:2234 netbox/dcim/forms/bulk_import.py:1858
+#: netbox/dcim/forms/bulk_edit.py:2234 netbox/dcim/forms/bulk_import.py:1857
 #: netbox/dcim/forms/filtersets.py:748 netbox/dcim/forms/filtersets.py:1373
 #: netbox/dcim/forms/filtersets.py:1833 netbox/dcim/forms/filtersets.py:2205
 #: netbox/dcim/forms/filtersets.py:2224 netbox/dcim/forms/filtersets.py:2248
@@ -549,13 +549,13 @@ msgstr "Колір"
 #: netbox/dcim/forms/bulk_edit.py:1368 netbox/dcim/forms/bulk_edit.py:1429
 #: netbox/dcim/forms/bulk_edit.py:1487 netbox/dcim/forms/bulk_edit.py:1546
 #: netbox/dcim/forms/bulk_edit.py:1573 netbox/dcim/forms/bulk_import.py:226
-#: netbox/dcim/forms/bulk_import.py:318 netbox/dcim/forms/bulk_import.py:880
-#: netbox/dcim/forms/bulk_import.py:906 netbox/dcim/forms/bulk_import.py:932
-#: netbox/dcim/forms/bulk_import.py:953 netbox/dcim/forms/bulk_import.py:1009
-#: netbox/dcim/forms/bulk_import.py:1090 netbox/dcim/forms/bulk_import.py:1176
-#: netbox/dcim/forms/bulk_import.py:1305 netbox/dcim/forms/bulk_import.py:1411
-#: netbox/dcim/forms/bulk_import.py:1832 netbox/dcim/forms/bulk_import.py:2246
-#: netbox/dcim/forms/bulk_import.py:2303 netbox/dcim/forms/filtersets.py:1245
+#: netbox/dcim/forms/bulk_import.py:317 netbox/dcim/forms/bulk_import.py:879
+#: netbox/dcim/forms/bulk_import.py:905 netbox/dcim/forms/bulk_import.py:931
+#: netbox/dcim/forms/bulk_import.py:952 netbox/dcim/forms/bulk_import.py:1008
+#: netbox/dcim/forms/bulk_import.py:1089 netbox/dcim/forms/bulk_import.py:1175
+#: netbox/dcim/forms/bulk_import.py:1304 netbox/dcim/forms/bulk_import.py:1410
+#: netbox/dcim/forms/bulk_import.py:1831 netbox/dcim/forms/bulk_import.py:2245
+#: netbox/dcim/forms/bulk_import.py:2302 netbox/dcim/forms/filtersets.py:1245
 #: netbox/dcim/forms/filtersets.py:1358 netbox/dcim/forms/filtersets.py:1491
 #: netbox/dcim/forms/filtersets.py:1560 netbox/dcim/forms/filtersets.py:1712
 #: netbox/dcim/forms/filtersets.py:1732 netbox/dcim/forms/filtersets.py:1752
@@ -632,11 +632,11 @@ msgstr "Обліковий запис постачальника"
 #: netbox/dcim/forms/bulk_edit.py:1134 netbox/dcim/forms/bulk_edit.py:1173
 #: netbox/dcim/forms/bulk_edit.py:2208 netbox/dcim/forms/bulk_edit.py:2252
 #: netbox/dcim/forms/bulk_import.py:117 netbox/dcim/forms/bulk_import.py:176
-#: netbox/dcim/forms/bulk_import.py:299 netbox/dcim/forms/bulk_import.py:414
-#: netbox/dcim/forms/bulk_import.py:666 netbox/dcim/forms/bulk_import.py:832
-#: netbox/dcim/forms/bulk_import.py:1533 netbox/dcim/forms/bulk_import.py:1820
-#: netbox/dcim/forms/bulk_import.py:2241 netbox/dcim/forms/bulk_import.py:2308
-#: netbox/dcim/forms/bulk_import.py:2370 netbox/dcim/forms/bulk_import.py:2425
+#: netbox/dcim/forms/bulk_import.py:298 netbox/dcim/forms/bulk_import.py:413
+#: netbox/dcim/forms/bulk_import.py:665 netbox/dcim/forms/bulk_import.py:831
+#: netbox/dcim/forms/bulk_import.py:1532 netbox/dcim/forms/bulk_import.py:1819
+#: netbox/dcim/forms/bulk_import.py:2240 netbox/dcim/forms/bulk_import.py:2307
+#: netbox/dcim/forms/bulk_import.py:2369 netbox/dcim/forms/bulk_import.py:2424
 #: netbox/dcim/forms/filtersets.py:222 netbox/dcim/forms/filtersets.py:282
 #: netbox/dcim/forms/filtersets.py:437 netbox/dcim/forms/filtersets.py:552
 #: netbox/dcim/forms/filtersets.py:1026 netbox/dcim/forms/filtersets.py:1154
@@ -662,7 +662,7 @@ msgstr "Обліковий запис постачальника"
 #: netbox/ipam/forms/bulk_import.py:273 netbox/ipam/forms/bulk_import.py:309
 #: netbox/ipam/forms/bulk_import.py:540 netbox/ipam/forms/filtersets.py:239
 #: netbox/ipam/forms/filtersets.py:318 netbox/ipam/forms/filtersets.py:407
-#: netbox/ipam/forms/filtersets.py:606 netbox/ipam/forms/model_forms.py:209
+#: netbox/ipam/forms/filtersets.py:611 netbox/ipam/forms/model_forms.py:209
 #: netbox/ipam/forms/model_forms.py:287 netbox/ipam/forms/model_forms.py:322
 #: netbox/ipam/forms/model_forms.py:521 netbox/ipam/forms/model_forms.py:587
 #: netbox/ipam/forms/model_forms.py:705 netbox/ipam/tables/ip.py:187
@@ -712,9 +712,9 @@ msgstr "Статус"
 #: netbox/dcim/forms/bulk_edit.py:519 netbox/dcim/forms/bulk_edit.py:798
 #: netbox/dcim/forms/bulk_edit.py:928 netbox/dcim/forms/bulk_edit.py:2257
 #: netbox/dcim/forms/bulk_import.py:136 netbox/dcim/forms/bulk_import.py:181
-#: netbox/dcim/forms/bulk_import.py:285 netbox/dcim/forms/bulk_import.py:419
-#: netbox/dcim/forms/bulk_import.py:640 netbox/dcim/forms/bulk_import.py:1838
-#: netbox/dcim/forms/bulk_import.py:2418 netbox/dcim/forms/filtersets.py:157
+#: netbox/dcim/forms/bulk_import.py:284 netbox/dcim/forms/bulk_import.py:418
+#: netbox/dcim/forms/bulk_import.py:639 netbox/dcim/forms/bulk_import.py:1837
+#: netbox/dcim/forms/bulk_import.py:2417 netbox/dcim/forms/filtersets.py:157
 #: netbox/dcim/forms/filtersets.py:216 netbox/dcim/forms/filtersets.py:249
 #: netbox/dcim/forms/filtersets.py:398 netbox/dcim/forms/filtersets.py:483
 #: netbox/dcim/forms/filtersets.py:504 netbox/dcim/forms/filtersets.py:948
@@ -808,7 +808,7 @@ msgstr "Параметри обслуговування"
 #: netbox/circuits/forms/filtersets.py:325
 #: netbox/circuits/forms/filtersets.py:341 netbox/core/forms/filtersets.py:78
 #: netbox/core/forms/filtersets.py:161 netbox/dcim/forms/bulk_edit.py:961
-#: netbox/dcim/forms/bulk_import.py:549 netbox/dcim/forms/filtersets.py:215
+#: netbox/dcim/forms/bulk_import.py:548 netbox/dcim/forms/filtersets.py:215
 #: netbox/dcim/forms/filtersets.py:248 netbox/dcim/forms/filtersets.py:1144
 #: netbox/dcim/forms/filtersets.py:1297 netbox/dcim/forms/filtersets.py:1309
 #: netbox/dcim/forms/filtersets.py:1445 netbox/dcim/forms/filtersets.py:1525
@@ -825,7 +825,7 @@ msgstr "Параметри обслуговування"
 #: netbox/dcim/forms/filtersets.py:2305 netbox/dcim/forms/filtersets.py:2328
 #: netbox/dcim/forms/filtersets.py:2348 netbox/dcim/forms/filtersets.py:2364
 #: netbox/dcim/forms/filtersets.py:2410 netbox/dcim/forms/filtersets.py:2446
-#: netbox/dcim/tables/modules.py:53 netbox/dcim/views.py:1933
+#: netbox/dcim/tables/modules.py:53 netbox/dcim/views.py:1939
 #: netbox/extras/forms/bulk_edit.py:103 netbox/extras/forms/filtersets.py:50
 #: netbox/extras/forms/filtersets.py:167 netbox/extras/forms/filtersets.py:246
 #: netbox/extras/forms/filtersets.py:263 netbox/extras/forms/filtersets.py:295
@@ -834,8 +834,8 @@ msgstr "Параметри обслуговування"
 #: netbox/ipam/forms/filtersets.py:108 netbox/ipam/forms/filtersets.py:301
 #: netbox/ipam/forms/filtersets.py:351 netbox/ipam/forms/filtersets.py:434
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/forms/filtersets.py:546
-#: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:643
-#: netbox/ipam/forms/filtersets.py:674 netbox/netbox/tables/tables.py:469
+#: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:648
+#: netbox/ipam/forms/filtersets.py:679 netbox/netbox/tables/tables.py:469
 #: netbox/virtualization/forms/filtersets.py:56
 #: netbox/virtualization/forms/filtersets.py:114
 #: netbox/virtualization/forms/filtersets.py:166
@@ -898,7 +898,7 @@ msgstr "Оренда"
 #: netbox/templates/dcim/cablebundle.html:17
 #: netbox/templates/extras/dashboard/widget_add.html:14
 #: netbox/templates/extras/inc/script_list_content.html:33
-#: netbox/templates/generic/bulk_import.html:151
+#: netbox/templates/generic/bulk_import.html:152
 #: netbox/users/forms/bulk_edit.py:62 netbox/users/forms/bulk_edit.py:80
 #: netbox/users/forms/bulk_edit.py:115 netbox/users/forms/bulk_edit.py:143
 #: netbox/users/forms/bulk_edit.py:166
@@ -935,7 +935,7 @@ msgstr "Позначити з'єднаним"
 
 #: netbox/circuits/forms/bulk_edit.py:210
 #: netbox/circuits/forms/model_forms.py:223 netbox/circuits/ui/panels.py:85
-#: netbox/dcim/views.py:4163 netbox/dcim/views.py:4269
+#: netbox/dcim/views.py:4169 netbox/dcim/views.py:4275
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:43
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:59
 #: netbox/templates/dcim/panels/interface_connection.html:92
@@ -979,7 +979,7 @@ msgstr "Мережа провайдера"
 #: netbox/circuits/forms/filtersets.py:393
 #: netbox/circuits/forms/model_forms.py:346 netbox/dcim/forms/bulk_edit.py:393
 #: netbox/dcim/forms/bulk_edit.py:1669 netbox/dcim/forms/bulk_edit.py:2198
-#: netbox/dcim/forms/bulk_import.py:304 netbox/dcim/forms/bulk_import.py:1502
+#: netbox/dcim/forms/bulk_import.py:303 netbox/dcim/forms/bulk_import.py:1501
 #: netbox/dcim/forms/filtersets.py:445 netbox/dcim/forms/filtersets.py:1004
 #: netbox/dcim/forms/filtersets.py:2376 netbox/dcim/forms/filtersets.py:2416
 #: netbox/dcim/forms/model_forms.py:376 netbox/dcim/forms/model_forms.py:1699
@@ -994,7 +994,7 @@ msgstr "Мережа провайдера"
 #: netbox/ipam/forms/bulk_import.py:314 netbox/ipam/forms/bulk_import.py:545
 #: netbox/ipam/forms/filtersets.py:166 netbox/ipam/forms/filtersets.py:267
 #: netbox/ipam/forms/filtersets.py:326 netbox/ipam/forms/filtersets.py:412
-#: netbox/ipam/forms/filtersets.py:614 netbox/ipam/forms/model_forms.py:159
+#: netbox/ipam/forms/filtersets.py:619 netbox/ipam/forms/model_forms.py:159
 #: netbox/ipam/forms/model_forms.py:197 netbox/ipam/forms/model_forms.py:229
 #: netbox/ipam/forms/model_forms.py:298 netbox/ipam/forms/model_forms.py:328
 #: netbox/ipam/forms/model_forms.py:527 netbox/ipam/forms/model_forms.py:738
@@ -1039,10 +1039,10 @@ msgstr "Тип каналу зв'язку"
 #: netbox/circuits/forms/bulk_import.py:102
 #: netbox/circuits/forms/bulk_import.py:228
 #: netbox/dcim/forms/bulk_import.py:119 netbox/dcim/forms/bulk_import.py:178
-#: netbox/dcim/forms/bulk_import.py:301 netbox/dcim/forms/bulk_import.py:416
-#: netbox/dcim/forms/bulk_import.py:668 netbox/dcim/forms/bulk_import.py:834
-#: netbox/dcim/forms/bulk_import.py:1535 netbox/dcim/forms/bulk_import.py:2243
-#: netbox/dcim/forms/bulk_import.py:2310 netbox/dcim/forms/bulk_import.py:2372
+#: netbox/dcim/forms/bulk_import.py:300 netbox/dcim/forms/bulk_import.py:415
+#: netbox/dcim/forms/bulk_import.py:667 netbox/dcim/forms/bulk_import.py:833
+#: netbox/dcim/forms/bulk_import.py:1534 netbox/dcim/forms/bulk_import.py:2242
+#: netbox/dcim/forms/bulk_import.py:2309 netbox/dcim/forms/bulk_import.py:2371
 #: netbox/ipam/forms/bulk_import.py:211 netbox/ipam/forms/bulk_import.py:275
 #: netbox/ipam/forms/bulk_import.py:311 netbox/ipam/forms/bulk_import.py:542
 #: netbox/ipam/forms/bulk_import.py:555
@@ -1057,9 +1057,9 @@ msgstr "Операційний стан"
 #: netbox/circuits/forms/bulk_import.py:174
 #: netbox/circuits/forms/bulk_import.py:235
 #: netbox/dcim/forms/bulk_import.py:140 netbox/dcim/forms/bulk_import.py:185
-#: netbox/dcim/forms/bulk_import.py:423 netbox/dcim/forms/bulk_import.py:644
-#: netbox/dcim/forms/bulk_import.py:1842 netbox/dcim/forms/bulk_import.py:2238
-#: netbox/dcim/forms/bulk_import.py:2367 netbox/dcim/forms/bulk_import.py:2422
+#: netbox/dcim/forms/bulk_import.py:422 netbox/dcim/forms/bulk_import.py:643
+#: netbox/dcim/forms/bulk_import.py:1841 netbox/dcim/forms/bulk_import.py:2237
+#: netbox/dcim/forms/bulk_import.py:2366 netbox/dcim/forms/bulk_import.py:2421
 #: netbox/ipam/forms/bulk_import.py:53 netbox/ipam/forms/bulk_import.py:82
 #: netbox/ipam/forms/bulk_import.py:110 netbox/ipam/forms/bulk_import.py:130
 #: netbox/ipam/forms/bulk_import.py:157 netbox/ipam/forms/bulk_import.py:185
@@ -1104,12 +1104,12 @@ msgstr "Операційна роль"
 #: netbox/circuits/forms/bulk_import.py:258
 #: netbox/circuits/forms/model_forms.py:349
 #: netbox/circuits/tables/virtual_circuits.py:109
-#: netbox/circuits/ui/panels.py:179 netbox/dcim/forms/bulk_import.py:1633
+#: netbox/circuits/ui/panels.py:179 netbox/dcim/forms/bulk_import.py:1632
 #: netbox/dcim/forms/model_forms.py:1773 netbox/dcim/forms/model_forms.py:2158
 #: netbox/dcim/forms/model_forms.py:2356 netbox/dcim/forms/model_forms.py:2391
 #: netbox/dcim/forms/model_forms.py:2520 netbox/dcim/tables/connections.py:66
-#: netbox/dcim/tables/devices.py:1304 netbox/dcim/views.py:4155
-#: netbox/dcim/views.py:4263 netbox/ipam/forms/bulk_import.py:334
+#: netbox/dcim/tables/devices.py:1304 netbox/dcim/views.py:4161
+#: netbox/dcim/views.py:4269 netbox/ipam/forms/bulk_import.py:334
 #: netbox/ipam/forms/model_forms.py:340 netbox/ipam/forms/model_forms.py:349
 #: netbox/ipam/tables/fhrp.py:61 netbox/ipam/tables/ip.py:328
 #: netbox/ipam/tables/vlans.py:149
@@ -1132,10 +1132,10 @@ msgstr "Інтерфейс"
 #: netbox/circuits/tables/circuits.py:140 netbox/dcim/forms/bulk_edit.py:369
 #: netbox/dcim/forms/bulk_edit.py:493 netbox/dcim/forms/bulk_edit.py:790
 #: netbox/dcim/forms/bulk_edit.py:844 netbox/dcim/forms/bulk_edit.py:1009
-#: netbox/dcim/forms/bulk_edit.py:1120 netbox/dcim/forms/bulk_import.py:279
-#: netbox/dcim/forms/bulk_import.py:395 netbox/dcim/forms/bulk_import.py:707
-#: netbox/dcim/forms/bulk_import.py:2187 netbox/dcim/forms/bulk_import.py:2221
-#: netbox/dcim/forms/bulk_import.py:2297 netbox/dcim/forms/bulk_import.py:2350
+#: netbox/dcim/forms/bulk_edit.py:1120 netbox/dcim/forms/bulk_import.py:278
+#: netbox/dcim/forms/bulk_import.py:394 netbox/dcim/forms/bulk_import.py:706
+#: netbox/dcim/forms/bulk_import.py:2186 netbox/dcim/forms/bulk_import.py:2220
+#: netbox/dcim/forms/bulk_import.py:2296 netbox/dcim/forms/bulk_import.py:2349
 #: netbox/dcim/forms/filtersets.py:128 netbox/dcim/forms/filtersets.py:392
 #: netbox/dcim/forms/filtersets.py:428 netbox/dcim/forms/filtersets.py:479
 #: netbox/dcim/forms/filtersets.py:532 netbox/dcim/forms/filtersets.py:944
@@ -1209,8 +1209,8 @@ msgstr "Розташування"
 #: netbox/ipam/forms/filtersets.py:202 netbox/ipam/forms/filtersets.py:303
 #: netbox/ipam/forms/filtersets.py:357 netbox/ipam/forms/filtersets.py:436
 #: netbox/ipam/forms/filtersets.py:471 netbox/ipam/forms/filtersets.py:533
-#: netbox/ipam/forms/filtersets.py:574 netbox/ipam/forms/filtersets.py:644
-#: netbox/ipam/forms/filtersets.py:676 netbox/netbox/navigation/menu.py:447
+#: netbox/ipam/forms/filtersets.py:574 netbox/ipam/forms/filtersets.py:649
+#: netbox/ipam/forms/filtersets.py:681 netbox/netbox/navigation/menu.py:447
 #: netbox/templates/dcim/device_edit.html:111
 #: netbox/templates/dcim/htmx/cable_edit.html:94
 #: netbox/templates/dcim/virtualchassis_edit.html:39
@@ -1245,7 +1245,7 @@ msgstr "Власність"
 #: netbox/dcim/forms/filtersets.py:950 netbox/dcim/forms/filtersets.py:1406
 #: netbox/dcim/forms/filtersets.py:1528 netbox/ipam/forms/filtersets.py:111
 #: netbox/ipam/forms/filtersets.py:203 netbox/ipam/forms/filtersets.py:304
-#: netbox/ipam/forms/filtersets.py:358 netbox/ipam/forms/filtersets.py:677
+#: netbox/ipam/forms/filtersets.py:358 netbox/ipam/forms/filtersets.py:682
 #: netbox/netbox/navigation/menu.py:34 netbox/netbox/navigation/menu.py:36
 #: netbox/netbox/views/generic/feature_views.py:274
 #: netbox/tenancy/forms/filtersets.py:57 netbox/tenancy/tables/columns.py:56
@@ -1319,7 +1319,7 @@ msgstr "Сторона завершення"
 
 #: netbox/circuits/forms/filtersets.py:296 netbox/dcim/forms/bulk_edit.py:2034
 #: netbox/extras/forms/model_forms.py:820 netbox/extras/ui/panels.py:461
-#: netbox/ipam/forms/filtersets.py:154 netbox/ipam/forms/filtersets.py:675
+#: netbox/ipam/forms/filtersets.py:154 netbox/ipam/forms/filtersets.py:680
 #: netbox/ipam/forms/model_forms.py:386 netbox/ipam/ui/panels.py:122
 #: netbox/templates/ipam/vlan_edit.html:46
 #: netbox/tenancy/forms/filtersets.py:116
@@ -1333,7 +1333,7 @@ msgstr "Призначення"
 #: netbox/dcim/forms/bulk_edit.py:377 netbox/dcim/forms/bulk_import.py:129
 #: netbox/dcim/forms/model_forms.py:156 netbox/dcim/tables/racks.py:145
 #: netbox/dcim/tables/racks.py:245 netbox/dcim/tables/sites.py:69
-#: netbox/extras/forms/filtersets.py:650 netbox/ipam/filtersets.py:1049
+#: netbox/extras/forms/filtersets.py:650 netbox/ipam/filtersets.py:1060
 #: netbox/ipam/forms/bulk_edit.py:407 netbox/ipam/forms/bulk_import.py:526
 #: netbox/ipam/forms/model_forms.py:645 netbox/ipam/tables/fhrp.py:64
 #: netbox/ipam/tables/vlans.py:98
@@ -1397,7 +1397,7 @@ msgstr "Член"
 msgid "Group Assignment"
 msgstr "Групове завдання"
 
-#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:118
+#: netbox/circuits/models/base.py:18 netbox/dcim/models/cables.py:136
 #: netbox/dcim/models/device_component_templates.py:373
 #: netbox/dcim/models/device_component_templates.py:801
 #: netbox/dcim/models/device_component_templates.py:874
@@ -1430,7 +1430,7 @@ msgstr "Унікальний ідентифікатор каналу зв'язк
 
 #: netbox/circuits/models/circuits.py:74
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
-#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:94
+#: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/cooling.py:46 netbox/dcim/models/cooling.py:130
 #: netbox/dcim/models/device_components.py:643
 #: netbox/dcim/models/device_components.py:1844
@@ -1835,14 +1835,14 @@ msgstr "Кінці"
 #: netbox/circuits/tables/virtual_circuits.py:106
 #: netbox/dcim/forms/bulk_edit.py:843 netbox/dcim/forms/bulk_edit.py:1693
 #: netbox/dcim/forms/bulk_edit.py:2193 netbox/dcim/forms/bulk_edit.py:2247
-#: netbox/dcim/forms/bulk_import.py:814 netbox/dcim/forms/bulk_import.py:875
-#: netbox/dcim/forms/bulk_import.py:901 netbox/dcim/forms/bulk_import.py:927
-#: netbox/dcim/forms/bulk_import.py:948 netbox/dcim/forms/bulk_import.py:1004
-#: netbox/dcim/forms/bulk_import.py:1085 netbox/dcim/forms/bulk_import.py:1141
-#: netbox/dcim/forms/bulk_import.py:1300 netbox/dcim/forms/bulk_import.py:1406
-#: netbox/dcim/forms/bulk_import.py:1425 netbox/dcim/forms/bulk_import.py:1443
-#: netbox/dcim/forms/bulk_import.py:1497 netbox/dcim/forms/bulk_import.py:1619
-#: netbox/dcim/forms/bulk_import.py:2412 netbox/dcim/forms/connections.py:34
+#: netbox/dcim/forms/bulk_import.py:813 netbox/dcim/forms/bulk_import.py:874
+#: netbox/dcim/forms/bulk_import.py:900 netbox/dcim/forms/bulk_import.py:926
+#: netbox/dcim/forms/bulk_import.py:947 netbox/dcim/forms/bulk_import.py:1003
+#: netbox/dcim/forms/bulk_import.py:1084 netbox/dcim/forms/bulk_import.py:1140
+#: netbox/dcim/forms/bulk_import.py:1299 netbox/dcim/forms/bulk_import.py:1405
+#: netbox/dcim/forms/bulk_import.py:1424 netbox/dcim/forms/bulk_import.py:1442
+#: netbox/dcim/forms/bulk_import.py:1496 netbox/dcim/forms/bulk_import.py:1618
+#: netbox/dcim/forms/bulk_import.py:2411 netbox/dcim/forms/connections.py:34
 #: netbox/dcim/forms/filtersets.py:170 netbox/dcim/forms/filtersets.py:1151
 #: netbox/dcim/forms/filtersets.py:1188 netbox/dcim/forms/filtersets.py:1355
 #: netbox/dcim/forms/filtersets.py:1706 netbox/dcim/forms/filtersets.py:1729
@@ -1871,7 +1871,7 @@ msgstr "Кінці"
 #: netbox/dcim/tables/devices.py:919 netbox/dcim/tables/devices.py:997
 #: netbox/dcim/tables/devices.py:1075 netbox/dcim/tables/devices.py:1201
 #: netbox/dcim/tables/modules.py:120 netbox/extras/forms/filtersets.py:448
-#: netbox/ipam/forms/bulk_import.py:320 netbox/ipam/forms/filtersets.py:682
+#: netbox/ipam/forms/bulk_import.py:320 netbox/ipam/forms/filtersets.py:687
 #: netbox/ipam/forms/model_forms.py:382 netbox/ipam/tables/vlans.py:160
 #: netbox/templates/dcim/device_edit.html:12
 #: netbox/templates/dcim/panels/interface_connection.html:60
@@ -1912,17 +1912,17 @@ msgstr "Точка закінчення"
 #: netbox/dcim/forms/filtersets.py:1748 netbox/dcim/forms/filtersets.py:1788
 #: netbox/dcim/forms/filtersets.py:1823 netbox/dcim/forms/filtersets.py:2020
 #: netbox/dcim/tables/devices.py:397 netbox/dcim/tables/devices.py:709
-#: netbox/dcim/ui/panels.py:487 netbox/dcim/ui/panels.py:625
+#: netbox/dcim/ui/panels.py:486 netbox/dcim/ui/panels.py:624
 #: netbox/ipam/tables/vlans.py:178
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:20
 msgid "Connection"
 msgstr "Підключення"
 
 #: netbox/circuits/ui/panels.py:99 netbox/dcim/forms/bulk_edit.py:1918
-#: netbox/dcim/forms/bulk_import.py:886 netbox/dcim/forms/bulk_import.py:912
+#: netbox/dcim/forms/bulk_import.py:885 netbox/dcim/forms/bulk_import.py:911
 #: netbox/dcim/forms/filtersets.py:1717 netbox/dcim/forms/filtersets.py:1757
 #: netbox/dcim/forms/filtersets.py:2051 netbox/dcim/tables/devices.py:678
-#: netbox/dcim/ui/panels.py:582
+#: netbox/dcim/ui/panels.py:581
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:68
 msgid "Speed"
 msgstr "Швидкість"
@@ -2383,7 +2383,8 @@ msgid "File"
 msgstr "Файл"
 
 #: netbox/core/forms/filtersets.py:70 netbox/core/forms/mixins.py:16
-#: netbox/extras/forms/bulk_import.py:202
+#: netbox/extras/forms/bulk_import.py:188
+#: netbox/extras/forms/bulk_import.py:245
 #: netbox/extras/forms/filtersets.py:206 netbox/extras/forms/filtersets.py:429
 #: netbox/extras/forms/filtersets.py:461 netbox/extras/forms/filtersets.py:549
 msgid "Data source"
@@ -2662,7 +2663,7 @@ msgstr "Поточне налаштування"
 msgid "Config revision #{id}"
 msgstr "Ревізія конфігурації #{id}"
 
-#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:87
+#: netbox/core/models/data.py:45 netbox/dcim/models/cables.py:105
 #: netbox/dcim/models/cooling.py:41
 #: netbox/dcim/models/device_component_templates.py:230
 #: netbox/dcim/models/device_component_templates.py:265
@@ -2767,7 +2768,7 @@ msgstr ""
 msgid "last updated"
 msgstr "останнє оновлення"
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:814
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:860
 msgid "path"
 msgstr "доріжка"
 
@@ -2800,11 +2801,11 @@ msgstr "файл даних"
 msgid "data files"
 msgstr "файли даних"
 
-#: netbox/core/models/data.py:410
+#: netbox/core/models/data.py:413
 msgid "auto sync record"
 msgstr "автоматична синхронізація запису"
 
-#: netbox/core/models/data.py:411
+#: netbox/core/models/data.py:414
 msgid "auto sync records"
 msgstr "автоматична синхронізація записів"
 
@@ -2923,10 +2924,28 @@ msgstr "типи об'єктів"
 msgid "Sync Data"
 msgstr "Синхронізація даних"
 
-#: netbox/core/signals.py:178
+#: netbox/core/signals.py:184
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr "Видалення запобігає правилу захисту: {message}"
+
+#: netbox/core/signals.py:358
+#, python-brace-format
+msgid "Automatic synchronization failed for {count} object:"
+msgid_plural "Automatic synchronization failed for {count} objects:"
+msgstr[0] "Автоматична синхронізація не вдалася для {count} об'єкт:"
+msgstr[1] "Автоматична синхронізація не вдалася для {count} об'єкти:"
+msgstr[2] "Автоматична синхронізація не вдалася для {count} об'єкти:"
+msgstr[3] "Автоматична синхронізація не вдалася для {count} об'єкти:"
+
+#: netbox/core/signals.py:364
+#, python-brace-format
+msgid "{count} additional failure is not shown."
+msgid_plural "{count} additional failures are not shown."
+msgstr[0] "{count} додатковий збій не показаний."
+msgstr[1] "{count} додаткові збої не показані."
+msgstr[2] "{count} додаткові збої не показані."
+msgstr[3] "{count} додаткові збої не показані."
 
 #: netbox/core/tables/change_logging.py:26
 #: netbox/templates/account/profile.html:17
@@ -3063,7 +3082,7 @@ msgstr "Робочі процеси"
 msgid "Host"
 msgstr "Ведучий"
 
-#: netbox/core/tables/tasks.py:51 netbox/ipam/forms/filtersets.py:664
+#: netbox/core/tables/tasks.py:51 netbox/ipam/forms/filtersets.py:669
 msgid "Port"
 msgstr "Порт"
 
@@ -3125,7 +3144,7 @@ msgstr "Бекенд"
 #: netbox/templates/core/inc/datafile_panel.html:4
 #: netbox/templates/core/inc/datafile_panel.html:17
 #: netbox/templates/extras/object_render_config.html:23
-#: netbox/templates/generic/bulk_import.html:35
+#: netbox/templates/generic/bulk_import.html:36
 msgid "Data File"
 msgstr "Файл даних"
 
@@ -3256,7 +3275,7 @@ msgid "Position (U)"
 msgstr "Позиція (U)"
 
 #: netbox/dcim/api/serializers_/devices.py:181
-#: netbox/dcim/forms/bulk_import.py:837 netbox/dcim/forms/model_forms.py:992
+#: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/model_forms.py:992
 msgid "Replicate components"
 msgstr "Повторювання компонентів"
 
@@ -3269,12 +3288,12 @@ msgstr ""
 "замовчуванням: true)"
 
 #: netbox/dcim/api/serializers_/devices.py:188
-#: netbox/dcim/forms/bulk_import.py:842 netbox/dcim/forms/model_forms.py:998
+#: netbox/dcim/forms/bulk_import.py:841 netbox/dcim/forms/model_forms.py:998
 msgid "Adopt components"
 msgstr "Прийняти компоненти"
 
 #: netbox/dcim/api/serializers_/devices.py:189
-#: netbox/dcim/forms/bulk_import.py:844 netbox/dcim/forms/model_forms.py:1001
+#: netbox/dcim/forms/bulk_import.py:843 netbox/dcim/forms/model_forms.py:1001
 msgid "Adopt already existing components"
 msgstr "Прийняти вже існуючі компоненти"
 
@@ -3314,7 +3333,7 @@ msgstr "Надані значення 'mac_address' та 'primary_mac_address' �
 msgid "You do not have permission to create MAC addresses."
 msgstr "У вас немає дозволу на створення MAC-адрес."
 
-#: netbox/dcim/api/serializers_/racks.py:142 netbox/dcim/ui/panels.py:73
+#: netbox/dcim/api/serializers_/racks.py:145 netbox/dcim/ui/panels.py:73
 msgid "Facility ID"
 msgstr "Ідентифікатор об'єкта"
 
@@ -3506,9 +3525,9 @@ msgstr "Більше не діє або використовується"
 #: netbox/dcim/forms/bulk_edit.py:712 netbox/dcim/forms/bulk_edit.py:740
 #: netbox/dcim/forms/bulk_edit.py:1885 netbox/dcim/forms/bulk_import.py:89
 #: netbox/dcim/forms/bulk_import.py:103 netbox/dcim/forms/bulk_import.py:166
-#: netbox/dcim/forms/bulk_import.py:575 netbox/dcim/forms/bulk_import.py:601
-#: netbox/dcim/forms/bulk_import.py:727 netbox/dcim/forms/bulk_import.py:1146
-#: netbox/dcim/forms/bulk_import.py:1514 netbox/dcim/forms/filtersets.py:279
+#: netbox/dcim/forms/bulk_import.py:574 netbox/dcim/forms/bulk_import.py:600
+#: netbox/dcim/forms/bulk_import.py:726 netbox/dcim/forms/bulk_import.py:1145
+#: netbox/dcim/forms/bulk_import.py:1513 netbox/dcim/forms/filtersets.py:279
 #: netbox/dcim/forms/filtersets.py:904 netbox/dcim/forms/filtersets.py:920
 #: netbox/dcim/forms/model_forms.py:109 netbox/dcim/forms/model_forms.py:127
 #: netbox/dcim/forms/model_forms.py:240 netbox/dcim/forms/model_forms.py:716
@@ -3662,7 +3681,7 @@ msgstr "Віртуальний"
 #: netbox/dcim/choices.py:907 netbox/dcim/choices.py:1421
 #: netbox/dcim/forms/bulk_edit.py:2040 netbox/dcim/forms/filtersets.py:2013
 #: netbox/dcim/forms/filtersets.py:2147 netbox/dcim/forms/model_forms.py:1576
-#: netbox/dcim/forms/model_forms.py:2171 netbox/dcim/ui/panels.py:651
+#: netbox/dcim/forms/model_forms.py:2171 netbox/dcim/ui/panels.py:650
 #: netbox/netbox/navigation/menu.py:160 netbox/netbox/navigation/menu.py:164
 msgid "Wireless"
 msgstr "Бездротові мережі"
@@ -3672,7 +3691,7 @@ msgid "Virtual interfaces"
 msgstr "Віртуальні інтерфейси"
 
 #: netbox/dcim/choices.py:1205 netbox/dcim/forms/bulk_edit.py:1893
-#: netbox/dcim/forms/bulk_import.py:1153 netbox/dcim/forms/model_forms.py:1557
+#: netbox/dcim/forms/bulk_import.py:1152 netbox/dcim/forms/model_forms.py:1557
 #: netbox/dcim/tables/devices.py:777
 #: netbox/virtualization/forms/bulk_edit.py:231
 #: netbox/virtualization/forms/bulk_import.py:198
@@ -4185,7 +4204,7 @@ msgstr "Батьківська група тех. майданчиків (ско
 
 #: netbox/dcim/filtersets.py:201 netbox/dcim/filtersets.py:446
 #: netbox/dcim/filtersets.py:598 netbox/extras/filtersets.py:486
-#: netbox/ipam/filtersets.py:896 netbox/ipam/filtersets.py:1042
+#: netbox/ipam/filtersets.py:896 netbox/ipam/filtersets.py:1053
 #: netbox/users/filtersets.py:285
 msgid "Group (ID)"
 msgstr "Група (ідентифікатор)"
@@ -4234,7 +4253,7 @@ msgstr "Тип стійки (ідентифікатор)"
 #: netbox/dcim/filtersets.py:496 netbox/dcim/filtersets.py:1248
 #: netbox/dcim/filtersets.py:1413 netbox/dcim/filtersets.py:2712
 #: netbox/ipam/filtersets.py:295 netbox/ipam/filtersets.py:418
-#: netbox/ipam/filtersets.py:535 netbox/ipam/filtersets.py:1054
+#: netbox/ipam/filtersets.py:535 netbox/ipam/filtersets.py:1065
 #: netbox/virtualization/filtersets.py:258
 msgid "Role (ID)"
 msgstr "Роль (ідентифікатор)"
@@ -4243,7 +4262,7 @@ msgstr "Роль (ідентифікатор)"
 #: netbox/dcim/filtersets.py:1420 netbox/dcim/filtersets.py:2719
 #: netbox/extras/filtersets.py:778 netbox/ipam/filtersets.py:302
 #: netbox/ipam/filtersets.py:425 netbox/ipam/filtersets.py:542
-#: netbox/ipam/filtersets.py:1061 netbox/virtualization/filtersets.py:265
+#: netbox/ipam/filtersets.py:1072 netbox/virtualization/filtersets.py:265
 msgid "Role (slug)"
 msgstr "Роль (скорочення)"
 
@@ -4475,7 +4494,7 @@ msgstr "Це повна глибина"
 #: netbox/dcim/forms/filtersets.py:1050 netbox/dcim/forms/filtersets.py:2078
 #: netbox/dcim/forms/filtersets.py:2453 netbox/dcim/forms/model_forms.py:2517
 #: netbox/dcim/models/devices.py:1420 netbox/dcim/models/devices.py:1444
-#: netbox/dcim/ui/panels.py:476 netbox/dcim/ui/panels.py:613
+#: netbox/dcim/ui/panels.py:475 netbox/dcim/ui/panels.py:612
 #: netbox/virtualization/filtersets.py:282
 #: netbox/virtualization/filtersets.py:370
 #: netbox/virtualization/forms/filtersets.py:247
@@ -4528,14 +4547,14 @@ msgstr "Стійка (назва)"
 
 #: netbox/dcim/filtersets.py:1872 netbox/dcim/filtersets.py:1979
 #: netbox/dcim/filtersets.py:2246 netbox/ipam/filtersets.py:659
-#: netbox/ipam/filtersets.py:906 netbox/ipam/filtersets.py:1379
+#: netbox/ipam/filtersets.py:906 netbox/ipam/filtersets.py:1402
 #: netbox/virtualization/filtersets.py:205 netbox/vpn/filtersets.py:423
 msgid "Device (ID)"
 msgstr "Пристрій (ідентифікатор)"
 
 #: netbox/dcim/filtersets.py:1879 netbox/dcim/filtersets.py:1986
 #: netbox/dcim/filtersets.py:2241 netbox/ipam/filtersets.py:654
-#: netbox/ipam/filtersets.py:901 netbox/ipam/filtersets.py:1374
+#: netbox/ipam/filtersets.py:901 netbox/ipam/filtersets.py:1397
 #: netbox/vpn/filtersets.py:418
 msgid "Device (name)"
 msgstr "Пристрій (назва)"
@@ -4587,13 +4606,13 @@ msgid "Cooling outflow (ID)"
 msgstr "Відтік охолодження (ID)"
 
 #: netbox/dcim/filtersets.py:2251 netbox/ipam/filtersets.py:664
-#: netbox/ipam/filtersets.py:911 netbox/ipam/filtersets.py:1384
+#: netbox/ipam/filtersets.py:911 netbox/ipam/filtersets.py:1407
 #: netbox/vpn/filtersets.py:429
 msgid "Virtual machine (name)"
 msgstr "Віртуальна машина (назва)"
 
 #: netbox/dcim/filtersets.py:2256 netbox/ipam/filtersets.py:669
-#: netbox/ipam/filtersets.py:916 netbox/ipam/filtersets.py:1389
+#: netbox/ipam/filtersets.py:916 netbox/ipam/filtersets.py:1412
 #: netbox/virtualization/filtersets.py:347
 #: netbox/virtualization/filtersets.py:405 netbox/vpn/filtersets.py:434
 msgid "Virtual machine (ID)"
@@ -4618,7 +4637,7 @@ msgstr "Інтерфейс віртуальної машини (ідентифі
 msgid "Is assigned"
 msgstr "призначається"
 
-#: netbox/dcim/filtersets.py:2286 netbox/dcim/forms/bulk_import.py:1640
+#: netbox/dcim/filtersets.py:2286 netbox/dcim/forms/bulk_import.py:1639
 #: netbox/ipam/forms/bulk_import.py:348
 msgid "Is primary"
 msgstr "Є первинним"
@@ -4639,10 +4658,10 @@ msgid "Assigned VID"
 msgstr "Призначений VID"
 
 #: netbox/dcim/filtersets.py:2364 netbox/dcim/forms/bulk_edit.py:2006
-#: netbox/dcim/forms/bulk_import.py:1238 netbox/dcim/forms/filtersets.py:2131
+#: netbox/dcim/forms/bulk_import.py:1237 netbox/dcim/forms/filtersets.py:2131
 #: netbox/dcim/forms/model_forms.py:2142
 #: netbox/dcim/models/device_components.py:1147
-#: netbox/dcim/tables/devices.py:694 netbox/dcim/ui/panels.py:616
+#: netbox/dcim/tables/devices.py:694 netbox/dcim/ui/panels.py:615
 #: netbox/ipam/filtersets.py:372 netbox/ipam/filtersets.py:384
 #: netbox/ipam/filtersets.py:523 netbox/ipam/filtersets.py:630
 #: netbox/ipam/filtersets.py:642 netbox/ipam/forms/bulk_edit.py:194
@@ -4675,14 +4694,14 @@ msgstr "VRF"
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: netbox/dcim/filtersets.py:2376 netbox/ipam/filtersets.py:1100
+#: netbox/dcim/filtersets.py:2376 netbox/ipam/filtersets.py:1111
 #: netbox/vpn/filtersets.py:385
 msgid "L2VPN (ID)"
 msgstr "L2VPN (ідентифікатор)"
 
 #: netbox/dcim/filtersets.py:2382 netbox/dcim/forms/filtersets.py:2136
-#: netbox/dcim/tables/devices.py:634 netbox/dcim/ui/panels.py:595
-#: netbox/ipam/filtersets.py:1106 netbox/ipam/forms/filtersets.py:634
+#: netbox/dcim/tables/devices.py:634 netbox/dcim/ui/panels.py:594
+#: netbox/ipam/filtersets.py:1117 netbox/ipam/forms/filtersets.py:639
 #: netbox/ipam/tables/vlans.py:120 netbox/ipam/ui/panels.py:207
 #: netbox/virtualization/forms/filtersets.py:311
 #: netbox/vpn/forms/bulk_import.py:285 netbox/vpn/forms/filtersets.py:268
@@ -4692,7 +4711,7 @@ msgstr "L2VPN (ідентифікатор)"
 msgid "L2VPN"
 msgstr "L2VPN"
 
-#: netbox/dcim/filtersets.py:2388 netbox/ipam/filtersets.py:1188
+#: netbox/dcim/filtersets.py:2388 netbox/ipam/filtersets.py:1211
 msgid "VLAN Translation Policy (ID)"
 msgstr "Політика перекладу VLAN (ідентифікатор)"
 
@@ -4879,9 +4898,9 @@ msgstr "Часовий пояс"
 #: netbox/dcim/forms/bulk_edit.py:745 netbox/dcim/forms/bulk_edit.py:764
 #: netbox/dcim/forms/bulk_edit.py:856 netbox/dcim/forms/bulk_edit.py:1674
 #: netbox/dcim/forms/bulk_edit.py:2203 netbox/dcim/forms/bulk_import.py:220
-#: netbox/dcim/forms/bulk_import.py:456 netbox/dcim/forms/bulk_import.py:491
-#: netbox/dcim/forms/bulk_import.py:521 netbox/dcim/forms/bulk_import.py:611
-#: netbox/dcim/forms/bulk_import.py:647 netbox/dcim/forms/bulk_import.py:1508
+#: netbox/dcim/forms/bulk_import.py:455 netbox/dcim/forms/bulk_import.py:490
+#: netbox/dcim/forms/bulk_import.py:520 netbox/dcim/forms/bulk_import.py:610
+#: netbox/dcim/forms/bulk_import.py:646 netbox/dcim/forms/bulk_import.py:1507
 #: netbox/dcim/forms/filtersets.py:378 netbox/dcim/forms/filtersets.py:450
 #: netbox/dcim/forms/filtersets.py:604 netbox/dcim/forms/filtersets.py:745
 #: netbox/dcim/forms/filtersets.py:791 netbox/dcim/forms/filtersets.py:925
@@ -4902,7 +4921,7 @@ msgid "Manufacturer"
 msgstr "Виробник"
 
 #: netbox/dcim/forms/bulk_edit.py:250 netbox/dcim/forms/bulk_edit.py:413
-#: netbox/dcim/forms/bulk_import.py:229 netbox/dcim/forms/bulk_import.py:321
+#: netbox/dcim/forms/bulk_import.py:228 netbox/dcim/forms/bulk_import.py:320
 #: netbox/dcim/forms/filtersets.py:313 netbox/dcim/forms/model_forms.py:287
 #: netbox/dcim/forms/model_forms.py:338
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:6
@@ -4910,14 +4929,14 @@ msgid "Form factor"
 msgstr "Форм-фактор"
 
 #: netbox/dcim/forms/bulk_edit.py:255 netbox/dcim/forms/bulk_edit.py:418
-#: netbox/dcim/forms/bulk_import.py:237 netbox/dcim/forms/bulk_import.py:324
+#: netbox/dcim/forms/bulk_import.py:236 netbox/dcim/forms/bulk_import.py:323
 #: netbox/dcim/forms/filtersets.py:318
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:10
 msgid "Width"
 msgstr "Ширина"
 
 #: netbox/dcim/forms/bulk_edit.py:261 netbox/dcim/forms/bulk_edit.py:424
-#: netbox/dcim/forms/bulk_import.py:331
+#: netbox/dcim/forms/bulk_import.py:330
 msgid "Height (U)"
 msgstr "Висота (U)"
 
@@ -4939,7 +4958,7 @@ msgid "Outer depth"
 msgstr "Зовнішня глибина"
 
 #: netbox/dcim/forms/bulk_edit.py:288 netbox/dcim/forms/bulk_edit.py:447
-#: netbox/dcim/forms/bulk_import.py:242 netbox/dcim/forms/bulk_import.py:334
+#: netbox/dcim/forms/bulk_import.py:241 netbox/dcim/forms/bulk_import.py:333
 #: netbox/dcim/forms/model_forms.py:291 netbox/dcim/forms/model_forms.py:343
 msgid "Outer unit"
 msgstr "Зовнішній блок"
@@ -4952,7 +4971,7 @@ msgstr "Глибина монтажу"
 #: netbox/dcim/forms/bulk_edit.py:472 netbox/dcim/forms/bulk_edit.py:497
 #: netbox/dcim/forms/bulk_edit.py:580 netbox/dcim/forms/bulk_edit.py:602
 #: netbox/dcim/forms/bulk_edit.py:667 netbox/dcim/forms/bulk_edit.py:698
-#: netbox/dcim/forms/bulk_import.py:469 netbox/dcim/forms/bulk_import.py:538
+#: netbox/dcim/forms/bulk_import.py:468 netbox/dcim/forms/bulk_import.py:537
 #: netbox/dcim/forms/filtersets.py:338 netbox/dcim/forms/filtersets.py:370
 #: netbox/dcim/forms/filtersets.py:397 netbox/dcim/forms/filtersets.py:482
 #: netbox/dcim/forms/filtersets.py:596 netbox/dcim/forms/filtersets.py:714
@@ -4960,7 +4979,7 @@ msgstr "Глибина монтажу"
 #: netbox/dcim/forms/model_forms.py:315 netbox/dcim/forms/model_forms.py:447
 #: netbox/dcim/tables/devicetypes.py:110 netbox/dcim/tables/modules.py:90
 #: netbox/dcim/tables/racks.py:95 netbox/dcim/tables/racks.py:196
-#: netbox/dcim/views.py:1003 netbox/dcim/views.py:1139
+#: netbox/dcim/views.py:1004 netbox/dcim/views.py:1140
 #: netbox/extras/forms/bulk_edit.py:57 netbox/extras/forms/bulk_edit.py:149
 #: netbox/extras/forms/bulk_edit.py:203 netbox/extras/forms/bulk_edit.py:231
 #: netbox/extras/forms/bulk_edit.py:338 netbox/extras/forms/bulk_edit.py:364
@@ -4977,8 +4996,8 @@ msgstr "Максимальна вага"
 
 #: netbox/dcim/forms/bulk_edit.py:308 netbox/dcim/forms/bulk_edit.py:482
 #: netbox/dcim/forms/bulk_edit.py:585 netbox/dcim/forms/bulk_edit.py:672
-#: netbox/dcim/forms/bulk_import.py:248 netbox/dcim/forms/bulk_import.py:352
-#: netbox/dcim/forms/bulk_import.py:474 netbox/dcim/forms/bulk_import.py:543
+#: netbox/dcim/forms/bulk_import.py:247 netbox/dcim/forms/bulk_import.py:351
+#: netbox/dcim/forms/bulk_import.py:473 netbox/dcim/forms/bulk_import.py:542
 #: netbox/dcim/forms/filtersets.py:348 netbox/dcim/forms/filtersets.py:718
 #: netbox/dcim/forms/filtersets.py:873 netbox/dcim/forms/model_forms.py:296
 #: netbox/dcim/forms/model_forms.py:353 netbox/dcim/forms/model_forms.py:517
@@ -4987,8 +5006,8 @@ msgid "Weight unit"
 msgstr "Вага юніта"
 
 #: netbox/dcim/forms/bulk_edit.py:314 netbox/dcim/forms/bulk_edit.py:462
-#: netbox/dcim/forms/bulk_import.py:254 netbox/dcim/forms/bulk_import.py:257
-#: netbox/dcim/forms/bulk_import.py:346 netbox/dcim/forms/bulk_import.py:349
+#: netbox/dcim/forms/bulk_import.py:253 netbox/dcim/forms/bulk_import.py:256
+#: netbox/dcim/forms/bulk_import.py:345 netbox/dcim/forms/bulk_import.py:348
 #: netbox/dcim/forms/filtersets.py:353
 msgid "Cooling capability"
 msgstr "Можливість охолодження"
@@ -5012,7 +5031,7 @@ msgstr "Зовнішні розміри"
 
 #: netbox/dcim/forms/bulk_edit.py:331 netbox/dcim/forms/model_forms.py:316
 #: netbox/dcim/forms/model_forms.py:451 netbox/dcim/ui/panels.py:167
-#: netbox/dcim/views.py:997 netbox/dcim/views.py:1137
+#: netbox/dcim/views.py:998 netbox/dcim/views.py:1138
 #: netbox/extras/tables/tables.py:291
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:3
 #: netbox/templates/extras/panels/imageattachment_file.html:14
@@ -5021,7 +5040,7 @@ msgstr "Габарити"
 
 #: netbox/dcim/forms/bulk_edit.py:333 netbox/dcim/forms/filtersets.py:369
 #: netbox/dcim/forms/filtersets.py:396 netbox/dcim/forms/model_forms.py:318
-#: netbox/dcim/views.py:1002 netbox/dcim/views.py:1138
+#: netbox/dcim/views.py:1003 netbox/dcim/views.py:1139
 #: netbox/templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "Нумерація"
@@ -5037,7 +5056,7 @@ msgstr "Нумерація"
 msgid "Cooling"
 msgstr "Охолодження"
 
-#: netbox/dcim/forms/bulk_edit.py:398 netbox/dcim/forms/bulk_import.py:311
+#: netbox/dcim/forms/bulk_edit.py:398 netbox/dcim/forms/bulk_import.py:310
 #: netbox/dcim/forms/filtersets.py:458
 msgid "Rack type"
 msgstr "Тип стійки"
@@ -5055,8 +5074,8 @@ msgstr "Призначеня міток"
 
 #: netbox/dcim/forms/bulk_edit.py:457 netbox/dcim/forms/bulk_edit.py:570
 #: netbox/dcim/forms/bulk_edit.py:657 netbox/dcim/forms/bulk_edit.py:813
-#: netbox/dcim/forms/bulk_import.py:340 netbox/dcim/forms/bulk_import.py:526
-#: netbox/dcim/forms/bulk_import.py:741 netbox/dcim/forms/filtersets.py:461
+#: netbox/dcim/forms/bulk_import.py:339 netbox/dcim/forms/bulk_import.py:525
+#: netbox/dcim/forms/bulk_import.py:740 netbox/dcim/forms/filtersets.py:461
 #: netbox/dcim/forms/filtersets.py:626 netbox/dcim/forms/filtersets.py:859
 #: netbox/dcim/forms/filtersets.py:1031 netbox/dcim/forms/model_forms.py:348
 #: netbox/dcim/forms/model_forms.py:512 netbox/dcim/forms/model_forms.py:611
@@ -5065,10 +5084,10 @@ msgid "Airflow"
 msgstr "Потік повітря"
 
 #: netbox/dcim/forms/bulk_edit.py:491 netbox/dcim/forms/bulk_edit.py:1031
-#: netbox/dcim/forms/bulk_edit.py:1168 netbox/dcim/forms/bulk_import.py:402
-#: netbox/dcim/forms/bulk_import.py:405 netbox/dcim/forms/bulk_import.py:714
-#: netbox/dcim/forms/bulk_import.py:2228 netbox/dcim/forms/bulk_import.py:2232
-#: netbox/dcim/forms/bulk_import.py:2357 netbox/dcim/forms/bulk_import.py:2361
+#: netbox/dcim/forms/bulk_edit.py:1168 netbox/dcim/forms/bulk_import.py:401
+#: netbox/dcim/forms/bulk_import.py:404 netbox/dcim/forms/bulk_import.py:713
+#: netbox/dcim/forms/bulk_import.py:2227 netbox/dcim/forms/bulk_import.py:2231
+#: netbox/dcim/forms/bulk_import.py:2356 netbox/dcim/forms/bulk_import.py:2360
 #: netbox/dcim/forms/filtersets.py:137 netbox/dcim/forms/filtersets.py:393
 #: netbox/dcim/forms/filtersets.py:489 netbox/dcim/forms/filtersets.py:503
 #: netbox/dcim/forms/filtersets.py:549 netbox/dcim/forms/filtersets.py:999
@@ -5096,7 +5115,7 @@ msgstr "Стійка"
 msgid "Hardware"
 msgstr "Апаратне забезпечення"
 
-#: netbox/dcim/forms/bulk_edit.py:546 netbox/dcim/forms/bulk_import.py:462
+#: netbox/dcim/forms/bulk_edit.py:546 netbox/dcim/forms/bulk_import.py:461
 #: netbox/dcim/forms/filtersets.py:609 netbox/dcim/forms/model_forms.py:527
 #: netbox/virtualization/forms/bulk_edit.py:85
 #: netbox/virtualization/forms/bulk_import.py:89
@@ -5120,9 +5139,9 @@ msgid "Exclude from utilization"
 msgstr "Виключити з утилізації"
 
 #: netbox/dcim/forms/bulk_edit.py:575 netbox/dcim/forms/bulk_edit.py:662
-#: netbox/dcim/forms/bulk_edit.py:818 netbox/dcim/forms/bulk_import.py:532
-#: netbox/dcim/forms/bulk_import.py:535 netbox/dcim/forms/bulk_import.py:747
-#: netbox/dcim/forms/bulk_import.py:750 netbox/dcim/forms/filtersets.py:631
+#: netbox/dcim/forms/bulk_edit.py:818 netbox/dcim/forms/bulk_import.py:531
+#: netbox/dcim/forms/bulk_import.py:534 netbox/dcim/forms/bulk_import.py:746
+#: netbox/dcim/forms/bulk_import.py:749 netbox/dcim/forms/filtersets.py:631
 #: netbox/dcim/forms/filtersets.py:864 netbox/dcim/forms/filtersets.py:1036
 msgid "Cooling method"
 msgstr "Спосіб охолодження"
@@ -5154,13 +5173,13 @@ msgid "Module Bay Type"
 msgstr "Тип відсіку модуля"
 
 #: netbox/dcim/forms/bulk_edit.py:630 netbox/dcim/forms/model_forms.py:593
-#: netbox/dcim/views.py:1833 netbox/extras/forms/model_forms.py:715
+#: netbox/dcim/views.py:1839 netbox/extras/forms/model_forms.py:715
 msgid "Schema"
 msgstr "схема"
 
 #: netbox/dcim/forms/bulk_edit.py:636 netbox/dcim/forms/bulk_edit.py:643
-#: netbox/dcim/forms/bulk_edit.py:922 netbox/dcim/forms/bulk_import.py:515
-#: netbox/dcim/forms/bulk_import.py:1826 netbox/dcim/forms/filtersets.py:786
+#: netbox/dcim/forms/bulk_edit.py:922 netbox/dcim/forms/bulk_import.py:514
+#: netbox/dcim/forms/bulk_import.py:1825 netbox/dcim/forms/filtersets.py:786
 #: netbox/dcim/forms/filtersets.py:1236 netbox/dcim/forms/filtersets.py:1368
 #: netbox/dcim/forms/model_forms.py:599 netbox/dcim/forms/model_forms.py:622
 #: netbox/dcim/forms/model_forms.py:1056 netbox/dcim/tables/modules.py:71
@@ -5190,7 +5209,7 @@ msgstr "Видаліть типи відсіків"
 #: netbox/dcim/forms/model_forms.py:1570 netbox/dcim/forms/model_forms.py:1596
 #: netbox/dcim/forms/model_forms.py:1640 netbox/dcim/forms/model_forms.py:1664
 #: netbox/dcim/forms/object_create.py:148 netbox/dcim/tables/modules.py:84
-#: netbox/dcim/tables/modules.py:138 netbox/dcim/views.py:3360
+#: netbox/dcim/tables/modules.py:138 netbox/dcim/views.py:3366
 msgid "Module Type"
 msgstr "Тип модуля"
 
@@ -5210,10 +5229,10 @@ msgid "VM role"
 msgstr "Роль віртуальної машини"
 
 #: netbox/dcim/forms/bulk_edit.py:726 netbox/dcim/forms/bulk_edit.py:750
-#: netbox/dcim/forms/bulk_edit.py:828 netbox/dcim/forms/bulk_import.py:585
-#: netbox/dcim/forms/bulk_import.py:589 netbox/dcim/forms/bulk_import.py:618
-#: netbox/dcim/forms/bulk_import.py:622 netbox/dcim/forms/bulk_import.py:753
-#: netbox/dcim/forms/bulk_import.py:757 netbox/dcim/forms/filtersets.py:899
+#: netbox/dcim/forms/bulk_edit.py:828 netbox/dcim/forms/bulk_import.py:584
+#: netbox/dcim/forms/bulk_import.py:588 netbox/dcim/forms/bulk_import.py:617
+#: netbox/dcim/forms/bulk_import.py:621 netbox/dcim/forms/bulk_import.py:752
+#: netbox/dcim/forms/bulk_import.py:756 netbox/dcim/forms/filtersets.py:899
 #: netbox/dcim/forms/filtersets.py:930 netbox/dcim/forms/filtersets.py:1055
 #: netbox/dcim/forms/model_forms.py:711 netbox/dcim/forms/model_forms.py:748
 #: netbox/dcim/forms/model_forms.py:883
@@ -5225,19 +5244,19 @@ msgid "Config template"
 msgstr "Шаблон конфігурації"
 
 #: netbox/dcim/forms/bulk_edit.py:769 netbox/dcim/forms/bulk_edit.py:1308
-#: netbox/dcim/forms/bulk_edit.py:1417 netbox/dcim/forms/bulk_import.py:653
+#: netbox/dcim/forms/bulk_edit.py:1417 netbox/dcim/forms/bulk_import.py:652
 #: netbox/dcim/forms/filtersets.py:147 netbox/dcim/forms/filtersets.py:1658
 #: netbox/dcim/forms/model_forms.py:828 netbox/dcim/forms/model_forms.py:1326
 #: netbox/dcim/forms/model_forms.py:1343 netbox/extras/filtersets.py:767
 msgid "Device type"
 msgstr "Тип пристрою"
 
-#: netbox/dcim/forms/bulk_edit.py:780 netbox/dcim/forms/bulk_import.py:634
+#: netbox/dcim/forms/bulk_edit.py:780 netbox/dcim/forms/bulk_import.py:633
 #: netbox/dcim/forms/filtersets.py:152 netbox/dcim/forms/model_forms.py:836
 msgid "Device role"
 msgstr "Роль пристрою"
 
-#: netbox/dcim/forms/bulk_edit.py:803 netbox/dcim/forms/bulk_import.py:659
+#: netbox/dcim/forms/bulk_edit.py:803 netbox/dcim/forms/bulk_import.py:658
 #: netbox/dcim/forms/filtersets.py:913 netbox/dcim/forms/filtersets.py:1023
 #: netbox/dcim/forms/model_forms.py:759 netbox/dcim/forms/model_forms.py:841
 #: netbox/dcim/tables/devices.py:197 netbox/extras/filtersets.py:783
@@ -5249,7 +5268,7 @@ msgstr "Роль пристрою"
 msgid "Platform"
 msgstr "Платформа"
 
-#: netbox/dcim/forms/bulk_edit.py:833 netbox/dcim/forms/bulk_import.py:678
+#: netbox/dcim/forms/bulk_edit.py:833 netbox/dcim/forms/bulk_import.py:677
 #: netbox/dcim/forms/filtersets.py:955 netbox/dcim/forms/filtersets.py:1130
 #: netbox/dcim/forms/model_forms.py:850 netbox/dcim/tables/devices.py:217
 #: netbox/extras/filtersets.py:816 netbox/extras/forms/filtersets.py:449
@@ -5278,12 +5297,12 @@ msgstr "Конфігурація"
 msgid "Virtualization"
 msgstr "Віртуалізація"
 
-#: netbox/dcim/forms/bulk_edit.py:861 netbox/dcim/forms/bulk_import.py:826
+#: netbox/dcim/forms/bulk_edit.py:861 netbox/dcim/forms/bulk_import.py:825
 #: netbox/dcim/forms/model_forms.py:984 netbox/dcim/forms/model_forms.py:1351
 msgid "Module type"
 msgstr "Тип модуля"
 
-#: netbox/dcim/forms/bulk_edit.py:933 netbox/dcim/forms/bulk_import.py:1845
+#: netbox/dcim/forms/bulk_edit.py:933 netbox/dcim/forms/bulk_import.py:1844
 #: netbox/dcim/forms/filtersets.py:1395 netbox/dcim/forms/model_forms.py:1080
 #: netbox/dcim/tables/cables.py:134
 msgid "Bundle"
@@ -5300,7 +5319,7 @@ msgstr "пучок"
 #: netbox/templates/dcim/inc/panels/inventory_items.html:19
 #: netbox/templates/dcim/panels/component_inventory_items.html:9
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:10
-#: netbox/templates/generic/bulk_import.html:193
+#: netbox/templates/generic/bulk_import.html:194
 msgid "Label"
 msgstr "Етикетка"
 
@@ -5308,8 +5327,8 @@ msgstr "Етикетка"
 msgid "Length"
 msgstr "Довжина"
 
-#: netbox/dcim/forms/bulk_edit.py:952 netbox/dcim/forms/bulk_import.py:1852
-#: netbox/dcim/forms/bulk_import.py:1855 netbox/dcim/forms/filtersets.py:1381
+#: netbox/dcim/forms/bulk_edit.py:952 netbox/dcim/forms/bulk_import.py:1851
+#: netbox/dcim/forms/bulk_import.py:1854 netbox/dcim/forms/filtersets.py:1381
 #: netbox/dcim/forms/model_forms.py:1061
 msgid "Length unit"
 msgstr "Довжина юніта"
@@ -5318,17 +5337,17 @@ msgstr "Довжина юніта"
 msgid "Domain"
 msgstr "Домен"
 
-#: netbox/dcim/forms/bulk_edit.py:1026 netbox/dcim/forms/bulk_import.py:2215
+#: netbox/dcim/forms/bulk_edit.py:1026 netbox/dcim/forms/bulk_import.py:2214
 #: netbox/dcim/forms/filtersets.py:1474 netbox/dcim/forms/model_forms.py:1139
 msgid "Power panel"
 msgstr "Панель живлення"
 
-#: netbox/dcim/forms/bulk_edit.py:1048 netbox/dcim/forms/bulk_import.py:2251
+#: netbox/dcim/forms/bulk_edit.py:1048 netbox/dcim/forms/bulk_import.py:2250
 #: netbox/dcim/forms/filtersets.py:1496 netbox/dcim/forms/model_forms.py:1129
 msgid "Supply"
 msgstr "Постачання"
 
-#: netbox/dcim/forms/bulk_edit.py:1054 netbox/dcim/forms/bulk_import.py:2256
+#: netbox/dcim/forms/bulk_edit.py:1054 netbox/dcim/forms/bulk_import.py:2255
 #: netbox/dcim/forms/filtersets.py:1501 netbox/dcim/forms/model_forms.py:1134
 msgid "Phase"
 msgstr "Фаза"
@@ -5345,7 +5364,7 @@ msgstr "Сила струму"
 msgid "Max utilization"
 msgstr "Максимальне використання"
 
-#: netbox/dcim/forms/bulk_edit.py:1140 netbox/dcim/forms/bulk_import.py:2313
+#: netbox/dcim/forms/bulk_edit.py:1140 netbox/dcim/forms/bulk_import.py:2312
 #: netbox/dcim/forms/filtersets.py:1570
 msgid "Fluid type"
 msgstr "Тип рідини"
@@ -5357,7 +5376,7 @@ msgstr "Тип рідини"
 msgid "Characteristics"
 msgstr "Характеристики"
 
-#: netbox/dcim/forms/bulk_edit.py:1163 netbox/dcim/forms/bulk_import.py:2344
+#: netbox/dcim/forms/bulk_edit.py:1163 netbox/dcim/forms/bulk_import.py:2343
 #: netbox/dcim/forms/filtersets.py:1618 netbox/dcim/forms/model_forms.py:1202
 msgid "Cooling source"
 msgstr "Джерело охолодження"
@@ -5371,7 +5390,7 @@ msgid "Max flow"
 msgstr "Максимальний потік"
 
 #: netbox/dcim/forms/bulk_edit.py:1189 netbox/dcim/forms/bulk_edit.py:1388
-#: netbox/dcim/forms/bulk_import.py:1021 netbox/dcim/forms/bulk_import.py:2375
+#: netbox/dcim/forms/bulk_import.py:1020 netbox/dcim/forms/bulk_import.py:2374
 #: netbox/dcim/forms/filtersets.py:1643 netbox/dcim/forms/filtersets.py:1891
 #: netbox/dcim/forms/filtersets.py:1932
 msgid "Max flow unit"
@@ -5397,13 +5416,13 @@ msgstr "Виділена потужність"
 msgid "Allocated power draw (watts)"
 msgstr "Виділена споживана потужність (Вт)"
 
-#: netbox/dcim/forms/bulk_edit.py:1329 netbox/dcim/forms/bulk_import.py:959
+#: netbox/dcim/forms/bulk_edit.py:1329 netbox/dcim/forms/bulk_import.py:958
 #: netbox/dcim/forms/model_forms.py:1450 netbox/dcim/forms/model_forms.py:1945
 #: netbox/dcim/forms/model_forms.py:2372 netbox/dcim/forms/object_import.py:58
 msgid "Power port"
 msgstr "Порт живлення"
 
-#: netbox/dcim/forms/bulk_edit.py:1334 netbox/dcim/forms/bulk_import.py:966
+#: netbox/dcim/forms/bulk_edit.py:1334 netbox/dcim/forms/bulk_import.py:965
 #: netbox/dcim/forms/model_forms.py:1444 netbox/dcim/forms/model_forms.py:1939
 msgid "Feed leg"
 msgstr "Фідер живлення"
@@ -5421,14 +5440,14 @@ msgid "Diameter"
 msgstr "Діаметр"
 
 #: netbox/dcim/forms/bulk_edit.py:1378 netbox/dcim/forms/bulk_edit.py:1439
-#: netbox/dcim/forms/bulk_import.py:1015 netbox/dcim/forms/bulk_import.py:1018
-#: netbox/dcim/forms/bulk_import.py:1096 netbox/dcim/forms/bulk_import.py:1099
+#: netbox/dcim/forms/bulk_import.py:1014 netbox/dcim/forms/bulk_import.py:1017
+#: netbox/dcim/forms/bulk_import.py:1095 netbox/dcim/forms/bulk_import.py:1098
 #: netbox/dcim/forms/filtersets.py:1882 netbox/dcim/forms/filtersets.py:1923
 #: netbox/dcim/forms/filtersets.py:1962 netbox/dcim/forms/filtersets.py:1991
 msgid "Diameter unit"
 msgstr "Діаметр одиниці"
 
-#: netbox/dcim/forms/bulk_edit.py:1444 netbox/dcim/forms/bulk_import.py:1102
+#: netbox/dcim/forms/bulk_edit.py:1444 netbox/dcim/forms/bulk_import.py:1101
 #: netbox/dcim/forms/filtersets.py:1967 netbox/dcim/forms/filtersets.py:1996
 #: netbox/dcim/forms/model_forms.py:1499 netbox/dcim/forms/model_forms.py:1995
 #: netbox/dcim/forms/object_import.py:97
@@ -5441,32 +5460,32 @@ msgstr "канали"
 
 #: netbox/dcim/forms/bulk_edit.py:1496 netbox/dcim/forms/filtersets.py:2047
 #: netbox/dcim/forms/object_create.py:132
-#: netbox/dcim/forms/object_create.py:241 netbox/dcim/ui/panels.py:602
+#: netbox/dcim/forms/object_create.py:241 netbox/dcim/ui/panels.py:601
 msgid "Channel ID"
 msgstr "Ідентифікатор каналу"
 
 #: netbox/dcim/forms/bulk_edit.py:1507 netbox/dcim/forms/bulk_edit.py:1927
-#: netbox/dcim/forms/filtersets.py:2163 netbox/dcim/ui/panels.py:586
+#: netbox/dcim/forms/filtersets.py:2163 netbox/dcim/ui/panels.py:585
 msgid "Management only"
 msgstr "Тільки управління"
 
 #: netbox/dcim/forms/bulk_edit.py:1517 netbox/dcim/forms/bulk_edit.py:1933
-#: netbox/dcim/forms/bulk_import.py:1189 netbox/dcim/forms/filtersets.py:2087
+#: netbox/dcim/forms/bulk_import.py:1188 netbox/dcim/forms/filtersets.py:2087
 #: netbox/dcim/forms/filtersets.py:2172 netbox/dcim/forms/model_forms.py:1533
 #: netbox/dcim/forms/model_forms.py:2030
 #: netbox/dcim/forms/object_import.py:139
 #: netbox/dcim/models/device_component_templates.py:636
-#: netbox/dcim/models/device_components.py:1119 netbox/dcim/ui/panels.py:588
+#: netbox/dcim/models/device_components.py:1119 netbox/dcim/ui/panels.py:587
 msgid "PoE mode"
 msgstr "Режим PoE"
 
 #: netbox/dcim/forms/bulk_edit.py:1523 netbox/dcim/forms/bulk_edit.py:1939
-#: netbox/dcim/forms/bulk_import.py:1195 netbox/dcim/forms/filtersets.py:2092
+#: netbox/dcim/forms/bulk_import.py:1194 netbox/dcim/forms/filtersets.py:2092
 #: netbox/dcim/forms/filtersets.py:2177 netbox/dcim/forms/model_forms.py:1538
 #: netbox/dcim/forms/model_forms.py:2035
 #: netbox/dcim/forms/object_import.py:144
 #: netbox/dcim/models/device_component_templates.py:643
-#: netbox/dcim/models/device_components.py:1126 netbox/dcim/ui/panels.py:589
+#: netbox/dcim/models/device_components.py:1126 netbox/dcim/ui/panels.py:588
 msgid "PoE type"
 msgstr "Тип PoE"
 
@@ -5477,7 +5496,7 @@ msgstr "Тип PoE"
 msgid "Wireless role"
 msgstr "Бездротова роль"
 
-#: netbox/dcim/forms/bulk_edit.py:1679 netbox/dcim/ui/panels.py:369
+#: netbox/dcim/forms/bulk_edit.py:1679 netbox/dcim/ui/panels.py:368
 msgid "Part ID"
 msgstr "Ідентифікатор частини"
 
@@ -5486,13 +5505,13 @@ msgstr "Ідентифікатор частини"
 msgid "Module"
 msgstr "Модуль"
 
-#: netbox/dcim/forms/bulk_edit.py:1814 netbox/dcim/forms/bulk_import.py:1034
+#: netbox/dcim/forms/bulk_edit.py:1814 netbox/dcim/forms/bulk_import.py:1033
 #: netbox/dcim/forms/filtersets.py:1896 netbox/dcim/forms/model_forms.py:1970
 msgid "Cooling outflow"
 msgstr "Охолоджуючий відтік"
 
 #: netbox/dcim/forms/bulk_edit.py:1907 netbox/dcim/tables/devices.py:782
-#: netbox/dcim/ui/panels.py:604
+#: netbox/dcim/ui/panels.py:603
 msgid "LAG"
 msgstr "LAG"
 
@@ -5500,7 +5519,7 @@ msgstr "LAG"
 msgid "Virtual device contexts"
 msgstr "Контексти віртуальних пристроїв"
 
-#: netbox/dcim/forms/bulk_edit.py:1947 netbox/dcim/forms/bulk_import.py:1198
+#: netbox/dcim/forms/bulk_edit.py:1947 netbox/dcim/forms/bulk_import.py:1197
 #: netbox/virtualization/forms/bulk_edit.py:252
 #: netbox/virtualization/forms/bulk_import.py:205
 #: netbox/vpn/forms/bulk_edit.py:128 netbox/vpn/forms/bulk_edit.py:196
@@ -5512,24 +5531,24 @@ msgstr "Контексти віртуальних пристроїв"
 msgid "Mode"
 msgstr "Режим"
 
-#: netbox/dcim/forms/bulk_edit.py:1955 netbox/dcim/forms/bulk_import.py:1204
+#: netbox/dcim/forms/bulk_edit.py:1955 netbox/dcim/forms/bulk_import.py:1203
 #: netbox/dcim/forms/model_forms.py:2108 netbox/ipam/forms/bulk_import.py:188
-#: netbox/ipam/forms/filtersets.py:603 netbox/ipam/models/vlans.py:100
+#: netbox/ipam/forms/filtersets.py:608 netbox/ipam/models/vlans.py:100
 #: netbox/virtualization/forms/bulk_edit.py:259
 #: netbox/virtualization/forms/bulk_import.py:211
 #: netbox/virtualization/forms/model_forms.py:453
 msgid "VLAN group"
 msgstr "Група VLAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1964 netbox/dcim/forms/bulk_import.py:1211
+#: netbox/dcim/forms/bulk_edit.py:1964 netbox/dcim/forms/bulk_import.py:1210
 #: netbox/dcim/forms/model_forms.py:2114 netbox/dcim/tables/devices.py:643
-#: netbox/dcim/ui/panels.py:592 netbox/virtualization/forms/bulk_edit.py:267
+#: netbox/dcim/ui/panels.py:591 netbox/virtualization/forms/bulk_edit.py:267
 #: netbox/virtualization/forms/bulk_import.py:218
 #: netbox/virtualization/forms/model_forms.py:458
 msgid "Untagged VLAN"
 msgstr "VLAN без міток"
 
-#: netbox/dcim/forms/bulk_edit.py:1973 netbox/dcim/forms/bulk_import.py:1218
+#: netbox/dcim/forms/bulk_edit.py:1973 netbox/dcim/forms/bulk_import.py:1217
 #: netbox/dcim/forms/model_forms.py:2123 netbox/dcim/tables/devices.py:649
 #: netbox/virtualization/forms/bulk_edit.py:275
 #: netbox/virtualization/forms/bulk_import.py:225
@@ -5545,7 +5564,7 @@ msgstr "Додати VLAN'и з мітками"
 msgid "Remove tagged VLANs"
 msgstr "Видалити мітки з VLAN'ів"
 
-#: netbox/dcim/forms/bulk_edit.py:1996 netbox/dcim/forms/bulk_import.py:1231
+#: netbox/dcim/forms/bulk_edit.py:1996 netbox/dcim/forms/bulk_import.py:1230
 #: netbox/dcim/forms/model_forms.py:2132
 #: netbox/virtualization/forms/bulk_import.py:238
 #: netbox/virtualization/forms/model_forms.py:476
@@ -5558,14 +5577,14 @@ msgid "Wireless LAN group"
 msgstr "Група бездротової локальної мережі"
 
 #: netbox/dcim/forms/bulk_edit.py:2016 netbox/dcim/forms/model_forms.py:2100
-#: netbox/dcim/tables/devices.py:687 netbox/dcim/ui/panels.py:663
+#: netbox/dcim/tables/devices.py:687 netbox/dcim/ui/panels.py:662
 #: netbox/netbox/navigation/menu.py:166
 #: netbox/wireless/tables/wirelesslan.py:20
 msgid "Wireless LANs"
 msgstr "Бездротові локальні мережі"
 
 #: netbox/dcim/forms/bulk_edit.py:2025 netbox/dcim/forms/filtersets.py:2010
-#: netbox/dcim/forms/model_forms.py:2160 netbox/dcim/ui/panels.py:608
+#: netbox/dcim/forms/model_forms.py:2160 netbox/dcim/ui/panels.py:607
 #: netbox/ipam/forms/bulk_edit.py:231 netbox/ipam/forms/bulk_edit.py:317
 #: netbox/ipam/forms/filtersets.py:196 netbox/netbox/navigation/menu.py:121
 #: netbox/templates/ipam/panels/prefix_addressing.html:4
@@ -5588,7 +5607,7 @@ msgid "PoE"
 msgstr "PoE"
 
 #: netbox/dcim/forms/bulk_edit.py:2028 netbox/dcim/forms/model_forms.py:2162
-#: netbox/dcim/ui/panels.py:599 netbox/virtualization/forms/bulk_edit.py:291
+#: netbox/dcim/ui/panels.py:598 netbox/virtualization/forms/bulk_edit.py:291
 #: netbox/virtualization/forms/model_forms.py:498
 msgid "Related Interfaces"
 msgstr "Пов'язані інтерфейси"
@@ -5634,8 +5653,8 @@ msgstr "Призначена група"
 msgid "available options"
 msgstr "доступні опції"
 
-#: netbox/dcim/forms/bulk_import.py:163 netbox/dcim/forms/bulk_import.py:704
-#: netbox/dcim/forms/bulk_import.py:2212 netbox/dcim/forms/bulk_import.py:2341
+#: netbox/dcim/forms/bulk_import.py:163 netbox/dcim/forms/bulk_import.py:703
+#: netbox/dcim/forms/bulk_import.py:2211 netbox/dcim/forms/bulk_import.py:2340
 #: netbox/ipam/forms/bulk_import.py:523
 #: netbox/virtualization/forms/bulk_import.py:66
 msgid "Assigned site"
@@ -5653,201 +5672,201 @@ msgstr "Місцезнаходження не знайдено."
 msgid "The manufacturer of this rack type"
 msgstr "Виробник даного стелажного типу"
 
-#: netbox/dcim/forms/bulk_import.py:234
+#: netbox/dcim/forms/bulk_import.py:233
 msgid "The lowest-numbered position in the rack"
 msgstr "Позиція з найменшою нумерованістю в стійці"
 
-#: netbox/dcim/forms/bulk_import.py:239 netbox/dcim/forms/bulk_import.py:327
+#: netbox/dcim/forms/bulk_import.py:238 netbox/dcim/forms/bulk_import.py:326
 msgid "Rail-to-rail width (in inches)"
 msgstr "Ширина рейки до рейки (у дюймах)"
 
-#: netbox/dcim/forms/bulk_import.py:245 netbox/dcim/forms/bulk_import.py:337
+#: netbox/dcim/forms/bulk_import.py:244 netbox/dcim/forms/bulk_import.py:336
 msgid "Unit for outer dimensions"
 msgstr "Блок для зовнішніх розмірів"
 
-#: netbox/dcim/forms/bulk_import.py:251 netbox/dcim/forms/bulk_import.py:355
+#: netbox/dcim/forms/bulk_import.py:250 netbox/dcim/forms/bulk_import.py:354
 msgid "Unit for rack weights"
 msgstr "Блок для стелажних ваг"
 
-#: netbox/dcim/forms/bulk_import.py:289
+#: netbox/dcim/forms/bulk_import.py:288
 msgid "Name of assigned tenant"
 msgstr "ПІБ призначеного орендаря"
 
-#: netbox/dcim/forms/bulk_import.py:292 netbox/dcim/forms/filtersets.py:434
+#: netbox/dcim/forms/bulk_import.py:291 netbox/dcim/forms/filtersets.py:434
 #: netbox/dcim/forms/filtersets.py:539 netbox/dcim/ui/panels.py:71
 #: netbox/ipam/forms/filtersets.py:497
 msgid "Rack group"
 msgstr "Стійкова група"
 
-#: netbox/dcim/forms/bulk_import.py:296
+#: netbox/dcim/forms/bulk_import.py:295
 msgid "Name of assigned group"
 msgstr "Назва присвоєної групи"
 
-#: netbox/dcim/forms/bulk_import.py:308
+#: netbox/dcim/forms/bulk_import.py:307
 msgid "Name of assigned role"
 msgstr "Назва призначеної ролі"
 
-#: netbox/dcim/forms/bulk_import.py:315
+#: netbox/dcim/forms/bulk_import.py:314
 msgid "Rack type model"
 msgstr "Модель типу стійки"
 
-#: netbox/dcim/forms/bulk_import.py:343 netbox/dcim/forms/bulk_import.py:529
-#: netbox/dcim/forms/bulk_import.py:744
+#: netbox/dcim/forms/bulk_import.py:342 netbox/dcim/forms/bulk_import.py:528
+#: netbox/dcim/forms/bulk_import.py:743
 msgid "Airflow direction"
 msgstr "Напрямок повітряного потоку"
 
-#: netbox/dcim/forms/bulk_import.py:382
+#: netbox/dcim/forms/bulk_import.py:381
 msgid "Width must be set if not specifying a rack type."
 msgstr "Ширина повинна бути встановлена, якщо не вказано тип стійки."
 
-#: netbox/dcim/forms/bulk_import.py:384
+#: netbox/dcim/forms/bulk_import.py:383
 msgid "U height must be set if not specifying a rack type."
 msgstr "Висота U повинна бути встановлена, якщо не вказано тип стійки."
 
-#: netbox/dcim/forms/bulk_import.py:392
+#: netbox/dcim/forms/bulk_import.py:391
 msgid "Parent site"
 msgstr "Батьківський тех. майданчик"
 
-#: netbox/dcim/forms/bulk_import.py:399 netbox/dcim/forms/bulk_import.py:2225
-#: netbox/dcim/forms/bulk_import.py:2354
+#: netbox/dcim/forms/bulk_import.py:398 netbox/dcim/forms/bulk_import.py:2224
+#: netbox/dcim/forms/bulk_import.py:2353
 msgid "Rack's location (if any)"
 msgstr "Розташування стійки (якщо є)"
 
-#: netbox/dcim/forms/bulk_import.py:408 netbox/dcim/forms/model_forms.py:468
+#: netbox/dcim/forms/bulk_import.py:407 netbox/dcim/forms/model_forms.py:468
 #: netbox/dcim/tables/racks.py:255
 msgid "Units"
 msgstr "Юніти"
 
-#: netbox/dcim/forms/bulk_import.py:411
+#: netbox/dcim/forms/bulk_import.py:410
 msgid "Comma-separated list of individual unit numbers"
 msgstr "Список окремих номерів юнітів, розділених комами"
 
-#: netbox/dcim/forms/bulk_import.py:459
+#: netbox/dcim/forms/bulk_import.py:458
 msgid "The manufacturer which produces this device type"
 msgstr "Виробник, який випускає цей тип пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:466
+#: netbox/dcim/forms/bulk_import.py:465
 msgid "The default platform for devices of this type (optional)"
 msgstr "Платформа за замовчуванням для пристроїв такого типу (опціонально)"
 
-#: netbox/dcim/forms/bulk_import.py:471
+#: netbox/dcim/forms/bulk_import.py:470
 msgid "Device weight"
 msgstr "Вага пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:477
+#: netbox/dcim/forms/bulk_import.py:476
 msgid "Unit for device weight"
 msgstr "Вага пристрою на 1 юніт"
 
-#: netbox/dcim/forms/bulk_import.py:540
+#: netbox/dcim/forms/bulk_import.py:539
 msgid "Module weight"
 msgstr "Вага модуля"
 
-#: netbox/dcim/forms/bulk_import.py:546
+#: netbox/dcim/forms/bulk_import.py:545
 msgid "Unit for module weight"
 msgstr "Вага модуля на 1 юніт"
 
-#: netbox/dcim/forms/bulk_import.py:551
+#: netbox/dcim/forms/bulk_import.py:550
 msgid "Attribute values for the assigned profile, passed as a dictionary"
 msgstr "Значення атрибутів для призначеного профілю, передані як словник"
 
-#: netbox/dcim/forms/bulk_import.py:566
+#: netbox/dcim/forms/bulk_import.py:565
 msgid "Profile must be specified if attribute data is provided."
 msgstr "Профіль повинен бути вказаний, якщо надаються дані атрибутів."
 
-#: netbox/dcim/forms/bulk_import.py:579
+#: netbox/dcim/forms/bulk_import.py:578
 msgid "Parent Device Role"
 msgstr "Роль батьківського пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:581
+#: netbox/dcim/forms/bulk_import.py:580
 msgid "Device role not found."
 msgstr "Роль пристрою не знайдена."
 
-#: netbox/dcim/forms/bulk_import.py:605
+#: netbox/dcim/forms/bulk_import.py:604
 msgid "Parent platform"
 msgstr "Батьківська платформа"
 
-#: netbox/dcim/forms/bulk_import.py:607
+#: netbox/dcim/forms/bulk_import.py:606
 msgid "Platform not found."
 msgstr "Платформа не знайдена."
 
-#: netbox/dcim/forms/bulk_import.py:615
+#: netbox/dcim/forms/bulk_import.py:614
 msgid "Limit platform assignments to this manufacturer"
 msgstr "Обмежте призначення платформи цьому виробнику"
 
-#: netbox/dcim/forms/bulk_import.py:637 netbox/dcim/forms/bulk_import.py:2415
+#: netbox/dcim/forms/bulk_import.py:636 netbox/dcim/forms/bulk_import.py:2414
 #: netbox/tenancy/forms/bulk_import.py:116
 msgid "Assigned role"
 msgstr "Призначена роль"
 
-#: netbox/dcim/forms/bulk_import.py:650
+#: netbox/dcim/forms/bulk_import.py:649
 msgid "Device type manufacturer"
 msgstr "Тип пристрою виробник"
 
-#: netbox/dcim/forms/bulk_import.py:656
+#: netbox/dcim/forms/bulk_import.py:655
 msgid "Device type model"
 msgstr "Модель типу пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:663
+#: netbox/dcim/forms/bulk_import.py:662
 #: netbox/virtualization/forms/bulk_import.py:165
 msgid "Assigned platform"
 msgstr "Призначена платформа"
 
-#: netbox/dcim/forms/bulk_import.py:671 netbox/dcim/forms/bulk_import.py:675
+#: netbox/dcim/forms/bulk_import.py:670 netbox/dcim/forms/bulk_import.py:674
 #: netbox/dcim/forms/model_forms.py:864
 msgid "Virtual chassis"
 msgstr "Віртуальне шасі"
 
-#: netbox/dcim/forms/bulk_import.py:682
+#: netbox/dcim/forms/bulk_import.py:681
 msgid "Virtualization cluster"
 msgstr "Кластер віртуалізації"
 
-#: netbox/dcim/forms/bulk_import.py:711
+#: netbox/dcim/forms/bulk_import.py:710
 msgid "Assigned location (if any)"
 msgstr "Призначене місце розташування (якщо є)"
 
-#: netbox/dcim/forms/bulk_import.py:718
+#: netbox/dcim/forms/bulk_import.py:717
 msgid "Assigned rack (if any)"
 msgstr "Призначена стійка (якщо така є)"
 
-#: netbox/dcim/forms/bulk_import.py:721 netbox/dcim/forms/model_forms.py:820
+#: netbox/dcim/forms/bulk_import.py:720 netbox/dcim/forms/model_forms.py:820
 msgid "Face"
 msgstr "Лицева сторона"
 
-#: netbox/dcim/forms/bulk_import.py:724
+#: netbox/dcim/forms/bulk_import.py:723
 msgid "Mounted rack face"
 msgstr "Змонтована лицева сторона стійки"
 
-#: netbox/dcim/forms/bulk_import.py:731
+#: netbox/dcim/forms/bulk_import.py:730
 msgid "Parent device (for child devices)"
 msgstr "Батьківський пристрій (для підпорядкованих пристроїв)"
 
-#: netbox/dcim/forms/bulk_import.py:734
+#: netbox/dcim/forms/bulk_import.py:733
 msgid "Device bay"
 msgstr "Відсік для пристроїв"
 
-#: netbox/dcim/forms/bulk_import.py:738
+#: netbox/dcim/forms/bulk_import.py:737
 msgid "Device bay in which this device is installed (for child devices)"
 msgstr ""
 "Відсік для пристрою, в якому встановлено цей пристрій (для підпорядкованих "
 "пристроїв)"
 
-#: netbox/dcim/forms/bulk_import.py:817
+#: netbox/dcim/forms/bulk_import.py:816
 msgid "The device in which this module is installed"
 msgstr "Пристрій, в якому встановлений даний модуль"
 
-#: netbox/dcim/forms/bulk_import.py:820 netbox/dcim/forms/model_forms.py:974
+#: netbox/dcim/forms/bulk_import.py:819 netbox/dcim/forms/model_forms.py:974
 msgid "Module bay"
 msgstr "Відсік для модулів"
 
-#: netbox/dcim/forms/bulk_import.py:823
+#: netbox/dcim/forms/bulk_import.py:822
 msgid "The module bay in which this module is installed"
 msgstr "Відсік для модуля, в якому встановлений цей модуль"
 
-#: netbox/dcim/forms/bulk_import.py:829
+#: netbox/dcim/forms/bulk_import.py:828
 msgid "The type of module"
 msgstr "Тип модуля"
 
-#: netbox/dcim/forms/bulk_import.py:839
+#: netbox/dcim/forms/bulk_import.py:838
 msgid ""
 "Automatically populate components associated with this module type (enabled "
 "by default)"
@@ -5855,42 +5874,42 @@ msgstr ""
 "Автоматично заповнювати компоненти, пов'язані з цим типом модуля (увімкнено "
 "за замовчуванням)"
 
-#: netbox/dcim/forms/bulk_import.py:883 netbox/dcim/forms/bulk_import.py:909
-#: netbox/dcim/forms/bulk_import.py:935
+#: netbox/dcim/forms/bulk_import.py:882 netbox/dcim/forms/bulk_import.py:908
+#: netbox/dcim/forms/bulk_import.py:934
 msgid "Port type"
 msgstr "Тип порту"
 
-#: netbox/dcim/forms/bulk_import.py:891 netbox/dcim/forms/bulk_import.py:917
+#: netbox/dcim/forms/bulk_import.py:890 netbox/dcim/forms/bulk_import.py:916
 msgid "Port speed in bps"
 msgstr "Швидкість порту в біт/с"
 
-#: netbox/dcim/forms/bulk_import.py:956
+#: netbox/dcim/forms/bulk_import.py:955
 msgid "Outlet type"
 msgstr "Тип розетки (живлення)"
 
-#: netbox/dcim/forms/bulk_import.py:963
+#: netbox/dcim/forms/bulk_import.py:962
 msgid "Local power port which feeds this outlet"
 msgstr "Локальний порт живлення, який живить цю розетку"
 
-#: netbox/dcim/forms/bulk_import.py:969
+#: netbox/dcim/forms/bulk_import.py:968
 msgid "Electrical phase (for three-phase circuits)"
 msgstr "Електрична фаза (для трифазних ланцюгів)"
 
-#: netbox/dcim/forms/bulk_import.py:1012 netbox/dcim/forms/bulk_import.py:1093
+#: netbox/dcim/forms/bulk_import.py:1011 netbox/dcim/forms/bulk_import.py:1092
 #: netbox/dcim/models/device_components.py:717
 #: netbox/dcim/models/device_components.py:758
 msgid "Physical connector type"
 msgstr "Фізичний тип роз'єму"
 
-#: netbox/dcim/forms/bulk_import.py:1024 netbox/dcim/forms/bulk_import.py:2378
+#: netbox/dcim/forms/bulk_import.py:1023 netbox/dcim/forms/bulk_import.py:2377
 msgid "Unit for maximum flow"
 msgstr "Блок для максимального потоку"
 
-#: netbox/dcim/forms/bulk_import.py:1027
+#: netbox/dcim/forms/bulk_import.py:1026
 msgid "Cooling outflow device"
 msgstr "Пристрій відтоку охолодження"
 
-#: netbox/dcim/forms/bulk_import.py:1031
+#: netbox/dcim/forms/bulk_import.py:1030
 msgid ""
 "Device bearing the upstream cooling outflow (defaults to this intake's "
 "device)"
@@ -5898,78 +5917,78 @@ msgstr ""
 "Пристрій, що несе висхідний відтік охолодження (за замовчуванням пристрій "
 "цього впуску)"
 
-#: netbox/dcim/forms/bulk_import.py:1038
+#: netbox/dcim/forms/bulk_import.py:1037
 msgid "Upstream cooling outflow which feeds this intake"
 msgstr "Вихідний відтік охолодження, який живить цей забір"
 
-#: netbox/dcim/forms/bulk_import.py:1106
+#: netbox/dcim/forms/bulk_import.py:1105
 msgid "Local cooling intake which feeds this outflow"
 msgstr "Місцевий забір охолодження, який живить цей відтік"
 
-#: netbox/dcim/forms/bulk_import.py:1150 netbox/dcim/forms/model_forms.py:2070
+#: netbox/dcim/forms/bulk_import.py:1149 netbox/dcim/forms/model_forms.py:2070
 #: netbox/virtualization/forms/bulk_import.py:195
 #: netbox/virtualization/forms/model_forms.py:437
 msgid "Parent interface"
 msgstr "Батьківський інтерфейс"
 
-#: netbox/dcim/forms/bulk_import.py:1157 netbox/dcim/forms/model_forms.py:2078
+#: netbox/dcim/forms/bulk_import.py:1156 netbox/dcim/forms/model_forms.py:2078
 #: netbox/virtualization/forms/bulk_import.py:202
 #: netbox/virtualization/forms/model_forms.py:445
 msgid "Bridged interface"
 msgstr "Інтерфейс типу мост"
 
-#: netbox/dcim/forms/bulk_import.py:1160
+#: netbox/dcim/forms/bulk_import.py:1159
 msgid "Lag"
 msgstr "LAG"
 
-#: netbox/dcim/forms/bulk_import.py:1164
+#: netbox/dcim/forms/bulk_import.py:1163
 msgid "Parent LAG interface"
 msgstr "Батьківський інтерфейс LAG"
 
-#: netbox/dcim/forms/bulk_import.py:1167
+#: netbox/dcim/forms/bulk_import.py:1166
 msgid "Vdcs"
 msgstr "Джерела живлення постійного струму"
 
-#: netbox/dcim/forms/bulk_import.py:1172
+#: netbox/dcim/forms/bulk_import.py:1171
 msgid "VDC names separated by commas, encased with double quotes. Example:"
 msgstr ""
 "Імена джерел живлення постійного струму, розділені комами, укладені "
 "подвійними лапками. Приклад:"
 
-#: netbox/dcim/forms/bulk_import.py:1178
+#: netbox/dcim/forms/bulk_import.py:1177
 msgid "Physical medium"
 msgstr "Фізичне середовище"
 
-#: netbox/dcim/forms/bulk_import.py:1181 netbox/dcim/forms/filtersets.py:2058
+#: netbox/dcim/forms/bulk_import.py:1180 netbox/dcim/forms/filtersets.py:2058
 #: netbox/dcim/forms/model_forms.py:2025
 msgid "Duplex"
 msgstr "Дуплекс"
 
-#: netbox/dcim/forms/bulk_import.py:1186
+#: netbox/dcim/forms/bulk_import.py:1185
 msgid "Poe mode"
 msgstr "Режим PoE"
 
-#: netbox/dcim/forms/bulk_import.py:1192
+#: netbox/dcim/forms/bulk_import.py:1191
 msgid "Poe type"
 msgstr "Тип PoE"
 
-#: netbox/dcim/forms/bulk_import.py:1201
+#: netbox/dcim/forms/bulk_import.py:1200
 #: netbox/virtualization/forms/bulk_import.py:208
 msgid "IEEE 802.1Q operational mode (for L2 interfaces)"
 msgstr "Режим роботи IEEE 802.1Q (для інтерфейсів L2)"
 
-#: netbox/dcim/forms/bulk_import.py:1208
+#: netbox/dcim/forms/bulk_import.py:1207
 #: netbox/virtualization/forms/bulk_import.py:215
 msgid "Filter VLANs available for assignment by group"
 msgstr "Фільтр VLANів, доступних для призначення за групами"
 
-#: netbox/dcim/forms/bulk_import.py:1215
+#: netbox/dcim/forms/bulk_import.py:1214
 #: netbox/virtualization/forms/bulk_import.py:222
 msgid "Assigned untagged VLAN ID (filtered by VLAN group)"
 msgstr ""
 "Призначений ідентифікатор VLAN без тегів (відфільтрований за групою VLAN)"
 
-#: netbox/dcim/forms/bulk_import.py:1224
+#: netbox/dcim/forms/bulk_import.py:1223
 #: netbox/virtualization/forms/bulk_import.py:231
 msgid ""
 "Assigned tagged VLAN IDs separated by commas, encased with double quotes "
@@ -5978,14 +5997,14 @@ msgstr ""
 "Призначені ідентифікатори VLAN з тегами, розділені комами, укладені "
 "подвійними лапками (\") (відфільтровані групою VLAN). Приклад:"
 
-#: netbox/dcim/forms/bulk_import.py:1235
+#: netbox/dcim/forms/bulk_import.py:1234
 #: netbox/virtualization/forms/bulk_import.py:242
 msgid "Assigned Q-in-Q Service VLAN ID (filtered by VLAN group)"
 msgstr ""
 "Призначений ідентифікатор VLAN служби Q-in-Q (відфільтрований за групою "
 "VLAN)"
 
-#: netbox/dcim/forms/bulk_import.py:1242 netbox/ipam/forms/bulk_import.py:178
+#: netbox/dcim/forms/bulk_import.py:1241 netbox/ipam/forms/bulk_import.py:178
 #: netbox/ipam/forms/bulk_import.py:263 netbox/ipam/forms/bulk_import.py:299
 #: netbox/ipam/forms/filtersets.py:230 netbox/ipam/forms/filtersets.py:314
 #: netbox/ipam/forms/filtersets.py:383
@@ -5993,46 +6012,46 @@ msgstr ""
 msgid "Assigned VRF"
 msgstr "Призначений VRF"
 
-#: netbox/dcim/forms/bulk_import.py:1245
+#: netbox/dcim/forms/bulk_import.py:1244
 msgid "Rf role"
 msgstr "роль RF"
 
-#: netbox/dcim/forms/bulk_import.py:1248
+#: netbox/dcim/forms/bulk_import.py:1247
 msgid "Wireless role (AP/station)"
 msgstr "Бездротова роль (AP/станція)"
 
-#: netbox/dcim/forms/bulk_import.py:1291
+#: netbox/dcim/forms/bulk_import.py:1290
 #, python-brace-format
 msgid "VDC {vdc} is not assigned to device {device}"
 msgstr ""
 "Джерело живлення постійного струму  {vdc} не призначається до пристрою "
 "{device}"
 
-#: netbox/dcim/forms/bulk_import.py:1307 netbox/dcim/forms/bulk_import.py:1412
-#: netbox/dcim/forms/bulk_import.py:1835
+#: netbox/dcim/forms/bulk_import.py:1306 netbox/dcim/forms/bulk_import.py:1411
+#: netbox/dcim/forms/bulk_import.py:1834
 msgid "Physical medium classification"
 msgstr "Класифікація фізичного середовища"
 
-#: netbox/dcim/forms/bulk_import.py:1310 netbox/dcim/forms/model_forms.py:2380
+#: netbox/dcim/forms/bulk_import.py:1309 netbox/dcim/forms/model_forms.py:2380
 #: netbox/dcim/forms/object_import.py:207
 msgid "Rear port"
 msgstr "Задній порт"
 
-#: netbox/dcim/forms/bulk_import.py:1313
+#: netbox/dcim/forms/bulk_import.py:1312
 msgid "Corresponding rear port (mapped to the front port's first position)"
 msgstr ""
 "Відповідний задній порт (відображений на першій позиції переднього порту)"
 
-#: netbox/dcim/forms/bulk_import.py:1316
+#: netbox/dcim/forms/bulk_import.py:1315
 msgid "Rear port position"
 msgstr "Положення заднього порту"
 
-#: netbox/dcim/forms/bulk_import.py:1318
+#: netbox/dcim/forms/bulk_import.py:1317
 msgid "Mapped position on the corresponding rear port (defaults to 1)"
 msgstr ""
 "Положення відображено на відповідному задньому порті (за замовчуванням 1)"
 
-#: netbox/dcim/forms/bulk_import.py:1362 netbox/dcim/models/base.py:59
+#: netbox/dcim/forms/bulk_import.py:1361 netbox/dcim/models/base.py:59
 #, python-brace-format
 msgid ""
 "Invalid rear port position ({rear_port_position}): Rear port {name} has only"
@@ -6041,61 +6060,61 @@ msgstr ""
 "Невірна позиція порту ззаду ({rear_port_position}): порт ззаду {name} має "
 "тільки {positions} позицій."
 
-#: netbox/dcim/forms/bulk_import.py:1380
+#: netbox/dcim/forms/bulk_import.py:1379
 #, python-brace-format
 msgid "Rear port {name} position {rear_port_position} is already occupied."
 msgstr "Задній порт {name} позиції {rear_port_position} Він уже зайнятий."
 
-#: netbox/dcim/forms/bulk_import.py:1448
+#: netbox/dcim/forms/bulk_import.py:1447
 msgid "Installed device"
 msgstr "Встановлений пристрій"
 
-#: netbox/dcim/forms/bulk_import.py:1452
+#: netbox/dcim/forms/bulk_import.py:1451
 msgid "Child device installed within this bay"
 msgstr "Підпорядкований пристрій, встановлений у цьому відсіку"
 
-#: netbox/dcim/forms/bulk_import.py:1454
+#: netbox/dcim/forms/bulk_import.py:1453
 msgid "Child device not found."
 msgstr "Підпорядкований пристрій не знайдено."
 
-#: netbox/dcim/forms/bulk_import.py:1518
+#: netbox/dcim/forms/bulk_import.py:1517
 msgid "Parent inventory item"
 msgstr "Батьківський предмет інвентарю"
 
-#: netbox/dcim/forms/bulk_import.py:1521
+#: netbox/dcim/forms/bulk_import.py:1520
 msgid "Component type"
 msgstr "Тип компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1525
+#: netbox/dcim/forms/bulk_import.py:1524
 msgid "Component Type"
 msgstr "Тип компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1528
+#: netbox/dcim/forms/bulk_import.py:1527
 msgid "Component name"
 msgstr "Назва компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1530
+#: netbox/dcim/forms/bulk_import.py:1529
 msgid "Component Name"
 msgstr "Назва компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1573 netbox/dcim/forms/bulk_import.py:1591
+#: netbox/dcim/forms/bulk_import.py:1572 netbox/dcim/forms/bulk_import.py:1590
 msgid "Component name must be specified when component type is specified"
 msgstr "Ім'я компонента має бути вказано, коли вказано тип компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1583
+#: netbox/dcim/forms/bulk_import.py:1582
 #, python-brace-format
 msgid "Component not found: {device} - {component_name}"
 msgstr "Компонент не знайдено: {device} - {component_name}"
 
-#: netbox/dcim/forms/bulk_import.py:1596
+#: netbox/dcim/forms/bulk_import.py:1595
 msgid "Component type must be specified when component name is specified"
 msgstr "Тип компонента повинен бути вказаний, коли вказано ім'я компонента"
 
-#: netbox/dcim/forms/bulk_import.py:1623 netbox/ipam/forms/bulk_import.py:324
+#: netbox/dcim/forms/bulk_import.py:1622 netbox/ipam/forms/bulk_import.py:324
 msgid "Parent device of assigned interface (if any)"
 msgstr "Батьківський пристрій призначеного інтерфейсу (якщо є)"
 
-#: netbox/dcim/forms/bulk_import.py:1626 netbox/ipam/forms/bulk_import.py:327
+#: netbox/dcim/forms/bulk_import.py:1625 netbox/ipam/forms/bulk_import.py:327
 #: netbox/virtualization/filtersets.py:354
 #: netbox/virtualization/filtersets.py:412
 #: netbox/virtualization/forms/bulk_edit.py:219
@@ -6109,30 +6128,30 @@ msgstr "Батьківський пристрій призначеного ін�
 msgid "Virtual machine"
 msgstr "Віртуальна машина"
 
-#: netbox/dcim/forms/bulk_import.py:1630 netbox/ipam/forms/bulk_import.py:331
+#: netbox/dcim/forms/bulk_import.py:1629 netbox/ipam/forms/bulk_import.py:331
 msgid "Parent VM of assigned interface (if any)"
 msgstr "Батьківська віртуальна машина призначеного інтерфейсу (якщо є)"
 
-#: netbox/dcim/forms/bulk_import.py:1637 netbox/ipam/filtersets.py:1111
+#: netbox/dcim/forms/bulk_import.py:1636 netbox/ipam/filtersets.py:1122
 #: netbox/ipam/forms/bulk_import.py:338
 msgid "Assigned interface"
 msgstr "Призначений інтерфейс"
 
-#: netbox/dcim/forms/bulk_import.py:1641
+#: netbox/dcim/forms/bulk_import.py:1640
 msgid "Make this the primary MAC address for the assigned interface"
 msgstr "Зробіть це основною MAC-адресою для призначеного інтерфейсу"
 
-#: netbox/dcim/forms/bulk_import.py:1679
+#: netbox/dcim/forms/bulk_import.py:1678
 msgid "Must specify the parent device or VM when assigning an interface"
 msgstr ""
 "Необхідно вказати батьківський пристрій або віртуальну машину при "
 "призначенні інтерфейсу"
 
-#: netbox/dcim/forms/bulk_import.py:1724
+#: netbox/dcim/forms/bulk_import.py:1723
 msgid "Side A site"
 msgstr "Сторона А сайту"
 
-#: netbox/dcim/forms/bulk_import.py:1728
+#: netbox/dcim/forms/bulk_import.py:1727
 msgid ""
 "Site of parent device A (if any). Restricts the devices & power panels which"
 " may be matched."
@@ -6140,11 +6159,11 @@ msgstr ""
 "Сайт батьківського пристрою А (якщо такий є). Обмежує пристрої та панелі "
 "живлення, які можуть бути узгоджені."
 
-#: netbox/dcim/forms/bulk_import.py:1731
+#: netbox/dcim/forms/bulk_import.py:1730
 msgid "Side A device"
 msgstr "Сторона А пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:1737 netbox/dcim/forms/bulk_import.py:1785
+#: netbox/dcim/forms/bulk_import.py:1736 netbox/dcim/forms/bulk_import.py:1784
 msgid ""
 "Device name(s) for device component terminations. Separate multiple values "
 "with commas, encased with double quotes. Example:"
@@ -6152,11 +6171,11 @@ msgstr ""
 "Назва пристрою для завершення компонентів пристрою. Відокремте кілька "
 "значень комами, укладеними подвійними лапками. Приклад:"
 
-#: netbox/dcim/forms/bulk_import.py:1743
+#: netbox/dcim/forms/bulk_import.py:1742
 msgid "Side A power panel"
 msgstr "Бічна панель живлення A"
 
-#: netbox/dcim/forms/bulk_import.py:1749 netbox/dcim/forms/bulk_import.py:1797
+#: netbox/dcim/forms/bulk_import.py:1748 netbox/dcim/forms/bulk_import.py:1796
 msgid ""
 "Power panel name(s) for power feed terminations. Separate multiple values "
 "with commas, encased with double quotes. Example:"
@@ -6164,19 +6183,19 @@ msgstr ""
 "Назва (и) панелі живлення для припинення подачі живлення. Відокремте кілька "
 "значень комами, укладеними подвійними лапками. Приклад:"
 
-#: netbox/dcim/forms/bulk_import.py:1755
+#: netbox/dcim/forms/bulk_import.py:1754
 msgid "Side A type"
 msgstr "Тип сторони А"
 
-#: netbox/dcim/forms/bulk_import.py:1758 netbox/dcim/forms/bulk_import.py:1806
+#: netbox/dcim/forms/bulk_import.py:1757 netbox/dcim/forms/bulk_import.py:1805
 msgid "Termination type"
 msgstr "Тип кінця"
 
-#: netbox/dcim/forms/bulk_import.py:1761
+#: netbox/dcim/forms/bulk_import.py:1760
 msgid "Side A name"
 msgstr "Назва сторони A"
 
-#: netbox/dcim/forms/bulk_import.py:1764 netbox/dcim/forms/bulk_import.py:1812
+#: netbox/dcim/forms/bulk_import.py:1763 netbox/dcim/forms/bulk_import.py:1811
 msgid ""
 "Termination name(s). Separate multiple values with commas, encased with "
 "double quotes. Example:"
@@ -6184,11 +6203,11 @@ msgstr ""
 "Назва (и) припинення дії. Відокремте кілька значень комами, укладеними "
 "подвійними лапками. Приклад:"
 
-#: netbox/dcim/forms/bulk_import.py:1772
+#: netbox/dcim/forms/bulk_import.py:1771
 msgid "Side B site"
 msgstr "Сторона B сайту"
 
-#: netbox/dcim/forms/bulk_import.py:1776
+#: netbox/dcim/forms/bulk_import.py:1775
 msgid ""
 "Site of parent device B (if any). Restricts the devices & power panels which"
 " may be matched."
@@ -6196,43 +6215,43 @@ msgstr ""
 "Сайт батьківського пристрою B (якщо такий є). Обмежує пристрої та панелі "
 "живлення, які можуть бути узгоджені."
 
-#: netbox/dcim/forms/bulk_import.py:1779
+#: netbox/dcim/forms/bulk_import.py:1778
 msgid "Side B device"
 msgstr "Сторона Б пристрою"
 
-#: netbox/dcim/forms/bulk_import.py:1791
+#: netbox/dcim/forms/bulk_import.py:1790
 msgid "Side B power panel"
 msgstr "Бічна панель живлення B"
 
-#: netbox/dcim/forms/bulk_import.py:1803
+#: netbox/dcim/forms/bulk_import.py:1802
 msgid "Side B type"
 msgstr "Тип сторони Б"
 
-#: netbox/dcim/forms/bulk_import.py:1809
+#: netbox/dcim/forms/bulk_import.py:1808
 msgid "Side B name"
 msgstr "Назва сторони B"
 
-#: netbox/dcim/forms/bulk_import.py:1823
+#: netbox/dcim/forms/bulk_import.py:1822
 #: netbox/templates/dcim/panels/connection.html:60
 #: netbox/wireless/forms/bulk_import.py:133
 msgid "Connection status"
 msgstr "Статус підключення"
 
-#: netbox/dcim/forms/bulk_import.py:1829
+#: netbox/dcim/forms/bulk_import.py:1828
 msgid "Cable connection profile"
 msgstr "Профіль підключення кабелю"
 
-#: netbox/dcim/forms/bulk_import.py:1849
+#: netbox/dcim/forms/bulk_import.py:1848
 msgid "Cable bundle name"
 msgstr "Назва кабельного пакета"
 
-#: netbox/dcim/forms/bulk_import.py:1861
+#: netbox/dcim/forms/bulk_import.py:1860
 msgid "Color name (e.g. \"Red\") or hex code (e.g. \"f44336\")"
 msgstr ""
 "Назва кольору (наприклад, \"Червоний\") або шістнадцятковий код (наприклад, "
 "\"f44336\")"
 
-#: netbox/dcim/forms/bulk_import.py:1947
+#: netbox/dcim/forms/bulk_import.py:1946
 #, python-brace-format
 msgid ""
 "Side {side_upper}: The {column} column must be included when modifying "
@@ -6241,12 +6260,12 @@ msgstr ""
 "Сторона {side_upper}: {column} стовпець повинен бути включений при зміні "
 "закінчень"
 
-#: netbox/dcim/forms/bulk_import.py:1969
+#: netbox/dcim/forms/bulk_import.py:1968
 #, python-brace-format
 msgid "Object not found: {value}"
 msgstr "Об'єкт не знайдено: {value}"
 
-#: netbox/dcim/forms/bulk_import.py:1974
+#: netbox/dcim/forms/bulk_import.py:1973
 #: netbox/utilities/forms/fields/csv.py:85
 #, python-brace-format
 msgid ""
@@ -6256,30 +6275,30 @@ msgstr ""
 "\"{value}\" не є унікальним значенням для цього поля; було знайдено декілька"
 " об'єктів"
 
-#: netbox/dcim/forms/bulk_import.py:2003
+#: netbox/dcim/forms/bulk_import.py:2002
 #, python-brace-format
 msgid "Invalid side designation: {side}"
 msgstr "Невірне позначення сторони: {side}"
 
-#: netbox/dcim/forms/bulk_import.py:2023
+#: netbox/dcim/forms/bulk_import.py:2022
 #, python-brace-format
 msgid "Side {side_upper}: Empty termination names are not permitted"
 msgstr "Сторона {side_upper}: Порожні назви припинення заборонені"
 
-#: netbox/dcim/forms/bulk_import.py:2032 netbox/dcim/models/power.py:56
+#: netbox/dcim/forms/bulk_import.py:2031 netbox/dcim/models/power.py:56
 msgid "power panel"
 msgstr "панель живлення"
 
-#: netbox/dcim/forms/bulk_import.py:2035 netbox/dcim/models/devices.py:814
+#: netbox/dcim/forms/bulk_import.py:2034 netbox/dcim/models/devices.py:814
 msgid "device"
 msgstr "пристрій"
 
-#: netbox/dcim/forms/bulk_import.py:2038
+#: netbox/dcim/forms/bulk_import.py:2037
 #, python-brace-format
 msgid "Bulk import does not support {type} terminations"
 msgstr "Масовий імпорт не підтримує {type} припинень"
 
-#: netbox/dcim/forms/bulk_import.py:2049
+#: netbox/dcim/forms/bulk_import.py:2048
 #, python-brace-format
 msgid ""
 "Side {side_upper}: Must specify a {parent} for the selected termination type"
@@ -6287,7 +6306,7 @@ msgstr ""
 "Сторона {side_upper}: Повинен вказати a {parent} для обраного типу "
 "припинення"
 
-#: netbox/dcim/forms/bulk_import.py:2058
+#: netbox/dcim/forms/bulk_import.py:2057
 #, python-brace-format
 msgid ""
 "Side {side_upper}: Must specify either one {parent} for all terminations or "
@@ -6296,27 +6315,27 @@ msgstr ""
 "Сторона {side_upper}: Повинен вказати один з них {parent} для всіх припинень"
 " або одного {parent} за ім'я припинення"
 
-#: netbox/dcim/forms/bulk_import.py:2072
+#: netbox/dcim/forms/bulk_import.py:2071
 #, python-brace-format
 msgid "{side_upper} side termination not found: {parent} {name}"
 msgstr "{side_upper} бічне закінчення не знайдено: {parent} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:2078
+#: netbox/dcim/forms/bulk_import.py:2077
 #, python-brace-format
 msgid "{side_upper} side termination not unique: {parent} {name}"
 msgstr "{side_upper} бічне закінчення не унікальне: {parent} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:2084
+#: netbox/dcim/forms/bulk_import.py:2083
 #, python-brace-format
 msgid "Side {side_upper}: {parent} {termination_object} is already connected"
 msgstr "Сторона {side_upper}: {parent} {termination_object} вже підключений"
 
-#: netbox/dcim/forms/bulk_import.py:2092
+#: netbox/dcim/forms/bulk_import.py:2091
 #, python-brace-format
 msgid "Side {side_upper}: Duplicate termination specified"
 msgstr "Сторона {side_upper}: Зазначено дублікат припинення"
 
-#: netbox/dcim/forms/bulk_import.py:2112
+#: netbox/dcim/forms/bulk_import.py:2111
 #, python-brace-format
 msgid ""
 "{color} did not match any used color name and was longer than six "
@@ -6325,7 +6344,7 @@ msgstr ""
 "{color} не відповідав жодному використаному назві кольору і мав більше шести"
 " символів: недійсний шістнадцятковий."
 
-#: netbox/dcim/forms/bulk_import.py:2132
+#: netbox/dcim/forms/bulk_import.py:2131
 #, python-brace-format
 msgid ""
 "Side {side_upper}: The side_{side}_name column must be included when "
@@ -6334,70 +6353,70 @@ msgstr ""
 "Сторона {side_upper}: Сторона_{side}Стовпець _name повинен бути включений "
 "під час зміни закінчень (знайдено {columns})"
 
-#: netbox/dcim/forms/bulk_import.py:2163 netbox/dcim/forms/model_forms.py:1242
+#: netbox/dcim/forms/bulk_import.py:2162 netbox/dcim/forms/model_forms.py:1242
 #: netbox/dcim/tables/devices.py:1174
 #: netbox/templates/dcim/panels/virtual_chassis_members.html:10
 msgid "Master"
 msgstr "Майстер"
 
-#: netbox/dcim/forms/bulk_import.py:2167
+#: netbox/dcim/forms/bulk_import.py:2166
 msgid "Master device"
 msgstr "Головний пристрій"
 
-#: netbox/dcim/forms/bulk_import.py:2184 netbox/dcim/forms/bulk_import.py:2294
+#: netbox/dcim/forms/bulk_import.py:2183 netbox/dcim/forms/bulk_import.py:2293
 msgid "Name of parent site"
 msgstr "Назва батьківського тех. майданчика"
 
-#: netbox/dcim/forms/bulk_import.py:2218
+#: netbox/dcim/forms/bulk_import.py:2217
 msgid "Upstream power panel"
 msgstr "Вища за течією панель живлення"
 
-#: netbox/dcim/forms/bulk_import.py:2248
+#: netbox/dcim/forms/bulk_import.py:2247
 msgid "Primary or redundant"
 msgstr "Первинний або надлишковий"
 
-#: netbox/dcim/forms/bulk_import.py:2253
+#: netbox/dcim/forms/bulk_import.py:2252
 msgid "Supply type (AC/DC)"
 msgstr "Тип живлення (змінній/постійний струм)"
 
-#: netbox/dcim/forms/bulk_import.py:2258
+#: netbox/dcim/forms/bulk_import.py:2257
 msgid "Single or three-phase"
 msgstr "Однофазний або трифазний (струм)"
 
-#: netbox/dcim/forms/bulk_import.py:2305
+#: netbox/dcim/forms/bulk_import.py:2304
 msgid "Cooling source type"
 msgstr "Тип джерела охолодження"
 
-#: netbox/dcim/forms/bulk_import.py:2316
+#: netbox/dcim/forms/bulk_import.py:2315
 msgid "Coolant fluid type"
 msgstr "Тип рідини охолоджуючої рідини"
 
-#: netbox/dcim/forms/bulk_import.py:2347
+#: netbox/dcim/forms/bulk_import.py:2346
 msgid "Upstream cooling source"
 msgstr "Вихідне джерело охолодження"
 
-#: netbox/dcim/forms/bulk_import.py:2429 netbox/dcim/forms/model_forms.py:2477
-#: netbox/dcim/ui/panels.py:140 netbox/dcim/ui/panels.py:464
+#: netbox/dcim/forms/bulk_import.py:2428 netbox/dcim/forms/model_forms.py:2477
+#: netbox/dcim/ui/panels.py:140 netbox/dcim/ui/panels.py:463
 #: netbox/virtualization/ui/panels.py:55
 msgid "Primary IPv4"
 msgstr "Первинна адреса IPv4"
 
-#: netbox/dcim/forms/bulk_import.py:2433
+#: netbox/dcim/forms/bulk_import.py:2432
 msgid "IPv4 address with mask, e.g. 1.2.3.4/24"
 msgstr "IPv4 адреса з маскою, наприклад 1.2.3.4/24"
 
-#: netbox/dcim/forms/bulk_import.py:2436 netbox/dcim/forms/model_forms.py:2486
-#: netbox/dcim/ui/panels.py:145 netbox/dcim/ui/panels.py:469
+#: netbox/dcim/forms/bulk_import.py:2435 netbox/dcim/forms/model_forms.py:2486
+#: netbox/dcim/ui/panels.py:145 netbox/dcim/ui/panels.py:468
 #: netbox/virtualization/ui/panels.py:60
 msgid "Primary IPv6"
 msgstr "Первинна адреса IPv6"
 
-#: netbox/dcim/forms/bulk_import.py:2440
+#: netbox/dcim/forms/bulk_import.py:2439
 msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
 msgstr "IPv6 адреса з довжиною префікса, наприклад 2001:db8::1/64"
 
 #: netbox/dcim/forms/common.py:24 netbox/dcim/models/device_components.py:809
-#: netbox/dcim/ui/panels.py:584 netbox/virtualization/forms/bulk_edit.py:244
+#: netbox/dcim/ui/panels.py:583 netbox/virtualization/forms/bulk_edit.py:244
 #: netbox/virtualization/ui/panels.py:98
 msgid "MTU"
 msgstr "MTU"
@@ -6427,7 +6446,7 @@ msgid "Power Panel"
 msgstr "Панель живлення"
 
 #: netbox/dcim/forms/connections.py:68 netbox/dcim/forms/model_forms.py:1154
-#: netbox/dcim/views.py:3629
+#: netbox/dcim/views.py:3635
 msgid "Power Feed"
 msgstr "Живлення живлення"
 
@@ -6456,7 +6475,7 @@ msgid "Function"
 msgstr "Функція"
 
 #: netbox/dcim/forms/filtersets.py:502 netbox/dcim/forms/model_forms.py:478
-#: netbox/dcim/tables/racks.py:230 netbox/dcim/views.py:1293
+#: netbox/dcim/tables/racks.py:230 netbox/dcim/views.py:1294
 msgid "Reservation"
 msgstr "Бронювання"
 
@@ -6540,7 +6559,7 @@ msgid "Occupied"
 msgstr "Зайнятий"
 
 #: netbox/dcim/forms/filtersets.py:2033 netbox/extras/forms/bulk_edit.py:449
-#: netbox/extras/forms/bulk_import.py:370
+#: netbox/extras/forms/bulk_import.py:421
 #: netbox/extras/forms/filtersets.py:633
 #: netbox/extras/forms/model_forms.py:922 netbox/extras/tables/tables.py:790
 msgid "Kind"
@@ -6551,11 +6570,11 @@ msgid "Mgmt only"
 msgstr "Тільки управління"
 
 #: netbox/dcim/forms/filtersets.py:2082 netbox/dcim/forms/model_forms.py:2147
-#: netbox/dcim/models/device_components.py:1072 netbox/dcim/ui/panels.py:615
+#: netbox/dcim/models/device_components.py:1072 netbox/dcim/ui/panels.py:614
 msgid "WWN"
 msgstr "WWN (унікальний ідентифікатор)"
 
-#: netbox/dcim/forms/filtersets.py:2097 netbox/dcim/ui/panels.py:590
+#: netbox/dcim/forms/filtersets.py:2097 netbox/dcim/ui/panels.py:589
 #: netbox/virtualization/forms/filtersets.py:316
 msgid "802.1Q mode"
 msgstr "Режим 802.1Q"
@@ -6752,8 +6771,8 @@ msgstr "Введіть дійсну схему JSON для визначення 
 msgid "Module bay types"
 msgstr "Типи відсіків модулів"
 
-#: netbox/dcim/forms/model_forms.py:642 netbox/dcim/ui/panels.py:230
-#: netbox/dcim/ui/panels.py:335
+#: netbox/dcim/forms/model_forms.py:642 netbox/dcim/ui/panels.py:229
+#: netbox/dcim/ui/panels.py:334
 msgid "Bay Type Compatibility"
 msgstr "Сумісність типу бухти"
 
@@ -6849,19 +6868,19 @@ msgid "Rear port template"
 msgstr "Шаблон порту ззаду"
 
 #: netbox/dcim/forms/model_forms.py:1774 netbox/dcim/forms/model_forms.py:2392
-#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3534
-#: netbox/dcim/views.py:4157
+#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3540
+#: netbox/dcim/views.py:4163
 msgid "Console Port"
 msgstr "Порт консолі"
 
 #: netbox/dcim/forms/model_forms.py:1775 netbox/dcim/forms/model_forms.py:2393
-#: netbox/dcim/views.py:3439 netbox/dcim/views.py:4156
+#: netbox/dcim/views.py:3445 netbox/dcim/views.py:4162
 msgid "Console Server Port"
 msgstr "Порт консольного сервера"
 
 #: netbox/dcim/forms/model_forms.py:1776 netbox/dcim/forms/model_forms.py:2394
-#: netbox/dcim/views.py:3441 netbox/dcim/views.py:3535
-#: netbox/dcim/views.py:4158 netbox/dcim/views.py:4264
+#: netbox/dcim/views.py:3447 netbox/dcim/views.py:3541
+#: netbox/dcim/views.py:4164 netbox/dcim/views.py:4270
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:41
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:57
 #: netbox/templates/dcim/panels/interface_connection.html:86
@@ -6870,8 +6889,8 @@ msgid "Front Port"
 msgstr "Передній порт"
 
 #: netbox/dcim/forms/model_forms.py:1777 netbox/dcim/forms/model_forms.py:2395
-#: netbox/dcim/views.py:3442 netbox/dcim/views.py:3536
-#: netbox/dcim/views.py:4159 netbox/dcim/views.py:4265
+#: netbox/dcim/views.py:3448 netbox/dcim/views.py:3542
+#: netbox/dcim/views.py:4165 netbox/dcim/views.py:4271
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:42
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:58
 #: netbox/templates/dcim/panels/front_port_mappings.html:10
@@ -6881,12 +6900,12 @@ msgstr "Порт ззаду"
 
 #: netbox/dcim/forms/model_forms.py:1778 netbox/dcim/forms/model_forms.py:2396
 #: netbox/dcim/tables/connections.py:47 netbox/dcim/tables/devices.py:555
-#: netbox/dcim/views.py:3721 netbox/dcim/views.py:5528
+#: netbox/dcim/views.py:3727 netbox/dcim/views.py:5534
 msgid "Power Port"
 msgstr "Порт живлення"
 
 #: netbox/dcim/forms/model_forms.py:1779 netbox/dcim/forms/model_forms.py:2397
-#: netbox/dcim/views.py:3628
+#: netbox/dcim/views.py:3634
 msgid "Power Outlet"
 msgstr "Електрична розетка"
 
@@ -6962,7 +6981,7 @@ msgstr "Роль елемента інвентаря"
 msgid "VM Interface"
 msgstr "Інтерфейс VM"
 
-#: netbox/dcim/forms/model_forms.py:2545 netbox/ipam/forms/filtersets.py:687
+#: netbox/dcim/forms/model_forms.py:2545 netbox/ipam/forms/filtersets.py:692
 #: netbox/ipam/forms/model_forms.py:383 netbox/ipam/tables/vlans.py:190
 #: netbox/virtualization/forms/filtersets.py:272
 #: netbox/virtualization/forms/filtersets.py:330
@@ -7034,71 +7053,71 @@ msgstr "кабельний пучок"
 msgid "cable bundles"
 msgstr "кабельні пучки"
 
-#: netbox/dcim/models/cables.py:100
+#: netbox/dcim/models/cables.py:118
 msgid "profile"
 msgstr "профіль"
 
-#: netbox/dcim/models/cables.py:113
+#: netbox/dcim/models/cables.py:131
 #: netbox/dcim/models/device_component_templates.py:69
 #: netbox/dcim/models/device_components.py:70
 #: netbox/extras/models/customfields.py:191
 msgid "label"
 msgstr "етикетка"
 
-#: netbox/dcim/models/cables.py:122 netbox/utilities/conversion.py:71
+#: netbox/dcim/models/cables.py:140 netbox/utilities/conversion.py:71
 msgid "length"
 msgstr "довжина"
 
-#: netbox/dcim/models/cables.py:129
+#: netbox/dcim/models/cables.py:147
 msgid "length unit"
 msgstr "довжина юніта"
 
-#: netbox/dcim/models/cables.py:148
+#: netbox/dcim/models/cables.py:166
 msgid "bundle"
 msgstr "пучок"
 
-#: netbox/dcim/models/cables.py:155
+#: netbox/dcim/models/cables.py:175
 msgid "cable"
 msgstr "кабель"
 
-#: netbox/dcim/models/cables.py:156
+#: netbox/dcim/models/cables.py:176
 msgid "cables"
 msgstr "кабелів"
 
-#: netbox/dcim/models/cables.py:282
+#: netbox/dcim/models/cables.py:302
 msgid "Must specify a unit when setting a cable length"
 msgstr "Необхідно вказати номер юніта при установці довжини кабелю"
 
-#: netbox/dcim/models/cables.py:285
+#: netbox/dcim/models/cables.py:305
 msgid "Must define A and B terminations when creating a new cable."
 msgstr "Необхідно визначити кінці А і Б при створенні нового кабелю."
 
-#: netbox/dcim/models/cables.py:296
+#: netbox/dcim/models/cables.py:316
 msgid "Cannot connect different termination types to same end of cable."
 msgstr "Не вдається підключити різні типи кінцевок до одного кінця кабелю."
 
-#: netbox/dcim/models/cables.py:304
+#: netbox/dcim/models/cables.py:324
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr "Несумісні типи з'єднання: {type_a} і {type_b}"
 
-#: netbox/dcim/models/cables.py:314
+#: netbox/dcim/models/cables.py:334
 msgid "A and B terminations cannot connect to the same object."
 msgstr "Кінцевки A і Б не можуть з'єднуватися з одним об'єктом."
 
-#: netbox/dcim/models/cables.py:591 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:637 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr "кінець"
 
-#: netbox/dcim/models/cables.py:662
+#: netbox/dcim/models/cables.py:708
 msgid "cable termination"
 msgstr "кабельний кінець"
 
-#: netbox/dcim/models/cables.py:663
+#: netbox/dcim/models/cables.py:709
 msgid "cable terminations"
 msgstr "кабельні кінці"
 
-#: netbox/dcim/models/cables.py:676
+#: netbox/dcim/models/cables.py:722
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
@@ -7107,7 +7126,7 @@ msgstr ""
 "Не вдається підключити кабель до {obj_parent} > {obj} тому що він позначений"
 " як підключений."
 
-#: netbox/dcim/models/cables.py:693
+#: netbox/dcim/models/cables.py:739
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
@@ -7116,7 +7135,7 @@ msgstr ""
 "Знайдено дублікат кінця {app_label}.{model} {termination_id}: кабель "
 "{cable_pk}"
 
-#: netbox/dcim/models/cables.py:705
+#: netbox/dcim/models/cables.py:751
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
@@ -7124,62 +7143,62 @@ msgstr ""
 "Кабелі не можуть бути припинені безпосередньо до підінтерфейсу каналу; "
 "замість цього кабель підключіть батьківський інтерфейс."
 
-#: netbox/dcim/models/cables.py:711
+#: netbox/dcim/models/cables.py:757
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr "Кабелі не можуть бути підключені в {type_display} інтерфейси"
 
-#: netbox/dcim/models/cables.py:718
+#: netbox/dcim/models/cables.py:764
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 "Кінці каналу зв'язку, приєднані до мережі провайдера, не можуть бути "
 "кабельними."
 
-#: netbox/dcim/models/cables.py:750
+#: netbox/dcim/models/cables.py:796
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr "Некоректне закінчення кабелю: призначений об'єкт завершення не існує."
 
-#: netbox/dcim/models/cables.py:818 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:864 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr "активний"
 
-#: netbox/dcim/models/cables.py:822
+#: netbox/dcim/models/cables.py:868
 msgid "is complete"
 msgstr "завершено"
 
-#: netbox/dcim/models/cables.py:826
+#: netbox/dcim/models/cables.py:872
 msgid "is split"
 msgstr "розщеплюється"
 
-#: netbox/dcim/models/cables.py:839
+#: netbox/dcim/models/cables.py:885
 msgid "cable path"
 msgstr "кабельний шлях"
 
-#: netbox/dcim/models/cables.py:840
+#: netbox/dcim/models/cables.py:886
 msgid "cable paths"
 msgstr "кабельні шляхи"
 
-#: netbox/dcim/models/cables.py:931
+#: netbox/dcim/models/cables.py:977
 msgid "All originating terminations must be attached to the same link"
 msgstr "Усі початкові закінчення повинні бути приєднані до одного посилання"
 
-#: netbox/dcim/models/cables.py:949
+#: netbox/dcim/models/cables.py:995
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 "Усі закінчення середнього прольоту повинні мати однаковий тип закінчення"
 
-#: netbox/dcim/models/cables.py:957
+#: netbox/dcim/models/cables.py:1003
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 "Усі закінчення середнього прольоту повинні мати однаковий батьківський "
 "об'єкт"
 
-#: netbox/dcim/models/cables.py:987
+#: netbox/dcim/models/cables.py:1033
 msgid "All links must be cable or wireless"
 msgstr "Всі посилання повинні бути кабельними або бездротовими"
 
-#: netbox/dcim/models/cables.py:989
+#: netbox/dcim/models/cables.py:1035
 msgid "All links must match first link type"
 msgstr "Усі посилання повинні відповідати першому типу посилання"
 
@@ -7695,9 +7714,9 @@ msgid "tagged VLANs"
 msgstr "VLAN'и з мітками"
 
 #: netbox/dcim/models/device_components.py:855
-#: netbox/dcim/tables/devices.py:652 netbox/dcim/ui/panels.py:591
+#: netbox/dcim/tables/devices.py:652 netbox/dcim/ui/panels.py:590
 #: netbox/ipam/forms/bulk_edit.py:435 netbox/ipam/forms/bulk_import.py:558
-#: netbox/ipam/forms/filtersets.py:629 netbox/ipam/forms/model_forms.py:744
+#: netbox/ipam/forms/filtersets.py:634 netbox/ipam/forms/model_forms.py:744
 #: netbox/ipam/tables/vlans.py:113 netbox/ipam/ui/panels.py:206
 #: netbox/virtualization/ui/panels.py:100
 msgid "Q-in-Q SVLAN"
@@ -9243,11 +9262,11 @@ msgstr "Додати компоненти"
 msgid "Disconnect Selected"
 msgstr "Відключити вибране"
 
-#: netbox/dcim/tables/cables.py:67 netbox/dcim/views.py:5020
+#: netbox/dcim/tables/cables.py:67 netbox/dcim/views.py:5026
 msgid "Termination A"
 msgstr "Кінець А"
 
-#: netbox/dcim/tables/cables.py:72 netbox/dcim/views.py:5024
+#: netbox/dcim/tables/cables.py:72 netbox/dcim/views.py:5030
 msgid "Termination B"
 msgstr "Кінець Б"
 
@@ -9417,8 +9436,8 @@ msgid "Cooling outflows"
 msgstr "Охолоджуючі відтоки"
 
 #: netbox/dcim/tables/devices.py:266 netbox/dcim/tables/devices.py:1224
-#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1595
-#: netbox/dcim/views.py:2088 netbox/dcim/views.py:3146
+#: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1596
+#: netbox/dcim/views.py:2094 netbox/dcim/views.py:3152
 #: netbox/netbox/navigation/menu.py:105 netbox/netbox/navigation/menu.py:272
 #: netbox/templates/dcim/buttons/bulk_add_components.html:52
 #: netbox/templates/dcim/device/base.html:43
@@ -9466,8 +9485,8 @@ msgid "Module Bay"
 msgstr "Резервуар модулів"
 
 #: netbox/dcim/tables/devices.py:351 netbox/dcim/tables/devicetypes.py:53
-#: netbox/dcim/tables/devicetypes.py:153 netbox/dcim/ui/panels.py:509
-#: netbox/dcim/views.py:1670 netbox/dcim/views.py:3232
+#: netbox/dcim/tables/devicetypes.py:153 netbox/dcim/ui/panels.py:508
+#: netbox/dcim/views.py:1671 netbox/dcim/views.py:3238
 #: netbox/netbox/navigation/menu.py:116
 #: netbox/templates/dcim/buttons/bulk_add_components.html:80
 #: netbox/templates/dcim/device/base.html:58
@@ -9496,7 +9515,7 @@ msgstr "Максимальна потужність (Вт)"
 msgid "Allocated draw (W)"
 msgstr "Виділена потужність (Вт)"
 
-#: netbox/dcim/tables/devices.py:613 netbox/dcim/views.py:3977
+#: netbox/dcim/tables/devices.py:613 netbox/dcim/views.py:3983
 #: netbox/ipam/forms/model_forms.py:846 netbox/ipam/tables/fhrp.py:28
 #: netbox/ipam/ui/panels.py:250 netbox/ipam/views.py:940
 #: netbox/ipam/views.py:1072 netbox/netbox/navigation/menu.py:178
@@ -9508,7 +9527,7 @@ msgstr "IP-адреси"
 msgid "Primary MAC"
 msgstr "Основний MAC"
 
-#: netbox/dcim/tables/devices.py:622 netbox/dcim/views.py:3983
+#: netbox/dcim/tables/devices.py:622 netbox/dcim/views.py:3989
 #: netbox/netbox/navigation/menu.py:123
 msgid "MAC Addresses"
 msgstr "MAC-адреси"
@@ -9519,7 +9538,7 @@ msgstr "MAC-адреси"
 msgid "FHRP Groups"
 msgstr "Групи FHRP/VRRP"
 
-#: netbox/dcim/tables/devices.py:640 netbox/dcim/ui/panels.py:594
+#: netbox/dcim/tables/devices.py:640 netbox/dcim/ui/panels.py:593
 #: netbox/virtualization/ui/panels.py:101 netbox/vpn/forms/bulk_edit.py:64
 #: netbox/vpn/forms/bulk_import.py:75 netbox/vpn/forms/filtersets.py:50
 #: netbox/vpn/forms/filtersets.py:92 netbox/vpn/forms/model_forms.py:73
@@ -9535,7 +9554,7 @@ msgstr "Тільки управління"
 msgid "VDCs"
 msgstr "Джерела живлення постійного струму"
 
-#: netbox/dcim/tables/devices.py:698 netbox/dcim/ui/panels.py:637
+#: netbox/dcim/tables/devices.py:698 netbox/dcim/ui/panels.py:636
 msgid "Virtual Circuit"
 msgstr "Віртуальна схема"
 
@@ -9544,7 +9563,7 @@ msgstr "Віртуальна схема"
 msgid "Mappings"
 msgstr "Відображення"
 
-#: netbox/dcim/tables/devices.py:934 netbox/dcim/ui/panels.py:355
+#: netbox/dcim/tables/devices.py:934 netbox/dcim/ui/panels.py:354
 msgid "Installed Device"
 msgstr "Встановлений пристрій"
 
@@ -9568,7 +9587,7 @@ msgstr "Встановлений серійний"
 msgid "Installed Asset Tag"
 msgstr "Тег встановленого ресурсу"
 
-#: netbox/dcim/tables/devices.py:1012 netbox/dcim/ui/panels.py:339
+#: netbox/dcim/tables/devices.py:1012 netbox/dcim/ui/panels.py:338
 msgid "Installed Module"
 msgstr "Встановлений модуль"
 
@@ -9606,7 +9625,7 @@ msgstr "Типи стійки"
 msgid "Device Types"
 msgstr "Типи пристроїв"
 
-#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1839
+#: netbox/dcim/tables/devicetypes.py:48 netbox/dcim/views.py:1845
 #: netbox/netbox/navigation/menu.py:96
 msgid "Module Types"
 msgstr "Типи модулів"
@@ -9629,8 +9648,8 @@ msgstr "Повна глибина"
 msgid "Device Count"
 msgstr "Кількість пристроїв"
 
-#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1505
-#: netbox/dcim/views.py:1998 netbox/dcim/views.py:3049
+#: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1506
+#: netbox/dcim/views.py:2004 netbox/dcim/views.py:3055
 #: netbox/netbox/navigation/menu.py:108
 #: netbox/templates/dcim/buttons/bulk_add_components.html:10
 #: netbox/templates/dcim/device/base.html:25
@@ -9640,8 +9659,8 @@ msgstr "Кількість пристроїв"
 msgid "Console Ports"
 msgstr "Консольні порти"
 
-#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1520
-#: netbox/dcim/views.py:2013 netbox/dcim/views.py:3065
+#: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1521
+#: netbox/dcim/views.py:2019 netbox/dcim/views.py:3071
 #: netbox/netbox/navigation/menu.py:109
 #: netbox/templates/dcim/buttons/bulk_add_components.html:17
 #: netbox/templates/dcim/device/base.html:28
@@ -9651,8 +9670,8 @@ msgstr "Консольні порти"
 msgid "Console Server Ports"
 msgstr "Порти консольного сервера"
 
-#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1535
-#: netbox/dcim/views.py:2028 netbox/dcim/views.py:3081
+#: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1536
+#: netbox/dcim/views.py:2034 netbox/dcim/views.py:3087
 #: netbox/netbox/navigation/menu.py:110
 #: netbox/templates/dcim/buttons/bulk_add_components.html:24
 #: netbox/templates/dcim/device/base.html:31
@@ -9662,8 +9681,8 @@ msgstr "Порти консольного сервера"
 msgid "Power Ports"
 msgstr "Порти живлення"
 
-#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1550
-#: netbox/dcim/views.py:2043 netbox/dcim/views.py:3097
+#: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1551
+#: netbox/dcim/views.py:2049 netbox/dcim/views.py:3103
 #: netbox/netbox/navigation/menu.py:111
 #: netbox/templates/dcim/buttons/bulk_add_components.html:31
 #: netbox/templates/dcim/device/base.html:34
@@ -9673,8 +9692,8 @@ msgstr "Порти живлення"
 msgid "Power Outlets"
 msgstr "Розетки"
 
-#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1565
-#: netbox/dcim/views.py:2058 netbox/dcim/views.py:3113
+#: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1566
+#: netbox/dcim/views.py:2064 netbox/dcim/views.py:3119
 #: netbox/netbox/navigation/menu.py:112
 #: netbox/templates/dcim/buttons/bulk_add_components.html:38
 #: netbox/templates/dcim/device/base.html:37
@@ -9682,8 +9701,8 @@ msgstr "Розетки"
 msgid "Cooling Intakes"
 msgstr "Охолоджувальні забірники"
 
-#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1580
-#: netbox/dcim/views.py:2073 netbox/dcim/views.py:3129
+#: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1581
+#: netbox/dcim/views.py:2079 netbox/dcim/views.py:3135
 #: netbox/netbox/navigation/menu.py:113
 #: netbox/templates/dcim/buttons/bulk_add_components.html:45
 #: netbox/templates/dcim/device/base.html:40
@@ -9691,8 +9710,8 @@ msgstr "Охолоджувальні забірники"
 msgid "Cooling Outflows"
 msgstr "Відтоки охолодження"
 
-#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1610
-#: netbox/dcim/views.py:2103 netbox/dcim/views.py:3168
+#: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1611
+#: netbox/dcim/views.py:2109 netbox/dcim/views.py:3174
 #: netbox/netbox/navigation/menu.py:106
 #: netbox/templates/dcim/device/base.html:46
 #: netbox/templates/dcim/devicetype/base.html:38
@@ -9701,8 +9720,8 @@ msgstr "Відтоки охолодження"
 msgid "Front Ports"
 msgstr "Передні порти"
 
-#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1625
-#: netbox/dcim/views.py:2118 netbox/dcim/views.py:3184
+#: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1626
+#: netbox/dcim/views.py:2124 netbox/dcim/views.py:3190
 #: netbox/netbox/navigation/menu.py:107
 #: netbox/templates/dcim/buttons/bulk_add_components.html:59
 #: netbox/templates/dcim/device/base.html:49
@@ -9712,17 +9731,17 @@ msgstr "Передні порти"
 msgid "Rear Ports"
 msgstr "Задні порти"
 
-#: netbox/dcim/tables/devicetypes.py:147 netbox/dcim/views.py:1655
-#: netbox/dcim/views.py:3216 netbox/netbox/navigation/menu.py:115
+#: netbox/dcim/tables/devicetypes.py:147 netbox/dcim/views.py:1656
+#: netbox/dcim/views.py:3222 netbox/netbox/navigation/menu.py:115
 #: netbox/templates/dcim/buttons/bulk_add_components.html:66
 #: netbox/templates/dcim/device/base.html:55
 #: netbox/templates/dcim/devicetype/base.html:47
 msgid "Device Bays"
 msgstr "Відсіки для пристроїв"
 
-#: netbox/dcim/tables/devicetypes.py:150 netbox/dcim/views.py:1640
-#: netbox/dcim/views.py:1768 netbox/dcim/views.py:2133
-#: netbox/dcim/views.py:3200 netbox/netbox/navigation/menu.py:114
+#: netbox/dcim/tables/devicetypes.py:150 netbox/dcim/views.py:1641
+#: netbox/dcim/views.py:1774 netbox/dcim/views.py:2139
+#: netbox/dcim/views.py:3206 netbox/netbox/navigation/menu.py:114
 #: netbox/templates/dcim/buttons/bulk_add_components.html:73
 #: netbox/templates/dcim/device/base.html:52
 #: netbox/templates/dcim/devicetype/base.html:44
@@ -9816,14 +9835,14 @@ msgid "{0} millimeters"
 msgstr "{0} міліметрів"
 
 #: netbox/dcim/ui/panels.py:79 netbox/dcim/ui/panels.py:127
-#: netbox/dcim/ui/panels.py:202 netbox/dcim/ui/panels.py:343
+#: netbox/dcim/ui/panels.py:202 netbox/dcim/ui/panels.py:342
 #: netbox/virtualization/forms/filtersets.py:258
 #: netbox/virtualization/ui/panels.py:50
 msgid "Serial number"
 msgstr "Серійний номер"
 
 #: netbox/dcim/ui/panels.py:83 netbox/dcim/ui/panels.py:112
-#: netbox/dcim/ui/panels.py:438 netbox/dcim/ui/panels.py:453
+#: netbox/dcim/ui/panels.py:437 netbox/dcim/ui/panels.py:452
 msgid "{} kW"
 msgstr "{} кВт"
 
@@ -9844,51 +9863,47 @@ msgstr "Позадіапазонний IP"
 msgid "Parent/child"
 msgstr "Батька/дитина"
 
-#: netbox/dcim/ui/panels.py:211
-msgid "Compatible Module Types"
-msgstr "Сумісні типи модулів"
-
-#: netbox/dcim/ui/panels.py:222
+#: netbox/dcim/ui/panels.py:221
 msgid "Model name"
 msgstr "Назва моделі"
 
-#: netbox/dcim/ui/panels.py:362
+#: netbox/dcim/ui/panels.py:361
 msgid "Parent item"
 msgstr "Батьківський елемент"
 
-#: netbox/dcim/ui/panels.py:412
+#: netbox/dcim/ui/panels.py:411
 msgid "Connected device"
 msgstr "Підключений пристрій"
 
-#: netbox/dcim/ui/panels.py:417
+#: netbox/dcim/ui/panels.py:416
 msgid "Utilization (allocated)"
 msgstr "Утилізація (виділено)"
 
-#: netbox/dcim/ui/panels.py:423
+#: netbox/dcim/ui/panels.py:422
 msgid "Electrical Characteristics"
 msgstr "Електричні характеристики"
 
-#: netbox/dcim/ui/panels.py:451
+#: netbox/dcim/ui/panels.py:450
 msgid "Cooling Characteristics"
 msgstr "Характеристики охолодження"
 
-#: netbox/dcim/ui/panels.py:479
+#: netbox/dcim/ui/panels.py:478
 msgid "Primary for interface"
 msgstr "Основний для інтерфейсу"
 
-#: netbox/dcim/ui/panels.py:527
+#: netbox/dcim/ui/panels.py:526
 msgid "Virtual Chassis Members"
 msgstr "Віртуальні члени шасі"
 
-#: netbox/dcim/ui/panels.py:562
+#: netbox/dcim/ui/panels.py:561
 msgid "Power Utilization"
 msgstr "Використання електроенергії"
 
-#: netbox/dcim/ui/panels.py:593
+#: netbox/dcim/ui/panels.py:592
 msgid "Transmit power"
 msgstr "Передача потужності"
 
-#: netbox/dcim/ui/panels.py:617
+#: netbox/dcim/ui/panels.py:616
 msgid "VLAN translation"
 msgstr "Переклад VLAN"
 
@@ -9915,19 +9930,23 @@ msgstr "Підпорядковані регіони"
 msgid "Child Groups"
 msgstr "Підпорядковані групи"
 
-#: netbox/dcim/views.py:573 netbox/dcim/views.py:719 netbox/dcim/views.py:1214
+#: netbox/dcim/views.py:573 netbox/dcim/views.py:720 netbox/dcim/views.py:1215
 msgid "Non-Racked Devices"
 msgstr "Пристрої без можливості кріплення у стійку"
 
-#: netbox/dcim/views.py:704
+#: netbox/dcim/views.py:705
 msgid "Child Locations"
 msgstr "Підпорядковані місцезнаходження"
 
-#: netbox/dcim/views.py:1195 netbox/netbox/navigation/menu.py:53
+#: netbox/dcim/views.py:1196 netbox/netbox/navigation/menu.py:53
 msgid "Reservations"
 msgstr "Бронювання"
 
-#: netbox/dcim/views.py:1974
+#: netbox/dcim/views.py:1769
+msgid "Compatible Module Types"
+msgstr "Сумісні типи модулів"
+
+#: netbox/dcim/views.py:1980
 #, python-format
 msgid ""
 "%(count)d installed module of this type is now incompatible with its module "
@@ -9948,7 +9967,7 @@ msgstr[3] ""
 "%(count)d встановлені модулі цього типу тепер несумісні зі своїми модульними"
 " відсіками через суперечливі обмеження типу відсіку."
 
-#: netbox/dcim/views.py:2206
+#: netbox/dcim/views.py:2212
 #, python-format
 msgid ""
 "%(count)d installed module is now incompatible with its module bay due to "
@@ -9969,65 +9988,65 @@ msgstr[3] ""
 "%(count)d встановлені модулі тепер несумісні зі своїми відсіками модулів "
 "через суперечливі обмеження типу відсіків."
 
-#: netbox/dcim/views.py:2792
+#: netbox/dcim/views.py:2798
 msgid "Child Device Roles"
 msgstr "Ролі дочірніх пристроїв"
 
-#: netbox/dcim/views.py:2900
+#: netbox/dcim/views.py:2906
 msgid "Child Platforms"
 msgstr "Дитячі платформи"
 
-#: netbox/dcim/views.py:2992 netbox/netbox/navigation/menu.py:226
+#: netbox/dcim/views.py:2998 netbox/netbox/navigation/menu.py:226
 #: netbox/virtualization/views.py:498
 msgid "Application Services"
 msgstr "Послуги додатків"
 
-#: netbox/dcim/views.py:3253 netbox/extras/forms/filtersets.py:445
+#: netbox/dcim/views.py:3259 netbox/extras/forms/filtersets.py:445
 #: netbox/extras/forms/model_forms.py:815 netbox/extras/ui/panels.py:450
 #: netbox/virtualization/forms/model_forms.py:308
 #: netbox/virtualization/views.py:574
 msgid "Config Context"
 msgstr "Контекст конфігурації"
 
-#: netbox/dcim/views.py:3264 netbox/virtualization/views.py:585
+#: netbox/dcim/views.py:3270 netbox/virtualization/views.py:585
 msgid "Render Config"
 msgstr "Відтворення конфігурації"
 
-#: netbox/dcim/views.py:3277 netbox/extras/tables/tables.py:760
+#: netbox/dcim/views.py:3283 netbox/extras/tables/tables.py:760
 #: netbox/netbox/navigation/menu.py:269 netbox/netbox/navigation/menu.py:271
 #: netbox/virtualization/views.py:283
 msgid "Virtual Machines"
 msgstr "Віртуальні машини"
 
-#: netbox/dcim/views.py:3964 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/views.py:3970 netbox/netbox/navigation/menu.py:89
 msgid "Virtual Device Contexts"
 msgstr "Контексти віртуальних пристроїв"
 
-#: netbox/dcim/views.py:3994 netbox/ipam/forms/filtersets.py:469
+#: netbox/dcim/views.py:4000 netbox/ipam/forms/filtersets.py:469
 #: netbox/ipam/models/vlans.py:312 netbox/ipam/tables/ip.py:121
 #: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1413
 #: netbox/netbox/navigation/menu.py:213 netbox/netbox/navigation/menu.py:215
 msgid "VLANs"
 msgstr "VLAN'и"
 
-#: netbox/dcim/views.py:3996
+#: netbox/dcim/views.py:4002
 msgid "LAG Members"
 msgstr "Члени LAG"
 
-#: netbox/dcim/views.py:3997 netbox/virtualization/ui/panels.py:112
+#: netbox/dcim/views.py:4003 netbox/virtualization/ui/panels.py:112
 #: netbox/virtualization/views.py:692
 msgid "VLAN Translation"
 msgstr "Переклад VLAN"
 
-#: netbox/dcim/views.py:3998
+#: netbox/dcim/views.py:4004
 msgid "Bridged Interfaces"
 msgstr "Мостові інтерфейси"
 
-#: netbox/dcim/views.py:3999 netbox/virtualization/views.py:693
+#: netbox/dcim/views.py:4005 netbox/virtualization/views.py:693
 msgid "Child Interfaces"
 msgstr "Дочірні інтерфейси"
 
-#: netbox/dcim/views.py:4401
+#: netbox/dcim/views.py:4407
 msgid ""
 "The module currently installed in this bay is incompatible with the new bay "
 "type constraints. Consider removing or replacing it."
@@ -10035,7 +10054,7 @@ msgstr ""
 "Модуль, встановлений у цьому відсіку, несумісний з новими обмеженнями типу "
 "відсіку. Подумайте про його видалення або заміну."
 
-#: netbox/dcim/views.py:4447
+#: netbox/dcim/views.py:4453
 #, python-format
 msgid ""
 "%(count)d module bay now has an incompatible module installed due to "
@@ -10056,45 +10075,45 @@ msgstr[3] ""
 "%(count)d відсіки модулів тепер мають несумісні модулі, встановлені через "
 "суперечливі обмеження типу відсіку."
 
-#: netbox/dcim/views.py:4544
+#: netbox/dcim/views.py:4550
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Встановлений пристрій {device} в бухті {device_bay}."
 
-#: netbox/dcim/views.py:4585
+#: netbox/dcim/views.py:4591
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Видалений пристрій {device} з бухти {device_bay}."
 
-#: netbox/dcim/views.py:4711 netbox/ipam/tables/ip.py:184
+#: netbox/dcim/views.py:4717 netbox/ipam/tables/ip.py:184
 msgid "Children"
 msgstr "Підпорядкований"
 
-#: netbox/dcim/views.py:5303
+#: netbox/dcim/views.py:5309
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "Доданий член <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:5348
+#: netbox/dcim/views.py:5354
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Неможливо видалити головний пристрій {device} від віртуального шасі."
 
-#: netbox/dcim/views.py:5359
+#: netbox/dcim/views.py:5365
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Вилучено {device} з віртуального шасі {chassis}"
 
-#: netbox/dcim/views.py:5896
+#: netbox/dcim/views.py:5902
 msgid "This MAC address is not assigned to an interface."
 msgstr "Ця MAC-адреса не присвоюється інтерфейсу."
 
-#: netbox/dcim/views.py:5906
+#: netbox/dcim/views.py:5912
 #, python-brace-format
 msgid "You do not have permission to modify {object}."
 msgstr "У вас немає дозволу на зміну {object}."
 
-#: netbox/dcim/views.py:5918
+#: netbox/dcim/views.py:5924
 #, python-brace-format
 msgid "Set {mac} as primary MAC address for {interface}."
 msgstr "Набір {mac} як основна MAC-адреса для {interface}."
@@ -10135,7 +10154,7 @@ msgstr "Конфігурація шаблону з ідентифікаторо�
 msgid "No config template found for this {object_type}."
 msgstr "Не знайдено шаблону конфігурації для цього {object_type}."
 
-#: netbox/extras/api/serializers_/configtemplates.py:51
+#: netbox/extras/api/serializers_/configtemplates.py:53
 msgid ""
 "Optional ID of the ConfigTemplate to render. If omitted, the object's "
 "assigned config template is used."
@@ -10143,7 +10162,7 @@ msgstr ""
 "Додатковий ідентифікатор ConfigTemplate для рендерингу. Якщо опущено, "
 "використовується призначений для об'єкта шаблон конфігурації."
 
-#: netbox/extras/api/serializers_/configtemplates.py:77
+#: netbox/extras/api/serializers_/configtemplates.py:79
 msgid "The rendered template output."
 msgstr "Виведення рендерированого шаблону."
 
@@ -10783,7 +10802,7 @@ msgstr "Назва групи"
 
 #: netbox/extras/forms/bulk_edit.py:47 netbox/extras/forms/filtersets.py:86
 #: netbox/extras/tables/tables.py:83
-#: netbox/templates/generic/bulk_import.html:149
+#: netbox/templates/generic/bulk_import.html:150
 msgid "Required"
 msgstr "Обов'язково"
 
@@ -10900,7 +10919,7 @@ msgstr "Шляхи до файлу CA"
 msgid "Timeout"
 msgstr "Час очікування"
 
-#: netbox/extras/forms/bulk_edit.py:307 netbox/extras/forms/bulk_import.py:270
+#: netbox/extras/forms/bulk_edit.py:307 netbox/extras/forms/bulk_import.py:321
 #: netbox/extras/forms/model_forms.py:611
 msgid "Event types"
 msgstr "Типи подій"
@@ -10917,7 +10936,8 @@ msgstr "Введіть умови в <a href=\"https://json.org/\">JSON</a> фо
 msgid "Is active"
 msgstr "Активний"
 
-#: netbox/extras/forms/bulk_edit.py:424 netbox/extras/forms/bulk_import.py:217
+#: netbox/extras/forms/bulk_edit.py:424 netbox/extras/forms/bulk_import.py:203
+#: netbox/extras/forms/bulk_import.py:260
 #: netbox/extras/forms/filtersets.py:560
 msgid "Auto sync enabled"
 msgstr "Увімкнено автоматичну синхронізацію"
@@ -10925,9 +10945,9 @@ msgstr "Увімкнено автоматичну синхронізацію"
 #: netbox/extras/forms/bulk_import.py:44
 #: netbox/extras/forms/bulk_import.py:157
 #: netbox/extras/forms/bulk_import.py:178
-#: netbox/extras/forms/bulk_import.py:240
-#: netbox/extras/forms/bulk_import.py:264
-#: netbox/extras/forms/bulk_import.py:351 netbox/extras/forms/filtersets.py:60
+#: netbox/extras/forms/bulk_import.py:291
+#: netbox/extras/forms/bulk_import.py:315
+#: netbox/extras/forms/bulk_import.py:402 netbox/extras/forms/filtersets.py:60
 #: netbox/extras/forms/filtersets.py:171 netbox/extras/forms/filtersets.py:267
 #: netbox/extras/forms/filtersets.py:298 netbox/extras/forms/model_forms.py:89
 #: netbox/extras/forms/model_forms.py:347
@@ -10942,9 +10962,9 @@ msgstr "Типи об'єктів"
 #: netbox/extras/forms/bulk_import.py:46
 #: netbox/extras/forms/bulk_import.py:159
 #: netbox/extras/forms/bulk_import.py:180
-#: netbox/extras/forms/bulk_import.py:242
-#: netbox/extras/forms/bulk_import.py:266
-#: netbox/extras/forms/bulk_import.py:353
+#: netbox/extras/forms/bulk_import.py:293
+#: netbox/extras/forms/bulk_import.py:317
+#: netbox/extras/forms/bulk_import.py:404
 #: netbox/tenancy/forms/bulk_import.py:106
 msgid "One or more assigned object types"
 msgstr "Один або кілька присвоєних типів об'єктів"
@@ -11021,43 +11041,58 @@ msgid ""
 msgstr ""
 "Клас першого посилання в групі буде використовуватися для спадної кнопки"
 
-#: netbox/extras/forms/bulk_import.py:206
+#: netbox/extras/forms/bulk_import.py:183
+#: netbox/extras/forms/model_forms.py:383
+#: netbox/extras/forms/model_forms.py:862
+msgid "Template code"
+msgstr "Код шаблону"
+
+#: netbox/extras/forms/bulk_import.py:185
+msgid "Jinja2 template code, if not sourced from a data file"
+msgstr "Код шаблону Jinja2, якщо він не отриманий з файлу даних"
+
+#: netbox/extras/forms/bulk_import.py:192
+#: netbox/extras/forms/bulk_import.py:249
 msgid "Data source which provides the data file"
 msgstr "Джерело даних, яке забезпечує файл даних"
 
-#: netbox/extras/forms/bulk_import.py:209
+#: netbox/extras/forms/bulk_import.py:195
+#: netbox/extras/forms/bulk_import.py:252
 #: netbox/extras/forms/filtersets.py:211 netbox/extras/forms/filtersets.py:434
 #: netbox/extras/forms/filtersets.py:466 netbox/extras/forms/filtersets.py:554
 #: netbox/netbox/choices.py:134 netbox/utilities/forms/bulk_import.py:28
 msgid "Data file"
 msgstr "Файл даних"
 
-#: netbox/extras/forms/bulk_import.py:213
+#: netbox/extras/forms/bulk_import.py:199
+#: netbox/extras/forms/bulk_import.py:256
 msgid "Data file containing the template code"
 msgstr "Файл даних, що містить код шаблону"
 
-#: netbox/extras/forms/bulk_import.py:218
+#: netbox/extras/forms/bulk_import.py:204
+#: netbox/extras/forms/bulk_import.py:261
 msgid ""
 "Enable automatic synchronization of template content when the data file is "
 "updated"
 msgstr ""
 "Увімкнути автоматичну синхронізацію вмісту шаблону при оновленні файлу даних"
 
-#: netbox/extras/forms/bulk_import.py:234
+#: netbox/extras/forms/bulk_import.py:229
+#: netbox/extras/forms/bulk_import.py:285
 #: netbox/extras/forms/model_forms.py:414
 #: netbox/extras/forms/model_forms.py:897
 msgid "Must specify either local content or a data file"
 msgstr "Повинен вказати локальний вміст або файл даних"
 
-#: netbox/extras/forms/bulk_import.py:271
+#: netbox/extras/forms/bulk_import.py:322
 msgid "The event type(s) which will trigger this rule"
 msgstr "Тип(и) події, які ініціюватимуть це правило"
 
-#: netbox/extras/forms/bulk_import.py:274
+#: netbox/extras/forms/bulk_import.py:325
 msgid "Action object"
 msgstr "Об'єкт дії"
 
-#: netbox/extras/forms/bulk_import.py:277
+#: netbox/extras/forms/bulk_import.py:328
 msgid ""
 "The target object for the action, if it requires one. The expected format "
 "depends on the action type (e.g. a webhook or notification group name, or a "
@@ -11067,37 +11102,37 @@ msgstr ""
 "типу дії (наприклад, веб-хук або назва групи сповіщень, або сценарій у "
 "вигляді пунктирного шляху module.Class)."
 
-#: netbox/extras/forms/bulk_import.py:300
+#: netbox/extras/forms/bulk_import.py:351
 #, python-brace-format
 msgid "\"{action_type}\" is not a registered action type."
 msgstr "«{action_type}«не є зареєстрованим типом дії."
 
-#: netbox/extras/forms/bulk_import.py:306
+#: netbox/extras/forms/bulk_import.py:357
 msgid "This action type requires a target object."
 msgstr "Для цього типу дії потрібен цільовий об'єкт."
 
-#: netbox/extras/forms/bulk_import.py:316
+#: netbox/extras/forms/bulk_import.py:367
 msgid "This action type does not operate against a target object."
 msgstr "Цей тип дії не діє проти цільового об'єкта."
 
-#: netbox/extras/forms/bulk_import.py:323
+#: netbox/extras/forms/bulk_import.py:374
 #, python-brace-format
 msgid "{name} not found"
 msgstr "{name} не знайдено"
 
-#: netbox/extras/forms/bulk_import.py:327
+#: netbox/extras/forms/bulk_import.py:378
 msgid "This action type does not support bulk import."
 msgstr "Цей тип дії не підтримує масовий імпорт."
 
-#: netbox/extras/forms/bulk_import.py:367
+#: netbox/extras/forms/bulk_import.py:418
 msgid "Assigned object type"
 msgstr "Призначений тип об'єкта"
 
-#: netbox/extras/forms/bulk_import.py:372
+#: netbox/extras/forms/bulk_import.py:423
 msgid "The classification of entry"
 msgstr "Класифікація вступу"
 
-#: netbox/extras/forms/bulk_import.py:375 netbox/extras/tables/tables.py:793
+#: netbox/extras/forms/bulk_import.py:426 netbox/extras/tables/tables.py:793
 #: netbox/netbox/tables/tables.py:409 netbox/netbox/tables/tables.py:424
 #: netbox/netbox/tables/tables.py:447 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:110
@@ -11107,7 +11142,7 @@ msgstr "Класифікація вступу"
 msgid "Comments"
 msgstr "Коментарі"
 
-#: netbox/extras/forms/bulk_import.py:394
+#: netbox/extras/forms/bulk_import.py:445
 #: netbox/extras/forms/model_forms.py:543 netbox/extras/ui/panels.py:324
 #: netbox/netbox/navigation/menu.py:440 netbox/users/forms/filtersets.py:181
 #: netbox/users/forms/model_forms.py:276 netbox/users/forms/model_forms.py:288
@@ -11117,11 +11152,11 @@ msgstr "Коментарі"
 msgid "Users"
 msgstr "Користувачі"
 
-#: netbox/extras/forms/bulk_import.py:398
+#: netbox/extras/forms/bulk_import.py:449
 msgid "User names separated by commas, encased with double quotes"
 msgstr "Імена користувачів, розділені комами, укладені подвійними лапками"
 
-#: netbox/extras/forms/bulk_import.py:401
+#: netbox/extras/forms/bulk_import.py:452
 #: netbox/extras/forms/model_forms.py:538 netbox/extras/ui/panels.py:319
 #: netbox/netbox/navigation/menu.py:309 netbox/netbox/navigation/menu.py:441
 #: netbox/tenancy/forms/bulk_edit.py:121
@@ -11136,7 +11171,7 @@ msgstr "Імена користувачів, розділені комами, у
 msgid "Groups"
 msgstr "Групи"
 
-#: netbox/extras/forms/bulk_import.py:405
+#: netbox/extras/forms/bulk_import.py:456
 msgid "Group names separated by commas, encased with double quotes"
 msgstr "Імена груп, розділені комами, укладені подвійними лапками"
 
@@ -11154,7 +11189,7 @@ msgstr "Тип поля"
 
 #: netbox/extras/forms/filtersets.py:146
 #: netbox/extras/forms/model_forms.py:212 netbox/extras/tables/tables.py:112
-#: netbox/templates/generic/bulk_import.html:185
+#: netbox/templates/generic/bulk_import.html:186
 msgid "Choices"
 msgstr "Вибір"
 
@@ -11382,11 +11417,6 @@ msgid ""
 msgstr ""
 "Код шаблону Jinja2 для URL-адреси посилання. Посилання на об'єкт як "
 "{example}."
-
-#: netbox/extras/forms/model_forms.py:383
-#: netbox/extras/forms/model_forms.py:862
-msgid "Template code"
-msgstr "Код шаблону"
 
 #: netbox/extras/forms/model_forms.py:389 netbox/extras/ui/panels.py:237
 msgid "Export Template"
@@ -13282,55 +13312,59 @@ msgstr "Служба додатків (ID)"
 msgid "NAT inside IP address (ID)"
 msgstr "NAT внутрішня IP-адреса (ідентифікатор)"
 
-#: netbox/ipam/filtersets.py:1091
+#: netbox/ipam/filtersets.py:1042 netbox/ipam/filtersets.py:1048
+msgid "Related to site (ID)"
+msgstr "Пов'язано з сайтом (ID)"
+
+#: netbox/ipam/filtersets.py:1102
 msgid "Q-in-Q SVLAN (ID)"
 msgstr "Q-in-Q SVLAN (Ідентифікатор)"
 
-#: netbox/ipam/filtersets.py:1095
+#: netbox/ipam/filtersets.py:1106
 msgid "Q-in-Q SVLAN number (1-4094)"
 msgstr "Q-in-Q номер SVLAN (1-4094)"
 
-#: netbox/ipam/filtersets.py:1116
+#: netbox/ipam/filtersets.py:1127
 msgid "Assigned VM interface"
 msgstr "Призначений інтерфейс віртуальної машини"
 
-#: netbox/ipam/filtersets.py:1195
+#: netbox/ipam/filtersets.py:1218
 msgid "VLAN Translation Policy (name)"
 msgstr "Політика перекладу VLAN (назва)"
 
-#: netbox/ipam/filtersets.py:1241 netbox/ipam/filtersets.py:1245
+#: netbox/ipam/filtersets.py:1264 netbox/ipam/filtersets.py:1268
 msgid "Port mapping (protocol/port)"
 msgstr "Картування портів (протокол/порт)"
 
-#: netbox/ipam/filtersets.py:1394
+#: netbox/ipam/filtersets.py:1417
 msgid "FHRP Group (name)"
 msgstr "Група FHRP (назва)"
 
-#: netbox/ipam/filtersets.py:1399
+#: netbox/ipam/filtersets.py:1422
 msgid "FHRP Group (ID)"
 msgstr "Група FHRP (ID)"
 
-#: netbox/ipam/filtersets.py:1404
+#: netbox/ipam/filtersets.py:1427
 msgid "IP address (ID)"
 msgstr "IP-адреса (ідентифікатор)"
 
-#: netbox/ipam/filtersets.py:1410 netbox/ipam/models/ip.py:1035
+#: netbox/ipam/filtersets.py:1433 netbox/ipam/models/ip.py:1035
 msgid "IP address"
 msgstr "IP-адреса"
 
-#: netbox/ipam/filtersets.py:1459
+#: netbox/ipam/filtersets.py:1482
 msgid "Primary IPv4 (ID)"
 msgstr "Первинна адреса IPv4 (ідентифікатор)"
 
-#: netbox/ipam/filtersets.py:1466
+#: netbox/ipam/filtersets.py:1489
 msgid "Primary IPv4 (address)"
 msgstr "Первинний IPv4 (адреса)"
 
-#: netbox/ipam/filtersets.py:1472
+#: netbox/ipam/filtersets.py:1495
 msgid "Primary IPv6 (ID)"
 msgstr "Первинна адреса IPv6 (ідентифікатор)"
 
-#: netbox/ipam/filtersets.py:1479
+#: netbox/ipam/filtersets.py:1502
 msgid "Primary IPv6 (address)"
 msgstr "Первинний IPv6 (адреса)"
 
@@ -13453,7 +13487,7 @@ msgid "DNS name"
 msgstr "Ім'я DNS"
 
 #: netbox/ipam/forms/bulk_edit.py:326 netbox/ipam/forms/bulk_import.py:474
-#: netbox/ipam/forms/filtersets.py:443 netbox/ipam/forms/filtersets.py:659
+#: netbox/ipam/forms/filtersets.py:443 netbox/ipam/forms/filtersets.py:664
 #: netbox/ipam/forms/model_forms.py:565
 #: netbox/ipam/templates/ipam/widgets/port_mappings.html:8
 #: netbox/ipam/templates/ipam/widgets/port_mappings.html:20
@@ -13502,7 +13536,7 @@ msgid "VLAN ID ranges"
 msgstr "Діапазони ідентифікаторів VLAN"
 
 #: netbox/ipam/forms/bulk_edit.py:430 netbox/ipam/forms/bulk_import.py:552
-#: netbox/ipam/forms/filtersets.py:621 netbox/ipam/forms/model_forms.py:711
+#: netbox/ipam/forms/filtersets.py:626 netbox/ipam/forms/model_forms.py:711
 #: netbox/ipam/models/vlans.py:268 netbox/ipam/tables/vlans.py:110
 msgid "Q-in-Q role"
 msgstr "Роль Q-in-Q"
@@ -13570,7 +13604,7 @@ msgstr "VLAN тех. майданчика (якщо такий є)"
 msgid "Scope ID"
 msgstr "Ідентифікатор області застосування"
 
-#: netbox/ipam/forms/bulk_import.py:341 netbox/ipam/forms/filtersets.py:692
+#: netbox/ipam/forms/bulk_import.py:341 netbox/ipam/forms/filtersets.py:697
 #: netbox/ipam/forms/model_forms.py:355 netbox/ipam/forms/model_forms.py:384
 #: netbox/ipam/forms/model_forms.py:591
 msgid "FHRP Group"
@@ -13781,12 +13815,16 @@ msgstr "Віддалений ідентифікатор VLAN"
 msgid "Q-in-Q/802.1ad"
 msgstr "Контроль Q/802.1ad"
 
-#: netbox/ipam/forms/filtersets.py:618 netbox/ipam/models/vlans.py:227
+#: netbox/ipam/forms/filtersets.py:599
+msgid "Related to site"
+msgstr "Пов'язано з сайтом"
+
+#: netbox/ipam/forms/filtersets.py:623 netbox/ipam/models/vlans.py:227
 #: netbox/ipam/ui/panels.py:199
 msgid "VLAN ID"
 msgstr "Ідентифікатор VLAN"
 
-#: netbox/ipam/forms/filtersets.py:650
+#: netbox/ipam/forms/filtersets.py:655
 msgid "Port mapping"
 msgstr "Картування портів"
 
@@ -14918,7 +14956,7 @@ msgid "{failed_count} of {total} objects are listed more than once."
 msgstr "{failed_count} з {total} об'єкти перераховуються не один раз."
 
 #: netbox/netbox/api/viewsets/mixins.py:218
-#: netbox/netbox/views/generic/bulk_views.py:601
+#: netbox/netbox/views/generic/bulk_views.py:602
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr "Об'єкт з ідентифікатором {id} не існує"
@@ -14928,49 +14966,53 @@ msgstr "Об'єкт з ідентифікатором {id} не існує"
 msgid "{failed_count} of {total} objects could not be found."
 msgstr "{failed_count} з {total} Об'єктів не вдалося знайти."
 
-#: netbox/netbox/api/viewsets/mixins.py:321
+#: netbox/netbox/api/viewsets/mixins.py:299
+msgid "Background processing is not supported for this endpoint."
+msgstr "Для цієї кінцевої точки не підтримується фонова обробка."
+
+#: netbox/netbox/api/viewsets/mixins.py:333
 msgid "The If-Match header is not supported with background processing."
 msgstr "Заголовок If-Match не підтримується при фоновій обробці."
 
-#: netbox/netbox/api/viewsets/mixins.py:331
-#: netbox/netbox/api/viewsets/mixins.py:332
+#: netbox/netbox/api/viewsets/mixins.py:343
+#: netbox/netbox/api/viewsets/mixins.py:344
 msgid "create"
 msgstr "творити"
 
-#: netbox/netbox/api/viewsets/mixins.py:333
+#: netbox/netbox/api/viewsets/mixins.py:345
 msgid "delete"
 msgstr "видалити"
 
-#: netbox/netbox/api/viewsets/mixins.py:334
+#: netbox/netbox/api/viewsets/mixins.py:346
 msgid "update"
 msgstr "оновити"
 
-#: netbox/netbox/api/viewsets/mixins.py:335
+#: netbox/netbox/api/viewsets/mixins.py:347
 #, python-brace-format
 msgid "Bulk {verb} {object_type}"
 msgstr "Насипний {verb} {object_type}"
 
-#: netbox/netbox/api/viewsets/mixins.py:428
+#: netbox/netbox/api/viewsets/mixins.py:440
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be created."
 msgstr "{failed_count} з {total} Об'єкти не можуть бути створені."
 
-#: netbox/netbox/api/viewsets/mixins.py:468
+#: netbox/netbox/api/viewsets/mixins.py:480
 #, python-brace-format
 msgid "Invalid data. Expected a dictionary, but got {datatype}."
 msgstr "Невірні дані. Очікував словник, але отримав {datatype}."
 
-#: netbox/netbox/api/viewsets/mixins.py:575
+#: netbox/netbox/api/viewsets/mixins.py:587
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be updated."
 msgstr "{failed_count} з {total} об'єкти не можуть бути оновлені."
 
-#: netbox/netbox/api/viewsets/mixins.py:714
+#: netbox/netbox/api/viewsets/mixins.py:726
 #, python-brace-format
 msgid "{failed_count} of {total} objects could not be deleted."
 msgstr "{failed_count} з {total} об'єкти не можуть бути видалені."
 
-#: netbox/netbox/api/viewsets/mixins.py:766
+#: netbox/netbox/api/viewsets/mixins.py:778
 #, python-brace-format
 msgid "Unable to delete: {n} dependent object(s) prevent deletion."
 msgstr "Не вдається видалити: {n} залежні об'єкти запобігають видаленню."
@@ -15481,7 +15523,11 @@ msgstr "Увімкнути автоматичну синхронізацію д�
 msgid "date synced"
 msgstr "дата синхронізована"
 
-#: netbox/netbox/models/features.py:696
+#: netbox/netbox/models/features.py:686
+msgid "The selected data file is empty or its content could not be read."
+msgstr "Вибраний файл даних порожній або його вміст неможливо прочитати."
+
+#: netbox/netbox/models/features.py:716
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} повинен реалізувати метод sync_data()."
@@ -16292,7 +16338,7 @@ msgid "No {model_name} found"
 msgstr "{model_name} не знайдено"
 
 #: netbox/netbox/tables/tables.py:462
-#: netbox/templates/generic/bulk_import.html:148
+#: netbox/templates/generic/bulk_import.html:149
 msgid "Field"
 msgstr "Поле"
 
@@ -16330,7 +16376,7 @@ msgstr ""
 msgid "GPS coordinates"
 msgstr "GPS-координати"
 
-#: netbox/netbox/views/generic/bulk_views.py:171
+#: netbox/netbox/views/generic/bulk_views.py:172
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
@@ -16339,24 +16385,24 @@ msgstr ""
 "Виникла помилка при рендерингу вибраного шаблону експорту ({template}): "
 "{error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:352
+#: netbox/netbox/views/generic/bulk_views.py:353
 msgid "General"
 msgstr "Загальний"
 
-#: netbox/netbox/views/generic/bulk_views.py:362
+#: netbox/netbox/views/generic/bulk_views.py:363
 #, python-brace-format
 msgid "{value}: {field}: {error}"
 msgstr "{value}: {field}: {error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:534
+#: netbox/netbox/views/generic/bulk_views.py:535
 msgid "Must be a list."
 msgstr "Повинен бути список."
 
-#: netbox/netbox/views/generic/bulk_views.py:544
+#: netbox/netbox/views/generic/bulk_views.py:545
 msgid "Must be a dictionary."
 msgstr "Повинен бути словник."
 
-#: netbox/netbox/views/generic/bulk_views.py:664
+#: netbox/netbox/views/generic/bulk_views.py:665
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
@@ -16364,7 +16410,7 @@ msgstr ""
 "Знайдені дублікати об'єктів: {model} з ідентифікатором (ами) {ids} "
 "з'являється кілька разів"
 
-#: netbox/netbox/views/generic/bulk_views.py:681
+#: netbox/netbox/views/generic/bulk_views.py:682
 #, python-brace-format
 msgid ""
 "This import includes {count} record(s) that reference an existing object by "
@@ -16375,72 +16421,72 @@ msgstr ""
 "ідентифікатором і оновлюють його, що вимагає {permission} дозвіл. Видаліть "
 "стовпець ID, щоб замість цього створити нові об'єкти."
 
-#: netbox/netbox/views/generic/bulk_views.py:744
+#: netbox/netbox/views/generic/bulk_views.py:746
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr "Масовий імпорт {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:757
+#: netbox/netbox/views/generic/bulk_views.py:759
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr "Імпортний {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:880
+#: netbox/netbox/views/generic/bulk_views.py:884
 #, python-brace-format
 msgid "Custom field form field name must begin with 'cf_': {name}"
 msgstr "Назва поля форми користувача має починатися з 'cf_': {name}"
 
-#: netbox/netbox/views/generic/bulk_views.py:972
+#: netbox/netbox/views/generic/bulk_views.py:976
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr "Масове редагування {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:988
+#: netbox/netbox/views/generic/bulk_views.py:992
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr "оновлено {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1021
-#: netbox/netbox/views/generic/bulk_views.py:1297
-#: netbox/netbox/views/generic/bulk_views.py:1345
+#: netbox/netbox/views/generic/bulk_views.py:1025
+#: netbox/netbox/views/generic/bulk_views.py:1301
+#: netbox/netbox/views/generic/bulk_views.py:1349
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "Ні {object_type} були обрані."
 
-#: netbox/netbox/views/generic/bulk_views.py:1128
+#: netbox/netbox/views/generic/bulk_views.py:1132
 msgid "Select at least one field to rename."
 msgstr "Виберіть принаймні одне поле для перейменування."
 
-#: netbox/netbox/views/generic/bulk_views.py:1153
+#: netbox/netbox/views/generic/bulk_views.py:1157
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "Перейменовано {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1224
+#: netbox/netbox/views/generic/bulk_views.py:1228
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr "Масове видалення {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1251
+#: netbox/netbox/views/generic/bulk_views.py:1255
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "Видалено {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1269
+#: netbox/netbox/views/generic/bulk_views.py:1273
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 "Видалення не вдалося через наявність одного або декількох залежних об'єктів."
 
-#: netbox/netbox/views/generic/bulk_views.py:1358
+#: netbox/netbox/views/generic/bulk_views.py:1362
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr "Масове додавання {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1411
+#: netbox/netbox/views/generic/bulk_views.py:1415
 msgid "An integrity error occurred while creating components"
 msgstr "Під час створення компонентів сталася помилка цілісності"
 
-#: netbox/netbox/views/generic/bulk_views.py:1423
+#: netbox/netbox/views/generic/bulk_views.py:1427
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr "Додано {count} {component} до {parent_count} {parent}."
@@ -16569,9 +16615,9 @@ msgstr "Змінити пароль"
 #: netbox/templates/generic/bulk_add_component.html:81
 #: netbox/templates/generic/bulk_delete.html:78
 #: netbox/templates/generic/bulk_edit.html:130
-#: netbox/templates/generic/bulk_import.html:66
-#: netbox/templates/generic/bulk_import.html:98
-#: netbox/templates/generic/bulk_import.html:131
+#: netbox/templates/generic/bulk_import.html:67
+#: netbox/templates/generic/bulk_import.html:99
+#: netbox/templates/generic/bulk_import.html:132
 #: netbox/templates/generic/bulk_rename.html:101
 #: netbox/templates/generic/confirmation_form.html:19
 #: netbox/templates/generic/object_edit.html:74
@@ -17853,7 +17899,7 @@ msgstr ""
 "даних NetBox і оформивши запит на <code>%(sql_query)s</code>."
 
 #: netbox/templates/extras/customfield/attrs/choice_set.html:1
-#: netbox/templates/generic/bulk_import.html:179
+#: netbox/templates/generic/bulk_import.html:180
 msgid "choices"
 msgstr "вибір"
 
@@ -18169,50 +18215,50 @@ msgstr "Масове редагування"
 msgid "Apply"
 msgstr "Застосувати"
 
-#: netbox/templates/generic/bulk_import.html:19
+#: netbox/templates/generic/bulk_import.html:20
 msgid "Bulk Import"
 msgstr "Масовий імпорт"
 
-#: netbox/templates/generic/bulk_import.html:25
+#: netbox/templates/generic/bulk_import.html:26
 msgid "Direct Import"
 msgstr "Прямий імпорт"
 
-#: netbox/templates/generic/bulk_import.html:30
+#: netbox/templates/generic/bulk_import.html:31
 msgid "Upload File"
 msgstr "Вивантажити файл"
 
-#: netbox/templates/generic/bulk_import.html:68
-#: netbox/templates/generic/bulk_import.html:100
-#: netbox/templates/generic/bulk_import.html:133
+#: netbox/templates/generic/bulk_import.html:69
+#: netbox/templates/generic/bulk_import.html:101
+#: netbox/templates/generic/bulk_import.html:134
 msgid "Submit"
 msgstr "Надіслати"
 
-#: netbox/templates/generic/bulk_import.html:144
+#: netbox/templates/generic/bulk_import.html:145
 msgid "Field Options"
 msgstr "Параметри поля"
 
-#: netbox/templates/generic/bulk_import.html:150
+#: netbox/templates/generic/bulk_import.html:151
 msgid "Accessor"
 msgstr "Аксесуар"
 
-#: netbox/templates/generic/bulk_import.html:192
+#: netbox/templates/generic/bulk_import.html:193
 msgid "Import Value"
 msgstr "Імпорт вартості"
 
-#: netbox/templates/generic/bulk_import.html:212
+#: netbox/templates/generic/bulk_import.html:213
 msgid "Format: YYYY-MM-DD"
 msgstr "Формат: РРРР-ММ-ДД"
 
-#: netbox/templates/generic/bulk_import.html:214
+#: netbox/templates/generic/bulk_import.html:215
 msgid "Specify true or false"
 msgstr "Вкажіть істинна або хибно"
 
-#: netbox/templates/generic/bulk_import.html:226
+#: netbox/templates/generic/bulk_import.html:227
 msgid "Required fields <strong>must</strong> be specified for all objects."
 msgstr ""
 "Обов'язкові поля <strong>повинен</strong> буде вказано для всіх об'єктів."
 
-#: netbox/templates/generic/bulk_import.html:232
+#: netbox/templates/generic/bulk_import.html:233
 #, python-format
 msgid ""
 "Related objects may be referenced by any unique attribute. For example, "
@@ -18611,6 +18657,10 @@ msgstr "Увійти"
 msgctxt "Denotes an alternative option"
 msgid "Or"
 msgstr "Або"
+
+#: netbox/templates/login.html:88
+msgid "Unable to begin single sign-on. Please try again."
+msgstr "Не вдається розпочати єдиний вхід. Будь ласка, спробуйте ще раз."
 
 #: netbox/templates/media_failure.html:7
 msgid "Static Media Failure - NetBox"
@@ -19546,7 +19596,7 @@ msgstr "Більше 50"
 msgid "Invalid delimiter name: {name}"
 msgstr "Невірне ім'я роздільника: {name}"
 
-#: netbox/utilities/fields.py:180
+#: netbox/utilities/fields.py:183
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_model parameter to CounterCacheField must be a string "
@@ -19555,7 +19605,7 @@ msgstr ""
 "%s(%r) невірний. Параметр to_model до CounterCacheField повинен бути рядком "
 "у форматі 'app.model'"
 
-#: netbox/utilities/fields.py:190
+#: netbox/utilities/fields.py:193
 #, python-format
 msgid ""
 "%s(%r) is invalid. to_field parameter to CounterCacheField must be a string "
@@ -19576,20 +19626,20 @@ msgstr "Символ, який розмежовує поля CSV. Застосо
 msgid "Form data must be empty when uploading/selecting a file."
 msgstr "Дані форми повинні бути порожніми під час вивантаження/вибору файлу."
 
-#: netbox/utilities/forms/bulk_import.py:82
+#: netbox/utilities/forms/bulk_import.py:83
 #, python-brace-format
 msgid "Unknown data format: {format}"
 msgstr "Невідомий формат даних: {format}"
 
-#: netbox/utilities/forms/bulk_import.py:102
+#: netbox/utilities/forms/bulk_import.py:103
 msgid "Unable to detect data format. Please specify."
 msgstr "Не вдається визначити формат даних. Будь ласка, уточніть."
 
-#: netbox/utilities/forms/bulk_import.py:125
+#: netbox/utilities/forms/bulk_import.py:126
 msgid "Invalid CSV delimiter"
 msgstr "Невірний роздільник CSV"
 
-#: netbox/utilities/forms/bulk_import.py:169
+#: netbox/utilities/forms/bulk_import.py:170
 msgid ""
 "Invalid YAML data. Data must be in the form of multiple documents, or a "
 "single document comprising a list of dictionaries."
@@ -19930,11 +19980,11 @@ msgstr "Невірний шаблон: {error}"
 msgid "Created background job {id}: <a href=\"{url}\">{name}</a>"
 msgstr "Створена фонова робота {id}: <a href=\"{url}\">{name}</a>"
 
-#: netbox/utilities/jsonschema.py:167
+#: netbox/utilities/jsonschema.py:174
 msgid "Invalid JSON schema definition"
 msgstr "Невірне визначення схеми JSON"
 
-#: netbox/utilities/jsonschema.py:172
+#: netbox/utilities/jsonschema.py:179
 #, python-brace-format
 msgid "Invalid JSON schema definition: {error}"
 msgstr "Невірне визначення схеми JSON: {error}"
@@ -20062,7 +20112,7 @@ msgstr "Написати"
 msgid "Selected"
 msgstr "Вибрані"
 
-#: netbox/utilities/testing/views.py:754 netbox/utilities/testing/views.py:799
+#: netbox/utilities/testing/views.py:786 netbox/utilities/testing/views.py:831
 msgid "The test must define csv_update_data."
 msgstr "Тест повинен визначити csv_update_data."
 

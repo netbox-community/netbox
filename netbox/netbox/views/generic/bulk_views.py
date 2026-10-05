@@ -24,6 +24,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.choices import ImportMethodChoices
 from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
@@ -724,6 +725,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             'model': model,
             'form': form,
             'fields': self._get_form_fields(),
+            'import_method': ImportMethodChoices.DIRECT,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -787,6 +789,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             'model': model,
             'form': form,
             'fields': self._get_form_fields(),
+            # Return the user to the tab they submitted, so a rejected import shows its own error
+            'import_method': form.cleaned_data.get('import_method') or ImportMethodChoices.DIRECT,
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })

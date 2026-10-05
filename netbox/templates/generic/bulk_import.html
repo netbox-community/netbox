@@ -13,6 +13,7 @@ Context:
   - model:       The model class being imported
   - form:        The bulk import form
   - fields:      A dictionary of form fields, to display import options (optional)
+  - import_method: Which of the three tabs is active ("direct", "upload" or "datafile")
   - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
@@ -21,17 +22,17 @@ Context:
 {% block tabs %}
   <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="import-form-tab" data-bs-toggle="tab" data-bs-target="#import-form" data-href="#tab_import-form" type="button" role="tab" aria-controls="import-form" aria-selected="true">
+      <button class="nav-link{% if import_method == 'direct' %} active{% endif %}" id="import-form-tab" data-bs-toggle="tab" data-bs-target="#import-form" data-href="#tab_import-form" type="button" role="tab" aria-controls="import-form" aria-selected="{% if import_method == 'direct' %}true{% else %}false{% endif %}">
         {% trans "Direct Import" %}
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="upload-form-tab" data-bs-toggle="tab" data-bs-target="#upload-form" data-href="#tab_upload-form" type="button" role="tab" aria-controls="upload-form" aria-selected="false">
+      <button class="nav-link{% if import_method == 'upload' %} active{% endif %}" id="upload-form-tab" data-bs-toggle="tab" data-bs-target="#upload-form" data-href="#tab_upload-form" type="button" role="tab" aria-controls="upload-form" aria-selected="{% if import_method == 'upload' %}true{% else %}false{% endif %}">
         {% trans "Upload File" %}
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="datafile-form-tab" data-bs-toggle="tab" data-bs-target="#datafile-form" data-href="#tab_datafile-form" type="button" role="tab" aria-controls="datafile-form" aria-selected="false">
+      <button class="nav-link{% if import_method == 'datafile' %} active{% endif %}" id="datafile-form-tab" data-bs-toggle="tab" data-bs-target="#datafile-form" data-href="#tab_datafile-form" type="button" role="tab" aria-controls="datafile-form" aria-selected="{% if import_method == 'datafile' %}true{% else %}false{% endif %}">
         {% trans "Data File" %}
       </button>
     </li>
@@ -41,7 +42,7 @@ Context:
 {% block content %}
 
   {# Data Import Form #}
-  <div class="tab-pane show active" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
+  <div class="tab-pane show{% if import_method == 'direct' %} active{% endif %}" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
     <div class="col col-md-12 col-lg-10 offset-lg-1">
       <form action="" method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
@@ -73,7 +74,7 @@ Context:
   </div>
 
   {# File Upload Form #}
-  <div class="tab-pane show" id="upload-form" role="tabpanel" aria-labelledby="upload-form-tab">
+  <div class="tab-pane show{% if import_method == 'upload' %} active{% endif %}" id="upload-form" role="tabpanel" aria-labelledby="upload-form-tab">
     <div class="col col-md-12 col-lg-10 offset-lg-1">
       <form action="" method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}
@@ -105,7 +106,7 @@ Context:
   </div>
 
   {# DataFile Form #}
-  <div class="tab-pane show" id="datafile-form" role="tabpanel" aria-labelledby="datafile-form-tab">
+  <div class="tab-pane show{% if import_method == 'datafile' %} active{% endif %}" id="datafile-form" role="tabpanel" aria-labelledby="datafile-form-tab">
     <div class="col col-md-12 col-lg-10 offset-lg-1">
       <form action="" method="post" enctype="multipart/form-data" class="form">
         {% csrf_token %}

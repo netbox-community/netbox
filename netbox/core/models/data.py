@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 import yaml
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -18,6 +17,7 @@ from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
+from utilities.fields import RestrictedGenericForeignKey
 from utilities.querysets import RestrictedQuerySet
 
 from ..choices import *
@@ -353,10 +353,13 @@ class DataFile(models.Model):
 
     def get_data(self):
         """
-        Attempt to read the file data as JSON/YAML and return a native Python object.
+        Attempt to read the file data as JSON/YAML and return a native Python object. Returns None if the file
+        content cannot be decoded.
         """
         # TODO: Something more robust
-        return yaml.safe_load(self.data_as_string)
+        if (data := self.data_as_string) is None:
+            return None
+        return yaml.safe_load(data)
 
     def refresh_from_disk(self, source_root):
         """
@@ -393,7 +396,7 @@ class AutoSyncRecord(models.Model):
         related_name='+'
     )
     object_id = models.PositiveBigIntegerField()
-    object = GenericForeignKey(
+    object = RestrictedGenericForeignKey(
         ct_field='object_type',
         fk_field='object_id'
     )

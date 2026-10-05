@@ -28,7 +28,8 @@ class ConfigContextProfileSerializer(PrimaryModelSerializer):
     )
     data_file = DataFileSerializer(
         nested=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -38,6 +39,7 @@ class ConfigContextProfileSerializer(PrimaryModelSerializer):
             'data_source', 'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+        model_clean_fields = ('data_source', 'data_path', 'auto_sync_enabled', 'data_synced', 'schema')
 
 
 class ConfigContextSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
@@ -143,7 +145,8 @@ class ConfigContextSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedM
     )
     data_file = DataFileSerializer(
         nested=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -155,3 +158,4 @@ class ConfigContextSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedM
             'data_file', 'data_synced', 'data', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+        model_clean_fields = ('data_source', 'data_path', 'auto_sync_enabled', 'data_synced', 'data')

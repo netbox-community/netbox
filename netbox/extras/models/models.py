@@ -567,7 +567,7 @@ class ExportTemplate(
         """
         Synchronize template content from the designated DataFile (if any).
         """
-        self.template_code = self.data_file.data_as_string
+        self.template_code = self.validate_synced_value('template_code', self.data_file.data_as_string)
     sync_data.alters_data = True
 
     def get_context(self, context=None, queryset=None):

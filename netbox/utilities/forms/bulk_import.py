@@ -52,10 +52,11 @@ class BulkImportForm(ChangelogMessageMixin, BackgroundJobMixin, SyncedDataMixin,
         if self.cleaned_data['data'] and import_method != ImportMethodChoices.DIRECT:
             raise forms.ValidationError(_("Form data must be empty when uploading/selecting a file."))
         if import_method == ImportMethodChoices.UPLOAD:
-            self.upload_file = 'upload_file'
+            self.data_field = 'upload_file'
             file = self.files.get('upload_file')
             data = file.read().decode('utf-8-sig')
         elif import_method == ImportMethodChoices.DATA_FILE:
+            self.data_field = 'data_file'
             data = self.cleaned_data['data_file'].data_as_string
         else:
             data = self.cleaned_data['data']

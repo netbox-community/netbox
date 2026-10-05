@@ -27,7 +27,8 @@ class ConfigTemplateSerializer(
     )
     data_file = DataFileSerializer(
         nested=True,
-        required=False
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -38,6 +39,7 @@ class ConfigTemplateSerializer(
             'data_file', 'auto_sync_enabled', 'data_synced', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+        model_clean_fields = ('data_source', 'data_path', 'auto_sync_enabled', 'data_synced', 'template_code')
 
 
 class RenderConfigInputSerializer(serializers.Serializer):

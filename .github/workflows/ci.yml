@@ -39,24 +39,31 @@ jobs:
       python: ${{ steps.filter.outputs.python }}
       frontend: ${{ steps.filter.outputs.frontend }}
       docs: ${{ steps.filter.outputs.docs }}
+      # Release PRs (feature into main, or a release-vX.Y.Z branch) always run the test suite
+      # against what ships: the [c] psycopg build and a test database Django builds from scratch.
+      release_pr: ${{ (github.head_ref == 'feature' && github.base_ref == 'main') || startsWith(github.head_ref, 'release-v') }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Detect changed files
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d  # v4.0.1
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d  # v4.0.3
         id: filter
         with:
           filters: |
             python:
               - 'netbox/**/*.py'
+              - 'netbox/**/migrations/**'
               - 'requirements*.txt'
               - 'pyproject.toml'
+              - '.github/workflows/ci.yml'
             frontend:
               - 'netbox/project-static/**'
+              - '.github/workflows/ci.yml'
             docs:
               - 'docs/**'
               - 'mkdocs.yml'
+              - '.github/workflows/ci.yml'
 
   lint:
     name: Lint (Python)
@@ -65,10 +72,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Check Python linting & PEP8 compliance
-        uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89  # v4.1.0
         with:
           version: "0.15.20"
           args: "check --output-format=github"
@@ -78,10 +85,13 @@ jobs:
     name: >-
       Tests (Python ${{ matrix.python-version }}${{ matrix.coverage && ', coverage' || '' }})
     needs: changes
-    if: needs.changes.result == 'success' && needs.changes.outputs.python == 'true'
+    if: >-
+      needs.changes.result == 'success'
+      && (needs.changes.outputs.python == 'true' || needs.changes.outputs.release_pr == 'true')
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
+      RELEASE_PR: ${{ needs.changes.outputs.release_pr }}
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
@@ -92,11 +102,11 @@ jobs:
             coverage: true
     services:
       redis:
-        image: redis
+        image: redis:8
         ports:
           - 6379:6379
       postgres:
-        image: postgres
+        image: postgres:18
         env:
           POSTGRES_USER: netbox
           POSTGRES_PASSWORD: netbox
@@ -110,18 +120,34 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            .github/workflows/ci.yml
+
+      - name: Select the psycopg implementation
+        run: |
+          if [ "$RELEASE_PR" = true ]; then
+            echo "PSYCOPG_IMPL=c" >> "$GITHUB_ENV"
+          else
+            # Prebuilt wheels skip compiling against libpq.
+            sed -i 's/^psycopg\[c,pool\]==/psycopg[binary,pool]==/' requirements.txt
+            grep -q '^psycopg\[binary,pool\]==' requirements.txt \
+              || { echo "::error::requirements.txt no longer pins psycopg[c,pool]=="; exit 1; }
+            echo "PSYCOPG_IMPL=binary" >> "$GITHUB_ENV"
+          fi
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install coverage tblib
+          pip install -r requirements_testing.txt
 
       - name: Check for missing migrations
         run: python netbox/manage.py makemigrations --check
@@ -131,13 +157,70 @@ jobs:
       - name: Collect static files
         run: python netbox/manage.py collectstatic --no-input
 
+      - name: Fingerprint the schema inputs
+        id: schema
+        if: env.RELEASE_PR != 'true'
+        run: |
+          # Path and blob of every file that shapes the migrated schema, so renames count too.
+          inputs=$(git ls-files --stage -- \
+            .github/workflows/ci.yml \
+            requirements.txt \
+            netbox/netbox/settings.py \
+            netbox/netbox/configuration_testing.py \
+            netbox/core/signals.py \
+            ':(glob)netbox/**/migrations/**' \
+            ':(glob)netbox/*/fields.py' \
+            netbox/netbox/models/ltree.py \
+            netbox/ipam/lookups.py \
+            netbox/utilities/query_functions.py \
+            netbox/utilities/ltree.py \
+            netbox/utilities/migration.py \
+            netbox/utilities/mptt_to_ltree.py)
+          echo "hash=$(sha256sum <<< "$inputs" | cut -c1-32)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the migrated test database
+        id: test-db
+        if: env.RELEASE_PR != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/test_netbox.dump
+          key: test-db-py${{ matrix.python-version }}-${{ steps.schema.outputs.hash }}
+          # Push runs migrate from scratch, so every merge re-validates the migration chain.
+          lookup-only: ${{ github.event_name == 'push' }}
+
+      - name: Build the migrated test database
+        if: >-
+          env.RELEASE_PR != 'true'
+          && (github.event_name == 'push' || steps.test-db.outputs.cache-hit != 'true')
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          python netbox/manage.py migrate --no-input --run-syncdb
+          docker exec "$POSTGRES_CONTAINER" pg_dump -U netbox -Fc netbox > "$RUNNER_TEMP/test_netbox.dump"
+
+      - name: Load the test database
+        if: env.RELEASE_PR != 'true'
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          docker exec "$POSTGRES_CONTAINER" createdb -U netbox test_netbox
+          docker exec -i "$POSTGRES_CONTAINER" pg_restore -U netbox -d test_netbox --exit-on-error \
+            < "$RUNNER_TEMP/test_netbox.dump"
+
+      - name: Cache the migrated test database
+        if: env.RELEASE_PR != 'true' && steps.test-db.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ${{ runner.temp }}/test_netbox.dump
+          key: ${{ steps.test-db.outputs.cache-primary-key }}
+
       - name: Run tests
         if: ${{ ! matrix.coverage }}
-        run: python netbox/manage.py test netbox/ --parallel
+        run: python netbox/manage.py test netbox/ --parallel --keepdb --timing
 
       - name: Run tests with coverage
         if: ${{ matrix.coverage }}
-        run: coverage run netbox/manage.py test netbox/ --parallel
+        run: coverage run netbox/manage.py test netbox/ --parallel --keepdb --timing
 
       - name: Combine coverage data
         if: ${{ matrix.coverage }}
@@ -154,10 +237,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Use Node.js 20.x
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20.x'
 
@@ -165,7 +248,7 @@ jobs:
         run: npm install -g yarn
 
       - name: Setup Node.js with Yarn Caching
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
         with:
           node-version: '20.x'
           cache: yarn
@@ -190,15 +273,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            .github/workflows/ci.yml
 
       - name: Install dependencies
         run: |
+          # Shares the 3.12 test job's pip cache entry.
+          sed -i 's/^psycopg\[c,pool\]==/psycopg[binary,pool]==/' requirements.txt
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 

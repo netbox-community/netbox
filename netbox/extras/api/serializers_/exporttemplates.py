@@ -21,7 +21,8 @@ class ExportTemplateSerializer(OwnerMixin, ChangeLogMessageSerializer, Validated
     )
     data_file = DataFileSerializer(
         nested=True,
-        read_only=True
+        required=False,
+        allow_null=True
     )
 
     class Meta:
@@ -29,6 +30,7 @@ class ExportTemplateSerializer(OwnerMixin, ChangeLogMessageSerializer, Validated
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'name', 'description', 'environment_params',
             'template_code', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'data_source',
-            'data_path', 'data_file', 'data_synced', 'owner', 'created', 'last_updated',
+            'data_path', 'data_file', 'auto_sync_enabled', 'data_synced', 'owner', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+        model_clean_fields = ('data_source', 'data_path', 'auto_sync_enabled', 'data_synced', 'template_code')

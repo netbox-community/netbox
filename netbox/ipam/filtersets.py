@@ -1036,6 +1036,17 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Site (slug)'),
     )
+    related_to_site = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        method='filter_related_to_site',
+        label=_('Related to site (ID)'),
+    )
+    # get_additional_lookups() skips filters with a method.
+    related_to_site__n = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        method='filter_related_to_site_negated',
+        label=_('Related to site (ID)'),
+    )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLANGroup.objects.all(),
         distinct=False,
@@ -1145,6 +1156,18 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def filter_related_to_site(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.get_related_to_sites(value)
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def filter_related_to_site_negated(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.get_related_to_sites(value, negate=True)
 
     @extend_schema_field(OpenApiTypes.INT)
     def filter_interface_id(self, queryset, name, value):

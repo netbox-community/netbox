@@ -1,5 +1,31 @@
 # NetBox v4.7
 
+## v4.7.2 (2026-09-29)
+
+!!! warning "API Tokens Created by Background Bulk Requests"
+    NetBox v4.7.0 and v4.7.1 recorded the plaintext of API tokens created via background bulk requests in the job results, where they were readable by any user permitted to view jobs. This release rejects such requests; any tokens created this way should be considered exposed and replaced. See [#23196](https://github.com/netbox-community/netbox/issues/23196) for details.
+
+### Enhancements
+
+* [#21879](https://github.com/netbox-community/netbox/issues/21879) - Introduce the `Cable.update_dependent_objects()` hook to rebuild cable paths and related attributes after writes which bypass `save()`
+* [#22886](https://github.com/netbox-community/netbox/issues/22886) - Include VLANs assigned via VLAN groups scoped to a site (or its site group) among the site's related objects
+* [#22949](https://github.com/netbox-community/netbox/issues/22949) - Focus and scroll to the first field with a validation error when a form fails validation
+* [#23095](https://github.com/netbox-community/netbox/issues/23095) - Display the compatible module types for a module bay type in a dedicated, sortable, and paginated table
+
+### Bug Fixes
+
+* [#23122](https://github.com/netbox-community/netbox/issues/23122) - Prevent the failure to automatically sync one object from skipping the sync of subsequent objects
+* [#23150](https://github.com/netbox-community/netbox/issues/23150) - Preserve the parent device type assignment when using "Create & Add Another" to add component templates
+* [#23160](https://github.com/netbox-community/netbox/issues/23160) - Record a change log entry for each terminating object when a cable is deleted
+* [#23181](https://github.com/netbox-community/netbox/issues/23181) - Restore the display of the cluster group in the virtual machine detail view
+* [#23187](https://github.com/netbox-community/netbox/issues/23187) - Permit the assignment of a data file when creating an export template via the REST API
+* [#23195](https://github.com/netbox-community/netbox/issues/23195) - Validate the `return_url` parameter used for the cancel button on the IP address assignment view
+* [#23196](https://github.com/netbox-community/netbox/issues/23196) - Ensure plaintext API tokens are never recorded in background job results (see the warning above)
+* [#23197](https://github.com/netbox-community/netbox/issues/23197) - Enforce object permission constraints on the REST API `sync` action for synced data models
+* [#23203](https://github.com/netbox-community/netbox/issues/23203) - Fix the population of the related objects panel for owners
+
+---
+
 ## v4.7.1 (2026-09-15)
 
 !!! warning "Databases Restored From a v4.7.0 Dump"

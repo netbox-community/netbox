@@ -1,6 +1,7 @@
 from django.urls import reverse
 
 from core.models import ObjectType
+from dcim.models import Site
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.constants import TOKEN_PREFIX
 from users.models import *
@@ -639,3 +640,51 @@ class OwnerTestCase(ViewTestCases.AdminModelViewTestCase):
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+    def test_related_objects_list_owned_objects(self):
+        """An object assigned to an owner appears among the owner's related models."""
+        owner = Owner.objects.get(name='Owner 1')
+        Site.objects.create(name='Site 1', slug='site-1', owner=owner)
+        self.add_permissions('users.view_owner', 'dcim.view_site')
+
+        response = self.client.get(owner.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        related = {roc.queryset.model: roc for roc in response.context['related_models']}
+        self.assertIn(Site, related)
+        self.assertEqual(related[Site].filter_param, 'owner_id')
+        self.assertEqual(related[Site].queryset.count(), 1)
+
+    def test_related_objects_honor_object_permissions(self):
+        """An owned object the user cannot view is omitted from the owner's related models."""
+        owner = Owner.objects.get(name='Owner 1')
+        Site.objects.create(name='Site 1', slug='site-1', owner=owner)
+        self.add_permissions('users.view_owner')
+
+        response = self.client.get(owner.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        self.assertEqual(response.context['related_models'], [])
+
+    def test_related_objects_honor_constrained_permissions(self):
+        """A related model reports only the owned objects the user is permitted to view."""
+        owner = Owner.objects.get(name='Owner 1')
+        site1 = Site.objects.create(name='Site 1', slug='site-1', owner=owner)
+        Site.objects.create(name='Site 2', slug='site-2', owner=owner)
+        self.add_permissions('users.view_owner')
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            constraints={'pk': site1.pk},
+            actions=['view']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Site))
+
+        response = self.client.get(owner.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        related = {roc.queryset.model: roc for roc in response.context['related_models']}
+        self.assertIn(Site, related)
+        self.assertEqual(list(related[Site].queryset), [site1])

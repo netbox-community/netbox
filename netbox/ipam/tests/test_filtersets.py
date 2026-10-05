@@ -2216,6 +2216,143 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'site': [sites[3].slug, sites[4].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_related_to_site(self):
+        """Site-related VLANs cover direct assignment plus site and site group scopes."""
+        # site-1: one site-scoped VLAN and one scoped to its site group
+        site = Site.objects.get(slug='site-1')
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.order_by('vid').values_list('vid', flat=True)),
+            [4, 7]
+        )
+        # site-4: two directly assigned VLANs plus the same site-group-scoped VLAN
+        site = Site.objects.get(slug='site-4')
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.order_by('vid').values_list('vid', flat=True)),
+            [4, 101, 102]
+        )
+        # site-7 has no site group
+        site = Site.objects.get(slug='site-7')
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.order_by('vid').values_list('vid', flat=True)),
+            [2001, 2002, 2003, 3001, 3002, 3003]
+        )
+
+    def test_related_to_site_matches_any_of_several_sites(self):
+        """Several sites spanning two site groups are ORed together, and a shared VLAN comes back once."""
+        sites = (
+            Site.objects.get(slug='site-1'),
+            Site.objects.get(slug='site-2'),
+            Site.objects.get(slug='site-4'),
+        )
+        params = {'related_to_site': [site.pk for site in sites]}
+        # VLAN 4 is scoped to the site group both site-1 and site-4 belong to, VLAN 5 to site-2's
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.order_by('vid').values_list('vid', flat=True)),
+            [4, 5, 7, 8, 101, 102]
+        )
+
+    def test_related_to_site_returns_dual_assignment_once(self):
+        """A VLAN matching both the direct site and a group scope is returned once."""
+        site = Site.objects.get(slug='site-1')
+        VLAN.objects.create(
+            vid=51,
+            name='Dual assignment',
+            site=site,
+            group=VLANGroup.objects.get(slug='site-group-1')
+        )
+
+        # 4 and 7 as before, plus the dual-assigned VLAN
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_related_to_site_includes_ancestor_site_group_scope(self):
+        """A group scoped to an ancestor site group relates to sites in descendant groups."""
+        parent = SiteGroup.objects.create(name='Parent Group', slug='parent-group')
+        child = SiteGroup.objects.create(name='Child Group', slug='child-group', parent=parent)
+        site = Site.objects.create(name='Site 8', slug='site-8', group=child)
+        group = VLANGroup.objects.create(name='Parent scope', slug='parent-scope', scope=parent)
+        VLAN.objects.create(vid=60, name='Parent scoped', group=group)
+
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_related_to_site_ignores_matching_id_on_another_scope_type(self):
+        """A scope id equal to the site's pk under a different scope type does not match."""
+        site = Site.objects.get(slug='site-1')
+        group = VLANGroup.objects.create(
+            name='Region scope collision',
+            slug='region-scope-collision',
+            scope_type=ContentType.objects.get_by_natural_key('dcim', 'region'),
+            scope_id=site.pk
+        )
+        VLAN.objects.create(vid=61, name='Collision', group=group)
+
+        # Still only the site-scoped and site-group-scoped VLANs
+        params = {'related_to_site': [site.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_related_to_site_narrows_the_supplied_queryset(self):
+        """The filter narrows the given queryset and cannot restore excluded VLANs."""
+        site = Site.objects.get(slug='site-1')
+        params = {'related_to_site': [site.pk]}
+        queryset = self.queryset.exclude(vid=4)
+
+        self.assertEqual(self.filterset(params, queryset).qs.count(), 1)
+
+    def test_related_to_site_negated(self):
+        """The negation lookup excludes everything the positive lookup returns."""
+        # related_to_site__n drops the 2 VLANs related to site-1
+        site = Site.objects.get(slug='site-1')
+        params = {'related_to_site__n': [site.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), self.queryset.count() - 2)
+
+    def test_related_to_site_resolves_site_groups_in_constant_queries(self):
+        """The query count is constant in the number of sites, and drops to one without groups."""
+        sites = list(Site.objects.filter(slug__in=('site-1', 'site-2', 'site-3')))
+        site_without_group = Site.objects.get(slug='site-7')
+        # Both scope types are resolved through the ContentType cache, so warm it first.
+        ContentType.objects.get_by_natural_key('dcim', 'site')
+        ContentType.objects.get_by_natural_key('dcim', 'sitegroup')
+
+        # One query for the selected site groups, one for the VLANs
+        with self.assertNumQueries(2):
+            self.queryset.get_related_to_sites(sites[:1]).count()
+
+        with self.assertNumQueries(2):
+            self.queryset.get_related_to_sites(sites).count()
+
+        with self.assertNumQueries(2):
+            self.queryset.get_related_to_sites(sites, negate=True).count()
+
+        with self.assertNumQueries(1):
+            self.queryset.get_related_to_sites([site_without_group]).count()
+
+    def test_related_to_site_negation_partitions_the_queryset(self):
+        """The positive and negated lookups are disjoint and together cover the queryset."""
+        pks = [Site.objects.get(slug='site-1').pk, Site.objects.get(slug='site-4').pk]
+        # A VLAN with neither a site nor a group, and one in an unscoped group, belong to the negation.
+        VLAN.objects.create(vid=70, name='Unassigned')
+        VLAN.objects.create(vid=71, name='Unscoped group', group=VLANGroup.objects.get(slug='vlan-group-1'))
+
+        related_qs = self.filterset({'related_to_site': pks}, self.queryset).qs
+        unrelated_qs = self.filterset({'related_to_site__n': pks}, self.queryset).qs
+        related = set(related_qs.values_list('pk', flat=True))
+        unrelated = set(unrelated_qs.values_list('pk', flat=True))
+
+        self.assertEqual(related_qs.count(), len(related))
+        self.assertEqual(unrelated_qs.count(), len(unrelated))
+        self.assertEqual(related & unrelated, set())
+        self.assertEqual(related | unrelated, set(self.queryset.values_list('pk', flat=True)))
+        self.assertTrue(related)
+
+    def test_related_to_site_without_sites(self):
+        """No sites means no related VLANs, and the negation leaves the queryset untouched."""
+        self.assertEqual(self.queryset.get_related_to_sites([]).count(), 0)
+        self.assertEqual(self.queryset.get_related_to_sites([], negate=True).count(), self.queryset.count())
+
     def test_group(self):
         groups = VLANGroup.objects.filter(name__startswith='VLAN Group')[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}

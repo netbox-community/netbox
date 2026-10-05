@@ -26,7 +26,7 @@ from netbox.ui.panels import (
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
-from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
+from utilities.views import GetRelatedModelsMixin, GetReturnURLMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.forms import VMInterfaceFilterForm
 from virtualization.models import VirtualMachine, VMInterface
@@ -1234,7 +1234,7 @@ class IPAddressEditView(generic.ObjectEditView):
 
 # TODO: Standardize or remove this view
 @register_model_view(IPAddress, 'assign', path='assign', detail=False)
-class IPAddressAssignView(generic.ObjectView):
+class IPAddressAssignView(GetReturnURLMixin, generic.ObjectView):
     """
     Search for IPAddresses to be assigned to an Interface.
     """
@@ -1253,7 +1253,7 @@ class IPAddressAssignView(generic.ObjectView):
 
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
-            'return_url': request.GET.get('return_url', ''),
+            'return_url': self.get_return_url(request),
         })
 
     def post(self, request):
@@ -1270,7 +1270,7 @@ class IPAddressAssignView(generic.ObjectView):
         return render(request, 'ipam/ipaddress_assign.html', {
             'form': form,
             'table': table,
-            'return_url': request.GET.get('return_url'),
+            'return_url': self.get_return_url(request),
         })
 
 

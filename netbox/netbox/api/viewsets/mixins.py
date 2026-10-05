@@ -289,6 +289,16 @@ class BackgroundOperationMixin:
     This mixin overrides no framework methods; the bulk action methods call its helpers.
     """
 
+    # False where the response carries a write-once secret: a 202 can only return it via the job record.
+    background_enabled = True
+
+    def check_background_enabled(self):
+        """Raise a ValidationError if this endpoint has opted out of background processing."""
+        if not self.background_enabled:
+            raise ValidationError({
+                'detail': _("Background processing is not supported for this endpoint.")
+            })
+
     def _background_requested(self, request):
         """Return True if background processing was requested for this write."""
         if request.method not in ('POST', 'PUT', 'PATCH', 'DELETE'):
@@ -314,6 +324,8 @@ class BackgroundOperationMixin:
         Enqueue an AsyncAPIJob to perform the given bulk action in the background and return
         a 202 response containing the job ID and polling URL.
         """
+        self.check_background_enabled()
+
         # Reject conditional requests: an If-Match precondition cannot be meaningfully
         # honored when the write is deferred to a worker (the TOCTOU window is unbounded).
         if request.META.get('HTTP_IF_MATCH'):
