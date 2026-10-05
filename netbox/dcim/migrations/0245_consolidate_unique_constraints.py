@@ -27,9 +27,16 @@ class Migration(migrations.Migration):
             model_name='devicerole',
             name='dcim_devicerole_slug',
         ),
-        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
-        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
-        # Same below for region and sitegroups
+        # Installs that ran 0137 from v3.1-beta1 have auto-named constraints instead,
+        # so drop these with IF EXISTS. name/slug are index-backed and already safe.
+        migrations.RemoveConstraint(
+            model_name='location',
+            name='dcim_location_name',
+        ),
+        migrations.RemoveConstraint(
+            model_name='location',
+            name='dcim_location_slug',
+        ),
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
