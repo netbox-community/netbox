@@ -2812,6 +2812,28 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertEqual(response.data['oob_ip']['dns_name'], 'oob.example.com')
 
+    @tag('regression')  # Issue #23274
+    def test_create_rejects_ips_of_other_devices(self):
+        """Creating a device with a primary or OOB IP on another device's interface returns HTTP 400."""
+        device = create_test_device('ip-owner-device')
+        interface = Interface.objects.create(device=device, name='eth0', type='other')
+        ip4 = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        ip6 = IPAddress.objects.create(address='2001:db8::1/64', assigned_object=interface)
+
+        self.add_permissions('dcim.add_device')
+        for field, ip in (('primary_ip4', ip4), ('primary_ip6', ip6), ('oob_ip', ip4)):
+            with self.subTest(field=field):
+                data = {
+                    'device_type': device.device_type.pk,
+                    'role': device.role.pk,
+                    'site': device.site.pk,
+                    'name': f'new-device-{field}',
+                    field: ip.pk,
+                }
+                response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(field, response.data)
+
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',
