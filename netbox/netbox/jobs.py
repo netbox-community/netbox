@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied, ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import ProtectedError, RestrictedError
-from django.http import Http404
+from django.http import Http404, QueryDict
 from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.module_loading import import_string
@@ -296,7 +296,8 @@ class AsyncAPIJob(JobRunner):
         the body, and the snapshot's host metadata (already correctly separated into
         SERVER_NAME/SERVER_PORT/HTTP_HOST by the original WSGI layer) is carried verbatim so that
         absolute URLs in the captured result (serializer hyperlink fields) point at the real
-        server. The scheme is applied separately, as copy_safe_request() does not capture it.
+        server. The original headers and query string are carried as well. The scheme is applied
+        separately, as copy_safe_request() does not capture it.
         """
         body = json.dumps(payload).encode('utf-8')
         environ = {
@@ -312,14 +313,21 @@ class AsyncAPIJob(JobRunner):
             'SERVER_NAME': 'localhost',
             'SERVER_PORT': '443' if scheme == 'https' else '80',
         }
-        # Carry the host/forwarding metadata from the safe request copy (no host:port parsing
-        # needed: these were already split correctly when the original request was received).
-        for key in (
-            'HTTP_HOST', 'SERVER_NAME', 'SERVER_PORT',
-            'HTTP_X_FORWARDED_HOST', 'HTTP_X_FORWARDED_PORT', 'HTTP_X_FORWARDED_PROTO',
-        ):
+        # Carry the host metadata from the safe request copy (no host:port parsing needed: these
+        # were already split correctly when the original request was received).
+        for key in ('SERVER_NAME', 'SERVER_PORT'):
             if value := request_copy.META.get(key):
                 environ[key] = value
+        # Carry the original headers (copy_safe_request() has already dropped sensitive ones) so that
+        # request processors (e.g. a plugin selecting the active branch) see the request as received.
+        for key, value in request_copy.META.items():
+            if key.startswith('HTTP_'):
+                environ[key] = value
+        # Carry the query string, less the background flag so the worker executes the action
+        # rather than enqueuing another job.
+        query = QueryDict(request_copy.META.get('QUERY_STRING', ''), mutable=True)
+        query.pop('background', None)
+        environ['QUERY_STRING'] = query.urlencode()
 
         request = WSGIRequest(environ)
         request.id = getattr(request_copy, 'id', None)

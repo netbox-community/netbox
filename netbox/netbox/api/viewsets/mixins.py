@@ -349,11 +349,11 @@ class BackgroundOperationMixin:
             object_type=model._meta.verbose_name_plural,
         )
         # Carry a serializable snapshot of the request so the worker can reconstruct it (method,
-        # request ID, and host metadata for absolute URLs in the captured result). The scheme is
-        # passed separately, as copy_safe_request() does not capture it. The worker re-fetches the
-        # user by PK and bypasses authentication entirely, so it reads neither the copied user nor
-        # cookies; drop both so no User instance or session data is pickled into the job payload
-        # for the lifetime of the job.
+        # request ID, non-sensitive headers, query string, and host metadata for absolute URLs in
+        # the captured result). The scheme is passed separately, as copy_safe_request() does not
+        # capture it. The worker re-fetches the user by PK and bypasses authentication entirely, so
+        # it reads neither the copied user nor cookies; drop both so no User instance or session
+        # data is pickled into the job payload for the lifetime of the job.
         request_copy = copy_safe_request(request, include_files=False)
         request_copy.user = None
         request_copy.COOKIES = {}
