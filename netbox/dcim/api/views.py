@@ -215,10 +215,8 @@ class RackViewSet(NetBoxModelViewSet):
             # Determine attributes for highlighting devices (if any)
             highlight_params = []
             for param in request.GET.getlist('highlight'):
-                try:
+                if ':' in param:
                     highlight_params.append(param.split(':', 1))
-                except ValueError:
-                    pass
 
             # Render and return the elevation as an SVG drawing with the correct content type
             drawing = rack.get_elevation_svg(

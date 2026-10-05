@@ -1375,6 +1375,41 @@ class RackTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
 
+    def test_get_rack_elevation_svg_highlight(self):
+        """
+        Highlighting devices in an SVG rack elevation supports only exact matches on permitted fields.
+        """
+        rack = Rack.objects.first()
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1', description='SECRET')
+        device1 = create_test_device('Device 1', site=rack.site, rack=rack, position=1, face='front', tenant=tenant)
+        create_test_device('Device 2', site=rack.site, rack=rack, position=10, face='front')
+        self.add_permissions('dcim.view_rack', 'dcim.view_device')
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
+
+        def is_highlighted(*params):
+            query = '&'.join(f'highlight={p}' for p in params)
+            response = self.client.get(f'{url}?render=svg&{query}', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return 'slot shaded' in response.content.decode()
+
+        # Supported attributes
+        self.assertTrue(is_highlighted(f'id:{device1.pk}'))
+        self.assertTrue(is_highlighted('name:Device 1'))
+        self.assertFalse(is_highlighted('name:Nonexistent'))
+
+        # Related fields and lookup expressions must be ignored
+        self.assertFalse(is_highlighted('tenant__description__startswith:S'))
+        self.assertFalse(is_highlighted('tenant__description:SECRET'))
+        self.assertFalse(is_highlighted('name__startswith:Device 1'))
+        self.assertFalse(is_highlighted(f'tenant_id:{tenant.pk}'))
+
+        # Malformed and invalid values must be ignored
+        self.assertFalse(is_highlighted('id'))
+        self.assertFalse(is_highlighted('id:foo'))
+        self.assertFalse(is_highlighted('name:%00'))
+        self.assertTrue(is_highlighted('id:foo', 'name:Device 1'))
+        self.assertTrue(is_highlighted('name:%00', 'name:Device 1'))
+
 
 class RackReservationTestCase(APIViewTestCases.APIViewTestCase):
     model = RackReservation
