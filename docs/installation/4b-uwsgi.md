@@ -28,6 +28,9 @@ NetBox ships with a default configuration file for uWSGI. To use it, copy `/opt/
 sudo cp /opt/netbox/contrib/uwsgi.ini /opt/netbox/uwsgi.ini
 ```
 
+!!! note "Upgrading an existing installation"
+    The provided configuration enables uWSGI's `enable-threads` option, which is required by the [`ABORT_ON_CLIENT_DISCONNECT`](../configuration/system.md#abort_on_client_disconnect) configuration parameter. Because this file is copied rather than referenced, a copy made from an earlier release of NetBox will not have it, and must be edited to add it before that parameter can take effect.
+
 While the provided configuration should suffice for most initial installations, you may wish to edit this file to change the bound IP address and/or port number, or to make performance-related adjustments. See [the uWSGI documentation](https://uwsgi-docs-additions.readthedocs.io/en/latest/Options.html) for the available configuration parameters and take a minute to review the [Things to know](https://uwsgi-docs.readthedocs.io/en/latest/ThingsToKnow.html) page. Django also provides [additional documentation](https://docs.djangoproject.com/en/stable/howto/deployment/wsgi/uwsgi/) on configuring uWSGI with a Django app.
 
 ## systemd Setup

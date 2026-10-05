@@ -81,6 +81,7 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
     raise ImproperlyConfigured("DATABASE and DATABASES may not be set together. The use of DATABASES is encouraged.")
 
 # Set static config parameters
+ABORT_ON_CLIENT_DISCONNECT = getattr(configuration, 'ABORT_ON_CLIENT_DISCONNECT', False)
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
@@ -544,6 +545,7 @@ MIDDLEWARE = [
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
+    'netbox.middleware.ClientDisconnectMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
     'netbox.middleware.SocialAuthExceptionMiddleware',
 ]
