@@ -107,13 +107,16 @@ Context:
           {# /Objects table #}
 
           {# Form buttons #}
-          <div class="card btn-list sticky-actions d-print-none" data-sticky-position="right" data-sticky-when="selection">
-            {% block bulk_buttons %}
-              <div class="btn-list bulk-action-buttons">
-                {% action_buttons actions model multi=True %}
-              </div>
-            {% endblock %}
-          </div>
+          {% action_buttons actions model multi=True as bulk_actions %}
+          {% if bulk_actions %}
+            <div class="card btn-list sticky-actions d-print-none" data-sticky-position="right" data-sticky-when="selection">
+              {% block bulk_buttons %}
+                <div class="btn-list bulk-action-buttons">
+                  {{ bulk_actions }}
+                </div>
+              {% endblock %}
+            </div>
+          {% endif %}
           {# /Form buttons #}
 
         </div>

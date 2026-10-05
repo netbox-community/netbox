@@ -5,7 +5,7 @@ from unittest.mock import patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpResponse
-from django.test import Client, TransactionTestCase, override_settings
+from django.test import Client, TransactionTestCase, override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 
@@ -17,6 +17,7 @@ from extras.models import ImageAttachment
 from extras.validators import CustomValidator
 from ipam.choices import VLANStatusChoices
 from ipam.models import VLAN, VLANGroup
+from ipam.views import VLANGroupVLANsView
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.search.backends import search_backend
@@ -128,6 +129,94 @@ class BulkImportViewTabsTestCase(TestCase):
         self.assertHttpStatus(response, 200)
         content = response.content.decode()
         self.assertIn('<div class="tab-pane show active" id="import-form"', content)
+
+
+class BulkActionButtonsTestCase(TestCase):
+    """
+    Verify when list and child object views render their bulk action buttons.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.vlan_group = VLANGroup.objects.create(name='VLAN Group 1', slug='vlan-group-1')
+
+    @tag('regression')  # Ref: #23240
+    def test_object_list_without_bulk_actions(self):
+        """A list view without bulk actions renders no bulk action container."""
+        self.add_permissions('core.view_objectchange')
+
+        response = self.client.get(reverse('core:objectchange_list'))
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertNotIn('data-sticky-when="selection"', content)
+
+    def test_object_list_with_bulk_actions(self):
+        """A list view with a permitted bulk action renders the bulk action container and its button."""
+        self.add_permissions('dcim.view_site', 'dcim.change_site')
+
+        response = self.client.get(reverse('dcim:site_list'))
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('data-sticky-when="selection"', content)
+        self.assertIn('name="_edit"', content)
+
+    @tag('regression')  # Ref: #23240
+    def test_object_children_without_bulk_actions(self):
+        """A child object view without permitted bulk actions renders no bulk action container."""
+        self.add_permissions('ipam.view_vlangroup', 'ipam.add_vlan')
+
+        response = self.client.get(reverse('ipam:vlangroup_vlans', kwargs={'pk': self.vlan_group.pk}))
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertNotIn('data-sticky-when="selection"', content)
+
+    def test_object_children_with_bulk_actions(self):
+        """A child object view with a permitted bulk action renders the bulk action container and its button."""
+        self.add_permissions('ipam.view_vlangroup', 'ipam.change_vlan')
+
+        response = self.client.get(reverse('ipam:vlangroup_vlans', kwargs={'pk': self.vlan_group.pk}))
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('data-sticky-when="selection"', content)
+        self.assertIn('name="_edit"', content)
+
+    @tag('regression')  # Ref: #23240
+    def test_object_children_without_child_model(self):
+        """A child object view without a child model renders no bulk action container."""
+        self.add_permissions('ipam.view_vlangroup', 'ipam.change_vlangroup')
+
+        with patch.object(VLANGroupVLANsView, 'child_model', None):
+            response = self.client.get(reverse('ipam:vlangroup_vlans', kwargs={'pk': self.vlan_group.pk}))
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertNotIn('data-sticky-when="selection"', content)
+
+    @tag('regression')  # Ref: #23240
+    def test_htmx_table_without_bulk_actions(self):
+        """An HTMX table response without bulk actions carries no bulk action button update."""
+        self.add_permissions('core.view_objectchange')
+
+        response = self.client.get(reverse('core:objectchange_list'), headers={'HX-Request': 'true'})
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertNotIn('hx-swap-oob="outerHTML:.bulk-action-buttons"', content)
+
+    def test_htmx_table_with_bulk_actions(self):
+        """An HTMX table response with a permitted bulk action carries the bulk action button update."""
+        self.add_permissions('dcim.view_site', 'dcim.change_site')
+
+        response = self.client.get(reverse('dcim:site_list'), headers={'HX-Request': 'true'})
+
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        self.assertIn('hx-swap-oob="outerHTML:.bulk-action-buttons"', content)
+        self.assertIn('name="_edit"', content)
 
 
 class SearchViewTestCase(TestCase):

@@ -40,9 +40,12 @@
 
   {# Update the bulk action buttons with new query parameters #}
   {% if actions and not table.embedded %}
-    <div class="btn-list bulk-action-buttons" hx-swap-oob="outerHTML:.bulk-action-buttons">
-      {% action_buttons actions model multi=True %}
-    </div>
+    {% action_buttons actions model multi=True as bulk_actions %}
+    {% if bulk_actions %}
+      <div class="btn-list bulk-action-buttons" hx-swap-oob="outerHTML:.bulk-action-buttons">
+        {{ bulk_actions }}
+      </div>
+    {% endif %}
   {% endif %}
 
   {# Update the return_url to reflect any changed query parameters (e.g. per_page) #}
