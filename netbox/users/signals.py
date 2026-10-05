@@ -1,3 +1,4 @@
+import copy
 import logging
 
 from django.contrib.auth.signals import user_logged_in, user_login_failed
@@ -42,4 +43,4 @@ def create_userconfig(instance, created, raw=False, **kwargs):
     """
     if created and not raw:
         config = get_config()
-        UserConfig(user=instance, data=config.DEFAULT_USER_PREFERENCES).save()
+        UserConfig(user=instance, data=copy.deepcopy(config.DEFAULT_USER_PREFERENCES)).save()

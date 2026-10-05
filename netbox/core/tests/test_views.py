@@ -194,9 +194,7 @@ class JobLogViewTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        # UserConfig.set() mutates self.data in place, which can mutate DEFAULT_USER_PREFERENCES
-        # (the signal in users/signals.py initializes data with a shared reference). Assign a
-        # fresh literal instead. Pin per_page so page-boundary assertions don't depend on PAGINATE_COUNT.
+        # Pin per_page so page-boundary assertions don't depend on PAGINATE_COUNT.
         self.user.config.data = {'pagination': {'per_page': 50}}
         self.user.config.save()
 
