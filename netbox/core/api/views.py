@@ -18,7 +18,7 @@ from core import filtersets
 from core.jobs import SyncDataSourceJob
 from core.models import *
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenSyncPermission
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
@@ -40,10 +40,17 @@ class DataSourceViewSet(NetBoxModelViewSet):
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 
+    def get_permissions(self):
+        if self.action == 'sync':
+            return [TokenSyncPermission()]
+        return super().get_permissions()
+
+    @extend_schema(request=None, responses={200: serializers.DataSourceSerializer})
     @action(detail=True, methods=['post'])
     def sync(self, request, pk):
         """
-        Enqueue a job to synchronize the DataSource.
+        Enqueue a job to synchronize the DataSource. The brief representation of the DataSource is returned if the
+        user does not have permission to view it.
         """
         datasource = get_object_or_404(DataSource, pk=pk)
 
@@ -53,7 +60,10 @@ class DataSourceViewSet(NetBoxModelViewSet):
         # Enqueue the sync job
         SyncDataSourceJob.enqueue(instance=datasource, user=request.user)
 
-        serializer = serializers.DataSourceSerializer(datasource, context={'request': request})
+        # Return the full representation only if the user may view the DataSource, as it includes backend
+        # parameters (e.g. credentials).
+        nested = not request.user.has_perm('core.view_datasource', obj=datasource)
+        serializer = serializers.DataSourceSerializer(datasource, nested=nested, context={'request': request})
 
         return Response(serializer.data)
 
