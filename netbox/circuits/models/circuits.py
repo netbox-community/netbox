@@ -424,7 +424,7 @@ class CircuitTermination(
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
             circuit = Circuit.objects.using(self._state.db).filter(
                 pk=self._orig_circuit_id, **{old_termination_name: self.pk}
-            ).first()
+            ).prefetch_related('tags').first()
             if circuit is not None:
                 _set_circuit_terminations(circuit, {old_termination_name: None}, using=self._state.db)
 
@@ -432,7 +432,7 @@ class CircuitTermination(
         if is_new or circuit_changed or term_side_changed:
             # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
-            circuit = Circuit.objects.using(self._state.db).get(pk=self.circuit_id)
+            circuit = Circuit.objects.using(self._state.db).prefetch_related('tags').get(pk=self.circuit_id)
             _set_circuit_terminations(circuit, {termination_name: self}, using=self._state.db)
 
             # Update cached values for subsequent saves
