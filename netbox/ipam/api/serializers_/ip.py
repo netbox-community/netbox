@@ -22,6 +22,7 @@ __all__ = (
     'AvailableIPRequestSerializer',
     'AvailableIPSerializer',
     'AvailablePrefixSerializer',
+    'CreateAvailablePrefixSerializer',
     'IPAddressSerializer',
     'IPRangeSerializer',
     'PrefixLengthSerializer',
@@ -99,6 +100,26 @@ class PrefixLengthSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(requested_prefix)
             })
+        return data
+
+
+class CreateAvailablePrefixSerializer(PrefixSerializer):
+    """
+    Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies both
+    the `prefix` value (via a requested `prefix_length`) and the `vrf`, so neither is accepted here. Field
+    definitions are inherited from PrefixSerializer; only the request-specific `prefix_length` and `Meta.fields`
+    differ.
+    """
+    prefix_length = serializers.IntegerField()
+
+    class Meta(PrefixSerializer.Meta):
+        fields = [
+            'prefix_length', 'scope_type', 'scope_id', 'tenant', 'vlan', 'status', 'role', 'is_pool',
+            'mark_utilized', 'description', 'owner', 'comments', 'tags', 'custom_fields',
+        ]
+
+    def validate(self, data):
+        # Bypass model validation since we don't have an allocated prefix yet
         return data
 
 
