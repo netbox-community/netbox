@@ -37,7 +37,7 @@ class ClusterGroupViewSet(NetBoxModelViewSet):
 
 
 class ClusterViewSet(NetBoxModelViewSet):
-    queryset = Cluster.objects.prefetch_related('virtual_machines').annotate(
+    queryset = Cluster.objects.annotate(
         allocated_vcpus=Sum('virtual_machines__vcpus'),
         allocated_memory=Sum('virtual_machines__memory'),
         allocated_disk=Sum('virtual_machines__disk'),

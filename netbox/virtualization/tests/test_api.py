@@ -1,5 +1,7 @@
 import logging
+from decimal import Decimal
 
+from django.db.models.signals import post_init
 from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import IPNetwork
@@ -175,6 +177,39 @@ class ClusterTestCase(APIViewTestCases.APIViewTestCase):
                 'status': ClusterStatusChoices.STATUS_STAGING,
             },
         ]
+
+    def test_list_vm_totals_without_loading_virtual_machines(self):
+        """
+        VM counts and resource totals come from annotations without loading any virtual machine.
+        """
+        cluster1 = Cluster.objects.get(name='Cluster 1')
+        cluster2 = Cluster.objects.get(name='Cluster 2')
+        VirtualMachine.objects.bulk_create((
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster1, vcpus=Decimal('1.5'), memory=1024, disk=10000),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster1, vcpus=Decimal('2.25'), memory=2048, disk=20000),
+            VirtualMachine(name='Virtual Machine 3', cluster=cluster1),
+            VirtualMachine(name='Virtual Machine 4', cluster=cluster2),
+        ))
+        self.add_permissions('virtualization.view_cluster')
+        loaded = []
+
+        def record(sender, instance, **kwargs):
+            loaded.append(instance)
+
+        post_init.connect(record, sender=VirtualMachine)
+        try:
+            response = self.client.get(self._get_list_url(), **self.header)
+        finally:
+            post_init.disconnect(record, sender=VirtualMachine)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        fields = ('virtualmachine_count', 'allocated_vcpus', 'allocated_memory', 'allocated_disk')
+        totals = {row['name']: tuple(row[field] for field in fields) for row in response.data['results']}
+        self.assertEqual(totals, {
+            'Cluster 1': (3, Decimal('3.75'), 3072, 30000),
+            'Cluster 2': (1, None, None, None),
+            'Cluster 3': (0, None, None, None),
+        })
+        self.assertEqual(loaded, [])
 
 
 class VirtualMachineTypeTestCase(APIViewTestCases.APIViewTestCase):
