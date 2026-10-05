@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.utils.html import strip_tags
 
 from core.models import ObjectType
 from dcim.models import Device, Site
@@ -258,3 +259,17 @@ class CustomFieldColumnTestCase(TestCase):
         # so the value has no scheme and is rendered as a link as-is.
         rendered = self._render_url('javascript%3Aalert(1)')
         self.assertEqual(rendered, '<a href="javascript%3Aalert(1)">javascript%3Aalert(1)</a>')
+
+    # A datetime custom field value must be rendered in the configured local time zone, consistent
+    # with the object's detail view (fixes #23227).
+
+    @override_settings(TIME_ZONE='Europe/Vienna')
+    def test_datetime_rendered_in_local_time_zone(self):
+        customfield = CustomField(name='datetime_field', type=CustomFieldTypeChoices.TYPE_DATETIME)
+        rendered = columns.CustomFieldColumn(customfield).render('2026-09-22T08:59:10+00:00')
+        self.assertEqual(strip_tags(rendered), '2026-09-22 10:59:10')
+
+    def test_datetime_unparseable_value_rendered_as_is(self):
+        customfield = CustomField(name='datetime_field', type=CustomFieldTypeChoices.TYPE_DATETIME)
+        rendered = columns.CustomFieldColumn(customfield).render('22/09/2026 08:59')
+        self.assertEqual(rendered, '22/09/2026 08:59')
