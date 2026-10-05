@@ -2,7 +2,8 @@ import decimal
 
 import svgwrite
 from django.conf import settings
-from django.core.exceptions import FieldError
+from django.core.exceptions import ValidationError
+from django.core.validators import ProhibitNullCharactersValidator
 from django.db.models import Q
 from django.template.defaultfilters import floatformat
 from django.urls import reverse
@@ -119,11 +120,18 @@ class RackElevationSVG:
         if highlight_params:
             q = Q()
             for k, v in highlight_params:
+                # Ignore any unsupported attributes (including related fields & lookups)
+                if k not in ('id', 'name'):
+                    continue
+                try:
+                    # Validate the value against the field before including it
+                    ProhibitNullCharactersValidator()(v)
+                    permitted_devices.model._meta.get_field(k).get_prep_value(v)
+                except (TypeError, ValueError, ValidationError):
+                    continue
                 q |= Q(**{k: v})
-            try:
+            if q:
                 self.highlight_devices = permitted_devices.filter(q)
-            except FieldError:
-                pass
 
     @staticmethod
     def _add_gradient(drawing, id_, color):
