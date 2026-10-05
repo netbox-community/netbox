@@ -1,3 +1,5 @@
+from itertools import batched
+
 from django.apps import apps
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import ValidationError
@@ -434,20 +436,23 @@ class CircuitTermination(
     @classmethod
     def clear_cached_references(cls, instances, collector):
         # Called by CustomCollector ahead of the DELETE, for explicit and cascaded deletions alike
-        pks = {instance.pk for instance in instances}
         doomed_circuits = {circuit.pk for circuit in collector.data.get(Circuit, ())}
 
-        # Read and write on the deletion's alias, inside its transaction
-        circuits = Circuit.objects.using(collector.using).filter(
-            models.Q(termination_a__in=pks) | models.Q(termination_z__in=pks)
-        ).exclude(pk__in=doomed_circuits)
+        # A circuit only points at its own terminations, so any deleted along with it need no clear
+        pks = {instance.pk for instance in instances if instance.circuit_id not in doomed_circuits}
+        circuit_ids = {instance.circuit_id for instance in instances if instance.pk in pks}
 
-        for circuit in circuits:
-            _set_circuit_terminations(circuit, {
-                name: None
-                for name in ('termination_a', 'termination_z')
-                if getattr(circuit, f'{name}_id') in pks
-            }, using=collector.using)
+        for batch in batched(circuit_ids, 1000):
+            # Read and write on the deletion's alias, inside its transaction
+            circuits = Circuit.objects.using(collector.using).filter(pk__in=batch).prefetch_related('tags')
+            for circuit in circuits:
+                fields = {
+                    name: None
+                    for name in ('termination_a', 'termination_z')
+                    if getattr(circuit, f'{name}_id') in pks
+                }
+                if fields:
+                    _set_circuit_terminations(circuit, fields, using=collector.using)
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None
