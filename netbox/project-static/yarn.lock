@@ -2289,10 +2289,10 @@ graphql@16.12.0:
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-16.12.0.tgz#28cc2462435b1ac3fdc6976d030cef83a0c13ac7"
   integrity sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ==
 
-gridstack@12.6.0:
-  version "12.6.0"
-  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-12.6.0.tgz#acfd8c036b202304712c0562078c86ed2ab6e83f"
-  integrity sha512-dUrqsormSybFn/2P4Dz8AgprftKD5e/IiV7UmC0XLQU+G+/WtkAeFiCSNLoAGhPDXoJ/O61Xtj3gljY/Ds83yQ==
+gridstack@14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/gridstack/-/gridstack-14.0.0.tgz#0970c855c7a7af2c3812c224e3a23fa0840b80c3"
+  integrity sha512-jkoGugExoCUHNbC3IMQEHUtf3+quii8BI+tTsP8h0bpHjf3Jr3KdCUbHpmqGz3VVHEb5tqciL6foBLum8/32FQ==
 
 has-bigints@^1.0.1, has-bigints@^1.0.2:
   version "1.0.2"

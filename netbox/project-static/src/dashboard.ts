@@ -44,6 +44,9 @@ export function initDashboard(): void {
       scroll: true
     }
   });
+  if (grid === null) {
+    return;
+  }
 
   // Create a listener for the dashboard lock button
   const gridLockButton = document.getElementById('lock_dashboard') as HTMLButtonElement;
