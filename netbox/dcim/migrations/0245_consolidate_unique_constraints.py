@@ -27,25 +27,17 @@ class Migration(migrations.Migration):
             model_name='devicerole',
             name='dcim_devicerole_slug',
         ),
-        # location/region/sitegroup's unique_together was rewritten from auto-named
-        # constraints to these explicit names between v3.1-beta1 and v3.1.0 (0137,
-        # "Fixes #7960"). Installs that ran the beta migration still have the old
-        # auto-named constraints and never got these — Django's migration state only
-        # tracks (app, name), not file content, so the rewrite was invisible to them.
-        # Use SeparateDatabaseAndState so the DB side is a no-op on affected installs
-        # (dropping constraints that were never created, plus the stale beta-era
-        # leftovers under their original auto-generated names) while the migration
-        # state still ends up identical to a normal install either way.
+        # Installs that ran 0137 in its v3.1-beta1 form never got these named
+        # constraints — only the old auto-named ones. Drop both, guarded by
+        # IF EXISTS, so this is a no-op everywhere except those installs.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
                     sql=[
                         'ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_parent_name',
                         'ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_parent_slug',
-                        'ALTER TABLE dcim_location '
-                        'DROP CONSTRAINT IF EXISTS dcim_location_site_id_parent_id_name_5c85730c_uniq',
-                        'ALTER TABLE dcim_location '
-                        'DROP CONSTRAINT IF EXISTS dcim_location_site_id_parent_id_slug_4514cb1d_uniq',
+                        'ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_site_id_parent_id_name_5c85730c_uniq',  # noqa: E501
+                        'ALTER TABLE dcim_location DROP CONSTRAINT IF EXISTS dcim_location_site_id_parent_id_slug_4514cb1d_uniq',  # noqa: E501
                     ],
                     reverse_sql=migrations.RunSQL.noop,
                 ),
@@ -77,18 +69,24 @@ class Migration(migrations.Migration):
             model_name='platform',
             name='dcim_platform_slug',
         ),
+        # name/slug are conditional (index-backed) and already idempotent;
+        # only parent_name/parent_slug need the beta-era repair below.
+        migrations.RemoveConstraint(
+            model_name='region',
+            name='dcim_region_name',
+        ),
+        migrations.RemoveConstraint(
+            model_name='region',
+            name='dcim_region_slug',
+        ),
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
                     sql=[
                         'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_name',
                         'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_slug',
-                        'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_name',
-                        'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_slug',
-                        'ALTER TABLE dcim_region '
-                        'DROP CONSTRAINT IF EXISTS dcim_region_parent_id_name_2cd612fe_uniq',
-                        'ALTER TABLE dcim_region '
-                        'DROP CONSTRAINT IF EXISTS dcim_region_parent_id_slug_132fcac2_uniq',
+                        'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_id_name_2cd612fe_uniq',
+                        'ALTER TABLE dcim_region DROP CONSTRAINT IF EXISTS dcim_region_parent_id_slug_132fcac2_uniq',
                     ],
                     reverse_sql=migrations.RunSQL.noop,
                 ),
@@ -102,15 +100,16 @@ class Migration(migrations.Migration):
                     model_name='region',
                     name='dcim_region_parent_slug',
                 ),
-                migrations.RemoveConstraint(
-                    model_name='region',
-                    name='dcim_region_name',
-                ),
-                migrations.RemoveConstraint(
-                    model_name='region',
-                    name='dcim_region_slug',
-                ),
             ],
+        ),
+        # Same as region — name/slug are index-backed and already idempotent.
+        migrations.RemoveConstraint(
+            model_name='sitegroup',
+            name='dcim_sitegroup_name',
+        ),
+        migrations.RemoveConstraint(
+            model_name='sitegroup',
+            name='dcim_sitegroup_slug',
         ),
         migrations.SeparateDatabaseAndState(
             database_operations=[
@@ -118,12 +117,8 @@ class Migration(migrations.Migration):
                     sql=[
                         'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_name',
                         'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_slug',
-                        'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_name',
-                        'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_slug',
-                        'ALTER TABLE dcim_sitegroup '
-                        'DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_id_name_ccdbb50e_uniq',
-                        'ALTER TABLE dcim_sitegroup '
-                        'DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_id_slug_e1b53f00_uniq',
+                        'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_id_name_ccdbb50e_uniq',  # noqa: E501
+                        'ALTER TABLE dcim_sitegroup DROP CONSTRAINT IF EXISTS dcim_sitegroup_parent_id_slug_e1b53f00_uniq',  # noqa: E501
                     ],
                     reverse_sql=migrations.RunSQL.noop,
                 ),
@@ -136,14 +131,6 @@ class Migration(migrations.Migration):
                 migrations.RemoveConstraint(
                     model_name='sitegroup',
                     name='dcim_sitegroup_parent_slug',
-                ),
-                migrations.RemoveConstraint(
-                    model_name='sitegroup',
-                    name='dcim_sitegroup_name',
-                ),
-                migrations.RemoveConstraint(
-                    model_name='sitegroup',
-                    name='dcim_sitegroup_slug',
                 ),
             ],
         ),
