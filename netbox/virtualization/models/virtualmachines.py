@@ -341,7 +341,7 @@ class VirtualMachine(
                 })
 
         # Validate primary IP addresses
-        interfaces = self.interfaces.all() if self.pk else None
+        interfaces = self.interfaces.all() if self.pk else VMInterface.objects.none()
         for family in (4, 6):
             field = f'primary_ip{family}'
             ip = getattr(self, field)

@@ -1,11 +1,13 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
+from netaddr import IPNetwork
 
 from dcim.models import Platform, Region, Site, SiteGroup
+from ipam.models import IPAddress
 from tenancy.models import Tenant
-from utilities.testing import create_test_device
+from utilities.testing import create_test_device, create_test_virtualmachine
 from virtualization.models import *
 
 
@@ -725,3 +727,21 @@ class VirtualMachineTestCase(TestCase):
 
         self.assertIsNone(vm.device)
         self.assertEqual(vm.cluster, self.cluster_with_site)
+
+    @tag('regression')  # Ref: #23278
+    def test_unsaved_vm_rejects_primary_ip_of_other_vm(self):
+        """A primary IP valid for the VM that owns it, directly or via NAT, is rejected for an unsaved VM."""
+        vm = create_test_virtualmachine('vm1')
+        interface = VMInterface.objects.create(virtual_machine=vm, name='eth0')
+        ip4 = IPAddress.objects.create(address=IPNetwork('192.0.2.1/24'), assigned_object=interface)
+        ip6 = IPAddress.objects.create(address=IPNetwork('2001:db8::1/64'), assigned_object=interface)
+        nat_ip4 = IPAddress.objects.create(address=IPNetwork('198.51.100.1/24'), nat_inside=ip4)
+
+        for field, ip in (('primary_ip4', ip4), ('primary_ip4', nat_ip4), ('primary_ip6', ip6)):
+            with self.subTest(field=field, ip=ip):
+                setattr(vm, field, ip)
+                vm.full_clean()
+
+                with self.assertRaises(ValidationError) as context:
+                    VirtualMachine(name='vm2', cluster=vm.cluster, **{field: ip}).full_clean()
+                self.assertIn(field, context.exception.message_dict)
