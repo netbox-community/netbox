@@ -241,7 +241,7 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
         return reverse('circuits:circuitgroupassignment', args=[self.pk])
 
 
-def _set_circuit_terminations(circuit, fields):
+def _set_circuit_terminations(circuit, fields, using):
     """
     Set or clear a Circuit's cached `termination_a`/`termination_z` fields, recording the change.
     """
@@ -249,7 +249,7 @@ def _set_circuit_terminations(circuit, fields):
     for field_name, value in fields.items():
         setattr(circuit, field_name, value)
     # custom_field_data carries any defaults populated on save, which the change log serializes
-    circuit.save(update_fields=[*fields, 'custom_field_data', 'last_updated'])
+    circuit.save(using=using, update_fields=[*fields, 'custom_field_data', 'last_updated'])
 
 
 class CircuitTermination(
@@ -414,17 +414,18 @@ class CircuitTermination(
         # Clear the old termination reference if circuit or term_side changed
         if circuit_changed or term_side_changed:
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
-            circuit = Circuit.objects.filter(
+            circuit = Circuit.objects.using(self._state.db).filter(
                 pk=self._orig_circuit_id, **{old_termination_name: self.pk}
             ).first()
             if circuit is not None:
-                _set_circuit_terminations(circuit, {old_termination_name: None})
+                _set_circuit_terminations(circuit, {old_termination_name: None}, using=self._state.db)
 
         # Update the cache if this is a new termination or circuit/term_side changed
         if is_new or circuit_changed or term_side_changed:
             # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
-            _set_circuit_terminations(Circuit.objects.get(pk=self.circuit_id), {termination_name: self})
+            circuit = Circuit.objects.using(self._state.db).get(pk=self.circuit_id)
+            _set_circuit_terminations(circuit, {termination_name: self}, using=self._state.db)
 
             # Update cached values for subsequent saves
             self._orig_circuit_id = self.circuit_id
@@ -436,7 +437,8 @@ class CircuitTermination(
         pks = {instance.pk for instance in instances}
         doomed_circuits = {circuit.pk for circuit in collector.data.get(Circuit, ())}
 
-        circuits = Circuit.objects.filter(
+        # Read and write on the deletion's alias, inside its transaction
+        circuits = Circuit.objects.using(collector.using).filter(
             models.Q(termination_a__in=pks) | models.Q(termination_z__in=pks)
         ).exclude(pk__in=doomed_circuits)
 
@@ -445,7 +447,7 @@ class CircuitTermination(
                 name: None
                 for name in ('termination_a', 'termination_z')
                 if getattr(circuit, f'{name}_id') in pks
-            })
+            }, using=collector.using)
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None
