@@ -28,7 +28,8 @@ class Migration(migrations.Migration):
             name='dcim_devicerole_slug',
         ),
         # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
-        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
+        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS. 
+        # Same below for region and sitegroups
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
@@ -76,8 +77,6 @@ class Migration(migrations.Migration):
             model_name='region',
             name='dcim_region_slug',
         ),
-        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
-        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
@@ -109,8 +108,6 @@ class Migration(migrations.Migration):
             model_name='sitegroup',
             name='dcim_sitegroup_slug',
         ),
-        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
-        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
