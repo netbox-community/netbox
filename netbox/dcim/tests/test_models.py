@@ -15,7 +15,7 @@ from dcim.choices import *
 from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
-from ipam.models import Prefix
+from ipam.models import IPAddress, Prefix
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitChoices
 from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
@@ -3131,6 +3131,24 @@ class VirtualDeviceContextTestCase(TestCase):
         vdc2 = VirtualDeviceContext(device=device, name="VDC 2", identifier=1, status='active')
         with self.assertRaises(ValidationError):
             vdc2.full_clean()
+
+    @tag('regression')  # Ref: #23275
+    def test_primary_ip_requires_device(self):
+        """A primary IP on the device's interface is valid only while that device is assigned."""
+        device = Device.objects.first()
+        interface = Interface.objects.create(device=device, name='Eth1/1', type='10gbase-t')
+
+        for family, address in ((4, '192.0.2.1/24'), (6, '2001:db8::1/64')):
+            field = f'primary_ip{family}'
+            ip = IPAddress.objects.create(address=address, assigned_object=interface)
+            with self.subTest(family=family):
+                VirtualDeviceContext(device=device, name='VDC 1', status='active', **{field: ip}).full_clean()
+
+                vdc = VirtualDeviceContext(name='VDC 1', status='active', **{field: ip})
+                with self.assertRaises(ValidationError) as cm:
+                    vdc.full_clean()
+                self.assertIn(field, cm.exception.message_dict)
+                self.assertIn('must belong to an interface', str(cm.exception.message_dict[field]))
 
 
 class VirtualChassisTestCase(TestCase):

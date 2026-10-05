@@ -22,7 +22,7 @@ from dcim.constants import *
 from dcim.models import *
 from dcim.views import DeviceTypeListView, ModuleTypeListView
 from extras.models import ConfigContext, ConfigTemplate
-from ipam.models import ASN, RIR, VLAN, VRF, VLANGroup
+from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANGroup
 from netbox.choices import (
     CSVDelimiterChoices,
     DiameterUnitChoices,
@@ -6154,6 +6154,41 @@ class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for vdc in VirtualDeviceContext.objects.filter(pk__in=pk_list):
             self.assertEqual(vdc.device, device, msg=f"Device was unexpectedly cleared on VDC '{vdc.name}'")
             self.assertEqual(vdc.status, VirtualDeviceContextStatusChoices.STATUS_PLANNED)
+
+    @tag('regression')  # Ref: #23275
+    def test_create_with_primary_ip_without_device(self):
+        """A direct add POST with a primary IP but no device re-renders the form with an error."""
+        self.add_permissions('dcim.add_virtualdevicecontext', 'ipam.view_ipaddress')
+        ip = IPAddress.objects.create(address='192.0.2.1/24')
+
+        response = self.client.post(reverse('dcim:virtualdevicecontext_add'), {
+            'name': 'VDC 4',
+            'status': 'active',
+            'primary_ip4': ip.pk,
+        })
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Primary IP address must belong to an interface on the assigned device.')
+        self.assertFalse(VirtualDeviceContext.objects.filter(name='VDC 4').exists())
+
+    @tag('regression')  # Ref: #23275
+    def test_bulk_edit_clear_device_with_primary_ip(self):
+        """Bulk clearing the device of a context with a primary IP fails validation and changes nothing."""
+        self.add_permissions('dcim.view_virtualdevicecontext', 'dcim.change_virtualdevicecontext')
+        device = Device.objects.get(name='Device 1')
+        interface = Interface.objects.create(device=device, name='Interface 1', type='1000base-t')
+        vdc = VirtualDeviceContext.objects.get(name='VDC 1')
+        vdc.primary_ip4 = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        vdc.save()
+
+        response = self.client.post(reverse('dcim:virtualdevicecontext_bulk_edit'), {
+            'pk': [vdc.pk],
+            '_apply': True,
+            '_nullify': ['device'],
+        })
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Primary IP address must belong to an interface on the assigned device.')
+        vdc.refresh_from_db()
+        self.assertEqual(vdc.device, device)
 
 
 class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
