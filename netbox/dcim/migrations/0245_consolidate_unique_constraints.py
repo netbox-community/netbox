@@ -27,9 +27,8 @@ class Migration(migrations.Migration):
             model_name='devicerole',
             name='dcim_devicerole_slug',
         ),
-        # Installs that ran 0137 in its v3.1-beta1 form never got these named
-        # constraints — only the old auto-named ones. Drop both, guarded by
-        # IF EXISTS, so this is a no-op everywhere except those installs.
+        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
+        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
@@ -102,7 +101,6 @@ class Migration(migrations.Migration):
                 ),
             ],
         ),
-        # Same as region — name/slug are index-backed and already idempotent.
         migrations.RemoveConstraint(
             model_name='sitegroup',
             name='dcim_sitegroup_name',
