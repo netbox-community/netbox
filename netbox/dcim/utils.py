@@ -1,11 +1,15 @@
-from collections import defaultdict
+import logging
+from collections import defaultdict, deque
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.constants import MODULE_TOKEN
+
+logger = logging.getLogger(f'netbox.{__name__}')
 
 
 def inherit_module_token(position, parent_positions):
@@ -125,18 +129,141 @@ def path_node_to_object(repr):
     return ct.model_class().objects.filter(pk=object_id).first()
 
 
+def _get_cablepath_origin_objects(nodes):
+    """
+    Fetch fresh origins in bulk by content type, indexed by their encoded path nodes.
+    """
+    ids_by_type = defaultdict(set)
+    for node in nodes:
+        type_id, object_id = decompile_path_node(node)
+        ids_by_type[type_id].add(object_id)
+
+    objects = {}
+    for type_id, object_ids in ids_by_type.items():
+        model = ContentType.objects.get_for_id(type_id).model_class()
+        if model is not None:
+            # Recovery also reads link, so loading its direct relations avoids another query for every origin.
+            relations = [
+                field.name for field in model._meta.fields
+                if field.many_to_one and field.name in ('cable', 'wireless_link')
+            ]
+            queryset = model.objects.select_related(*relations) if relations else model.objects.all()
+            for object_id, obj in queryset.in_bulk(object_ids).items():
+                objects[compile_path_node(type_id, object_id)] = obj
+    return objects
+
+
 def create_cablepaths(objects):
     """
-    Create CablePaths for all paths originating from the specified set of nodes.
+    Trace and replace paths for the supplied origins, recovering co-origins whose current paths are removed.
+
+    The supplied objects may span multiple connectors on one link. Grouping and recovery share one worklist.
 
     :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
-    from dcim.models import CablePath, Interface
+    from dcim.models import CablePath, CableTermination, PathEndpoint
+
+    origin_groups = _group_cablepath_origins(objects)
+    pending = deque(origin_groups)
+    if not pending:
+        return
+    processed = set()
+
+    # Keep a savepoint so callers can catch tracing failures inside an outer transaction.
+    # This provides rollback, but does not serialize concurrent rebuilds.
+    with transaction.atomic(using=router.db_for_write(CablePath)):
+        while pending:
+            # Do not let recovery replace origins already rebuilt by this call.
+            origins = [
+                obj for obj in pending.popleft()
+                if object_to_path_node(obj) not in processed
+            ]
+            if not origins:
+                continue
+
+            # Trace first, so an unsupported topology raises before anything is deleted
+            path = CablePath.from_origin(origins)
+            nodes = {object_to_path_node(obj) for obj in origins}
+            processed.update(nodes)
+
+            # `overlap` takes the encoded nodes directly, and matches nothing for an empty set
+            for old_path in CablePath.objects.filter(_nodes__overlap=list(nodes)):
+                # `_nodes` matches a node anywhere in a path, including as another path's destination
+                if not old_path.path or not nodes.intersection(old_path.path[0]):
+                    continue
+
+                # Recover only origins whose current path is being deleted, keeping different ends separate
+                remaining = [node for node in old_path.path[0] if node not in processed]
+                # Refresh immediately before this deletion, since earlier iterations can change _path references.
+                origin_objects = _get_cablepath_origin_objects(remaining)
+                eligible = []
+                ids_by_type = defaultdict(set)
+                for node in remaining:
+                    origin = origin_objects.get(node)
+                    if origin is None:
+                        continue
+                    # Absence of the back-reference is not evidence that a pointer was cleared
+                    if isinstance(origin, PathEndpoint) and origin._path_id != old_path.pk:
+                        continue
+                    if origin.link:
+                        eligible.append((node, origin))
+                        type_id, object_id = decompile_path_node(node)
+                        ids_by_type[type_id].add(object_id)
+
+                # Sharing a cable is not sharing a cable end, so partition on the authoritative row
+                rows = {}
+                if ids_by_type:
+                    query = Q()
+                    for type_id, object_ids in ids_by_type.items():
+                        query |= Q(termination_type_id=type_id, termination_id__in=object_ids)
+                    for type_id, object_id, cable_id, cable_end, connector in CableTermination.objects.filter(
+                        query
+                    ).order_by().values_list(
+                        'termination_type_id', 'termination_id', 'cable_id', 'cable_end', 'connector'
+                    ):
+                        rows[compile_path_node(type_id, object_id)] = (cable_id, cable_end, connector)
+
+                by_end = defaultdict(list)
+                for node, origin in eligible:
+                    row = rows.get(node)
+                    if row is None:
+                        # A wireless link or a channel subinterface owns no row, so it stands alone
+                        by_end[node].append(origin)
+                        continue
+                    cable_id, cable_end, connector = row
+                    # Tracing reads the cached cable, and only profiled peer lookup reads the cached end
+                    if origin.cable_id != cable_id or (
+                        origin.cable.profile and origin.cable_end != cable_end
+                    ):
+                        logger.warning(
+                            f'Skipping recovery of {origin._meta.label} #{origin.pk}: '
+                            f'cached cable #{origin.cable_id} end {origin.cable_end!r} does not match '
+                            f'termination cable #{cable_id} end {cable_end!r}'
+                        )
+                        continue
+                    # Group on the authoritative connector, without saving the endpoint
+                    origin.cable_connector = connector
+                    by_end[(cable_id, cable_end)].append(origin)
+
+                for end_origins in by_end.values():
+                    pending.extend(_group_cablepath_origins(end_origins))
+
+                old_path.delete()
+
+            if path:
+                path.save()
+
+
+def _group_cablepath_origins(objects):
+    """
+    Expand channelized interfaces and group origins on one link by connector, keeping channels separate.
+    """
+    from dcim.models import Interface
 
     # Expand any channelized interface into its channel subinterfaces. A channelized parent originates no path of its
     # own; instead, each channel subinterface traces independently from the single connector position it occupies.
-    # Plain (non-channelized) origins pass through unchanged, keeping this expansion re-entrant so that
-    # rebuild_paths() -> create_cablepaths(cp.origins) does not re-expand the channel subinterfaces it already holds.
+    # Plain (non-channelized) origins pass through unchanged, keeping this expansion re-entrant, so a caller
+    # which already holds channel subinterfaces does not re-expand them.
     expanded = []
     for obj in objects:
         if isinstance(obj, Interface) and obj.channels:
@@ -144,35 +271,138 @@ def create_cablepaths(objects):
         else:
             expanded.append(obj)
 
-    # Arrange objects by cable connector. All objects with a null connector are grouped together. Channel
-    # subinterfaces must each originate their own path, as sharing a connector would otherwise collapse a group of
-    # siblings into a single malformed path.
-    origins = defaultdict(list)
+    origin_groups = []
+    connectors = defaultdict(list)
     for obj in expanded:
         if isinstance(obj, Interface) and obj.channel_id:
-            if cp := CablePath.from_origin([obj]):
-                cp.save()
+            origin_groups.append([obj])
         else:
-            origins[obj.cable_connector].append(obj)
+            connectors[obj.cable_connector].append(obj)
+    origin_groups.extend(connectors.values())
 
-    for connector, objects in origins.items():
-        if cp := CablePath.from_origin(objects):
-            cp.save()
+    return origin_groups
+
+
+def get_cable_end_terminations(cable_ends):
+    """
+    Return the current termination objects for each (cable ID, end) key, preserving connector order.
+
+    Use the CableTermination's connector for grouping. The prefetch covers the physical cable relation only,
+    so a link resolved through a wireless link still costs a query. This does not repair persisted endpoint
+    fields, and inconsistent cached links or positions can still prevent tracing.
+    """
+    from dcim.models import CableTermination
+
+    groups = {key: [] for key in cable_ends}
+    if not groups:
+        return groups
+
+    cables_by_end = defaultdict(list)
+    for cable_id, cable_end in groups:
+        cables_by_end[cable_end].append(cable_id)
+    query = Q()
+    # Cable ends are A or B, so this needs at most two clauses regardless of the number of cables.
+    for cable_end, cable_ids in cables_by_end.items():
+        query |= Q(cable_id__in=cable_ids, cable_end=cable_end)
+    terminations = CableTermination.objects.filter(query).order_by(
+        'cable_id', 'cable_end', 'connector', 'pk'
+    ).prefetch_related('termination__cable')
+    for termination in terminations:
+        # A stale GenericForeignKey can still reference an object which no longer exists.
+        if (obj := termination.termination) is not None:
+            # Partition this fetched instance by its authoritative connector, without saving the endpoint.
+            obj.cable_connector = termination.connector
+            groups[(termination.cable_id, termination.cable_end)].append(obj)
+    return groups
+
+
+def get_cablepath_origin_groups(objects):
+    """
+    Resolve originating objects to current cable ends in bulk. Channels and uncabled origins remain singletons.
+    """
+    from dcim.models import CableTermination, Interface
+
+    objects = {object_to_path_node(obj): obj for obj in objects}
+    if not objects:
+        return {}
+
+    ids_by_type = defaultdict(list)
+    for node, obj in objects.items():
+        if not (isinstance(obj, Interface) and obj.channel_id):
+            type_id, object_id = decompile_path_node(node)
+            ids_by_type[type_id].append(object_id)
+
+    # Resolve membership from CableTermination, never from the endpoint's cached cable/end fields.
+    keys = {}
+    if ids_by_type:
+        query = Q()
+        for type_id, object_ids in ids_by_type.items():
+            query |= Q(termination_type_id=type_id, termination_id__in=object_ids)
+        for type_id, object_id, cable_id, cable_end in CableTermination.objects.filter(query).values_list(
+            'termination_type_id', 'termination_id', 'cable_id', 'cable_end'
+        ):
+            keys[compile_path_node(type_id, object_id)] = (cable_id, cable_end)
+
+    cable_ends = get_cable_end_terminations(keys.values())
+    groups = {}
+    for node, obj in objects.items():
+        if node in keys:
+            groups[keys[node]] = cable_ends[keys[node]]
+        else:
+            groups[node] = [obj]
+    return groups
 
 
 def rebuild_paths(terminations):
     """
-    Rebuild all CablePaths which traverse the specified nodes.
+    Rebuild paths traversing the given nodes from their origins' current cable-end membership.
     """
     from dcim.models import CablePath
 
-    for obj in terminations:
-        cable_paths = CablePath.objects.filter(_nodes__contains=obj)
+    nodes = [object_to_path_node(obj) for obj in terminations]
+    if not nodes:
+        return
 
-        with transaction.atomic(using=router.db_for_write(CablePath)):
-            for cp in cable_paths:
-                cp.delete()
-                create_cablepaths(cp.origins)
+    # Snapshot the entire operation before replacement can retire another candidate. The transaction includes
+    # candidate deletion as well as all replacements, and a failure must restore both. It does not serialize rebuilds.
+    with transaction.atomic(using=router.db_for_write(CablePath)):
+        cable_paths = list(CablePath.objects.filter(_nodes__overlap=nodes))
+        origin_nodes = dict.fromkeys(
+            node for cable_path in cable_paths for node in (cable_path.path[0] if cable_path.path else ())
+        )
+        origin_objects = _get_cablepath_origin_objects(origin_nodes)
+        origins = [origin_objects[node] for node in origin_nodes if node in origin_objects]
+        origin_groups = get_cablepath_origin_groups(origins)
+
+        # A historical hop can name a parent which now originates paths through its channels.
+        affected_nodes = set()
+        for origin in origins:
+            expanded_groups = _group_cablepath_origins([origin])
+            for group in expanded_groups:
+                affected_nodes.update(object_to_path_node(obj) for obj in group)
+
+        # Current membership determines each complete group, but only candidate origins determine its scope.
+        # Do not retrace unrelated connectors on the same cable end.
+        rebuild_inputs = []
+        scheduled = set()
+        for current_origins in origin_groups.values():
+            selected_origins = []
+            current_groups = _group_cablepath_origins(current_origins)
+            for group in current_groups:
+                group_nodes = {object_to_path_node(obj) for obj in group}
+                if group_nodes & affected_nodes and not group_nodes.issubset(scheduled):
+                    selected_origins.extend(group)
+                    # A parent's channels can also appear as individual candidate origins.
+                    scheduled.update(group_nodes)
+            if selected_origins:
+                # Keep one call per end so all requested groups precede recovery in the same worklist.
+                rebuild_inputs.append(selected_origins)
+
+        # Use the model method to clear current endpoint references, including those on disconnected origins.
+        for cable_path in cable_paths:
+            cable_path.delete()
+        for origins in rebuild_inputs:
+            create_cablepaths(origins)
 
 
 def rebuild_cable_paths(cable):

@@ -158,6 +158,13 @@ Generate any missing cable paths among all cable termination objects. This is us
 python3 netbox/manage.py trace_paths
 ```
 
+Use `--force` to delete and rebuild all cable paths, and `--no-input` to skip its confirmation prompt.
+
+Endpoints that cannot be traced are reported, and tracing continues for the rest. The command then exits with a nonzero status, which also stops an upgrade. Correct the reported problem, then rerun the command, or the whole upgrade if one was stopped. The command does not repair cable fields cached on endpoints, such as `cable_end`, when they disagree with the cable's terminations.
+
+!!! warning
+    With `--force`, all existing paths are deleted before rebuilding begins. Paths that fail to trace remain missing until the problem is corrected and the command is run again.
+
 ## webhook_receiver
 
 Start a simple HTTP listener that prints any requests it receives. This is a debugging aid for testing webhooks: point a webhook at the listener and inspect exactly what NetBox sends. It listens on port 9000 by default; pass `--port` to change it and `--no-headers` to suppress the request headers.

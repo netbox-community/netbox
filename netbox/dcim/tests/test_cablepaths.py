@@ -1,8 +1,13 @@
+from io import StringIO
+
+from django.core.management import call_command
+
 from circuits.models import *
 from dcim.choices import CableEndChoices, LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from dcim.tests.utils import BaseCablePathTestCase
+from dcim.utils import create_cablepaths, object_to_path_node
 from utilities.exceptions import AbortRequest
 
 
@@ -2912,6 +2917,7 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
         # Verify _path is cleared on removed interface (#21127)
         interface3.refresh_from_db()
         self.assertPathIsNotSet(interface3)
+        self.assertEqual(CablePath.objects.count(), 2)
 
     def test_304_retrace_cable_created_without_save(self):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
@@ -3145,6 +3151,306 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
 
             self.assertPathExists((circuittermination1, cable1, rearport1, frontport1), is_complete=False)
             self.assertEqual(CablePath.objects.count(), 1)
+
+    def test_312_replacing_a_termination_retires_superseded_paths(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3], and back again
+
+        Each replacement must leave only the two paths the cable's current terminations trace.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        for peer, detached in ((interface3, interface2), (interface2, interface3)):
+            with self.subTest(peer=peer.name):
+                cable1 = Cable.objects.get(pk=cable1.pk)
+                cable1.b_terminations = [peer]
+                cable1.full_clean()
+                cable1.save()
+
+                self.assertCurrentPathExists((interface1, cable1, peer), is_complete=True, is_active=True)
+                self.assertCurrentPathExists((peer, cable1, interface1), is_complete=True, is_active=True)
+                self.assertEqual(CablePath.objects.count(), 2)
+                detached.refresh_from_db()
+                self.assertIsNone(detached.cable)
+                self.assertPathIsNotSet(detached)
+
+    def test_313_adding_a_termination_retires_superseded_paths(self):
+        """
+        [IF1] --C1-- [IF2] gains a second B-side termination [IF3]
+
+        Extending an end must retire the paths whose destinations the extension supersedes.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.b_terminations = [interface2, interface3]
+        cable1.full_clean()
+        cable1.save()
+
+        self.assertCurrentPathExists(
+            (interface1, cable1, [interface2, interface3]), is_complete=True, is_active=True
+        )
+        path2 = self.assertPathExists(
+            ([interface2, interface3], cable1, interface1), is_complete=True, is_active=True
+        )
+        for interface in (interface2, interface3):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, path2)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_314_retracing_one_joint_origin_restores_the_whole_hop(self):
+        """
+        [IF1] --C1-- [IF2]
+                     [IF3]
+
+        trace_paths retraces a cable end as a unit, so repairing one co-origin restores the joint hop.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2, interface3])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # trace_paths selects on a null _path
+        Interface.objects.filter(pk=interface2.pk).update(_path=None)
+
+        call_command('trace_paths', no_input=True, stdout=StringIO())
+
+        for interface in (interface1, interface2, interface3):
+            interface.refresh_from_db()
+            self.assertIsNotNone(interface._path_id, msg=f'{interface} left without a path')
+        self.assertPathExists(([interface2, interface3], cable1, interface1))
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_315_retracing_a_cable_end_retires_a_superseded_co_origin_path(self):
+        """
+        [IF1] --C1-- [IF2]
+                     [IF3]
+
+        A path superseded at a co-origin of the retraced end is retired, not left beside its replacement.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2, interface3])
+        cable1.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Seed the stale row a pre-fix install would hold, then restore both origins to the shared path
+        interface3 = Interface.objects.get(pk=interface3.pk)
+        joint_path = interface3._path
+        superseded = CablePath.from_origin([interface3])
+        superseded.save()
+        joint_path.save()
+
+        # trace_paths selects on a null _path
+        Interface.objects.filter(pk=interface2.pk).update(_path=None)
+
+        call_command('trace_paths', no_input=True, stdout=StringIO())
+
+        self.assertFalse(
+            CablePath.objects.filter(pk=superseded.pk).exists(), msg='the superseded path survived the retrace'
+        )
+        self.assertPathExists(([interface2, interface3], cable1, interface1))
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_316_retracing_a_partial_origin_group_retires_its_co_origins_paths(self):
+        """
+        Retracing one origin of a shared path must also replace its co-origin's stale paths.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        cable = Cable(a_terminations=[interface1], b_terminations=[interface2, interface3])
+        cable.save()
+
+        interface3.refresh_from_db()
+        joint_path = interface3._path
+        superseded = CablePath.from_origin([interface3])
+        superseded.save()
+        joint_path.save()
+
+        interface2.refresh_from_db()
+        create_cablepaths([interface2])
+
+        self.assertFalse(CablePath.objects.filter(pk=superseded.pk).exists())
+        self.assertFalse(CablePath.objects.filter(pk=joint_path.pk).exists())
+        self.assertCurrentPathExists((interface2, cable, interface1), is_complete=True)
+        self.assertCurrentPathExists((interface3, cable, interface1), is_complete=True)
+        self.assertCurrentPathExists((interface1, cable, [interface2, interface3]), is_complete=True)
+        self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_317_retracing_preserves_another_current_origin_group(self):
+        """
+        An origin group whose references the deletion does not clear is left intact, rows and all.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 5)
+        ]
+        interface1, interface2, interface3, interface4 = interfaces
+        cable = Cable(a_terminations=[interface1], b_terminations=interfaces[1:])
+        cable.save()
+        for interface in interfaces:
+            interface.refresh_from_db()
+
+        # Overlapping groups from earlier partial retraces, with interface3 and interface4 on the second
+        interface2._path.delete()
+        first = CablePath.from_origin([interface2, interface3])
+        first.save()
+        second = CablePath.from_origin([interface3, interface4])
+        second.save()
+
+        create_cablepaths([interface2])
+
+        self.assertFalse(CablePath.objects.filter(pk=first.pk).exists())
+        self.assertCurrentPathExists((interface2, cable, interface1), is_complete=True)
+        self.assertTrue(
+            CablePath.objects.filter(pk=second.pk).exists(), msg='the untouched origin group was replaced'
+        )
+        second.refresh_from_db()
+        self.assertEqual(second.path[0], [object_to_path_node(interface3), object_to_path_node(interface4)])
+        for interface in (interface3, interface4):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, second)
+        self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_318_recovery_preserves_the_requested_connector_groups(self):
+        """
+        A recovered group must not replace a connector group already rebuilt by this call.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 5)
+        ]
+        interface1, interface2, interface3, interface4 = interfaces
+        cable = Cable(a_terminations=[interface1], b_terminations=interfaces[1:])
+        cable.save()
+        for interface in interfaces:
+            interface.refresh_from_db()
+
+        CablePath.from_origin([interface2, interface3]).save()
+        # Use a connector grouping that cannot be persisted to isolate requested-group precedence.
+        interface2.cable_connector = 1
+        interface3.cable_connector = 2
+        interface4.cable_connector = 2
+
+        create_cablepaths([interface2, interface3, interface4])
+
+        self.assertCurrentPathExists((interface2, cable, interface1), is_complete=True)
+        shared_path = self.assertPathExists(([interface3, interface4], cable, interface1), is_complete=True)
+        for interface in (interface3, interface4):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, shared_path)
+        self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_319_recovery_separates_origins_on_different_links(self):
+        """
+        A stale origin hop holding origins since moved apart is recovered as one group per current cable end.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 7)
+        ]
+        interface1, interface2, interface3, interface4, interface5, interface6 = interfaces
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[interface2, interface3, interface4, interface5],
+        )
+        cable1.save()
+
+        # The hop as stored while all four shared cable1
+        interface2.refresh_from_db()
+        stale_nodes = interface2._path.path
+
+        # Move one origin through ordinary saves, so only the CablePath below is stale
+        cable1.b_terminations = [interface2, interface3, interface4]
+        cable1.save()
+        interface5.refresh_from_db()
+        cable2 = Cable(a_terminations=[interface6], b_terminations=[interface5])
+        cable2.save()
+
+        interface2.refresh_from_db()
+        interface5.refresh_from_db()
+        current_cable1 = interface2._path
+        current_cable2 = interface5._path
+
+        # Leave the obsolete row as their only originating path, so recovery gets the whole mixed hop
+        current_cable1.delete()
+        current_cable2.delete()
+        superseded = CablePath(path=stale_nodes, is_complete=True, is_active=True)
+        superseded.save()
+
+        create_cablepaths([Interface.objects.get(pk=interface2.pk)])
+
+        self.assertFalse(CablePath.objects.filter(pk=superseded.pk).exists())
+        self.assertCurrentPathExists((interface2, cable1, interface1), is_complete=True)
+        # The origins still sharing cable1 stay one group, and the moved one is recovered on its own cable
+        shared = self.assertPathExists(([interface3, interface4], cable1, interface1), is_complete=True)
+        for interface in (interface3, interface4):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, shared)
+        self.assertCurrentPathExists((interface5, cable2, interface6), is_complete=True)
+        self.assertEqual(CablePath.objects.count(), 5)
+
+    def test_320_retracing_repairs_an_endpoint_whose_cable_end_drifted(self):
+        """
+        An endpoint whose denormalized cable_end no longer matches its CableTermination is still retraced.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+
+        # The termination row still says B, which is the drift this command exists to repair
+        Interface.objects.filter(pk=interface2.pk).update(
+            _path=None, cable_end=CableEndChoices.SIDE_A
+        )
+
+        call_command('trace_paths', no_input=True, stdout=StringIO())
+
+        self.assertCurrentPathExists((interface2, cable1, interface1), is_complete=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+
+    def test_321_recovery_follows_a_chain_of_cleared_references(self):
+        """
+        Recovering an origin can clear another group's references, whose origins are recovered in turn.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface {i}') for i in range(1, 5)
+        ]
+        interface1, interface2, interface3, interface4 = interfaces
+        cable = Cable(a_terminations=[interface1], b_terminations=interfaces[1:])
+        cable.save()
+        for interface in interfaces:
+            interface.refresh_from_db()
+
+        # interface3 references the first group, so losing it starts the chain
+        interface2._path.delete()
+        first = CablePath.from_origin([interface2, interface3])
+        first.save()
+        second = CablePath.from_origin([interface3, interface4])
+        second.save()
+        first.save()
+
+        create_cablepaths([interface2])
+
+        self.assertFalse(CablePath.objects.filter(pk__in=[first.pk, second.pk]).exists())
+        for interface in interfaces[1:]:
+            self.assertCurrentPathExists((interface, cable, interface1), is_complete=True)
+        self.assertEqual(CablePath.objects.count(), 4)
 
     def test_401_exclude_midspan_devices(self):
         """
