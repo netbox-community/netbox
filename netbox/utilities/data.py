@@ -87,20 +87,42 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
     return difference
 
 
+LIST_DIFF_MAX_LCS_CELLS = 250000
+
+
 def shallow_compare_list(source_list, destination_list):
     """
     Return a two-tuple of lists (added, removed) representing the difference between source_list
     and destination_list.
     """
-    m = len(source_list)
-    n = len(destination_list)
+    idx = 0
+    end_src = len(source_list)
+    end_dst = len(destination_list)
+
+    while idx < end_src and idx < end_dst and source_list[idx] == destination_list[idx]:
+        idx += 1
+    while end_src > idx and end_dst > idx and source_list[end_src - 1] == destination_list[end_dst - 1]:
+        end_src -= 1
+        end_dst -= 1
+
+    src = source_list[idx:end_src]
+    dst = destination_list[idx:end_dst]
+
+    m = len(src)
+    n = len(dst)
+
+    if not m or not n:
+        return dst, src
+
+    if n * m > LIST_DIFF_MAX_LCS_CELLS:
+        return dst, src
 
     lcs_table = [[0] * (n + 1) for _ in range(m + 1)]
 
     # bottom up longest common subsequence
     for i in range(m - 1, -1, -1):
         for j in range(n - 1, -1, -1):
-            if source_list[i] == destination_list[j]:
+            if src[i] == dst[j]:
                 lcs_table[i][j] = 1 + lcs_table[i + 1][j + 1]
             else:
                 lcs_table[i][j] = max(lcs_table[i + 1][j], lcs_table[i][j + 1])
@@ -111,18 +133,18 @@ def shallow_compare_list(source_list, destination_list):
     j = 0
     # reconstruct the added and removed elements
     while i < m and j < n:
-        if source_list[i] == destination_list[j]:
+        if src[i] == dst[j]:
             i += 1
             j += 1
         elif lcs_table[i + 1][j] >= lcs_table[i][j + 1]:
-            removed.append(source_list[i])
+            removed.append(src[i])
             i += 1
         else:
-            added.append(destination_list[j])
+            added.append(dst[j])
             j += 1
 
-    removed.extend(source_list[i:])
-    added.extend(destination_list[j:])
+    removed.extend(src[i:])
+    added.extend(dst[j:])
 
     return added, removed
 

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase
 
@@ -216,6 +218,20 @@ class DeepCompareDictTestCase(TestCase):
         self.assertEqual(added, {"a": [1]})
         self.assertEqual(removed, {"a": []})
 
+    def test_list_added_and_duplicate(self):
+        source = {"a": [1]}
+        dest = {"a": [1, 1, 2]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [1, 2]})
+        self.assertEqual(removed, {"a": []})
+
+    def test_list_removed_duplicate(self):
+        source = {"a": [1, 1]}
+        dest = {"a": [1]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": []})
+        self.assertEqual(removed, {"a": [1]})
+
     def test_list_removed(self):
         source = {"a": [1, 2]}
         dest = {"a": [1]}
@@ -237,12 +253,19 @@ class DeepCompareDictTestCase(TestCase):
         self.assertEqual(added, {"a": [3]})
         self.assertEqual(removed, {"a": [3]})
 
-    def test_list_change_and_order(self):
+    def test_list_added_and_order(self):
         source = {"a": [1, 2, 3]}
         dest = {"a": [3, 1, 2, 4]}
         added, removed = deep_compare_dict(source, dest)
         self.assertEqual(added, {"a": [3, 4]})
         self.assertEqual(removed, {"a": [3]})
+
+    def test_list_removed_and_order(self):
+        source = {"a": [1, 2, 3, 4]}
+        dest = {"a": [3, 1, 2]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3]})
+        self.assertEqual(removed, {"a": [3, 4]})
 
     def test_list_no_change(self):
         source = {"a": [1]}
@@ -285,6 +308,48 @@ class DeepCompareDictTestCase(TestCase):
         added, removed = deep_compare_dict(source, dest)
         self.assertEqual(added, {})
         self.assertEqual(removed, {})
+
+    def test_list_change_multiple_nested_elements(self):
+        source = {"a": [[{"a": [1, 2]}], [1], [1], "b"]}
+        dest = {"a": [[{"a": [2, 3]}], [1], [1, 2]]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [[{"a": [2, 3]}], [1, 2]]})
+        self.assertEqual(removed, {"a": [[{"a": [1, 2]}], [1], "b"]})
+
+    def test_list_change_lcs_bounds(self):
+        source = {"a": [1, 2, 3, 4, 5]}
+        dest = {"a": [1, 2, 4, 5, 3]}
+        # prefix 1, 2 will be removed 3,4,5 vs 4,5,3
+        # m*n = 9 => 9 will do the lcs diff while 8 will return the trimmed diff
+        with patch('utilities.data.LIST_DIFF_MAX_LCS_CELLS', 9):
+            added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3]})
+        self.assertEqual(removed, {"a": [3]})
+        with patch('utilities.data.LIST_DIFF_MAX_LCS_CELLS', 8):
+            added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [4, 5, 3]})
+        self.assertEqual(removed, {"a": [3, 4, 5]})
+
+    def test_list_change_with_prefix(self):
+        source = {"a": list(range(1000)) + [1, 2, 3]}
+        dest = {"a": list(range(1000)) + [3, 1, 2, 4]}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3, 4]})
+        self.assertEqual(removed, {"a": [3]})
+
+    def test_list_change_with_suffix(self):
+        source = {"a": [1, 2, 3] + list(range(1000))}
+        dest = {"a": [3, 1, 2, 4] + list(range(1000))}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3, 4]})
+        self.assertEqual(removed, {"a": [3]})
+
+    def test_list_change_with_prefix_suffix(self):
+        source = {"a": list(range(1000)) + [1, 2, 3] + list(range(1000, 2000))}
+        dest = {"a": list(range(1000)) + [3, 1, 2, 4] + list(range(1000, 2000))}
+        added, removed = deep_compare_dict(source, dest)
+        self.assertEqual(added, {"a": [3, 4]})
+        self.assertEqual(removed, {"a": [3]})
 
     def test_exclude(self):
         source = {'a': 1, 'last_updated': '2024-01-01'}
