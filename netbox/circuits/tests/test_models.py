@@ -5,6 +5,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import RequestFactory, TestCase, tag
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
+from circuits.models.circuits import _set_circuit_terminations
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
 from dcim.models import Location, Region, Site, SiteGroup
@@ -603,3 +604,24 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         self.assertEqual(
             changes[0].postchange_data['custom_fields'], self.circuits[0].custom_field_data
         )
+
+    @tag('regression')  # Ref: #23134
+    def test_pointer_update_leaves_complete_custom_field_data_alone(self):
+        # With no default to populate, the pointer write must not overwrite a concurrent edit
+        custom_field = CustomField.objects.create(
+            name='probe_field',
+            type=CustomFieldTypeChoices.TYPE_TEXT,
+            default='default-value',
+            status=CustomFieldStatusChoices.STATUS_ACTIVE,
+        )
+        custom_field.object_types.set([ContentType.objects.get_for_model(Circuit)])
+        CustomField.objects.clear_cache()
+        CircuitTermination.objects.create(circuit=self.circuits[0], term_side='A', termination=self.sites[0])
+        circuit = Circuit.objects.get(pk=self.circuits[0].pk)
+        Circuit.objects.filter(pk=circuit.pk).update(custom_field_data={'probe_field': 'concurrent'})
+
+        _set_circuit_terminations(circuit, {'termination_a': None}, using='default')
+
+        circuit.refresh_from_db()
+        self.assertIsNone(circuit.termination_a_id)
+        self.assertEqual(circuit.custom_field_data, {'probe_field': 'concurrent'})

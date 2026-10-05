@@ -247,11 +247,17 @@ def _set_circuit_terminations(circuit, fields, using):
     """
     Set or clear a Circuit's cached `termination_a`/`termination_z` fields, recording the change.
     """
+    from extras.models import CustomField
+
     circuit.snapshot()
     for field_name, value in fields.items():
         setattr(circuit, field_name, value)
-    # custom_field_data carries any defaults populated on save, which the change log serializes
-    circuit.save(using=using, update_fields=[*fields, 'custom_field_data', 'last_updated'])
+
+    # Write custom_field_data only if save() will populate a default, which the change log serializes
+    update_fields = [*fields, 'last_updated']
+    if CustomField.objects.get_defaults_for_model(circuit).keys() - circuit.custom_field_data.keys():
+        update_fields.append('custom_field_data')
+    circuit.save(using=using, update_fields=update_fields)
 
 
 class CircuitTermination(
