@@ -68,8 +68,6 @@ class Migration(migrations.Migration):
             model_name='platform',
             name='dcim_platform_slug',
         ),
-        # name/slug are conditional (index-backed) and already idempotent;
-        # only parent_name/parent_slug need the beta-era repair below.
         migrations.RemoveConstraint(
             model_name='region',
             name='dcim_region_name',
@@ -78,6 +76,8 @@ class Migration(migrations.Migration):
             model_name='region',
             name='dcim_region_slug',
         ),
+        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
+        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
@@ -109,6 +109,8 @@ class Migration(migrations.Migration):
             model_name='sitegroup',
             name='dcim_sitegroup_slug',
         ),
+        # Installs that ran migration 0137 in its v3.1-beta1 form never got these named
+        # constraints, only the old auto-named ones. Drop both, guarded by IF EXISTS.
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
