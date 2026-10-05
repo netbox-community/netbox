@@ -1405,7 +1405,7 @@ class VirtualDeviceContext(PrimaryModel):
                         "{ip} is not an IPv{family} address."
                     ).format(family=family, ip=primary_ip)
                 })
-            device_interfaces = self.device.vc_interfaces(if_master=False)
+            device_interfaces = self.device.vc_interfaces(if_master=False) if self.device_id else []
             if primary_ip.assigned_object not in device_interfaces:
                 raise ValidationError({
                     f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
