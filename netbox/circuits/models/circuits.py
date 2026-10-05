@@ -248,7 +248,8 @@ def _set_circuit_terminations(circuit, fields):
     circuit.snapshot()
     for field_name, value in fields.items():
         setattr(circuit, field_name, value)
-    circuit.save(update_fields=[*fields, 'last_updated'])
+    # custom_field_data carries any defaults populated on save, which the change log serializes
+    circuit.save(update_fields=[*fields, 'custom_field_data', 'last_updated'])
 
 
 class CircuitTermination(
