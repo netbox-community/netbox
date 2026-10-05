@@ -103,30 +103,16 @@ class PrefixLengthSerializer(serializers.Serializer):
         return data
 
 
-class CreateAvailablePrefixSerializer(PrimaryModelSerializer):
+class CreateAvailablePrefixSerializer(PrefixSerializer):
     """
     Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies both
-    the `prefix` value (via a requested `prefix_length`) and the `vrf`, so neither is accepted here. The remaining
-    writable fields mirror those of PrefixSerializer (minus read-only/computed fields); keep them in sync if
-    PrefixSerializer changes.
+    the `prefix` value (via a requested `prefix_length`) and the `vrf`, so neither is accepted here. Field
+    definitions are inherited from PrefixSerializer; only the request-specific `prefix_length` and `Meta.fields`
+    differ.
     """
     prefix_length = serializers.IntegerField()
-    scope_type = ContentTypeField(
-        queryset=ContentType.objects.filter(
-            model__in=LOCATION_SCOPE_TYPES
-        ),
-        allow_null=True,
-        required=False,
-        default=None
-    )
-    scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
-    vlan = VLANSerializer(nested=True, required=False, allow_null=True)
-    status = ChoiceField(choices=PrefixStatusChoices, required=False)
-    role = RoleSerializer(nested=True, required=False, allow_null=True)
 
-    class Meta:
-        model = Prefix
+    class Meta(PrefixSerializer.Meta):
         fields = [
             'prefix_length', 'scope_type', 'scope_id', 'tenant', 'vlan', 'status', 'role', 'is_pool',
             'mark_utilized', 'description', 'owner', 'comments', 'tags', 'custom_fields',
