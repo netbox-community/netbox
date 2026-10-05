@@ -24,8 +24,10 @@ class ObjectChangeSerializer(BaseModelSerializer):
     changed_object_type = ContentTypeField(
         read_only=True
     )
+    # Some change-logged models (e.g. PortMapping) are private and have no REST API serializer
     changed_object = GFKSerializerField(
-        read_only=True
+        read_only=True,
+        allow_missing_serializer=True
     )
     object_repr = serializers.CharField(
         read_only=True

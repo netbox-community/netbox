@@ -12,7 +12,7 @@ from rest_framework import status
 from core.choices import ObjectChangeActionChoices
 from core.jobs import SystemHousekeepingJob
 from core.models import ObjectChange, ObjectType
-from dcim.choices import InterfaceTypeChoices, ModuleStatusChoices, SiteStatusChoices
+from dcim.choices import InterfaceTypeChoices, ModuleStatusChoices, PortTypeChoices, SiteStatusChoices
 from dcim.models import (
     Cable,
     CableTermination,
@@ -24,6 +24,8 @@ from dcim.models import (
     Module,
     ModuleBay,
     ModuleType,
+    PortMapping,
+    RearPort,
     Site,
 )
 from extras.choices import *
@@ -701,6 +703,56 @@ class ChangeLogAPITestCase(APITestCase):
         self.assertEqual(changes[3].changed_object_type, ContentType.objects.get_for_model(Module))
         self.assertEqual(changes[3].changed_object_id, module.pk)
         self.assertEqual(changes[3].action, ObjectChangeActionChoices.ACTION_DELETE)
+
+    def test_list_changes_for_object_without_serializer(self):
+        """
+        Listing ObjectChanges for a change-logged model which has no REST API serializer (e.g. PortMapping)
+        should not raise an exception.
+        """
+        device = create_test_device('device1')
+        rear_port = RearPort.objects.create(device=device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C)
+        self.add_permissions('dcim.add_frontport', 'core.view_objectchange')
+
+        # Create a FrontPort mapped to the RearPort (creates a PortMapping)
+        data = {
+            'device': device.pk,
+            'name': 'Front Port 1',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_ports': [
+                {'position': 1, 'rear_port': rear_port.pk, 'rear_port_position': 1},
+            ],
+        }
+        url = reverse('dcim-api:frontport-list')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        port_mapping = PortMapping.objects.get(front_port_id=response.data['id'])
+        self.assertTrue(
+            ObjectChange.objects.filter(
+                changed_object_type=ContentType.objects.get_for_model(PortMapping),
+                changed_object_id=port_mapping.pk,
+            ).exists()
+        )
+
+        front_port_id = response.data['id']
+
+        url = reverse('core-api:objectchange-list')
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # The FrontPort has a serializer, so its nested representation should be included
+        result = next(
+            r for r in response.data['results']
+            if r['changed_object_type'] == 'dcim.frontport' and r['changed_object_id'] == front_port_id
+        )
+        self.assertEqual(result['changed_object']['id'], front_port_id)
+
+        # The PortMapping has no serializer, so changed_object should be null
+        result = next(
+            r for r in response.data['results']
+            if r['changed_object_type'] == 'dcim.portmapping' and r['changed_object_id'] == port_mapping.pk
+        )
+        self.assertIsNone(result['changed_object'])
+        self.assertEqual(result['object_repr'], str(port_mapping))
 
 
 class ChangelogPruneRetentionTestCase(TestCase):
