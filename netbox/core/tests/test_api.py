@@ -1,6 +1,8 @@
 import uuid
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -11,7 +13,7 @@ from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from users.constants import TOKEN_PREFIX
-from users.models import Token
+from users.models import ObjectPermission, Token
 from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags
 from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
@@ -153,6 +155,63 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.patch(self._get_detail_url(data_source), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(list(data_source.tags.values_list('slug', flat=True)), [])
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
+    def test_sync(self):
+        """
+        The sync action is governed by the sync permission. The full representation is returned only if the user
+        may view the data source.
+        """
+        data_source = DataSource.objects.create(
+            name='Data Source 5',
+            type='git',
+            source_url='https://example.invalid/repo.git',
+            parameters={'username': 'sync-test', 'password': 'dummy-password'},
+        )
+        forbidden = DataSource.objects.get(name='Data Source 2')
+        url = reverse('core-api:datasource-sync', kwargs={'pk': data_source.pk})
+        url_forbidden = reverse('core-api:datasource-sync', kwargs={'pk': forbidden.pk})
+
+        # Attempt to sync without permission
+        with patch('core.api.views.SyncDataSourceJob') as sync_job:
+            response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        sync_job.enqueue.assert_not_called()
+
+        # Grant a constrained sync permission. Neither add nor view is granted.
+        obj_perm = ObjectPermission(name='Sync permission', constraints={'name': 'Data Source 5'}, actions=['sync'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(DataSource))
+
+        # Attempt to sync a non-permitted data source
+        with patch('core.api.views.SyncDataSourceJob') as sync_job:
+            response = self.client.post(url_forbidden, **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        sync_job.enqueue.assert_not_called()
+
+        # Sync a permitted data source
+        with patch('core.api.views.SyncDataSourceJob') as sync_job:
+            response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        sync_job.enqueue.assert_called_once()
+        self.assertEqual(sorted(response.data), self.brief_fields)
+
+        # With view permission, the full representation is returned
+        self.add_permissions('core.view_datasource')
+        with patch('core.api.views.SyncDataSourceJob') as sync_job:
+            response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        sync_job.enqueue.assert_called_once()
+        self.assertEqual(response.data['parameters'], data_source.parameters)
+
+        # A read-only token cannot sync
+        self.token.write_enabled = False
+        self.token.save()
+        with patch('core.api.views.SyncDataSourceJob') as sync_job:
+            response = self.client.post(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        sync_job.enqueue.assert_not_called()
 
     def assert_only_source_1(self, data):
         """The JSON lookup returns exactly the source carrying the matching value."""
