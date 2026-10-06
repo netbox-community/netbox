@@ -2850,3 +2850,36 @@ class CablePathTestCase(BaseCablePathTestCase):
             (interfaces[1], cable2, front_ports[1], rear_ports[1]), is_complete=False
         )
         self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_312_change_cable_profile_on_a_warm_instance_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [IF2]
+
+        Applying a profile to an instance whose termination caches are warm must recreate the rows and the paths.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+
+        # Creating the cable warms both caches and saving it resets the flag
+        cable1 = Cable(
+            a_terminations=[interfaces[0]],
+            b_terminations=[interfaces[1]],
+        )
+        cable1.clean()
+        cable1.save()
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertEqual(CablePath.objects.count(), 2)
+        self.assertTrue(hasattr(cable1, '_a_terminations') and hasattr(cable1, '_b_terminations'))
+        self.assertFalse(cable1._terminations_modified)
+
+        cable1.profile = CableProfileChoices.SINGLE_1C1P
+        cable1.full_clean()
+        cable1.save()
+
+        self.assertCurrentPathExists((interfaces[0], cable1, interfaces[1]), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interfaces[1], cable1, interfaces[0]), is_complete=True, is_active=True)
+        self.assertEqual(CablePath.objects.count(), 2)
+        new_termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        self.assertTrue(termination_pks.isdisjoint(new_termination_pks))
