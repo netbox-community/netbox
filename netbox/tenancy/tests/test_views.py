@@ -1,9 +1,16 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
+from django.test import RequestFactory
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
+from core.models import ObjectType
 from dcim.models import Site
+from ipam.models import VRF
 from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
+from tenancy.views import TenantView
+from users.models import ObjectPermission
 from utilities.testing import ViewTestCases, create_tags
 
 
@@ -100,6 +107,43 @@ class TenantTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'group': tenant_groups[1].pk,
             'description': 'Bulk edit description',
         }
+
+    def test_related_objects_are_probed_by_a_single_query(self):
+        """Every related model type is probed for existence by one combined query."""
+        tenant = Tenant.objects.get(name='Tenant 1')
+        Site.objects.create(name='Site 1', slug='site-1', tenant=tenant)
+        self.user.is_superuser = True
+        request = RequestFactory().get('/')
+        request.user = self.user
+
+        with CaptureQueriesContext(connection) as queries:
+            related_models = TenantView().get_related_models(request, tenant)
+
+        self.assertEqual(len(queries.captured_queries), 1)
+        self.assertEqual([roc.queryset.model for roc in related_models], [Site])
+
+    def test_related_objects_honor_constrained_permissions(self):
+        """A related model whose objects the user's constraints all exclude is omitted."""
+        tenant = Tenant.objects.get(name='Tenant 1')
+        Site.objects.create(name='Site 1', slug='site-1', tenant=tenant)
+        VRF.objects.create(name='VRF 1', tenant=tenant)
+        self.add_permissions('tenancy.view_tenant', 'ipam.view_vrf')
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            constraints={'name': 'Nonexistent'},
+            actions=['view']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Site))
+
+        response = self.client.get(tenant.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        related = response.context['related_models']
+        self.assertEqual([roc.queryset.model for roc in related], [VRF])
+        self.assertEqual(related[0].queryset.count(), 1)
 
 
 class ContactGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

@@ -1,9 +1,13 @@
-from django.db.models import Count, OuterRef, QuerySet, Subquery
+from collections import defaultdict
+
+from django.db.models import Count, IntegerField, OuterRef, QuerySet, Subquery, Value
 from django.db.models.functions import Coalesce
+from django.db.models.query import EmptyQuerySet
 
 __all__ = (
     'count_related',
     'dict_to_filter_params',
+    'find_nonempty',
     'reapply_model_ordering',
 )
 
@@ -55,6 +59,45 @@ def dict_to_filter_params(d, prefix=''):
         else:
             params[k] = val
     return params
+
+
+def find_nonempty(querysets):
+    """
+    Return the positions of those querysets which match at least one object.
+
+    Use this instead of calling exists() on each of several querysets, for example to decide which related object
+    types a page lists. Querysets on the same database share one query, unless they are sliced or combined.
+    """
+    populated = set()
+    batches = defaultdict(list)
+    for position, queryset in enumerate(querysets):
+        if isinstance(queryset, EmptyQuerySet):
+            continue
+        # A sliced or combined queryset cannot be rewritten as a probe.
+        if queryset.query.is_sliced or queryset.query.combinator:
+            if queryset.exists():
+                populated.add(position)
+            continue
+        # A union executes on a single database, so candidates are batched per database.
+        batches[queryset.db].append((position, queryset))
+
+    for using, batch in batches.items():
+        if len(batch) == 1:
+            position, queryset = batch[0]
+            if queryset.exists():
+                populated.add(position)
+            continue
+
+        # order_by() stops a DISTINCT probe adding its ordering column to the select list.
+        probes = [
+            queryset.order_by().values(_probe=Value(position, output_field=IntegerField()))[:1]
+            for position, queryset in batch
+        ]
+        # union() restores the leading queryset's default ordering, which the result set cannot satisfy.
+        combined = probes[0].union(*probes[1:], all=True).order_by().using(using)
+        populated.update(row['_probe'] for row in combined)
+
+    return populated
 
 
 # TODO: Remove in NetBox v5.0. MPTT support is retained only for plugins that have

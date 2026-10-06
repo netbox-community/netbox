@@ -16,6 +16,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from netbox.api.authentication import TokenAuthentication
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
+from utilities.query import find_nonempty
 from utilities.relations import get_related_models
 from utilities.request import safe_for_redirect
 from utilities.string import title
@@ -237,8 +238,10 @@ class GetRelatedModelsMixin:
                 self.RelatedObjectCount(*attrs) for attrs in extra
             ])
 
+        populated = find_nonempty([roc.queryset for roc in related_models])
+
         return sorted(
-            filter(lambda roc: roc.queryset.exists(), related_models),
+            (roc for position, roc in enumerate(related_models) if position in populated),
             key=lambda roc: roc.name,
         )
 
