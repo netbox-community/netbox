@@ -44,8 +44,8 @@ NETBOX_CONFIGURATION=netbox.configuration_testing python netbox/manage.py test d
 
 Speed options:
 
-- `--keepdb` — skip DB rebuild between runs (safe for most iterative work)
-- `--parallel` — run tests in parallel across CPU cores (used in CI; don't combine with `--keepdb` without testing first)
+- `--keepdb` — reuse the test DB between runs; it's rebuilt automatically when migrations change
+- `--parallel` — run tests in parallel across CPU cores (used in CI together with `--keepdb`)
 - `--failfast` — stop on first failure
 - `-v 2` — print each test name as it runs
 

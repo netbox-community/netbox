@@ -163,11 +163,13 @@ cd netbox/
 python manage.py test
 ```
 
-In cases where you haven't made any changes to the database schema (which is typical), you can append the `--keepdb` argument to this command to reuse the test database between runs. This cuts down on the time it takes to run the test suite since the database doesn't have to be rebuilt each time. (Note that this argument will cause errors if you've modified any model fields since the previous test run.)
+Building the test database from scratch can take several minutes, so it's recommended to always append the `--keepdb` argument to reuse the test database between runs:
 
 ```no-highlight
 python manage.py test --keepdb
 ```
+
+NetBox's test runner records a fingerprint of all migrations on the test database. If any migration changes (e.g. after switching branches or editing a migration), the test database is rebuilt automatically on the next run. If you encounter errors that don't seem related to your changes (for example, after interrupting a test run), run the test suite once without `--keepdb` to force a rebuild.
 
 You can also reduce testing time by enabling parallel test execution with the `--parallel` flag. (By default, this will run as many parallel tests as you have processors. To avoid sluggishness, it's a good idea to specify a lower number of parallel tests.) This flag can be combined with `--keepdb`, although if you encounter any strange errors, try running the test suite again with parallelization disabled.
 

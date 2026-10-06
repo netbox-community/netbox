@@ -157,26 +157,15 @@ jobs:
       - name: Collect static files
         run: python netbox/manage.py collectstatic --no-input
 
-      - name: Fingerprint the schema inputs
+      # The fingerprint NetBoxTestRunner stamps on kept test databases (the migrations of all installed apps).
+      - name: Fingerprint the migrations
         id: schema
         if: env.RELEASE_PR != 'true'
         run: |
-          # Path and blob of every file that shapes the migrated schema, so renames count too.
-          inputs=$(git ls-files --stage -- \
-            .github/workflows/ci.yml \
-            requirements.txt \
-            netbox/netbox/settings.py \
-            netbox/netbox/configuration_testing.py \
-            netbox/core/signals.py \
-            ':(glob)netbox/**/migrations/**' \
-            ':(glob)netbox/*/fields.py' \
-            netbox/netbox/models/ltree.py \
-            netbox/ipam/lookups.py \
-            netbox/utilities/query_functions.py \
-            netbox/utilities/ltree.py \
-            netbox/utilities/migration.py \
-            netbox/utilities/mptt_to_ltree.py)
-          echo "hash=$(sha256sum <<< "$inputs" | cut -c1-32)" >> "$GITHUB_OUTPUT"
+          hash=$(python netbox/manage.py shell --no-imports \
+            -c "from utilities.testing.runner import get_schema_fingerprint; print(get_schema_fingerprint())")
+          [[ "$hash" =~ ^[0-9a-f]{64}$ ]] || { echo "::error::Unexpected fingerprint output: $hash"; exit 1; }
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Restore the migrated test database
         id: test-db
@@ -184,7 +173,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ${{ runner.temp }}/test_netbox.dump
-          key: test-db-py${{ matrix.python-version }}-${{ steps.schema.outputs.hash }}
+          # Bump the version when the build procedure changes; keep pg in sync with the postgres service image.
+          key: test-db-v1-pg18-py${{ matrix.python-version }}-${{ steps.schema.outputs.hash }}
           # Push runs migrate from scratch, so every merge re-validates the migration chain.
           lookup-only: ${{ github.event_name == 'push' }}
 
@@ -206,6 +196,10 @@ jobs:
           docker exec "$POSTGRES_CONTAINER" createdb -U netbox test_netbox
           docker exec -i "$POSTGRES_CONTAINER" pg_restore -U netbox -d test_netbox --exit-on-error \
             < "$RUNNER_TEMP/test_netbox.dump"
+          # Mark the restored database as current; NetBoxTestRunner otherwise rebuilds it. The cache key
+          # includes this same fingerprint, so a restored dump always matches the current migrations.
+          python netbox/manage.py shell --no-imports \
+            -c "from utilities.testing.runner import stamp_test_database; stamp_test_database()"
 
       - name: Cache the migrated test database
         if: env.RELEASE_PR != 'true' && steps.test-db.outputs.cache-hit != 'true'

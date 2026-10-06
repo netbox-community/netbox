@@ -648,6 +648,8 @@ MESSAGE_TAGS = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TEST_RUNNER = 'utilities.testing.runner.NetBoxTestRunner'
+
 SERIALIZATION_MODULES = {
     'json': 'utilities.serializers.json',
 }
