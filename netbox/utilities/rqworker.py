@@ -1,6 +1,8 @@
 import logging
 
+from django.urls import get_resolver
 from django_rq.queues import get_connection
+from django_rq.utils import reset_db_connections
 from rq import Retry, Worker
 from rq.worker_registration import REDIS_WORKER_KEYS
 from rq.worker_registration import register as register_worker
@@ -27,7 +29,19 @@ class NetBoxRQWorker(Worker):
     was lost and rebuilt while the worker was running), the next heartbeat
     will re-register the worker so that Worker.all() / Worker.find_by_key()
     can locate it again.
+
+    The URLconf (and with it the GraphQL schema) is loaded once on startup, so
+    that forked work horses inherit it rather than each rebuilding it.
     """
+
+    def bootstrap(self, *args, **kwargs):
+        # Load the URLconf before registering the worker, so that a broken URLconf or GraphQL schema prevents the
+        # worker from starting rather than failing every job.
+        get_resolver().url_patterns
+        # django-rq closes database connections before starting the worker, but loading the URLconf may have reopened
+        # one (e.g. a plugin querying the database at import), which forked workers would then inherit.
+        reset_db_connections()
+        super().bootstrap(*args, **kwargs)
 
     def heartbeat(self, *args, **kwargs):
         try:

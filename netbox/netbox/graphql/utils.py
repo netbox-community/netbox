@@ -164,7 +164,7 @@ def validate_extension_final_names(core_type, extensions):
 def validate_extension_targets():
     """
     Reject extensions whose target model never assembled a GraphQL type or filter, since they would otherwise
-    be silently discarded. Runs from the finalizer app after schema assembly.
+    be silently discarded. Runs from netbox.graphql.schema after schema assembly.
     """
     assembled = registry['plugins']['graphql_extensions_assembled']
     for store in ('graphql_type_extensions', 'graphql_filter_extensions'):
@@ -180,7 +180,7 @@ def validate_extension_targets():
 def register_model_graphql_type(model, delegate, store_key, **kwargs):
     """
     Decorator factory composing registered plugin extensions into a core GraphQL type or filter class. The
-    finalizer app assembles the schema during django.setup(), after every plugin has initialized, and
+    schema is assembled on first import of netbox.graphql.schema, after every plugin has initialized, and
     registering an extension once its target has assembled raises through the assembled-target set.
     """
     label = get_model_label(model)

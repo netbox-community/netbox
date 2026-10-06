@@ -258,37 +258,73 @@ class PluginTestCase(TestCase):
             with self.assertRaises(ModuleNotFoundError):
                 config._load_resource('graphql_type_extensions')
 
-    def test_graphql_finalizer_app_installed_after_plugins(self):
-        finalizer = settings.INSTALLED_APPS.index('netbox.graphql.apps.GraphQLConfig')
-        plugin_positions = [i for i, app in enumerate(settings.INSTALLED_APPS) if 'dummy_plugin' in app]
-        self.assertTrue(plugin_positions)
-        self.assertGreater(finalizer, max(plugin_positions))
-        self.assertEqual(apps.get_app_config('netbox_graphql').name, 'netbox.graphql')
+    def _run_child(self, script):
+        # The child inherits this process's settings, which is safe only because the script touches no database.
+        return subprocess.run(
+            [sys.executable, '-c', script], capture_output=True, text=True, cwd=settings.BASE_DIR, timeout=300
+        )
 
-    def test_graphql_finalizer_runs_during_django_setup(self):
-        """The finalizer assembles the schema before auditing targets, and its errors fail django.setup()."""
+    def test_graphql_schema_deferred_until_wsgi_load(self):
+        """
+        django.setup() assembles no GraphQL types, so management commands which don't need the schema skip the cost,
+        while loading the WSGI application loads the URLconf and assembles the schema.
+        """
         # Source for a child interpreter, so it carries no indentation of its own.
         script = """
 import sys
 import django
+from netbox.registry import registry
+
+django.setup()
+if 'netbox.graphql.schema' in sys.modules:
+    raise RuntimeError('SCHEMA_IMPORTED_DURING_SETUP')
+if registry['plugins']['graphql_extensions_assembled']:
+    raise RuntimeError('TYPES_ASSEMBLED_DURING_SETUP')
+
+import netbox.wsgi
+from django.urls import get_resolver
+
+if 'url_patterns' not in vars(get_resolver()):
+    raise RuntimeError('URLCONF_NOT_LOADED')
+if not hasattr(sys.modules.get('netbox.graphql.schema'), 'schema'):
+    raise RuntimeError('SCHEMA_NOT_ASSEMBLED')
+
+# The dummy plugin's query, type extension and filter extension all reach the cold-built schema
+graphql_schema = sys.modules['netbox.graphql.schema'].schema._schema
+if 'dummymodel_list' not in graphql_schema.query_type.fields:
+    raise RuntimeError('PLUGIN_QUERY_MISSING')
+if 'dummy_plugin_field' not in graphql_schema.type_map['SiteType'].fields:
+    raise RuntimeError('PLUGIN_TYPE_EXTENSION_MISSING')
+if 'dummy_plugin_filter' not in graphql_schema.type_map['SiteFilter'].fields:
+    raise RuntimeError('PLUGIN_FILTER_EXTENSION_MISSING')
+"""
+        result = self._run_child(script)
+        self.assertEqual(result.returncode, 0, f"stdout:\n{result.stdout}\n\nstderr:\n{result.stderr}")
+
+    def test_wsgi_application_audits_targets_after_assembly(self):
+        """
+        Loading the WSGI application assembles the schema before auditing extension targets, and audit errors
+        propagate so that a broken extension prevents the WSGI application from loading.
+        """
+        script = """
+import sys
 from netbox.graphql import utils
 
 
 def audit():
-    if 'netbox.graphql.schema' not in sys.modules:
+    if not hasattr(sys.modules['netbox.graphql.schema'], 'schema'):
         raise RuntimeError('SCHEMA_NOT_ASSEMBLED')
     raise RuntimeError('AUDIT_RAN_AFTER_SCHEMA')
 
 
 utils.validate_extension_targets = audit
-django.setup()
+import netbox.wsgi
+print('WORKER_STARTED')
 """
-        # The child inherits this process's settings, which is safe only because ready() touches no database.
-        result = subprocess.run(
-            [sys.executable, '-c', script], capture_output=True, text=True, cwd=settings.BASE_DIR, timeout=300
-        )
+        result = self._run_child(script)
         self.assertNotEqual(result.returncode, 0, f"stdout:\n{result.stdout}\n\nstderr:\n{result.stderr}")
         self.assertIn('AUDIT_RAN_AFTER_SCHEMA', result.stderr)
+        self.assertNotIn('WORKER_STARTED', result.stdout)
 
     def test_missing_plugin_app_config_raises_clear_error(self):
         installed = [*registry['plugins']['installed'], 'not_a_real_plugin']

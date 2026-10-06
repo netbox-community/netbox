@@ -20,6 +20,7 @@ from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
 
 from .scalars import BigInt, BigIntScalar
+from .utils import validate_extension_targets
 
 SchemaExtensionFactory = type[SchemaExtension] | Callable[[], SchemaExtension]
 
@@ -68,3 +69,6 @@ schema = strawberry.Schema(
     ),
     extensions=get_schema_extensions(),
 )
+
+# Must run after schema assembly, since extension targets are recorded as their types are assembled.
+validate_extension_targets()

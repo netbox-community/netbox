@@ -35,6 +35,9 @@ schema = [
 ]
 ```
 
+!!! note
+    NetBox does not import plugin schema modules during startup (`django.setup()`). They are loaded only when the GraphQL schema is assembled, which may happen late or not at all, depending on how NetBox was started (e.g. management commands typically never assemble it). Schema modules should therefore contain only GraphQL definitions. Perform any other startup work, such as registering signal handlers or background jobs, in the plugin's `PluginConfig.ready()` method instead.
+
 ## Extending Core Types & Filters
 
 !!! info "This feature was introduced in NetBox v4.7."
@@ -45,8 +48,10 @@ An extension is a mixin class declaring a `models` attribute: a list of the lowe
 
 By default, NetBox imports `type_extensions` and `filter_extensions` from a `graphql_extensions.py` module beside the plugin's `graphql.py`. The `PluginConfig` attributes may override each with a dotted path to a list under any attribute name.
 
+These lists are registered automatically during plugin initialization, which is the only supported way to register extensions. Registering an extension at any later point is not supported: whether its target GraphQL type has already been assembled (and thus whether registration fails) depends on how NetBox was started.
+
 !!! warning
-    Extension modules are imported while plugins initialize, before NetBox's core GraphQL types are assembled. They must not import core GraphQL modules (e.g. `dcim.graphql.types`) at module level. A premature import assembles the affected core types early, and any extension registered afterwards for one of them fails at startup. Reference core types only through `strawberry.lazy()` string annotations. Plugin schema modules (`graphql.py`) are loaded later, during schema assembly, and may import core GraphQL types freely.
+    Extension modules are imported while plugins initialize, before NetBox's core GraphQL types are assembled. They must not import core GraphQL modules (e.g. `dcim.graphql.types`) at module level. A premature import assembles the affected core types early, and any extension registered afterwards for one of them raises an error immediately during registration. Reference core types only through `strawberry.lazy()` string annotations. Plugin schema modules (`graphql.py`) are loaded later, during schema assembly, and may import core GraphQL types freely.
 
 ### Type Extensions
 
@@ -129,7 +134,7 @@ query {
 ```
 
 !!! note
-    Extensions are strictly additive. Every name an extension contributes must be new, not only its GraphQL fields and resolvers but also its helper methods and class attributes. A name the core type already provides, or that two extensions both declare, causes NetBox to fail at startup with an error naming the extension classes. This is deliberate, because Python resolves attribute lookups through the composed MRO, so a shared helper or constant name would let one plugin silently redirect another plugin's resolvers. Two extensions may inherit the same name from one shared helper base, which is not a conflict. Explicit GraphQL aliases are checked as well. Registering an extension after its target GraphQL type has been assembled also raises an error, as does an extension targeting a model that never assembles a GraphQL type or filter. Extensions are plain mixin types and may not implement GraphQL interfaces or inherit from core GraphQL classes.
+    Extensions are strictly additive. Every name an extension contributes must be new, not only its GraphQL fields and resolvers but also its helper methods and class attributes. A name the core type already provides, or that two extensions both declare, causes schema assembly to fail with an error naming the extension classes. This is deliberate, because Python resolves attribute lookups through the composed MRO, so a shared helper or constant name would let one plugin silently redirect another plugin's resolvers. Two extensions may inherit the same name from one shared helper base, which is not a conflict. Explicit GraphQL aliases are checked as well. Registering an extension after its target GraphQL type has been assembled also raises an error, as does an extension targeting a model that never assembles a GraphQL type or filter. Extensions are plain mixin types and may not implement GraphQL interfaces or inherit from core GraphQL classes.
 
 ## GraphQL Objects
 
