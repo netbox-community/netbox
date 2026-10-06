@@ -1,5 +1,6 @@
 import zoneinfo
 from dataclasses import dataclass
+from datetime import datetime
 from urllib.parse import quote
 
 import django_tables2 as tables
@@ -22,7 +23,7 @@ from extras.choices import CustomFieldTypeChoices
 from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.request import get_safe_request_context
-from utilities.templatetags.builtins.filters import render_markdown
+from utilities.templatetags.builtins.filters import isodatetime, render_markdown
 from utilities.validators import url_scheme_is_allowed
 from utilities.views import get_action_url
 
@@ -675,6 +676,12 @@ class CustomFieldColumn(tables.Column):
             return render_markdown(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
             return parse_date(value).isoformat()
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_DATETIME and value:
+            obj = self.customfield.deserialize(value)
+            # Fall back to the raw value if it could not be parsed as a datetime
+            if isinstance(obj, datetime):
+                return isodatetime(obj)
+            return escape(obj)
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))
