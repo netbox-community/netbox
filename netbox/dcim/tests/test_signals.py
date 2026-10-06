@@ -730,15 +730,65 @@ class CableSignalTestCase(TestCase):
         )
         cable.save()
         self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+        path_ids = set(CablePath.objects.values_list('pk', flat=True))
 
         # A save that excludes status must not advance the status snapshot
         cable.status = LinkStatusChoices.STATUS_CONNECTED
         cable.save(update_fields=['label'])
         self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+        # A rebuild would replace these rows, the only trace this direction leaves
+        self.assertEqual(set(CablePath.objects.values_list('pk', flat=True)), path_ids)
 
         # _orig_status was not advanced, so the change must still be detected
         cable.save()
         self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
+
+    def test_partial_save_does_not_deactivate_paths_for_an_unwritten_status(self):
+        interface_a = Interface.objects.create(device=self.device, name='Interface A')
+        interface_b = Interface.objects.create(device=self.device, name='Interface B')
+        cable = Cable(a_terminations=[interface_a], b_terminations=[interface_b])
+        cable.save()
+        self.assertEqual(CablePath.objects.count(), 2)
+        self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
+
+        # Reload to exercise status tracking on a freshly loaded instance, as a request does
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.status = LinkStatusChoices.STATUS_PLANNED
+        cable.label = 'Partial save test'
+        cable.save(update_fields=['label'])
+
+        # Requery rather than refresh, so the pending status stays on the instance under test
+        stored = Cable.objects.get(pk=cable.pk)
+        self.assertEqual(stored.label, 'Partial save test')
+        self.assertEqual(stored.status, LinkStatusChoices.STATUS_CONNECTED)
+        self.assertEqual(CablePath.objects.count(), 2)
+        self.assertTrue(all(cp.is_active for cp in CablePath.objects.all()))
+
+        # _orig_status was not advanced, so this transition is still pending
+        cable.save(update_fields=['status'])
+        self.assertEqual(Cable.objects.get(pk=cable.pk).status, LinkStatusChoices.STATUS_PLANNED)
+        self.assertEqual(CablePath.objects.count(), 2)
+        self.assertFalse(any(cp.is_active for cp in CablePath.objects.all()))
+
+    def test_partial_save_still_retraces_modified_terminations(self):
+        interface_a = Interface.objects.create(device=self.device, name='Interface A')
+        interface_b = Interface.objects.create(device=self.device, name='Interface B')
+        interface_c = Interface.objects.create(device=self.device, name='Interface C')
+        cable = Cable(a_terminations=[interface_a], b_terminations=[interface_b])
+        cable.save()
+
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = [interface_c]
+        cable.status = LinkStatusChoices.STATUS_PLANNED
+        cable.save(update_fields=['label'])
+
+        # The retrace reads the persisted status, so the new path is active
+        self.assertEqual(Cable.objects.get(pk=cable.pk).status, LinkStatusChoices.STATUS_CONNECTED)
+        interface_c.refresh_from_db()
+        self.assertIsNotNone(interface_c._path_id)
+        self.assertTrue(interface_c._path.is_active)
+        interface_b.refresh_from_db()
+        self.assertIsNone(interface_b._path_id)
 
     def test_deleting_cable_retraces_paths(self):
         interface_a = Interface.objects.create(device=self.device, name='Interface A')
@@ -993,6 +1043,25 @@ class CableSignalDirectHandlerTestCase(SimpleTestCase):
         cabletermination_model.objects.filter.assert_not_called()
         create_cablepaths.assert_not_called()
         rebuild_paths.assert_not_called()
+
+    def test_update_connected_endpoints_defaults_to_updating_paths(self):
+        cable = SimpleNamespace(
+            _terminations_modified=False,
+            status=LinkStatusChoices.STATUS_PLANNED,
+            _orig_status=LinkStatusChoices.STATUS_CONNECTED,
+        )
+
+        with (
+            patch.object(signals, 'CablePath') as cablepath_model,
+            patch.object(signals, 'chunked_update') as chunked_update,
+        ):
+            signals.update_connected_endpoints(instance=cable, created=False)
+
+        # A sender that omits status_written must get the pre-gate behaviour
+        cablepath_model.objects.filter.assert_called_once_with(_nodes__contains=cable)
+        chunked_update.assert_called_once_with(
+            cablepath_model.objects.filter.return_value, is_active=False
+        )
 
     def test_update_mac_address_interface_raw_import_is_a_no_op(self):
         primary_mac = SimpleNamespace(save=MagicMock())

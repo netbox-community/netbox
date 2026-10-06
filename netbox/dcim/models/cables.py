@@ -393,7 +393,7 @@ class Cable(PrimaryModel):
         super().save(*args, force_update=True, **save_kwargs)
 
         try:
-            trace_paths.send(Cable, instance=self, created=_created)
+            trace_paths.send(Cable, instance=self, created=_created, status_written=status_written)
         except UnsupportedCablePath as e:
             raise AbortRequest(e)
 
