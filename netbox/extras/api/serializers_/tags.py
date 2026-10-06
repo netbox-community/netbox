@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -54,15 +56,21 @@ class TaggedItemSerializer(BaseModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'object', 'tag')
 
+    @cached_property
+    def _object_serializers(self):
+        return {}
+
     @extend_schema_field(serializers.JSONField())
     def get_object(self, obj):
         """
         Serialize a nested representation of the tagged object.
         """
         try:
-            serializer = get_serializer_for_model(obj.content_object)
+            serializer_class = get_serializer_for_model(obj.content_object)
         except SerializerNotFound:
             return obj.object_repr
-        data = serializer(obj.content_object, nested=True, context={'request': self.context['request']}).data
-
-        return data
+        if serializer_class not in self._object_serializers:
+            self._object_serializers[serializer_class] = serializer_class(
+                nested=True, context={'request': self.context['request']}
+            )
+        return self._object_serializers[serializer_class].to_representation(obj.content_object)

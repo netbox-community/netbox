@@ -1,5 +1,6 @@
 import json
 import logging
+from unittest.mock import patch
 
 from django.test import tag
 from django.urls import reverse
@@ -7,6 +8,7 @@ from netaddr import IPNetwork
 from rest_framework import status
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from ipam.api.serializers import RIRSerializer, VLANGroupSerializer, VRFSerializer
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
@@ -94,6 +96,28 @@ class ASNRangeTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 10)
+
+    def test_list_available_asns_reuse_rir_serializer(self):
+        """Available ASNs share one nested RIR serializer per request."""
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.view_asn')
+
+        def get(limit, host):
+            with patch.object(RIRSerializer, '__init__', autospec=True, side_effect=RIRSerializer.__init__) as init:
+                response = self.client.get(url, {'limit': limit}, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data
+
+        one, _ = get(1, 'a.example.com')
+        ten, asns = get(10, 'b.example.com')
+        self.assertEqual(one, ten)
+        self.assertEqual([asn['asn'] for asn in asns], list(range(101, 111)))
+        for asn in asns:
+            self.assertEqual(asn['rir']['id'], rir.pk)
+            self.assertTrue(asn['rir']['url'].startswith('http://b.example.com/'))
+            self.assertNotIn('custom_fields', asn['rir'])
 
     def test_create_single_available_asn(self):
         """
@@ -532,6 +556,36 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         for i, p in enumerate(response.data):
             self.assertEqual(p['prefix'], available_prefixes[i])
 
+    def test_list_available_prefixes_reuse_vrf_serializer(self):
+        """Available prefixes share one nested VRF serializer per request."""
+        vrf = VRF.objects.create(name='VRF 1')
+        parents = {
+            1: Prefix.objects.create(prefix=IPNetwork('198.51.100.0/24'), vrf=vrf),
+            3: Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'), vrf=vrf),
+        }
+        Prefix.objects.create(prefix=IPNetwork('198.51.100.0/25'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.64/26'), vrf=vrf)
+        Prefix.objects.create(prefix=IPNetwork('192.0.2.192/27'), vrf=vrf)
+        self.add_permissions('ipam.view_prefix')
+
+        def get(size, host):
+            url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': parents[size].pk})
+            with patch.object(VRFSerializer, '__init__', autospec=True, side_effect=VRFSerializer.__init__) as init:
+                response = self.client.get(url, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data
+
+        one, _ = get(1, 'a.example.com')
+        three, prefixes = get(3, 'b.example.com')
+        self.assertEqual(one, three)
+        self.assertEqual(
+            [prefix['prefix'] for prefix in prefixes], ['192.0.2.0/26', '192.0.2.128/26', '192.0.2.224/27']
+        )
+        for prefix in prefixes:
+            self.assertEqual(prefix['vrf']['id'], vrf.pk)
+            self.assertTrue(prefix['vrf']['url'].startswith('http://b.example.com/'))
+            self.assertNotIn('custom_fields', prefix['vrf'])
+
     def test_create_single_available_prefix(self):
         """
         Test retrieval of the first available prefix within a parent prefix.
@@ -651,6 +705,28 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         prefix.save()
         response = self.client.get(url, **self.header)
         self.assertEqual(len(response.data), 6)  # 8 - 2 because prefix.is_pool = False
+
+    def test_list_available_ips_reuse_vrf_serializer(self):
+        """Available IP addresses share one nested VRF serializer per request."""
+        vrf = VRF.objects.create(name='VRF 1')
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress')
+
+        def get(limit, host):
+            with patch.object(VRFSerializer, '__init__', autospec=True, side_effect=VRFSerializer.__init__) as init:
+                response = self.client.get(url, {'limit': limit}, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data
+
+        one, _ = get(1, 'a.example.com')
+        eight, addresses = get(8, 'b.example.com')
+        self.assertEqual(one, eight)
+        self.assertEqual(len(addresses), 8)
+        for address in addresses:
+            self.assertEqual(address['vrf']['id'], vrf.pk)
+            self.assertTrue(address['vrf']['url'].startswith('http://b.example.com/'))
+            self.assertNotIn('custom_fields', address['vrf'])
 
     def test_create_single_available_ip(self):
         """
@@ -1330,6 +1406,31 @@ class VLANGroupTestCase(APIViewTestCases.APIViewTestCase):
         url = reverse('ipam-api:vlangroup-available-vlans', kwargs={'pk': vlangroup.pk})
         response = self.client.get(f'{url}?limit=10', **self.header)
         self.assertEqual(len(response.data), 10)
+
+    def test_list_available_vlans_reuse_group_serializer(self):
+        """Available VLANs share one nested VLAN group serializer per request."""
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group X', slug='vlan-group-x', vid_ranges=string_to_ranges('100-199')
+        )
+        url = reverse('ipam-api:vlangroup-available-vlans', kwargs={'pk': vlangroup.pk})
+
+        def get(limit, host):
+            with patch.object(
+                VLANGroupSerializer, '__init__', autospec=True, side_effect=VLANGroupSerializer.__init__
+            ) as init:
+                response = self.client.get(url, {'limit': limit}, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data
+
+        one, _ = get(1, 'a.example.com')
+        ten, vlans = get(10, 'b.example.com')
+        self.assertEqual(one, ten)
+        self.assertEqual([vlan['vid'] for vlan in vlans], list(range(100, 110)))
+        for vlan in vlans:
+            self.assertEqual(vlan['group']['id'], vlangroup.pk)
+            self.assertTrue(vlan['group']['url'].startswith('http://b.example.com/'))
+            self.assertNotIn('custom_fields', vlan['group'])
 
     def test_create_single_available_vlan(self):
         """

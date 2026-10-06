@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -11,6 +12,8 @@ from rest_framework import status
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
+from dcim.api.serializers import InterfaceSerializer
+from dcim.api.serializers_.nested import NestedDeviceBaySerializer, NestedDeviceSerializer
 from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
@@ -2658,6 +2661,54 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_list_objects_reuse_parent_device_serializers(self):
+        """Installed child devices share one nested parent serializer pair per request."""
+        self.add_permissions('dcim.view_device')
+        device = Device.objects.get(name='Device 1')
+        manufacturer = device.device_type.manufacturer
+        parent_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Parent Type', slug='parent-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT,
+        )
+        child_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Child Type', slug='child-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, u_height=0,
+        )
+        parent = Device.objects.create(device_type=parent_type, role=device.role, site=device.site, name='Parent')
+        children = []
+        for i in (1, 2):
+            child = Device.objects.create(
+                device_type=child_type, role=device.role, site=device.site, name=f'Child {i}'
+            )
+            DeviceBay.objects.create(device=parent, name=f'Bay {i}', installed_device=child)
+            children.append(child.pk)
+        url = reverse('dcim-api:device-list')
+
+        def get(ids, host):
+            with (
+                patch.object(
+                    NestedDeviceSerializer, '__init__', autospec=True, side_effect=NestedDeviceSerializer.__init__
+                ) as device_init,
+                patch.object(
+                    NestedDeviceBaySerializer, '__init__', autospec=True, side_effect=NestedDeviceBaySerializer.__init__
+                ) as bay_init,
+            ):
+                response = self.client.get(
+                    url, {'id': ids, 'fields': 'name,parent_device'}, HTTP_HOST=host, **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            constructions = (device_init.call_count, bay_init.call_count)
+            return constructions, {row['name']: row['parent_device'] for row in response.data['results']}
+
+        one, _ = get(children[:1], 'a.example.com')
+        three, parents = get([*children, device.pk], 'b.example.com')
+        self.assertEqual(one, three)
+        self.assertIsNone(parents['Device 1'])
+        for i in (1, 2):
+            self.assertEqual(parents[f'Child {i}']['id'], parent.pk)
+            self.assertEqual(parents[f'Child {i}']['device_bay']['name'], f'Bay {i}')
+            self.assertTrue(parents[f'Child {i}']['url'].startswith('http://b.example.com/'))
+
     def test_render_config(self):
         configtemplate = ConfigTemplate.objects.create(
             name='Config Template 1',
@@ -3888,6 +3939,40 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         # Tagged-all mode, qinq service vlan
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
 
+    def test_list_objects_reuse_peer_serializers(self):
+        """Link peers and connected endpoints share one nested serializer each per request."""
+        self.add_permissions('dcim.view_interface')
+        device = Device.objects.get(name='Device 1')
+        peer_device = Device.objects.create(
+            device_type=device.device_type, role=device.role, site=device.site, name='Peer Device'
+        )
+        peers = {}
+        for name in ('Interface 1', 'Interface 2'):
+            peer = Interface.objects.create(device=peer_device, name=f'Peer {name}', type='1000base-t')
+            Cable(a_terminations=[Interface.objects.get(device=device, name=name)], b_terminations=[peer]).save()
+            peers[name] = peer.pk
+        url = reverse('dcim-api:interface-list')
+
+        def get(params, host):
+            with patch.object(
+                InterfaceSerializer, '__init__', autospec=True, side_effect=InterfaceSerializer.__init__
+            ) as init:
+                response = self.client.get(url, {
+                    'device_id': device.pk, 'fields': 'name,link_peers,connected_endpoints', **params,
+                }, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, {interface['name']: interface for interface in response.data['results']}
+
+        one, _ = get({'name': 'Interface 1'}, 'a.example.com')
+        three, interfaces = get({}, 'b.example.com')
+        self.assertEqual(one, three)
+        for name, peer_id in peers.items():
+            self.assertEqual([peer['id'] for peer in interfaces[name]['link_peers']], [peer_id])
+            self.assertEqual([peer['id'] for peer in interfaces[name]['connected_endpoints']], [peer_id])
+            self.assertTrue(interfaces[name]['link_peers'][0]['url'].startswith('http://b.example.com/'))
+        self.assertEqual(interfaces['Interface 3']['link_peers'], [])
+        self.assertIsNone(interfaces['Interface 3']['connected_endpoints'])
+
     def test_mac_address_create(self):
         """
         Creating an interface with mac_address creates the primary MACAddress in one request.
@@ -4459,6 +4544,46 @@ class RearPortTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_paths_reuse_node_serializers(self):
+        """The paths through a rear port share one nested serializer per node type."""
+        device = Device.objects.first()
+        rear_ports = {}
+        for positions in (1, 2):
+            rear_port = RearPort.objects.create(
+                device=device, name=f'Path Rear Port {positions}', type=PortTypeChoices.TYPE_8P8C, positions=positions
+            )
+            for position in range(1, positions + 1):
+                front_port = FrontPort.objects.create(
+                    device=device, name=f'Path Front Port {positions}-{position}', type=PortTypeChoices.TYPE_8P8C
+                )
+                PortMapping.objects.create(
+                    device=device, front_port=front_port, rear_port=rear_port, rear_port_position=position
+                )
+                interface = Interface.objects.create(device=device, name=f'Path Interface {positions}-{position}')
+                Cable.objects.create(a_terminations=[interface], b_terminations=[front_port])
+            rear_ports[positions] = rear_port.pk
+        self.add_permissions('dcim.view_rearport')
+
+        def get(positions, host):
+            url = reverse('dcim-api:rearport-paths', kwargs={'pk': rear_ports[positions]})
+            with patch.object(
+                InterfaceSerializer, '__init__', autospec=True, side_effect=InterfaceSerializer.__init__
+            ) as init:
+                response = self.client.get(url, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data
+
+        one, _ = get(1, 'a.example.com')
+        two, paths = get(2, 'b.example.com')
+        self.assertEqual(one, two)
+        self.assertEqual(
+            sorted(path['path'][0][0]['name'] for path in paths),
+            ['Path Interface 2-1', 'Path Interface 2-2'],
+        )
+        for path in paths:
+            self.assertEqual(path['path'][-1][0]['id'], rear_ports[2])
+            self.assertTrue(path['path'][0][0]['url'].startswith('http://b.example.com/'))
 
 
 class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):

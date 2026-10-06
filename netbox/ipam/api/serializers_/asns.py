@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from rest_framework import serializers
 
 from dcim.models import Site
@@ -89,11 +91,12 @@ class AvailableASNSerializer(serializers.Serializer):
     asn = serializers.IntegerField(read_only=True)
     description = serializers.CharField(required=False)
 
+    @cached_property
+    def _rir_serializer(self):
+        return RIRSerializer(nested=True, context={'request': self.context['request']})
+
     def to_representation(self, asn):
-        rir = RIRSerializer(self.context['range'].rir, nested=True, context={
-            'request': self.context['request']
-        }).data
         return {
-            'rir': rir,
+            'rir': self._rir_serializer.to_representation(self.context['range'].rir),
             'asn': asn,
         }

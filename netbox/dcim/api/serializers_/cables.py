@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -94,6 +96,10 @@ class CablePathSerializer(serializers.ModelSerializer):
         model = CablePath
         fields = ['id', 'path', 'is_active', 'is_complete', 'is_split']
 
+    @cached_property
+    def _node_serializers(self):
+        return {}
+
     @extend_schema_field(serializers.ListField)
     def get_path(self, obj):
         ret = []
@@ -101,9 +107,12 @@ class CablePathSerializer(serializers.ModelSerializer):
             if not nodes:
                 # The path contains an invalid object
                 return []
-            serializer = get_serializer_for_model(nodes[0])
-            context = {'request': self.context['request']}
-            ret.append(serializer(nodes, nested=True, many=True, context=context).data)
+            serializer_class = get_serializer_for_model(nodes[0])
+            if serializer_class not in self._node_serializers:
+                self._node_serializers[serializer_class] = serializer_class(
+                    nested=True, many=True, context={'request': self.context['request']}
+                )
+            ret.append(self._node_serializers[serializer_class].to_representation(nodes))
         return ret
 
 
@@ -128,6 +137,10 @@ class CabledObjectSerializer(serializers.ModelSerializer):
 
         return None
 
+    @cached_property
+    def _link_peer_serializers(self):
+        return {}
+
     @extend_schema_field(serializers.ListField)
     def get_link_peers(self, obj):
         """
@@ -137,9 +150,12 @@ class CabledObjectSerializer(serializers.ModelSerializer):
             return []
 
         # Return serialized peer termination objects
-        serializer = get_serializer_for_model(obj.link_peers[0])
-        context = {'request': self.context['request']}
-        return serializer(obj.link_peers, nested=True, many=True, context=context).data
+        serializer_class = get_serializer_for_model(obj.link_peers[0])
+        if serializer_class not in self._link_peer_serializers:
+            self._link_peer_serializers[serializer_class] = serializer_class(
+                nested=True, many=True, context={'request': self.context['request']}
+            )
+        return self._link_peer_serializers[serializer_class].to_representation(obj.link_peers)
 
     @extend_schema_field(serializers.BooleanField)
     def get__occupied(self, obj):

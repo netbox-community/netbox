@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
@@ -85,14 +87,14 @@ class AvailableVLANSerializer(serializers.Serializer):
     vid = serializers.IntegerField(read_only=True)
     group = VLANGroupSerializer(nested=True, read_only=True, allow_null=True)
 
+    @cached_property
+    def _group_serializer(self):
+        return VLANGroupSerializer(nested=True, context={'request': self.context['request']})
+
     def to_representation(self, instance):
         return {
             'vid': instance,
-            'group': VLANGroupSerializer(
-                self.context['group'],
-                nested=True,
-                context={'request': self.context['request']}
-            ).data,
+            'group': self._group_serializer.to_representation(self.context['group']),
         }
 
 
