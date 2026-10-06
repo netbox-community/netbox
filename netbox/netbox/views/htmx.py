@@ -32,6 +32,11 @@ class ObjectSelectorView(LoginRequiredMixin, View):
             'form': form,
             'model': model,
             'target_id': request.GET.get('target'),
+            'static_params': {
+                key: request.GET.getlist(key)
+                for key in request.GET
+                if key not in ('_model', 'target', '_search')
+            },
         })
 
     def _get_model(self, label):

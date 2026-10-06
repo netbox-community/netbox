@@ -10,7 +10,7 @@
       class="btn btn-outline-secondary ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
-      hx-get="{% url 'htmx_object_selector' %}?_model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}"
+      hx-get="{% url 'htmx_object_selector' %}?_model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}{% for k, values in static_params.items %}{% for v in values %}&{{ k }}={{ v }}{% endfor %}{% endfor %}"
       hx-target="#htmx-modal-content"
     >
       <i class="mdi mdi-database-search-outline" aria-hidden="true"></i>
