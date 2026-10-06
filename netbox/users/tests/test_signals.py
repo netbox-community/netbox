@@ -1,7 +1,8 @@
 from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.db.models.signals import post_save
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings, tag
 
+from netbox.config import get_config
 from users.models import User, UserConfig
 from users.signals import create_userconfig
 
@@ -60,7 +61,6 @@ class SetLanguageOnLoginSignalTestCase(TestCase):
         self.user = User.objects.create_user(username='alice', password='pw')
 
     def test_language_cookie_is_set_from_user_config(self):
-        # Assign a fresh dict to avoid mutating the shared DEFAULT_USER_PREFERENCES reference.
         self.user.config.data = {'locale': {'language': 'de'}}
         self.user.config.save()
         request = self.factory.post('/login/')
@@ -101,6 +101,20 @@ class CreateUserConfigSignalTestCase(TestCase):
 
         config = UserConfig.objects.get(user=user)
         self.assertEqual(config.data, {'pagination.per_page': 42})
+
+    @tag('regression')  # Ref: #23281
+    @override_settings(DEFAULT_USER_PREFERENCES={'locale': {'language': 'de'}, 'pagination': {'per_page': 25}})
+    def test_userconfig_changes_do_not_alter_default_preferences(self):
+        """Setting or clearing a new user's preferences changes neither the defaults nor later users."""
+        user = User.objects.create_user(username='alice', password='pw')
+        user.config.set('pagination.per_page', 50)
+        user.config.clear('locale.language')
+
+        later_user = User.objects.create_user(username='bob', password='pw')
+
+        defaults = {'locale': {'language': 'de'}, 'pagination': {'per_page': 25}}
+        self.assertEqual(get_config().DEFAULT_USER_PREFERENCES, defaults)
+        self.assertEqual(UserConfig.objects.get(user=later_user).data, defaults)
 
     def test_userconfig_is_not_created_for_existing_user(self):
         user = User.objects.create_user(username='alice', password='pw')
