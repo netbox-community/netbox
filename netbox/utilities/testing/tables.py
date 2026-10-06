@@ -111,12 +111,12 @@ class ModelTableTestCase(TestCase):
 
         return tuple(sources)
 
-    def iter_orderable_columns(self, queryset):
+    def iter_orderable_columns(self, table):
         """
-        Yield the names of all orderable columns for *queryset*, excluding
-        any listed in ``excluded_orderable_columns``.
+        Yield the names of all orderable columns in *table*, excluding any
+        listed in ``excluded_orderable_columns``.
         """
-        for column in self.get_table(queryset).columns:
+        for column in table.columns:
             if not column.orderable:
                 continue
             if column.name in self.excluded_orderable_columns:
@@ -138,20 +138,25 @@ class TableTestCases:
 
         def test_every_orderable_column_renders(self):
             """
-            Verify that each declared ordering can be applied without error.
+            Smoke test: verify that each orderable column's ordering can be
+            applied and executed (against empty querysets) without error.
 
-            This is intentionally a smoke test. It validates ordering against
-            the configured queryset sources but does not create model
-            instances by default, so it complements rather than replaces
-            data-backed rendering tests for tables whose behavior depends on
-            populated querysets.
+            Each table is instantiated and rendered once per source, as both
+            are expensive and independent of ordering. Its initial queryset is
+            then restored before each ordering is applied and executed.
             """
             request = self.get_request()
 
             for source_name, queryset in self.get_queryset_sources():
-                for column_name in self.iter_orderable_columns(queryset):
+                table = self.get_table(queryset)
+                initial_queryset = table.data.data
+
+                with self.subTest(source=source_name):
+                    table.as_html(request)
+
+                for column_name in self.iter_orderable_columns(table):
                     for direction, prefix in (("asc", ""), ("desc", "-")):
                         with self.subTest(source=source_name, column=column_name, direction=direction):
-                            table = self.get_table(queryset)
+                            table.data.data = initial_queryset
                             table.order_by = f"{prefix}{column_name}"
-                            table.as_html(request)
+                            list(table.data)
