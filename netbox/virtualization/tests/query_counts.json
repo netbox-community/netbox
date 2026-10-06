@@ -1,5 +1,5 @@
 {
-  "cluster:api_list_objects": 15,
+  "cluster:api_list_objects": 14,
   "cluster:list_objects_with_permission": 19,
   "clustergroup:api_list_objects": 12,
   "clustergroup:list_objects_with_permission": 17,
