@@ -3,6 +3,8 @@ from itertools import count, groupby
 
 from django.db.backends.postgresql.psycopg_any import NumericRange
 
+from .constants import LIST_DIFF_MAX_LCS_CELLS
+
 __all__ = (
     'array_to_ranges',
     'array_to_string',
@@ -19,6 +21,7 @@ __all__ = (
     'ranges_to_string_list',
     'resolve_attr_path',
     'shallow_compare_dict',
+    'shallow_compare_list',
     'string_to_ranges',
 )
 
@@ -87,13 +90,13 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
     return difference
 
 
-LIST_DIFF_MAX_LCS_CELLS = 250000
-
-
 def shallow_compare_list(source_list, destination_list):
     """
     Return a two-tuple of lists (added, removed) representing the difference between source_list
-    and destination_list.
+    and destination_list. Duplicate Elements are recognized, and moved (changed order) elements
+    appear on both sides as removed and added. Common prefixes and suffixes are trimmed before comparing.
+    If the lcs table of the trimmed lists would be larger than LIST_DIFF_MAX_LCS_CELLS, the trimmed
+    lists (the important parts with changes) are returned.
     """
     idx = 0
     end_src = len(source_list)
@@ -121,11 +124,14 @@ def shallow_compare_list(source_list, destination_list):
 
     # bottom up longest common subsequence
     for i in range(m - 1, -1, -1):
+        row = lcs_table[i]
+        next_row = lcs_table[i + 1]
+        src_elm = src[i]
         for j in range(n - 1, -1, -1):
-            if src[i] == dst[j]:
-                lcs_table[i][j] = 1 + lcs_table[i + 1][j + 1]
+            if src_elm == dst[j]:
+                row[j] = 1 + next_row[j + 1]
             else:
-                lcs_table[i][j] = max(lcs_table[i + 1][j], lcs_table[i][j + 1])
+                row[j] = next_row[j] if next_row[j] >= row[j + 1] else row[j + 1]
 
     removed = []
     added = []
@@ -154,7 +160,9 @@ def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
     Return a two-tuple of dictionaries (added, removed) representing the differences between source_dict and
     destination_dict. For values which are themselves dicts, the comparison is performed recursively such that only
     the changed keys within the nested dict are included. For values which are lists,
-    the comparison returns only elements that were added or removed. `exclude` is a list or tuple of keys to be ignored.
+    the comparison returns a shallow diff of elements that were added or removed.
+    If the list comparision is too computational complex it also returns unchanged elements.
+    `exclude` is a list or tuple of keys to be ignored.
     """
     added = {}
     removed = {}

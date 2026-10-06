@@ -46,6 +46,15 @@ FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
 )
 
 #
+# Data utilities bounds
+#
+
+# Threshold for cells to create when calculating a list diff
+# LCS needs n*m -> len(source) * len(destination) cells after trimming
+# 250_000 cells are equal to 500 elements in both lists with ~2MB and ~20ms
+LIST_DIFF_MAX_LCS_CELLS = 250_000
+
+#
 # HTTP Request META safe copy
 #
 
