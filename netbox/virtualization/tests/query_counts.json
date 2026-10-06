@@ -1,16 +1,16 @@
 {
   "cluster:api_list_objects": 14,
-  "cluster:list_objects_with_permission": 19,
+  "cluster:list_objects_with_permission": 18,
   "clustergroup:api_list_objects": 12,
-  "clustergroup:list_objects_with_permission": 17,
+  "clustergroup:list_objects_with_permission": 16,
   "clustertype:api_list_objects": 12,
-  "clustertype:list_objects_with_permission": 17,
+  "clustertype:list_objects_with_permission": 16,
   "virtualdisk:api_list_objects": 13,
-  "virtualdisk:list_objects_with_permission": 18,
+  "virtualdisk:list_objects_with_permission": 17,
   "virtualmachine:api_list_objects": 17,
-  "virtualmachine:list_objects_with_permission": 21,
+  "virtualmachine:list_objects_with_permission": 20,
   "virtualmachinetype:api_list_objects": 13,
-  "virtualmachinetype:list_objects_with_permission": 18,
+  "virtualmachinetype:list_objects_with_permission": 17,
   "vminterface:api_list_objects": 18,
-  "vminterface:list_objects_with_permission": 18
+  "vminterface:list_objects_with_permission": 17
 }

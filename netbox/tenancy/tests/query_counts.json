@@ -1,14 +1,14 @@
 {
   "contact:api_list_objects": 13,
-  "contact:list_objects_with_permission": 18,
+  "contact:list_objects_with_permission": 17,
   "contactassignment:api_list_objects": 16,
-  "contactassignment:list_objects_with_permission": 22,
+  "contactassignment:list_objects_with_permission": 21,
   "contactgroup:api_list_objects": 13,
-  "contactgroup:list_objects_with_permission": 17,
+  "contactgroup:list_objects_with_permission": 16,
   "contactrole:api_list_objects": 12,
-  "contactrole:list_objects_with_permission": 17,
+  "contactrole:list_objects_with_permission": 16,
   "tenant:api_list_objects": 13,
-  "tenant:list_objects_with_permission": 18,
+  "tenant:list_objects_with_permission": 17,
   "tenantgroup:api_list_objects": 13,
-  "tenantgroup:list_objects_with_permission": 17
+  "tenantgroup:list_objects_with_permission": 16
 }

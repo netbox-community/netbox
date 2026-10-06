@@ -8,7 +8,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
 from django.db.models import DateField, DateTimeField, JSONField, ManyToManyField, ManyToManyRel
 from django.forms.models import model_to_dict
-from django.test import Client
+from django.test import Client, override_settings
 from django.test import TestCase as _TestCase
 from netaddr import IPNetwork
 from taggit.managers import TaggableManager
@@ -28,6 +28,9 @@ __all__ = (
 )
 
 
+# Store test client sessions in signed cookies rather than the database, which spares each test the several
+# queries otherwise needed to log in its user
+@override_settings(SESSION_ENGINE='django.contrib.sessions.backends.signed_cookies')
 class TestCase(_TestCase):
     user_permissions = ()
 
