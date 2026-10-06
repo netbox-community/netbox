@@ -28,7 +28,7 @@
     "bootstrap": "5.3.8",
     "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
-    "gridstack": "12.6.0",
+    "gridstack": "14.0.0",
     "htmx.org": "2.0.10",
     "markdown-it": "^15.0.1",
     "picomatch": "4.0.7",
