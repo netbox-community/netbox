@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -37,6 +39,10 @@ class JobSerializer(BaseModelSerializer):
         ]
         brief_fields = ('url', 'created', 'completed', 'user', 'status')
 
+    @cached_property
+    def _object_serializers(self):
+        return {}
+
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, obj):
         """
@@ -45,8 +51,11 @@ class JobSerializer(BaseModelSerializer):
         if obj.object is None:
             return None
         try:
-            serializer = get_serializer_for_model(obj.object)
+            serializer_class = get_serializer_for_model(obj.object)
         except SerializerNotFound:
             return obj.object_repr
-        context = {'request': self.context['request']}
-        return serializer(obj.object, nested=True, context=context).data
+        if serializer_class not in self._object_serializers:
+            self._object_serializers[serializer_class] = serializer_class(
+                nested=True, context={'request': self.context['request']}
+            )
+        return self._object_serializers[serializer_class].to_representation(obj.object)

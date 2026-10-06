@@ -12,6 +12,8 @@ from rq.job import Job as RQ_Job
 from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
+from core.api.serializers import DataSourceSerializer
+from dcim.models import Site
 from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token
 from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags
@@ -338,6 +340,41 @@ class JobTestCase(
         response = self.client.get(f'{url}?ordering=execution_time', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 3)
+
+    def test_list_objects_reuse_object_serializer(self):
+        """Jobs share one nested serializer per object type per request."""
+        self.add_permissions('core.view_job')
+        datasource = DataSource.objects.create(
+            name='Data Source 2', type='local', source_url='file:///var/tmp/source2/'
+        )
+        Job.objects.filter(name='Job 3').update(object_id=datasource.pk)
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        Job.objects.create(
+            name='Job 4', object_type=ContentType.objects.get_for_model(Site), object_id=site.pk, status='completed',
+            queue_name='default', job_id=uuid.uuid4(),
+        )
+        url = reverse('core-api:job-list')
+
+        def get(params, host):
+            with patch.object(
+                DataSourceSerializer, '__init__', autospec=True, side_effect=DataSourceSerializer.__init__
+            ) as init:
+                response = self.client.get(url, {'fields': 'name,object', **params}, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, {job['name']: job['object'] for job in response.data['results']}
+
+        one, _ = get({'id': Job.objects.get(name='Job 1').pk}, 'a.example.com')
+        four, objects = get({}, 'b.example.com')
+        self.assertEqual(one, four)
+        self.assertEqual(
+            {name: obj['name'] for name, obj in objects.items()},
+            {'Job 1': 'Data Source 1', 'Job 2': 'Data Source 1', 'Job 3': 'Data Source 2', 'Job 4': 'Site 1'},
+        )
+        self.assertTrue(objects['Job 3']['url'].startswith('http://b.example.com/'))
+        # Only the site serializer's brief fields carry a slug
+        self.assertEqual({name for name, obj in objects.items() if 'slug' in obj}, {'Job 4'})
+        for obj in objects.values():
+            self.assertNotIn('custom_fields', obj)
 
 
 class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):

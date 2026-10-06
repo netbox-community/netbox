@@ -1,5 +1,6 @@
 import hashlib
 import uuid
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -15,6 +16,8 @@ from core.models import DataFile, DataSource, ObjectType
 from dcim.api.serializers import RackSerializer
 from dcim.models import Device, Site
 from extras.models import ExportTemplate
+from ipam.api.serializers import RouteTargetSerializer, VRFSerializer
+from ipam.models import VRF, RouteTarget
 from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
@@ -22,6 +25,7 @@ from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Token
 from utilities.api import get_serializer_for_model
 from utilities.testing import APITestCase
+from vpn.api.serializers import L2VPNSerializer
 
 
 class AppTestCase(APITestCase):
@@ -283,6 +287,74 @@ class ContentTypeFieldTestCase(TestCase):
         self.assertEqual(field.to_internal_value(['dcim.device']), [device_ct])
         with self.assertRaises(ValidationError):
             field.to_internal_value(['dcim.device', 'dcim.site'])
+
+
+class SerializedPKRelatedFieldTestCase(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        route_targets = (
+            RouteTarget(name='65000:1'),
+            RouteTarget(name='65000:2'),
+            RouteTarget(name='65000:3'),
+        )
+        RouteTarget.objects.bulk_create(route_targets)
+
+        vrfs = (
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+        )
+        VRF.objects.bulk_create(vrfs)
+        vrfs[0].import_targets.set(route_targets[:2])
+        vrfs[1].import_targets.set(route_targets[1:])
+
+    def test_to_representation_reuses_nested_serializer(self):
+        """A field builds one nested serializer for all its objects, lazily, in nested and full mode."""
+        context = {'request': RequestFactory().get('/')}
+        route_targets = RouteTarget.objects.order_by('name')
+        for serializer_class, nested in ((L2VPNSerializer, True), (VRFSerializer, False)):
+            with self.subTest(serializer=serializer_class.__name__):
+                expected = [
+                    RouteTargetSerializer(route_target, nested=nested, context=context).data
+                    for route_target in route_targets
+                ]
+                with patch.object(
+                    RouteTargetSerializer, '__init__', autospec=True, side_effect=RouteTargetSerializer.__init__
+                ) as init:
+                    field = serializer_class(context=context).fields['import_targets']
+                    self.assertEqual(field.to_representation([]), [])
+                    self.assertEqual(init.call_count, 0)
+                    self.assertEqual(field.to_representation(route_targets), expected)
+                self.assertEqual(init.call_count, 1)
+
+    def test_list_reuses_nested_serializer_per_request(self):
+        """Each list request builds its own nested serializer, also through the browsable API."""
+        self.add_permissions('ipam.view_vrf')
+        url = reverse('ipam-api:vrf-list')
+
+        def get(params, host):
+            with patch.object(
+                RouteTargetSerializer, '__init__', autospec=True, side_effect=RouteTargetSerializer.__init__
+            ) as init:
+                response = self.client.get(
+                    url, {'fields': 'name,import_targets', **params}, HTTP_HOST=host, **self.header
+                )
+            self.assertEqual(response.status_code, 200)
+            return init.call_count, response.data['results']
+
+        one, _ = get({'name': 'VRF 1'}, 'a.example.com')
+        two, vrfs = get({}, 'b.example.com')
+        self.assertEqual(one, two)
+        self.assertEqual(
+            {vrf['name']: [target['name'] for target in vrf['import_targets']] for vrf in vrfs},
+            {'VRF 1': ['65000:1', '65000:2'], 'VRF 2': ['65000:2', '65000:3']},
+        )
+        for vrf in vrfs:
+            for target in vrf['import_targets']:
+                self.assertTrue(target['url'].startswith('http://b.example.com/'))
+
+        response = self.client.get(url, {'format': 'api'}, **self.header)
+        self.assertContains(response, '65000:3')
 
 
 class ValidatedModelSerializerTestCase(TestCase):

@@ -16,6 +16,7 @@ from rest_framework import status
 from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
+from dcim.api.serializers import SiteSerializer
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
@@ -1320,6 +1321,32 @@ class TaggedItemTestCase(
         sites[0].tags.set([tags[0], tags[1]])
         sites[1].tags.set([tags[1], tags[2]])
         sites[2].tags.set([tags[2], tags[0]])
+
+    def test_list_objects_reuse_object_serializer(self):
+        """Tagged items share one nested serializer per object type per request."""
+        self.add_permissions('extras.view_taggeditem')
+        rack = Rack.objects.create(name='Rack 1', site=Site.objects.first())
+        rack.tags.set([Tag.objects.get(slug='tag-1')])
+        url = reverse('extras-api:taggeditem-list')
+
+        def get(params, host):
+            with patch.object(SiteSerializer, '__init__', autospec=True, side_effect=SiteSerializer.__init__) as init:
+                response = self.client.get(url, params, HTTP_HOST=host, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, response.data['results']
+
+        rack_item = TaggedItem.objects.get(content_type=ContentType.objects.get_for_model(Rack), object_id=rack.pk)
+        # Both sizes hold the rack row, whose serializer copies a declared SiteSerializer field
+        one, _ = get({'id': [TaggedItem.objects.first().pk, rack_item.pk]}, 'a.example.com')
+        seven, tagged_items = get({}, 'b.example.com')
+        self.assertEqual(one, seven)
+        self.assertEqual(len(tagged_items), 7)
+        for tagged_item in tagged_items:
+            self.assertEqual(tagged_item['object']['id'], tagged_item['object_id'])
+            self.assertTrue(tagged_item['object']['url'].startswith('http://b.example.com/'))
+            # Only the site serializer's brief fields carry a slug
+            self.assertEqual('slug' in tagged_item['object'], tagged_item['object_type'] == 'dcim.site')
+            self.assertNotIn('custom_fields', tagged_item['object'])
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)

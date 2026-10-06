@@ -1,4 +1,5 @@
 import decimal
+from functools import cached_property
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -116,15 +117,22 @@ class DeviceSerializer(PrimaryModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
+    @cached_property
+    def _parent_device_serializer(self):
+        return NestedDeviceSerializer(context={'request': self.context['request']})
+
+    @cached_property
+    def _parent_bay_serializer(self):
+        return NestedDeviceBaySerializer(context={'request': self.context['request']})
+
     @extend_schema_field(NestedDeviceSerializer(allow_null=True))
     def get_parent_device(self, obj):
         try:
             device_bay = obj.parent_bay
         except DeviceBay.DoesNotExist:
             return None
-        context = {'request': self.context['request']}
-        data = NestedDeviceSerializer(instance=device_bay.device, context=context).data
-        data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
+        data = self._parent_device_serializer.to_representation(device_bay.device)
+        data['device_bay'] = self._parent_bay_serializer.to_representation(device_bay)
         return data
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

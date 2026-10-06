@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -26,15 +28,22 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
             return f'{endpoints[0]._meta.app_label}.{endpoints[0]._meta.model_name}'
         return None
 
+    @cached_property
+    def _connected_endpoint_serializers(self):
+        return {}
+
     @extend_schema_field(serializers.ListField(allow_null=True))
     def get_connected_endpoints(self, obj):
         """
         Return the appropriate serializer for the type of connected object.
         """
         if endpoints := obj.connected_endpoints:
-            serializer = get_serializer_for_model(endpoints[0])
-            context = {'request': self.context['request']}
-            return serializer(endpoints, nested=True, many=True, context=context).data
+            serializer_class = get_serializer_for_model(endpoints[0])
+            if serializer_class not in self._connected_endpoint_serializers:
+                self._connected_endpoint_serializers[serializer_class] = serializer_class(
+                    nested=True, many=True, context={'request': self.context['request']}
+                )
+            return self._connected_endpoint_serializers[serializer_class].to_representation(endpoints)
         return None
 
     @extend_schema_field(serializers.BooleanField)

@@ -22,6 +22,7 @@ from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from dcim.tables import SiteTable
+from extras.api.customfields import CustomFieldListSerializer
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_JOB_TIMEOUT
 from extras.filters import MissingKeyAwareFilterMixin, missing_key_aware_filter_factory
@@ -32,6 +33,7 @@ from extras.jobs import (
     purge_custom_field,
 )
 from extras.models import CustomField, CustomFieldChoiceSet
+from ipam.api.serializers import VLANSerializer
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import query_cache
@@ -1487,6 +1489,67 @@ class CustomFieldAPITestCase(APITestCase):
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
             [obj.pk for obj in site2_cfvs['multiobject_field']]
         )
+
+    def test_list_objects_reuse_object_field_serializers(self):
+        """Object and multi-object values share one nested serializer each per request."""
+        vlans = {vlan.name: vlan for vlan in VLAN.objects.all()}
+        site2 = Site.objects.get(name='Site 2')
+        site3 = Site.objects.create(name='Site 3', slug='site-3', custom_field_data={
+            'object_field': vlans['VLAN 1'].pk,
+            'multiobject_field': [vlans['VLAN 4'].pk, vlans['VLAN 5'].pk],
+        })
+        url = reverse('dcim-api:site-list')
+        self.add_permissions('dcim.view_site')
+
+        def get(ids, host):
+            with patch.object(VLANSerializer, '__init__', autospec=True, side_effect=VLANSerializer.__init__) as init:
+                response = self.client.get(
+                    url, {'id': ids, 'fields': 'name,custom_fields'}, HTTP_HOST=host, **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return init.call_count, {site['name']: site['custom_fields'] for site in response.data['results']}
+
+        one, _ = get([site2.pk], 'a.example.com')
+        two, custom_fields = get([site2.pk, site3.pk], 'b.example.com')
+        self.assertEqual(one, two)
+        expected = {
+            'Site 2': ('VLAN 2', ['VLAN 3', 'VLAN 4']),
+            'Site 3': ('VLAN 1', ['VLAN 4', 'VLAN 5']),
+        }
+        for name, (object_value, multiobject_values) in expected.items():
+            self.assertEqual(custom_fields[name]['object_field']['id'], vlans[object_value].pk)
+            self.assertEqual(
+                [vlan['id'] for vlan in custom_fields[name]['multiobject_field']],
+                [vlans[value].pk for value in multiobject_values],
+            )
+        self.assertTrue(custom_fields['Site 3']['object_field']['url'].startswith('http://b.example.com/'))
+        self.assertNotIn('custom_fields', custom_fields['Site 3']['object_field'])
+
+    def test_list_objects_use_list_serializer_for_multiobject_values(self):
+        """Each multi-object value goes through the list serializer of its target."""
+        vlans = {vlan.name: vlan for vlan in VLAN.objects.all()}
+        site2 = Site.objects.get(name='Site 2')
+        site3 = Site.objects.create(name='Site 3', slug='site-3', custom_field_data={
+            'multiobject_field': [vlans['VLAN 4'].pk, vlans['VLAN 5'].pk],
+        })
+        self.add_permissions('dcim.view_site')
+        values = []
+
+        class RecordingListSerializer(CustomFieldListSerializer):
+            def to_representation(self, data):
+                values.append([vlan.pk for vlan in data])
+                return super().to_representation(data)
+
+        with patch.object(VLANSerializer.Meta, 'list_serializer_class', RecordingListSerializer, create=True):
+            response = self.client.get(
+                reverse('dcim-api:site-list'), {'id': [site2.pk, site3.pk], 'fields': 'name,custom_fields'},
+                **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(values, [
+            [vlans['VLAN 3'].pk, vlans['VLAN 4'].pk],
+            [vlans['VLAN 4'].pk, vlans['VLAN 5'].pk],
+        ])
 
     def test_get_object_selection_field_representation(self):
         """

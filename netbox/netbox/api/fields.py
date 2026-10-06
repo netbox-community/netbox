@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.utils.translation import gettext as _
@@ -145,8 +147,13 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
 
         super().__init__(**kwargs)
 
+    # One per field instance, which DRF copies for every serializer instance
+    @cached_property
+    def _nested_serializer(self):
+        return self.serializer(nested=self.nested, context={'request': self.context['request']})
+
     def to_representation(self, value):
-        return self.serializer(value, nested=self.nested, context={'request': self.context['request']}).data
+        return self._nested_serializer.to_representation(value)
 
 
 @extend_schema_field(OpenApiTypes.INT64)

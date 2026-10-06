@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
@@ -131,9 +133,13 @@ class AvailablePrefixSerializer(serializers.Serializer):
     prefix = serializers.CharField(read_only=True)
     vrf = VRFSerializer(nested=True, read_only=True, allow_null=True)
 
+    @cached_property
+    def _vrf_serializer(self):
+        return VRFSerializer(nested=True, context={'request': self.context['request']})
+
     def to_representation(self, instance):
         if self.context.get('vrf'):
-            vrf = VRFSerializer(self.context['vrf'], nested=True, context={'request': self.context['request']}).data
+            vrf = self._vrf_serializer.to_representation(self.context['vrf'])
         else:
             vrf = None
         return {
@@ -242,9 +248,13 @@ class AvailableIPSerializer(serializers.Serializer):
     vrf = VRFSerializer(nested=True, read_only=True, allow_null=True)
     description = serializers.CharField(required=False)
 
+    @cached_property
+    def _vrf_serializer(self):
+        return VRFSerializer(nested=True, context={'request': self.context['request']})
+
     def to_representation(self, instance):
         if self.context.get('vrf'):
-            vrf = VRFSerializer(self.context['vrf'], nested=True, context={'request': self.context['request']}).data
+            vrf = self._vrf_serializer.to_representation(self.context['vrf'])
         else:
             vrf = None
         return {

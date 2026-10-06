@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
@@ -47,9 +49,22 @@ class CustomFieldsDataField(Field):
             self._custom_fields = CustomField.objects.get_for_model(self.parent.Meta.model)
         return self._custom_fields
 
+    @cached_property
+    def _nested_serializers(self):
+        return {}
+
+    def _get_nested_serializer(self, cf, many):
+        """
+        Return the nested serializer for the objects a custom field references, built once per field instance.
+        """
+        serializer_class = get_serializer_for_model(cf.related_object_type.model_class())
+        if (serializer_class, many) not in self._nested_serializers:
+            self._nested_serializers[(serializer_class, many)] = serializer_class(
+                nested=True, many=many, context=self.parent.context
+            )
+        return self._nested_serializers[(serializer_class, many)]
+
     def to_representation(self, obj):
-        # TODO: Fix circular import
-        from utilities.api import get_serializer_for_model
         data = {}
         cache = self.parent.context.get('cf_object_cache')
 
@@ -71,11 +86,9 @@ class CustomFieldsDataField(Field):
                 value = cf.deserialize(obj.get(cf.name))
 
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                serializer = get_serializer_for_model(cf.related_object_type.model_class())
-                value = serializer(value, nested=True, context=self.parent.context).data
+                value = self._get_nested_serializer(cf, many=False).to_representation(value)
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-                serializer = get_serializer_for_model(cf.related_object_type.model_class())
-                value = serializer(value, nested=True, many=True, context=self.parent.context).data
+                value = self._get_nested_serializer(cf, many=True).to_representation(value)
             elif cf.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
                 value = cf.resolve_selection_value(value)
             data[cf.name] = value
