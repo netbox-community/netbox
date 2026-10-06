@@ -261,7 +261,7 @@ def update_virtualchassis_member_search_cache(instance, created, raw=False, upda
 #
 
 @receiver(trace_paths, sender=Cable)
-def update_connected_endpoints(instance, created, raw=False, **kwargs):
+def update_connected_endpoints(instance, created, raw=False, status_written=True, **kwargs):
     """
     When a Cable is saved with new terminations, retrace any affected cable paths.
     """
@@ -289,8 +289,8 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             else:
                 rebuild_paths(nodes)
 
-    # Update status of CablePaths if Cable status has been changed
-    elif instance.status != instance._orig_status:
+    # Update status of CablePaths if the save actually wrote a changed Cable status
+    elif status_written and instance.status != instance._orig_status:
         if instance.status != LinkStatusChoices.STATUS_CONNECTED:
             chunked_update(CablePath.objects.filter(_nodes__contains=instance), is_active=False)
         else:
