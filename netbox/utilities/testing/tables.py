@@ -85,7 +85,8 @@ class ModelTableTestCase(TestCase):
         smoke test.
         """
         if cls.queryset_sources is not None:
-            return tuple(cls.queryset_sources)
+            # Clone each QuerySet to avoid caching results on the class-level instances
+            return tuple((label, queryset.all()) for label, queryset in cls.queryset_sources)
 
         model = cls.table._meta.model
         app_label = model._meta.app_label
