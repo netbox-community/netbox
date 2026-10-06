@@ -9,6 +9,7 @@ inline (immediate=True) and (b) reports a worker as available for the worker-liv
 Individual tests that exercise those guards override this locally.
 """
 import uuid
+from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
@@ -22,6 +23,7 @@ from core.models import Job, ObjectChange
 from dcim.api.views import RegionViewSet
 from dcim.models import DeviceType, Manufacturer, Region
 from netbox.jobs import AsyncAPIJob
+from netbox.registry import registry
 from users.models import ObjectPermission
 from utilities.request import copy_safe_request
 from utilities.testing.api import APITestCase
@@ -479,6 +481,66 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(request.META['SERVER_NAME'], '::1')
         self.assertEqual(request.META['SERVER_PORT'], '8443')
         self.assertEqual(request.scheme, 'https')
+
+    # ------------------------------------------------------------------ request fidelity
+
+    def test_build_request_carries_headers_and_query_string(self):
+        # Request processors (e.g. a plugin selecting the active branch) and the action itself must
+        # see the same headers and query parameters as the original request. The background flag is
+        # stripped so the action executes synchronously in the worker rather than enqueuing anew.
+        factory = RequestFactory()
+        raw_request = factory.delete(
+            '/api/dcim/regions/?background=true&_branch=abc123&omit=created',
+            data=[], content_type='application/json',
+            HTTP_X_NETBOX_BRANCH='abc123', HTTP_AUTHORIZATION='Bearer secret',
+        )
+        raw_request.user = self.user
+        request_copy = copy_safe_request(raw_request)
+
+        request = AsyncAPIJob._build_request(request_copy, payload=[], scheme='http')
+        self.assertEqual(request.headers['X-NetBox-Branch'], 'abc123')
+        self.assertNotIn('Authorization', request.headers)
+        self.assertEqual(request.GET.get('_branch'), 'abc123')
+        self.assertEqual(request.GET.get('omit'), 'created')
+        self.assertNotIn('background', request.GET)
+
+    def test_background_request_processors_see_original_request(self):
+        self.grant('delete', 'view')
+        seen = []
+
+        @contextmanager
+        def recorder(request):
+            seen.append((request.headers.get('X-Custom'), request.GET.get('custom')))
+            yield
+
+        with patch.dict(registry, {'request_processors': [*registry['request_processors'], recorder]}):
+            response = self.client.delete(
+                '/api/dcim/regions/?background=true&custom=bar',
+                [{'id': self.regions[0].pk}],
+                format='json', HTTP_X_CUSTOM='foo', **self.header,
+            )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertFalse(Region.objects.filter(pk=self.regions[0].pk).exists())
+        # The job runs inline here, so the processors are applied to both the originating request
+        # and the worker's reconstructed request.
+        self.assertEqual(seen, [('foo', 'bar'), ('foo', 'bar')])
+
+    def test_background_result_honors_query_parameters(self):
+        self.grant('change', 'view')
+        response = self.client.patch(
+            '/api/dcim/regions/?background=true&omit=created',
+            [{'id': self.regions[0].pk, 'description': 'omit'}],
+            format='json', **self.header,
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
+        self.assertIn('description', job.data['data'][0])
+        self.assertNotIn('created', job.data['data'][0])
 
     # ------------------------------------------------------------------ change logging
 
