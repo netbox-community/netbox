@@ -40,7 +40,7 @@ from netbox.context import query_cache
 from netbox.context_managers import event_tracking
 from netbox.tables.columns import CustomFieldColumn
 from utilities.exceptions import AbortRequest
-from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter
+from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -2542,9 +2542,9 @@ class MissingKeyAwareFilterTestCase(TestCase):
     set rather than an error.
     """
     def test_factory_rejects_a_class_which_defines_filter(self):
-        # MultiValueMACAddressFilter overrides filter() to swallow ValidationError
+        # MultiValueContentTypeFilter overrides filter() to match on app label and model
         with self.assertRaises(TypeError):
-            missing_key_aware_filter_factory(MultiValueMACAddressFilter)
+            missing_key_aware_filter_factory(MultiValueContentTypeFilter)
 
         # BooleanFilter does not inherit MultipleChoiceFilter.filter() at all
         with self.assertRaises(TypeError):

@@ -1058,9 +1058,25 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'start_address': ['10.0.1.100', '10.0.2.100']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+        # Invalid addresses are discarded
+        params = {'start_address': ['no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'start_address': ['10.0.1.100', 'no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        # Surrounding whitespace is ignored
+        params = {'start_address': [' 10.0.1.100 ']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_end_address(self):
         params = {'end_address': ['10.0.1.199', '10.0.2.199']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Invalid addresses are discarded
+        params = {'end_address': ['no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'end_address': ['10.0.1.199', 'no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_contains(self):
         params = {'contains': '10.0.1.150/24'}
@@ -1389,6 +1405,24 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         # Check for partially invalid input.
         params = {'address': ['10.0.0.1', '/24', '10.0.0.10/24']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # Surrounding whitespace is ignored
+        params = {'address': [' 10.0.0.1/24 ']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        # The parse_inet_addresses() method is retained for backward compatibility
+        self.assertEqual(
+            self.filterset().parse_inet_addresses(['10.0.0.1', '/24', '10.0.0.1/255.255.255.0']),
+            ['10.0.0.1', '10.0.0.1/24']
+        )
+
+        # An override of parse_inet_addresses() is honored when filtering
+        class CustomIPAddressFilterSet(IPAddressFilterSet):
+            def parse_inet_addresses(self, value):
+                return ['10.0.0.1/24']
+
+        params = {'address': ['no-such-value']}
+        self.assertEqual(CustomIPAddressFilterSet(params, self.queryset).qs.count(), 1)
 
     def test_mask_length(self):
         params = {'mask_length': [24]}

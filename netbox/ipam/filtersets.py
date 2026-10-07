@@ -1,7 +1,6 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
@@ -31,6 +30,7 @@ from vpn.models import L2VPN
 from .choices import *
 from .models import *
 from .utils import normalize_port_mapping, port_mapping_q
+from .utils import parse_inet_addresses as utils_parse_inet_addresses
 
 __all__ = (
     'ASNFilterSet',
@@ -579,10 +579,11 @@ class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
             return queryset.none()
 
     def filter_address(self, queryset, name, value):
-        try:
-            return queryset.filter(**{f'{name}__net_in': value})
-        except ValidationError:
+        # Discard any invalid addresses. If none remain, return an empty queryset.
+        addresses = utils_parse_inet_addresses(value)
+        if not addresses:
             return queryset.none()
+        return queryset.filter(**{f'{name}__net_in': addresses})
 
     def search_by_parent(self, queryset, name, value):
         if not value:
@@ -750,37 +751,19 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
                 return queryset.none()
         return queryset.filter(q)
 
+    # TODO: Remove in v5.0
     def parse_inet_addresses(self, value):
         """
-        Parse networks or IP addresses and cast to a format
-        acceptable by the Postgres inet type.
-
-        Skips invalid values.
+        Deprecated: Use ipam.utils.parse_inet_addresses() instead. Retained for backward compatibility.
         """
-        parsed = []
-        for addr in value:
-            if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
-                parsed.append(addr)
-                continue
-            try:
-                network = netaddr.IPNetwork(addr)
-                parsed.append(str(network))
-            except (AddrFormatError, ValueError):
-                continue
-        return parsed
+        return utils_parse_inet_addresses(value)
 
     def filter_address(self, queryset, name, value):
-        # Let's first parse the addresses passed
-        # as argument. If they are all invalid,
-        # we return an empty queryset
+        # Discard any invalid addresses. If none remain, return an empty queryset.
         value = self.parse_inet_addresses(value)
-        if len(value) == 0:
+        if not value:
             return queryset.none()
-
-        try:
-            return queryset.filter(address__net_in=value)
-        except ValidationError:
-            return queryset.none()
+        return queryset.filter(address__net_in=value)
 
     @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
