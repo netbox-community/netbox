@@ -461,7 +461,8 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         if not value.strip():
             return queryset
         return queryset.filter(
-            Q(member__cid__icontains=value) |
+            Q(circuit__cid__icontains=value) |
+            Q(virtual_circuit__cid__icontains=value) |
             Q(group__name__icontains=value)
         )
 
