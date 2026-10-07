@@ -4,7 +4,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from netaddr import IPAddress
 
 from utilities.htmx import htmx_partial
-from utilities.request import copy_safe_request, get_client_ip, get_safe_request_context
+from utilities.request import NetBoxFakeRequest, copy_safe_request, get_client_ip, get_safe_request_context
 
 User = get_user_model()
 
@@ -53,10 +53,15 @@ class CopySafeRequestTestCase(TestCase):
         self.assertEqual(fake.GET.get('foo'), 'bar')
 
     def test_copy_is_not_an_htmx_request(self):
-        """The copy carries htmx, set to falsy, so htmx_partial() and request.htmx checks work."""
+        """A copy is never an HTMX request, so htmx_partial() and request.htmx checks work on it."""
         request = self._make_request(HTTP_HX_REQUEST='true')
         fake = copy_safe_request(request)
         self.assertFalse(fake.htmx)
+        self.assertFalse(htmx_partial(fake))
+
+    def test_fake_request_without_htmx_key(self):
+        """A fake request built without an htmx key (e.g. pickled by an older release) is not an HTMX request."""
+        fake = NetBoxFakeRequest({'path': '/'})
         self.assertFalse(htmx_partial(fake))
 
 
