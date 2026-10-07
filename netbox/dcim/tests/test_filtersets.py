@@ -6887,6 +6887,16 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_installed_module(self):
+        """Filter module bays by installed module ID."""
+        modules = Module.objects.all()[:2]
+        params = {'installed_module_id': [modules[0].pk, modules[1].pk]}
+        # module_id also matches two bays here, so compare the bays rather than count them
+        self.assertSetEqual(
+            set(self.filterset(params, self.queryset).qs.values_list('pk', flat=True)),
+            {modules[0].module_bay_id, modules[1].module_bay_id},
+        )
+
 
 class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = DeviceBay.objects.all()

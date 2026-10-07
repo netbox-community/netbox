@@ -7,7 +7,7 @@ from django.test import TestCase
 from circuits.models import Provider
 from core.choices import ManagedFileRootPathChoices, ObjectChangeActionChoices
 from core.events import *
-from core.models import ObjectChange, ObjectType
+from core.models import DataFile, DataSource, ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Location, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
@@ -715,6 +715,14 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def setUpTestData(cls):
         object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
+        data_source = DataSource.objects.create(name='Data Source 1', type='local', source_url='file:///tmp/source1/')
+        data_files = (
+            DataFile(source=data_source, path='file1.txt', last_updated=datetime(2023, 1, 1, tzinfo=UTC), size=1000),
+            DataFile(source=data_source, path='file2.txt', last_updated=datetime(2023, 1, 2, tzinfo=UTC), size=2000),
+            DataFile(source=data_source, path='file3.txt', last_updated=datetime(2023, 1, 3, tzinfo=UTC), size=3000),
+        )
+        DataFile.objects.bulk_create(data_files)
+
         export_templates = (
             ExportTemplate(
                 name='Export Template 1',
@@ -724,6 +732,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='foo',
                 file_extension='foo',
                 as_attachment=True,
+                data_file=data_files[0],
             ),
             ExportTemplate(
                 name='Export Template 2',
@@ -733,6 +742,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='bar',
                 file_extension='bar',
                 as_attachment=True,
+                data_file=data_files[1],
             ),
             ExportTemplate(
                 name='Export Template 3',
@@ -741,6 +751,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='baz',
                 file_extension='baz',
                 as_attachment=False,
+                data_file=data_files[2],
             ),
         )
         ExportTemplate.objects.bulk_create(export_templates)
@@ -779,6 +790,12 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_as_attachment(self):
         params = {'as_attachment': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_data_file(self):
+        """Filter export templates by data file ID."""
+        data_files = DataFile.objects.all()[:2]
+        params = {'data_file_id': [data_files[0].pk, data_files[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1042,18 +1059,29 @@ class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     @classmethod
     def setUpTestData(cls):
+        data_source = DataSource.objects.create(name='Data Source 1', type='local', source_url='file:///tmp/source1/')
+        data_files = (
+            DataFile(source=data_source, path='file1.txt', last_updated=datetime(2023, 1, 1, tzinfo=UTC), size=1000),
+            DataFile(source=data_source, path='file2.txt', last_updated=datetime(2023, 1, 2, tzinfo=UTC), size=2000),
+            DataFile(source=data_source, path='file3.txt', last_updated=datetime(2023, 1, 3, tzinfo=UTC), size=3000),
+        )
+        DataFile.objects.bulk_create(data_files)
+
         profiles = (
             ConfigContextProfile(
                 name='Config Context Profile 1',
                 description='foo',
+                data_file=data_files[0],
             ),
             ConfigContextProfile(
                 name='Config Context Profile 2',
                 description='bar',
+                data_file=data_files[1],
             ),
             ConfigContextProfile(
                 name='Config Context Profile 3',
                 description='baz',
+                data_file=data_files[2],
             ),
         )
         ConfigContextProfile.objects.bulk_create(profiles)
@@ -1065,6 +1093,12 @@ class ConfigContextProfileTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_name(self):
         profiles = self.queryset.all()[:2]
         params = {'name': [profiles[0].name, profiles[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_data_file(self):
+        """Filter config context profiles by data file ID."""
+        data_files = DataFile.objects.all()[:2]
+        params = {'data_file_id': [data_files[0].pk, data_files[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1175,6 +1209,14 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
+        data_source = DataSource.objects.create(name='Data Source 1', type='local', source_url='file:///tmp/source1/')
+        data_files = (
+            DataFile(source=data_source, path='file1.txt', last_updated=datetime(2023, 1, 1, tzinfo=UTC), size=1000),
+            DataFile(source=data_source, path='file2.txt', last_updated=datetime(2023, 1, 2, tzinfo=UTC), size=2000),
+            DataFile(source=data_source, path='file3.txt', last_updated=datetime(2023, 1, 3, tzinfo=UTC), size=3000),
+        )
+        DataFile.objects.bulk_create(data_files)
+
         for i in range(0, 3):
             is_active = bool(i % 2)
             c = ConfigContext.objects.create(
@@ -1182,6 +1224,7 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 profile=profiles[i],
                 is_active=is_active,
                 data='{"foo": 123}',
+                data_file=data_files[i],
                 description=f"foobar{i + 1}"
             )
             c.regions.set([regions[i]])
@@ -1310,6 +1353,12 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'tag': [tags[0].slug, tags[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_data_file(self):
+        """Filter config contexts by data file ID."""
+        data_files = DataFile.objects.all()[:2]
+        params = {'data_file_id': [data_files[0].pk, data_files[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     queryset = ConfigTemplate.objects.all()
@@ -1318,6 +1367,14 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     @classmethod
     def setUpTestData(cls):
+        data_source = DataSource.objects.create(name='Data Source 1', type='local', source_url='file:///tmp/source1/')
+        data_files = (
+            DataFile(source=data_source, path='file1.txt', last_updated=datetime(2023, 1, 1, tzinfo=UTC), size=1000),
+            DataFile(source=data_source, path='file2.txt', last_updated=datetime(2023, 1, 2, tzinfo=UTC), size=2000),
+            DataFile(source=data_source, path='file3.txt', last_updated=datetime(2023, 1, 3, tzinfo=UTC), size=3000),
+        )
+        DataFile.objects.bulk_create(data_files)
+
         config_templates = (
             ConfigTemplate(
                 name='Config Template 1',
@@ -1327,6 +1384,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='foo',
                 file_extension='foo',
                 as_attachment=True,
+                data_file=data_files[0],
             ),
             ConfigTemplate(
                 name='Config Template 2',
@@ -1336,6 +1394,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='bar',
                 file_extension='bar',
                 as_attachment=True,
+                data_file=data_files[1],
             ),
             ConfigTemplate(
                 name='Config Template 3',
@@ -1344,6 +1403,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 file_name='baz',
                 file_extension='baz',
                 as_attachment=False,
+                data_file=data_files[2],
             ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
@@ -1374,6 +1434,12 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_as_attachment(self):
         params = {'as_attachment': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_data_file(self):
+        """Filter config templates by data file ID."""
+        data_files = DataFile.objects.all()[:2]
+        params = {'data_file_id': [data_files[0].pk, data_files[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
