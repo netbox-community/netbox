@@ -1,4 +1,6 @@
+from django.test import tag
 from django.urls import reverse
+from rest_framework import status
 
 from circuits.choices import *
 from circuits.models import *
@@ -142,6 +144,26 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
         )
         Circuit.objects.bulk_create(circuits)
 
+        circuit_groups = (
+            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
+            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
+        )
+        CircuitGroup.objects.bulk_create(circuit_groups)
+
+        assignments = (
+            CircuitGroupAssignment(
+                group=circuit_groups[0],
+                member=circuits[0],
+                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
+            ),
+            CircuitGroupAssignment(
+                group=circuit_groups[1],
+                member=circuits[1],
+                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
+            ),
+        )
+        CircuitGroupAssignment.objects.bulk_create(assignments)
+
         cls.create_data = [
             {
                 'cid': 'Circuit 4',
@@ -162,6 +184,59 @@ class CircuitTestCase(APIViewTestCases.APIViewTestCase):
                 'type': circuit_types[1].pk,
             },
         ]
+
+    @tag('regression')  # Ref: #23324
+    def test_assignments_field(self):
+        """The assignments field lists the group assignments of each circuit."""
+        self.add_permissions('circuits.view_circuit')
+        assignment1 = Circuit.objects.get(cid='Circuit 1').group_assignments.get()
+        assignment2 = Circuit.objects.get(cid='Circuit 2').group_assignments.get()
+
+        response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        assignments = {
+            circuit['cid']: [(obj['id'], obj['group']['id']) for obj in circuit['assignments']]
+            for circuit in response.data['results']
+        }
+        self.assertEqual(assignments, {
+            'Circuit 1': [(assignment1.pk, assignment1.group_id)],
+            'Circuit 2': [(assignment2.pk, assignment2.group_id)],
+            'Circuit 3': [],
+        })
+
+    @tag('regression')  # Ref: #23324
+    def test_create_ignores_assignments(self):
+        """Assignments sent when creating a circuit are ignored."""
+        self.add_permissions('circuits.add_circuit')
+        circuit = Circuit.objects.get(cid='Circuit 1')
+        assignment = circuit.group_assignments.get()
+        data = {
+            **self.create_data[0],
+            'assignments': [{'id': assignment.pk}],
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['assignments'], [])
+        self.assertEqual(list(circuit.group_assignments.all()), [assignment])
+
+    @tag('regression')  # Ref: #23324
+    def test_update_ignores_assignments(self):
+        """Assignments sent when updating a circuit are ignored."""
+        self.add_permissions('circuits.change_circuit')
+        circuit = Circuit.objects.get(cid='Circuit 1')
+        assignment = circuit.group_assignments.get()
+        data = {
+            'description': 'New description',
+            'assignments': [],
+        }
+
+        response = self.client.patch(self._get_detail_url(circuit), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual([obj['id'] for obj in response.data['assignments']], [assignment.pk])
+        circuit.refresh_from_db()
+        self.assertEqual(circuit.description, 'New description')
+        self.assertEqual(list(circuit.group_assignments.all()), [assignment])
 
 
 class CircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
