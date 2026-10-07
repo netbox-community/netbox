@@ -111,7 +111,7 @@ class CircuitSerializer(PrimaryModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     termination_a = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
-    assignments = CircuitGroupAssignmentSerializer_(nested=True, many=True, required=False)
+    assignments = CircuitGroupAssignmentSerializer_(source='group_assignments', nested=True, many=True, read_only=True)
 
     class Meta:
         model = Circuit
