@@ -44,6 +44,12 @@ STANDARD_LOOKUPS = (
     'contains',
 )
 
+# Lookup expressions which take a boolean value
+BOOLEAN_LOOKUPS = (
+    'empty',
+    'isnull',
+)
+
 
 #
 # FilterSets
@@ -213,7 +219,6 @@ class BaseFilterSet(django_filters.FilterSet):
         # Create new filters for each lookup expression in the map
         for lookup_name, lookup_expr in lookup_map.items():
             new_filter_name = f'{existing_filter_name}__{lookup_name}'
-            existing_filter_extra = deepcopy(existing_filter.extra)
 
             try:
                 if existing_filter_name in cls.declared_filters:
@@ -223,11 +228,14 @@ class BaseFilterSet(django_filters.FilterSet):
                     if field is None:
                         raise ValueError('Invalid field name/lookup on {}: {}'.format(existing_filter_name, field_name))
                     resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
-                    filter_cls = type(existing_filter)
-                    if lookup_expr == 'empty':
+                    if lookup_expr in BOOLEAN_LOOKUPS:
+                        # Boolean lookups take a true/false value regardless of the declared filter's type. The
+                        # declared filter's extra kwargs (e.g. min_value, max_digits) don't apply to a BooleanFilter.
                         filter_cls = django_filters.BooleanFilter
-                        for param_to_remove in ('choices', 'null_value'):
-                            existing_filter_extra.pop(param_to_remove, None)
+                        existing_filter_extra = {}
+                    else:
+                        filter_cls = type(existing_filter)
+                        existing_filter_extra = deepcopy(existing_filter.extra)
                     new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,

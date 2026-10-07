@@ -1,4 +1,5 @@
 import django_filters
+from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -32,6 +33,7 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueDateFilter,
     MultiValueDateTimeFilter,
+    MultiValueDecimalFilter,
     MultiValueMACAddressFilter,
     MultiValueNumberFilter,
     MultiValueTimeFilter,
@@ -198,6 +200,24 @@ class BaseFilterSetTestCase(TestCase):
     class DummyFilterSet(BaseFilterSet):
         charfield = django_filters.CharFilter()
         numberfield = django_filters.NumberFilter()
+        # Declared numeric/date filters with extra kwargs which don't apply to a BooleanFilter
+        declareddatefield = MultiValueDateFilter(
+            field_name='datefield',
+            input_formats=['%d/%m/%Y']
+        )
+        declareddatetimefield = MultiValueDateTimeFilter(
+            field_name='datetimefield',
+            input_formats=['%d/%m/%Y %H:%M']
+        )
+        declareddecimalfield = MultiValueDecimalFilter(
+            field_name='integerfield',  # We're pretending this is a decimal field
+            max_digits=10,
+            decimal_places=2
+        )
+        declaredtimefield = MultiValueTimeFilter(
+            field_name='timefield',
+            input_formats=['%H.%M']
+        )
         macaddressfield = MultiValueMACAddressFilter()
         modelchoicefield = django_filters.ModelChoiceFilter(
             field_name='integerfield',  # We're pretending this is a ForeignKey field
@@ -286,8 +306,37 @@ class BaseFilterSetTestCase(TestCase):
         self.assertEqual(self.filters['numberfield__gt'].exclude, False)
         self.assertEqual(self.filters['numberfield__gte'].lookup_expr, 'gte')
         self.assertEqual(self.filters['numberfield__gte'].exclude, False)
+        self.assertIsInstance(self.filters['numberfield__empty'], django_filters.BooleanFilter)
         self.assertEqual(self.filters['numberfield__empty'].lookup_expr, 'isnull')
         self.assertEqual(self.filters['numberfield__empty'].exclude, False)
+
+    def test_declared_filter_empty_lookup(self):
+        """
+        The __empty variant of a declared numeric or date/time filter must be a BooleanFilter, and must not inherit
+        the declared filter's extra kwargs (which would raise a TypeError when the form field is built).
+        """
+        declared_filters = {
+            'declareddatefield': (MultiValueDateFilter, {'input_formats': ['%d/%m/%Y']}),
+            'declareddatetimefield': (MultiValueDateTimeFilter, {'input_formats': ['%d/%m/%Y %H:%M']}),
+            'declareddecimalfield': (MultiValueDecimalFilter, {'max_digits': 10, 'decimal_places': 2}),
+            'declaredtimefield': (MultiValueTimeFilter, {'input_formats': ['%H.%M']}),
+        }
+        for filter_name, (filter_cls, extra) in declared_filters.items():
+            with self.subTest(filter_name=filter_name):
+                empty_filter = self.filters[f'{filter_name}__empty']
+                self.assertIsInstance(empty_filter, django_filters.BooleanFilter)
+                self.assertEqual(empty_filter.lookup_expr, 'isnull')
+                self.assertIsInstance(empty_filter.field, forms.NullBooleanField)
+                for key in extra:
+                    self.assertNotIn(key, empty_filter.extra)
+
+                # Non-boolean lookups retain the declared filter's type and extra kwargs
+                gt_filter = self.filters[f'{filter_name}__gt']
+                self.assertIsInstance(gt_filter, filter_cls)
+                self.assertEqual(gt_filter.lookup_expr, 'gt')
+                for key, value in extra.items():
+                    self.assertEqual(gt_filter.extra[key], value)
+                self.assertIsNotNone(gt_filter.field)
 
     def test_mac_address_filter(self):
         self.assertIsInstance(self.filters['macaddressfield'], MultiValueMACAddressFilter)
@@ -598,9 +647,9 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         MACAddress.objects.bulk_create(mac_addresses)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1'),
-            Interface(device=devices[0], name='Interface 2'),
-            Interface(device=devices[1], name='Interface 3'),
+            Interface(device=devices[0], name='Interface 1', speed=1000000),
+            Interface(device=devices[0], name='Interface 2', speed=1000000),
+            Interface(device=devices[1], name='Interface 3', speed=10000000),
             Interface(device=devices[1], name='Interface 4'),
             Interface(device=devices[2], name='Interface 5'),
             Interface(device=devices[2], name='Interface 6', rf_role=WirelessRoleChoices.ROLE_AP),
@@ -755,6 +804,32 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 5)
         params = {'rf_role__empty': 'false'}
         self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 1)
+
+    def test_interface_speed_empty(self):
+        params = {'speed__empty': 'true'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 3)
+        params = {'speed__empty': 'false'}
+        self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 3)
+
+    def test_site_created_empty(self):
+        params = {'created__empty': 'true'}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 0)
+        params = {'created__empty': 'false'}
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
+
+    def test_empty_lookup_ignores_non_boolean_values(self):
+        """
+        A numeric or date value passed to an __empty filter on a declared numeric/date filter must be ignored
+        rather than passed through to the isnull lookup (which would raise a ValueError).
+        """
+        for value in ('1', '100'):
+            with self.subTest(value=value):
+                params = {'speed__empty': value}
+                self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 6)
+        for value in ('2024-01-01', '2024-01-01T00:00:00'):
+            with self.subTest(value=value):
+                params = {'created__empty': value}
+                self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
 
 class SavedFilterApplicationTestCase(TestCase):
