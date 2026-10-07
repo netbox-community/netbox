@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from core.models import DataSource, ObjectType
+from core.models import DataFile, DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.event_rules import get_event_rule_action_choices, get_event_rule_action_slugs
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
@@ -306,7 +306,7 @@ class ExportTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DataSource.objects.all(),
+        queryset=DataFile.objects.all(),
         distinct=False,
         label=_('Data file (ID)'),
     )
@@ -678,7 +678,7 @@ class ConfigContextProfileFilterSet(PrimaryModelFilterSet):
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DataSource.objects.all(),
+        queryset=DataFile.objects.all(),
         distinct=False,
         label=_('Data file (ID)'),
     )
@@ -854,7 +854,7 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DataSource.objects.all(),
+        queryset=DataFile.objects.all(),
         distinct=False,
         label=_('Data file (ID)'),
     )
@@ -885,7 +885,7 @@ class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DataSource.objects.all(),
+        queryset=DataFile.objects.all(),
         distinct=False,
         label=_('Data file (ID)'),
     )

@@ -2641,7 +2641,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
     )
     installed_module_id = django_filters.ModelMultipleChoiceFilter(
         field_name='installed_module',
-        queryset=ModuleBay.objects.all(),
+        queryset=Module.objects.all(),
         label=_('Installed module (ID)'),
     )
     module_bay_type_id = django_filters.ModelMultipleChoiceFilter(
