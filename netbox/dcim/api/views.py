@@ -43,7 +43,9 @@ class PathEndpointMixin:
         """
         Trace a complete cable path and return each segment as a three-tuple of (termination, cable, termination).
         """
-        obj = get_object_or_404(self.queryset, pk=pk)
+        # Path nodes load as they do for the connected endpoint fields
+        queryset = self.queryset.prefetch_related(*self.get_field_prefetches({'connected_endpoints'}))
+        obj = get_object_or_404(queryset, pk=pk)
 
         # Initialize the path array
         path = []
@@ -426,13 +428,15 @@ class PlatformViewSet(NetBoxModelViewSet):
 #
 
 class DeviceViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
-    queryset = Device.objects.prefetch_related(
-        'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
-        'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
-    )
+    queryset = Device.objects.all()
     serializer_class = serializers.DeviceSerializer
     filterset_class = filtersets.DeviceFilterSet
     pagination_class = StripCountAnnotationsPaginator
+    field_prefetches = {
+        # Read by Device.__str__() for unnamed devices and by config context rendered without its annotation
+        ('display', 'config_context'): ('device_type__manufacturer',),
+        ('parent_device',): ('parent_bay',),
+    }
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):
@@ -499,26 +503,22 @@ class CoolingOutflowViewSet(NetBoxModelViewSet):
 
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
-    queryset = Interface.objects.prefetch_related(
-        GenericPrefetch(
-            "cable__terminations__termination",
-            [
-                Interface.objects.select_related("device", "cable"),
-            ],
-        ),
-        GenericPrefetch(
-            "_path__path_objects",
-            [
-                Interface.objects.select_related("device", "cable"),
-            ],
-        ),
-        'virtual_circuit_termination',
-        'l2vpn_terminations',  # Referenced by InterfaceSerializer.l2vpn_termination
-        'ip_addresses',  # Referenced by Interface.count_ipaddresses()
-        'fhrp_group_assignments',  # Referenced by Interface.count_fhrp_groups()
-    )
+    queryset = Interface.objects.all()
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
+    field_prefetches = {
+        ('link_peers', 'link_peers_type'): (
+            GenericPrefetch('cable__terminations__termination', [Interface.objects.select_related('device', 'cable')]),
+        ),
+        ('connected_endpoints', 'connected_endpoints_type'): (
+            GenericPrefetch('_path__path_objects', [Interface.objects.select_related('device', 'cable')]),
+            'virtual_circuit_termination',
+        ),
+        ('connected_endpoints_reachable',): ('_path',),
+        ('l2vpn_termination',): ('l2vpn_terminations',),
+        ('count_ipaddresses',): ('ip_addresses',),
+        ('count_fhrp_groups',): ('fhrp_group_assignments',),
+    }
 
     def get_bulk_destroy_queryset(self):
         # Ensure child interfaces are deleted prior to their parents

@@ -30,6 +30,7 @@ logger = logging.getLogger('netbox.utilities.api')
 __all__ = (
     'IsSuperuser',
     'get_annotations_for_serializer',
+    'get_fields_for_serializer',
     'get_graphql_type_for_model',
     'get_positional_errors',
     'get_prefetches_for_serializer',
@@ -183,19 +184,25 @@ def _get_serializer_fields(serializer: Serializer):
     return [field_name for field_name in fields if field_name not in omit]
 
 
-def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _serializer_states=None):
+def get_fields_for_serializer(serializer_class, fields=None, omit=None):
     """
-    Compile and return a list of fields which should be prefetched on the queryset for a serializer.
+    Return the names of the fields a serializer renders for the given fields or omit selection.
     """
     if fields is not None and omit is not None:
         raise TypeError("Cannot specify both 'fields' and 'omit' parameters.")
 
-    model = serializer_class.Meta.model
-
     # If fields are not specified, default to all
     fields_to_include = fields or serializer_class.Meta.fields
     fields_to_omit = omit or []
-    effective_fields = tuple(name for name in fields_to_include if name not in fields_to_omit)
+    return tuple(name for name in fields_to_include if name not in fields_to_omit)
+
+
+def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _serializer_states=None):
+    """
+    Compile and return a list of fields which should be prefetched on the queryset for a serializer.
+    """
+    effective_fields = get_fields_for_serializer(serializer_class, fields, omit)
+    model = serializer_class.Meta.model
 
     # Break reference cycles on the current path. The field set is in the key because re-entry at a
     # narrower depth is finite, and the states are copied per frame to keep sibling fields independent.
@@ -239,20 +246,12 @@ def get_annotations_for_serializer(serializer_class, fields=None, omit=None):
     """
     Return a mapping of field names to annotations to be applied to the queryset for a serializer.
     """
-    if fields is not None and omit is not None:
-        raise TypeError("Cannot specify both 'fields' and 'omit' parameters.")
-
+    effective_fields = get_fields_for_serializer(serializer_class, fields, omit)
     model = serializer_class.Meta.model
-
-    # If fields are not specified, default to all
-    fields_to_include = fields or serializer_class.Meta.fields
-    fields_to_omit = omit or []
 
     annotations = {}
     for field_name, field in serializer_class._declared_fields.items():
-        if field_name in fields_to_omit:
-            continue
-        if field_name in fields_to_include and type(field) is RelatedObjectCountField:
+        if field_name in effective_fields and type(field) is RelatedObjectCountField:
             related_field = getattr(model, field.relation).field
             annotations[field_name] = count_related(related_field.model, related_field.name)
 

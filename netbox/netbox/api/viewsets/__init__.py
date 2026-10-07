@@ -8,11 +8,12 @@ from django.db.models import ProtectedError, RestrictedError
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
-from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
+from utilities.api import get_annotations_for_serializer, get_fields_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
 
@@ -84,6 +85,8 @@ class BaseViewSet(GenericViewSet):
     Base class for all API ViewSets. This is responsible for the enforcement of object-based permissions.
     """
     brief = False
+    # Prefetches dynamic resolution cannot derive (method fields, model properties), keyed by the fields reading them
+    field_prefetches = {}
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
@@ -111,6 +114,10 @@ class BaseViewSet(GenericViewSet):
         qs = super().get_queryset()
         serializer_class = self.get_serializer_class()
 
+        # Declared lookups precede the dynamic ones, so a declared Prefetch queryset wins on a shared path
+        if prefetch := self.get_field_prefetches():
+            qs = qs.prefetch_related(*prefetch)
+
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
         if prefetch := get_prefetches_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.prefetch_related(*prefetch)
@@ -120,6 +127,23 @@ class BaseViewSet(GenericViewSet):
             qs = qs.annotate(**annotations)
 
         return qs
+
+    def get_field_prefetches(self, fields=None):
+        """Return the declared prefetches of given fields, by default the response's (all for exports and writes)."""
+        if not self.field_prefetches:
+            return []
+        if fields is None:
+            # Exports and writes render whole objects (templates, event payloads), so they load every declaration
+            if 'export' in self.request.query_params or self.request.method not in SAFE_METHODS:
+                fields = set().union(*self.field_prefetches)
+            else:
+                fields = self.response_fields
+        return [
+            lookup
+            for field_names, lookups in self.field_prefetches.items()
+            if not fields.isdisjoint(field_names)
+            for lookup in lookups
+        ]
 
     def get_serializer(self, *args, **kwargs):
         # Pass the fields/omit kwargs (if specified by the request) to the serializer
@@ -144,6 +168,11 @@ class BaseViewSet(GenericViewSet):
                 return {'fields': brief_fields}
 
         return {}
+
+    @cached_property
+    def response_fields(self):
+        """Return the serializer field names rendered for this request, as selected by field_kwargs."""
+        return frozenset(get_fields_for_serializer(self.get_serializer_class(), **self.field_kwargs))
 
 
 class NetBoxReadOnlyModelViewSet(

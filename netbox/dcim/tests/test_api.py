@@ -1,28 +1,34 @@
 import json
 import os
 import tempfile
+from contextlib import contextmanager
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.db import connection
 from django.test import override_settings, tag
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
+from circuits.choices import VirtualCircuitTerminationRoleChoices
+from circuits.models import Provider, ProviderNetwork, VirtualCircuit, VirtualCircuitTermination, VirtualCircuitType
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.api.serializers import InterfaceSerializer
 from dcim.api.serializers_.nested import NestedDeviceBaySerializer, NestedDeviceSerializer
+from dcim.api.views import DeviceViewSet, InterfaceViewSet
 from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
 from dcim.models import *
-from extras.models import ConfigTemplate, Tag
-from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, RIR, VLAN, VRF, IPAddress
+from extras.models import ConfigTemplate, ExportTemplate, Tag
+from ipam.choices import FHRPGroupProtocolChoices, VLANQinQRoleChoices
+from ipam.models import ASN, RIR, VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
@@ -39,6 +45,8 @@ from utilities.testing import (
     disable_warnings,
 )
 from virtualization.models import Cluster, ClusterType
+from vpn.choices import L2VPNTypeChoices
+from vpn.models import L2VPN, L2VPNTermination
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
 
@@ -88,6 +96,100 @@ class Mixins:
             self.assertEqual(segment1[0][0]['name'], obj.name)
             self.assertEqual(segment1[1]['label'], cable.label)
             self.assertEqual(segment1[2][0]['name'], peer_obj.name)
+
+    class FieldPrefetchMixin(APITestCase):
+        viewset = None
+        # Narrowed requests compared in addition to the default, brief and single-field ones
+        field_prefetch_cases = ()
+        # Literal reference lookups (the static prefetches before the declarations) loaded unconditionally
+        eager_prefetches = ()
+
+        @staticmethod
+        def lookup_path(lookup):
+            return getattr(lookup, 'prefetch_to', lookup)
+
+        @contextmanager
+        def capture_querysets(self, viewset):
+            """Collect the querysets returned by the viewset's get_queryset()."""
+            querysets = []
+            get_queryset = viewset.get_queryset
+
+            def spy(view):
+                querysets.append(get_queryset(view))
+                return querysets[-1]
+
+            with patch.object(viewset, 'get_queryset', spy):
+                yield querysets
+
+        def assert_lookups(self, querysets, expected):
+            """Assert each queryset leads with exactly these lookups, as these objects, and no other declared one."""
+            declared = [lookup for lookups in self.viewset.field_prefetches.values() for lookup in lookups]
+            self.assertTrue(querysets)
+            for queryset in querysets:
+                lookups = queryset._prefetch_related_lookups
+                paths = [self.lookup_path(lookup) for lookup in lookups]
+                self.assertEqual(paths[:len(expected)], [self.lookup_path(lookup) for lookup in expected], paths)
+                self.assertTrue(all(a is b for a, b in zip(lookups, expected)), paths)
+                tail = [lookup for lookup in lookups[len(expected):] if any(lookup is d for d in declared)]
+                self.assertFalse(tail, paths)
+
+        def test_list_objects_field_prefetches(self):
+            """Narrowed responses keep the reference content within its queries, and brief ones skip unread lookups."""
+            field_prefetches = self.viewset.field_prefetches
+            declared = [lookup for lookups in field_prefetches.values() for lookup in lookups]
+            fields = self.viewset.serializer_class.Meta.fields
+            # The map names serializer fields only, and its lookups no longer sit on the class queryset
+            self.assertLessEqual(set().union(*field_prefetches), set(fields))
+            static = {self.lookup_path(lookup) for lookup in self.viewset.queryset._prefetch_related_lookups}
+            self.assertFalse(static.intersection(self.lookup_path(lookup) for lookup in declared))
+
+            self.add_permissions(f'{self.model._meta.app_label}.view_{self.model._meta.model_name}')
+            scopes = self._create_field_prefetch_scopes()
+            url = self._get_list_url()
+            # Runtime bound: skip fields named after model columns or forward relations that start no lookup
+            heads = {self.lookup_path(lookup).split('__')[0] for lookup in (*self.eager_prefetches, *declared)}
+            skipped = {
+                field.name for field in self.model._meta.get_fields()
+                if (field.concrete or (field.many_to_many and not field.auto_created)) and field.name not in heads
+            }
+            cases = (
+                '', 'brief=1', *self.field_prefetch_cases,
+                *(f'fields=id,{name}' for name in fields if name not in skipped),
+            )
+
+            def get(query, eager):
+                queryset, prefetches = self.viewset.queryset, field_prefetches
+                if eager:
+                    queryset, prefetches = queryset.prefetch_related(*self.eager_prefetches), {}
+                with (
+                    patch.object(self.viewset, 'queryset', queryset),
+                    patch.object(self.viewset, 'field_prefetches', prefetches),
+                    CaptureQueriesContext(connection) as queries,
+                ):
+                    response = self.client.get(f'{url}?{query}', **self.header)
+                # Token authentication refreshes last_used once a minute
+                count = sum('"users_token"' not in entry['sql'] for entry in queries.captured_queries)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                return response.json(), count
+
+            # Warm per-process caches (e.g. ContentType) for every related type
+            self.client.get(f'{url}?{scopes[-1]}', **self.header)
+            for params in cases:
+                with self.subTest(params=params):
+                    # Some cases take paths of their own, such as config context without its annotation
+                    self.client.get(f'{url}?{scopes[-1]}&{params}', **self.header)
+                    savings = set()
+                    for scope in scopes:
+                        expected, eager_count = get(f'{scope}&{params}', eager=True)
+                        data, count = get(f'{scope}&{params}', eager=False)
+                        self.assertEqual(data, expected)
+                        self.assertLessEqual(count, eager_count)
+                        savings.add(eager_count - count)
+                    self.assertEqual(len(savings), 1, f'A field reads a lookup it does not declare: {savings}')
+                    if not params:
+                        self.assertEqual(savings, {0})
+                    elif params == 'brief=1':
+                        self.assertGreater(savings.pop(), 0)
 
 
 class RegionTestCase(APIViewTestCases.APIViewTestCase):
@@ -2543,8 +2645,14 @@ class PlatformTestCase(APIViewTestCases.APIViewTestCase):
             platform.save()
 
 
-class DeviceTestCase(APIViewTestCases.APIViewTestCase):
+class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase):
     model = Device
+    viewset = DeviceViewSet
+    field_prefetch_cases = (
+        'omit=parent_device', 'fields=id,parent_device&omit=parent_device', 'brief=1&omit=display',
+        'brief=1&fields=id,config_context',
+    )
+    eager_prefetches = ('device_type__manufacturer', 'parent_bay')
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'failed',
@@ -2651,6 +2759,28 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
                 'cluster': clusters[1].pk,
             },
         ]
+
+    def _create_field_prefetch_scopes(self):
+        """Return filters for one and for two sites of parent, installed child and unnamed devices."""
+        device = Device.objects.get(name='Device 1')
+        parent_type = DeviceType.objects.create(
+            manufacturer=device.device_type.manufacturer, model='Unit Parent Type', slug='unit-parent-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT,
+        )
+        child_type = DeviceType.objects.create(
+            manufacturer=device.device_type.manufacturer, model='Unit Child Type', slug='unit-child-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, u_height=0,
+        )
+        filters = []
+        for i in range(2):
+            site = Site.objects.create(name=f'Unit Site {i}', slug=f'unit-site-{i}')
+            parent = Device.objects.create(device_type=parent_type, role=device.role, site=site, name=f'Parent {i}')
+            child = Device.objects.create(device_type=child_type, role=device.role, site=site, name=f'Child {i}')
+            DeviceBay.objects.create(device=parent, name='Bay 1', installed_device=child)
+            # Unnamed, so its display reads the device type and manufacturer
+            create_test_device(None, site=site)
+            filters.append(f'site_id={site.pk}')
+        return [filters[0], '&'.join(filters)]
 
     def test_config_context_included_by_default_in_list_view(self):
         """
@@ -3073,6 +3203,33 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
             self._get_queryset().count(), initial_count,
             'No objects should be created when any sibling is aborted',
         )
+
+    def test_field_prefetches_follow_requested_fields(self):
+        """List and detail responses carry the declared prefetches of exactly the fields they include."""
+        self.add_permissions('dcim.view_device')
+        manufacturer = list(DeviceViewSet.field_prefetches[('display', 'config_context')])
+        parent = list(DeviceViewSet.field_prefetches[('parent_device',)])
+        # fields takes precedence over omit, and both over brief
+        cases = {
+            '': manufacturer + parent,
+            'brief=1': manufacturer,
+            'fields=id,name': [],
+            'fields=id,display': manufacturer,
+            'fields=id,config_context': manufacturer,
+            'fields=id,parent_device': parent,
+            'omit=parent_device': manufacturer,
+            'fields=id,parent_device&omit=parent_device': parent,
+            'brief=1&omit=display': manufacturer + parent,
+            'brief=1&fields=id': [],
+        }
+        for url in (self._get_list_url(), self._get_detail_url(Device.objects.get(name='Device 1'))):
+            for params, expected in cases.items():
+                with self.subTest(url=url, params=params):
+                    with self.capture_querysets(DeviceViewSet) as querysets:
+                        response = self.client.get(f'{url}?{params}', **self.header)
+                    self.assertHttpStatus(response, status.HTTP_200_OK)
+                    self.assert_lookups(querysets, expected)
+        self.assertEqual(DeviceViewSet.queryset._prefetch_related_lookups, ())
 
 
 class ModuleTestCase(APIViewTestCases.APIViewTestCase):
@@ -3761,8 +3918,21 @@ class PowerOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
         ]
 
 
-class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
+    viewset = InterfaceViewSet
+    field_prefetch_cases = (
+        'fields=id,name,device', 'omit=link_peers,link_peers_type', 'fields=id,link_peers&omit=link_peers',
+        'brief=1&omit=l2vpn_termination',
+    )
+    eager_prefetches = (
+        GenericPrefetch('cable__terminations__termination', [Interface.objects.select_related('device', 'cable')]),
+        GenericPrefetch('_path__path_objects', [Interface.objects.select_related('device', 'cable')]),
+        'virtual_circuit_termination',
+        'l2vpn_terminations',
+        'ip_addresses',
+        'fhrp_group_assignments',
+    )
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
@@ -3911,6 +4081,53 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         for key in invalid_data.keys():
             self.assertIn(key, content)
         self.assertIsNone(content.get('data'))
+
+    def _create_field_prefetch_scopes(self):
+        """Return filters for one and for two devices whose interfaces carry every declared prefetch relation."""
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
+        circuit_type = VirtualCircuitType.objects.create(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1')
+        l2vpn = L2VPN.objects.create(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN)
+        fhrp_group = FHRPGroup.objects.create(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1)
+        filters = []
+        for i in range(2):
+            device = create_test_device(f'Unit Device {i}')
+            peer = create_test_device(f'Unit Peer {i}')
+            panel = create_test_device(f'Unit Panel {i}')
+            # a: cabled, b: cabled through a patch panel, c: virtual circuit, d: L2VPN, e: IPs and FHRP, f: none
+            interfaces = {
+                name: Interface.objects.create(device=device, name=name, type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+                for name in 'abdef'
+            }
+            interfaces['c'] = Interface.objects.create(device=device, name='c', type=InterfaceTypeChoices.TYPE_VIRTUAL)
+            peers = {
+                name: Interface.objects.create(device=peer, name=name, type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+                for name in 'ab'
+            }
+            peers['c'] = Interface.objects.create(device=peer, name='c', type=InterfaceTypeChoices.TYPE_VIRTUAL)
+            front_port = FrontPort.objects.create(device=panel, name='b', type=PortTypeChoices.TYPE_8P8C)
+            rear_port = RearPort.objects.create(device=panel, name='b', type=PortTypeChoices.TYPE_8P8C)
+            PortMapping.objects.create(device=panel, front_port=front_port, rear_port=rear_port)
+            for a_termination, b_termination in (
+                (interfaces['a'], peers['a']),
+                (interfaces['b'], front_port),
+                (rear_port, peers['b']),
+            ):
+                Cable(a_terminations=[a_termination], b_terminations=[b_termination]).save()
+            virtual_circuit = VirtualCircuit.objects.create(
+                provider_network=provider_network, cid=f'Virtual Circuit {i}', type=circuit_type
+            )
+            for termination in (interfaces['c'], peers['c']):
+                VirtualCircuitTermination.objects.create(
+                    virtual_circuit=virtual_circuit, role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
+                    interface=termination,
+                )
+            L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=interfaces['d'])
+            for j in (1, 2):
+                IPAddress.objects.create(address=f'192.0.2.{10 * i + j}/32', assigned_object=interfaces['e'])
+            FHRPGroupAssignment.objects.create(group=fhrp_group, interface=interfaces['e'], priority=100)
+            filters.append(f'device_id={device.pk}')
+        return [filters[0], '&'.join(filters)]
 
     def test_bulk_delete_child_interfaces(self):
         interface1 = Interface.objects.get(name='Interface 1')
@@ -4355,6 +4572,111 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         }
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_field_prefetches_follow_requested_fields(self):
+        """List and detail responses carry the declared prefetches of exactly the fields they include."""
+        self.add_permissions('dcim.view_interface')
+        declared = InterfaceViewSet.field_prefetches
+        peers = list(declared[('link_peers', 'link_peers_type')])
+        endpoints = list(declared[('connected_endpoints', 'connected_endpoints_type')])
+        path = list(declared[('connected_endpoints_reachable',)])
+        l2vpn = list(declared[('l2vpn_termination',)])
+        ips, fhrp = list(declared[('count_ipaddresses',)]), list(declared[('count_fhrp_groups',)])
+        # fields takes precedence over omit, and both over brief
+        cases = {
+            '': peers + endpoints + path + l2vpn + ips + fhrp,
+            'brief=1': [],
+            'fields=id,link_peers_type': peers,
+            'fields=id,connected_endpoints_type': endpoints,
+            'fields=id,connected_endpoints_reachable': path,
+            'fields=id,l2vpn_termination': l2vpn,
+            'fields=id,count_ipaddresses': ips,
+            'fields=id,count_fhrp_groups': fhrp,
+            'omit=link_peers,link_peers_type': endpoints + path + l2vpn + ips + fhrp,
+            'fields=id,link_peers&omit=link_peers': peers,
+            'brief=1&omit=l2vpn_termination': peers + endpoints + path + ips + fhrp,
+            'brief=1&fields=id': [],
+        }
+        for url in (self._get_list_url(), self._get_detail_url(Interface.objects.get(name='Interface 1'))):
+            for params, expected in cases.items():
+                with self.subTest(url=url, params=params):
+                    with self.capture_querysets(InterfaceViewSet) as querysets:
+                        response = self.client.get(f'{url}?{params}', **self.header)
+                    self.assertHttpStatus(response, status.HTTP_200_OK)
+                    self.assert_lookups(querysets, expected)
+        self.assertEqual(InterfaceViewSet.queryset._prefetch_related_lookups, ())
+
+    def test_field_prefetches_keep_class_lookups(self):
+        """Lookups on the class queryset stay ahead of the declared ones, and a subclass inherits the declarations."""
+        self.add_permissions('dcim.view_interface')
+        url = self._get_list_url()
+        peers = list(InterfaceViewSet.field_prefetches[('link_peers', 'link_peers_type')])
+
+        queryset = InterfaceViewSet.queryset.prefetch_related('wireless_lans')
+        with (
+            patch.object(InterfaceViewSet, 'queryset', queryset),
+            self.capture_querysets(InterfaceViewSet) as querysets,
+        ):
+            response = self.client.get(f'{url}?fields=id,link_peers_type', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assert_lookups(querysets, [*queryset._prefetch_related_lookups, *peers])
+
+        class PluginInterfaceViewSet(InterfaceViewSet):
+            pass
+
+        with self.capture_querysets(PluginInterfaceViewSet) as querysets:
+            response = PluginInterfaceViewSet.as_view({'get': 'list'})(
+                APIRequestFactory().get(url, {'fields': 'id,link_peers_type'}, **self.header)
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assert_lookups(querysets, peers)
+
+    def test_field_prefetches_for_other_reads(self):
+        """Exports and writes carry every declaration, the trace action its path nodes."""
+        self.add_permissions('dcim.view_interface', 'dcim.change_interface', 'extras.view_exporttemplate')
+        declared = [lookup for lookups in InterfaceViewSet.field_prefetches.values() for lookup in lookups]
+        interface = Interface.objects.get(name='Interface 1')
+        export_template = ExportTemplate.objects.create(
+            name='Interfaces', template_code='{% for interface in queryset %}{{ interface.name }},{% endfor %}'
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(Interface)])
+
+        # Exports and writes load every declaration, whatever fields the response selects
+        with self.capture_querysets(InterfaceViewSet) as querysets:
+            response = self.client.get(f'{self._get_list_url()}?fields=id&export=Interfaces', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            response = self.client.patch(
+                f'{self._get_detail_url(interface)}?fields=id', {'description': 'New'}, format='json', **self.header
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assert_lookups(querysets, declared)
+
+        # The trace action loads the path nodes as the connected endpoint fields do, whatever fields are selected
+        peer = Interface.objects.create(device=interface.device, name='Peer', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Cable(a_terminations=[interface], b_terminations=[peer]).save()
+        url = reverse('dcim-api:interface-trace', kwargs={'pk': interface.pk})
+
+        def trace(params, queryset, field_prefetches):
+            with (
+                patch.object(InterfaceViewSet, 'queryset', queryset),
+                patch.object(InterfaceViewSet, 'field_prefetches', field_prefetches),
+                CaptureQueriesContext(connection) as queries,
+            ):
+                response = self.client.get(f'{url}?{params}', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            return response.json(), sum('"users_token"' not in entry['sql'] for entry in queries.captured_queries)
+
+        self.client.get(url, **self.header)
+        queryset = InterfaceViewSet.queryset
+        expected, eager_count = trace('', queryset.prefetch_related(*self.eager_prefetches), {})
+        unprefetched, unprefetched_count = trace('', queryset, {})
+        self.assertEqual(unprefetched, expected)
+        for params in ('', 'fields=id'):
+            with self.subTest(params=params):
+                data, count = trace(params, queryset, InterfaceViewSet.field_prefetches)
+                self.assertEqual(data, expected)
+                self.assertLessEqual(count, eager_count)
+                self.assertLess(count, unprefetched_count)
 
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
