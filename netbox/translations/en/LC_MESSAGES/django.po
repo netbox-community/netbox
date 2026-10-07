@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-06 05:02+0000\n"
+"POT-Creation-Date: 2026-10-07 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1392,25 +1392,25 @@ msgstr ""
 msgid "color"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:41
+#: netbox/circuits/models/circuits.py:43
 msgid "circuit type"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:42
+#: netbox/circuits/models/circuits.py:44
 msgid "circuit types"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:53
+#: netbox/circuits/models/circuits.py:55
 #: netbox/circuits/models/virtual_circuits.py:39
 msgid "circuit ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:54
+#: netbox/circuits/models/circuits.py:56
 #: netbox/circuits/models/virtual_circuits.py:40
 msgid "Unique circuit ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:74
+#: netbox/circuits/models/circuits.py:76
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
 #: netbox/core/models/jobs.py:101 netbox/dcim/models/cables.py:112
 #: netbox/dcim/models/cooling.py:46 netbox/dcim/models/cooling.py:130
@@ -1429,92 +1429,92 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:89 netbox/templates/core/plugin.html:20
+#: netbox/circuits/models/circuits.py:91 netbox/templates/core/plugin.html:20
 msgid "installed"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:94
+#: netbox/circuits/models/circuits.py:96
 msgid "terminates"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:99
+#: netbox/circuits/models/circuits.py:101
 msgid "commit rate (Kbps)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:100
+#: netbox/circuits/models/circuits.py:102
 msgid "Committed rate"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:152
+#: netbox/circuits/models/circuits.py:154
 msgid "circuit"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:153
+#: netbox/circuits/models/circuits.py:155
 msgid "circuits"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:182
+#: netbox/circuits/models/circuits.py:184
 msgid "circuit group"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:183
+#: netbox/circuits/models/circuits.py:185
 msgid "circuit groups"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:199
+#: netbox/circuits/models/circuits.py:201
 msgid "member ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:211 netbox/ipam/models/fhrp.py:99
+#: netbox/circuits/models/circuits.py:213 netbox/ipam/models/fhrp.py:99
 #: netbox/tenancy/models/contacts.py:151
 msgid "priority"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:232
+#: netbox/circuits/models/circuits.py:234
 msgid "Circuit group assignment"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:233
+#: netbox/circuits/models/circuits.py:235
 msgid "Circuit group assignments"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:260
+#: netbox/circuits/models/circuits.py:279
 msgid "termination side"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:278
+#: netbox/circuits/models/circuits.py:297
 msgid "port speed (Kbps)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:281
+#: netbox/circuits/models/circuits.py:300
 msgid "Physical circuit speed"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:286
+#: netbox/circuits/models/circuits.py:305
 msgid "upstream speed (Kbps)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:287
+#: netbox/circuits/models/circuits.py:306
 msgid "Upstream speed, if different from port speed"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:292
+#: netbox/circuits/models/circuits.py:311
 msgid "cross-connect ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:293
+#: netbox/circuits/models/circuits.py:312
 msgid "ID of the local cross-connect"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:298
+#: netbox/circuits/models/circuits.py:317
 msgid "patch panel/port(s)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:299
+#: netbox/circuits/models/circuits.py:318
 msgid "Patch panel ID and port number(s)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:302
+#: netbox/circuits/models/circuits.py:321
 #: netbox/circuits/models/virtual_circuits.py:149
 #: netbox/dcim/models/device_component_templates.py:75
 #: netbox/dcim/models/device_components.py:76 netbox/dcim/models/racks.py:753
@@ -1532,20 +1532,20 @@ msgstr ""
 msgid "description"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:355
+#: netbox/circuits/models/circuits.py:374
 msgid "circuit termination"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:356
+#: netbox/circuits/models/circuits.py:375
 msgid "circuit terminations"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:375
+#: netbox/circuits/models/circuits.py:394
 #, python-brace-format
 msgid "Please select a {termination_type}."
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:382
+#: netbox/circuits/models/circuits.py:401
 msgid "A circuit termination must attach to a terminating object."
 msgstr ""
 
@@ -2196,7 +2196,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:722
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:729
 msgid "Error"
 msgstr ""
 
@@ -2718,7 +2718,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:860
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:861
 msgid "path"
 msgstr ""
 
@@ -3211,51 +3211,51 @@ msgstr ""
 msgid "Interface mode does not support tagged vlans"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:54
+#: netbox/dcim/api/serializers_/devices.py:55
 #: netbox/dcim/api/serializers_/devicetypes.py:29
 msgid "Position (U)"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:181
+#: netbox/dcim/api/serializers_/devices.py:189
 #: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/model_forms.py:992
 msgid "Replicate components"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:182
+#: netbox/dcim/api/serializers_/devices.py:190
 msgid ""
 "Automatically populate components associated with this module type (default: "
 "true)"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:188
+#: netbox/dcim/api/serializers_/devices.py:196
 #: netbox/dcim/forms/bulk_import.py:841 netbox/dcim/forms/model_forms.py:998
 msgid "Adopt components"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:189
+#: netbox/dcim/api/serializers_/devices.py:197
 #: netbox/dcim/forms/bulk_import.py:843 netbox/dcim/forms/model_forms.py:1001
 msgid "Adopt already existing components"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:224
+#: netbox/dcim/api/serializers_/devices.py:232
 #: netbox/dcim/models/modules.py:486 netbox/dcim/models/modules.py:686
 msgid ""
 "Changing a module's type while moving it is not supported. Change the module "
 "type and move the module as separate operations."
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:278 netbox/dcim/forms/common.py:159
+#: netbox/dcim/api/serializers_/devices.py:286 netbox/dcim/forms/common.py:159
 msgid ""
 "Cannot install module with placeholder values in a module bay with no "
 "position defined."
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:289 netbox/dcim/forms/common.py:171
+#: netbox/dcim/api/serializers_/devices.py:297 netbox/dcim/forms/common.py:171
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/devices.py:297 netbox/dcim/forms/common.py:180
+#: netbox/dcim/api/serializers_/devices.py:305 netbox/dcim/forms/common.py:180
 #, python-brace-format
 msgid "A {model} named {name} already exists"
 msgstr ""
@@ -4771,7 +4771,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:805
 #: netbox/extras/forms/model_forms.py:857 netbox/extras/ui/panels.py:104
 #: netbox/netbox/forms/bulk_import.py:28 netbox/netbox/forms/mixins.py:135
-#: netbox/netbox/tables/columns.py:507
+#: netbox/netbox/tables/columns.py:508
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:29
 #: netbox/templates/generic/bulk_edit.html:78
@@ -6945,89 +6945,89 @@ msgstr ""
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:637 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:638 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:708
+#: netbox/dcim/models/cables.py:709
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:709
+#: netbox/dcim/models/cables.py:710
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:722
+#: netbox/dcim/models/cables.py:723
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:739
+#: netbox/dcim/models/cables.py:740
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:751
+#: netbox/dcim/models/cables.py:752
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:757
+#: netbox/dcim/models/cables.py:758
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:764
+#: netbox/dcim/models/cables.py:765
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:796
+#: netbox/dcim/models/cables.py:797
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:864 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:865 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:868
+#: netbox/dcim/models/cables.py:869
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:872
+#: netbox/dcim/models/cables.py:873
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:885
+#: netbox/dcim/models/cables.py:886
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:886
+#: netbox/dcim/models/cables.py:887
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:977
+#: netbox/dcim/models/cables.py:978
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:995
+#: netbox/dcim/models/cables.py:996
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1003
+#: netbox/dcim/models/cables.py:1004
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1033
+#: netbox/dcim/models/cables.py:1034
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1035
+#: netbox/dcim/models/cables.py:1036
 msgid "All links must match first link type"
 msgstr ""
 
@@ -9480,7 +9480,7 @@ msgstr ""
 msgid "VLAN Groups"
 msgstr ""
 
-#: netbox/dcim/tests/test_api.py:67
+#: netbox/dcim/tests/test_api.py:70
 msgid "Test case must set peer_termination_type"
 msgstr ""
 
@@ -9739,12 +9739,12 @@ msgstr ""
 msgid "Set {mac} as primary MAC address for {interface}."
 msgstr ""
 
-#: netbox/extras/api/customfields.py:98
+#: netbox/extras/api/customfields.py:111
 #, python-brace-format
 msgid "Custom field '{name}' does not exist for this object type."
 msgstr ""
 
-#: netbox/extras/api/customfields.py:114
+#: netbox/extras/api/customfields.py:127
 #, python-brace-format
 msgid "Unknown related object(s): {name}"
 msgstr ""
@@ -13958,7 +13958,7 @@ msgid "Ports"
 msgstr ""
 
 #: netbox/ipam/templates/ipam/widgets/port_mappings.html:10
-#: netbox/netbox/tables/columns.py:256
+#: netbox/netbox/tables/columns.py:257
 #: netbox/templates/dcim/inc/panels/inventory_items.html:21
 #: netbox/templates/dcim/panels/component_inventory_items.html:11
 #: netbox/templates/dcim/virtualchassis_add_member.html:27
@@ -14190,35 +14190,35 @@ msgstr ""
 msgid "Add a Prefix"
 msgstr ""
 
-#: netbox/netbox/api/fields.py:68
+#: netbox/netbox/api/fields.py:70
 msgid "This field may not be blank."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:73
+#: netbox/netbox/api/fields.py:75
 msgid ""
 "Value must be passed directly (e.g. \"foo\": 123); do not use a dictionary "
 "or list."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:94
+#: netbox/netbox/api/fields.py:96
 #, python-brace-format
 msgid "{value} is not a valid choice."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:107
+#: netbox/netbox/api/fields.py:109
 #, python-brace-format
 msgid "Invalid content type: {content_type}"
 msgstr ""
 
-#: netbox/netbox/api/fields.py:108
+#: netbox/netbox/api/fields.py:110
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:171
+#: netbox/netbox/api/fields.py:178
 msgid "Ranges must be specified in the form (lower, upper)."
 msgstr ""
 
-#: netbox/netbox/api/fields.py:173
+#: netbox/netbox/api/fields.py:180
 msgid "Range boundaries must be defined as integers."
 msgstr ""
 
@@ -14807,7 +14807,7 @@ msgstr ""
 msgid "Cannot assign self or a descendant as parent."
 msgstr ""
 
-#: netbox/netbox/models/deletion.py:142
+#: netbox/netbox/models/deletion.py:155
 #, python-brace-format
 msgid ""
 "{object_name} object can't be deleted because its {pk_attname} attribute is "
@@ -15621,20 +15621,20 @@ msgstr ""
 msgid "Chinese"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:188
+#: netbox/netbox/tables/columns.py:189
 msgid "Select all"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:195
+#: netbox/netbox/tables/columns.py:196
 #, python-brace-format
 msgid "Select {object}"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:202
+#: netbox/netbox/tables/columns.py:203
 msgid "Toggle all"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:328
+#: netbox/netbox/tables/columns.py:329
 #: netbox/templates/inc/table_controls_htmx.html:41
 msgid "Toggle Dropdown"
 msgstr ""
