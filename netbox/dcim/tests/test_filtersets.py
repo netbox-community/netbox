@@ -343,6 +343,31 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'facility': ['Facility 1', 'Facility 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_time_zone(self):
+        params = {'time_zone': ['America/New_York', 'Europe/London']}
+        self.assertTrue(self.filterset(params, self.queryset).is_valid())
+
+        # An invalid time zone is rejected, including when negated or alongside a valid time zone
+        for params in (
+            {'time_zone': ['no-such-value']},
+            {'time_zone': ['America/New_York', 'no-such-value']},
+            {'time_zone__n': ['no-such-value']},
+            {'time_zone': ['America/']},
+            {'time_zone': ['../x']},
+            {'time_zone': ['x' * 300]},
+        ):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
+        # The null choice value matches sites without a time zone (all of them, in this test data)
+        for params, count in (({'time_zone': ['null']}, self.queryset.count()), ({'time_zone__n': ['null']}, 0)):
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=params)
+            self.assertEqual(filterset.qs.count(), count, msg=params)
+
+        # Partial matches are not validated
+        params = {'time_zone__ic': ['no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_asn(self):
         params = {'asn': ['64512', '64513']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -1301,6 +1326,29 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_unit(self):
+        params = {'unit': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit': '3.0'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit': 0}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'unit__n': 0}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+        # The "empty" lookup takes a boolean value; units are never null
+        for value in (True, 'true', 1):
+            params = {'unit__empty': value}
+            self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0, msg=value)
+        for value in (False, 'false', 0):
+            params = {'unit__empty': value}
+            self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3, msg=value)
+
+        # A value outside the range of a reservation unit, or not a whole number, is rejected
+        for lookup in ('unit', 'unit__n', 'unit__gt', 'unit__lt'):
+            for value in (-1, 32768, 2147483000, '2.5', '3.7'):
+                self.assertFalse(self.filterset({lookup: value}, self.queryset).is_valid(), msg=(lookup, value))
 
     def test_unit_count(self):
         params = {'unit_count_min': 3}
@@ -6043,6 +6091,28 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'mac_address': ['00-00-00-00-00-01', '00-00-00-00-00-02']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_wwn(self):
+        params = {'wwn': ['00:00:00:00:00:00:00:01']}
+        self.assertTrue(self.filterset(params, self.queryset).is_valid())
+
+        # An invalid WWN is rejected, including when negated or alongside a valid WWN
+        for params in (
+            {'wwn': ['no-such-value']},
+            {'wwn': ['00:00:00:00:00:00:00:01', 'no-such-value']},
+            {'wwn__n': ['no-such-value']},
+        ):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
+        # The null choice value matches interfaces without a WWN (all of them, in this test data)
+        for params, count in (({'wwn': ['null']}, self.queryset.count()), ({'wwn__n': ['null']}, 0)):
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=params)
+            self.assertEqual(filterset.qs.count(), count, msg=params)
+
+        # Partial matches are not validated
+        params = {'wwn__ic': ['no-such-value']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_type(self):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -6095,6 +6165,11 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'vlan': vlan.vid}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        # A non-integer value is rejected
+        for value in ('no-such-value', '1.5'):
+            self.assertFalse(self.filterset({'vlan_id': value}, self.queryset).is_valid(), msg=value)
+            self.assertFalse(self.filterset({'vlan': value}, self.queryset).is_valid(), msg=value)
 
     def test_vlan_translation_policy(self):
         vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
@@ -8837,6 +8912,24 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-01-01-01', '00-00-00-02-01-01']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # An invalid MAC address is rejected, including when negated or alongside a valid MAC address
+        for params in (
+            {'mac_address': ['no-such-value']},
+            {'mac_address': ['00-00-00-01-01-01', 'no-such-value']},
+            {'mac_address__n': ['no-such-value']},
+        ):
+            self.assertFalse(self.filterset(params, self.queryset).is_valid(), msg=params)
+
+        # The null choice value is accepted (a MAC address object always has an address)
+        for params, count in (({'mac_address': ['null']}, 0), ({'mac_address__n': ['null']}, self.queryset.count())):
+            filterset = self.filterset(params, self.queryset)
+            self.assertTrue(filterset.is_valid(), msg=params)
+            self.assertEqual(filterset.qs.count(), count, msg=params)
+
+        # Partial matches are not validated
+        params = {'mac_address__ic': ['00:00:00:01']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device(self):
         devices = Device.objects.all()[:2]

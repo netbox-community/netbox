@@ -41,8 +41,7 @@ class MissingKeyAwareFilterMixin:
 
     * filter() is reimplemented rather than delegated to, so any custom filter() on the base class
       is bypassed. Do not mix this into a class which overrides filter() (e.g.
-      MultiValueMACAddressFilter, MultiValueContentTypeFilter).
-      missing_key_aware_filter_factory() rejects such classes.
+      MultiValueContentTypeFilter). missing_key_aware_filter_factory() rejects such classes.
     * `conjoined` is not honored: multiple values are always OR'ed. Passing it raises TypeError.
     """
     def __init__(self, *args, **kwargs):

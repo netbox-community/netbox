@@ -21,6 +21,7 @@ __all__ = (
     'group_port_mappings',
     'legacy_protocol_and_ports',
     'normalize_port_mapping',
+    'parse_inet_addresses',
     'port_mapping_q',
     'rebuild_prefixes',
     'sorted_int_ports',
@@ -283,6 +284,26 @@ def get_next_available_prefix(ipset, prefix_size):
             ipset.remove(allocated_prefix)
             return allocated_prefix
     return None
+
+
+def parse_inet_addresses(value):
+    """
+    Parse networks or IP addresses and cast to a format
+    acceptable by the Postgres inet type.
+
+    Skips invalid values.
+    """
+    parsed = []
+    for addr in value:
+        if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
+            parsed.append(addr)
+            continue
+        try:
+            network = netaddr.IPNetwork(addr)
+            parsed.append(str(network))
+        except (netaddr.AddrFormatError, ValueError):
+            continue
+    return parsed
 
 
 #
