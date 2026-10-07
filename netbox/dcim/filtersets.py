@@ -1166,7 +1166,6 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
         field_name='mappings__rear_port',
         queryset=RearPortTemplate.objects.all(),
-        to_field_name='rear_port',
         label=_('Rear port (ID)'),
     )
 
@@ -1184,8 +1183,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
         field_name='mappings__front_port',
-        queryset=FrontPort.objects.all(),
-        to_field_name='front_port',
+        queryset=FrontPortTemplate.objects.all(),
         label=_('Front port (ID)'),
     )
 
@@ -2602,7 +2600,6 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
         field_name='mappings__rear_port',
         queryset=RearPort.objects.all(),
-        to_field_name='rear_port',
         label=_('Rear port (ID)'),
     )
 
@@ -2624,7 +2621,6 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     front_port_id = django_filters.ModelMultipleChoiceFilter(
         field_name='mappings__front_port',
         queryset=FrontPort.objects.all(),
-        to_field_name='front_port',
         label=_('Front port (ID)'),
     )
 
