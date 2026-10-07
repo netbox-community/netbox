@@ -1,8 +1,8 @@
 {
   "datafile:api_list_objects": 10,
-  "datafile:list_objects_with_permission": 17,
+  "datafile:list_objects_with_permission": 16,
   "datasource:api_list_objects": 12,
-  "datasource:list_objects_with_permission": 17,
+  "datasource:list_objects_with_permission": 16,
   "job:api_list_objects": 12,
-  "job:list_objects_with_permission": 19
+  "job:list_objects_with_permission": 18
 }
