@@ -2,12 +2,17 @@ import uuid
 from datetime import timedelta
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
+from dcim.models import Site
+from dcim.views import SiteBulkEditView
+from users.models import User
+from utilities.request import copy_safe_request
 from utilities.testing import disable_warnings
 from utilities.testing.mixins import RQQueueTestMixin
 
@@ -317,3 +322,31 @@ class SystemJobTestCase(BaseJobRunnerTestCase):
             interval=interval,
         )
         self.assertEqual(enqueued.count(), 2)
+
+
+class AsyncViewJobTestCase(TestCase):
+    """
+    Test running UI views as background jobs.
+    """
+
+    def test_bulk_edit(self):
+        user = User.objects.create_superuser(username='testuser')
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+        request = RequestFactory().post(reverse('dcim:site_bulk_edit'), data={
+            '_apply': True,
+            'pk': [site.pk for site in sites],
+            'description': 'Edited in a background job',
+            'background_job': True,
+        })
+        request.user = user
+        request.id = uuid.uuid4()
+        job = Job.objects.create(name='Bulk edit', user=user, job_id=uuid.uuid4())
+
+        # Run the view as process_request_as_job() would have it run in a worker
+        AsyncViewJob(job).run(view_cls=SiteBulkEditView, request=copy_safe_request(request))
+
+        self.assertEqual(Site.objects.filter(description='Edited in a background job').count(), len(sites))

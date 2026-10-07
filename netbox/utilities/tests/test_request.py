@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase, override_settings
+from django_htmx.middleware import HtmxDetails
 from netaddr import IPAddress
 
-from utilities.request import copy_safe_request, get_client_ip, get_safe_request_context
+from utilities.htmx import htmx_partial
+from utilities.request import NetBoxFakeRequest, copy_safe_request, get_client_ip, get_safe_request_context
 
 User = get_user_model()
 
@@ -50,6 +52,20 @@ class CopySafeRequestTestCase(TestCase):
         self.assertEqual(fake.path_info, '/dcim/sites/1/')
         self.assertEqual(fake.method, 'GET')
         self.assertEqual(fake.GET.get('foo'), 'bar')
+
+    def test_copy_is_not_an_htmx_request(self):
+        """Copied requests are non-HTMX, regardless of the original request."""
+        request = self._make_request(HTTP_HX_REQUEST='true')
+        request.htmx = HtmxDetails(request)
+        self.assertTrue(request.htmx)
+        fake = copy_safe_request(request)
+        self.assertFalse(fake.htmx)
+        self.assertFalse(htmx_partial(fake))
+
+    def test_fake_request_without_htmx_key(self):
+        """The HTMX default also applies to requests serialized by older releases."""
+        fake = NetBoxFakeRequest({'path': '/'})
+        self.assertFalse(htmx_partial(fake))
 
 
 class GetSafeRequestContextTestCase(TestCase):
