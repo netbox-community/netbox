@@ -2397,6 +2397,12 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMi
         params = {'positions': [1, 2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rear_port(self):
+        """Filter front port templates by mapped rear port template ID."""
+        rear_ports = RearPortTemplate.objects.all()[:2]
+        params = {'rear_port_id': [rear_ports[0].pk, rear_ports[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = RearPortTemplate.objects.all()
@@ -2414,7 +2420,7 @@ class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMix
         )
         DeviceType.objects.bulk_create(device_types)
 
-        RearPortTemplate.objects.bulk_create((
+        rear_ports = RearPortTemplate.objects.bulk_create((
             RearPortTemplate(
                 device_type=device_types[0],
                 name='Rear Port 1',
@@ -2441,6 +2447,31 @@ class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMix
             ),
         ))
 
+        front_ports = (
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(
+                device_type=device_types[1],
+                name='Front Port 2',
+                type=PortTypeChoices.TYPE_8P8C,
+                positions=2,
+            ),
+            FrontPortTemplate(device_type=device_types[2], name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(device_type=device_types[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=device_types[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+            # A second mapping of the same pair catches a missing distinct()
+            PortTemplateMapping(
+                device_type=device_types[1],
+                front_port=front_ports[1],
+                rear_port=rear_ports[1],
+                front_port_position=2,
+                rear_port_position=2,
+            ),
+            PortTemplateMapping(device_type=device_types[2], front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
+
     def test_name(self):
         params = {'name': ['Rear Port 1', 'Rear Port 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -2455,6 +2486,12 @@ class RearPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTestMix
 
     def test_positions(self):
         params = {'positions': [1, 2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_front_port(self):
+        """Filter rear port templates by mapped front port template ID without duplicate rows."""
+        front_ports = FrontPortTemplate.objects.all()[:2]
+        params = {'front_port_id': [front_ports[0].pk, front_ports[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -6408,6 +6445,12 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogge
         params = {'occupied': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rear_port(self):
+        """Filter front ports by mapped rear port ID."""
+        rear_ports = RearPort.objects.all()[:2]
+        params = {'rear_port_id': [rear_ports[0].pk, rear_ports[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class RearPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLoggedFilterSetTestMixin):
     queryset = RearPort.objects.all()
@@ -6610,6 +6653,26 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogged
         )
         RearPort.objects.bulk_create(rear_ports)
 
+        front_ports = (
+            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, positions=2),
+            FrontPort(device=devices[2], name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=devices[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=devices[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+            # A second mapping of the same pair catches a missing distinct()
+            PortMapping(
+                device=devices[1],
+                front_port=front_ports[1],
+                rear_port=rear_ports[1],
+                front_port_position=2,
+                rear_port_position=2,
+            ),
+            PortMapping(device=devices[2], front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
+
         # Cables
         Cable(a_terminations=[rear_ports[0]], b_terminations=[rear_ports[3]]).save()
         Cable(a_terminations=[rear_ports[1]], b_terminations=[rear_ports[4]]).save()
@@ -6696,6 +6759,12 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTestMixin, ChangeLogged
         params = {'occupied': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'occupied': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_front_port(self):
+        """Filter rear ports by mapped front port ID without duplicate rows."""
+        front_ports = FrontPort.objects.all()[:2]
+        params = {'front_port_id': [front_ports[0].pk, front_ports[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
