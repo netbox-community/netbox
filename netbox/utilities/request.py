@@ -31,9 +31,8 @@ class NetBoxFakeRequest:
     A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
     takes what is passed to it as kwargs on init and sets them as instance variables.
     """
-    # A fake request is replayed outside of an HTTP exchange (e.g. by a background job), so it is never an HTMX
-    # request. Views check request.htmx, which django-htmx sets only on real requests. Defined on the class so that
-    # instances pickled before this attribute existed (e.g. queued jobs) have it too.
+    # Fake requests run outside an HTTP exchange and are not HTMX requests.
+    # A class-level default also covers requests pickled before this attribute existed.
     htmx = False
 
     def __init__(self, _dict):
