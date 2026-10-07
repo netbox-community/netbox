@@ -66,6 +66,9 @@ def copy_safe_request(request, include_files=True):
         'path': request.path,
         'path_info': request.path_info,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
+        # A copy is replayed outside of the original HTTP exchange (e.g. by a background job), so it is never an
+        # HTMX request, whatever the original was. Views check request.htmx, which django-htmx sets on real requests.
+        'htmx': False,
     }
     if include_files:
         data['FILES'] = request.FILES
