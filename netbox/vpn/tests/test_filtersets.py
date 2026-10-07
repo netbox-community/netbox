@@ -256,6 +256,12 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         )
         TunnelTermination.objects.bulk_create(tunnel_terminations)
 
+    def test_q(self):
+        params = {'q': 'Tunnel 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'q': 'foobar'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_tunnel(self):
         tunnels = Tunnel.objects.all()[:2]
         params = {'tunnel_id': [tunnels[0].pk, tunnels[1].pk]}
