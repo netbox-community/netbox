@@ -528,7 +528,7 @@ class ModuleBaySerializer(OwnerMixin, NetBoxModelSerializer):
     installed_module = ModuleSerializer(
         nested=True,
         fields=('id', 'url', 'display', 'serial', 'description'),
-        required=False,
+        read_only=True,
         allow_null=True
     )
     module_bay_types = SerializedPKRelatedField(

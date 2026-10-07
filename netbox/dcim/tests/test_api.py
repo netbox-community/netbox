@@ -4719,6 +4719,38 @@ class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(module_bay.module_bay_types.count(), 0)
 
+    @tag('regression')  # Issue #23323
+    def test_installed_module_is_read_only(self):
+        """Creating or updating a module bay ignores installed_module."""
+        module_bay = ModuleBay.objects.get(name='Device Bay 1')
+        other_bay = ModuleBay.objects.get(name='Device Bay 3')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Module Type 1')
+        module = Module.objects.create(device=module_bay.device, module_bay=module_bay, module_type=module_type)
+        other_module = Module.objects.create(device=other_bay.device, module_bay=other_bay, module_type=module_type)
+
+        self.add_permissions('dcim.add_modulebay', 'dcim.change_modulebay')
+        for installed_module in (None, other_module.pk, -1):
+            with self.subTest(action='create', installed_module=installed_module):
+                data = {
+                    'device': module_bay.device.pk,
+                    'name': f'Module Bay {installed_module}',
+                    'installed_module': installed_module,
+                }
+                response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_201_CREATED)
+                self.assertIsNone(response.data['installed_module'])
+
+            with self.subTest(action='update', installed_module=installed_module):
+                data = {'installed_module': installed_module}
+                response = self.client.patch(self._get_detail_url(module_bay), data, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(response.data['installed_module']['id'], module.pk)
+
+        module.refresh_from_db()
+        other_module.refresh_from_db()
+        self.assertEqual(module.module_bay, module_bay)
+        self.assertEqual(other_module.module_bay, other_bay)
+
 
 class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
