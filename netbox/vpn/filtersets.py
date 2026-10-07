@@ -138,6 +138,11 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         model = TunnelTermination
         fields = ('id', 'termination_id')
 
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(tunnel__name__icontains=value)
+
 
 @register_filterset
 class IKEProposalFilterSet(PrimaryModelFilterSet):
