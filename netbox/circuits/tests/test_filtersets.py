@@ -370,6 +370,8 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         provider_accounts = ProviderAccount.objects.all()[:2]
         params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'provider_account': [provider_accounts[0].account, provider_accounts[1].account]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
@@ -1054,6 +1056,8 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
     def test_provider_account(self):
         provider_accounts = ProviderAccount.objects.all()[:2]
         params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider_account': [provider_accounts[0].account, provider_accounts[1].account]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider_network(self):

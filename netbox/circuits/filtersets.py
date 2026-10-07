@@ -189,7 +189,7 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account__account',
-        queryset=Provider.objects.all(),
+        queryset=ProviderAccount.objects.all(),
         distinct=False,
         to_field_name='account',
         label=_('Provider account (account)'),
@@ -537,7 +537,7 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account__account',
-        queryset=Provider.objects.all(),
+        queryset=ProviderAccount.objects.all(),
         distinct=False,
         to_field_name='account',
         label=_('Provider account (account)'),
