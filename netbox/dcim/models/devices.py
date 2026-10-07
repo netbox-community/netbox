@@ -1,5 +1,5 @@
 import decimal
-from functools import cached_property
+from functools import cached_property, partial
 
 import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -8,7 +8,7 @@ from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, router, transaction
 from django.db.models import F, ProtectedError, prefetch_related_objects
 from django.db.models.functions import Lower
 from django.db.models.signals import post_save
@@ -27,6 +27,7 @@ from netbox.config import ConfigItem
 from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
@@ -244,10 +245,6 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         # Save a copy of u_height for validation in clean()
         self._original_u_height = self.__dict__.get('u_height')
 
-        # Save references to the original front/rear images
-        self._original_front_image = self.__dict__.get('front_image')
-        self._original_rear_image = self.__dict__.get('rear_image')
-
     @property
     def full_name(self):
         return f"{self.manufacturer} {self.model}"
@@ -388,13 +385,29 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             })
 
     def save(self, *args, **kwargs):
+        update_fields = normalize_update_fields(kwargs)
+        # Resolve the database alias being written to, so that the stored image names are read from it (rather than
+        # from a replica) and their deletion is tied to its transaction
+        using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
+
+        # Retrieve the stored names of any front/rear images being written, so that replaced files can be deleted. An
+        # image field which is deferred or omitted from update_fields is not written.
+        deferred_fields = self.get_deferred_fields()
+        image_fields = [
+            field_name for field_name in ('front_image', 'rear_image')
+            if field_name not in deferred_fields and (update_fields is None or field_name in update_fields)
+        ]
+        original_images = {}
+        if image_fields and self.pk is not None:
+            original_images = DeviceType.objects.using(using).filter(pk=self.pk).values(*image_fields).first() or {}
+
         ret = super().save(*args, **kwargs)
 
-        # Delete any previously uploaded image files that are no longer in use
-        if self._original_front_image and self.front_image != self._original_front_image:
-            default_storage.delete(self._original_front_image)
-        if self._original_rear_image and self.rear_image != self._original_rear_image:
-            default_storage.delete(self._original_rear_image)
+        # Delete any previously uploaded image files that are no longer in use once the change has been committed. A
+        # failure to delete a file is logged rather than raised, as the change itself has already been committed.
+        for field_name, original_name in original_images.items():
+            if original_name and getattr(self, field_name).name != original_name:
+                transaction.on_commit(partial(default_storage.delete, original_name), using=using, robust=True)
 
         return ret
 

@@ -1,12 +1,16 @@
+import os
+import tempfile
 import uuid
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.db import connection
+from django.db import connection, transaction
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import RequestFactory, TestCase, tag
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.test.utils import CaptureQueriesContext
+from django.utils.text import slugify
 
 from circuits.models import *
 from core.choices import ObjectChangeActionChoices
@@ -21,7 +25,7 @@ from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
 from utilities.data import drange
-from utilities.testing import create_test_device
+from utilities.testing import create_test_device, create_test_image
 from virtualization.models import Cluster, ClusterType
 
 
@@ -219,6 +223,205 @@ class DeviceTypeTestCase(TestCase):
         InterfaceTemplate.objects.get(device_type=device_type, name='Interface 1').delete()
         device_type.refresh_from_db()
         self.assertEqual(device_type.interface_template_count, 1)
+
+
+class DeviceTypeImageTestCase(TestCase):
+    """
+    Test the handling of DeviceType front/rear image files.
+    """
+    def setUp(self):
+        media_root = self.enterContext(tempfile.TemporaryDirectory())
+        self.enterContext(override_settings(MEDIA_ROOT=media_root))
+        self.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+
+    def _create_device_type(self, model='Device Type 1', **images):
+        """
+        Create a DeviceType with an uploaded image for each image field mapped to a filename.
+        """
+        return DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model=model,
+            slug=slugify(model),
+            **{field_name: create_test_image(filename) for field_name, filename in images.items()},
+        )
+
+    def _save(self, device_type, **kwargs):
+        # Execute the on-commit deletion of replaced image files, which TestCase otherwise discards
+        with self.captureOnCommitCallbacks(execute=True):
+            device_type.save(**kwargs)
+
+    def test_create_with_images(self):
+        device_type = self._create_device_type(front_image='front.png', rear_image='rear.png')
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+        self.assertTrue(os.path.exists(device_type.rear_image.path))
+
+    def test_replace_and_clear_images(self):
+        device_type = self._create_device_type(front_image='front1.png', rear_image='rear.png')
+        front_image_path = device_type.front_image.path
+        rear_image_path = device_type.rear_image.path
+
+        # Replacing an image should delete the original file
+        device_type = DeviceType.objects.get(pk=device_type.pk)
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type)
+        self.assertFalse(os.path.exists(front_image_path))
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+
+        # Clearing an image should delete its file
+        device_type.rear_image = None
+        self._save(device_type)
+        self.assertFalse(os.path.exists(rear_image_path))
+
+    def test_replace_image_on_same_instance(self):
+        """
+        Replacing an image repeatedly on the instance it was created with should delete each prior file.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        first_image_path = device_type.front_image.path
+
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type)
+        second_image_path = device_type.front_image.path
+        self.assertFalse(os.path.exists(first_image_path))
+        self.assertTrue(os.path.exists(second_image_path))
+
+        device_type.front_image = create_test_image('front3.png')
+        self._save(device_type)
+        self.assertFalse(os.path.exists(second_image_path))
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+
+    def test_replace_initial_image_path_before_first_save(self):
+        """
+        Replacing an image path assigned to a new DeviceType before its first save should not delete that file, which
+        here belongs to another DeviceType.
+        """
+        device_type1 = self._create_device_type(front_image='front1.png')
+        shared_image_path = device_type1.front_image.path
+
+        device_type2 = DeviceType(
+            manufacturer=self.manufacturer,
+            model='Device Type 2',
+            slug='device-type-2',
+            front_image=device_type1.front_image.name,
+        )
+        device_type2.front_image = create_test_image('front2.png')
+        self._save(device_type2)
+        self.assertTrue(os.path.exists(shared_image_path))
+        self.assertTrue(os.path.exists(device_type2.front_image.path))
+
+    def test_update_fields_omitting_image(self):
+        """
+        Saving with update_fields which omits an image field should not delete its stored file, which a later full
+        save then replaces.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        original_image_path = device_type.front_image.path
+
+        device_type = DeviceType.objects.get(pk=device_type.pk)
+        device_type.front_image = create_test_image('front2.png')
+        device_type.description = 'New description'
+        self._save(device_type, update_fields=['description'])
+        self.assertTrue(os.path.exists(original_image_path))
+        device_type.refresh_from_db(fields=['front_image'])
+        self.assertEqual(device_type.front_image.path, original_image_path)
+
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type)
+        self.assertFalse(os.path.exists(original_image_path))
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+
+    def test_update_fields_iterator(self):
+        """
+        Replacing an image via a save with iterator-valued update_fields should delete the original file.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        original_image_path = device_type.front_image.path
+
+        device_type = DeviceType.objects.get(pk=device_type.pk)
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type, update_fields=iter(['front_image']))
+        self.assertFalse(os.path.exists(original_image_path))
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+
+    def test_deferred_images(self):
+        """
+        Saving a DeviceType with deferred image fields should neither load them nor delete their stored files.
+        """
+        device_type = self._create_device_type(front_image='front.png', rear_image='rear.png')
+        front_image_path = device_type.front_image.path
+        rear_image_path = device_type.rear_image.path
+
+        device_type = DeviceType.objects.defer('front_image', 'rear_image').get(pk=device_type.pk)
+        device_type.description = 'New description'
+        self._save(device_type)
+        self.assertTrue({'front_image', 'rear_image'}.issubset(device_type.get_deferred_fields()))
+        self.assertTrue(os.path.exists(front_image_path))
+        self.assertTrue(os.path.exists(rear_image_path))
+
+    def test_replace_deferred_image(self):
+        """
+        Replacing an image which was deferred when the DeviceType was loaded should delete the original file.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        original_image_path = device_type.front_image.path
+
+        device_type = DeviceType.objects.defer('front_image').get(pk=device_type.pk)
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type)
+        self.assertFalse(os.path.exists(original_image_path))
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+
+    def test_replace_image_on_stale_instance(self):
+        """
+        Replacing an image on an instance loaded before another change to that image should delete the file currently
+        stored, not the one originally loaded.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        stale_instance = DeviceType.objects.get(pk=device_type.pk)
+
+        device_type.front_image = create_test_image('front2.png')
+        self._save(device_type)
+        second_image_path = device_type.front_image.path
+
+        stale_instance.front_image = create_test_image('front3.png')
+        self._save(stale_instance)
+        self.assertFalse(os.path.exists(second_image_path))
+        self.assertTrue(os.path.exists(stale_instance.front_image.path))
+
+    def test_replace_image_rolled_back(self):
+        """
+        Replacing an image within a transaction which is rolled back should not delete the original file.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        original_image_path = device_type.front_image.path
+
+        device_type.front_image = create_test_image('front2.png')
+        with self.captureOnCommitCallbacks(execute=True), self.assertRaises(RuntimeError):
+            with transaction.atomic():
+                device_type.save()
+                raise RuntimeError('Roll back the transaction')
+        self.assertTrue(os.path.exists(original_image_path))
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.front_image.path, original_image_path)
+
+    def test_replace_image_storage_error(self):
+        """
+        A failure to delete a replaced image file should be logged rather than raised, as the change itself has
+        already been committed.
+        """
+        device_type = self._create_device_type(front_image='front1.png')
+        original_image_name = device_type.front_image.name
+
+        # A non-robust on-commit callback would re-raise the OSError here
+        device_type.front_image = create_test_image('front2.png')
+        with patch(
+            'dcim.models.devices.default_storage.delete', side_effect=OSError('Storage unavailable')
+        ) as mock_delete:
+            self._save(device_type)
+        mock_delete.assert_called_once_with(original_image_name)
+        device_type.refresh_from_db()
+        self.assertTrue(os.path.exists(device_type.front_image.path))
+        self.assertTrue(device_type.front_image.name.endswith('front2.png'))
 
 
 class ModuleTypeTestCase(TestCase):
