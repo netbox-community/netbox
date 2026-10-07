@@ -759,6 +759,33 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         )
         CircuitGroupAssignment.objects.bulk_create(assignments)
 
+    def test_q(self):
+        """Search by circuit CID, virtual circuit CID or group name."""
+        params = {'q': 'Circuit 1'}  # Also matches Virtual Circuit 1
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'q': 'Virtual Circuit 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'q': 'Group 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'q': 'foobar'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_q_member_type(self):
+        """A CID match is limited to its member type, so a matching ID of another type is excluded."""
+        virtual_circuit = VirtualCircuit.objects.get(cid='Virtual Circuit 1')
+        circuit_type = ContentType.objects.get_for_model(Circuit)
+        virtual_circuit_type = ContentType.objects.get_for_model(VirtualCircuit)
+        expected = self.queryset.get(member_type=virtual_circuit_type, member_id=virtual_circuit.pk)
+
+        # A circuit assignment sharing the virtual circuit's object ID must not match
+        group = CircuitGroup.objects.create(name='Circuit Group 4', slug='circuit-group-4')
+        CircuitGroupAssignment.objects.create(
+            group=group, member_type=circuit_type, member_id=virtual_circuit.pk
+        )
+
+        params = {'q': 'Virtual Circuit 1'}
+        self.assertEqual(list(self.filterset(params, self.queryset).qs), [expected])
+
     def test_group(self):
         groups = CircuitGroup.objects.all()[:2]
         params = {'group_id': [groups[0].pk, groups[1].pk]}
