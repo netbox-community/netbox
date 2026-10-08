@@ -82,6 +82,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         url_name='circuits:circuit_list'
     )
     assignments = columns.ManyToManyColumn(
+        accessor='group_assignments',
         verbose_name=_('Assignments'),
         linkify_item=True
     )
