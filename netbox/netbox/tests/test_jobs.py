@@ -152,14 +152,14 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
-    def test_enqueue_once_replaces_stale_scheduled_job(self):
+    def test_enqueue_once_replaces_stale_scheduled_system_job(self):
         """
-        A job still in "scheduled" status whose time has already passed is stale (its RQ-side
-        scheduler entry was lost, e.g. by a Redis restart between backup and restore — see
-        #22714) and must be replaced, even though its recorded interval matches.
+        A system job still in "scheduled" status whose time has already passed is stale (its
+        RQ-side scheduler entry was lost, e.g. by a Redis restart between backup and restore —
+        see #22714) and must be replaced, even though its recorded interval matches.
         """
         stale = Job.objects.create(
-            name=TestJobRunner.name,
+            name=TestSystemJobRunner.name,
             status=JobStatusChoices.STATUS_SCHEDULED,
             interval=60,
             scheduled=timezone.now() - timedelta(days=1),
@@ -168,10 +168,29 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
 
         # Mirrors how rqworker.py calls enqueue_once() for system jobs at startup: no
         # schedule_at, only the registered interval.
-        job = TestJobRunner.enqueue_once(interval=60)
+        job = TestSystemJobRunner.enqueue_once(interval=60)
 
         self.assertNotEqual(job, stale)
         self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_stale_scheduled_non_system_job(self):
+        """
+        Staleness replacement is limited to system jobs. A non-system job (e.g. a DataSource
+        sync) may legitimately sit in "scheduled" status with a past time while it waits its
+        turn in the queue, so it must be reused rather than deleted and re-enqueued.
+        """
+        scheduled = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
         self.assertEqual(TestJobRunner.get_jobs().count(), 1)
 
     def test_enqueue_once_reuses_pending_job_with_no_schedule(self):
