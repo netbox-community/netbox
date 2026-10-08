@@ -2,7 +2,7 @@ import uuid
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -13,10 +13,11 @@ from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from core.api.serializers import DataSourceSerializer
-from dcim.models import Site
+from dcim.choices import PortTypeChoices
+from dcim.models import FrontPort, PortMapping, RearPort, Site
 from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token
-from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags
+from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase, create_tags, create_test_device
 from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
 
@@ -375,6 +376,27 @@ class JobTestCase(
         self.assertEqual({name for name, obj in objects.items() if 'slug' in obj}, {'Job 4'})
         for obj in objects.values():
             self.assertNotIn('custom_fields', obj)
+
+    @tag('regression')  # Ref: #23310
+    def test_list_objects_without_serializer(self):
+        """Jobs whose object has no REST API serializer, or that have no object, list a null object."""
+        self.add_permissions('core.view_job')
+        device = create_test_device('Device 1')
+        front_port = FrontPort.objects.create(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C)
+        rear_port = RearPort.objects.create(device=device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C)
+        port_mapping = PortMapping.objects.create(device=device, front_port=front_port, rear_port=rear_port)
+        Job.objects.create(
+            name='Job 4', object=port_mapping, status='completed', queue_name='default', job_id=uuid.uuid4()
+        )
+        Job.objects.create(name='Job 5', status='completed', queue_name='default', job_id=uuid.uuid4())
+
+        response = self.client.get(reverse('core-api:job-list'), **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        objects = {job['name']: job['object'] for job in response.data['results']}
+        self.assertIsNone(objects['Job 4'])
+        self.assertIsNone(objects['Job 5'])
+        self.assertEqual(objects['Job 1']['name'], 'Data Source 1')
 
 
 class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):

@@ -1,15 +1,9 @@
-from functools import cached_property
-
-from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
-
 from core.models import ObjectType
 from extras.models import Tag, TaggedItem
-from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ContentTypeField, RelatedObjectCountField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import BaseModelSerializer, ChangeLogMessageSerializer, ValidatedModelSerializer
 from users.api.serializers_.mixins import OwnerMixin
-from utilities.api import get_serializer_for_model
 
 __all__ = (
     'TagSerializer',
@@ -41,8 +35,11 @@ class TaggedItemSerializer(BaseModelSerializer):
         source='content_type',
         read_only=True
     )
-    object = serializers.SerializerMethodField(
-        read_only=True
+    # A plugin model can support tags without a REST API serializer
+    object = GFKSerializerField(
+        source='content_object',
+        read_only=True,
+        allow_missing_serializer=True
     )
     tag = TagSerializer(
         nested=True,
@@ -55,22 +52,3 @@ class TaggedItemSerializer(BaseModelSerializer):
             'id', 'url', 'display', 'object_type', 'object_id', 'object', 'tag',
         ]
         brief_fields = ('id', 'url', 'display', 'object_type', 'object_id', 'object', 'tag')
-
-    @cached_property
-    def _object_serializers(self):
-        return {}
-
-    @extend_schema_field(serializers.JSONField())
-    def get_object(self, obj):
-        """
-        Serialize a nested representation of the tagged object.
-        """
-        try:
-            serializer_class = get_serializer_for_model(obj.content_object)
-        except SerializerNotFound:
-            return obj.object_repr
-        if serializer_class not in self._object_serializers:
-            self._object_serializers[serializer_class] = serializer_class(
-                nested=True, context={'request': self.context['request']}
-            )
-        return self._object_serializers[serializer_class].to_representation(obj.content_object)

@@ -3,6 +3,6 @@
   "datafile:list_objects_with_permission": 17,
   "datasource:api_list_objects": 12,
   "datasource:list_objects_with_permission": 17,
-  "job:api_list_objects": 12,
+  "job:api_list_objects": 11,
   "job:list_objects_with_permission": 19
 }
