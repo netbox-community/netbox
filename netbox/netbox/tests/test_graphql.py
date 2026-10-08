@@ -23,6 +23,7 @@ from dcim.models import (
     DeviceType,
     Interface,
     Location,
+    MACAddress,
     Manufacturer,
     Rack,
     RackReservation,
@@ -754,6 +755,59 @@ class GraphQLAPITestCase(APITestCase):
             site_queries,
             2,
             msg=f'Expected optimized site join, got {site_queries} site queries for 5 IP addresses',
+        )
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_nested_display_is_batched(self):
+        """
+        Selecting `display` on a nested object must not reload each row to read deferred columns (no N+1).
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_interface', 'dcim.view_macaddress')
+
+        site = Site.objects.first()
+        manufacturer = Manufacturer.objects.create(name='Display Manufacturer', slug='display-manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Display Model', slug='display-model')
+        device_role = DeviceRole.objects.create(name='Display Role', slug='display-role')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Display Device {index}', device_type=device_type, role=device_role, site=site)
+            for index in range(5)
+        ])
+        for index, device in enumerate(devices):
+            interface = Interface.objects.create(name='eth0', device=device, type='1000baset')
+            mac = MACAddress.objects.create(mac_address=f'00:00:00:00:00:{index:02x}', assigned_object=interface)
+            interface.primary_mac_address = mac
+            interface.save()
+
+        query = """
+        {
+            device_list(filters: {role: {slug: {exact: "display-role"}}}) {
+                name
+                interfaces {
+                    name
+                    primary_mac_address {
+                        display
+                    }
+                }
+            }
+        }
+        """
+        url = reverse('graphql')
+
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['device_list']), len(devices))
+        for device_data in data['data']['device_list']:
+            self.assertTrue(device_data['interfaces'][0]['primary_mac_address']['display'])
+
+        mac_queries = count_primary_table_queries(context.captured_queries, 'dcim_macaddress')
+        self.assertLessEqual(
+            mac_queries,
+            2,
+            msg=f'Expected batched MAC address lookup, got {mac_queries} MAC address queries for 5 devices',
         )
 
     def test_offset_pagination(self):
