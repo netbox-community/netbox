@@ -66,12 +66,17 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
     tags = columns.TagColumn(
         url_name='circuits:virtualcircuit_list'
     )
+    assignments = columns.ManyToManyColumn(
+        accessor='group_assignments',
+        verbose_name=_('Assignments'),
+        linkify_item=True
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = VirtualCircuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
-            'tenant_group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'tenant_group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
