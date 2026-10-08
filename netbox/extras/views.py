@@ -1672,10 +1672,17 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
             'data_source', 'data_file',
         )
 
+        # Find the most recent completed Job for each Script which the user is permitted to view
+        latest_jobs = {
+            script.pk: script.get_latest_jobs().restrict(request.user, 'view').first()
+            for script in available_scripts
+        }
+
         context = {
             'model': ScriptModule,
             'script_modules': script_modules,
             'available_scripts': available_scripts,
+            'latest_jobs': latest_jobs,
         }
 
         # Use partial template for dashboard widgets
@@ -1705,6 +1712,12 @@ class BaseScriptView(generic.ObjectView):
             return script_class()
         return None
 
+    def _get_jobs(self, script):
+        """
+        Return the Jobs for this Script which the current user is permitted to view
+        """
+        return script.jobs.restrict(self.request.user, 'view')
+
 
 class ScriptView(BaseScriptView):
 
@@ -1724,7 +1737,7 @@ class ScriptView(BaseScriptView):
             'script': script,
             'script_class': script_class,
             'form': form,
-            'job_count': script.jobs.count(),
+            'job_count': self._get_jobs(script).count(),
         })
 
     def post(self, request, **kwargs):
@@ -1781,7 +1794,7 @@ class ScriptView(BaseScriptView):
             'script': script,
             'script_class': script.python_class(),
             'form': form,
-            'job_count': script.jobs.count(),
+            'job_count': self._get_jobs(script).count(),
         })
 
 
@@ -1795,7 +1808,7 @@ class ScriptSourceView(BaseScriptView):
         return render(request, 'extras/script/source.html', {
             'script': script,
             'script_class': script_class,
-            'job_count': script.jobs.count(),
+            'job_count': self._get_jobs(script).count(),
             'tab': 'source',
         })
 
@@ -1806,13 +1819,14 @@ class ScriptJobsView(BaseScriptView):
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
 
-        jobs_table = ScriptJobTable(data=script.jobs.all(), orderable=False)
+        jobs = self._get_jobs(script)
+        jobs_table = ScriptJobTable(data=jobs, orderable=False)
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
             'script': script,
             'table': jobs_table,
-            'job_count': script.jobs.count(),
+            'job_count': jobs.count(),
             'tab': 'jobs',
         })
 

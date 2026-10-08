@@ -16,7 +16,7 @@ from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegis
 from core.choices import ObjectChangeActionChoices
 from core.models import *
 from dcim.models import Site
-from users.models import User
+from users.models import ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
 from utilities.testing.mixins import RQQueueTestMixin
 
@@ -169,6 +169,64 @@ class JobTestCase(
                 ),
             ]
         )
+
+
+class ObjectJobsViewTestCase(TestCase):
+    """
+    The Jobs tab of an object must list only the Jobs which the user is permitted to view.
+    """
+    user_permissions = (
+        'core.view_datasource',
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///var/tmp/source1/',
+        )
+        cls.other_user = User.objects.create_user(username='otheruser')
+        cls.other_job = cls._create_job('other-job', user=cls.other_user)
+        cls.system_job = cls._create_job('system-job', user=None)
+
+    @classmethod
+    def _create_job(cls, name, user):
+        return Job.objects.create(
+            name=name,
+            object_type=ContentType.objects.get_for_model(DataSource),
+            object_id=cls.datasource.pk,
+            status='completed',
+            job_id=uuid.uuid4(),
+            user=user,
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.own_job = self._create_job('own-job', user=self.user)
+        self.url = reverse('core:datasource_jobs', kwargs={'pk': self.datasource.pk})
+
+    def _grant_view_job(self, constraints=None):
+        obj_perm = ObjectPermission(name='View jobs', constraints=constraints, actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+    def _get_listed_jobs(self):
+        response = self.client.get(self.url)
+        self.assertHttpStatus(response, 200)
+        return {row.record for row in response.context['table'].rows}
+
+    def test_unconstrained_permission_lists_all_jobs(self):
+        self._grant_view_job()
+        self.assertEqual(self._get_listed_jobs(), {self.own_job, self.other_job, self.system_job})
+
+    def test_user_constrained_permission_lists_own_jobs_only(self):
+        self._grant_view_job(constraints={'user': '$user'})
+        self.assertEqual(self._get_listed_jobs(), {self.own_job})
+
+    def test_without_view_job_permission_lists_no_jobs(self):
+        self.assertEqual(self._get_listed_jobs(), set())
 
 
 class JobLogViewTestCase(TestCase):

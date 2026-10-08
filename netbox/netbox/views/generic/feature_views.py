@@ -202,8 +202,8 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
         self.model = model
         obj = self.get_object(request, **kwargs)
 
-        # Gather all Jobs for this object
-        jobs = self.get_jobs(obj)
+        # Gather all Jobs for this object which the user is permitted to view
+        jobs = self.get_jobs(obj).restrict(request.user, 'view')
         jobs_table = JobTable(data=jobs, orderable=False)
         jobs_table.configure(request)
 
