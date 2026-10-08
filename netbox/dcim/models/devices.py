@@ -386,12 +386,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def save(self, *args, **kwargs):
         update_fields = normalize_update_fields(kwargs)
-        # Resolve the database alias being written to, so that the stored image names are read from it (rather than
-        # from a replica) and their deletion is tied to its transaction
+        # Use the write database for the image lookup and cleanup transaction.
         using = kwargs.get('using') or router.db_for_write(self.__class__, instance=self)
 
-        # Retrieve the stored names of any front/rear images being written, so that replaced files can be deleted. An
-        # image field which is deferred or omitted from update_fields is not written.
+        # Retrieve stored image names only for fields being saved.
         deferred_fields = self.get_deferred_fields()
         image_fields = [
             field_name for field_name in ('front_image', 'rear_image')
@@ -401,10 +399,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         if image_fields and self.pk is not None:
             original_images = DeviceType.objects.using(using).filter(pk=self.pk).values(*image_fields).first() or {}
 
+        kwargs['using'] = using
         ret = super().save(*args, **kwargs)
 
-        # Delete any previously uploaded image files that are no longer in use once the change has been committed. A
-        # failure to delete a file is logged rather than raised, as the change itself has already been committed.
+        # Delete replaced files after commit to preserve them on rollback.
+        # Log cleanup failures without failing an already committed save.
         for field_name, original_name in original_images.items():
             if original_name and getattr(self, field_name).name != original_name:
                 transaction.on_commit(partial(default_storage.delete, original_name), using=using, robust=True)
