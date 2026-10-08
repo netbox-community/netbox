@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
-from django.db.models.fields.reverse_related import ManyToOneRel
+from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -147,8 +147,8 @@ class BaseTable(tables.Table):
                     field = model._meta.get_field(field_name)
                 except FieldDoesNotExist:
                     break
-                if isinstance(field, (RelatedField, ManyToOneRel)):
-                    # Follow ForeignKeys to the related model
+                if isinstance(field, (RelatedField, ManyToOneRel, ManyToManyRel)):
+                    # Follow relations to the related model
                     prefetch_path.append(field_name)
                     model = field.remote_field.model
                 elif isinstance(field, GenericForeignKey):
