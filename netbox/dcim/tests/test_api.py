@@ -5098,6 +5098,39 @@ class CableTestCase(APIViewTestCases.APIViewTestCase):
                     self.assertTrue(Interface.objects.get(pk=interface.pk)._path.is_complete)
                 self.assertEqual(CablePath.objects.filter(_nodes__contains=cable).count(), 2)
 
+    @tag('regression')  # Issue #23094
+    def test_patch_clearing_an_end_keeps_the_other_end(self):
+        """
+        A PATCH with an empty termination list must detach that end only and keep the other end's row.
+        """
+        self.add_permissions('dcim.change_cable')
+        for label, attr, cleared_side, kept_side in (
+            ('Cable 1', 'a_terminations', CableEndChoices.SIDE_A, CableEndChoices.SIDE_B),
+            ('Cable 2', 'b_terminations', CableEndChoices.SIDE_B, CableEndChoices.SIDE_A),
+        ):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.get(label=label)
+                cleared = Interface.objects.get(cable=cable, cable_end=cleared_side)
+                kept = Interface.objects.get(cable=cable, cable_end=kept_side)
+                kept_row_pk = CableTermination.objects.get(cable=cable, cable_end=kept_side).pk
+
+                response = self.client.patch(self._get_detail_url(cable), {attr: []}, format='json', **self.header)
+
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                self.assertEqual(
+                    list(
+                        CableTermination.objects.filter(cable=cable)
+                        .values_list('pk', 'cable_end', 'termination_id')
+                    ),
+                    [(kept_row_pk, kept_side, kept.pk)]
+                )
+                cleared.refresh_from_db()
+                self.assertIsNone(cleared.cable)
+                self.assertIsNone(cleared._path_id)
+                kept.refresh_from_db()
+                self.assertEqual(kept.cable, cable)
+                self.assertFalse(kept._path.is_complete)
+
     def test_graphql_cable_termination_cached_filters(self):
         """
         Validate filtering cables by cached CableTermination relations via GraphQL:

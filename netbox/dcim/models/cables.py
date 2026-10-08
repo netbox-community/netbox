@@ -241,7 +241,8 @@ class Cable(PrimaryModel):
         attr = f'_{side.lower()}_terminations'
 
         if hasattr(self, attr):
-            return getattr(self, attr)
+            # Return a copy so a caller mutating the result cannot defeat change detection
+            return list(getattr(self, attr))
         if not self.pk:
             return []
         return [
@@ -257,6 +258,9 @@ class Cable(PrimaryModel):
             raise ValueError(f"Unknown cable side: {side}")
         _attr = f'_{side.lower()}_terminations'
 
+        # Materialize first, so the stored list is our own and a single-pass iterable is read only once
+        value = list(value)
+
         # If the provided value is a list of CableTermination IDs, resolve them
         # to their corresponding termination objects.
         if all(isinstance(item, int) for item in value):
@@ -264,7 +268,8 @@ class Cable(PrimaryModel):
                 ct.termination for ct in CableTermination.objects.filter(pk__in=value).prefetch_related('termination')
             ]
 
-        if not self.pk or getattr(self, _attr, []) != list(value):
+        # An uncached end always counts as assigned: replayed rows may already match while paths still need rebuilding
+        if not self.pk or not hasattr(self, _attr) or getattr(self, _attr) != value:
             self._terminations_modified = True
 
         setattr(self, _attr, value)

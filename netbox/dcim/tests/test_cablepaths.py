@@ -3452,6 +3452,41 @@ class LegacyCablePathTestCase(BaseCablePathTestCase):
             self.assertCurrentPathExists((interface, cable, interface1), is_complete=True)
         self.assertEqual(CablePath.objects.count(), 4)
 
+    def test_322_replayed_termination_move_rebuilds_paths(self):
+        """
+        [IF1] --C1-- [IF2] becomes [IF1] --C1-- [IF3]
+
+        Assigning a replaced end's serialized terminations to a fresh instance must rebuild the paths from its rows.
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        cable1 = Cable(a_terminations=[interface1], b_terminations=[interface2])
+        cable1.save()
+
+        # Replace the B end's row directly, as change replay does before it saves the cable itself
+        CableTermination.objects.get(cable=cable1, cable_end=CableEndChoices.SIDE_B).delete()
+        CableTermination(cable=cable1, cable_end=CableEndChoices.SIDE_B, termination=interface3).save()
+        termination_pks = set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True))
+        interface3.refresh_from_db()
+        self.assertPathIsNotSet(interface3)
+
+        data = cable1.serialize_object()
+        cable1 = Cable.objects.get(pk=cable1.pk)
+        cable1.b_terminations = data['b_terminations']
+        cable1.full_clean()
+        cable1.save()
+
+        self.assertCurrentPathExists((interface1, cable1, interface3), is_complete=True, is_active=True)
+        self.assertCurrentPathExists((interface3, cable1, interface1), is_complete=True, is_active=True)
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable1).values_list('pk', flat=True)),
+            termination_pks
+        )
+        interface2.refresh_from_db()
+        self.assertIsNone(interface2.cable)
+        self.assertPathIsNotSet(interface2)
+
     def test_401_exclude_midspan_devices(self):
         """
         [IF1] --C1-- [FP1][Test Device][RP1] --C2-- [RP2][Test Device][FP2] --C3-- [IF2]
