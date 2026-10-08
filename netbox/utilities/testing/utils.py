@@ -1,3 +1,4 @@
+import io
 import json
 import logging
 import random
@@ -6,7 +7,9 @@ import string
 from contextlib import contextmanager
 
 from django.contrib.auth.models import Permission
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.text import slugify
+from PIL import Image
 
 from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
@@ -53,6 +56,15 @@ def create_test_device(name, site=None, **attrs):
     device = Device.objects.create(name=name, site=site, device_type=devicetype, role=devicerole, **attrs)
 
     return device
+
+
+def create_test_image(filename):
+    """
+    Convenience method for creating an uploaded PNG image file.
+    """
+    image = io.BytesIO()
+    Image.new('RGB', (1, 1)).save(image, format='PNG')
+    return SimpleUploadedFile(name=filename, content=image.getvalue(), content_type='image/png')
 
 
 def create_test_virtualmachine(name):

@@ -1,4 +1,6 @@
 import json
+import os
+import tempfile
 from unittest.mock import patch
 
 from django.conf import settings
@@ -31,6 +33,7 @@ from utilities.testing import (
     GraphQLFilterTest,
     GraphQLQueryTest,
     create_test_device,
+    create_test_image,
     create_test_nat_ip_pair,
     disable_logging,
     disable_warnings,
@@ -1576,6 +1579,55 @@ class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'u_height': 1,
             },
         ]
+
+    def test_create_object_with_images(self):
+        """
+        Create a DeviceType with front/rear images via a multipart request.
+        """
+        self.add_permissions('dcim.add_devicetype')
+        # A nested field is read from "<field>.id" in a multipart request
+        data = {
+            'manufacturer.id': Manufacturer.objects.first().pk,
+            'model': 'Device Type 7',
+            'slug': 'device-type-7',
+            'front_image': create_test_image('front.png'),
+            'rear_image': create_test_image('rear.png'),
+        }
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(self._get_list_url(), data, format='multipart', **self.header)
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            device_type = DeviceType.objects.get(pk=response.data['id'])
+            self.assertTrue(os.path.exists(device_type.front_image.path))
+            self.assertTrue(os.path.exists(device_type.rear_image.path))
+
+    def test_update_object_image(self):
+        """
+        Replace a DeviceType's front image via a multipart request, which should delete the original file.
+        """
+        self.add_permissions('dcim.change_devicetype')
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            device_type = DeviceType.objects.first()
+            device_type.front_image = create_test_image('front.png')
+            device_type.rear_image = create_test_image('rear.png')
+            device_type.save()
+            front_image_path = device_type.front_image.path
+            rear_image_path = device_type.rear_image.path
+
+            data = {
+                'front_image': create_test_image('front2.png'),
+            }
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(
+                    self._get_detail_url(device_type), data, format='multipart', **self.header
+                )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            device_type.refresh_from_db()
+            self.assertFalse(os.path.exists(front_image_path))
+            self.assertTrue(os.path.exists(device_type.front_image.path))
+            self.assertNotEqual(device_type.front_image.path, front_image_path)
+            self.assertTrue(os.path.exists(rear_image_path))
 
 
 class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
