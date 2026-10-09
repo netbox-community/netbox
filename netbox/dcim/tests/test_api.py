@@ -26,7 +26,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.graphql.types import _CABLE_TERMINATION_MODELS
 from dcim.models import *
-from extras.models import ConfigTemplate, ExportTemplate, Tag
+from extras.models import ConfigContext, ConfigTemplate, ExportTemplate, Tag
 from ipam.choices import FHRPGroupProtocolChoices, VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF, FHRPGroup, FHRPGroupAssignment, IPAddress
 from netbox.api.serializers import GenericObjectSerializer
@@ -2791,6 +2791,115 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         response = self.client.get(url, **self.header)
 
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
+
+    def test_config_context_not_loaded_when_omitted(self):
+        """
+        List and detail responses which omit config_context neither annotate it nor load the cached context.
+        """
+        self.add_permissions('dcim.view_device')
+        device = Device.objects.get(name='Device 1')
+        cases = (
+            (self._get_list_url(), {'fields': 'id,name'}),
+            (self._get_list_url(), {'omit': 'config_context'}),
+            (self._get_list_url(), {'brief': 1}),
+            (self._get_detail_url(device), {'fields': 'id,name'}),
+        )
+        for url, params in cases:
+            with self.subTest(url=url, params=params):
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(url, params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                sql = '\n'.join(query['sql'] for query in queries.captured_queries)
+                self.assertNotIn('"config_context_data"', sql)
+                self.assertNotIn('"dcim_device"."_config_context_data"', sql)
+
+    def test_config_context_loaded_when_requested(self):
+        """
+        Responses which include config_context read warm devices from the cache and cold devices from the
+        annotation, without a query per device.
+        """
+        self.add_permissions('dcim.view_device')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        Device.objects.filter(name='Device 1').update(_config_context_data={'foo': 'cached'})
+        # fields takes precedence over omit, and both over brief
+        for params in (
+            {},
+            {'fields': 'name,config_context'},
+            {'fields': 'name,config_context', 'omit': 'config_context'},
+            {'brief': 1, 'fields': 'name,config_context'},
+            {'brief': 1, 'omit': 'comments'},
+        ):
+            with self.subTest(params=params):
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(self._get_list_url(), params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                contexts = {row['name']: row['config_context'] for row in response.data['results']}
+                self.assertEqual(contexts, {
+                    'Device 1': {'foo': 'cached'},
+                    'Device 2': {'foo': 123, 'B': 2},
+                    'Device 3': {'foo': 123, 'C': 3},
+                })
+                statements = [
+                    query['sql'] for query in queries.captured_queries if '"extras_configcontext"' in query['sql']
+                ]
+                self.assertEqual(len(statements), 1)
+                self.assertTrue(statements[0].startswith('SELECT "dcim_device"'))
+                refreshes = [
+                    query['sql'] for query in queries.captured_queries
+                    if query['sql'].startswith('SELECT "dcim_device"."id", "dcim_device"."_config_context_data" FROM')
+                ]
+                self.assertEqual(refreshes, [])
+
+    def test_export_template_loads_config_context(self):
+        """
+        An API export renders model instances, so it loads config context even when the request omits the field.
+        """
+        self.add_permissions('dcim.view_device', 'extras.view_exporttemplate')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        Device.objects.filter(name='Device 1').update(_config_context_data={'foo': 'cached'})
+        export_template = ExportTemplate.objects.create(
+            name='Config Contexts',
+            template_code=(
+                '{% for device in queryset %}{{ device.name }}={{ device.get_config_context().foo }},{% endfor %}'
+            ),
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(Device)])
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(
+                self._get_list_url(), {'export': export_template.name, 'omit': 'config_context'}, **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.content.decode(), 'Device 1=cached,Device 2=123,Device 3=123,')
+        statements = [
+            query['sql'] for query in queries.captured_queries if '"extras_configcontext"' in query['sql']
+        ]
+        self.assertEqual(len(statements), 1)
+        self.assertTrue(statements[0].startswith('SELECT "dcim_device"'))
+        refreshes = [
+            query['sql'] for query in queries.captured_queries
+            if query['sql'].startswith('SELECT "dcim_device"."id", "dcim_device"."_config_context_data" FROM')
+        ]
+        self.assertEqual(refreshes, [])
+
+    def test_bulk_update_keeps_config_context_cache_loaded(self):
+        """
+        A bulk update which omits config_context loads the cache with the devices, not with a query per device.
+        """
+        self.add_permissions('dcim.change_device')
+        data = [{'id': device.pk, 'description': 'New description'} for device in Device.objects.all()]
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.patch(
+                f'{self._get_list_url()}?omit=config_context', data, format='json', **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        # The change log snapshot and full_clean() would fetch a deferred cache once per device
+        refreshes = [
+            query['sql'] for query in queries.captured_queries
+            if query['sql'].startswith('SELECT "dcim_device"."id", "dcim_device"."_config_context_data" FROM')
+        ]
+        self.assertEqual(refreshes, [])
 
     def test_unique_name_per_site_constraint(self):
         """

@@ -1,8 +1,10 @@
 import logging
 from decimal import Decimal
 
+from django.db import connection
 from django.db.models.signals import post_init
 from django.test import override_settings, tag
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
@@ -11,7 +13,7 @@ from core.models import ObjectType
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Platform, Site
 from extras.choices import CustomFieldTypeChoices
-from extras.models import ConfigTemplate, CustomField
+from extras.models import ConfigContext, ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, Prefix
 from users.constants import TOKEN_PREFIX
@@ -467,6 +469,60 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
 
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
+
+    def test_config_context_not_loaded_when_omitted(self):
+        """
+        List responses which omit config_context neither annotate it nor load the cached context.
+        """
+        self.add_permissions('virtualization.view_virtualmachine')
+        for params in ({'fields': 'id,name'}, {'omit': 'config_context'}, {'brief': 1}):
+            with self.subTest(params=params):
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(self._get_list_url(), params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                sql = '\n'.join(query['sql'] for query in queries.captured_queries)
+                self.assertNotIn('"config_context_data"', sql)
+                # The nested device still loads its own cache
+                self.assertNotIn('"virtualization_virtualmachine"."_config_context_data"', sql)
+
+    def test_config_context_loaded_when_requested(self):
+        """
+        Responses which include config_context read warm virtual machines from the cache and cold ones from the
+        annotation, without a query per virtual machine.
+        """
+        self.add_permissions('virtualization.view_virtualmachine')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        VirtualMachine.objects.filter(name='Virtual Machine 1').update(_config_context_data={'foo': 'cached'})
+        cache_refresh = (
+            'SELECT "virtualization_virtualmachine"."id", "virtualization_virtualmachine"."_config_context_data" FROM'
+        )
+        # fields takes precedence over omit, and both over brief
+        for params in (
+            {},
+            {'fields': 'name,config_context'},
+            {'fields': 'name,config_context', 'omit': 'config_context'},
+            {'brief': 1, 'fields': 'name,config_context'},
+            {'brief': 1, 'omit': 'comments'},
+        ):
+            with self.subTest(params=params):
+                with CaptureQueriesContext(connection) as queries:
+                    response = self.client.get(self._get_list_url(), params, **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                contexts = {row['name']: row['config_context'] for row in response.data['results']}
+                self.assertEqual(contexts, {
+                    'Virtual Machine 1': {'foo': 'cached'},
+                    'Virtual Machine 2': {'foo': 123, 'B': 2},
+                    'Virtual Machine 3': {'foo': 123, 'C': 3},
+                })
+                statements = [
+                    query['sql'] for query in queries.captured_queries if '"extras_configcontext"' in query['sql']
+                ]
+                self.assertEqual(len(statements), 1)
+                self.assertTrue(statements[0].startswith('SELECT "virtualization_virtualmachine"'))
+                refreshes = [
+                    query['sql'] for query in queries.captured_queries if query['sql'].startswith(cache_refresh)
+                ]
+                self.assertEqual(refreshes, [])
 
     def test_unique_name_per_cluster_constraint(self):
         """
