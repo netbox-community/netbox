@@ -86,6 +86,10 @@
 * [#22882](https://github.com/netbox-community/netbox/issues/22882) - Fix support for the `DISTINCT` filter on nested GraphQL list fields
 * [#22894](https://github.com/netbox-community/netbox/issues/22894) - Sanitize the error message rendered when an exception occurs in `CustomLinkColumn`
 
+### REST API Changes
+
+* Custom scripts no longer support `POST /api/extras/scripts/` or `PUT`, `PATCH`, and `DELETE` requests to `/api/extras/scripts/{id}/`. Run scripts with `POST /api/extras/scripts/{id}/`. Upload script modules with `POST /api/extras/scripts/upload/`, or update them with `PUT` or `PATCH` requests to `/api/extras/scripts/upload/{id}/`.
+
 ---
 
 ## v4.6.7 (2026-07-30)
