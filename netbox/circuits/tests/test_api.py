@@ -4,8 +4,11 @@ from rest_framework import status
 
 from circuits.choices import *
 from circuits.models import *
+from core.models import ObjectType
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from ipam.models import ASN, RIR
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -462,6 +465,40 @@ class CircuitGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
                 'priority': CircuitPriorityChoices.PRIORITY_TERTIARY,
             },
         ]
+
+    @tag('regression')  # Ref: #23369
+    def test_update_custom_fields(self):
+        """Custom field data sent when updating an assignment is saved and rendered."""
+        custom_field = CustomField.objects.create(name='cf1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        custom_field.object_types.set([ObjectType.objects.get_for_model(CircuitGroupAssignment)])
+        self.add_permissions('circuits.change_circuitgroupassignment')
+        assignment = CircuitGroupAssignment.objects.first()
+        data = {
+            'custom_fields': {'cf1': 'foo'},
+        }
+
+        response = self.client.patch(self._get_detail_url(assignment), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIn('custom_fields', response.data)
+        self.assertEqual(response.data['custom_fields'], {'cf1': 'foo'})
+        assignment.refresh_from_db()
+        self.assertEqual(assignment.custom_field_data, {'cf1': 'foo'})
+
+    @tag('regression')  # Ref: #23369
+    def test_graphql_custom_fields(self):
+        """The GraphQL type renders the custom field data of an assignment."""
+        custom_field = CustomField.objects.create(name='cf1', type=CustomFieldTypeChoices.TYPE_TEXT)
+        custom_field.object_types.set([ObjectType.objects.get_for_model(CircuitGroupAssignment)])
+        self.add_permissions('circuits.view_circuitgroupassignment')
+        assignment = CircuitGroupAssignment.objects.first()
+        CircuitGroupAssignment.objects.filter(pk=assignment.pk).update(custom_field_data={'cf1': 'foo'})
+
+        query = '{ circuit_group_assignment(id: ' + str(assignment.pk) + ') { custom_fields } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = response.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['circuit_group_assignment']['custom_fields'], {'cf1': 'foo'})
 
 
 class ProviderNetworkTestCase(APIViewTestCases.APIViewTestCase):

@@ -144,7 +144,7 @@ class CircuitGroupType(OrganizationalObjectType):
     filters=CircuitGroupAssignmentFilter,
     pagination=True
 )
-class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
+class CircuitGroupAssignmentType(CustomFieldsMixin, TagsMixin, BaseObjectType):
     group: Annotated['CircuitGroupType', strawberry.lazy('circuits.graphql.types')]
 
     @strawberry_django.field(
