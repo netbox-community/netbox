@@ -54,11 +54,30 @@ class ConfigContextCacheReadPathTest(TestCase):
         device = Device.objects.get(pk=self.device.pk)
         self.assertEqual(device.get_config_context(), cached)
 
+    def test_cached_value_is_copied(self):
+        """
+        Mutating the returned context leaves the cache unchanged.
+        """
+        _set_cache(self.device, {'servers': ['192.0.2.1']})
+        device = Device.objects.get(pk=self.device.pk)
+        device.get_config_context()['servers'].append('192.0.2.2')
+        self.assertEqual(device._config_context_data, {'servers': ['192.0.2.1']})
+
+    def test_cached_value_is_returned_without_copy(self):
+        """
+        copy_data=False returns the cache itself, including an empty one.
+        """
+        for cached in ({'cached': True}, {}):
+            _set_cache(self.device, cached)
+            device = Device.objects.get(pk=self.device.pk)
+            self.assertIs(device.get_config_context(copy_data=False), device._config_context_data)
+
     def test_null_cache_falls_back_to_render(self):
         ConfigContext.objects.create(name='CC', weight=100, data={'rendered': True})
         device = Device.objects.get(pk=self.device.pk)
         self.assertIsNone(device._config_context_data)
         self.assertEqual(device.get_config_context(), {'rendered': True})
+        self.assertEqual(device.get_config_context(copy_data=False), {'rendered': True})
 
     def test_render_matches_legacy_path(self):
         ConfigContext.objects.create(name='A', weight=100, data={'a': 1})

@@ -1,5 +1,7 @@
+import copy
 import logging
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.db import connection
 from django.db.models.signals import post_init
@@ -458,6 +460,31 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIsNone(vm.platform)
         self.assertIsNone(vm.vcpus)
         self.assertIsNone(vm.memory)
+
+    def test_config_context_read_without_copy(self):
+        """
+        REST and GraphQL read cached config context without copying it.
+        """
+        self.add_permissions('virtualization.view_virtualmachine')
+        VirtualMachine.objects.filter(name='Virtual Machine 1').update(_config_context_data={'A': 'cached'})
+        VirtualMachine.objects.filter(name='Virtual Machine 2').update(_config_context_data={})
+        # Virtual Machine 3 has no cache and renders its local context data
+        expected = {'Virtual Machine 1': {'A': 'cached'}, 'Virtual Machine 2': {}, 'Virtual Machine 3': {'C': 3}}
+        query = '{ virtual_machine_list { name config_context } }'
+
+        with patch('extras.models.configs.copy', wraps=copy) as copy_module:
+            rest = self.client.get(self._get_list_url(), **self.header)
+            graphql = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        copy_module.deepcopy.assert_not_called()
+
+        self.assertHttpStatus(rest, status.HTTP_200_OK)
+        self.assertEqual({row['name']: row['config_context'] for row in rest.data['results']}, expected)
+        self.assertHttpStatus(graphql, status.HTTP_200_OK)
+        data = graphql.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual(
+            {row['name']: row['config_context'] for row in data['data']['virtual_machine_list']}, expected
+        )
 
     def test_config_context_included_by_default_in_list_view(self):
         """
