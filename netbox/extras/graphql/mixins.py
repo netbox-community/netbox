@@ -44,7 +44,7 @@ class ConfigContextMixin:
     # is requested, so the warm-cache read path requires no additional queries.
     @strawberry_django.field(only=['_config_context_data', 'local_context_data'])
     def config_context(self) -> strawberry.scalars.JSON:
-        return self.get_config_context()
+        return self.get_config_context(copy_data=False)
 
 
 @strawberry.type

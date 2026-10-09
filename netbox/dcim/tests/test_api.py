@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import tempfile
@@ -2782,6 +2783,29 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
             filters.append(f'site_id={site.pk}')
         return [filters[0], '&'.join(filters)]
 
+    def test_config_context_read_without_copy(self):
+        """
+        REST and GraphQL read cached config context without copying it.
+        """
+        self.add_permissions('dcim.view_device')
+        Device.objects.filter(name='Device 1').update(_config_context_data={'A': 'cached'})
+        Device.objects.filter(name='Device 2').update(_config_context_data={})
+        # Device 3 has no cache and renders its local context data
+        expected = {'Device 1': {'A': 'cached'}, 'Device 2': {}, 'Device 3': {'C': 3}}
+        query = '{ device_list { name config_context } }'
+
+        with patch('extras.models.configs.copy', wraps=copy) as copy_module:
+            rest = self.client.get(self._get_list_url(), **self.header)
+            graphql = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        copy_module.deepcopy.assert_not_called()
+
+        self.assertHttpStatus(rest, status.HTTP_200_OK)
+        self.assertEqual({row['name']: row['config_context'] for row in rest.data['results']}, expected)
+        self.assertHttpStatus(graphql, status.HTTP_200_OK)
+        data = graphql.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual({row['name']: row['config_context'] for row in data['data']['device_list']}, expected)
+
     def test_config_context_included_by_default_in_list_view(self):
         """
         Check that config context data is included by default in the devices list.
@@ -3015,6 +3039,31 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_leaves_config_context_cache_unchanged(self):
+        """
+        A config template which mutates nested context data leaves the cached config context unchanged.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code="{{ servers.append('192.0.2.2') or '' }}{{ servers|join(',') }}"
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+        Device.objects.filter(pk=device.pk).update(_config_context_data={'servers': ['192.0.2.1']})
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        with patch.object(
+            Device, 'get_config_context', autospec=True, side_effect=Device.get_config_context
+        ) as get_config_context:
+            response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], '192.0.2.1,192.0.2.2')
+        # A leak would only show on the view's in-memory instance
+        instance = get_config_context.call_args.args[0]
+        self.assertEqual(instance._config_context_data, {'servers': ['192.0.2.1']})
 
     def test_render_config_without_permission(self):
         configtemplate = ConfigTemplate.objects.create(

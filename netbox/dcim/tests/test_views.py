@@ -3,6 +3,7 @@ import datetime
 import json
 from decimal import Decimal
 from io import StringIO
+from unittest.mock import patch
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
@@ -3259,6 +3260,31 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         response = self.client.get(url, {'config_template_id': override_template.pk})
         self.assertHttpStatus(response, 200)
         self.assertIn(b'Error rendering template', response.content)
+
+    def test_device_renderconfig_leaves_config_context_cache_unchanged(self):
+        """
+        A config template which mutates nested context data leaves the cached config context unchanged.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code="{{ servers.append('192.0.2.2') or '' }}{{ servers|join(',') }}"
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+        Device.objects.filter(pk=device.pk).update(_config_context_data={'servers': ['192.0.2.1']})
+
+        self.add_permissions('dcim.view_device', 'dcim.render_config_device')
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+        with patch.object(
+            Device, 'get_config_context', autospec=True, side_effect=Device.get_config_context
+        ) as get_config_context:
+            response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'192.0.2.1,192.0.2.2', response.content)
+        # A leak would only show on the view's in-memory instance
+        instance = get_config_context.call_args.args[0]
+        self.assertEqual(instance._config_context_data, {'servers': ['192.0.2.1']})
 
     def test_device_configcontext_is_not_cacheable(self):
         """
