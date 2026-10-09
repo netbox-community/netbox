@@ -508,7 +508,7 @@ class BulkCreateModelMixin:
                 else:
                     created_pks.append(serializer.instance.pk)
             if errors:
-                transaction.set_rollback(True)
+                transaction.set_rollback(True, using=using)
         return created_pks, errors, resolve_bulk_error_status(error_statuses)
 
 
@@ -645,7 +645,7 @@ class BulkUpdateModelMixin:
                 else:
                     updated_pks.append(obj.pk)
             if errors:
-                transaction.set_rollback(True)
+                transaction.set_rollback(True, using=using)
         return updated_pks, errors, resolve_bulk_error_status(error_statuses)
 
     def get_bulk_update_serializer_class(self, *, partial=False):
@@ -795,7 +795,7 @@ class BulkDestroyModelMixin:
                     errors.append({'id': pk, 'errors': {'__all__': [PERMISSION_DENIED_MESSAGE]}})
                     error_statuses.add(status.HTTP_403_FORBIDDEN)
             if errors:
-                transaction.set_rollback(True)
+                transaction.set_rollback(True, using=using)
         return errors, total, resolve_bulk_error_status(error_statuses)
 
 
