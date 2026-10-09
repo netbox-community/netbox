@@ -2829,6 +2829,163 @@ class CableTestCase(TestCase):
             if ct.termination in original_cts:
                 self.assertEqual(ct.pk, original_cts[ct.termination])
 
+    @tag('regression')  # #23094
+    def test_clearing_an_end_of_a_fresh_instance_removes_its_terminations(self):
+        """
+        Assigning an empty list to an end of a freshly loaded cable must delete that end's terminations only.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        cable_pk = Cable.objects.first().pk
+
+        for attr, kept_side, cleared, kept in (
+            ('a_terminations', CableEndChoices.SIDE_B, interface1, interface2),
+            ('b_terminations', CableEndChoices.SIDE_A, interface2, interface1),
+        ):
+            with self.subTest(attr=attr):
+                cable = Cable.objects.get(pk=cable_pk)
+                kept_row_pk = CableTermination.objects.get(cable=cable, cable_end=kept_side).pk
+                setattr(cable, attr, [])
+                self.assertTrue(cable._terminations_modified)
+                cable.full_clean()
+                cable.save()
+
+                self.assertEqual(
+                    list(CableTermination.objects.filter(cable=cable).values_list('pk', 'cable_end')),
+                    [(kept_row_pk, kept_side)]
+                )
+                cleared.refresh_from_db()
+                self.assertIsNone(cleared.cable)
+                self.assertIsNone(cleared._path_id)
+                kept.refresh_from_db()
+                self.assertEqual(kept.cable, cable)
+                self.assertFalse(kept._path.is_complete)
+
+                # Reconnect the cleared end so the other side starts from a complete cable
+                cable = Cable.objects.get(pk=cable_pk)
+                setattr(cable, attr, [cleared])
+                cable.save()
+
+        # A profiled cable keeps the other end's rows and connectors
+        cable, a_interfaces, b_interfaces = self._create_multiposition_cable()
+        a_row_pks = set(cable.terminations.filter(cable_end=CableEndChoices.SIDE_A).values_list('pk', flat=True))
+        cable = Cable.objects.get(pk=cable.pk)
+        cable.b_terminations = []
+        cable.full_clean()
+        cable.save()
+
+        self.assertEqual(self._get_connectors(cable, 'B'), [])
+        self.assertEqual(self._get_connectors(cable, 'A'), list(enumerate(a_interfaces, start=1)))
+        self.assertEqual(
+            set(cable.terminations.filter(cable_end=CableEndChoices.SIDE_A).values_list('pk', flat=True)), a_row_pks
+        )
+
+    @tag('regression')  # #23094
+    def test_reassigning_a_mutated_termination_list_flags_a_change(self):
+        """
+        Appending to a retrieved termination list and assigning it back must be applied on save.
+        """
+        cable = Cable.objects.first()
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface3 = Interface.objects.create(device=interface1.device, name='eth1')
+
+        # Assigning warms the A end's cache and the save resets the flag
+        cable.a_terminations = [interface1]
+        cable.save()
+        self.assertFalse(cable._terminations_modified)
+
+        terminations = cable.a_terminations
+        terminations.append(interface3)
+        cable.a_terminations = terminations
+        self.assertTrue(cable._terminations_modified)
+        cable.full_clean()
+        cable.save()
+
+        self.assertEqual(
+            [ct.termination for ct in cable.terminations.filter(cable_end=CableEndChoices.SIDE_A)],
+            [interface1, interface3]
+        )
+
+    @tag('regression')  # #23094
+    def test_assigned_termination_list_is_copied(self):
+        """
+        Mutating a list after assigning it to an end must not change the cable's terminations.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        cable = Cable.objects.first()
+
+        terminations = [interface1]
+        cable.a_terminations = terminations
+        terminations.append(interface3)
+
+        self.assertEqual(cable.a_terminations, [interface1])
+
+    @tag('regression')  # #23094
+    def test_assigning_an_iterable_stores_a_list_of_its_terminations(self):
+        """
+        Single-pass iterables and querysets assigned to an end must be stored as a list of the resolved terminations.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        row_pk = CableTermination.objects.get(cable_end=CableEndChoices.SIDE_A).pk
+
+        for label, value, expected in (
+            ('iterator of objects', iter([interface1, interface3]), [interface1, interface3]),
+            ('iterator of IDs', iter([row_pk]), [interface1]),
+            ('queryset', Interface.objects.filter(pk=interface1.pk), [interface1]),
+        ):
+            with self.subTest(value=label):
+                cable = Cable.objects.first()
+                cable.a_terminations = value
+                self.assertIsInstance(cable._a_terminations, list)
+                self.assertEqual(cable.a_terminations, expected)
+
+    def test_assigning_terminations_to_a_fresh_instance_flags_a_change(self):
+        """
+        Assigning an end of a freshly loaded cable must flag a change, even when it repeats the stored terminations.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        data = Cable.objects.first().serialize_object()
+
+        # Change replay writes the CableTermination rows first and relies on this to retrace the paths
+        for attr, interface in (('a_terminations', interface1), ('b_terminations', interface2)):
+            for label, value in (('objects', [interface]), ('IDs', data[attr])):
+                with self.subTest(attr=attr, value=label):
+                    cable = Cable.objects.first()
+                    setattr(cable, attr, value)
+                    self.assertEqual(getattr(cable, attr), [interface])
+                    self.assertTrue(cable._terminations_modified)
+
+    def test_reassigning_an_unchanged_end_on_a_warm_instance_does_not_flag_a_change(self):
+        """
+        Assigning the value an end already holds in memory must not flag a change or clear a pending one.
+        """
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface3 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+
+        # Assigning warms the A end's cache and the save resets the flag
+        cable = Cable.objects.first()
+        cable.a_terminations = [interface1]
+        cable.save()
+        self.assertFalse(cable._terminations_modified)
+        termination_pks = set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True))
+        path_pks = set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True))
+
+        cable.a_terminations = [interface1]
+        self.assertFalse(cable._terminations_modified)
+        cable.save()
+        self.assertEqual(
+            set(CableTermination.objects.filter(cable=cable).values_list('pk', flat=True)),
+            termination_pks
+        )
+        self.assertEqual(set(CablePath.objects.filter(_nodes__contains=cable).values_list('pk', flat=True)), path_pks)
+
+        cable.b_terminations = [interface3]
+        cable.a_terminations = [interface1]
+        self.assertTrue(cable._terminations_modified)
+
     @tag('regression')  # #21498
     def test_path_refreshes_replaced_cablepath_reference(self):
         """
