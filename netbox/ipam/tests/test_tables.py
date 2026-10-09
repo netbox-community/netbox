@@ -1,7 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from netaddr import IPNetwork
 
-from ipam.models import FHRPGroupAssignment, IPAddress, IPRange, Prefix
+from dcim.models import Site
+from ipam.models import ASN, RIR, FHRPGroupAssignment, IPAddress, IPRange, Prefix
 from ipam.tables import *
 from ipam.utils import annotate_ip_space
 from utilities.testing import TableTestCases
@@ -248,6 +249,53 @@ class ASNRangeTableTestCase(TableTestCases.StandardTableTestCase):
 
 class ASNTableTestCase(TableTestCases.StandardTableTestCase):
     table = ASNTable
+
+    @classmethod
+    def setUpTestData(cls):
+        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        asns = (
+            ASN(asn=65001, rir=rir),
+            ASN(asn=65002, rir=rir),
+            ASN(asn=65003, rir=rir),
+        )
+        ASN.objects.bulk_create(asns)
+        cls.sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(cls.sites)
+        asns[0].sites.set(cls.sites)
+        asns[1].sites.set(cls.sites[:1])
+
+    @tag('regression')  # Ref: #23350
+    def test_sites_column(self):
+        """The sites column links the sites of each ASN without further queries."""
+        url1, url2 = (site.get_absolute_url() for site in self.sites)
+        table = ASNTable(ASN.objects.all())
+        table.configure(self.get_request())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            cells = {row.record.asn: row.get_cell('sites') for row in rows}
+
+        self.assertHTMLEqual(cells[65001], f'<a href="{url1}">Site 1</a>, <a href="{url2}">Site 2</a>')
+        self.assertHTMLEqual(cells[65002], f'<a href="{url1}">Site 1</a>')
+        self.assertEqual(cells[65003], table.columns['sites'].default)
+
+    @tag('regression')  # Ref: #23350
+    def test_sites_export(self):
+        """An export lists the sites of each ASN without further queries."""
+        self.user.config.set('tables.ASNTable.columns', ['asn'], commit=True)
+        table = ASNTable(ASN.objects.all())
+        table.configure(self.get_request())
+        # An "All Data" export prefetches for every column, hidden or not
+        table._apply_prefetching(columns=table.columns.names())
+        rows = list(table.rows)
+
+        with self.assertNumQueries(0):
+            values = {row.record.asn: row.get_cell_value('sites') for row in rows}
+
+        self.assertEqual(values, {65001: 'Site 1, Site 2', 65002: 'Site 1', 65003: None})
 
 
 class ServiceTemplateTableTestCase(TableTestCases.StandardTableTestCase):

@@ -1,6 +1,7 @@
+import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils.html import strip_tags
 
 from core.models import ObjectType
@@ -8,6 +9,8 @@ from dcim.models import Device, Site
 from dcim.tables import DeviceTable
 from extras.choices import CustomFieldChoiceColorChoices, CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
+from ipam.models import ASN
+from ipam.tables import ASNTable
 from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
@@ -82,6 +85,13 @@ class BaseTableTestCase(TestCase):
         prefetch_lookups = table.data.data._prefetch_related_lookups
         self.assertIn('rack', prefetch_lookups)
         self.assertIn('site__region', prefetch_lookups)
+
+    @tag('regression')  # Ref: #23350
+    def test_prefetch_through_reverse_many_to_many(self):
+        """An accessor through a reverse many-to-many relation is prefetched along its full path."""
+        table = ASNTable(ASN.objects.all(), extra_columns=[('site_regions', tables.Column(accessor='sites__region'))])
+        table._apply_prefetching(columns=['site_regions'])
+        self.assertEqual(table.data.data._prefetch_related_lookups, ('sites__region',))
 
     def test_configure_anonymous_user_with_ordering(self):
         """
