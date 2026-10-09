@@ -188,7 +188,6 @@ class BaseFilterSet(django_filters.FilterSet):
             django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
             filters.MultiValueCharFilter,
-            filters.MultiValueMACAddressFilter
         )):
             return FILTER_CHAR_BASED_LOOKUP_MAP
 

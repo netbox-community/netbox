@@ -872,6 +872,11 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
         params = {'vlan': vlan.vid}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+        # A non-integer value is rejected
+        for value in ('no-such-value', '1.5'):
+            self.assertFalse(self.filterset({'vlan_id': value}, self.queryset).is_valid(), msg=value)
+            self.assertFalse(self.filterset({'vlan': value}, self.queryset).is_valid(), msg=value)
+
     def test_vlan_translation_policy(self):
         vlan_translation_policies = VLANTranslationPolicy.objects.all()[:2]
         params = {'vlan_translation_policy_id': [vlan_translation_policies[0].pk, vlan_translation_policies[1].pk]}

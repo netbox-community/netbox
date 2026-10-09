@@ -32,6 +32,7 @@ from utilities.filters import (
     MultiValueContentTypeFilter,
     MultiValueMACAddressFilter,
     MultiValueNumberFilter,
+    MultiValueTimeZoneFilter,
     MultiValueWWNFilter,
     NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
@@ -217,7 +218,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         queryset=ASN.objects.all(),
         label=_('AS (ID)'),
     )
-    time_zone = MultiValueCharFilter()
+    time_zone = MultiValueTimeZoneFilter()
 
     class Meta:
         model = Site
@@ -623,7 +624,9 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     unit = NumericArrayFilter(
         field_name='units',
-        lookup_expr='contains'
+        lookup_expr='contains',
+        min_value=0,
+        max_value=32767
     )
     unit_count_min = django_filters.NumberFilter(
         field_name='unit_count',
@@ -2347,12 +2350,14 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         distinct=False,
         label=_('802.1Q Mode')
     )
-    vlan_id = django_filters.CharFilter(
+    vlan_id = django_filters.NumberFilter(
         method='filter_vlan_id',
+        decimal_places=0,
         label=_('Assigned VLAN')
     )
-    vlan = django_filters.CharFilter(
+    vlan = django_filters.NumberFilter(
         method='filter_vlan',
+        decimal_places=0,
         label=_('Assigned VID')
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
@@ -2394,23 +2399,22 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
     )
 
     def filter_vlan_id(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
-        return queryset.filter(
-            Q(untagged_vlan_id=value) |
-            Q(tagged_vlans=value) |
-            Q(qinq_svlan=value)
-        )
+        return self._filter_assigned_vlan(queryset, 'id', value)
 
     def filter_vlan(self, queryset, name, value):
-        value = value.strip()
-        if not value:
-            return queryset
+        return self._filter_assigned_vlan(queryset, 'vid', value)
+
+    @staticmethod
+    def _filter_assigned_vlan(queryset, field, value):
+        """
+        Filter by any assigned VLAN (untagged, tagged, or Q-in-Q SVLAN) matching the given integer value on the
+        specified VLAN field.
+        """
+        value = int(value)
         return queryset.filter(
-            Q(untagged_vlan_id__vid=value) |
-            Q(tagged_vlans__vid=value) |
-            Q(qinq_svlan__vid=value)
+            Q(**{f'untagged_vlan__{field}': value}) |
+            Q(**{f'tagged_vlans__{field}': value}) |
+            Q(**{f'qinq_svlan__{field}': value})
         )
 
 
