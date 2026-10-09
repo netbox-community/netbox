@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -17,7 +17,20 @@ from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
 from dcim.api.serializers import SiteSerializer
-from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
+from dcim.choices import PortTypeChoices
+from dcim.models import (
+    Device,
+    DeviceRole,
+    DeviceType,
+    FrontPort,
+    Location,
+    Manufacturer,
+    PortMapping,
+    Rack,
+    RackRole,
+    RearPort,
+    Site,
+)
 from extras.api.serializers import EventRuleSerializer
 from extras.choices import *
 from extras.models import *
@@ -28,7 +41,7 @@ from netbox.registry import registry
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
-from utilities.testing import APITestCase, APIViewTestCases, disable_warnings
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_warnings
 
 
 class AppTestCase(APITestCase):
@@ -1347,6 +1360,24 @@ class TaggedItemTestCase(
             # Only the site serializer's brief fields carry a slug
             self.assertEqual('slug' in tagged_item['object'], tagged_item['object_type'] == 'dcim.site')
             self.assertNotIn('custom_fields', tagged_item['object'])
+
+    @tag('regression')  # Ref: #23310
+    def test_list_objects_without_serializer(self):
+        """A tagged item whose object has no REST API serializer lists a null object."""
+        self.add_permissions('extras.view_taggeditem')
+        device = create_test_device('Device 1')
+        front_port = FrontPort.objects.create(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C)
+        rear_port = RearPort.objects.create(device=device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C)
+        port_mapping = PortMapping.objects.create(device=device, front_port=front_port, rear_port=rear_port)
+        tagged_item = TaggedItem.objects.create(tag=Tag.objects.get(slug='tag-1'), content_object=port_mapping)
+
+        response = self.client.get(reverse('extras-api:taggeditem-list'), **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(tagged_item.pk)['object'])
+        for item in results.values():
+            self.assertEqual(item['object']['id'], item['object_id'])
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)
