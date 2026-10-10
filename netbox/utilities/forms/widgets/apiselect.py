@@ -27,6 +27,10 @@ class APISelect(forms.Select):
         # Add quick-add context data, if enabled for the widget
         if hasattr(self, 'quick_add_context'):
             context['quick_add'] = self.quick_add_context
+        # Read from attrs: __deepcopy__ resets static_params but leaves the serialized attribute intact
+        raw = self.attrs.get('data-static-params', '[]')
+        parsed = json.loads(raw)
+        context['static_params'] = {item['queryParam']: item['queryValue'] for item in parsed}
 
         return context
 

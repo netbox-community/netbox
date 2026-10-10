@@ -19,6 +19,11 @@
   <div class="col-9">
     <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results" hx-trigger="load, submit, change, keyup from:#id_q delay:500ms">
       <input type="hidden" name="_search" value="true" />
+      {% for k, values in static_params.items %}
+        {% for v in values %}
+          <input type="hidden" name="{{ k }}" value="{{ v }}" />
+        {% endfor %}
+      {% endfor %}
       <div class="tab-content p-1">
         {% for field in form.visible_fields %}
           <div class="collapse selector{{ forloop.counter }}{% if field.name in form.selector_fields %} show{% endif %}">{% render_field field %}</div>
