@@ -3,6 +3,7 @@ import strawberry_django
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ExpressionWrapper, F, Func, IntegerField, Value
 from strawberry.types import Info
+from strawberry_django.optimizer import OptimizerStore
 
 from core.graphql.mixins import ChangelogMixin
 from core.models import ObjectType as ObjectType_
@@ -31,7 +32,24 @@ def register_type(model, **kwargs):
     decorated class's bases. With no extensions registered this is an exact pass-through, leaving schema output
     unchanged. See `register_model_graphql_type` for the registry-timing contract.
     """
-    return register_model_graphql_type(model, strawberry_django.type, 'graphql_type_extensions', **kwargs)
+    return register_model_graphql_type(model, _model_type, 'graphql_type_extensions', **kwargs)
+
+
+def _model_type(model, **kwargs):
+    """
+    Wrap `strawberry_django.type()` to give each type's `display` field an optimizer hint. `display` resolves via
+    `__str__()`, which may read any of the model's columns; without a hint the optimizer defers them, and reading a
+    deferred column reloads the row with one query per object.
+    """
+    def wrapper(cls):
+        graphql_type = strawberry_django.type(model, **kwargs)(cls)
+        for field in graphql_type.__strawberry_definition__.fields:
+            if field.python_name == 'display':
+                # Replace (not mutate or merge) the store: copied fields share it, and may carry another model's hint
+                field.store = OptimizerStore.with_hints(only=[f.name for f in model._meta.concrete_fields])
+        return graphql_type
+
+    return wrapper
 
 
 #
