@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 05:04+0000\n"
+"POT-Creation-Date: 2026-10-10 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2720,7 +2720,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:861
+#: netbox/core/models/data.py:306 netbox/dcim/models/cables.py:866
 msgid "path"
 msgstr ""
 
@@ -6926,110 +6926,110 @@ msgstr ""
 msgid "cables"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:302
+#: netbox/dcim/models/cables.py:307
 msgid "Must specify a unit when setting a cable length"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:305
+#: netbox/dcim/models/cables.py:310
 msgid "Must define A and B terminations when creating a new cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:316
+#: netbox/dcim/models/cables.py:321
 msgid "Cannot connect different termination types to same end of cable."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:324
+#: netbox/dcim/models/cables.py:329
 #, python-brace-format
 msgid "Incompatible termination types: {type_a} and {type_b}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:334
+#: netbox/dcim/models/cables.py:339
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:638 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:643 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:709
+#: netbox/dcim/models/cables.py:714
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:710
+#: netbox/dcim/models/cables.py:715
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:723
+#: netbox/dcim/models/cables.py:728
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:740
+#: netbox/dcim/models/cables.py:745
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:752
+#: netbox/dcim/models/cables.py:757
 msgid ""
 "Cables cannot be terminated directly to a channel subinterface; cable the "
 "parent interface instead."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:758
+#: netbox/dcim/models/cables.py:763
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:765
+#: netbox/dcim/models/cables.py:770
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:797
+#: netbox/dcim/models/cables.py:802
 msgid ""
 "Invalid cable termination: the assigned termination object does not exist."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:865 netbox/extras/models/configs.py:105
+#: netbox/dcim/models/cables.py:870 netbox/extras/models/configs.py:105
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:869
+#: netbox/dcim/models/cables.py:874
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:873
+#: netbox/dcim/models/cables.py:878
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:886
+#: netbox/dcim/models/cables.py:891
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:887
+#: netbox/dcim/models/cables.py:892
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:978
+#: netbox/dcim/models/cables.py:983
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:996
+#: netbox/dcim/models/cables.py:1001
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1004
+#: netbox/dcim/models/cables.py:1009
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1034
+#: netbox/dcim/models/cables.py:1039
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:1036
+#: netbox/dcim/models/cables.py:1041
 msgid "All links must match first link type"
 msgstr ""
 
@@ -9482,7 +9482,7 @@ msgstr ""
 msgid "VLAN Groups"
 msgstr ""
 
-#: netbox/dcim/tests/test_api.py:73
+#: netbox/dcim/tests/test_api.py:81
 msgid "Test case must set peer_termination_type"
 msgstr ""
 
@@ -9751,26 +9751,26 @@ msgstr ""
 msgid "Unknown related object(s): {name}"
 msgstr ""
 
-#: netbox/extras/api/mixins.py:92 netbox/extras/api/views.py:258
+#: netbox/extras/api/mixins.py:101 netbox/extras/api/views.py:258
 msgid ""
 "The rendered config template. When the client requests `text/plain`, the raw "
 "rendered content is returned in place of the JSON object."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:98
+#: netbox/extras/api/mixins.py:107
 msgid "No config template could be resolved for this object."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:102 netbox/extras/api/views.py:264
+#: netbox/extras/api/mixins.py:111 netbox/extras/api/views.py:264
 msgid "An error occurred while rendering the config template."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:125 netbox/extras/views.py:1317
+#: netbox/extras/api/mixins.py:134 netbox/extras/views.py:1317
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr ""
 
-#: netbox/extras/api/mixins.py:131
+#: netbox/extras/api/mixins.py:140
 #, python-brace-format
 msgid "No config template found for this {object_type}."
 msgstr ""
@@ -18707,24 +18707,24 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
-#: netbox/utilities/api.py:292
+#: netbox/utilities/api.py:291
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:295
+#: netbox/utilities/api.py:294
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:307
+#: netbox/utilities/api.py:306
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr ""
 
-#: netbox/utilities/api.py:316
+#: netbox/utilities/api.py:315
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
