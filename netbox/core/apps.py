@@ -36,6 +36,12 @@ class CoreConfig(AppConfig):
         )
         from netbox import context_managers  # noqa: F401
         from netbox.models.features import register_models
+
+        # Importing netbox.search.jobs registers its system job(s) (e.g. the
+        # search-cache flush safety net) in registry['system_jobs'] before the
+        # RQ worker reads that registry at startup. The module is otherwise only
+        # imported lazily, so this import is load-bearing, not cosmetic.
+        from netbox.search import jobs as search_jobs  # noqa: F401
         from netbox.search import signals as search_signals  # noqa: F401
 
         from . import data_backends, events, search  # noqa: F401
