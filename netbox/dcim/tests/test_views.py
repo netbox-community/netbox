@@ -32,6 +32,7 @@ from netbox.choices import (
 )
 from tenancy.models import Tenant
 from users.models import ObjectPermission, Owner, User
+from utilities.exceptions import PermissionsViolation
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -5632,6 +5633,7 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         # The device may be changed, but not into a virtual chassis member
         response = self.client.post(url, {'device': device.pk, 'vc_position': 4, 'vc_priority': ''})
         self.assertHttpStatus(response, 200)
+        self.assertIn(PermissionsViolation.message, response.context['membership_form'].non_field_errors())
         device.refresh_from_db()
         self.assertIsNone(device.virtual_chassis)
 
