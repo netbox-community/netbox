@@ -13,6 +13,7 @@ from extras.models import CachedValue
 from netbox.search import deferred
 from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
+from utilities.testing.mixins import RQQueueTestMixin
 
 
 def scheduled_search_flushes():
@@ -188,7 +189,7 @@ class SearchBackendTestCase(TestCase):
         self.assertEqual(len(results), 0)
 
 
-class DeferredCachingTestCase(TestCase):
+class DeferredCachingTestCase(RQQueueTestMixin, TestCase):
     """
     Tests for the deferred (post-commit) search caching machinery in
     netbox.search.deferred.
@@ -197,26 +198,12 @@ class DeferredCachingTestCase(TestCase):
     commit, so these tests assert on real CachedValue state and on the real
     per-transaction buffer (connection.run_on_commit) rather than mocking the
     queue.
+
+    Some tests patch the worker probe True and write to the real tasks Redis
+    (DB 0). RQQueueTestMixin flushes that database around each test and
+    serializes this class against the other Redis-backed suites, so a parallel
+    worker's flush can't wipe the coalescing keys mid-test.
     """
-
-    def setUp(self):
-        super().setUp()
-        # Tests that patch the worker probe True write to the real tasks Redis
-        # (DB 0); clear the coalescing keys so they don't leak between tests.
-        self._clear_search_redis()
-        self.addCleanup(self._clear_search_redis)
-
-    @staticmethod
-    def _clear_search_redis():
-        conn = deferred._connection()
-        for prefix in (
-            deferred.PENDING_PREFIX,
-            deferred.LOCK_PREFIX,
-            deferred.STAGING_PREFIX,
-            deferred.LEASE_PREFIX,
-        ):
-            for raw_key in conn.scan_iter(match=f'{prefix}*'):
-                conn.delete(raw_key)
 
     def _scheduled_flush_aliases(self):
         return [getattr(func, deferred._FLUSH_ALIAS_ATTR) for func in scheduled_search_flushes()]
@@ -590,30 +577,16 @@ class DeferredCachingTestCase(TestCase):
         self.assertIn(column, str(ctx.exception))
 
 
-class SearchCacheCoalescingTestCase(TestCase):
+class SearchCacheCoalescingTestCase(RQQueueTestMixin, TestCase):
     """
     Tests for the cross-transaction coalescing buffer in netbox.search.deferred.
 
-    These use the real tasks Redis connection (DB 0) with targeted cleanup, so
-    the RENAME/lock/lease primitives are exercised for real rather than mocked.
+    These use the real tasks Redis connection (DB 0), so the RENAME/lock/lease
+    primitives are exercised for real rather than mocked. RQQueueTestMixin
+    flushes that database around each test and serializes this class against the
+    other Redis-backed suites; otherwise a parallel worker's flush would wipe the
+    coalescing keys mid-test.
     """
-
-    def setUp(self):
-        super().setUp()
-        self._clear_search_redis()
-        self.addCleanup(self._clear_search_redis)
-
-    @staticmethod
-    def _clear_search_redis():
-        conn = deferred._connection()
-        for prefix in (
-            deferred.PENDING_PREFIX,
-            deferred.LOCK_PREFIX,
-            deferred.STAGING_PREFIX,
-            deferred.LEASE_PREFIX,
-        ):
-            for raw_key in conn.scan_iter(match=f'{prefix}*'):
-                conn.delete(raw_key)
 
     @staticmethod
     def _create_site(slug='coalesce'):
