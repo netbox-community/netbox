@@ -133,6 +133,11 @@ Pillow
 # https://github.com/psycopg/psycopg/blob/master/docs/news.rst
 psycopg[c,pool]
 
+# Markdown extensions (for documentation build)
+# Pinned below v12.2 pending mkdocstrings compatibility (see #23385)
+# https://github.com/facelessuser/pymdown-extensions/releases
+pymdown-extensions<12.2
+
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
