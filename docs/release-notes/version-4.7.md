@@ -1,5 +1,58 @@
 # NetBox v4.7
 
+## v4.7.3 (2026-10-13)
+
+### Enhancements
+
+* [#23230](https://github.com/netbox-community/netbox/issues/23230) - Add a location filter to the power feeds list view
+
+### Performance Improvements
+
+* [#23288](https://github.com/netbox-community/netbox/issues/23288) - Skip the loading of config context data when the field is excluded from a REST API response
+* [#23290](https://github.com/netbox-community/netbox/issues/23290) - Reuse nested serializer instances when rendering REST API list responses
+* [#23291](https://github.com/netbox-community/netbox/issues/23291) - Avoid loading unused virtual machines when serializing clusters via the REST API
+* [#23292](https://github.com/netbox-community/netbox/issues/23292) - Skip static prefetches for fields which have been excluded from a REST API response
+* [#23311](https://github.com/netbox-community/netbox/issues/23311) - Defer building the GraphQL schema until it is needed, rather than during the initialization of every management command
+* [#23350](https://github.com/netbox-community/netbox/issues/23350) - Extend automatic table prefetching to reverse many-to-many relations
+
+### Bug Fixes
+
+* [#22802](https://github.com/netbox-community/netbox/issues/22802) - Correct the OpenAPI request body schema for the available prefixes REST API endpoint
+* [#23094](https://github.com/netbox-community/netbox/issues/23094) - Fix the detection of changes to a cable's terminations
+* [#23099](https://github.com/netbox-community/netbox/issues/23099) - Persist the status change of cable paths deactivated during a partial cable save
+* [#23121](https://github.com/netbox-community/netbox/issues/23121) - Remove stale cable paths when a cable's terminations are changed
+* [#23134](https://github.com/netbox-community/netbox/issues/23134) - Record a change log entry when a circuit's termination pointer is updated
+* [#23172](https://github.com/netbox-community/netbox/issues/23172) - Permit the selection of a numeric enum value for a module type profile attribute via the UI
+* [#23198](https://github.com/netbox-community/netbox/issues/23198) - Restrict the rack elevation `highlight` parameter to prevent the disclosure of data the user is not permitted to view
+* [#23227](https://github.com/netbox-community/netbox/issues/23227) - Display date & time custom field values in the user's local time zone within object tables
+* [#23233](https://github.com/netbox-community/netbox/issues/23233) - Synchronizing a data source should not require the `add` permission
+* [#23240](https://github.com/netbox-community/netbox/issues/23240) - Hide the bulk actions container on list views which have no bulk actions available
+* [#23247](https://github.com/netbox-community/netbox/issues/23247) - Preserve request headers and query parameters for REST API bulk writes processed in the background
+* [#23274](https://github.com/netbox-community/netbox/issues/23274) - Prevent the assignment of a primary or OOB IP address belonging to another device when creating a device
+* [#23275](https://github.com/netbox-community/netbox/issues/23275) - Fix exception when setting a primary IP on a virtual device context with no assigned device
+* [#23278](https://github.com/netbox-community/netbox/issues/23278) - Fix exception when creating a virtual machine with a primary IP address
+* [#23280](https://github.com/netbox-community/netbox/issues/23280) - Fix exception when retrieving change log entries for port mappings via the REST API
+* [#23281](https://github.com/netbox-community/netbox/issues/23281) - Ensure that modifying a new user's preferences does not alter the default preferences for other users
+* [#23283](https://github.com/netbox-community/netbox/issues/23283) - Fix exception when logging in as a user with no preferences record
+* [#23307](https://github.com/netbox-community/netbox/issues/23307) - Ensure that changing a cable's profile does not remove its connection from cable traces
+* [#23310](https://github.com/netbox-community/netbox/issues/23310) - Fix exception when listing jobs or tagged objects assigned to objects which have no REST API serializer
+* [#23321](https://github.com/netbox-community/netbox/issues/23321) - Fix `TypeError` exception when creating a device type with a front or rear image via the REST API
+* [#23322](https://github.com/netbox-community/netbox/issues/23322) - Fix the `q` search filter for tunnel terminations
+* [#23323](https://github.com/netbox-community/netbox/issues/23323) - Fix exception when specifying `installed_module` while creating a module bay via the REST API
+* [#23324](https://github.com/netbox-community/netbox/issues/23324) - Include a circuit's group assignments in its REST API representation, and fix exception when specifying them on creation
+* [#23325](https://github.com/netbox-community/netbox/issues/23325) - Fix `FieldError` exception when filtering circuits and virtual circuits by provider account
+* [#23326](https://github.com/netbox-community/netbox/issues/23326) - Fix `FieldError` exception when filtering front & rear ports (and their templates) by `rear_port_id` or `front_port_id`
+* [#23327](https://github.com/netbox-community/netbox/issues/23327) - Fix `FieldError` exception when searching circuit group assignments
+* [#23328](https://github.com/netbox-community/netbox/issues/23328) - Return empty results or a 400 response, rather than raising an exception, when passing malformed values to certain filters
+* [#23332](https://github.com/netbox-community/netbox/issues/23332) - Fix `AttributeError` exception when executing a bulk edit as a background job
+* [#23340](https://github.com/netbox-community/netbox/issues/23340) - Fix exception when applying the `__empty` lookup to numeric and date/time filters
+* [#23342](https://github.com/netbox-community/netbox/issues/23342) - Fix the display of circuit group assignments in the circuits list
+* [#23345](https://github.com/netbox-community/netbox/issues/23345) - Validate the IDs passed to the installed module and data file filters against the correct models
+* [#23367](https://github.com/netbox-community/netbox/issues/23367) - Fix the rollback of failed REST API bulk operations when writes are routed to a non-default database
+* [#23369](https://github.com/netbox-community/netbox/issues/23369) - Add custom fields support to the circuit group assignment REST API serializer
+
+---
+
 ## v4.7.2 (2026-09-29)
 
 !!! warning "API Tokens Created by Background Bulk Requests"

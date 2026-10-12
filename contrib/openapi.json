@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "NetBox REST API",
-        "version": "4.7.2",
+        "version": "4.7.3",
         "license": {
             "name": "Apache v2 License"
         }
@@ -119,14 +119,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -363,14 +357,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -1480,14 +1468,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -1823,14 +1805,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -3409,14 +3385,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -3752,14 +3722,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -5766,14 +5730,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -6109,14 +6067,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -7602,14 +7554,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -8276,14 +8222,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -10146,14 +10086,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -10489,14 +10423,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -11571,14 +11499,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -11914,14 +11836,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -13281,14 +13197,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -13624,14 +13534,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -14953,14 +14857,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -15322,14 +15220,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -16631,14 +16523,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -16974,14 +16860,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -18306,14 +18186,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -18649,14 +18523,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -20553,14 +20421,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -20896,14 +20758,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -21445,14 +21301,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -21880,14 +21730,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -23516,7 +23360,7 @@
         "/api/core/data-sources/{id}/sync/": {
             "post": {
                 "operationId": "core_data_sources_sync_create",
-                "description": "Enqueue a job to synchronize the DataSource.",
+                "description": "Enqueue a job to synchronize the DataSource. The brief representation of the DataSource is returned if the\nuser does not have permission to view it.",
                 "parameters": [
                     {
                         "in": "path",
@@ -23531,21 +23375,6 @@
                 "tags": [
                     "core"
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/WritableDataSourceRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/WritableDataSourceRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
                 "security": [
                     {
                         "cookieAuth": []
@@ -26410,14 +26239,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -26753,14 +26576,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -28019,14 +27836,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -28237,14 +28048,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -28896,14 +28701,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -29441,14 +29240,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -31456,14 +31249,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -31978,14 +31765,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -33301,14 +33082,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -34116,14 +33891,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -35967,14 +35736,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -36489,14 +36252,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -37812,14 +37569,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -38627,14 +38378,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -40589,14 +40334,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -40932,14 +40671,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -42661,14 +42394,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -43443,14 +43170,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -44784,14 +44505,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -45859,14 +45574,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -47746,14 +47455,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -48528,14 +48231,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -49609,14 +49306,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -50684,14 +50375,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -52446,14 +52131,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -52964,14 +52643,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -54516,14 +54189,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -55043,14 +54710,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -55895,14 +55556,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -56773,14 +56428,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -58386,14 +58035,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -58729,14 +58372,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -60661,14 +60298,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -61616,14 +61247,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -64887,14 +64512,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -65829,14 +65448,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -69091,14 +68704,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -69613,14 +69220,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -71195,14 +70796,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -72010,14 +71605,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -73970,14 +73559,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -74499,14 +74082,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -76590,14 +76167,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -77681,14 +77252,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -79770,14 +79335,8 @@
                         "in": "query",
                         "name": "speed__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int64"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -81567,14 +81126,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -81910,14 +81463,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -83091,14 +82638,8 @@
                         "in": "query",
                         "name": "component_id__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -83206,14 +82747,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -83726,14 +83261,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -85016,14 +84545,8 @@
                         "in": "query",
                         "name": "component_id__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -85131,14 +84654,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -85953,14 +85470,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -88064,14 +87575,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -88558,14 +88063,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -90323,14 +89822,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -90743,14 +90236,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -91927,14 +91414,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -92270,14 +91751,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -93451,14 +92926,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -93980,14 +93449,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -95214,14 +94677,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -95557,14 +95014,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -96870,14 +96321,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -97718,14 +97163,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -99363,14 +98802,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -99706,14 +99139,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -101418,14 +100845,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -102024,14 +101445,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -104217,14 +103632,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -104614,14 +104023,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -106322,14 +105725,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -106665,14 +106062,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -108406,14 +107797,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -108749,14 +108134,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -108831,6 +108210,54 @@
                         "schema": {
                             "type": "integer"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "location",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "location__n",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "location_id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
+                        "name": "location_id__n",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "explode": true,
+                        "style": "form"
                     },
                     {
                         "in": "query",
@@ -111108,14 +110535,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -111817,14 +111238,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -113337,14 +112752,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -114339,14 +113748,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -116285,14 +115688,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -116628,14 +116025,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -117915,14 +117306,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -118437,14 +117822,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -119948,14 +119327,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -120763,14 +120136,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -122527,14 +121894,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -122870,14 +122231,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -124051,14 +123406,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -124446,14 +123795,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -125256,7 +124599,7 @@
                         "in": "query",
                         "name": "unit__empty",
                         "schema": {
-                            "type": "number"
+                            "type": "boolean"
                         }
                     },
                     {
@@ -126080,14 +125423,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -126423,14 +125760,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -127864,14 +127195,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -128377,14 +127702,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -131505,14 +130824,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -132235,14 +131548,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -135536,14 +134843,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -136084,14 +135385,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -137640,14 +136935,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -138481,14 +137770,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -140345,14 +139628,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -140688,14 +139965,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -142047,14 +141318,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -142390,14 +141655,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -143759,14 +143018,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -144301,14 +143554,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -146109,14 +145356,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -146603,14 +145844,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -147974,14 +147209,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -148488,14 +147717,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -150106,14 +149329,8 @@
                         "in": "query",
                         "name": "object_type_id__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -150833,14 +150050,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -151317,14 +150528,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -152539,14 +151744,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -153108,14 +152307,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -154690,14 +153883,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -155483,14 +154670,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -156990,14 +156171,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -157333,14 +156508,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -158412,14 +157581,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -159221,14 +158384,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -161734,14 +160891,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -162084,14 +161235,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -163627,14 +162772,8 @@
                         "in": "query",
                         "name": "action_object_id__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -163913,14 +163052,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -164275,14 +163408,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -165487,14 +164614,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -166273,14 +165394,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -167605,14 +166720,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -168203,14 +167312,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -169645,14 +168748,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -171606,14 +170703,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -171956,14 +171047,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -174616,14 +173701,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -174966,14 +174045,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -176775,14 +175848,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -177131,14 +176198,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -178500,14 +177561,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -179157,14 +178212,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -180518,14 +179567,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -180953,14 +179996,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -181994,14 +181031,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -182422,14 +181453,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -184041,14 +183066,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -184384,14 +183403,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -185623,14 +184636,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -185975,14 +184982,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -187116,14 +186117,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -187544,14 +186539,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -188962,14 +187951,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -189566,14 +188549,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -191233,14 +190210,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -191595,14 +190566,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -193113,14 +192078,8 @@
                         "in": "query",
                         "name": "children__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -193288,14 +192247,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -193387,14 +192340,8 @@
                         "in": "query",
                         "name": "depth__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -193736,14 +192683,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -194844,7 +193785,7 @@
                         "in": "query",
                         "name": "vlan_vid__empty",
                         "schema": {
-                            "type": "integer"
+                            "type": "boolean"
                         },
                         "description": "VLAN number (1-4094)"
                     },
@@ -195705,7 +194646,7 @@
                             "schema": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/PrefixLengthRequest"
+                                    "$ref": "#/components/schemas/CreateAvailablePrefixRequest"
                                 }
                             }
                         },
@@ -195713,7 +194654,7 @@
                             "schema": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/PrefixLengthRequest"
+                                    "$ref": "#/components/schemas/CreateAvailablePrefixRequest"
                                 }
                             }
                         }
@@ -195775,14 +194716,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -196125,14 +195060,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -197306,14 +196235,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -197649,14 +196572,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -198915,14 +197832,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -199490,14 +198401,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -200622,14 +199527,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -200965,14 +199864,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -202197,14 +201090,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -202642,14 +201529,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -203965,14 +202846,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -204308,14 +203183,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -205990,14 +204859,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -206333,14 +205196,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -207363,14 +206220,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -207706,14 +206557,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -208729,14 +207574,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -209193,14 +208032,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -209819,14 +208652,9 @@
                         "in": "query",
                         "name": "qinq_svlan_vid__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
+                            "type": "boolean"
                         },
-                        "explode": true,
-                        "style": "form"
+                        "description": "Q-in-Q SVLAN number (1-4094)"
                     },
                     {
                         "in": "query",
@@ -211138,14 +209966,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -211592,14 +210414,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -213069,14 +211885,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -213309,14 +212119,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -214492,14 +213296,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -214835,14 +213633,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -216070,14 +214862,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -216413,14 +215199,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -217745,14 +216525,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -218287,14 +217061,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -219818,14 +218586,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -220161,14 +218923,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -221472,14 +220228,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -221863,14 +220613,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -230807,14 +229551,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -231150,14 +229888,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -232331,14 +231063,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -232674,14 +231400,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -233931,14 +232651,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -234328,14 +233042,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -236058,14 +234766,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -236468,14 +235170,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -238169,14 +236865,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -238512,14 +237202,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -239679,14 +238363,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -240240,14 +238918,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -241768,14 +240440,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -242345,14 +241011,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -244871,14 +243531,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -245262,14 +243916,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -247045,14 +245693,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -247771,14 +246413,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -248886,14 +247522,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -249277,14 +247907,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -250487,14 +249111,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -250934,14 +249552,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -252314,14 +250926,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -252896,14 +251502,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -254229,14 +252829,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -254579,14 +253173,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -254959,7 +253547,7 @@
                         "in": "query",
                         "name": "vlan_vid__empty",
                         "schema": {
-                            "type": "integer"
+                            "type": "boolean"
                         },
                         "description": "VLAN number (1-4094)"
                     },
@@ -255690,14 +254278,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -256222,14 +254804,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -257907,14 +256483,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -258250,14 +256820,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -259431,14 +257995,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -259675,14 +258233,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -260926,14 +259478,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -261540,14 +260086,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -262968,14 +261508,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -263311,14 +261845,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -265067,14 +263595,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -265482,14 +264004,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -267633,14 +266149,8 @@
                         "in": "query",
                         "name": "created__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -268270,14 +266780,8 @@
                         "in": "query",
                         "name": "last_updated__empty",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "format": "date-time"
-                            }
-                        },
-                        "explode": true,
-                        "style": "form"
+                            "type": "boolean"
+                        }
                     },
                     {
                         "in": "query",
@@ -276317,6 +274821,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NestedTagRequest"
                         }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
                     }
                 },
                 "required": [
@@ -276554,12 +275062,6 @@
                     "custom_fields": {
                         "type": "object",
                         "additionalProperties": {}
-                    },
-                    "assignments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_Request"
-                        }
                     }
                 },
                 "required": [
@@ -283410,22 +281912,6 @@
                         "items": {
                             "type": "integer"
                         }
-                    },
-                    "installed_module": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/BriefModuleRequest"
-                                    }
-                                ],
-                                "nullable": true
-                            }
-                        ],
-                        "nullable": true
                     },
                     "owner": {
                         "oneOf": [
@@ -291079,10 +289565,12 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_"
-                        }
+                        },
+                        "readOnly": true
                     }
                 },
                 "required": [
+                    "assignments",
                     "cid",
                     "created",
                     "display",
@@ -291369,6 +289857,10 @@
                             "$ref": "#/components/schemas/NestedTag"
                         }
                     },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    },
                     "created": {
                         "type": "string",
                         "format": "date-time",
@@ -291435,6 +289927,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NestedTagRequest"
                         }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
                     }
                 },
                 "required": [
@@ -291664,12 +290160,6 @@
                     "custom_fields": {
                         "type": "object",
                         "additionalProperties": {}
-                    },
-                    "assignments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_Request"
-                        }
                     }
                 },
                 "required": [
@@ -296895,6 +295385,127 @@
                     "name",
                     "site",
                     "type"
+                ]
+            },
+            "CreateAvailablePrefixRequest": {
+                "type": "object",
+                "description": "Request payload for creating prefixes from the available-prefixes endpoint. The parent prefix supplies both\nthe `prefix` value (via a requested `prefix_length`) and the `vrf`, so neither is accepted here. Field\ndefinitions are inherited from PrefixSerializer; only the request-specific `prefix_length` and `Meta.fields`\ndiffer.",
+                "properties": {
+                    "prefix_length": {
+                        "type": "integer"
+                    },
+                    "scope_type": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "scope_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "tenant": {
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BriefTenantRequest"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "vlan": {
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BriefVLANRequest"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "status": {
+                        "enum": [
+                            "container",
+                            "active",
+                            "reserved",
+                            "deprecated"
+                        ],
+                        "type": "string",
+                        "description": "* `container` - Container\n* `active` - Active\n* `reserved` - Reserved\n* `deprecated` - Deprecated",
+                        "x-spec-enum-id": "026173ce39f2ee63"
+                    },
+                    "role": {
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BriefRoleRequest"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "is_pool": {
+                        "type": "boolean",
+                        "title": "Is a pool",
+                        "description": "All IP addresses within this prefix are considered usable"
+                    },
+                    "mark_utilized": {
+                        "type": "boolean",
+                        "description": "Treat as fully utilized"
+                    },
+                    "description": {
+                        "type": "string",
+                        "maxLength": 200
+                    },
+                    "owner": {
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/BriefOwnerRequest"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "comments": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NestedTagRequest"
+                        }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    }
+                },
+                "required": [
+                    "prefix_length"
                 ]
             },
             "CreateAvailableVLANRequest": {
@@ -307708,8 +306319,8 @@
                         "nullable": true
                     },
                     "object": {
-                        "nullable": true,
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "name": {
                         "type": "string",
@@ -309173,6 +307784,7 @@
                                 "$ref": "#/components/schemas/BriefModule"
                             }
                         ],
+                        "readOnly": true,
                         "nullable": true
                     },
                     "owner": {
@@ -309222,6 +307834,7 @@
                     "display",
                     "display_url",
                     "id",
+                    "installed_module",
                     "is_module_compatible",
                     "last_updated",
                     "name",
@@ -309285,22 +307898,6 @@
                         "items": {
                             "type": "integer"
                         }
-                    },
-                    "installed_module": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/BriefModuleRequest"
-                                    }
-                                ],
-                                "nullable": true
-                            }
-                        ],
-                        "nullable": true
                     },
                     "owner": {
                         "oneOf": [
@@ -317407,6 +316004,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NestedTagRequest"
                         }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
                     }
                 },
                 "required": [
@@ -317639,12 +316240,6 @@
                     "custom_fields": {
                         "type": "object",
                         "additionalProperties": {}
-                    },
-                    "assignments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_Request"
-                        }
                     }
                 },
                 "required": [
@@ -324365,22 +322960,6 @@
                         "items": {
                             "type": "integer"
                         }
-                    },
-                    "installed_module": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/BriefModuleRequest"
-                                    }
-                                ],
-                                "nullable": true
-                            }
-                        ],
-                        "nullable": true
                     },
                     "owner": {
                         "oneOf": [
@@ -332490,22 +331069,6 @@
                             "type": "integer"
                         }
                     },
-                    "installed_module": {
-                        "oneOf": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/BriefModuleRequest"
-                                    }
-                                ],
-                                "nullable": true
-                            }
-                        ],
-                        "nullable": true
-                    },
                     "owner": {
                         "oneOf": [
                             {
@@ -334729,6 +333292,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NestedTagRequest"
                         }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
                     }
                 }
             },
@@ -334883,12 +333450,6 @@
                     "custom_fields": {
                         "type": "object",
                         "additionalProperties": {}
-                    },
-                    "assignments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_Request"
-                        }
                     }
                 }
             },
@@ -347441,17 +346002,6 @@
                     "url"
                 ]
             },
-            "PrefixLengthRequest": {
-                "type": "object",
-                "properties": {
-                    "prefix_length": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "prefix_length"
-                ]
-            },
             "PrefixRequest": {
                 "type": "object",
                 "description": "Base serializer class for models inheriting from PrimaryModel.",
@@ -353165,7 +351715,8 @@
                         "minimum": -2147483648
                     },
                     "object": {
-                        "readOnly": true
+                        "readOnly": true,
+                        "nullable": true
                     },
                     "tag": {
                         "allOf": [
@@ -359242,6 +357793,10 @@
                         "items": {
                             "$ref": "#/components/schemas/NestedTagRequest"
                         }
+                    },
+                    "custom_fields": {
+                        "type": "object",
+                        "additionalProperties": {}
                     }
                 },
                 "required": [
@@ -359401,12 +357956,6 @@
                     "custom_fields": {
                         "type": "object",
                         "additionalProperties": {}
-                    },
-                    "assignments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/BriefCircuitGroupAssignmentSerializer_Request"
-                        }
                     }
                 },
                 "required": [

@@ -156,23 +156,25 @@ rq
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
-social-auth-app-django
+social-auth-app-django<7.0.0
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
-social-auth-core
+social-auth-core<6.0.0
 
 # Image thumbnail generation
 # https://github.com/jazzband/sorl-thumbnail/blob/master/CHANGES.rst
 sorl-thumbnail
 
 # Strawberry GraphQL
+# Pinned below v0.333.0, which is incompatible with strawberry-graphql-django <v0.93.0 (see #23383)
 # https://github.com/strawberry-graphql/strawberry/blob/main/CHANGELOG.md
-strawberry-graphql
+strawberry-graphql<0.333.0
 
 # Strawberry GraphQL Django extension
+# Pinned below v0.92.3, which breaks pagination of prefetched list fields (see #23383)
 # https://github.com/strawberry-graphql/strawberry-django/releases
-strawberry-graphql-django
+strawberry-graphql-django<0.92.3
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst
