@@ -4,7 +4,9 @@ from itertools import chain
 import django_filters
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel, OneToOneRel
+from django.db.models.constants import LOOKUP_SEP
 from django.utils.module_loading import import_string
 from taggit.managers import TaggableManager
 
@@ -23,6 +25,24 @@ EXEMPT_MODEL_FIELDS = (
     'path',      # ltree, trigger-maintained
     'sort_path',  # ltree, trigger-maintained
 )
+
+
+def get_filter_target_model(model, field_name):
+    """
+    Return the model targeted by a filter's field_name, or None if it cannot be resolved (e.g. an annotation or GFK).
+    A path ending in a scalar field (e.g. site__slug) targets the model which owns that field.
+    """
+    for part in field_name.split(LOOKUP_SEP):
+        try:
+            field = model._meta.get_field(part)
+        except FieldDoesNotExist:
+            return None
+        if not field.is_relation:
+            return model
+        if field.related_model is None:
+            return None
+        model = field.related_model
+    return model
 
 
 class BaseFilterSetTestMixin:
@@ -147,6 +167,42 @@ class BaseFilterSetTestMixin:
                         filter,
                         filter_class,
                         f"Invalid filter class {type(filter)} for {filter_name} (should be {filter_class})!"
+                    )
+
+    def test_model_choice_filters(self):
+        """
+        Check that each model choice filter's queryset and to_field_name are consistent with its field_name.
+        """
+        model = self.filterset.Meta.model
+
+        for filter_name, filter in self.filterset.base_filters.items():
+            if not isinstance(filter, (django_filters.ModelChoiceFilter, django_filters.ModelMultipleChoiceFilter)):
+                continue
+            queryset = filter.extra.get('queryset')
+            if queryset is None or callable(queryset):
+                continue
+            queryset_model = queryset.model
+
+            with self.subTest(filter=filter_name):
+                to_field_name = filter.extra.get('to_field_name')
+                if to_field_name and to_field_name != 'pk':
+                    try:
+                        queryset_model._meta.get_field(to_field_name)
+                    except FieldDoesNotExist:
+                        self.fail(
+                            f"Invalid to_field_name '{to_field_name}' for {filter_name} "
+                            f"({queryset_model.__name__} has no such field)!"
+                        )
+
+                # Filters with a custom method may use any queryset
+                if filter.method is not None:
+                    continue
+                target_model = get_filter_target_model(model, filter.field_name)
+                if target_model is not None:
+                    self.assertTrue(
+                        issubclass(queryset_model, target_model),
+                        f"Invalid queryset model {queryset_model.__name__} for {filter_name} "
+                        f"(field_name '{filter.field_name}' targets {target_model.__name__})!"
                     )
 
 
