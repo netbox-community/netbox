@@ -1,7 +1,9 @@
+from copy import copy
+
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import ExpressionWrapper, F, Func, IntegerField, Value
+from django.db.models import BinaryField, ExpressionWrapper, F, Func, IntegerField, Value
 from strawberry.types import Info
 from strawberry_django.optimizer import OptimizerStore
 
@@ -43,10 +45,15 @@ def _model_type(model, **kwargs):
     """
     def wrapper(cls):
         graphql_type = strawberry_django.type(model, **kwargs)(cls)
-        for field in graphql_type.__strawberry_definition__.fields:
+        for index, field in enumerate(graphql_type.__strawberry_definition__.fields):
             if field.python_name == 'display':
-                # Replace (not mutate or merge) the store: copied fields share it, and may carry another model's hint
-                field.store = OptimizerStore.with_hints(only=[f.name for f in model._meta.concrete_fields])
+                # The inherited field itself can be shared with the base type. Isolate it before adding model hints.
+                display_field = copy(field)
+                display_field.store = OptimizerStore.with_hints(only=[
+                    f.name for f in model._meta.concrete_fields if not isinstance(f, BinaryField)
+                ])
+                graphql_type.__strawberry_definition__.fields[index] = display_field
+                setattr(graphql_type, field.python_name, display_field)
         return graphql_type
 
     return wrapper
