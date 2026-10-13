@@ -11,8 +11,9 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.constants import NONCONNECTABLE_IFACE_TYPES, VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES
 from netbox.choices import *
 from utilities.conversion import (
-    to_liters_per_minute,
-    to_millimeters,
+    DIAMETER_TO_MILLIMETERS,
+    FLOW_RATE_TO_LITERS_PER_MINUTE,
+    normalized_unit_expression,
 )
 from utilities.data import normalize_update_fields
 
@@ -406,12 +407,12 @@ class DiameterMixin(models.Model):
         blank=True,
         null=True,
     )
-    # Stores the normalized diameter (in millimeters) for database ordering
-    _abs_diameter = models.DecimalField(
-        max_digits=13,
-        decimal_places=4,
-        blank=True,
-        null=True
+    # Normalized diameter (in millimeters), computed by the database for ordering
+    _abs_diameter = models.GeneratedField(
+        expression=normalized_unit_expression('diameter', 'diameter_unit', DIAMETER_TO_MILLIMETERS),
+        output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
 
     class Meta:
@@ -424,13 +425,8 @@ class DiameterMixin(models.Model):
 
     def normalize_diameter(self):
         """
-        Store the given diameter (if any) in millimeters for use in database ordering. Called by save(), and
-        directly by component instantiation, which bypasses save() via bulk_create().
+        Clear diameter_unit if no diameter is defined.
         """
-        if self.diameter is not None and self.diameter_unit:
-            self._abs_diameter = to_millimeters(self.diameter, self.diameter_unit)
-        else:
-            self._abs_diameter = None
         if self.diameter is None:
             self.diameter_unit = None
     normalize_diameter.alters_data = True
@@ -468,12 +464,12 @@ class MaxFlowMixin(models.Model):
         blank=True,
         null=True,
     )
-    # Stores the normalized max flow (in liters per minute) for database ordering
-    _abs_max_flow = models.DecimalField(
-        max_digits=13,
-        decimal_places=4,
-        blank=True,
-        null=True
+    # Normalized max flow (in liters per minute), computed by the database for ordering
+    _abs_max_flow = models.GeneratedField(
+        expression=normalized_unit_expression('max_flow', 'max_flow_unit', FLOW_RATE_TO_LITERS_PER_MINUTE),
+        output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
 
     class Meta:
@@ -486,13 +482,8 @@ class MaxFlowMixin(models.Model):
 
     def normalize_max_flow(self):
         """
-        Store the given max flow (if any) in liters per minute for use in database ordering. Called by save(),
-        and directly by component instantiation, which bypasses save() via bulk_create().
+        Clear max_flow_unit if no max flow is defined.
         """
-        if self.max_flow is not None and self.max_flow_unit:
-            self._abs_max_flow = to_liters_per_minute(self.max_flow, self.max_flow_unit)
-        else:
-            self._abs_max_flow = None
         if self.max_flow is None:
             self.max_flow_unit = None
     normalize_max_flow.alters_data = True

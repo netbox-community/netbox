@@ -11,8 +11,11 @@ from core.models import ObjectChange
 from dcim.models import Location, Region, Site, SiteGroup
 from extras.choices import CustomFieldStatusChoices, CustomFieldTypeChoices
 from extras.models import CustomField
+from netbox.choices import DistanceUnitChoices
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.conversion import to_meters
+from utilities.testing.mixins import NormalizedMeasurementTestMixin
 
 
 class CircuitTerminationTestCase(TestCase):
@@ -625,3 +628,25 @@ class CircuitTerminationChangeLoggingTestCase(TestCase):
         circuit.refresh_from_db()
         self.assertIsNone(circuit.termination_a_id)
         self.assertEqual(circuit.custom_field_data, {'probe_field': 'concurrent'})
+
+
+class CircuitDistanceTestCase(NormalizedMeasurementTestMixin, TestCase):
+    model = Circuit
+    value_field = 'distance'
+    unit_field = 'distance_unit'
+    normalized_field = '_abs_distance'
+    unit_choices = DistanceUnitChoices
+    converter = staticmethod(to_meters)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        cls.circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+
+    def create_instance(self, **attrs):
+        return Circuit(
+            provider=self.provider,
+            type=self.circuit_type,
+            cid=f'Circuit {next(self.sequence)}',
+            **attrs
+        )

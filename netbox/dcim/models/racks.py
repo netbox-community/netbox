@@ -17,7 +17,7 @@ from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
-from utilities.conversion import to_grams
+from utilities.conversion import WEIGHT_TO_GRAMS, normalized_unit_expression
 from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
@@ -129,10 +129,12 @@ class RackBase(WeightMixin, PrimaryModel):
         null=True,
         help_text=_('Maximum load capacity for the rack')
     )
-    # Stores the normalized max weight (in grams) for database ordering
-    _abs_max_weight = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
+    # Normalized max weight (in grams), computed by the database for ordering
+    _abs_max_weight = models.GeneratedField(
+        expression=normalized_unit_expression('max_weight', 'weight_unit', WEIGHT_TO_GRAMS, integer=True),
+        output_field=models.BigIntegerField(blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
 
     # Cooling
@@ -236,12 +238,6 @@ class RackType(ImageAttachmentsMixin, RackBase):
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
     def save(self, *args, **kwargs):
-        # Store the given max weight (if any) in grams for use in database ordering
-        if self.max_weight and self.weight_unit:
-            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
-        else:
-            self._abs_max_weight = None
-
         # Clear unit if outer width & depth are not set
         if not any([self.outer_width, self.outer_depth, self.outer_height]):
             self.outer_unit = None
@@ -474,12 +470,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
     def save(self, *args, **kwargs):
         self.copy_racktype_attrs()
-
-        # Store the given max weight (if any) in grams for use in database ordering
-        if self.max_weight and self.weight_unit:
-            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
-        else:
-            self._abs_max_weight = None
 
         # Clear unit if outer width & depth are not set
         if not any([self.outer_width, self.outer_depth, self.outer_height]):

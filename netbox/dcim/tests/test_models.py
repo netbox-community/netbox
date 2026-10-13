@@ -3313,9 +3313,10 @@ class CableTestCase(TestCase):
         self.assertIsNone(cable.length_unit)
         self.assertIsNone(cable._abs_length)
 
-    def test_partial_save_reads_the_stored_pair_only_for_an_excluded_field(self):
+    def test_partial_save_reads_the_stored_length_only_for_an_unwritten_length(self):
         """
-        A save writing both source fields must normalize without reading the row back.
+        Only a save writing length_unit without length must read the row back, to decide whether to clear the
+        unit; the database computes the normalized length itself.
         """
         cable = Cable.objects.first()
         cable.length = Decimal('1')
@@ -3324,14 +3325,17 @@ class CableTestCase(TestCase):
 
         with CaptureQueriesContext(connection) as both_written:
             cable.save(update_fields=['length', 'length_unit'])
-        with CaptureQueriesContext(connection) as one_written:
+        with CaptureQueriesContext(connection) as length_written:
             cable.save(update_fields=['length'])
+        with CaptureQueriesContext(connection) as unit_written:
+            cable.save(update_fields=['length_unit'])
 
         def cable_reads(queries):
             return [q for q in queries if q['sql'].startswith('SELECT') and 'FROM "dcim_cable"' in q['sql']]
 
         self.assertEqual(cable_reads(both_written), [])
-        self.assertEqual(len(cable_reads(one_written)), 1)
+        self.assertEqual(cable_reads(length_written), [])
+        self.assertEqual(len(cable_reads(unit_written)), 1)
 
 
 class CableTerminationTestCase(TestCase):

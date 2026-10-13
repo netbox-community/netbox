@@ -6,9 +6,12 @@ from django.test import RequestFactory, TestCase
 from core.models import ObjectChange
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface, Region, Site, SiteGroup
+from netbox.choices import DistanceUnitChoices
 from netbox.context_managers import event_tracking
 from users.models import User
+from utilities.conversion import to_meters
 from utilities.testing import create_test_device
+from utilities.testing.mixins import NormalizedMeasurementTestMixin
 from wireless.models import WirelessLAN, WirelessLink
 
 
@@ -106,3 +109,26 @@ class WirelessLinkTestCase(TestCase):
                 changed_object_id__in=(interface_a.pk, interface_b.pk),
             ).exists()
         )
+
+
+class WirelessLinkDistanceTestCase(NormalizedMeasurementTestMixin, TestCase):
+    model = WirelessLink
+    value_field = 'distance'
+    unit_field = 'distance_unit'
+    normalized_field = '_abs_distance'
+    unit_choices = DistanceUnitChoices
+    converter = staticmethod(to_meters)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device = create_test_device('Device 1')
+
+    def create_instance(self, **attrs):
+        index = next(self.sequence)
+        interface_a = Interface.objects.create(
+            device=self.device, name=f'Wireless {index}A', type=InterfaceTypeChoices.TYPE_80211A
+        )
+        interface_b = Interface.objects.create(
+            device=self.device, name=f'Wireless {index}B', type=InterfaceTypeChoices.TYPE_80211A
+        )
+        return WirelessLink(interface_a=interface_a, interface_b=interface_b, **attrs)

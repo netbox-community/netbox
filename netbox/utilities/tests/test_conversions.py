@@ -3,10 +3,15 @@ from decimal import Decimal
 from dcim.choices import CableLengthUnitChoices
 from netbox.choices import (
     DiameterUnitChoices,
+    DistanceUnitChoices,
     FlowRateUnitChoices,
     WeightUnitChoices,
 )
 from utilities.conversion import (
+    DIAMETER_TO_MILLIMETERS,
+    FLOW_RATE_TO_LITERS_PER_MINUTE,
+    LENGTH_TO_METERS,
+    WEIGHT_TO_GRAMS,
     to_grams,
     to_liters_per_minute,
     to_meters,
@@ -16,6 +21,23 @@ from utilities.testing.base import TestCase
 
 
 class ConversionsTestCase(TestCase):
+
+    def test_factors_cover_all_units(self):
+        """
+        Every unit choice must have a conversion factor, as the factors drive both the to_*() helpers and the
+        generated columns which normalize measurements.
+        """
+        for factors, choices in (
+            (WEIGHT_TO_GRAMS, WeightUnitChoices),
+            (LENGTH_TO_METERS, CableLengthUnitChoices),
+            (LENGTH_TO_METERS, DistanceUnitChoices),
+            (DIAMETER_TO_MILLIMETERS, DiameterUnitChoices),
+            (FLOW_RATE_TO_LITERS_PER_MINUTE, FlowRateUnitChoices),
+        ):
+            with self.subTest(choices=choices.__name__):
+                self.assertTrue(set(choices.values()) <= set(factors))
+                for factor in factors.values():
+                    self.assertIsInstance(factor, Decimal)
 
     def test_to_grams(self):
         self.assertEqual(
