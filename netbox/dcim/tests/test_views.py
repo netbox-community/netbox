@@ -5620,7 +5620,13 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     def test_remove_member(self):
         self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
         member = Device.objects.get(name='Device 2')
+
+        # A primary IP on another member's interface must not block removal
+        interface = Interface.objects.create(device=master, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        ip = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        Device.objects.filter(pk=member.pk).update(primary_ip4=ip)
 
         url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
         response = self.client.post(url, {'confirm': True})

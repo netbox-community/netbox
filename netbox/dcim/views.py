@@ -5362,7 +5362,7 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
             device.vc_position = None
             device.vc_priority = None
             try:
-                device.full_clean()
+                device.clean_vc_lag_membership()
             except ValidationError as e:
                 for message in e.messages:
                     messages.error(request, message)
