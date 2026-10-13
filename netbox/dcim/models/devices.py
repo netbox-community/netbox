@@ -1018,6 +1018,21 @@ class Device(
                 ).format(virtual_chassis=self.vc_master_for)
             })
 
+        # Prevent leaving a virtual chassis while interfaces form a LAG with another member
+        if self.pk:
+            lag_members = Interface.objects.filter(device=self, lag__isnull=False).exclude(lag__device=self)
+            lag_peers = Interface.objects.filter(lag__device=self).exclude(device=self)
+            if self.virtual_chassis:
+                lag_members = lag_members.exclude(lag__device__virtual_chassis=self.virtual_chassis)
+                lag_peers = lag_peers.exclude(device__virtual_chassis=self.virtual_chassis)
+            if lag_members.exists() or lag_peers.exists():
+                raise ValidationError({
+                    'virtual_chassis': _(
+                        'Device cannot be removed from its virtual chassis because one or more of its interfaces '
+                        'form a LAG with another member device.'
+                    )
+                })
+
     def _check_duplicate_component_names(self, components):
         """
         Check for duplicate component names after resolving {vc_position} placeholders.
