@@ -27,22 +27,22 @@ EXEMPT_MODEL_FIELDS = (
 )
 
 
-def get_filter_target_model(model, field_name):
+def get_filter_target(model, field_name):
     """
-    Return the model targeted by a filter's field_name, or None if it cannot be resolved (e.g. an annotation or GFK).
-    A path ending in a scalar field (e.g. site__slug) targets the model which owns that field.
+    Return a (model, scalar_field) tuple for a filter's field_name, or (None, None) if it cannot be resolved (e.g.
+    an annotation or GFK). A path ending in a scalar field (e.g. site__slug) targets the model which owns that field.
     """
     for part in field_name.split(LOOKUP_SEP):
         try:
             field = model._meta.get_field(part)
         except FieldDoesNotExist:
-            return None
+            return None, None
         if not field.is_relation:
-            return model
+            return model, field
         if field.related_model is None:
-            return None
+            return None, None
         model = field.related_model
-    return model
+    return model, None
 
 
 class BaseFilterSetTestMixin:
@@ -197,12 +197,27 @@ class BaseFilterSetTestMixin:
                 # Filters with a custom method may use any queryset
                 if filter.method is not None:
                     continue
-                target_model = get_filter_target_model(model, filter.field_name)
-                if target_model is not None:
-                    self.assertTrue(
-                        issubclass(queryset_model, target_model),
-                        f"Invalid queryset model {queryset_model.__name__} for {filter_name} "
-                        f"(field_name '{filter.field_name}' targets {target_model.__name__})!"
+                target_model, scalar_field = get_filter_target(model, filter.field_name)
+                if target_model is None:
+                    continue
+                self.assertTrue(
+                    issubclass(queryset_model, target_model) or
+                    queryset_model._meta.concrete_model is target_model._meta.concrete_model,
+                    f"Invalid queryset model {queryset_model.__name__} for {filter_name} "
+                    f"(field_name '{filter.field_name}' targets {target_model.__name__})!"
+                )
+
+                # A field_name ending in a scalar field is matched against the to_field_name value
+                if scalar_field is not None:
+                    self.assertIsInstance(
+                        filter,
+                        django_filters.ModelMultipleChoiceFilter,
+                        f"ModelChoiceFilter {filter_name} cannot use a scalar field_name '{filter.field_name}'!"
+                    )
+                    self.assertEqual(
+                        to_field_name,
+                        scalar_field.name,
+                        f"to_field_name for {filter_name} must match field_name '{filter.field_name}'!"
                     )
 
 
