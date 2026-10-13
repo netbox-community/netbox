@@ -18,7 +18,8 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     assigned_object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
-    assigned_object = GFKSerializerField(read_only=True)
+    # A plugin model can support journaling without a REST API serializer
+    assigned_object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
         queryset=User.objects.all(),

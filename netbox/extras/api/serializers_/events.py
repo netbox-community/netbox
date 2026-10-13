@@ -30,7 +30,8 @@ class EventRuleSerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True,
     )
-    action_object = GFKSerializerField(read_only=True)
+    # A plugin action can target a model without a REST API serializer
+    action_object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     action_is_available = serializers.BooleanField(read_only=True)
 
     class Meta:

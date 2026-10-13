@@ -68,7 +68,8 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    object = GFKSerializerField(read_only=True)
+    # A plugin model can support contacts without a REST API serializer
+    object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     contact = ContactSerializer(nested=True)
     role = ContactRoleSerializer(nested=True, required=False, allow_null=True)
     priority = ChoiceField(choices=ContactPriorityChoices, allow_blank=True, required=False, default=lambda: '')

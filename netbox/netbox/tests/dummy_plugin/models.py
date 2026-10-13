@@ -1,6 +1,7 @@
 from django.db import models
 
 from netbox.models import NetBoxModel
+from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.querysets import RestrictedQuerySet
 
 
@@ -32,5 +33,5 @@ class DummySiteAttachment(models.Model):
         ordering = ['name']
 
 
-class DummyNetBoxModel(NetBoxModel):
+class DummyNetBoxModel(ContactsMixin, ImageAttachmentsMixin, NetBoxModel):
     pass
