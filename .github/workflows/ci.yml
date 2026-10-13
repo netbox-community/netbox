@@ -30,8 +30,8 @@ concurrency:
 jobs:
 
   # Detect which areas of the codebase changed so downstream jobs can be skipped
-  # when their inputs haven't changed. Jobs that don't match any filter are shown
-  # as "skipped" in GitHub's check list, which satisfies required-status-checks.
+  # when their inputs haven't changed. Not safe for required checks: paths-ignore
+  # can skip the whole run, and a skipped matrix job reports its unexpanded name.
   changes:
     name: Detect changed files
     runs-on: ubuntu-latest
@@ -50,19 +50,27 @@ jobs:
         uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d  # v4.0.3
         id: filter
         with:
+          # release.yaml and ci.yml sit in every filter, so releases and workflow edits run all jobs.
           filters: |
             python:
               - 'netbox/**/*.py'
               - 'netbox/**/migrations/**'
+              - 'netbox/**/templates/**'
+              - 'netbox/**/tests/**'
               - 'requirements*.txt'
               - 'pyproject.toml'
+              - 'netbox/release.yaml'
               - '.github/workflows/ci.yml'
             frontend:
               - 'netbox/project-static/**'
+              - 'scripts/verify-bundles.sh'
+              - 'netbox/release.yaml'
               - '.github/workflows/ci.yml'
             docs:
               - 'docs/**'
               - 'mkdocs.yml'
+              - 'requirements.txt'
+              - 'netbox/release.yaml'
               - '.github/workflows/ci.yml'
 
   lint:
