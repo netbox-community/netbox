@@ -1,6 +1,10 @@
+import os
+import subprocess
+import sys
 import time
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, ProgrammingError, connection, transaction
 from django.db.models.signals import post_delete, post_save
@@ -712,6 +716,72 @@ class SearchCacheCoalescingTestCase(RQQueueTestMixin, TestCase):
         )
         self.assertFalse(conn.exists(staging))
 
+    def test_advisory_lock_contention_skips_apply(self):
+        """
+        If another applier holds the advisory lock (its Redis lease may have
+        expired while it is still running), a second applier must not apply the
+        same batch concurrently -- that is the #23259 duplicate-row path.
+        """
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:1ease'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+
+        with mock.patch('netbox.search.deferred.advisory_lock') as advisory:
+            advisory.return_value.__enter__.return_value = False
+            with mock.patch.object(search_backend, '_apply_deferred_updates') as apply:
+                deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+                apply.assert_not_called()
+
+        # The batch is retained for the current lock holder (or the safety net),
+        # and contention is not counted as an apply failure.
+        self.assertTrue(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+
+    def test_repeated_apply_failure_is_capped_and_batch_dropped(self):
+        """
+        A batch that keeps failing is retained below the cap, then dropped at the
+        cap with an error-level log instead of blocking indexing of unrelated
+        objects forever.
+        """
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:cafe2'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+
+        with mock.patch.object(
+            search_backend, '_apply_deferred_updates', side_effect=ProgrammingError('boom')
+        ):
+            with self.assertLogs('netbox.search.deferred', level='ERROR') as logs:
+                for _ in range(deferred.MAX_APPLY_ATTEMPTS - 1):
+                    # Simulate the lease expiring between safety-net passes.
+                    conn.delete(deferred._lease_key(batch_id))
+                    with self.assertRaises(ProgrammingError):
+                        deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+                    self.assertTrue(conn.exists(staging))
+
+                conn.delete(deferred._lease_key(batch_id))
+                deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        self.assertFalse(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+        self.assertTrue(any('dropping deferred batch' in m for m in logs.output))
+
+    def test_successful_apply_clears_failure_counter(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:f00d'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+        conn.set(deferred._attempts_key(batch_id), 3)
+
+        deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        self.assertFalse(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+
     def test_lease_prevents_concurrent_apply(self):
         ct, pk = self._create_site()
         conn = deferred._connection()
@@ -791,11 +861,35 @@ class SearchCacheCoalescingTestCase(RQQueueTestMixin, TestCase):
             len(SiteIndex.fields),
         )
 
-    def test_safety_net_job_registered(self):
-        from netbox.registry import registry
-        from netbox.search.jobs import SearchCacheSafetyNetJob
-        self.assertIn(SearchCacheSafetyNetJob, registry['system_jobs'])
-        self.assertEqual(registry['system_jobs'][SearchCacheSafetyNetJob]['interval'], 5)
+    def test_safety_net_job_registered_by_app_ready(self):
+        """
+        The safety-net job must be registered by CoreConfig.ready() importing
+        netbox.search.jobs -- not merely by this test module's own import of that
+        module, which would make an in-process assertion vacuous. Boot Django in
+        a clean interpreter that never imports netbox.search.jobs explicitly and
+        inspect the registry there.
+        """
+        script = (
+            "import django; django.setup();"
+            "from netbox.registry import registry;"
+            "jobs = [c for c in registry['system_jobs']"
+            " if getattr(c, 'name', None) == 'Search cache flush safety net'];"
+            "assert len(jobs) == 1, jobs;"
+            "assert registry['system_jobs'][jobs[0]]['interval'] == 5, jobs;"
+            "print('REGISTERED')"
+        )
+        env = os.environ.copy()
+        env.setdefault('DJANGO_SETTINGS_MODULE', 'netbox.settings')
+        env.setdefault('NETBOX_CONFIGURATION', 'netbox.configuration_testing')
+        result = subprocess.run(
+            [sys.executable, '-c', script],
+            cwd=str(settings.BASE_DIR),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('REGISTERED', result.stdout)
 
 
 class AutocommitCachingTestCase(TransactionTestCase):

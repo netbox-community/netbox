@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from django.utils import timezone
+from django_pg_utils import advisory_lock
 from django_rq.queues import get_connection
 from redis.exceptions import RedisError, ResponseError
 
@@ -30,10 +31,20 @@ FLUSH_INTERVAL = 2  # Seconds to coalesce before draining.
 LOCK_TTL = 60       # Seconds; scheduling throttle lease (one drain scheduled per alias).
 APPLY_LEASE = 60    # Seconds; per-batch processing lease (one applier per batch).
 
+# A persistently failing batch is retried by the safety net until it has failed
+# this many times, then dropped with an error-level log; the affected objects
+# stay unindexed until re-saved or `manage.py reindex` is run. The cap stops one
+# poisoned batch from blocking indexing of unrelated objects forever.
+MAX_APPLY_ATTEMPTS = 5
+
 PENDING_PREFIX = 'netbox:search:pending:'
 LOCK_PREFIX = 'netbox:search:flush-lock:'
 STAGING_PREFIX = 'netbox:search:draining:'
 LEASE_PREFIX = 'netbox:search:draining-lease:'
+ATTEMPTS_PREFIX = 'netbox:search:apply-attempts:'
+# Bounds growth of a batch's failure counter if its staging key disappears
+# through another path (e.g. a worker that crashed before writing the counter).
+ATTEMPTS_TTL = 3600
 
 # Attributes used to tag a flush callback so we can recognize our own callbacks
 # among those registered on a connection and reach the batch they will flush.
@@ -271,12 +282,16 @@ def _apply_staging(using, staging, log):
     """
     Apply a claimed staging batch, deleting it only once application succeeds.
 
-    A per-batch lease keeps two drainers from applying the same batch at once.
+    The per-batch Redis lease is only a cheap pre-filter: it is bounded by
+    APPLY_LEASE while the applier can run for up to the job timeout, so the lease
+    alone cannot guarantee exclusive execution (the safety net can take a fresh
+    lease and start applying the same batch while the original is still running).
+    Actual exclusion is provided by a PostgreSQL session-level advisory lock held
+    for the whole apply-and-cleanup lifecycle. `_apply_deferred_updates` is
+    idempotent, so any retry after the lock is released converges.
+
     The lease is never deleted by its owner (it only expires), so a slow or
     crashed drainer can never delete a lease a successor has taken over.
-    Correctness does not depend on the lease: _apply_deferred_updates is
-    idempotent and derives the same rows from current database state, so an
-    overlapping apply still converges.
     """
     conn = _connection()
     batch_id = staging.rsplit(':', 1)[1]
@@ -301,15 +316,48 @@ def _apply_staging(using, staging, log):
         groups = remove_groups if op == OP_REMOVE else cache_groups
         groups.setdefault(int(object_type_id), []).append(int(pk))
 
-    # Retained until this returns without raising: a crash or database error
-    # leaves the staging key for the safety net to retry.
-    search_backend._apply_deferred_updates(
-        using=using,
-        cache_groups=cache_groups,
-        remove_groups=remove_groups,
-        log=log,
-    )
-    conn.delete(staging)
+    # The advisory lock must span the apply *and* the staging deletion below,
+    # otherwise a second applier could acquire it after the apply but before the
+    # delete and apply the same batch again, leaving duplicate rows.
+    db = using or DEFAULT_DB_ALIAS
+    with advisory_lock(_apply_lock_key(db), wait=False, using=db) as acquired:
+        if not acquired:
+            # Another applier holds the advisory lock: its Redis lease may have
+            # expired while it is still running. Do not apply concurrently (that
+            # would duplicate rows). It deletes staging on success; if it is
+            # killed, PostgreSQL releases the lock when its session ends and the
+            # safety net retries the retained batch. Contention is not an apply
+            # failure, so it is not counted against MAX_APPLY_ATTEMPTS.
+            return
+
+        try:
+            search_backend._apply_deferred_updates(
+                using=using,
+                cache_groups=cache_groups,
+                remove_groups=remove_groups,
+                log=log,
+            )
+        except Exception:
+            if _record_apply_failure(conn, batch_id) >= MAX_APPLY_ATTEMPTS:
+                # Retrying a persistently failing batch forever would block
+                # indexing of unrelated objects and grow staging without bound.
+                # Drop it with an error-level log; the batch's objects stay
+                # unindexed until re-saved or `manage.py reindex` is run.
+                log.error(
+                    f"Search cache: dropping deferred batch {staging} after "
+                    f"{MAX_APPLY_ATTEMPTS} failed apply attempts; run `manage.py reindex` "
+                    f"to rebuild the search index",
+                    exc_info=True,
+                )
+                conn.delete(staging)
+                conn.delete(_attempts_key(batch_id))
+                return
+            raise
+
+        # Retained until this returns without raising: a crash or database error
+        # leaves the staging key for the safety net to retry.
+        conn.delete(staging)
+        conn.delete(_attempts_key(batch_id))
 
     # Updates that arrived while this batch was being applied land in a fresh
     # pending hash; schedule one more drain if none is already scheduled.
@@ -356,6 +404,23 @@ def drain_stranded(log=None):
             log.warning(f"Search cache: failed to apply deferred batch {staging}", exc_info=True)
 
 
+def _record_apply_failure(conn, batch_id):
+    """
+    Increment and return the failed-apply count for a staging batch, refreshing
+    its TTL so the counter cannot outlive the batch indefinitely.
+    """
+    key = _attempts_key(batch_id)
+    attempts = conn.incr(key)
+    conn.expire(key, ATTEMPTS_TTL)
+    return attempts
+
+
+def _apply_lock_key(db):
+    # A single advisory lock key per database/alias, shared by every background
+    # applier (the staged drain and the legacy SearchCacheJob path).
+    return f'netbox.search.apply:{db}'
+
+
 def _warn_if_stale(staging, log):
     """
     Log when a batch has been waiting far longer than a normal apply should take
@@ -388,6 +453,10 @@ def _lock_key(using):
 
 def _lease_key(batch_id):
     return f'{LEASE_PREFIX}{batch_id}'
+
+
+def _attempts_key(batch_id):
+    return f'{ATTEMPTS_PREFIX}{batch_id}'
 
 
 def _alias_from_staging(staging):

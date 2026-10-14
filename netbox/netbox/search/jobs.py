@@ -22,14 +22,22 @@ class SearchCacheJob(JobRunner):
 
         # Back-compat: a job enqueued by a pre-coalescing version carried the
         # dirty objects directly. Apply them as-is so in-flight legacy jobs keep
-        # working across a rolling upgrade.
+        # working across a rolling upgrade. Serialize with a concurrent new-style
+        # drain via the same advisory lock so the two can't apply the same object
+        # concurrently (which would duplicate CachedValue rows). wait=True: a
+        # legacy job carries its own one-shot batch and cannot be retried, so it
+        # must not skip.
         if cache_groups or remove_groups:
-            search_backend._apply_deferred_updates(
-                using=using,
-                cache_groups=cache_groups,
-                remove_groups=remove_groups,
-                log=self.logger,
-            )
+            from django_pg_utils import advisory_lock
+
+            from netbox.search.deferred import _apply_lock_key
+            with advisory_lock(_apply_lock_key(using), wait=True, using=using):
+                search_backend._apply_deferred_updates(
+                    using=using,
+                    cache_groups=cache_groups,
+                    remove_groups=remove_groups,
+                    log=self.logger,
+                )
             return
 
         # Imported here to avoid a module-level circular import: deferred.py
