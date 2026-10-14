@@ -17,9 +17,9 @@ from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
-from utilities.conversion import WEIGHT_TO_GRAMS, NonNegativeGeneratedField, normalized_unit_expression
+from utilities.conversion import WEIGHT_TO_GRAMS, normalized_unit_expression
 from utilities.data import array_to_string, drange
-from utilities.fields import ColorField, CounterCacheField
+from utilities.fields import ColorField, CounterCacheField, NonNegativeGeneratedField
 from utilities.tracking import TrackingModelMixin
 
 from .device_components import PowerPort

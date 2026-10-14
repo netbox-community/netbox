@@ -13,10 +13,10 @@ from netbox.choices import *
 from utilities.conversion import (
     DIAMETER_TO_MILLIMETERS,
     FLOW_RATE_TO_LITERS_PER_MINUTE,
-    NonNegativeGeneratedField,
     normalized_unit_expression,
 )
 from utilities.data import normalize_update_fields
+from utilities.fields import NonNegativeGeneratedField
 
 __all__ = (
     'CachedScopeMixin',

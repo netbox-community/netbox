@@ -1,6 +1,6 @@
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
-from django.db.models import BigIntegerField, Case, DecimalField, F, GeneratedField, Value, When
+from django.db.models import BigIntegerField, Case, DecimalField, F, Value, When
 from django.db.models.functions import Cast, Floor
 from django.utils.translation import gettext as _
 
@@ -16,7 +16,6 @@ __all__ = (
     'FLOW_RATE_TO_LITERS_PER_MINUTE',
     'LENGTH_TO_METERS',
     'WEIGHT_TO_GRAMS',
-    'NonNegativeGeneratedField',
     'normalized_unit_expression',
     'to_grams',
     'to_liters_per_minute',
@@ -65,18 +64,6 @@ FLOW_RATE_TO_LITERS_PER_MINUTE = {
 #
 # Database expressions
 #
-
-class NonNegativeGeneratedField(GeneratedField):
-    """
-    A generated column which the database constrains to non-negative values via an inline CHECK, as it would a
-    PositiveIntegerField. Django emits no check for a GeneratedField's output_field because that field is never
-    bound to a column, so the check is supplied here from the generated column itself.
-    """
-    def db_parameters(self, connection):
-        params = super().db_parameters(connection)
-        params['check'] = f'{connection.ops.quote_name(self.column)} >= 0'
-        return params
-
 
 def normalized_unit_expression(value_field, unit_field, factors, integer=False):
     """

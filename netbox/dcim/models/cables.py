@@ -22,10 +22,10 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from utilities.conversion import LENGTH_TO_METERS, NonNegativeGeneratedField, normalized_unit_expression
+from utilities.conversion import LENGTH_TO_METERS, normalized_unit_expression
 from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
-from utilities.fields import ColorField, GenericArrayForeignKey
+from utilities.fields import ColorField, GenericArrayForeignKey, NonNegativeGeneratedField
 from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink

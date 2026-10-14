@@ -8,7 +8,7 @@ import django.db.models.functions.comparison
 import django.db.models.functions.math
 from django.db import migrations, models
 
-import utilities.conversion
+import utilities.fields
 
 
 # PostgreSQL cannot convert an existing column to a generated column in place, so each normalized
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="cable",
             name="_abs_length",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -104,7 +104,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingfeed",
             name="_abs_max_flow",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -151,7 +151,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingintake",
             name="_abs_diameter",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -198,7 +198,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingintake",
             name="_abs_max_flow",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -245,7 +245,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingintaketemplate",
             name="_abs_diameter",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -292,7 +292,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingintaketemplate",
             name="_abs_max_flow",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -339,7 +339,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingoutflow",
             name="_abs_diameter",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -386,7 +386,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="coolingoutflowtemplate",
             name="_abs_diameter",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -433,7 +433,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="devicetype",
             name="_abs_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(
@@ -497,7 +497,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="moduletype",
             name="_abs_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(
@@ -561,7 +561,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="rack",
             name="_abs_max_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(
@@ -625,7 +625,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="rack",
             name="_abs_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(
@@ -689,7 +689,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="racktype",
             name="_abs_max_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(
@@ -753,7 +753,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="racktype",
             name="_abs_weight",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=django.db.models.functions.comparison.Cast(
                     django.db.models.functions.math.Floor(

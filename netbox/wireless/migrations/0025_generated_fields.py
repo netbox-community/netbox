@@ -7,7 +7,7 @@ import django.db.models.expressions
 import django.db.models.functions.comparison
 from django.db import migrations, models
 
-import utilities.conversion
+import utilities.fields
 
 
 # PostgreSQL cannot convert an existing column to a generated column in place, so each normalized
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="wirelesslink",
             name="_abs_distance",
-            field=utilities.conversion.NonNegativeGeneratedField(
+            field=utilities.fields.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(

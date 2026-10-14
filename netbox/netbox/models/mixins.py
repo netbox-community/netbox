@@ -4,12 +4,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import (
-    LENGTH_TO_METERS,
-    WEIGHT_TO_GRAMS,
-    NonNegativeGeneratedField,
-    normalized_unit_expression,
-)
+from utilities.conversion import LENGTH_TO_METERS, WEIGHT_TO_GRAMS, normalized_unit_expression
+from utilities.fields import NonNegativeGeneratedField
 
 __all__ = (
     'DistanceMixin',
