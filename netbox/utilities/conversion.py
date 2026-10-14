@@ -1,6 +1,6 @@
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
-from django.db.models import BigIntegerField, Case, F, Value, When
+from django.db.models import BigIntegerField, Case, DecimalField, F, Value, When
 from django.db.models.functions import Cast, Floor
 from django.utils.translation import gettext as _
 
@@ -28,9 +28,9 @@ __all__ = (
 # Conversion factors
 #
 
-# Each mapping gives the exact multiplier from a unit to its base unit. The to_*() helpers and the GeneratedField
-# expressions built by normalized_unit_expression() both read these, so changing a factor (or adding a unit) requires
-# a migration to drop and re-add the affected generated columns.
+# Each mapping gives the multiplier from a unit to its base unit as a Decimal literal. The to_*() helpers and the
+# GeneratedField expressions built by normalized_unit_expression() both read these, so changing a factor (or adding
+# a unit) requires a migration to drop and re-add the affected generated columns.
 WEIGHT_TO_GRAMS = {
     WeightUnitChoices.UNIT_KILOGRAM: Decimal('1000'),
     WeightUnitChoices.UNIT_GRAM: Decimal('1'),
@@ -56,7 +56,7 @@ DIAMETER_TO_MILLIMETERS = {
 
 FLOW_RATE_TO_LITERS_PER_MINUTE = {
     FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE: Decimal('1'),
-    FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR: Decimal('1000') / Decimal('60'),
+    FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR: Decimal('16.66666666666666666666666667'),  # 1000 / 60
     FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE: Decimal('3.785411784'),
 }
 
@@ -71,8 +71,10 @@ def normalized_unit_expression(value_field, unit_field, factors, integer=False):
     per the given mapping of unit to factor. Evaluates to NULL if either field is NULL or the unit is unrecognized.
     With `integer=True`, the result is truncated to a whole number (as to_grams() does) and cast to a bigint.
     """
+    # Cast to numeric so that an integer source column cannot overflow integer arithmetic
+    value = Cast(F(value_field), output_field=DecimalField())
     expression = Case(*[
-        When(**{unit_field: unit}, then=F(value_field) * Value(factor))
+        When(**{unit_field: unit}, then=value * Value(factor))
         for unit, factor in factors.items()
     ])
     if integer:
@@ -89,7 +91,8 @@ def _normalized_measurement(value, unit, factors, quantity, precision=4) -> Deci
     Shared implementation for the unit-normalization helpers below. Coerce `value` to a non-negative
     Decimal, multiply by the factor for `unit`, and round the result to `precision` decimal places.
     `factors` maps each valid unit to its multiplier; `quantity` labels the value in error messages.
-    Pass `precision=None` to return the unrounded result.
+    Pass `precision=None` to return the unrounded result. Rounding is half away from zero, matching how
+    PostgreSQL stores the same result in a generated numeric column.
     """
     try:
         value = Decimal(value)
@@ -107,7 +110,9 @@ def _normalized_measurement(value, unit, factors, quantity, precision=4) -> Deci
             )
         )
     result = value * factors[unit]
-    return result if precision is None else round(result, precision)
+    if precision is None:
+        return result
+    return result.quantize(Decimal(1).scaleb(-precision), rounding=ROUND_HALF_UP)
 
 
 def to_grams(weight, unit) -> int:

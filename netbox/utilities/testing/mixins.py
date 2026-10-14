@@ -106,6 +106,18 @@ class NormalizedMeasurementTestMixin:
                 self.assertEqual(getattr(instance, self.normalized_field), self.converter(self.value, unit))
                 self.assertNormalized(instance, self.value, unit)
 
+    def test_save_existing(self):
+        instance = self.create_instance()
+        instance.save()
+        for unit in self.units:
+            with self.subTest(unit=unit):
+                setattr(instance, self.value_field, self.value)
+                setattr(instance, self.unit_field, unit)
+                instance.save()
+                # An UPDATE also returns the computed value, so change logging sees the current value
+                self.assertEqual(getattr(instance, self.normalized_field), self.converter(self.value, unit))
+                self.assertNormalized(instance, self.value, unit)
+
     def test_update(self):
         instance = self.create_instance()
         instance.save()

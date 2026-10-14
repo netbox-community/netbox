@@ -110,6 +110,11 @@ class ConversionsTestCase(TestCase):
             to_meters(1, CableLengthUnitChoices.UNIT_INCH),
             Decimal('0.0254')
         )
+        # Ties round half away from zero, matching the generated database columns
+        self.assertEqual(
+            to_meters(Decimal('0.75'), CableLengthUnitChoices.UNIT_INCH),
+            Decimal('0.0191')
+        )
 
     def test_to_millimeters(self):
         self.assertEqual(
