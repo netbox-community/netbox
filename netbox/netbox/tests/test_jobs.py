@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
+from django_rq import get_queue
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
@@ -13,6 +14,11 @@ from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
 from ..jobs import _INSTALL_ROOT
+
+
+def _noop():
+    """A no-op callable used to register a real RQ job in tests."""
+    pass
 
 
 class TestJobRunner(JobRunner):
@@ -154,9 +160,8 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
 
     def test_enqueue_once_replaces_stale_scheduled_system_job(self):
         """
-        A system job still in "scheduled" status whose time has already passed is stale (its
-        RQ-side scheduler entry was lost, e.g. by a Redis restart between backup and restore —
-        see #22714) and must be replaced, even though its recorded interval matches.
+        A system job scheduled in the past whose RQ-side entry is gone will never fire and must
+        be replaced (see #22714). The bare Job row below has no RQ entry, mirroring the repro.
         """
         stale = Job.objects.create(
             name=TestSystemJobRunner.name,
@@ -174,11 +179,51 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
         self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
 
+    def test_enqueue_once_reuses_scheduled_system_job_still_in_rq(self):
+        """
+        An overdue system job whose RQ entry still exists is merely waiting its turn, not stale,
+        so it must be reused rather than replaced.
+        """
+        scheduled = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+            queue_name='default',
+        )
+        # Register a real RQ-side scheduled entry for this job_id.
+        get_queue('default').enqueue_at(
+            timezone.now() + timedelta(days=1), _noop, job_id=str(scheduled.job_id)
+        )
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_future_scheduled_system_job(self):
+        """
+        A system job scheduled for a future time has not come due, so it is not stale and must
+        be reused regardless of its RQ state.
+        """
+        scheduled = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() + timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
     def test_enqueue_once_reuses_stale_scheduled_non_system_job(self):
         """
-        Staleness replacement is limited to system jobs. A non-system job (e.g. a DataSource
-        sync) may legitimately sit in "scheduled" status with a past time while it waits its
-        turn in the queue, so it must be reused rather than deleted and re-enqueued.
+        Staleness replacement is limited to system jobs. A past-due non-system scheduled job
+        (e.g. a DataSource sync) may legitimately await its turn and must be reused.
         """
         scheduled = Job.objects.create(
             name=TestJobRunner.name,

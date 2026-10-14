@@ -217,18 +217,16 @@ class JobRunner(ABC):
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
-            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule.
-            # Otherwise, delete the existing job and schedule a new job instead. A system job still in
-            # "scheduled" status whose time has already passed is stale (its RQ-side scheduler entry was lost,
-            # e.g. by a Redis restart) and must be replaced rather than reused, even though its parameters
-            # match. This is limited to system jobs: a non-system scheduled job (e.g. a DataSource sync) may
-            # legitimately sit in "scheduled" with a past time while it waits its turn in the queue, and must
-            # not be mistaken for stale. Running/pending jobs are likewise exempt: their `scheduled` timestamp
-            # is expected to be in the past (or unset) once they've started.
+            # Replace a system job whose schedule has been lost: its Job row is still "scheduled"
+            # for a past time, but its RQ-side scheduled entry is gone (e.g. a Redis reset), so it
+            # will never fire (see #22714). The RQ check preserves an overdue job that is still
+            # scheduled in RQ (merely waiting its turn), and the system-job gate preserves a
+            # non-system scheduled job (e.g. a DataSource sync) that may legitimately sit past-due.
             is_stale = (
                 cls in registry['system_jobs'] and
                 job.status == JobStatusChoices.STATUS_SCHEDULED and
-                job.scheduled <= timezone.now()
+                job.scheduled <= timezone.now() and
+                not job._is_rq_scheduled()
             )
             if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job

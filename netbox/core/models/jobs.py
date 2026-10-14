@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
+from rq.registry import ScheduledJobRegistry
 
 from core.choices import JobNotificationChoices, JobStatusChoices
 from core.dataclasses import JobLogEntry
@@ -190,6 +191,16 @@ class Job(models.Model):
         minutes, seconds = divmod(duration.total_seconds(), 60)
 
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
+
+    def _is_rq_scheduled(self):
+        """
+        Return True if this job's RQ-side scheduled entry still exists. A "scheduled" Job row whose
+        RQ entry has been lost (e.g. by a Redis reset) will never fire and is stale.
+        """
+        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
+        queue = django_rq.get_queue(rq_queue_name)
+        registry = ScheduledJobRegistry(queue.name, queue.connection)
+        return str(self.job_id) in registry.get_job_ids()
 
     def delete(self, *args, **kwargs):
         # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs
