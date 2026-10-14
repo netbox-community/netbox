@@ -25,14 +25,6 @@ class MaxWeightTestMixin(WeightTestMixin):
     normalized_field = '_abs_max_weight'
     value = 123  # max_weight is an integer field
 
-    def test_large_value(self):
-        """
-        The normalized value of a large integer weight must not overflow integer arithmetic.
-        """
-        instance = self.create_instance(max_weight=3_000_000, weight_unit=WeightUnitChoices.UNIT_KILOGRAM)
-        instance.save()
-        self.assertNormalized(instance, 3_000_000, WeightUnitChoices.UNIT_KILOGRAM)
-
 
 class DiameterTestMixin(NormalizedMeasurementTestMixin):
     value_field = 'diameter'

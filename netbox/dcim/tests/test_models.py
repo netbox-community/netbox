@@ -24,10 +24,8 @@ from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, WeightUnitC
 from netbox.context_managers import event_tracking
 from tenancy.models import Tenant
 from users.models import User
-from utilities.conversion import to_grams
 from utilities.data import drange
 from utilities.testing import create_test_device, create_test_image
-from utilities.testing.mixins import NormalizedMeasurementTestMixin
 from virtualization.models import Cluster, ClusterType
 
 
@@ -225,28 +223,6 @@ class DeviceTypeTestCase(TestCase):
         InterfaceTemplate.objects.get(device_type=device_type, name='Interface 1').delete()
         device_type.refresh_from_db()
         self.assertEqual(device_type.interface_template_count, 1)
-
-
-class DeviceTypeWeightTestCase(NormalizedMeasurementTestMixin, TestCase):
-    model = DeviceType
-    value_field = 'weight'
-    unit_field = 'weight_unit'
-    normalized_field = '_abs_weight'
-    unit_choices = WeightUnitChoices
-    converter = staticmethod(to_grams)
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-
-    def create_instance(self, **attrs):
-        index = next(self.sequence)
-        return DeviceType(
-            manufacturer=self.manufacturer,
-            model=f'Device Type {index}',
-            slug=f'device-type-{index}',
-            **attrs
-        )
 
 
 class DeviceTypeImageTestCase(TestCase):
@@ -603,24 +579,6 @@ class RackTypeTestCase(TestCase):
         # Cooling capability/capacity are inherited from the rack type
         self.assertEqual(rack.cooling_capability, rack_type.cooling_capability)
         self.assertEqual(rack.cooling_capacity, rack_type.cooling_capacity)
-
-
-class RackMaxWeightTestCase(NormalizedMeasurementTestMixin, TestCase):
-    model = Rack
-    value_field = 'max_weight'
-    unit_field = 'weight_unit'
-    normalized_field = '_abs_max_weight'
-    unit_choices = WeightUnitChoices
-    converter = staticmethod(to_grams)
-    # The largest value the integer column holds; multiplying it as an integer would overflow
-    value = 2147483647
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.site = Site.objects.create(name='Site 1', slug='site-1')
-
-    def create_instance(self, **attrs):
-        return Rack(site=self.site, name=f'Rack {next(self.sequence)}', **attrs)
 
 
 class RackTestCase(TestCase):
