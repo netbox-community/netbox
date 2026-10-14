@@ -488,12 +488,14 @@ class AddressAttr(MapURLMixin, ObjectAttribute):
     Parameters:
          map_url (bool/str): The URL to use when rendering the address. If True, the address will render as a
               hyperlink using settings.MAPS_URL.
+         copy_button (bool): Set to True to include a copy-to-clipboard button
     """
     template_name = 'ui/attrs/address.html'
 
-    def __init__(self, *args, map_url=True, **kwargs):
+    def __init__(self, *args, map_url=True, copy_button=False, **kwargs):
         super().__init__(*args, **kwargs)
         self._map_url = map_url
+        self.copy_button = copy_button
 
     def get_context(self, obj, attr, value, context):
         map_url = self.map_url
@@ -502,6 +504,7 @@ class AddressAttr(MapURLMixin, ObjectAttribute):
             map_url = None
         return {
             'map_url': map_url,
+            'copy_button': self.copy_button,
         }
 
 
