@@ -15,6 +15,7 @@ from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.conversion import non_negative_constraint
 from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
@@ -235,6 +236,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 fields=('manufacturer', 'model'),
                 name='%(app_label)s_%(class)s_unique_manufacturer_model'
             ),
+            non_negative_constraint('_abs_weight'),
         )
         indexes = (
             models.Index(fields=('profile', 'manufacturer', 'model')),  # Default ordering

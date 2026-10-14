@@ -863,4 +863,102 @@ class Migration(migrations.Migration):
                 validators=[django.core.validators.MinValueValidator(0)],
             ),
         ),
+        migrations.AddConstraint(
+            model_name="cable",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_length__gte", 0)),
+                name="dcim_cable_abs_length_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingfeed",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_max_flow__gte", 0)),
+                name="dcim_coolingfeed_abs_max_flow_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingintake",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_diameter__gte", 0)),
+                name="dcim_coolingintake_abs_diameter_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingintake",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_max_flow__gte", 0)),
+                name="dcim_coolingintake_abs_max_flow_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingintaketemplate",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_diameter__gte", 0)),
+                name="dcim_coolingintaketemplate_abs_diameter_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingintaketemplate",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_max_flow__gte", 0)),
+                name="dcim_coolingintaketemplate_abs_max_flow_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingoutflow",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_diameter__gte", 0)),
+                name="dcim_coolingoutflow_abs_diameter_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="coolingoutflowtemplate",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_diameter__gte", 0)),
+                name="dcim_coolingoutflowtemplate_abs_diameter_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="devicetype",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_weight__gte", 0)),
+                name="dcim_devicetype_abs_weight_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="moduletype",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_weight__gte", 0)),
+                name="dcim_moduletype_abs_weight_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="rack",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_weight__gte", 0)),
+                name="dcim_rack_abs_weight_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="rack",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_max_weight__gte", 0)),
+                name="dcim_rack_abs_max_weight_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="racktype",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_weight__gte", 0)),
+                name="dcim_racktype_abs_weight_non_negative",
+            ),
+        ),
+        migrations.AddConstraint(
+            model_name="racktype",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_max_weight__gte", 0)),
+                name="dcim_racktype_abs_max_weight_non_negative",
+            ),
+        ),
     ]

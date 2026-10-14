@@ -2,6 +2,7 @@ import itertools
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.test.testcases import SerializeMixin
 from django_rq import get_queue
 from django_rq.workers import get_worker
@@ -151,12 +152,41 @@ class NormalizedMeasurementTestMixin:
 
     def test_negative_value_rejected(self):
         """
-        The database no longer rejects a negative measurement, so the source field's validator must.
+        A negative measurement must fail validation on the source field.
         """
         instance = self.create_instance(**{self.value_field: -self.value, self.unit_field: self.units[0]})
         with self.assertRaises(ValidationError) as cm:
             instance.full_clean()
         self.assertIn(self.value_field, cm.exception.error_dict)
+
+    def test_negative_value_rejected_by_database(self):
+        """
+        Write paths which skip validation must still be unable to store a negative measurement.
+        """
+        unit = self.units[0]
+        negative = {self.value_field: -self.value, self.unit_field: unit}
+        instance = self.create_instance(**{self.value_field: self.value, self.unit_field: unit})
+        instance.save()
+
+        def assert_rejected(label, write):
+            with self.subTest(write_path=label):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    write()
+
+        def save():
+            for attr, value in negative.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+        def bulk_update():
+            for attr, value in negative.items():
+                setattr(instance, attr, value)
+            self.model.objects.bulk_update([instance], list(negative))
+
+        assert_rejected('save', save)
+        assert_rejected('update', lambda: self.model.objects.filter(pk=instance.pk).update(**negative))
+        assert_rejected('bulk_update', bulk_update)
+        assert_rejected('bulk_create', lambda: self.model.objects.bulk_create([self.create_instance(**negative)]))
 
     def test_null_without_value_or_unit(self):
         unit = self.units[0]

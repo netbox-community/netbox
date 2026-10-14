@@ -7,6 +7,7 @@ from dcim.choices import *
 from dcim.models.mixins import MaxFlowMixin
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from utilities.conversion import non_negative_constraint
 
 __all__ = (
     'CoolingFeed',
@@ -164,6 +165,7 @@ class CoolingFeed(MaxFlowMixin, PrimaryModel):
                 fields=('cooling_source', 'name'),
                 name='%(app_label)s_%(class)s_unique_cooling_source_name'
             ),
+            non_negative_constraint('_abs_max_flow'),
         )
         verbose_name = _('cooling feed')
         verbose_name_plural = _('cooling feeds')

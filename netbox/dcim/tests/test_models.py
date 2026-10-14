@@ -5,7 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.db import connection, transaction
+from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import RequestFactory, TestCase, override_settings, tag
@@ -3355,6 +3355,16 @@ class CableTestCase(TestCase):
         self.assertIsNone(cable.length_unit)
         self.assertIsNone(cable._abs_length)
 
+    def test_negative_length_rejected_by_database(self):
+        """
+        A negative length must not reach the database, even through a write which skips validation.
+        """
+        cable = Cable.objects.first()
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Cable.objects.filter(pk=cable.pk).update(
+                length=Decimal('-1'), length_unit=CableLengthUnitChoices.UNIT_METER
+            )
+
     def test_partial_save_reads_the_stored_length_only_for_an_unwritten_length(self):
         """
         Only a save writing length_unit without length must read the row back, to decide whether to clear the
@@ -4760,3 +4770,32 @@ class CoolingComponentTestCase(TestCase):
         cooling_outflow = CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1')
         self.assertIsNone(cooling_outflow.diameter)
         self.assertIsNone(cooling_outflow.diameter_unit)
+
+    def test_negative_measurements_rejected_by_database(self):
+        """
+        A negative diameter or max flow must not reach the database, even through a write which skips validation.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 9', slug='device-type-9'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device G'
+        )
+        writes = {
+            CoolingIntakeTemplate: CoolingIntakeTemplate.objects.create(device_type=device_type, name='Intake 1'),
+            CoolingOutflowTemplate: CoolingOutflowTemplate.objects.create(device_type=device_type, name='Outflow 1'),
+            CoolingIntake: CoolingIntake.objects.create(device=device, name='Intake 1'),
+            CoolingOutflow: CoolingOutflow.objects.create(device=device, name='Outflow 1'),
+        }
+        for model, instance in writes.items():
+            with self.subTest(model=model.__name__, field='diameter'):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.filter(pk=instance.pk).update(
+                        diameter=Decimal('-1'), diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+                    )
+        for model in (CoolingIntakeTemplate, CoolingIntake):
+            with self.subTest(model=model.__name__, field='max_flow'):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.filter(pk=writes[model].pk).update(
+                        max_flow=Decimal('-1'), max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+                    )

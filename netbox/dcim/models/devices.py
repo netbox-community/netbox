@@ -27,6 +27,7 @@ from netbox.config import ConfigItem
 from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.conversion import non_negative_constraint
 from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
@@ -232,6 +233,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 fields=('manufacturer', 'slug'),
                 name='%(app_label)s_%(class)s_unique_manufacturer_slug'
             ),
+            non_negative_constraint('_abs_weight'),
         )
         verbose_name = _('device type')
         verbose_name_plural = _('device types')

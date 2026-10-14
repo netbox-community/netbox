@@ -13,6 +13,7 @@ from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
+from utilities.conversion import non_negative_constraint
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -459,6 +460,11 @@ class CoolingIntakeTemplate(DiameterMixin, MaxFlowMixin, ModularComponentTemplat
     component_model = CoolingIntake
 
     class Meta(ModularComponentTemplateModel.Meta):
+        constraints = (
+            *ModularComponentTemplateModel.Meta.constraints,
+            non_negative_constraint('_abs_diameter'),
+            non_negative_constraint('_abs_max_flow'),
+        )
         verbose_name = _('cooling intake template')
         verbose_name_plural = _('cooling intake templates')
 
@@ -515,6 +521,10 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
     component_model = CoolingOutflow
 
     class Meta(ModularComponentTemplateModel.Meta):
+        constraints = (
+            *ModularComponentTemplateModel.Meta.constraints,
+            non_negative_constraint('_abs_diameter'),
+        )
         verbose_name = _('cooling outflow template')
         verbose_name_plural = _('cooling outflow templates')
 

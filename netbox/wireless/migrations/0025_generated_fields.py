@@ -105,4 +105,11 @@ class Migration(migrations.Migration):
                 validators=[django.core.validators.MinValueValidator(0)],
             ),
         ),
+        migrations.AddConstraint(
+            model_name="wirelesslink",
+            constraint=models.CheckConstraint(
+                condition=models.Q(("_abs_distance__gte", 0)),
+                name="wireless_wirelesslink_abs_distance_non_negative",
+            ),
+        ),
     ]

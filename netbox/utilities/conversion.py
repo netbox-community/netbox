@@ -1,6 +1,6 @@
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
-from django.db.models import BigIntegerField, Case, DecimalField, F, Value, When
+from django.db.models import BigIntegerField, Case, CheckConstraint, DecimalField, F, Q, Value, When
 from django.db.models.functions import Cast, Floor
 from django.utils.translation import gettext as _
 
@@ -16,6 +16,7 @@ __all__ = (
     'FLOW_RATE_TO_LITERS_PER_MINUTE',
     'LENGTH_TO_METERS',
     'WEIGHT_TO_GRAMS',
+    'non_negative_constraint',
     'normalized_unit_expression',
     'to_grams',
     'to_liters_per_minute',
@@ -80,6 +81,17 @@ def normalized_unit_expression(value_field, unit_field, factors, integer=False):
     if integer:
         expression = Cast(Floor(expression), output_field=BigIntegerField())
     return expression
+
+
+def non_negative_constraint(field_name):
+    """
+    Return a CheckConstraint rejecting a negative value in the given normalized column. Field validators run only
+    in full_clean(), so this keeps negative measurements out of the database on every write path.
+    """
+    return CheckConstraint(
+        condition=Q(**{f'{field_name}__gte': 0}),
+        name=f"%(app_label)s_%(class)s_{field_name.lstrip('_')}_non_negative",
+    )
 
 
 #
