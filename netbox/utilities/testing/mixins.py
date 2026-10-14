@@ -1,6 +1,7 @@
 import itertools
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.test.testcases import SerializeMixin
 from django_rq import get_queue
 from django_rq.workers import get_worker
@@ -147,6 +148,15 @@ class NormalizedMeasurementTestMixin:
         for instance, unit in zip(instances, self.units):
             with self.subTest(unit=unit):
                 self.assertNormalized(instance, self.value, unit)
+
+    def test_negative_value_rejected(self):
+        """
+        The database no longer rejects a negative measurement, so the source field's validator must.
+        """
+        instance = self.create_instance(**{self.value_field: -self.value, self.unit_field: self.units[0]})
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+        self.assertIn(self.value_field, cm.exception.error_dict)
 
     def test_null_without_value_or_unit(self):
         unit = self.units[0]

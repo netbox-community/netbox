@@ -141,7 +141,8 @@ class Cable(PrimaryModel):
         max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
+        validators=[MinValueValidator(0)],
     )
     length_unit = models.CharField(
         verbose_name=_('length unit'),

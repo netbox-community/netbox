@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+import django.core.validators
 import django.db.models.expressions
 import django.db.models.functions.comparison
 from django.db import migrations, models
@@ -91,6 +92,17 @@ class Migration(migrations.Migration):
                 output_field=models.DecimalField(
                     blank=True, decimal_places=4, max_digits=13, null=True
                 ),
+            ),
+        ),
+        migrations.AlterField(
+            model_name="circuit",
+            name="distance",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
             ),
         ),
     ]

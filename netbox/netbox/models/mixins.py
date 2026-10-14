@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -34,7 +35,8 @@ class WeightMixin(models.Model):
         max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
+        validators=[MinValueValidator(0)],
     )
     weight_unit = models.CharField(
         verbose_name=_('weight unit'),
@@ -74,6 +76,7 @@ class DistanceMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
+        validators=[MinValueValidator(0)],
     )
     distance_unit = models.CharField(
         verbose_name=_('distance unit'),

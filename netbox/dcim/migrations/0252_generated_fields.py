@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 
+import django.core.validators
 import django.db.models.expressions
 import django.db.models.functions.comparison
 import django.db.models.functions.math
@@ -805,6 +806,61 @@ class Migration(migrations.Migration):
                 ),
                 null=True,
                 output_field=models.BigIntegerField(blank=True, null=True),
+            ),
+        ),
+        migrations.AlterField(
+            model_name="cable",
+            name="length",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
+        ),
+        migrations.AlterField(
+            model_name="devicetype",
+            name="weight",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
+        ),
+        migrations.AlterField(
+            model_name="moduletype",
+            name="weight",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
+        ),
+        migrations.AlterField(
+            model_name="rack",
+            name="weight",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
+            ),
+        ),
+        migrations.AlterField(
+            model_name="racktype",
+            name="weight",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=8,
+                null=True,
+                validators=[django.core.validators.MinValueValidator(0)],
             ),
         ),
     ]
