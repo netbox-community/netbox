@@ -1,6 +1,9 @@
 from decimal import Decimal
 
+from django.db import connection
+
 from dcim.choices import CableLengthUnitChoices
+from dcim.models import DeviceType
 from netbox.choices import (
     DiameterUnitChoices,
     DistanceUnitChoices,
@@ -38,6 +41,14 @@ class ConversionsTestCase(TestCase):
                 self.assertTrue(set(choices.values()) <= set(factors))
                 for factor in factors.values():
                     self.assertIsInstance(factor, Decimal)
+
+    def test_normalized_columns_are_checked_non_negative(self):
+        """
+        Each generated column must carry an inline database check so that a negative measurement cannot be stored
+        through any write path.
+        """
+        field = DeviceType._meta.get_field('_abs_weight')
+        self.assertEqual(field.db_parameters(connection)['check'], '"_abs_weight" >= 0')
 
     def test_to_grams(self):
         self.assertEqual(

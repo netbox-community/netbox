@@ -22,7 +22,7 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from utilities.conversion import LENGTH_TO_METERS, non_negative_constraint, normalized_unit_expression
+from utilities.conversion import LENGTH_TO_METERS, NonNegativeGeneratedField, normalized_unit_expression
 from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
@@ -152,7 +152,7 @@ class Cable(PrimaryModel):
         null=True
     )
     # Normalized length (in meters), computed by the database for ordering and path tracing
-    _abs_length = models.GeneratedField(
+    _abs_length = NonNegativeGeneratedField(
         expression=normalized_unit_expression('length', 'length_unit', LENGTH_TO_METERS),
         output_field=models.DecimalField(max_digits=14, decimal_places=4, blank=True, null=True),
         db_persist=True,
@@ -173,9 +173,6 @@ class Cable(PrimaryModel):
 
     class Meta:
         ordering = ('pk',)
-        constraints = (
-            non_negative_constraint('_abs_length'),
-        )
         verbose_name = _('cable')
         verbose_name_plural = _('cables')
 

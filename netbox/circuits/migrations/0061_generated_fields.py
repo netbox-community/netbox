@@ -7,6 +7,8 @@ import django.db.models.expressions
 import django.db.models.functions.comparison
 from django.db import migrations, models
 
+import utilities.conversion
+
 
 # PostgreSQL cannot convert an existing column to a generated column in place, so each normalized
 # column is dropped and re-added. The database computes the values for all existing rows.
@@ -24,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="circuit",
             name="_abs_distance",
-            field=models.GeneratedField(
+            field=utilities.conversion.NonNegativeGeneratedField(
                 db_persist=True,
                 expression=models.Case(
                     models.When(
@@ -103,13 +105,6 @@ class Migration(migrations.Migration):
                 max_digits=8,
                 null=True,
                 validators=[django.core.validators.MinValueValidator(0)],
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name="circuit",
-            constraint=models.CheckConstraint(
-                condition=models.Q(("_abs_distance__gte", 0)),
-                name="circuits_circuit_abs_distance_non_negative",
             ),
         ),
     ]

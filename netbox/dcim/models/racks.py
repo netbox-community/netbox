@@ -17,7 +17,7 @@ from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
-from utilities.conversion import WEIGHT_TO_GRAMS, non_negative_constraint, normalized_unit_expression
+from utilities.conversion import WEIGHT_TO_GRAMS, NonNegativeGeneratedField, normalized_unit_expression
 from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
@@ -130,7 +130,7 @@ class RackBase(WeightMixin, PrimaryModel):
         help_text=_('Maximum load capacity for the rack')
     )
     # Normalized max weight (in grams), computed by the database for ordering
-    _abs_max_weight = models.GeneratedField(
+    _abs_max_weight = NonNegativeGeneratedField(
         expression=normalized_unit_expression('max_weight', 'weight_unit', WEIGHT_TO_GRAMS, integer=True),
         output_field=models.BigIntegerField(blank=True, null=True),
         db_persist=True,
@@ -215,8 +215,6 @@ class RackType(ImageAttachmentsMixin, RackBase):
                 fields=('manufacturer', 'slug'),
                 name='%(app_label)s_%(class)s_unique_manufacturer_slug'
             ),
-            non_negative_constraint('_abs_weight'),
-            non_negative_constraint('_abs_max_weight'),
         )
         verbose_name = _('rack type')
         verbose_name_plural = _('rack types')
@@ -410,8 +408,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                 fields=('location', 'facility_id'),
                 name='%(app_label)s_%(class)s_unique_location_facility_id'
             ),
-            non_negative_constraint('_abs_weight'),
-            non_negative_constraint('_abs_max_weight'),
         )
         indexes = (
             models.Index(fields=('site', 'location', 'name', 'id')),  # Default ordering

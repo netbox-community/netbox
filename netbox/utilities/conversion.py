@@ -1,6 +1,6 @@
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
-from django.db.models import BigIntegerField, Case, CheckConstraint, DecimalField, F, Q, Value, When
+from django.db.models import BigIntegerField, Case, DecimalField, F, GeneratedField, Value, When
 from django.db.models.functions import Cast, Floor
 from django.utils.translation import gettext as _
 
@@ -16,7 +16,7 @@ __all__ = (
     'FLOW_RATE_TO_LITERS_PER_MINUTE',
     'LENGTH_TO_METERS',
     'WEIGHT_TO_GRAMS',
-    'non_negative_constraint',
+    'NonNegativeGeneratedField',
     'normalized_unit_expression',
     'to_grams',
     'to_liters_per_minute',
@@ -66,6 +66,18 @@ FLOW_RATE_TO_LITERS_PER_MINUTE = {
 # Database expressions
 #
 
+class NonNegativeGeneratedField(GeneratedField):
+    """
+    A generated column which the database constrains to non-negative values via an inline CHECK, as it would a
+    PositiveIntegerField. Django emits no check for a GeneratedField's output_field because that field is never
+    bound to a column, so the check is supplied here from the generated column itself.
+    """
+    def db_parameters(self, connection):
+        params = super().db_parameters(connection)
+        params['check'] = f'{connection.ops.quote_name(self.column)} >= 0'
+        return params
+
+
 def normalized_unit_expression(value_field, unit_field, factors, integer=False):
     """
     Return a database expression converting `value_field` to its base unit according to the value of `unit_field`,
@@ -81,17 +93,6 @@ def normalized_unit_expression(value_field, unit_field, factors, integer=False):
     if integer:
         expression = Cast(Floor(expression), output_field=BigIntegerField())
     return expression
-
-
-def non_negative_constraint(field_name):
-    """
-    Return a CheckConstraint rejecting a negative value in the given normalized column. Field validators run only
-    in full_clean(), so this keeps negative measurements out of the database on every write path.
-    """
-    return CheckConstraint(
-        condition=Q(**{f'{field_name}__gte': 0}),
-        name=f"%(app_label)s_%(class)s_{field_name.lstrip('_')}_non_negative",
-    )
 
 
 #

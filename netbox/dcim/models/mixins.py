@@ -13,6 +13,7 @@ from netbox.choices import *
 from utilities.conversion import (
     DIAMETER_TO_MILLIMETERS,
     FLOW_RATE_TO_LITERS_PER_MINUTE,
+    NonNegativeGeneratedField,
     normalized_unit_expression,
 )
 from utilities.data import normalize_update_fields
@@ -408,7 +409,7 @@ class DiameterMixin(models.Model):
         null=True,
     )
     # Normalized diameter (in millimeters), computed by the database for ordering
-    _abs_diameter = models.GeneratedField(
+    _abs_diameter = NonNegativeGeneratedField(
         expression=normalized_unit_expression('diameter', 'diameter_unit', DIAMETER_TO_MILLIMETERS),
         output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
         db_persist=True,
@@ -465,7 +466,7 @@ class MaxFlowMixin(models.Model):
         null=True,
     )
     # Normalized max flow (in liters per minute), computed by the database for ordering
-    _abs_max_flow = models.GeneratedField(
+    _abs_max_flow = NonNegativeGeneratedField(
         expression=normalized_unit_expression('max_flow', 'max_flow_unit', FLOW_RATE_TO_LITERS_PER_MINUTE),
         output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
         db_persist=True,

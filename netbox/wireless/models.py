@@ -8,7 +8,6 @@ from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
-from utilities.conversion import non_negative_constraint
 
 from .choices import *
 from .constants import *
@@ -190,7 +189,6 @@ class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
                 fields=('interface_a', 'interface_b'),
                 name='%(app_label)s_%(class)s_unique_interfaces'
             ),
-            non_negative_constraint('_abs_distance'),
         )
         verbose_name = _('wireless link')
         verbose_name_plural = _('wireless links')

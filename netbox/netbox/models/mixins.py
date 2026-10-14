@@ -4,7 +4,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import LENGTH_TO_METERS, WEIGHT_TO_GRAMS, normalized_unit_expression
+from utilities.conversion import (
+    LENGTH_TO_METERS,
+    WEIGHT_TO_GRAMS,
+    NonNegativeGeneratedField,
+    normalized_unit_expression,
+)
 
 __all__ = (
     'DistanceMixin',
@@ -46,7 +51,7 @@ class WeightMixin(models.Model):
         null=True,
     )
     # Normalized weight (in grams), computed by the database for ordering
-    _abs_weight = models.GeneratedField(
+    _abs_weight = NonNegativeGeneratedField(
         expression=normalized_unit_expression('weight', 'weight_unit', WEIGHT_TO_GRAMS, integer=True),
         output_field=models.BigIntegerField(blank=True, null=True),
         db_persist=True,
@@ -86,7 +91,7 @@ class DistanceMixin(models.Model):
         null=True,
     )
     # Normalized distance (in meters), computed by the database for ordering
-    _abs_distance = models.GeneratedField(
+    _abs_distance = NonNegativeGeneratedField(
         expression=normalized_unit_expression('distance', 'distance_unit', LENGTH_TO_METERS),
         output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
         db_persist=True,

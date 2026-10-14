@@ -19,7 +19,6 @@ from netbox.models.features import (
     TagsMixin,
 )
 from netbox.models.mixins import DistanceMixin
-from utilities.conversion import non_negative_constraint
 from utilities.data import normalize_update_fields
 from utilities.string import title
 
@@ -148,7 +147,6 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
                 fields=('provider_account', 'cid'),
                 name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
-            non_negative_constraint('_abs_distance'),
         )
         indexes = (
             models.Index(fields=('provider', 'provider_account', 'cid')),  # Default ordering

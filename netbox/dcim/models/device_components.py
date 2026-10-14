@@ -24,7 +24,6 @@ from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
-from utilities.conversion import non_negative_constraint
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -735,11 +734,6 @@ class CoolingIntake(
     upstream_field = 'cooling_outflow'
 
     class Meta(ModularComponentModel.Meta):
-        constraints = (
-            *ModularComponentModel.Meta.constraints,
-            non_negative_constraint('_abs_diameter'),
-            non_negative_constraint('_abs_max_flow'),
-        )
         verbose_name = _('cooling intake')
         verbose_name_plural = _('cooling intakes')
 
@@ -776,10 +770,6 @@ class CoolingOutflow(CoolingLoopValidationMixin, DiameterMixin, ModularComponent
     upstream_field = 'cooling_intake'
 
     class Meta(ModularComponentModel.Meta):
-        constraints = (
-            *ModularComponentModel.Meta.constraints,
-            non_negative_constraint('_abs_diameter'),
-        )
         verbose_name = _('cooling outflow')
         verbose_name_plural = _('cooling outflows')
 
