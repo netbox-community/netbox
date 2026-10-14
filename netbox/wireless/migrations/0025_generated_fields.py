@@ -92,7 +92,7 @@ class Migration(migrations.Migration):
                 ),
                 null=True,
                 output_field=models.DecimalField(
-                    blank=True, decimal_places=4, max_digits=13, null=True
+                    blank=True, decimal_places=4, max_digits=14, null=True
                 ),
             ),
         ),

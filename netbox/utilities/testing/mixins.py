@@ -2,7 +2,7 @@ import itertools
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, models, transaction
 from django.test.testcases import SerializeMixin
 from django_rq import get_queue
 from django_rq.workers import get_worker
@@ -91,6 +91,16 @@ class NormalizedMeasurementTestMixin:
     def units(self):
         return self.unit_choices.values()
 
+    @property
+    def max_value(self):
+        """
+        The largest value the source field can store.
+        """
+        field = self.model._meta.get_field(self.value_field)
+        if isinstance(field, models.DecimalField):
+            return Decimal('9' * (field.max_digits - field.decimal_places) + '.' + '9' * field.decimal_places)
+        return 2**31 - 1  # PositiveIntegerField
+
     def assertNormalized(self, instance, value, unit):
         """
         Assert that the stored normalized value matches the converter's result for the given measurement.
@@ -107,6 +117,17 @@ class NormalizedMeasurementTestMixin:
                 # The database returns the computed value on save, so it is available without a refresh
                 self.assertEqual(getattr(instance, self.normalized_field), self.converter(self.value, unit))
                 self.assertNormalized(instance, self.value, unit)
+
+    def test_max_value(self):
+        """
+        The normalized column must be wide enough to hold the source field's maximum value in every unit.
+        """
+        for unit in self.units:
+            # Isolate each unit so that an overflow in one does not abort the transaction for the rest
+            with self.subTest(unit=unit), transaction.atomic():
+                instance = self.create_instance(**{self.value_field: self.max_value, self.unit_field: unit})
+                instance.save()
+                self.assertNormalized(instance, self.max_value, unit)
 
     def test_save_existing(self):
         instance = self.create_instance()

@@ -89,7 +89,7 @@ class DistanceMixin(models.Model):
     # Normalized distance (in meters), computed by the database for ordering
     _abs_distance = NonNegativeGeneratedField(
         expression=normalized_unit_expression('distance', 'distance_unit', LENGTH_TO_METERS),
-        output_field=models.DecimalField(max_digits=13, decimal_places=4, blank=True, null=True),
+        output_field=models.DecimalField(max_digits=14, decimal_places=4, blank=True, null=True),
         db_persist=True,
         null=True,
     )
