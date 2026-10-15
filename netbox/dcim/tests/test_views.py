@@ -243,8 +243,8 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         response = self.client.get(site.get_absolute_url())
         self.assertHttpStatus(response, 200)
-        self.assertContains(response, 'data-clipboard-target="#attr_physical_address"')
-        self.assertContains(response, 'data-clipboard-target="#attr_shipping_address"')
+        self.assertContains(response, 'data-clipboard-text="742 Evergreen Terrace\nSpringfield, USA"')
+        self.assertContains(response, 'data-clipboard-text="1 Loading Dock Way\nSpringfield, USA"')
 
     def test_get_object_vlan_row_covers_group_scopes(self):
         """The VLANs row counts direct, site-scoped and site-group-scoped VLANs and links to the filter."""

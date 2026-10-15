@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load l10n %}
-<span{% if name %} id="attr_{{ name }}"{% endif %}>{{ value|linebreaksbr }}</span>
+<span>{{ value|linebreaksbr }}</span>
 {% if map_url or copy_button %}
   <div class="d-flex gap-1">
     {% if map_url %}
@@ -9,7 +9,7 @@
       </a>
     {% endif %}
     {% if copy_button %}
-      <a class="btn btn-sm btn-primary copy-content" data-clipboard-target="#attr_{{ name }}" title="{% trans "Copy to clipboard" %}">
+      <a class="btn btn-sm btn-primary copy-content d-print-none" data-clipboard-text="{{ value }}" title="{% trans "Copy to clipboard" %}">
         <i class="mdi mdi-content-copy"></i>
       </a>
     {% endif %}

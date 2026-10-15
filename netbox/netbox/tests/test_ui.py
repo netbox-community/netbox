@@ -594,16 +594,33 @@ class AddressAttrTestCase(TestCase):
         attr = attrs.AddressAttr('address', map_url=False, copy_button=True)
         obj = SimpleNamespace(address='1 Main St\nSuite 100')
         rendered = attr.render(obj, {'name': 'address'})
-        self.assertIn('id="attr_address"', rendered)
-        self.assertIn('data-clipboard-target="#attr_address"', rendered)
         self.assertIn('copy-content', rendered)
+        # The raw value (line breaks included) is copied, rather than a selection of the rendered HTML
+        self.assertIn('data-clipboard-text="1 Main St\nSuite 100"', rendered)
+        self.assertNotIn('data-clipboard-target', rendered)
+
+    def test_render_copy_button_hidden_when_printing(self):
+        attr = attrs.AddressAttr('address', map_url=False, copy_button=True)
+        obj = SimpleNamespace(address='1 Main St')
+        rendered = attr.render(obj, {'name': 'address'})
+        self.assertIn('d-print-none', rendered)
+
+    def test_render_copy_button_escapes_value(self):
+        attr = attrs.AddressAttr('address', map_url=False, copy_button=True)
+        obj = SimpleNamespace(address='O\'Brien & Sons "HQ" <Suite 5>')
+        rendered = attr.render(obj, {'name': 'address'})
+        self.assertIn(
+            'data-clipboard-text="O&#x27;Brien &amp; Sons &quot;HQ&quot; &lt;Suite 5&gt;"',
+            rendered,
+        )
+        self.assertNotIn('<Suite 5>', rendered)
 
     def test_render_without_copy_button(self):
         attr = attrs.AddressAttr('address', map_url=False)
         obj = SimpleNamespace(address='1 Main St\nSuite 100')
         rendered = attr.render(obj, {'name': 'address'})
         self.assertNotIn('copy-content', rendered)
-        self.assertNotIn('data-clipboard-target', rendered)
+        self.assertNotIn('data-clipboard-text', rendered)
 
     def test_render_map_link_without_copy_button(self):
         attr = attrs.AddressAttr('address', map_url='https://maps.google.com/?q=')
@@ -617,7 +634,7 @@ class AddressAttrTestCase(TestCase):
         obj = SimpleNamespace(address='1 Main St')
         rendered = attr.render(obj, {'name': 'address'})
         self.assertIn('href="https://maps.google.com/?q=1 Main St"', rendered)
-        self.assertIn('data-clipboard-target="#attr_address"', rendered)
+        self.assertIn('data-clipboard-text="1 Main St"', rendered)
 
 
 class DateTimeAttrTestCase(TestCase):
