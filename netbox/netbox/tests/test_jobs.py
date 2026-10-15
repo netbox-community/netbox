@@ -202,6 +202,27 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertEqual(job, scheduled)
         self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
 
+    def test_enqueue_once_reuses_queued_system_job(self):
+        """
+        Once a due job is moved from the scheduled registry into its queue, it is still live and
+        must be reused, not replaced, even though it is no longer in the scheduled registry.
+        """
+        queued = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+            queue_name='default',
+        )
+        # Enqueue directly onto the queue (not the scheduled registry), as RQ does once due.
+        get_queue('default').enqueue(_noop, job_id=str(queued.job_id))
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, queued)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
     def test_enqueue_once_reuses_future_scheduled_system_job(self):
         """
         A system job scheduled for a future time has not come due, so it is not stale and must

@@ -217,16 +217,14 @@ class JobRunner(ABC):
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
-            # Replace a system job whose schedule has been lost: its Job row is still "scheduled"
-            # for a past time, but its RQ-side scheduled entry is gone (e.g. a Redis reset), so it
-            # will never fire (see #22714). The RQ check preserves an overdue job that is still
-            # scheduled in RQ (merely waiting its turn), and the system-job gate preserves a
-            # non-system scheduled job (e.g. a DataSource sync) that may legitimately sit past-due.
+            # A system job scheduled in the past whose RQ entry is gone (e.g. a Redis reset) will
+            # never run, so replace it (see #22714). A job still present in RQ, or a non-system job,
+            # is left alone.
             is_stale = (
                 cls in registry['system_jobs'] and
                 job.status == JobStatusChoices.STATUS_SCHEDULED and
                 job.scheduled <= timezone.now() and
-                not job._is_rq_scheduled()
+                not job._is_rq_job_present()
             )
             if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
