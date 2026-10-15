@@ -14,7 +14,6 @@ from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
 
-from core.api.serializers import JobSerializer
 from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.events import *
 from core.models import AutoSyncRecord, DataFile, DataSource, Job, ObjectType
@@ -2913,7 +2912,7 @@ class ScriptJobRestrictionTestCase(APITestCase):
         list_result, detail_result = self._get_results()
 
         self.assertIsNone(list_result)
-        self.assertEqual(detail_result, JobSerializer().data)
+        self.assertIsNone(detail_result)
 
     def test_serialize_without_request(self):
         # e.g. serialize_for_event(), which has no user to check permissions against
@@ -2941,7 +2940,7 @@ class ScriptJobRestrictionTestCase(APITestCase):
         response = self.client.get(self.detail_url, **self.header)
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['result'], JobSerializer().data)
+        self.assertIsNone(response.data['result'])
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):

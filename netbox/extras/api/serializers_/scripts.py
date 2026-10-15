@@ -174,15 +174,12 @@ class ScriptSerializer(ValidatedModelSerializer):
 
 class ScriptDetailSerializer(ScriptSerializer):
 
-    @extend_schema_field(JobSerializer())
+    @extend_schema_field(JobSerializer(allow_null=True))
     def get_result(self, obj):
         # A job passed in by the run action takes precedence over the latest visible job
-        job = self.context.get('job') or self._get_latest_job(obj)
-        context = {
-            'request': self.context.get('request')
-        }
-        data = JobSerializer(job, context=context).data
-        return data
+        if job := self.context.get('job') or self._get_latest_job(obj):
+            return JobSerializer(job, context={'request': self.context.get('request')}).data
+        return None
 
 
 class ScriptInputSerializer(serializers.Serializer):
