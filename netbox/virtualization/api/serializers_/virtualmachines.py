@@ -14,7 +14,7 @@ from ipam.api.serializers_.ip import IPAddressSerializer
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from users.api.serializers_.mixins import OwnerMixin
@@ -121,8 +121,17 @@ class VMInterfaceSerializer(MACAddressShortcutMixin, OwnerMixin, NetBoxModelSeri
     vlan_translation_policy = VLANTranslationPolicySerializer(nested=True, required=False, allow_null=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
-    count_ipaddresses = serializers.IntegerField(read_only=True)
-    count_fhrp_groups = serializers.IntegerField(read_only=True)
+    # Annotated under private names, since the count properties they fall back to are read-only
+    count_ipaddresses = RelatedObjectCountField(
+        'ip_addresses',
+        source='_count_ipaddresses',
+        fallback_source='count_ipaddresses'
+    )
+    count_fhrp_groups = RelatedObjectCountField(
+        'fhrp_group_assignments',
+        source='_count_fhrp_groups',
+        fallback_source='count_fhrp_groups'
+    )
     # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
     # create/update the primary MAC address in a single request.
     mac_address = serializers.CharField(allow_null=True, required=False)

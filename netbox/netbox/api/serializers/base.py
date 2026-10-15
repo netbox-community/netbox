@@ -74,11 +74,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         # Related object counts are populated by annotations applied to the viewset's queryset, but these
         # annotations are not applied when the object is represented as a nested (brief) related object. Omit
-        # these fields when serializing a nested object to avoid advertising fields that will never be populated
-        # (and which would otherwise be declared as required in the generated OpenAPI schema). See #22154.
+        # fields without a fallback when serializing a nested object to avoid advertising fields that will never be
+        # populated (and which would otherwise be declared as required in the generated OpenAPI schema). See #22154.
         if self.nested:
             for field_name, field in list(fields.items()):
-                if isinstance(field, RelatedObjectCountField):
+                if isinstance(field, RelatedObjectCountField) and not field.fallback_source:
                     fields.pop(field_name)
 
         return fields

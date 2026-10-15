@@ -2,6 +2,7 @@ from django.db.models import Sum
 from rest_framework.routers import APIRootView
 
 from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
+from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
 from virtualization import filtersets
@@ -71,11 +72,14 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBo
 class VMInterfaceViewSet(NetBoxModelViewSet):
     queryset = VMInterface.objects.prefetch_related(
         'l2vpn_terminations',  # Referenced by VMInterfaceSerializer.l2vpn_termination
-        'ip_addresses',  # Referenced by VMInterface.count_ipaddresses()
-        'fhrp_group_assignments',  # Referenced by VMInterface.count_fhrp_groups()
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filtersets.VMInterfaceFilterSet
+    pagination_class = StripCountAnnotationsPaginator
+    field_prefetches = {
+        ('count_ipaddresses',): ('ip_addresses',),
+        ('count_fhrp_groups',): ('fhrp_group_assignments',),
+    }
 
     def get_bulk_destroy_queryset(self):
         # Ensure child interfaces are deleted prior to their parents
