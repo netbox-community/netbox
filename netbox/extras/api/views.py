@@ -436,7 +436,7 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             data.pop(k, None)
 
         try:
-            ScriptJob.enqueue(
+            job = ScriptJob.enqueue(
                 instance=script,
                 user=request.user,
                 data=data,
@@ -453,7 +453,8 @@ class ScriptViewSet(ListModelMixin, RetrieveModelMixin, BaseViewSet):
             # request-field errors, so report them under the non-field "detail" key.
             raise ValidationError({'detail': e.messages}) from e
 
-        serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
+        # Return the job just enqueued (regardless of view_job permission), never another user's concurrent job
+        serializer = serializers.ScriptDetailSerializer(script, context={'request': request, 'job': job})
         return Response(serializer.data)
 
 
