@@ -5,6 +5,7 @@ declare global {
   interface HTMLElementEventMap {
     'htmx:configRequest': CustomEvent<{
       parameters: Record<string, string>;
+      formData: FormData;
       headers: Record<string, string>;
     }>;
   }
