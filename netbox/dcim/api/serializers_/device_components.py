@@ -25,7 +25,7 @@ from dcim.models import (
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
-from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
@@ -334,8 +334,17 @@ class InterfaceSerializer(
         required=False,
         many=True
     )
-    count_ipaddresses = serializers.IntegerField(read_only=True)
-    count_fhrp_groups = serializers.IntegerField(read_only=True)
+    # Annotated under private names, since the count properties they fall back to are read-only
+    count_ipaddresses = RelatedObjectCountField(
+        'ip_addresses',
+        source='_count_ipaddresses',
+        fallback_source='count_ipaddresses'
+    )
+    count_fhrp_groups = RelatedObjectCountField(
+        'fhrp_group_assignments',
+        source='_count_fhrp_groups',
+        fallback_source='count_fhrp_groups'
+    )
     # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
     # create/update the primary MAC address in a single request.
     mac_address = serializers.CharField(allow_null=True, required=False)

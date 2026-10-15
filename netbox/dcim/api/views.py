@@ -506,6 +506,7 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     queryset = Interface.objects.all()
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
+    pagination_class = StripCountAnnotationsPaginator
     field_prefetches = {
         ('link_peers', 'link_peers_type'): (
             GenericPrefetch('cable__terminations__termination', [Interface.objects.select_related('device', 'cable')]),

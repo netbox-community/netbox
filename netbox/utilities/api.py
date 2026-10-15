@@ -1,6 +1,6 @@
 import logging
 
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.exceptions import (
     FieldDoesNotExist,
     FieldError,
@@ -242,18 +242,26 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None, _ser
     return prefetch_fields
 
 
-def get_annotations_for_serializer(serializer_class, fields=None, omit=None):
+def get_annotations_for_serializer(serializer_class, fields=None, omit=None, exclude=()):
     """
-    Return a mapping of field names to annotations to be applied to the queryset for a serializer.
+    Return a mapping of attribute names to annotations to be applied to the queryset for a serializer.
     """
     effective_fields = get_fields_for_serializer(serializer_class, fields, omit)
     model = serializer_class.Meta.model
 
     annotations = {}
     for field_name, field in serializer_class._declared_fields.items():
-        if field_name in effective_fields and type(field) is RelatedObjectCountField:
+        if field_name in effective_fields and field_name not in exclude and type(field) is RelatedObjectCountField:
             related_field = getattr(model, field.relation).field
-            annotations[field_name] = count_related(related_field.model, related_field.name)
+            if isinstance(related_field, GenericRelation):
+                count = count_related(
+                    related_field.related_model,
+                    related_field.object_id_field_name,
+                    **{related_field.content_type_field_name: related_field.get_content_type()}
+                )
+            else:
+                count = count_related(related_field.model, related_field.name)
+            annotations[field.source or field_name] = count
 
     return annotations
 
