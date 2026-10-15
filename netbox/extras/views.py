@@ -1712,12 +1712,6 @@ class BaseScriptView(generic.ObjectView):
             return script_class()
         return None
 
-    def _get_jobs(self, script):
-        """
-        Return the Jobs for this Script which the current user is permitted to view
-        """
-        return script.jobs.restrict(self.request.user, 'view')
-
 
 class ScriptView(BaseScriptView):
 
@@ -1737,7 +1731,7 @@ class ScriptView(BaseScriptView):
             'script': script,
             'script_class': script_class,
             'form': form,
-            'job_count': self._get_jobs(script).count(),
+            'job_count': script.jobs.restrict(request.user, 'view').count(),
         })
 
     def post(self, request, **kwargs):
@@ -1794,7 +1788,7 @@ class ScriptView(BaseScriptView):
             'script': script,
             'script_class': script.python_class(),
             'form': form,
-            'job_count': self._get_jobs(script).count(),
+            'job_count': script.jobs.restrict(request.user, 'view').count(),
         })
 
 
@@ -1808,7 +1802,7 @@ class ScriptSourceView(BaseScriptView):
         return render(request, 'extras/script/source.html', {
             'script': script,
             'script_class': script_class,
-            'job_count': self._get_jobs(script).count(),
+            'job_count': script.jobs.restrict(request.user, 'view').count(),
             'tab': 'source',
         })
 
@@ -1819,7 +1813,7 @@ class ScriptJobsView(BaseScriptView):
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
 
-        jobs = self._get_jobs(script)
+        jobs = script.jobs.restrict(request.user, 'view')
         jobs_table = ScriptJobTable(data=jobs, orderable=False)
         jobs_table.configure(request)
 
