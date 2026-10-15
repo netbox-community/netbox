@@ -39,17 +39,22 @@ class APISelectSelectorButtonTest(TestCase):
 
     def test_button_includes_static_params(self):
         html = self.render(self.make_widget({'site_id': 1}))
-        self.assertIn('&site_id=1', html)
+        self.assertIn('&_static_site_id=1', html)
 
     def test_button_includes_static_params_after_deepcopy(self):
         widget = copy.deepcopy(self.make_widget({'site_id': 1}))
-        self.assertIn('&site_id=1', self.render(widget))
+        self.assertIn('&_static_site_id=1', self.render(widget))
 
     def test_button_includes_every_value_of_a_multi_value_param(self):
         html = self.render(self.make_widget({'site_id': [1, 5]}))
-        self.assertIn('&site_id=1', html)
-        self.assertIn('&site_id=5', html)
+        self.assertIn('&_static_site_id=1', html)
+        self.assertIn('&_static_site_id=5', html)
+
+    def test_button_urlencodes_static_param_keys_and_values(self):
+        html = self.render(self.make_widget({'a&b': 'x&y=z'}))
+        self.assertIn('&_static_a%26b=x%26y%3Dz', html)
+        self.assertNotIn('=x&y=z', html)
 
     def test_button_has_no_params_without_query_params(self):
         html = self.render(self.make_widget())
-        self.assertNotIn('&site_id=', html)
+        self.assertNotIn('&_static_', html)

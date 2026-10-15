@@ -21,7 +21,7 @@
       <input type="hidden" name="_search" value="true" />
       {% for k, values in static_params.items %}
         {% for v in values %}
-          <input type="hidden" name="{{ k }}" value="{{ v }}" />
+          <input type="hidden" name="_static_{{ k }}" value="{{ v }}" />
         {% endfor %}
       {% endfor %}
       <div class="tab-content p-1">
