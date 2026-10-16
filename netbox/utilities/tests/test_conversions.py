@@ -1,12 +1,20 @@
 from decimal import Decimal
 
+from django.db import connection
+
 from dcim.choices import CableLengthUnitChoices
+from dcim.models import DeviceType
 from netbox.choices import (
     DiameterUnitChoices,
+    DistanceUnitChoices,
     FlowRateUnitChoices,
     WeightUnitChoices,
 )
 from utilities.conversion import (
+    DIAMETER_TO_MILLIMETERS,
+    FLOW_RATE_TO_LITERS_PER_MINUTE,
+    LENGTH_TO_METERS,
+    WEIGHT_TO_GRAMS,
     to_grams,
     to_liters_per_minute,
     to_meters,
@@ -16,6 +24,31 @@ from utilities.testing.base import TestCase
 
 
 class ConversionsTestCase(TestCase):
+
+    def test_factors_cover_all_units(self):
+        """
+        Every unit choice must have a conversion factor, as the factors drive both the to_*() helpers and the
+        generated columns which normalize measurements.
+        """
+        for factors, choices in (
+            (WEIGHT_TO_GRAMS, WeightUnitChoices),
+            (LENGTH_TO_METERS, CableLengthUnitChoices),
+            (LENGTH_TO_METERS, DistanceUnitChoices),
+            (DIAMETER_TO_MILLIMETERS, DiameterUnitChoices),
+            (FLOW_RATE_TO_LITERS_PER_MINUTE, FlowRateUnitChoices),
+        ):
+            with self.subTest(choices=choices.__name__):
+                self.assertTrue(set(choices.values()) <= set(factors))
+                for factor in factors.values():
+                    self.assertIsInstance(factor, Decimal)
+
+    def test_normalized_columns_are_checked_non_negative(self):
+        """
+        Each generated column must carry an inline database check so that a negative measurement cannot be stored
+        through any write path.
+        """
+        field = DeviceType._meta.get_field('_abs_weight')
+        self.assertEqual(field.db_parameters(connection)['check'], '"_abs_weight" >= 0')
 
     def test_to_grams(self):
         self.assertEqual(
@@ -87,6 +120,11 @@ class ConversionsTestCase(TestCase):
         self.assertEqual(
             to_meters(1, CableLengthUnitChoices.UNIT_INCH),
             Decimal('0.0254')
+        )
+        # Ties round half away from zero, matching the generated database columns
+        self.assertEqual(
+            to_meters(Decimal('0.75'), CableLengthUnitChoices.UNIT_INCH),
+            Decimal('0.0191')
         )
 
     def test_to_millimeters(self):

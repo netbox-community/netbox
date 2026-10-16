@@ -473,7 +473,7 @@ class CoolingIntakeTemplate(DiameterMixin, MaxFlowMixin, ModularComponentTemplat
             max_flow_unit=self.max_flow_unit,
             **kwargs
         )
-        # bulk_create bypasses save(), so populate the normalized _abs_* fields here
+        # bulk_create() bypasses save(), so clear any unit lacking a value here
         component.normalize_diameter()
         component.normalize_max_flow()
         return component
@@ -551,7 +551,7 @@ class CoolingOutflowTemplate(DiameterMixin, ModularComponentTemplateModel):
             cooling_intake=cooling_intake,
             **kwargs
         )
-        # bulk_create bypasses save(), so populate the normalized _abs_diameter here
+        # bulk_create() bypasses save(), so clear any unit lacking a value here
         component.normalize_diameter()
         return component
     instantiate.do_not_call_in_templates = True

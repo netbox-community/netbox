@@ -1,9 +1,11 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import to_grams, to_meters
+from utilities.conversion import LENGTH_TO_METERS, WEIGHT_TO_GRAMS, normalized_unit_expression
+from utilities.fields import NonNegativeGeneratedField
 
 __all__ = (
     'DistanceMixin',
@@ -34,7 +36,8 @@ class WeightMixin(models.Model):
         max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
+        validators=[MinValueValidator(0)],
     )
     weight_unit = models.CharField(
         verbose_name=_('weight unit'),
@@ -43,10 +46,12 @@ class WeightMixin(models.Model):
         blank=True,
         null=True,
     )
-    # Stores the normalized weight (in grams) for database ordering
-    _abs_weight = models.PositiveBigIntegerField(
-        blank=True,
-        null=True
+    # Normalized weight (in grams), computed by the database for ordering
+    _abs_weight = NonNegativeGeneratedField(
+        expression=normalized_unit_expression('weight', 'weight_unit', WEIGHT_TO_GRAMS, integer=True),
+        output_field=models.BigIntegerField(blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
 
     class Meta:
@@ -56,16 +61,6 @@ class WeightMixin(models.Model):
     def abs_weight(self):
         # Public alias for _abs_weight; Django templates cannot access underscore-prefixed attributes.
         return self._abs_weight
-
-    def save(self, *args, **kwargs):
-
-        # Store the given weight (if any) in grams for use in database ordering
-        if self.weight and self.weight_unit:
-            self._abs_weight = to_grams(self.weight, self.weight_unit)
-        else:
-            self._abs_weight = None
-
-        super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
@@ -82,6 +77,7 @@ class DistanceMixin(models.Model):
         decimal_places=2,
         blank=True,
         null=True,
+        validators=[MinValueValidator(0)],
     )
     distance_unit = models.CharField(
         verbose_name=_('distance unit'),
@@ -90,12 +86,12 @@ class DistanceMixin(models.Model):
         blank=True,
         null=True,
     )
-    # Stores the normalized distance (in meters) for database ordering
-    _abs_distance = models.DecimalField(
-        max_digits=13,
-        decimal_places=4,
-        blank=True,
-        null=True
+    # Normalized distance (in meters), computed by the database for ordering
+    _abs_distance = NonNegativeGeneratedField(
+        expression=normalized_unit_expression('distance', 'distance_unit', LENGTH_TO_METERS),
+        output_field=models.DecimalField(max_digits=14, decimal_places=4, blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
 
     class Meta:
@@ -107,12 +103,6 @@ class DistanceMixin(models.Model):
         return self._abs_distance
 
     def save(self, *args, **kwargs):
-        # Store the given distance (if any) in meters for use in database ordering
-        if self.distance is not None and self.distance_unit:
-            self._abs_distance = to_meters(self.distance, self.distance_unit)
-        else:
-            self._abs_distance = None
-
         # Clear distance_unit if no distance is defined
         if self.distance is None:
             self.distance_unit = None

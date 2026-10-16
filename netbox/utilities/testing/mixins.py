@@ -1,9 +1,15 @@
+import itertools
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, models, transaction
 from django.test.testcases import SerializeMixin
 from django_rq import get_queue
 from django_rq.workers import get_worker
 from rq import SimpleWorker
 
 __all__ = (
+    'NormalizedMeasurementTestMixin',
     'RQQueueTestMixin',
 )
 
@@ -54,3 +60,163 @@ class RQQueueTestMixin(SerializeMixin):
             self.clear_rq_queues()
         finally:
             super().tearDown()
+
+
+class NormalizedMeasurementTestMixin:
+    """
+    Exercise a database-generated column that normalizes a measurement to its base unit. The column is checked
+    against the matching to_*() helper for every unit choice, across each write path: save(), QuerySet.update(),
+    bulk_update(), and bulk_create(). Subclasses set the attributes below and implement create_instance().
+    """
+    model = None
+    value_field = None       # e.g. 'distance'
+    unit_field = None        # e.g. 'distance_unit'
+    normalized_field = None  # e.g. '_abs_distance'
+    unit_choices = None      # e.g. DistanceUnitChoices
+    converter = None         # e.g. staticmethod(to_meters)
+    value = Decimal('123.45')
+
+    def setUp(self):
+        super().setUp()
+        self.sequence = itertools.count(1)
+
+    def create_instance(self, **attrs):
+        """
+        Return an unsaved instance of the model with the given attributes set. Each call must yield an instance
+        which can be saved alongside those from previous calls; next(self.sequence) supplies a unique number.
+        """
+        raise NotImplementedError
+
+    @property
+    def units(self):
+        return self.unit_choices.values()
+
+    @property
+    def max_value(self):
+        """
+        The largest value the source field can store.
+        """
+        field = self.model._meta.get_field(self.value_field)
+        if isinstance(field, models.DecimalField):
+            return Decimal('9' * (field.max_digits - field.decimal_places) + '.' + '9' * field.decimal_places)
+        return 2**31 - 1  # PositiveIntegerField
+
+    def assertNormalized(self, instance, value, unit):
+        """
+        Assert that the stored normalized value matches the converter's result for the given measurement.
+        """
+        expected = self.converter(value, unit) if value is not None and unit else None
+        instance.refresh_from_db()
+        self.assertEqual(getattr(instance, self.normalized_field), expected)
+
+    def test_save(self):
+        for unit in self.units:
+            with self.subTest(unit=unit):
+                instance = self.create_instance(**{self.value_field: self.value, self.unit_field: unit})
+                instance.save()
+                # The database returns the computed value on save, so it is available without a refresh
+                self.assertEqual(getattr(instance, self.normalized_field), self.converter(self.value, unit))
+                self.assertNormalized(instance, self.value, unit)
+
+    def test_max_value(self):
+        """
+        The normalized column must be wide enough to hold the source field's maximum value in every unit.
+        """
+        for unit in self.units:
+            # Isolate each unit so that an overflow in one does not abort the transaction for the rest
+            with self.subTest(unit=unit), transaction.atomic():
+                instance = self.create_instance(**{self.value_field: self.max_value, self.unit_field: unit})
+                instance.save()
+                self.assertNormalized(instance, self.max_value, unit)
+
+    def test_save_existing(self):
+        instance = self.create_instance()
+        instance.save()
+        for unit in self.units:
+            with self.subTest(unit=unit):
+                setattr(instance, self.value_field, self.value)
+                setattr(instance, self.unit_field, unit)
+                instance.save()
+                # An UPDATE also returns the computed value, so change logging sees the current value
+                self.assertEqual(getattr(instance, self.normalized_field), self.converter(self.value, unit))
+                self.assertNormalized(instance, self.value, unit)
+
+    def test_update(self):
+        instance = self.create_instance()
+        instance.save()
+        for unit in self.units:
+            with self.subTest(unit=unit):
+                self.model.objects.filter(pk=instance.pk).update(**{
+                    self.value_field: self.value,
+                    self.unit_field: unit,
+                })
+                self.assertNormalized(instance, self.value, unit)
+
+    def test_bulk_update(self):
+        instance = self.create_instance()
+        instance.save()
+        for unit in self.units:
+            with self.subTest(unit=unit):
+                setattr(instance, self.value_field, self.value)
+                setattr(instance, self.unit_field, unit)
+                self.model.objects.bulk_update([instance], [self.value_field, self.unit_field])
+                self.assertNormalized(instance, self.value, unit)
+
+    def test_bulk_create(self):
+        instances = self.model.objects.bulk_create([
+            self.create_instance(**{self.value_field: self.value, self.unit_field: unit})
+            for unit in self.units
+        ])
+        for instance, unit in zip(instances, self.units):
+            with self.subTest(unit=unit):
+                self.assertNormalized(instance, self.value, unit)
+
+    def test_negative_value_rejected(self):
+        """
+        A negative measurement must fail validation on the source field.
+        """
+        instance = self.create_instance(**{self.value_field: -self.value, self.unit_field: self.units[0]})
+        with self.assertRaises(ValidationError) as cm:
+            instance.full_clean()
+        self.assertIn(self.value_field, cm.exception.error_dict)
+
+    def test_negative_value_rejected_by_database(self):
+        """
+        Write paths which skip validation must still be unable to store a negative measurement.
+        """
+        unit = self.units[0]
+        negative = {self.value_field: -self.value, self.unit_field: unit}
+        instance = self.create_instance(**{self.value_field: self.value, self.unit_field: unit})
+        instance.save()
+
+        def assert_rejected(label, write):
+            with self.subTest(write_path=label):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    write()
+
+        def save():
+            for attr, value in negative.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+        def bulk_update():
+            for attr, value in negative.items():
+                setattr(instance, attr, value)
+            self.model.objects.bulk_update([instance], list(negative))
+
+        assert_rejected('save', save)
+        assert_rejected('update', lambda: self.model.objects.filter(pk=instance.pk).update(**negative))
+        assert_rejected('bulk_update', bulk_update)
+        assert_rejected('bulk_create', lambda: self.model.objects.bulk_create([self.create_instance(**negative)]))
+
+    def test_null_without_value_or_unit(self):
+        unit = self.units[0]
+        instance = self.create_instance(**{self.value_field: self.value, self.unit_field: unit})
+        instance.save()
+        queryset = self.model.objects.filter(pk=instance.pk)
+
+        queryset.update(**{self.value_field: None})
+        self.assertNormalized(instance, None, unit)
+
+        queryset.update(**{self.value_field: self.value, self.unit_field: None})
+        self.assertNormalized(instance, self.value, None)

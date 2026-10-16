@@ -5,7 +5,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
-from django.db import connection, transaction
+from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import RequestFactory, TestCase, override_settings, tag
@@ -3313,9 +3313,20 @@ class CableTestCase(TestCase):
         self.assertIsNone(cable.length_unit)
         self.assertIsNone(cable._abs_length)
 
-    def test_partial_save_reads_the_stored_pair_only_for_an_excluded_field(self):
+    def test_negative_length_rejected_by_database(self):
         """
-        A save writing both source fields must normalize without reading the row back.
+        A negative length must not reach the database, even through a write which skips validation.
+        """
+        cable = Cable.objects.first()
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Cable.objects.filter(pk=cable.pk).update(
+                length=Decimal('-1'), length_unit=CableLengthUnitChoices.UNIT_METER
+            )
+
+    def test_partial_save_reads_the_stored_length_only_for_an_unwritten_length(self):
+        """
+        Only a save writing length_unit without length must read the row back, to decide whether to clear the
+        unit; the database computes the normalized length itself.
         """
         cable = Cable.objects.first()
         cable.length = Decimal('1')
@@ -3324,14 +3335,17 @@ class CableTestCase(TestCase):
 
         with CaptureQueriesContext(connection) as both_written:
             cable.save(update_fields=['length', 'length_unit'])
-        with CaptureQueriesContext(connection) as one_written:
+        with CaptureQueriesContext(connection) as length_written:
             cable.save(update_fields=['length'])
+        with CaptureQueriesContext(connection) as unit_written:
+            cable.save(update_fields=['length_unit'])
 
         def cable_reads(queries):
             return [q for q in queries if q['sql'].startswith('SELECT') and 'FROM "dcim_cable"' in q['sql']]
 
         self.assertEqual(cable_reads(both_written), [])
-        self.assertEqual(len(cable_reads(one_written)), 1)
+        self.assertEqual(cable_reads(length_written), [])
+        self.assertEqual(len(cable_reads(unit_written)), 1)
 
 
 class CableTerminationTestCase(TestCase):
@@ -4677,3 +4691,69 @@ class CoolingComponentTestCase(TestCase):
         cooling_outflow.cooling_intake = cooling_intake
         with self.assertRaises(ValidationError):
             cooling_outflow.full_clean()
+
+    def test_instantiate_clears_unit_without_value(self):
+        """
+        bulk_create() bypasses save(), so instantiate() must itself clear a unit whose value is unset.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 8', slug='device-type-8'
+        )
+        intake_template = CoolingIntakeTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            diameter=Decimal('10'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+            max_flow=Decimal('5'),
+            max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
+        )
+        outflow_template = CoolingOutflowTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            diameter=Decimal('10'),
+            diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
+        )
+        # Leave the units dangling without passing through save()
+        CoolingIntakeTemplate.objects.filter(pk=intake_template.pk).update(diameter=None, max_flow=None)
+        CoolingOutflowTemplate.objects.filter(pk=outflow_template.pk).update(diameter=None)
+
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device F'
+        )
+        cooling_intake = CoolingIntake.objects.get(device=device, name='Cooling Port 1')
+        self.assertIsNone(cooling_intake.diameter)
+        self.assertIsNone(cooling_intake.diameter_unit)
+        self.assertIsNone(cooling_intake.max_flow)
+        self.assertIsNone(cooling_intake.max_flow_unit)
+        cooling_outflow = CoolingOutflow.objects.get(device=device, name='Cooling Outlet 1')
+        self.assertIsNone(cooling_outflow.diameter)
+        self.assertIsNone(cooling_outflow.diameter_unit)
+
+    def test_negative_measurements_rejected_by_database(self):
+        """
+        A negative diameter or max flow must not reach the database, even through a write which skips validation.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer, model='Device Type 9', slug='device-type-9'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device G'
+        )
+        writes = {
+            CoolingIntakeTemplate: CoolingIntakeTemplate.objects.create(device_type=device_type, name='Intake 1'),
+            CoolingOutflowTemplate: CoolingOutflowTemplate.objects.create(device_type=device_type, name='Outflow 1'),
+            CoolingIntake: CoolingIntake.objects.create(device=device, name='Intake 1'),
+            CoolingOutflow: CoolingOutflow.objects.create(device=device, name='Outflow 1'),
+        }
+        for model, instance in writes.items():
+            with self.subTest(model=model.__name__, field='diameter'):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.filter(pk=instance.pk).update(
+                        diameter=Decimal('-1'), diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
+                    )
+        for model in (CoolingIntakeTemplate, CoolingIntake):
+            with self.subTest(model=model.__name__, field='max_flow'):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    model.objects.filter(pk=writes[model].pk).update(
+                        max_flow=Decimal('-1'), max_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE
+                    )

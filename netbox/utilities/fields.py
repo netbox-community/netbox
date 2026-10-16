@@ -8,7 +8,6 @@ from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from .forms.widgets import ColorSelect
 from .validators import ColorValidator
 
 __all__ = (
@@ -16,6 +15,7 @@ __all__ = (
     'CounterCacheField',
     'GenericArrayForeignKey',
     'NaturalOrderingField',
+    'NonNegativeGeneratedField',
     'RestrictedGenericForeignKey',
 )
 
@@ -29,8 +29,22 @@ class ColorField(models.CharField):
         super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
+        # Imported here because utilities.forms indirectly imports netbox.models, which imports this module
+        from .forms.widgets import ColorSelect
         kwargs['widget'] = ColorSelect
         return super().formfield(**kwargs)
+
+
+class NonNegativeGeneratedField(models.GeneratedField):
+    """
+    A generated column which the database constrains to non-negative values via an inline CHECK, as it would a
+    PositiveIntegerField. Django emits no check for a GeneratedField's output_field because that field is never
+    bound to a column, so the check is supplied here from the generated column itself.
+    """
+    def db_parameters(self, connection):
+        params = super().db_parameters(connection)
+        params['check'] = f'{connection.ops.quote_name(self.column)} >= 0'
+        return params
 
 
 class NaturalOrderingField(models.CharField):

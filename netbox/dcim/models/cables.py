@@ -22,10 +22,10 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node, rebuild_cable_paths
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from utilities.conversion import to_meters
+from utilities.conversion import LENGTH_TO_METERS, normalized_unit_expression
 from utilities.data import normalize_update_fields
 from utilities.exceptions import AbortRequest
-from utilities.fields import ColorField, GenericArrayForeignKey
+from utilities.fields import ColorField, GenericArrayForeignKey, NonNegativeGeneratedField
 from utilities.querysets import RestrictedQuerySet, chunked_update
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
@@ -141,7 +141,8 @@ class Cable(PrimaryModel):
         max_digits=8,
         decimal_places=2,
         blank=True,
-        null=True
+        null=True,
+        validators=[MinValueValidator(0)],
     )
     length_unit = models.CharField(
         verbose_name=_('length unit'),
@@ -150,12 +151,12 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
-    # Stores the normalized length (in meters) for database ordering
-    _abs_length = models.DecimalField(
-        max_digits=14,
-        decimal_places=4,
-        blank=True,
-        null=True
+    # Normalized length (in meters), computed by the database for ordering and path tracing
+    _abs_length = NonNegativeGeneratedField(
+        expression=normalized_unit_expression('length', 'length_unit', LENGTH_TO_METERS),
+        output_field=models.DecimalField(max_digits=14, decimal_places=4, blank=True, null=True),
+        db_persist=True,
+        null=True,
     )
     bundle = models.ForeignKey(
         to='dcim.CableBundle',
@@ -353,32 +354,16 @@ class Cable(PrimaryModel):
         }
         update_fields = normalize_update_fields(save_kwargs)
 
-        length_written = update_fields is None or 'length' in update_fields
-        length_unit_written = update_fields is None or 'length_unit' in update_fields
-
-        if length_written or length_unit_written:
-            if length_written and length_unit_written:
-                stored = {}
+        # Clear length_unit if no length is defined. A save writing only the unit must check the stored length,
+        # reading from the database this save will write so a router cannot split the two.
+        if update_fields is None or 'length_unit' in update_fields:
+            if update_fields is None or 'length' in update_fields:
+                length = self.length
             else:
-                # Read from the database this save will write, so a router cannot split the two
                 db = using or router.db_for_write(Cable, instance=self)
-                stored = Cable.objects.using(db).filter(pk=self.pk).values('length', 'length_unit').first() or {}
-            length = self.length if length_written else stored.get('length')
-            length_unit = self.length_unit if length_unit_written else stored.get('length_unit')
-
-            # Clear length_unit if no length is defined
-            if length is None and length_unit_written:
+                length = Cable.objects.using(db).filter(pk=self.pk).values_list('length', flat=True).first()
+            if length is None:
                 self.length_unit = None
-
-            # Store the given length (if any) in meters for use in database ordering
-            if length is not None and length_unit:
-                self._abs_length = to_meters(length, length_unit)
-            else:
-                self._abs_length = None
-
-            # _abs_length is a denormalized cache of length and length_unit, so persist them together
-            if update_fields is not None:
-                save_kwargs['update_fields'] = update_fields | {'_abs_length'}
 
         # A field counts as changed only when this save actually writes it
         status_written = update_fields is None or 'status' in update_fields
