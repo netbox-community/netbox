@@ -1,0 +1,7 @@
+Hi @{author}, thanks for your interest in contributing to NetBox!
+
+Pull requests to this repository can be submitted only by contributors who have been vouched for by a maintainer, and you are not yet on the list of vouched contributors. To request a vouch, please introduce yourself by [starting a discussion](https://github.com/{owner}/{repo}/discussions/new?category=vouch-request) in the **Vouch Request** category. Once a maintainer has vouched for you, you're welcome to submit a new pull request.
+
+Please see our [contributing guide](https://github.com/{owner}/{repo}/blob/{default_branch}/CONTRIBUTING.md) for more details.
+
+This pull request will be closed automatically.
