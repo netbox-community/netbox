@@ -1,0 +1,46 @@
+# vouch (https://github.com/mitchellh/vouch)
+name: Vouch - Manage by discussion
+
+on:
+  discussion_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+# Serialize updates to the VOUCHED file
+concurrency:
+  group: vouch-manage
+  cancel-in-progress: false
+
+jobs:
+  manage:
+    # Skip comments which can't contain a vouch command
+    if: github.repository == 'netbox-community/netbox' && startsWith(github.event.comment.body, '!')
+    runs-on: ubuntu-latest
+    steps:
+      # An app token is required to merge the VOUCHED update into the protected default branch
+      - name: Create app token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: 1076524
+          private-key: ${{ secrets.HOUSEKEEPING_SECRET_KEY }}
+
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Update VOUCHED file
+        uses: mitchellh/vouch/action/manage-by-discussion@d66fa29a64600490892131ad87597c30c91fcac4 # v1.5.0
+        with:
+          discussion-number: ${{ github.event.discussion.number }}
+          comment-node-id: ${{ github.event.comment.node_id }}
+          vouch-keyword: "!vouch"
+          denounce-keyword: "!denounce"
+          unvouch-keyword: "!unvouch"
+          pull-request: "true"
+          merge-immediately: "true"
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
