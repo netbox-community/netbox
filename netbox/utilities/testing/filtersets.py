@@ -29,10 +29,15 @@ EXEMPT_MODEL_FIELDS = (
 
 def get_filter_target(model, field_name):
     """
-    Return a (model, scalar_field) tuple for a filter's field_name, or (None, None) if it cannot be resolved (e.g.
-    an annotation or GFK). A path ending in a scalar field (e.g. site__slug) targets the model which owns that field.
+    Return a (model, field) tuple for a filter's field_name, or (None, None) if it cannot be resolved (e.g. an
+    annotation or GFK). A path ending in a relation (e.g. site) targets the related model; a path ending in a scalar
+    field (e.g. site__slug) targets the model which owns that field. In either case, field is the final field in the
+    path.
     """
+    field = None
     for part in field_name.split(LOOKUP_SEP):
+        if part == 'pk':
+            return model, model._meta.pk
         try:
             field = model._meta.get_field(part)
         except FieldDoesNotExist:
@@ -42,7 +47,7 @@ def get_filter_target(model, field_name):
         if field.related_model is None:
             return None, None
         model = field.related_model
-    return model, None
+    return model, field
 
 
 class BaseFilterSetTestMixin:
@@ -197,7 +202,7 @@ class BaseFilterSetTestMixin:
                 # Filters with a custom method may use any queryset
                 if filter.method is not None:
                     continue
-                target_model, scalar_field = get_filter_target(model, filter.field_name)
+                target_model, target_field = get_filter_target(model, filter.field_name)
                 if target_model is None:
                     continue
                 self.assertTrue(
@@ -207,18 +212,28 @@ class BaseFilterSetTestMixin:
                     f"(field_name '{filter.field_name}' targets {target_model.__name__})!"
                 )
 
-                # A field_name ending in a scalar field is matched against the to_field_name value
-                if scalar_field is not None:
+                if target_field.is_relation:
+                    # Tree filters match descendants by queryset rather than by to_field_name value
+                    if isinstance(filter, TreeNodeMultipleChoiceFilter) or type(target_field) is GenericRelation:
+                        continue
+                    # A field_name ending in a relation is matched against the relation's target field
+                    expected_field = target_field.target_field
+                    msg = f"to_field_name for {filter_name} must match the target field of '{filter.field_name}'!"
+                else:
+                    # A field_name ending in a scalar field is matched against the to_field_name value
                     self.assertIsInstance(
                         filter,
                         django_filters.ModelMultipleChoiceFilter,
                         f"ModelChoiceFilter {filter_name} cannot use a scalar field_name '{filter.field_name}'!"
                     )
-                    self.assertEqual(
-                        to_field_name,
-                        scalar_field.name,
-                        f"to_field_name for {filter_name} must match field_name '{filter.field_name}'!"
-                    )
+                    expected_field = target_field
+                    msg = f"to_field_name for {filter_name} must match field_name '{filter.field_name}'!"
+
+                # to_field_name defaults to 'pk', which may also be given explicitly (or by its actual name)
+                if to_field_name in (None, 'pk'):
+                    self.assertTrue(expected_field.primary_key, msg)
+                else:
+                    self.assertEqual(to_field_name, expected_field.name, msg)
 
 
 class ChangeLoggedFilterSetTestMixin(BaseFilterSetTestMixin):
