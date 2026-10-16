@@ -5615,6 +5615,40 @@ class VirtualChassisTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'domain': 'domain-x',
         }
 
+    @tag('regression')  # Ref: #23212
+    def test_remove_member_blocked_by_cross_chassis_lag(self):
+        self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
+        member = Device.objects.get(name='Device 2')
+        lag = Interface.objects.create(device=master, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(device=member, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertEqual(response.status_code, 302)
+
+        member.refresh_from_db()
+        self.assertEqual(member.virtual_chassis.name, 'VC1')
+        self.assertEqual(member.vc_position, 2)
+
+    def test_remove_member(self):
+        self.add_permissions('dcim.change_device')
+        master = Device.objects.get(name='Device 1')
+        member = Device.objects.get(name='Device 2')
+
+        # A primary IP on another member's interface must not block removal
+        interface = Interface.objects.create(device=master, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        ip = IPAddress.objects.create(address='192.0.2.1/24', assigned_object=interface)
+        Device.objects.filter(pk=member.pk).update(primary_ip4=ip)
+
+        url = reverse('dcim:virtualchassis_remove_member', kwargs={'pk': member.pk})
+        response = self.client.post(url, {'confirm': True})
+        self.assertEqual(response.status_code, 302)
+
+        member.refresh_from_db()
+        self.assertIsNone(member.virtual_chassis)
+        self.assertIsNone(member.vc_position)
+
 
 class PowerPanelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = PowerPanel

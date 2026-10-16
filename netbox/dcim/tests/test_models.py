@@ -3688,6 +3688,87 @@ class VirtualChassisTestCase(TestCase):
         self.assertEqual(device2.vc_position, 2)
         self.assertEqual(device2.vc_priority, 20)
 
+    @tag('regression')  # Ref: #23212
+    def test_member_removal_blocked_by_cross_chassis_lag(self):
+        """
+        Removing a device from a VirtualChassis must fail validation while any of its
+        interfaces form a LAG with another member, from either side of the LAG.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        Device.objects.filter(pk=device1.pk).update(virtual_chassis=vc, vc_position=1)
+        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc, vc_position=2)
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(
+            device=device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+
+        # Both devices remain valid while in the same VC
+        device1.full_clean()
+        device2.full_clean()
+
+        # Member interface side
+        device2.virtual_chassis = None
+        device2.vc_position = None
+        with self.assertRaises(ValidationError) as cm:
+            device2.full_clean()
+        self.assertIn('virtual_chassis', cm.exception.error_dict)
+
+        # LAG interface side
+        VirtualChassis.objects.filter(pk=vc.pk).update(master=device2)
+        device1.virtual_chassis = None
+        device1.vc_position = None
+        with self.assertRaises(ValidationError) as cm:
+            device1.full_clean()
+        self.assertIn('virtual_chassis', cm.exception.error_dict)
+
+    def test_unrelated_edit_allowed_with_existing_cross_chassis_lag(self):
+        """
+        Pre-existing cross-chassis LAG data must not block edits that leave VC membership unchanged.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        Device.objects.filter(pk=device1.pk).update(virtual_chassis=vc, vc_position=1)
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(
+            device=device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+        device1.description = 'changed'
+        device1.full_clean()
+        device2.description = 'changed'
+        device2.full_clean()
+
+    def test_member_removal_allowed_with_local_lag(self):
+        """
+        A device may leave a VirtualChassis when its LAG members are all local.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        Device.objects.filter(pk=device1.pk).update(virtual_chassis=vc, vc_position=1)
+        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc, vc_position=2)
+        device2.refresh_from_db()
+
+        lag = Interface.objects.create(device=device2, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.create(
+            device=device2, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag
+        )
+
+        device2.virtual_chassis = None
+        device2.vc_position = None
+        device2.full_clean()
+
     def test_virtualchassis_duplicate_vc_position(self):
         """
         Test that two devices cannot be assigned to the same vc_position

@@ -5356,15 +5356,22 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
             return redirect(device.get_absolute_url())
 
         if form.is_valid():
+            virtual_chassis = device.virtual_chassis
             device.snapshot()
             device.virtual_chassis = None
             device.vc_position = None
             device.vc_priority = None
+            try:
+                device.clean_vc_lag_membership()
+            except ValidationError as e:
+                for message in e.messages:
+                    messages.error(request, message)
+                return redirect(self.get_return_url(request, device))
             device.save()
 
             msg = _('Removed {device} from virtual chassis {chassis}').format(
                 device=device,
-                chassis=device.virtual_chassis
+                chassis=virtual_chassis
             )
             messages.success(request, msg)
 
