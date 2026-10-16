@@ -351,8 +351,30 @@ class PathEndpoint(models.Model):
         abstract = True
 
     def trace(self):
+        # Trace backward through this endpoint's own bridge relationship, if any, to pick up
+        # the other half of a bridged pair (e.g. a media converter's "copper" interface
+        # bridged to "fiber") before tracing forward from self. Without this, a trace started
+        # directly on the bridged interface only ever hops a bridge at the *destination* end
+        # of a segment, so the segment reached through the origin's own bridge is never
+        # included in the result (see #22518).
+        backward_path = []
+        visited = {self}
+        origin = getattr(self, 'bridge', None)
+        while origin is not None and origin not in visited:
+            visited.add(origin)
+            cable_path = origin.path
+            if cable_path is None:
+                break
+            backward_path.extend(cable_path.path_objects)
+            if len(backward_path) % 3 == 1:
+                backward_path.extend(([], []))
+            elif len(backward_path) % 3 == 2:
+                backward_path.insert(-1, [])
+            destinations = cable_path.destinations
+            origin = getattr(destinations[0], 'bridge', None) if len(destinations) == 1 else None
+
         origin = self
-        path = []
+        path = backward_path
 
         # Construct the complete path (including e.g. bridged interfaces)
         while origin is not None:
