@@ -15,6 +15,7 @@ from django.utils.translation import ngettext
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
+from core.signals import clear_events
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
@@ -34,7 +35,8 @@ from netbox.ui.panels import (
     TemplatePanel,
 )
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
+from utilities.exceptions import PermissionsViolation
+from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
@@ -5280,6 +5282,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         initial_data = {k: request.GET[k] for k in request.GET}
         member_select_form = forms.VCMemberSelectForm(initial=initial_data)
+        restrict_form_fields(member_select_form, request.user, 'change')
         membership_form = forms.DeviceVCMembershipForm(initial=initial_data)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
@@ -5292,6 +5295,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
     def post(self, request, pk):
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
         member_select_form = forms.VCMemberSelectForm(request.POST)
+        restrict_form_fields(member_select_form, request.user, 'change')
 
         if member_select_form.is_valid():
             device = member_select_form.cleaned_data['device']
@@ -5304,16 +5308,27 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
             membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
-                membership_form.save()
-                messages.success(request, mark_safe(
-                    _('Added member <a href="{url}">{device}</a>').format(
-                        url=device.get_absolute_url(), device=escape(device)
-                    )
-                ))
+                try:
+                    with transaction.atomic(using=router.db_for_write(Device)):
+                        membership_form.save()
 
-                if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
-                    return redirect(request.get_full_path())
-                return redirect(self.get_return_url(request, device))
+                        # Check that the modified device conforms with any assigned object-level permissions
+                        if not Device.objects.restrict(request.user, 'change').filter(pk=device.pk).exists():
+                            raise PermissionsViolation()
+
+                    messages.success(request, mark_safe(
+                        _('Added member <a href="{url}">{device}</a>').format(
+                            url=device.get_absolute_url(), device=escape(device)
+                        )
+                    ))
+
+                    if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
+                        return redirect(request.get_full_path())
+                    return redirect(self.get_return_url(request, device))
+
+                except PermissionsViolation as e:
+                    membership_form.add_error(None, e.message)
+                    clear_events.send(sender=self)
 
         else:
             membership_form = forms.DeviceVCMembershipForm(data=request.POST)
