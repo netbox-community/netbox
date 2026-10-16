@@ -13,6 +13,7 @@ For end‑user guidance on resetting saved table layouts, see [Features > User P
 | `locale.language`          | The language selected for UI translation                      |
 | `pagination.per_page`      | The number of items to display per page of a paginated table  |
 | `pagination.placement`     | Where to display the paginator controls relative to the table |
+| `plugins.${plugin}.*`      | Preferences registered by plugins                             |
 | `tables.${table}.columns`  | The ordered list of columns to display when viewing the table |
 | `tables.${table}.ordering` | A list of column names by which the table should be ordered   |
 | `ui.copilot_enabled`       | Toggles the NetBox Copilot AI agent                           |
