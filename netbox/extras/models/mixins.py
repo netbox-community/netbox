@@ -191,7 +191,7 @@ class RenderTemplateMixin(models.Model):
     def _filter_environment_params(params):
         """
         Return a copy of params with only permitted keys. Keys not in the allowlist are
-        stripped, except 'finalize' which is a deprecated legacy carve-out.
+        stripped, except 'finalize', which is deprecated and stored-only.
         """
         return {
             key: value for key, value in params.items()
@@ -217,12 +217,39 @@ class RenderTemplateMixin(models.Model):
     @staticmethod
     def _resolve_finalize(params):
         """
-        Legacy carve-out: resolve the deprecated 'finalize' parameter via import_string().
-        Existing templates with finalize continue to work; new use is blocked by clean().
+        Resolve the deprecated 'finalize' parameter via import_string(). Call
+        _restrict_finalize_to_stored() first. clean() blocks new use.
         """
         if 'finalize' in params and type(params['finalize']) is str:
             return {**params, 'finalize': import_string(params['finalize'])}
         return params
+
+    def _restrict_finalize_to_stored(self, params):
+        """
+        Return a copy of params with 'finalize' replaced by the value stored on this template's
+        database record, or removed if no stored value applies. Runs one query when params
+        contain 'finalize', and none otherwise.
+        """
+        if 'finalize' not in params:
+            return params
+        stored_finalize = None
+        if self.pk is not None:
+            stored = type(self)._base_manager.using(self._state.db).filter(pk=self.pk).values_list(
+                'environment_params', 'template_code'
+            ).first()
+            if stored is not None:
+                stored_params, stored_code = stored
+                # A stored value applies only to the template code it was stored with (#23375).
+                if stored_code == self.template_code:
+                    stored_finalize = (stored_params or {}).get('finalize')
+        if stored_finalize is None:
+            logger.warning(
+                'Ignoring the deprecated "finalize" environment parameter on %s (pk=%s): '
+                'it does not match the stored template.',
+                type(self).__name__, self.pk,
+            )
+            return {key: value for key, value in params.items() if key != 'finalize'}
+        return {**params, 'finalize': stored_finalize}
 
     def get_environment_params(self):
         """
@@ -232,6 +259,7 @@ class RenderTemplateMixin(models.Model):
         params = dict(self.environment_params or {})
         params = self._filter_environment_params(params)
         params = self._resolve_mapped_params(params)
+        params = self._restrict_finalize_to_stored(params)
         params = self._resolve_finalize(params)
         return params
 
