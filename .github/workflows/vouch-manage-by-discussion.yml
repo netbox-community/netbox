@@ -16,7 +16,7 @@ concurrency:
 jobs:
   manage:
     # Skip comments which can't contain a vouch command
-    if: github.repository == 'netbox-community/netbox' && startsWith(github.event.comment.body, '!')
+    if: github.repository == 'netbox-community/netbox' && contains(github.event.comment.body, '!')
     runs-on: ubuntu-latest
     steps:
       # An app token is required to merge the VOUCHED update into the protected default branch
@@ -26,6 +26,9 @@ jobs:
         with:
           app-id: 1076524
           private-key: ${{ secrets.HOUSEKEEPING_SECRET_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-discussions: read
 
       - name: Check out repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,6 +43,7 @@ jobs:
           vouch-keyword: "!vouch"
           denounce-keyword: "!denounce"
           unvouch-keyword: "!unvouch"
+          roles: "admin,maintain,write"
           pull-request: "true"
           merge-immediately: "true"
         env:

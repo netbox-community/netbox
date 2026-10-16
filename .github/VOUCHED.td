@@ -11,7 +11,9 @@
 #
 # Maintainers can vouch for new contributors by commenting "!vouch" on a
 # discussion by the author. Maintainers can also comment "!unvouch" to remove
-# a user, or "!denounce" (optionally "!denounce [username]") to denounce one.
+# the author, or "!denounce" to denounce them. To target a different user,
+# include their handle with an @ (e.g. "!denounce @username"); without the @,
+# the word is treated as a reason and the discussion author is targeted.
 #
 # See https://github.com/mitchellh/vouch for details.
 

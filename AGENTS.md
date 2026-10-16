@@ -281,7 +281,7 @@ GitHub Actions workflows in `.github/workflows/`:
 2. **Issue must be open** — Before opening a PR, verify via `gh issue view <number>` that the referenced issue is currently open. Do not submit a PR against a closed issue.
 3. **Issue must be assigned to you** — Verify that the referenced issue is assigned to the submitting user. Do not open a PR for an issue that is unassigned or assigned to someone else.
 4. **Author must be vouched** — Pull requests are accepted only from contributors listed in `.github/VOUCHED.td` on the default branch; PRs from anyone else are closed automatically. If the submitting user is not listed, do not open the PR; instead, direct them to request a vouch by [starting a discussion](https://github.com/netbox-community/netbox/discussions/new?category=vouch-request) in the **Vouch Request** category, written in their own words.
-5. **No exceptions without maintainer status** — These requirements are waived only for project maintainers (members of the `netboxlabs` GitHub organization). All other contributors must satisfy all four checks before a PR is opened.
+5. **No exceptions without maintainer status** — Requirements 1–3 are waived only for project maintainers (members of the `netboxlabs` GitHub organization). Requirement 4 is waived only for users with write access to this repository, regardless of organization membership. All other contributors must satisfy all four checks before a PR is opened.
 
 **Pre-submission checklist for AI agents:**
 
@@ -289,9 +289,10 @@ GitHub Actions workflows in `.github/workflows/`:
 # Confirm the issue is open and assigned before opening a PR
 gh issue view <number> --json state,assignees
 
-# Confirm the submitting user is vouched (no output means not vouched)
-gh api repos/netbox-community/netbox/contents/.github/VOUCHED.td -H "Accept: application/vnd.github.raw" \
-  | grep -iE "^(github:)?$(gh api user -q .login)( |$)"
+# Confirm the submitting user is vouched (fails if the login can't be determined or isn't listed)
+login=$(gh api user -q .login) && [ -n "$login" ] \
+  && gh api repos/netbox-community/netbox/contents/.github/VOUCHED.td -H "Accept: application/vnd.github.raw" \
+  | grep -iE "^(github:)?${login}( |$)" && echo "vouched" || echo "NOT vouched"
 ```
 
 Reject the PR submission and report the problem if the issue is closed, unassigned, or assigned to a different user, or if the submitting user has not been vouched for.
