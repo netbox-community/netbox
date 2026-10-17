@@ -12,6 +12,7 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers.features import ChangeLogMessageSerializer
 from utilities.api import get_annotations_for_serializer, get_fields_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
@@ -123,7 +124,8 @@ class BaseViewSet(GenericViewSet):
             qs = qs.prefetch_related(*prefetch)
 
         # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
-        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs):
+        exclude = self.fallback_count_fields if self.renders_whole_objects else ()
+        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs, exclude=exclude):
             qs = qs.annotate(**annotations)
 
         return qs
@@ -134,10 +136,11 @@ class BaseViewSet(GenericViewSet):
             return []
         if fields is None:
             # Exports and writes render whole objects (templates, event payloads), so they load every declaration
-            if 'export' in self.request.query_params or self.request.method not in SAFE_METHODS:
+            if self.renders_whole_objects:
                 fields = set().union(*self.field_prefetches)
             else:
-                fields = self.response_fields
+                # Reads annotate the counts with a fallback in place of their declarations
+                fields = self.response_fields - self.fallback_count_fields
         return [
             lookup
             for field_names, lookups in self.field_prefetches.items()
@@ -173,6 +176,19 @@ class BaseViewSet(GenericViewSet):
     def response_fields(self):
         """Return the serializer field names rendered for this request, as selected by field_kwargs."""
         return frozenset(get_fields_for_serializer(self.get_serializer_class(), **self.field_kwargs))
+
+    @cached_property
+    def renders_whole_objects(self):
+        """Return True for exports and writes, whatever fields the response selects."""
+        return 'export' in self.request.query_params or self.request.method not in SAFE_METHODS
+
+    @cached_property
+    def fallback_count_fields(self):
+        """Return the names of the count fields annotated for reads only."""
+        return frozenset(
+            name for name, field in self.get_serializer_class()._declared_fields.items()
+            if type(field) is RelatedObjectCountField and field.fallback_source
+        )
 
 
 class NetBoxReadOnlyModelViewSet(

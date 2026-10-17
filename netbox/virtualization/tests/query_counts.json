@@ -11,6 +11,6 @@
   "virtualmachine:list_objects_with_permission": 21,
   "virtualmachinetype:api_list_objects": 13,
   "virtualmachinetype:list_objects_with_permission": 18,
-  "vminterface:api_list_objects": 18,
+  "vminterface:api_list_objects": 16,
   "vminterface:list_objects_with_permission": 18
 }
