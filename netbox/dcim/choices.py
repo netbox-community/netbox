@@ -1850,7 +1850,10 @@ class CableProfileChoices(ChoiceSet):
     TRUNK_4C4P_SHUFFLE = 'trunk-4c4p-shuffle'
     TRUNK_4C6P = 'trunk-4c6p'
     TRUNK_4C8P = 'trunk-4c8p'
+    TRUNK_8C1P = 'trunk-8c1p'
     TRUNK_8C4P = 'trunk-8c4p'
+    TRUNK_12C1P = 'trunk-12c1p'
+    TRUNK_24C1P = 'trunk-24c1p'
     # Breakouts
     BREAKOUT_1C2P_2C1P = 'breakout-1c2p-2c1p'
     BREAKOUT_1C4P_4C1P = 'breakout-1c4p-4c1p'
@@ -1887,7 +1890,10 @@ class CableProfileChoices(ChoiceSet):
                 Choice(TRUNK_4C4P_SHUFFLE, _('4C4P trunk (shuffle)')),
                 Choice(TRUNK_4C6P, _('4C6P trunk')),
                 Choice(TRUNK_4C8P, _('4C8P trunk')),
+                Choice(TRUNK_8C1P, _('8C1P trunk')),
                 Choice(TRUNK_8C4P, _('8C4P trunk')),
+                Choice(TRUNK_12C1P, _('12C1P trunk')),
+                Choice(TRUNK_24C1P, _('24C1P trunk')),
             ),
         ),
         (
