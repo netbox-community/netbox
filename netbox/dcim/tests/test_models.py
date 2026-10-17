@@ -972,6 +972,30 @@ class DeviceTestCase(TestCase):
         )
         self.assertEqual(inventoryitem.cf['cf1'], 'foo')
 
+    def test_device_creation_without_replication(self):
+        """
+        Ensure that no components are created when component replication has been disabled.
+        """
+        device = Device(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            name='Test Device 1',
+            replicate_components=False
+        )
+        device.save()
+
+        self.assertFalse(ConsolePort.objects.filter(device=device).exists())
+        self.assertFalse(ConsoleServerPort.objects.filter(device=device).exists())
+        self.assertFalse(PowerPort.objects.filter(device=device).exists())
+        self.assertFalse(PowerOutlet.objects.filter(device=device).exists())
+        self.assertFalse(Interface.objects.filter(device=device).exists())
+        self.assertFalse(RearPort.objects.filter(device=device).exists())
+        self.assertFalse(FrontPort.objects.filter(device=device).exists())
+        self.assertFalse(ModuleBay.objects.filter(device=device).exists())
+        self.assertFalse(DeviceBay.objects.filter(device=device).exists())
+        self.assertFalse(InventoryItem.objects.filter(device=device).exists())
+
     def test_multiple_unnamed_devices(self):
 
         device1 = Device(

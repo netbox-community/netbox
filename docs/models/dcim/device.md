@@ -24,7 +24,7 @@ The functional [device role](./devicerole.md) assigned to this device.
 
 ### Device Type
 
-The hardware [device type](./devicetype.md) which defines the device's make & model. Upon creating, all templated components assigned to the device type will be replicated on the new device.
+The hardware [device type](./devicetype.md) which defines the device's make & model. Upon creating, all templated components assigned to the device type will be replicated on the new device (unless component replication has been disabled; see below).
 
 ### Airflow
 
@@ -41,6 +41,10 @@ The unique physical serial number assigned to this device by its manufacturer.
 ### Asset Tag
 
 A unique, locally-administered label used to identify hardware resources.
+
+### Replicate Components
+
+Controls whether templated components assigned to the device type are automatically created on the new device (enabled by default). This applies only when creating a new device. Via the REST API, set the write-only `replicate_components` field to `false` to skip component creation.
 
 ### Site
 
