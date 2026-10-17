@@ -167,14 +167,12 @@ social-auth-core<6.0.0
 sorl-thumbnail
 
 # Strawberry GraphQL
-# Pinned below v0.333.0, which is incompatible with strawberry-graphql-django <v0.93.0 (see #23383)
 # https://github.com/strawberry-graphql/strawberry/blob/main/CHANGELOG.md
-strawberry-graphql<0.333.0
+strawberry-graphql
 
 # Strawberry GraphQL Django extension
-# Pinned below v0.92.3, which breaks pagination of prefetched list fields (see #23383)
 # https://github.com/strawberry-graphql/strawberry-django/releases
-strawberry-graphql-django<0.92.3
+strawberry-graphql-django
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst

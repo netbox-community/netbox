@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import io
 import json
+import uuid
 from contextlib import contextmanager
 from unittest.mock import MagicMock, PropertyMock, patch
 
@@ -31,7 +32,7 @@ from dcim.models import (
     RearPort,
     Site,
 )
-from extras.api.serializers import EventRuleSerializer
+from extras.api.serializers import EventRuleSerializer, ScriptSerializer
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, MultiObjectVar, ObjectVar, StringVar
@@ -2623,16 +2624,25 @@ class ScriptRunExecutionTestCase(APITestCase):
                 file_root=ManagedFileRootPathChoices.SCRIPTS,
                 file_path='run_script.py',
             )
-        script = Script.objects.create(
+        cls.script = Script.objects.create(
             module=module,
             name='Test run script',
             is_executable=True,
         )
-        cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+        cls.url = reverse('extras-api:script-detail', kwargs={'pk': cls.script.pk})
 
     def setUp(self):
         super().setUp()
         self.add_permissions('extras.run_script')
+
+        # A saved Job for the mocked ScriptJob.enqueue() to return, as run() serializes the enqueued job
+        self.job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=self.script.pk,
+            name='Test run script',
+            job_id=uuid.uuid4(),
+            user=self.user,
+        )
 
         # Monkey-patch the Script model to return our TestScriptClass above, restoring
         # the real property afterwards so later tests aren't left with our stub.
@@ -2648,6 +2658,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_commit_value(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         for commit_value in (True, False):
             with self.subTest(commit=commit_value):
                 mock_enqueue.reset_mock()
@@ -2661,6 +2672,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_notifications_value(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: ScriptForm.clean() overwrites an empty '_notifications' with the
         # field's own initial, so a client-supplied value never reached ScriptJob.enqueue.
         payload = {
@@ -2679,6 +2691,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_schedule_at_and_interval(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: schedule_at/interval were likewise read from the form (always
         # absent there) instead of the validated request
         schedule_at = now() + datetime.timedelta(hours=1)
@@ -2698,6 +2711,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_converts_objectvar_and_multiobjectvar_ids(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         payload = {
             'data': {
                 'site': self.sites[0].pk,
@@ -2718,6 +2732,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_backfills_default_for_omitted_required_var(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: required vars declaring `default=` were not back-filled before
         # binding the form on the API path (unlike the UI path), so they 400'd even
         # though the client legitimately omitted them.
@@ -2750,6 +2765,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_ignores_undeclared_keys(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Binding 'data' to the script's form means keys which don't correspond to a declared
         # variable are dropped rather than forwarded to run(). This is the contract documented
         # under "Running Custom Scripts > Via the API"; pin it so it can't regress silently.
@@ -2780,6 +2796,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_resolves_booleanvar_default_and_explicit_values(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # BooleanVar renders as a checkbox, and CheckboxInput reads a missing key as False.
         # An omitted BooleanVar must therefore pick up its declared default, while an
         # explicitly supplied False must not be overwritten by that default.
@@ -2796,6 +2813,134 @@ class ScriptRunExecutionTestCase(APITestCase):
 
                 self.assertHttpStatus(response, status.HTTP_200_OK)
                 self.assertIs(mock_enqueue.call_args.kwargs['data']['flag'], expected)
+
+
+@tag('regression')  # Ref: #23364
+class ScriptJobRestrictionTestCase(APITestCase):
+    """
+    A script's result reports the latest job the requesting user is permitted to view (see #23364).
+    """
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Restricted script'
+
+        def run(self, data, commit=True):
+            return 'ok'
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='restricted_script.py',
+            )
+        cls.script = Script.objects.create(
+            module=module,
+            name='Restricted script',
+            is_executable=True,
+        )
+        cls.list_url = reverse('extras-api:script-list')
+        cls.detail_url = reverse('extras-api:script-detail', kwargs={'pk': cls.script.pk})
+
+        cls.other_job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=cls.script.pk,
+            name='Other user job',
+            job_id=uuid.uuid4(),
+            user=User.objects.create_user(username='script-job-other-user'),
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('extras.view_script')
+
+        # The requesting user's own job predates the other user's, so a restricted lookup must fall
+        # through to it rather than report the newest job or none at all
+        self.own_job = self._create_job('Own job', self.other_job.created - datetime.timedelta(hours=1))
+
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
+
+    def _create_job(self, name, created):
+        job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=self.script.pk,
+            name=name,
+            job_id=uuid.uuid4(),
+            user=self.user,
+        )
+        Job.objects.filter(pk=job.pk).update(created=created)
+        return job
+
+    def _grant_view_job(self, constraints=None):
+        obj_perm = ObjectPermission(name='View jobs', actions=['view'], constraints=constraints)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+    @staticmethod
+    def _job_path(job):
+        # The list representation of a job is brief, identifying it only by URL
+        return reverse('core-api:job-detail', kwargs={'pk': job.pk})
+
+    def _get_results(self):
+        list_response = self.client.get(self.list_url, **self.header)
+        self.assertHttpStatus(list_response, status.HTTP_200_OK)
+        detail_response = self.client.get(self.detail_url, **self.header)
+        self.assertHttpStatus(detail_response, status.HTTP_200_OK)
+        return list_response.data['results'][0]['result'], detail_response.data['result']
+
+    def test_unconstrained_view_job(self):
+        self._grant_view_job()
+
+        list_result, detail_result = self._get_results()
+
+        self.assertTrue(list_result['url'].endswith(self._job_path(self.other_job)))
+        self.assertEqual(detail_result['id'], self.other_job.pk)
+
+    def test_constrained_view_job(self):
+        self._grant_view_job(constraints={'user': '$user'})
+
+        list_result, detail_result = self._get_results()
+
+        self.assertTrue(list_result['url'].endswith(self._job_path(self.own_job)))
+        self.assertEqual(detail_result['id'], self.own_job.pk)
+
+    def test_without_view_job(self):
+        list_result, detail_result = self._get_results()
+
+        self.assertIsNone(list_result)
+        self.assertIsNone(detail_result)
+
+    def test_serialize_without_request(self):
+        # e.g. serialize_for_event(), which has no user to check permissions against
+        data = ScriptSerializer(self.script, context={'request': None}).data
+
+        self.assertIsNone(data['result'])
+
+    @patch('extras.api.views.any_workers_for_queue', return_value=True)
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_returns_enqueued_job(self, mock_enqueue, mock_workers):
+        """
+        Running a script returns the job just enqueued, even without view_job permission and when another
+        user's job is newer. Polling the script thereafter reports no result without view_job permission.
+        """
+        self.add_permissions('extras.run_script')
+        mock_enqueue.return_value = self._create_job(
+            'Enqueued job', self.other_job.created - datetime.timedelta(minutes=1)
+        )
+
+        response = self.client.post(self.detail_url, {'data': {}, 'commit': True}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['result']['id'], mock_enqueue.return_value.pk)
+
+        response = self.client.get(self.detail_url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['result'])
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):
