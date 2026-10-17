@@ -884,6 +884,12 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
+    replicate_components = forms.BooleanField(
+        label=_('Replicate components'),
+        required=False,
+        initial=True,
+        help_text=_("Automatically populate components associated with this device type")
+    )
 
     class Meta:
         model = Device
@@ -892,13 +898,16 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             'latitude', 'longitude', 'status', 'airflow', 'cooling_method', 'platform', 'primary_ip4', 'primary_ip6',
             'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
-            'owner', 'comments', 'tags', 'local_context_data',
+            'owner', 'comments', 'tags', 'local_context_data', 'replicate_components',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if self.instance.pk:
+
+            # Component replication applies only to new devices
+            del self.fields['replicate_components']
 
             # Compile list of choices for primary IPv4 and IPv6 addresses
             oob_ip_choices = [(None, '---------')]
@@ -955,6 +964,13 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         position = self.data.get('position') or self.initial.get('position')
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
+
+    def clean(self):
+        super().clean()
+
+        # Disable component replication for a new device if requested
+        if not self.instance.pk and not self.cleaned_data.get('replicate_components'):
+            self.instance._disable_replication = True
 
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):

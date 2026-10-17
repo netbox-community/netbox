@@ -3039,6 +3039,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'A new device',
             'tags': [t.pk for t in tags],
             'local_context_data': None,
+            'replicate_components': True,
         }
 
         cls.csv_data = (

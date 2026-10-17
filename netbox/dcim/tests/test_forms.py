@@ -118,6 +118,54 @@ class DeviceTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
 
+    def test_replicate_components(self):
+        device_type = DeviceType.objects.first()
+        InterfaceTemplate.objects.create(device_type=device_type, name='eth0', type='1000base-t')
+        data = {
+            'role': DeviceRole.objects.first().pk,
+            'device_type': device_type.pk,
+            'site': Site.objects.first().pk,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+        }
+
+        form = DeviceForm(data={**data, 'name': 'Device 2', 'replicate_components': True})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form.save().interfaces.filter(name='eth0').exists())
+
+        form = DeviceForm(data={**data, 'name': 'Device 3', 'replicate_components': False})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.save().interfaces.exists())
+
+        # The replicate_components field is not available when editing an existing device
+        form = DeviceForm(instance=Device.objects.get(name='Device 1'))
+        self.assertNotIn('replicate_components', form.fields)
+
+    def test_import_replicate_components(self):
+        device_type = DeviceType.objects.first()
+        InterfaceTemplate.objects.create(device_type=device_type, name='eth0', type='1000base-t')
+        data = {
+            'role': DeviceRole.objects.first().name,
+            'manufacturer': device_type.manufacturer.name,
+            'device_type': device_type.model,
+            'site': Site.objects.first().name,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+        }
+
+        # Components are replicated by default
+        form = DeviceImportForm(data={**data, 'name': 'Device 2'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertTrue(form.save().interfaces.filter(name='eth0').exists())
+
+        # A blank value (e.g. an empty CSV cell) is treated as omitted
+        for i, value in enumerate(('', None), start=4):
+            form = DeviceImportForm(data={**data, 'name': f'Device {i}', 'replicate_components': value})
+            self.assertTrue(form.is_valid(), form.errors)
+            self.assertTrue(form.save().interfaces.filter(name='eth0').exists())
+
+        form = DeviceImportForm(data={**data, 'name': 'Device 3', 'replicate_components': 'false'})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertFalse(form.save().interfaces.exists())
+
     def test_racked_device_occupied(self):
         form = DeviceForm(data={
             'name': 'test',
@@ -669,6 +717,7 @@ class VCPositionTokenFormTestCase(TestCase):
             'position': None,
             'platform': None,
             'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'replicate_components': True,
             'virtual_chassis': VirtualChassis.objects.first().pk,
             'vc_position': 2,
         })
@@ -689,6 +738,7 @@ class VCPositionTokenFormTestCase(TestCase):
             'position': None,
             'platform': None,
             'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'replicate_components': True,
         })
         self.assertTrue(form.is_valid())
         device = form.save()
@@ -715,6 +765,7 @@ class VCPositionTokenFormTestCase(TestCase):
             'position': None,
             'platform': None,
             'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'replicate_components': True,
         })
         self.assertTrue(form.is_valid())
         with self.assertRaises(AbortRequest):

@@ -755,13 +755,18 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Config template')
     )
+    replicate_components = forms.BooleanField(
+        label=_('Replicate components'),
+        required=False,
+        help_text=_('Automatically populate components associated with this device type (enabled by default)')
+    )
 
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent', 'device_bay', 'airflow',
             'cooling_method', 'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description',
-            'config_template', 'owner', 'comments', 'tags',
+            'config_template', 'owner', 'comments', 'replicate_components', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -806,6 +811,16 @@ class DeviceImportForm(BaseDeviceImportForm):
         # Set parent_bay reverse relationship
         if device_bay := self.cleaned_data.get('device_bay'):
             self.instance.parent_bay = device_bay
+
+        # Disable component replication for a new device if requested
+        if not self.instance.pk and not self.cleaned_data.get('replicate_components'):
+            self.instance._disable_replication = True
+
+    def clean_replicate_components(self):
+        # Default to True when replicate_components is omitted or left blank in the uploaded data
+        if self.data.get('replicate_components') in (None, ''):
+            return True
+        return self.cleaned_data['replicate_components']
 
 
 class ModuleImportForm(ModuleCommonForm, PrimaryModelImportForm):
