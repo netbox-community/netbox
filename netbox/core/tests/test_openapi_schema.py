@@ -336,6 +336,35 @@ class OpenAPISchemaTestCase(TestCase):
             with self.subTest(component=component, field=field):
                 self.assertEqual(components[component]['properties'][field]['items']['type'], 'integer')
 
+    def test_object_ids_are_int64(self):
+        """
+        Object IDs, and every reference to one, must be documented as 64-bit integers.
+
+        Refs: #23424
+        """
+        components = self.schema['components']['schemas']
+
+        def get_parameter(path, name):
+            parameters = self.schema['paths'][path]['get']['parameters']
+            return {parameter['name']: parameter['schema'] for parameter in parameters}[name]
+
+        for label, schema in (
+            ('object ID', components['Site']['properties']['id']),
+            ('bulk update ID', components['BulkSiteRequest']['properties']['id']),
+            ('related object', components['DeviceRequest']['properties']['site']['oneOf'][0]),
+            ('related objects', components['SiteRequest']['properties']['asns']['items']),
+            ('generic object ID', components['GenericObject']['properties']['object_id']),
+            ('generic object ID on a model', components['Prefix']['properties']['scope_id']),
+            ('path parameter', get_parameter('/api/dcim/sites/{id}/', 'id')),
+            ('path parameter from a URL pattern', get_parameter('/api/ipam/prefixes/{id}/available-ips/', 'id')),
+            ('ID filter', get_parameter('/api/dcim/sites/', 'id')['items']),
+            ('related object filter', get_parameter('/api/dcim/devices/', 'site_id')['items']),
+            ('number filter on an object ID', get_parameter('/api/ipam/ip-addresses/', 'device_id')['items']),
+        ):
+            with self.subTest(label):
+                self.assertEqual(schema['type'], 'integer')
+                self.assertEqual(schema.get('format'), 'int64')
+
     def test_script_run_operation_exists(self):
         """
         Encodes presence of extras_scripts_run operation in schema as expected.
@@ -448,4 +477,5 @@ class SerializedPKRelatedFieldSchemaTestCase(SimpleTestCase):
         schema = FixSerializedPKRelatedField(field).map_serializer_field(auto_schema, 'request')
 
         self.assertEqual(schema['type'], 'integer')
+        self.assertEqual(schema.get('format'), 'int64')
         self.assertEqual(auto_schema.resolved, [])

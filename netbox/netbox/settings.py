@@ -846,6 +846,10 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'POSTPROCESSING_HOOKS': [],
+    # Integer path parameters (e.g. <int:pk>) carry 64-bit object IDs
+    'PATH_CONVERTER_OVERRIDES': {
+        'int': {'type': 'integer', 'format': 'int64'},
+    },
 }
 
 #

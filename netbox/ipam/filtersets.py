@@ -1152,7 +1152,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             return queryset
         return queryset.get_related_to_sites(value, negate=True)
 
-    @extend_schema_field(OpenApiTypes.INT)
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_interface_id(self, queryset, name, value):
         if value is None:
             return queryset.none()
@@ -1160,7 +1160,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         untagged = queryset.filter(interfaces_as_untagged=value)
         return queryset.filter(pk__in=tagged.union(untagged).values('pk'))
 
-    @extend_schema_field(OpenApiTypes.INT)
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_vminterface_id(self, queryset, name, value):
         if value is None:
             return queryset.none()

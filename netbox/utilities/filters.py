@@ -78,7 +78,8 @@ class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.DateTimeField)
 
 
-@extend_schema_field(OpenApiTypes.INT32)
+# Documented as int64: the form field is unbounded, and this filter commonly matches 64-bit object IDs (see #23424)
+@extend_schema_field(OpenApiTypes.INT64)
 class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.IntegerField)
 
