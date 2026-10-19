@@ -1033,13 +1033,21 @@ class Device(
         if self.virtual_chassis_id:
             lag_members = lag_members.exclude(lag__device__virtual_chassis=self.virtual_chassis_id)
             lag_peers = lag_peers.exclude(device__virtual_chassis=self.virtual_chassis_id)
-        interfaces = [*lag_members.select_related('lag__device'), *lag_peers.select_related('device', 'lag')]
+        interfaces = [
+            *lag_members.select_related('device', 'lag__device'),
+            *lag_peers.select_related('device', 'lag__device'),
+        ]
         if interfaces:
+            # Cap the listed interfaces to keep the message readable
+            max_listed = 5
+            listed = ', '.join(f'{i.device}:{i} ({i.lag.device}:{i.lag})' for i in interfaces[:max_listed])
+            if len(interfaces) > max_listed:
+                listed += _(' (and {count} more)').format(count=len(interfaces) - max_listed)
             raise ValidationError({
                 'virtual_chassis': _(
                     'Virtual chassis membership cannot be changed while interfaces form a LAG with another device '
                     'outside the virtual chassis: {interfaces}'
-                ).format(interfaces=', '.join(f'{i.device}:{i} ({i.lag.device}:{i.lag})' for i in interfaces))
+                ).format(interfaces=listed)
             })
 
     def _check_duplicate_component_names(self, components):

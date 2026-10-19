@@ -3728,6 +3728,32 @@ class VirtualChassisTestCase(TestCase):
             device1.full_clean()
         self.assertIn('eth0', str(cm.exception.error_dict['virtual_chassis']))
 
+    def test_member_removal_error_lists_at_most_five_interfaces(self):
+        """
+        The cross-chassis LAG error names at most five interfaces and summarizes the rest.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        device2 = Device.objects.get(name='TestDevice2')
+
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+        Device.objects.filter(pk=device1.pk).update(virtual_chassis=vc, vc_position=1)
+        Device.objects.filter(pk=device2.pk).update(virtual_chassis=vc, vc_position=2)
+        device2.refresh_from_db()
+
+        lag = Interface.objects.create(device=device1, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        Interface.objects.bulk_create([
+            Interface(device=device2, name=f'eth{i}', type=InterfaceTypeChoices.TYPE_1GE_FIXED, lag=lag)
+            for i in range(7)
+        ])
+
+        device2.virtual_chassis = None
+        device2.vc_position = None
+        with self.assertRaises(ValidationError) as cm:
+            device2.full_clean()
+        message = str(cm.exception.error_dict['virtual_chassis'])
+        self.assertEqual(message.count('lag0'), 5)
+        self.assertIn('(and 2 more)', message)
+
     def test_unrelated_edit_allowed_with_existing_cross_chassis_lag(self):
         """
         Pre-existing cross-chassis LAG data must not block edits that leave VC membership unchanged.
