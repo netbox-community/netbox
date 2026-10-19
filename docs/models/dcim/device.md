@@ -6,7 +6,7 @@ When assigning a multi-U device to a rack, it is considered to be mounted in the
 
 A device is said to be full-depth if its installation on one rack face prevents the installation of any other device on the opposite face within the same rack unit(s). This could be either because the device is physically too deep to allow a device behind it, or because the installation of an opposing device would impede airflow.
 
-Each device must be instantiated from a pre-created device type, and its default components (console ports, power ports, interfaces, etc.) will be created automatically. (The device type associated with a device may be changed after its creation, however its components will not be updated retroactively.)
+Each device must be instantiated from a pre-created device type, and by default its components (console ports, power ports, interfaces, etc.) will be created automatically. (The device type associated with a device may be changed after its creation, however its components will not be updated retroactively.)
 
 Device names must be unique within a site, unless the device has been assigned to a tenant. Devices may also be unnamed.
 

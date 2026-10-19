@@ -1119,8 +1119,7 @@ class Device(
 
         super().save(*args, **kwargs)
 
-        # If this is a new Device, instantiate all the related components per the DeviceType definition (unless
-        # replication has been explicitly disabled)
+        # Instantiate components from the device type
         if is_new and not self._disable_replication:
             self._instantiate_components(self.device_type.consoleporttemplates.all())
             self._instantiate_components(self.device_type.consoleserverporttemplates.all())
