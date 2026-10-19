@@ -2291,3 +2291,10 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         service = Service.objects.get(name='Legacy Service')
         self.assertEqual(service.port_mappings, ['udp/53', 'udp/67'])
+
+    def test_validate_non_dict_data(self):
+        """ServiceSerializer.validate accepts a model instance (nested serializer validation, custom fields)."""
+        from ipam.api.serializers import ServiceSerializer
+        service = Service.objects.first()
+        serializer = ServiceSerializer(instance=service, nested=True)
+        self.assertEqual(serializer.validate(service), service)

@@ -75,6 +75,9 @@ class PortMappingsSerializerMixin(serializers.Serializer):
     )
 
     def validate(self, data):
+        if type(data) is not dict:
+            return super().validate(data)
+
         # Consume the legacy fields and translate them into port_mappings *before* calling super(),
         # which instantiates the model (via full_clean()) and would choke on these now-nonexistent kwargs.
         legacy_protocol = data.pop('protocol', None)
