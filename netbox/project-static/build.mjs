@@ -70,7 +70,7 @@ async function buildStyles() {
         silenceDeprecations: ['import'],
       }),
     ],
-    loader: { '.eot': 'file', '.woff': 'file', '.woff2': 'file', '.svg': 'file', '.ttf': 'file' },
+    loader: { '.woff2': 'file', '.svg': 'file' },
   });
 }
 

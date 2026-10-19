@@ -1,8 +1,23 @@
 // Entry for all 3rd party library imports that do not rely on Tabler or NetBox styles.
-@import '@mdi/font/css/materialdesignicons.min.css';
 @import 'flatpickr/dist/flatpickr.min.css';
 @import 'gridstack/dist/gridstack.min.css';
 
-// Fonts
-@import url('typeface-inter/inter.css');
-@import url('typeface-roboto-mono/index.css');
+// Fonts (upright and italic variable weights)
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/inter/wght-italic.css';
+@import '@fontsource-variable/roboto-mono/index.css';
+@import '@fontsource-variable/roboto-mono/wght-italic.css';
+
+// Material Design Icons, served as WOFF2 only (the package's stylesheet also references EOT, WOFF and TTF)
+@import '@mdi/font/scss/variables';
+@import '@mdi/font/scss/functions';
+@font-face {
+  font-family: '#{$mdi-font-name}';
+  src: url('@mdi/font/fonts/materialdesignicons-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+@import '@mdi/font/scss/core';
+@import '@mdi/font/scss/icons';
+@import '@mdi/font/scss/extras';
+@import '@mdi/font/scss/animated';
