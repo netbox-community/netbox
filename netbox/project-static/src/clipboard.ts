@@ -9,7 +9,16 @@ function getCopyText(trigger: HTMLElement): Nullable<string> {
     return text;
   }
   const selector = trigger.getAttribute('data-clipboard-target');
-  const target = selector ? document.querySelector(selector) : null;
+  let target: Nullable<Element> = null;
+  if (selector) {
+    try {
+      target = document.querySelector(selector);
+    } catch {
+      // An invalid selector (such as an ID beginning with a digit) raises a SyntaxError
+      console.warn(`Invalid data-clipboard-target selector: ${selector}`);
+      return null;
+    }
+  }
   if (
     target instanceof HTMLInputElement ||
     target instanceof HTMLTextAreaElement ||
@@ -20,6 +29,7 @@ function getCopyText(trigger: HTMLElement): Nullable<string> {
   if (target instanceof HTMLElement) {
     return target.innerText;
   }
+  console.warn('Found no content to copy for', trigger);
   return null;
 }
 
@@ -43,7 +53,11 @@ function copyTextLegacy(text: string, trigger: HTMLElement): void {
   (trigger.parentElement ?? document.body).append(textarea);
   textarea.focus({ preventScroll: true });
   textarea.select();
-  document.execCommand('copy');
+  // iOS ignores select() on a read-only field
+  textarea.setSelectionRange(0, text.length);
+  if (!document.execCommand('copy')) {
+    console.warn('Failed to copy text to the clipboard');
+  }
   textarea.remove();
   if (previousFocus instanceof HTMLElement) {
     previousFocus.focus({ preventScroll: true });
