@@ -3717,15 +3717,16 @@ class VirtualChassisTestCase(TestCase):
         device2.vc_position = None
         with self.assertRaises(ValidationError) as cm:
             device2.full_clean()
-        self.assertIn('virtual_chassis', cm.exception.error_dict)
+        self.assertIn('eth0', str(cm.exception.error_dict['virtual_chassis']))
 
-        # LAG interface side
+        # LAG interface side (refresh clears the cached vc_master_for so the master guard doesn't fire first)
         VirtualChassis.objects.filter(pk=vc.pk).update(master=device2)
+        device1.refresh_from_db()
         device1.virtual_chassis = None
         device1.vc_position = None
         with self.assertRaises(ValidationError) as cm:
             device1.full_clean()
-        self.assertIn('virtual_chassis', cm.exception.error_dict)
+        self.assertIn('eth0', str(cm.exception.error_dict['virtual_chassis']))
 
     def test_unrelated_edit_allowed_with_existing_cross_chassis_lag(self):
         """
