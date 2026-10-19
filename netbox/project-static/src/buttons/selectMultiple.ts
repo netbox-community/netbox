@@ -1,5 +1,5 @@
 import { getElements } from '../util';
-import { StateManager } from 'src/state';
+import { StateManager } from '../state';
 import { previousPkCheckState } from '../stores';
 
 type PreviousPkCheckState = { element: Nullable<HTMLInputElement> };

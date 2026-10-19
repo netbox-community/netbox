@@ -1,5 +1,10 @@
-import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
-import { addClasses, removeClasses } from 'tom-select/src/vanilla.ts';
+import type {
+  RecursivePartial,
+  TomOption,
+  TomSettings,
+  TomInput,
+} from 'tom-select/dist/esm/types/index.js';
+import { addClasses, removeClasses } from 'tom-select/dist/esm/vanilla.js';
 import queryString from 'query-string';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';

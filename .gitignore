@@ -6,10 +6,8 @@ __pycache__/
 # Python virtual environment created by the installation/upgrade workflow
 /venv/
 
-# Frontend dependencies and Yarn logs generated during asset development/builds
+# Frontend dependencies installed during asset development/builds
 /netbox/project-static/node_modules/
-yarn-debug.log*
-yarn-error.log*
 
 # AI tooling
 .claude/settings.local.json
