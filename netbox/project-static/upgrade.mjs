@@ -6,9 +6,11 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // Dependencies that must stay below their latest release. Remove an entry once its blocker is gone.
+// A range of 'patch' allows only patch releases of the version currently in package.json.
+const REVIEW_SEPARATELY = 'Minor and major upgrades are reviewed separately';
 const HELD = {
-  '@tabler/core': { range: '1.4.x', reason: 'Upgrade tracked in #23184' },
-  bootstrap: { range: '5.x', reason: 'Tabler 1.4 is built on Bootstrap 5; removed with #23184' },
+  '@tabler/core': { range: 'patch', reason: REVIEW_SEPARATELY },
+  bootstrap: { range: 'patch', reason: REVIEW_SEPARATELY },
   '@graphiql/plugin-explorer': { range: '4.x', reason: 'v5 drops the UMD build we copy' },
   graphiql: { range: '4.x', reason: 'v5 drops the UMD build we copy' },
   graphql: { range: '16.x', reason: 'Peer range of the GraphiQL 4 explorer plugin' },
@@ -31,7 +33,11 @@ const npm = (...args) =>
     stdio: ['inherit', 'pipe', 'inherit'],
   });
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
-const specs = deps => Object.keys(deps).map(name => `${name}@${HELD[name]?.range ?? 'latest'}`);
+const specFor = (name, version) => {
+  const range = HELD[name]?.range ?? 'latest';
+  return `${name}@${range === 'patch' ? `~${version.replace(/^[\^~]/, '')}` : range}`;
+};
+const specs = deps => Object.entries(deps).map(([name, version]) => specFor(name, version));
 
 npm('install', ...specs(pkg.dependencies));
 npm('install', '--save-dev', ...specs(pkg.devDependencies));

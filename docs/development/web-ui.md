@@ -114,4 +114,6 @@ To add a new dependency, run `npm install <package>`, or `npm install --save-dev
 
 Some dependencies are intentionally held below their latest releases, typically because a new major version requires migration work. Each held dependency is listed, along with the version range it is held to and the reason, in the `HELD` map at the top of `netbox/project-static/upgrade.mjs`. `npm run upgrade` reports each held dependency for which a newer release is available.
 
+A few dependencies, such as Tabler and Bootstrap, are held with a range of `patch`. This applies only patch releases of the version currently in `package.json`. Their minor and major upgrades are reviewed and applied separately, after which `npm run upgrade` continues with patch releases of the new version.
+
 When a blocker has been resolved, remove the dependency's entry from `HELD` so that it is upgraded along with everything else.
