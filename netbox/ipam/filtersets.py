@@ -18,6 +18,7 @@ from netbox.filtersets import (
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
+    MultiValueBigNumberFilter,
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
@@ -380,7 +381,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
-        method='filter_present_in_vrf',
+        method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
@@ -497,6 +498,11 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
         ).distinct()
+
+    # Distinct from filter_present_in_vrf() (which takes an RD) so that the VRF ID can be documented as int64
+    @extend_schema_field(OpenApiTypes.INT64)
+    def filter_present_in_vrf_id(self, queryset, name, vrf):
+        return self.filter_present_in_vrf(queryset, name, vrf)
 
 
 @register_filterset
@@ -639,7 +645,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     present_in_vrf_id = django_filters.ModelChoiceFilter(
         queryset=VRF.objects.all(),
-        method='filter_present_in_vrf',
+        method='filter_present_in_vrf_id',
         label=_('VRF')
     )
     present_in_vrf = django_filters.ModelChoiceFilter(
@@ -654,7 +660,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         field_name='name',
         label=_('Device (name)'),
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_device',
         field_name='pk',
         label=_('Device (ID)'),
@@ -664,7 +670,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         field_name='name',
         label=_('Virtual machine (name)'),
     )
-    virtual_machine_id = MultiValueNumberFilter(
+    virtual_machine_id = MultiValueBigNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
         label=_('Virtual machine (ID)'),
@@ -773,6 +779,11 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
             Q(vrf=vrf) |
             Q(vrf__export_targets__in=vrf.import_targets.all())
         ).distinct()
+
+    # Distinct from filter_present_in_vrf() (which takes an RD) so that the VRF ID can be documented as int64
+    @extend_schema_field(OpenApiTypes.INT64)
+    def filter_present_in_vrf_id(self, queryset, name, vrf):
+        return self.filter_present_in_vrf(queryset, name, vrf)
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{'{}__in'.format(name): value})
@@ -883,7 +894,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         field_name='name',
         label=_('Device (name)'),
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_device',
         field_name='pk',
         label=_('Device (ID)'),
@@ -893,7 +904,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         field_name='name',
         label=_('Virtual machine (name)'),
     )
-    virtual_machine_id = MultiValueNumberFilter(
+    virtual_machine_id = MultiValueBigNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
         label=_('Virtual machine (ID)'),
@@ -929,28 +940,28 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 @register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = MultiValueContentTypeFilter()
-    region = MultiValueNumberFilter(
+    region = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    site_group = MultiValueNumberFilter(
+    site_group = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    site = MultiValueNumberFilter(
+    site = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    location = MultiValueNumberFilter(
+    location = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    rack_group = MultiValueNumberFilter(
+    rack_group = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    rack = MultiValueNumberFilter(
+    rack = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    cluster_group = MultiValueNumberFilter(
+    cluster_group = MultiValueBigNumberFilter(
         method='filter_scope'
     )
-    cluster = MultiValueNumberFilter(
+    cluster = MultiValueBigNumberFilter(
         method='filter_scope'
     )
     contains_vid = django_filters.NumberFilter(
@@ -1140,13 +1151,13 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
 
-    @extend_schema_field(OpenApiTypes.INT)
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_related_to_site(self, queryset, name, value):
         if not value:
             return queryset
         return queryset.get_related_to_sites(value)
 
-    @extend_schema_field(OpenApiTypes.INT)
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_related_to_site_negated(self, queryset, name, value):
         if not value:
             return queryset
@@ -1379,7 +1390,7 @@ class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, Pri
         field_name='name',
         label=_('Device (name)'),
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_device',
         field_name='pk',
         label=_('Device (ID)'),
@@ -1389,7 +1400,7 @@ class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, Pri
         field_name='name',
         label=_('Virtual machine (name)'),
     )
-    virtual_machine_id = MultiValueNumberFilter(
+    virtual_machine_id = MultiValueBigNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
         label=_('Virtual machine (ID)'),
@@ -1399,7 +1410,7 @@ class ServiceFilterSet(ServicePortMappingFilterMixin, ContactModelFilterSet, Pri
         field_name='name',
         label=_('FHRP Group (name)'),
     )
-    fhrpgroup_id = MultiValueNumberFilter(
+    fhrpgroup_id = MultiValueBigNumberFilter(
         method='filter_fhrp_group',
         field_name='pk',
         label=_('FHRP Group (ID)'),

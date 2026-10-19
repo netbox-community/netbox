@@ -336,6 +336,10 @@ class OpenAPISchemaTestCase(TestCase):
             with self.subTest(component=component, field=field):
                 self.assertEqual(components[component]['properties'][field]['items']['type'], 'integer')
 
+    def get_parameter(self, path, name):
+        parameters = self.schema['paths'][path]['get']['parameters']
+        return {parameter['name']: parameter['schema'] for parameter in parameters}[name]
+
     def test_object_ids_are_int64(self):
         """
         Object IDs, and every reference to one, must be documented as 64-bit integers.
@@ -343,10 +347,7 @@ class OpenAPISchemaTestCase(TestCase):
         Refs: #23424
         """
         components = self.schema['components']['schemas']
-
-        def get_parameter(path, name):
-            parameters = self.schema['paths'][path]['get']['parameters']
-            return {parameter['name']: parameter['schema'] for parameter in parameters}[name]
+        get_parameter = self.get_parameter
 
         for label, schema in (
             ('object ID', components['Site']['properties']['id']),
@@ -360,10 +361,33 @@ class OpenAPISchemaTestCase(TestCase):
             ('ID filter', get_parameter('/api/dcim/sites/', 'id')['items']),
             ('related object filter', get_parameter('/api/dcim/devices/', 'site_id')['items']),
             ('number filter on an object ID', get_parameter('/api/ipam/ip-addresses/', 'device_id')['items']),
+            ('generic object ID filter', get_parameter('/api/core/jobs/', 'object_id')['items']),
+            ('scope filter', get_parameter('/api/ipam/vlan-groups/', 'site')['items']),
+            ('filter method on an object ID', get_parameter('/api/ipam/vlans/', 'related_to_site')['items']),
+            ('number filter method on an object ID', get_parameter('/api/dcim/interfaces/', 'vlan_id')),
+            ('filter method shared with a non-ID filter', get_parameter('/api/ipam/prefixes/', 'present_in_vrf_id')),
         ):
             with self.subTest(label):
                 self.assertEqual(schema['type'], 'integer')
                 self.assertEqual(schema.get('format'), 'int64')
+
+    def test_non_id_filters_keep_their_types(self):
+        """
+        Filters which don't reference an object ID must not be documented as 64-bit integers.
+
+        Refs: #23424
+        """
+        get_parameter = self.get_parameter
+
+        for label, schema, expected_type, expected_format in (
+            ('number filter', get_parameter('/api/ipam/vlans/', 'vid')['items'], 'integer', 'int32'),
+            ('number filter lookup', get_parameter('/api/dcim/interfaces/', 'mtu__gte')['items'], 'integer', 'int32'),
+            ('content type filter', get_parameter('/api/extras/tags/', 'content_type_id')['items'], 'integer', 'int32'),
+            ('VRF RD filter', get_parameter('/api/ipam/prefixes/', 'present_in_vrf'), 'string', None),
+        ):
+            with self.subTest(label):
+                self.assertEqual(schema['type'], expected_type)
+                self.assertEqual(schema.get('format'), expected_format)
 
     def test_script_run_operation_exists(self):
         """

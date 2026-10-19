@@ -7,7 +7,7 @@ from dcim.models import Device, Interface
 from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
+from utilities.filters import MultiValueBigNumberFilter, MultiValueCharFilter, MultiValueContentTypeFilter
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 
@@ -401,7 +401,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='slug',
         label=_('Region (slug)'),
     )
-    region_id = MultiValueNumberFilter(
+    region_id = MultiValueBigNumberFilter(
         method='filter_region',
         field_name='pk',
         label=_('Region (ID)'),
@@ -411,7 +411,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='slug',
         label=_('Site (slug)'),
     )
-    site_id = MultiValueNumberFilter(
+    site_id = MultiValueBigNumberFilter(
         method='filter_site',
         field_name='pk',
         label=_('Site (ID)'),

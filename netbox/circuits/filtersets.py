@@ -9,9 +9,9 @@ from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
+    MultiValueBigNumberFilter,
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
-    MultiValueNumberFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -415,7 +415,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         field_name='cid',
         label=_('Circuit (CID)'),
     )
-    circuit_id = MultiValueNumberFilter(
+    circuit_id = MultiValueBigNumberFilter(
         method='filter_circuit',
         field_name='pk',
         label=_('Circuit (ID)'),
@@ -425,7 +425,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         field_name='cid',
         label=_('Virtual circuit (CID)'),
     )
-    virtual_circuit_id = MultiValueNumberFilter(
+    virtual_circuit_id = MultiValueBigNumberFilter(
         method='filter_virtual_circuit',
         field_name='pk',
         label=_('Virtual circuit (ID)'),
@@ -435,7 +435,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         field_name='slug',
         label=_('Provider (name)'),
     )
-    provider_id = MultiValueNumberFilter(
+    provider_id = MultiValueBigNumberFilter(
         method='filter_provider',
         field_name='pk',
         label=_('Provider (ID)'),
