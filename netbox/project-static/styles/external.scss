@@ -3,10 +3,25 @@
 @import 'gridstack/dist/gridstack.min.css';
 
 // Fonts (upright and italic variable weights)
-@import '@fontsource-variable/inter/index.css';
-@import '@fontsource-variable/inter/wght-italic.css';
 @import '@fontsource-variable/roboto-mono/index.css';
 @import '@fontsource-variable/roboto-mono/wght-italic.css';
+
+// Inter's complete variable fonts. Fontsource's subsets omit the character variants (cv03, cv04, cv11) that Tabler
+// enables, along with much of Inter's character coverage.
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('inter-ui/variable/InterVariable.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('inter-ui/variable/InterVariable-Italic.woff2') format('woff2');
+}
 
 // Material Design Icons, served as WOFF2 only (the package's stylesheet also references EOT, WOFF and TTF)
 @import '@mdi/font/scss/variables';
