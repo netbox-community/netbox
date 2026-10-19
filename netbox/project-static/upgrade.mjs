@@ -2,6 +2,8 @@
 // transitive dependencies within their declared ranges. Run as part of each release.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Dependencies that must stay below their latest release. Remove an entry once its blocker is gone.
 const HELD = {
@@ -15,6 +17,9 @@ const HELD = {
   sass: { range: '<3', reason: 'Dart Sass 3 removes @import, which our SCSS still uses' },
   typescript: { range: '<7', reason: 'typescript-eslint does not support TypeScript 7' },
 };
+
+// Resolve package.json relative to this directory, regardless of where the script is invoked from.
+process.chdir(dirname(fileURLToPath(import.meta.url)));
 
 const npm = (...args) =>
   execFileSync('npm', args, { encoding: 'utf8', stdio: ['inherit', 'pipe', 'inherit'] });
@@ -33,7 +38,11 @@ try {
 } catch (error) {
   outdated = JSON.parse(error.stdout || '{}');
 }
-for (const [name, { current, latest }] of Object.entries(outdated)) {
+if (outdated.error) {
+  console.error(`npm outdated failed: ${outdated.error.summary ?? outdated.error.code}`);
+  process.exit(1);
+}
+for (const [name, { current = 'missing', latest = 'unknown' }] of Object.entries(outdated)) {
   const why = HELD[name]?.reason ?? 'not held, but was not upgraded; investigate';
   console.log(`${name.padEnd(28)} ${current.padEnd(9)} latest ${latest.padEnd(9)} ${why}`);
 }

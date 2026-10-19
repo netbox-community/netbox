@@ -1,10 +1,27 @@
 // Compile NetBox's TypeScript and SCSS sources into dist/. Exits non-zero on any failure.
-import { copyFile, mkdir, rm } from 'node:fs/promises';
+import { copyFile, mkdir, rename, rm } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
 
+// Resolve all paths relative to this directory, regardless of where the script is invoked from.
+const ROOT = dirname(fileURLToPath(import.meta.url));
+process.chdir(ROOT);
+
+const USAGE = 'Usage: node build.mjs [--styles | --scripts]';
 const args = process.argv.slice(2);
-const common = { outdir: 'dist', bundle: true, minify: true, logLevel: 'warning' };
+if (args.length > 1 || args.some(arg => arg !== '--styles' && arg !== '--scripts')) {
+  console.error(USAGE);
+  process.exit(2);
+}
+
+// A full build is written to a staging directory, which replaces dist/ only once the build has
+// succeeded. This removes any stale hashed assets without leaving dist/ empty after a failure.
+const fullBuild = args.length === 0;
+const STAGING_DIR = '.dist-build';
+const outdir = fullBuild ? STAGING_DIR : 'dist';
+const common = { absWorkingDir: ROOT, outdir, bundle: true, minify: true, logLevel: 'warning' };
 
 async function buildScripts() {
   await esbuild.build({
@@ -23,10 +40,10 @@ async function buildScripts() {
     '@graphiql/plugin-explorer/dist/index.umd.js': 'index.umd.js',
     '@graphiql/plugin-explorer/dist/style.css': 'plugin-explorer-style.css',
   };
-  await mkdir('dist/graphiql', { recursive: true });
+  await mkdir(`${outdir}/graphiql`, { recursive: true });
   await Promise.all(
     Object.entries(graphiql).map(([src, dest]) =>
-      copyFile(`node_modules/${src}`, `dist/graphiql/${dest}`),
+      copyFile(`node_modules/${src}`, `${outdir}/graphiql/${dest}`),
     ),
   );
 }
@@ -44,9 +61,10 @@ async function buildStyles() {
     sourcemap: false,
     plugins: [
       sassPlugin({
-        // Tabler 1.4 and Bootstrap 5 require @import-era Sass; silence those known deprecations only
+        // Hide deprecation warnings raised by third-party stylesheets (Bootstrap, Tabler, etc.)
         quietDeps: true,
-        silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
+        // NetBox's own SCSS still relies on @import, which Dart Sass 3 will remove
+        silenceDeprecations: ['import'],
       }),
     ],
     loader: { '.eot': 'file', '.woff': 'file', '.woff2': 'file', '.svg': 'file', '.ttf': 'file' },
@@ -54,11 +72,22 @@ async function buildStyles() {
 }
 
 try {
-  // A full build starts clean so that stale hashed assets show up as deletions
-  if (!args.length) await rm('dist', { recursive: true, force: true });
+  if (fullBuild) {
+    await rm(STAGING_DIR, { recursive: true, force: true });
+  }
   if (!args.includes('--scripts')) await buildStyles();
   if (!args.includes('--styles')) await buildScripts();
-} catch {
-  // esbuild has already printed the error details
+  if (fullBuild) {
+    await rm('dist', { recursive: true, force: true });
+    await rename(STAGING_DIR, 'dist');
+  }
+} catch (error) {
+  // esbuild prints its own errors before throwing; report anything else (e.g. a failed copy)
+  if (!error?.errors) {
+    console.error(error);
+  }
+  if (fullBuild) {
+    await rm(STAGING_DIR, { recursive: true, force: true });
+  }
   process.exit(1);
 }

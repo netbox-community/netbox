@@ -51,7 +51,7 @@ To contribute to the NetBox UI, you'll need to review the main [Getting Started 
 
 ### Tools
 
-Once you have a working NetBox development environment, you'll need to install [Node.js](https://nodejs.org/en/download/) to work with the NetBox UI. Use Node.js 24 or later (the version used by CI is recorded in `netbox/project-static/.nvmrc`). Node.js includes npm, which manages the NetBox UI dependencies; no other package manager is needed.
+Once you have a working NetBox development environment, you'll need to install [Node.js](https://nodejs.org/en/download/) to work with the NetBox UI. Use Node.js 24.15 or later (CI uses the latest release of the major version recorded in `netbox/project-static/.nvmrc`). Node.js includes npm, which manages the NetBox UI dependencies; no other package manager is needed.
 
 Install the NetBox UI dependencies:
 
@@ -118,14 +118,6 @@ To add a new dependency, run `npm install <package>`, or `npm install --save-dev
 
 #### Held Dependencies
 
-The following dependencies are intentionally held below their latest releases. The `HELD` list in `upgrade.mjs` is authoritative; when a blocker is resolved, remove its entry there and from this table.
+Some dependencies are intentionally held below their latest releases, typically because a new major version requires migration work. Each held dependency is listed, along with the version range it is held to and the reason, in the `HELD` map at the top of `netbox/project-static/upgrade.mjs`. `npm run upgrade` reports each held dependency for which a newer release is available.
 
-| Package                                 | Held At | Reason                                                         |
-| :-------------------------------------- | :------ | :------------------------------------------------------------- |
-| `@tabler/core`                          | 1.4.x   | Upgrade tracked in [#23184](https://github.com/netbox-community/netbox/issues/23184) |
-| `graphiql`, `@graphiql/plugin-explorer` | 4.x     | GraphiQL 5 no longer provides the UMD builds that NetBox serves |
-| `graphql`                               | 16.x    | Peer dependency range of the GraphiQL 4 explorer plugin         |
-| `react`, `react-dom`                    | 18.x    | React 19 no longer provides UMD builds                          |
-| `htmx.org`                              | 2.x     | htmx 4 renames events that plugins listen for                   |
-| `sass`                                  | < 3     | Dart Sass 3 removes `@import`, which NetBox's SCSS still uses   |
-| `typescript`                            | < 7     | typescript-eslint does not support TypeScript 7                 |
+When a blocker has been resolved, remove the dependency's entry from `HELD` so that it is upgraded along with everything else.
