@@ -4,6 +4,7 @@
 
       1. An issue has been opened to capture these changes
       2. The issue has been accepted and assigned to you for work
+      3. Your PR complies with our AI policy (see AI_POLICY.md)
 
     Pull requests which do not reference an assigned issue will be closed
     automatically. Please specify your assigned issue number on the line below.
