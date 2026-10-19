@@ -365,6 +365,8 @@ class OpenAPISchemaTestCase(TestCase):
             ('generic object ID filter', get_parameter('/api/core/jobs/', 'object_id')['items']),
             ('scope filter', get_parameter('/api/ipam/vlan-groups/', 'site')['items']),
             ('filter method on an object ID', get_parameter('/api/ipam/vlans/', 'related_to_site')['items']),
+            ('filter method on a related object', get_parameter('/api/ipam/vlans/', 'available_at_site')),
+            ('filter method on related objects', get_parameter('/api/ipam/fhrp-groups/', 'related_ip')['items']),
             ('number filter method on an object ID', get_parameter('/api/dcim/interfaces/', 'vlan_id')),
             ('filter method shared with a non-ID filter', get_parameter('/api/ipam/prefixes/', 'present_in_vrf_id')),
         ):

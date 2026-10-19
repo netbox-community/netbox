@@ -859,7 +859,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
             Q(name__icontains=value)
         )
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_related_ip(self, queryset, name, value):
         """
         Filter by VRF & prefix of assigned IP addresses.
@@ -1135,19 +1135,19 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
             pass
         return queryset.filter(qs_filter)
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_site(self, queryset, name, value):
         return queryset.get_for_site(value)
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_site_group(self, queryset, name, value):
         return queryset.get_for_site_group(value)
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_device(self, queryset, name, value):
         return queryset.get_for_device(value)
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
 

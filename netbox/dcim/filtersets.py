@@ -1364,7 +1364,7 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
         model = Platform
         fields = ('id', 'name', 'slug', 'description')
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_device_type(self, queryset, name, value):
         """
         Return all Platforms available for a specific manufacturer based on device type and Platforms not assigned any
