@@ -16,7 +16,8 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
     object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
-    parent = GFKSerializerField(read_only=True)
+    # A plugin model can support image attachments without a REST API serializer
+    parent = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     image_width = serializers.IntegerField(read_only=True)
     image_height = serializers.IntegerField(read_only=True)
     image_size = serializers.IntegerField(read_only=True)

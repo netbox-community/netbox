@@ -189,7 +189,12 @@ class NetBoxObjectType(
     TagsMixin,
     BaseObjectType
 ):
-    pass
+    """
+    Base GraphQL object type for models which inherit from NetBoxModel. Adds change logging, custom fields, journal
+    entries, and tags. Subclasses of PrimaryModel, OrganizationalModel, and NestedLtreeGroupModel should use
+    PrimaryObjectType, OrganizationalObjectType, and NestedLtreeGroupObjectType respectively, which add the `owner`
+    field (and `level`, for NestedLtreeGroupObjectType).
+    """
 
 
 #

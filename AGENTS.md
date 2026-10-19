@@ -266,6 +266,14 @@ GitHub Actions workflows in `.github/workflows/`:
 - **Extras**: Cross-cutting features (custom fields, tags, webhooks, scripts) belong in the `extras` app.
 - **Plugin API**: Only documented public APIs are stable. Internal code may change without notice.
 
+## AI Policy
+
+All contributions must comply with the project's [AI policy](AI_POLICY.md). In short:
+
+- AI tools may be used to explore the codebase and to generate code.
+- The contributor must fully understand, and be able to explain, every change submitted.
+- Issues, pull request descriptions, and comments must be written in the contributor's own voice. Anything you draft for these is a starting point for the contributor to review and rewrite: keep it brief and plain, and say so when handing it over.
+
 ## Branch & PR Conventions
 
 - Branch naming: `<issue-number>-short-description` (e.g., `1234-device-typerror`)

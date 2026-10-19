@@ -5,6 +5,7 @@ from unittest.mock import patch
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django_rq import get_queue
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
@@ -18,6 +19,11 @@ from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
 from ..jobs import _INSTALL_ROOT
+
+
+def _noop():
+    """A no-op callable used to register a real RQ job in tests."""
+    pass
 
 
 class TestJobRunner(JobRunner):
@@ -156,6 +162,147 @@ class EnqueueTestCase(BaseJobRunnerTestCase):
         self.assertEqual(job2.interval, 60)
         self.assertRaises(Job.DoesNotExist, job1.refresh_from_db)
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
+
+    def test_enqueue_once_replaces_stale_scheduled_system_job(self):
+        """
+        A system job scheduled in the past whose RQ-side entry is gone will never fire and must
+        be replaced (see #22714). The bare Job row below has no RQ entry, mirroring the repro.
+        """
+        stale = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        # Mirrors how rqworker.py calls enqueue_once() for system jobs at startup: no
+        # schedule_at, only the registered interval.
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertNotEqual(job, stale)
+        self.assertRaises(Job.DoesNotExist, stale.refresh_from_db)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_scheduled_system_job_still_in_rq(self):
+        """
+        An overdue system job whose RQ entry still exists is merely waiting its turn, not stale,
+        so it must be reused rather than replaced.
+        """
+        scheduled = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+            queue_name='default',
+        )
+        # Register a real RQ-side scheduled entry for this job_id.
+        get_queue('default').enqueue_at(
+            timezone.now() + timedelta(days=1), _noop, job_id=str(scheduled.job_id)
+        )
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_queued_system_job(self):
+        """
+        Once a due job is moved from the scheduled registry into its queue, it is still live and
+        must be reused, not replaced, even though it is no longer in the scheduled registry.
+        """
+        queued = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+            queue_name='default',
+        )
+        # Enqueue directly onto the queue (not the scheduled registry), as RQ does once due.
+        get_queue('default').enqueue(_noop, job_id=str(queued.job_id))
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, queued)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_future_scheduled_system_job(self):
+        """
+        A system job scheduled for a future time has not come due, so it is not stale and must
+        be reused regardless of its RQ state.
+        """
+        scheduled = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() + timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestSystemJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
+        self.assertEqual(TestSystemJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_stale_scheduled_non_system_job(self):
+        """
+        Staleness replacement is limited to system jobs. A past-due non-system scheduled job
+        (e.g. a DataSource sync) may legitimately await its turn and must be reused.
+        """
+        scheduled = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=60,
+            scheduled=timezone.now() - timedelta(days=1),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, scheduled)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_pending_job_with_no_schedule(self):
+        """
+        A pending job (not yet picked up by a worker) has no `scheduled` timestamp at all.
+        That must not be mistaken for a stale schedule and must not raise when compared
+        against the current time.
+        """
+        pending = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_PENDING,
+            interval=60,
+            scheduled=None,
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, pending)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_enqueue_once_reuses_running_job_with_past_schedule(self):
+        """
+        Once a job starts, its `scheduled` timestamp is left in the past (that's normal —
+        `start()` doesn't clear it) while status moves to "running". A concurrent
+        enqueue_once() call (e.g. a second worker starting up mid-run) must not mistake
+        that for staleness and delete an in-flight job out from under itself.
+        """
+        running = Job.objects.create(
+            name=TestJobRunner.name,
+            status=JobStatusChoices.STATUS_RUNNING,
+            interval=60,
+            scheduled=timezone.now() - timedelta(minutes=5),
+            started=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        job = TestJobRunner.enqueue_once(interval=60)
+
+        self.assertEqual(job, running)
+        self.assertEqual(TestJobRunner.get_jobs().count(), 1)
 
     def test_enqueue_once_with_enqueue(self):
         instance = DataSource()

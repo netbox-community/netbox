@@ -128,7 +128,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
 class ScriptSerializer(ValidatedModelSerializer):
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = JobSerializer(nested=True, read_only=True)
+    result = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Script
@@ -155,18 +155,31 @@ class ScriptSerializer(ValidatedModelSerializer):
             return obj.python_class().description
         return None
 
+    @extend_schema_field(JobSerializer(nested=True, allow_null=True))
+    def get_result(self, obj):
+        if job := self._get_latest_job(obj):
+            return JobSerializer(job, nested=True, context=self.context).data
+        return None
+
+    def _get_latest_job(self, obj):
+        """
+        Return the most recent Job for the script which the requesting user is permitted to view.
+        """
+        request = self.context.get('request')
+        # No request (e.g. serialize_for_event()) means no user to check permissions against
+        if request is None:
+            return None
+        return obj.jobs.restrict(request.user, 'view').order_by('-created').first()
+
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = serializers.SerializerMethodField(read_only=True)
 
-    @extend_schema_field(JobSerializer())
+    @extend_schema_field(JobSerializer(allow_null=True))
     def get_result(self, obj):
-        job = obj.jobs.all().order_by('-created').first()
-        context = {
-            'request': self.context['request']
-        }
-        data = JobSerializer(job, context=context).data
-        return data
+        # A job passed in by the run action takes precedence over the latest visible job
+        if job := self.context.get('job') or self._get_latest_job(obj):
+            return JobSerializer(job, context={'request': self.context.get('request')}).data
+        return None
 
 
 class ScriptInputSerializer(serializers.Serializer):

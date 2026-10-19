@@ -248,9 +248,16 @@ class JobRunner(ABC):
         """
         job = cls.get_jobs(instance).filter(status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES).first()
         if job:
-            # If the job parameters haven't changed, don't schedule a new job and keep the current schedule. Otherwise,
-            # delete the existing job and schedule a new job instead.
-            if (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
+            # A system job scheduled in the past whose RQ entry is gone (e.g. a Redis reset) will
+            # never run, so replace it (see #22714). A job still present in RQ, or a non-system job,
+            # is left alone.
+            is_stale = (
+                cls in registry['system_jobs'] and
+                job.status == JobStatusChoices.STATUS_SCHEDULED and
+                job.scheduled <= timezone.now() and
+                not job._is_rq_job_present()
+            )
+            if not is_stale and (not schedule_at or job.scheduled == schedule_at) and (job.interval == interval):
                 return job
             job.delete()
 

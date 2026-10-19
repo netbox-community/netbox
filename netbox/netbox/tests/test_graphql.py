@@ -619,6 +619,92 @@ class GraphQLAPITestCase(APITestCase):
             msg=f'Expected batched tag prefetch, got {tag_queries} tag queries for 10 devices',
         )
 
+    def test_graphql_device_list_tags_pagination(self):
+        """
+        Pagination is applied independently to a prefetched list field (tags) for each object, without
+        resorting to a query per object.
+        """
+        self.add_permissions('dcim.view_device', 'extras.view_tag')
+
+        manufacturer = Manufacturer.objects.create(name='Pagination Manufacturer', slug='pagination-manufacturer')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Pagination Model',
+            slug='pagination-model',
+        )
+        device_role = DeviceRole.objects.create(name='Pagination Role', slug='pagination-role')
+        site = Site.objects.first()
+        devices = Device.objects.bulk_create([
+            Device(name=f'Pagination Device {index}', device_type=device_type, role=device_role, site=site)
+            for index in range(5)
+        ])
+        tags = [
+            Tag.objects.create(name=f'Pagination Tag {index}', slug=f'pagination-tag-{index}')
+            for index in range(8)
+        ]
+        devices[0].tags.set(tags[:5])
+        devices[1].tags.set(tags[3:])
+        url = reverse('graphql')
+
+        def get_device_tags(tags_field):
+            query = """
+            {
+                device_list(filters: {role: {slug: {exact: "pagination-role"}}}) {
+                    name
+                    TAGS_FIELD {
+                        slug
+                    }
+                }
+            }
+            """.replace('TAGS_FIELD', tags_field)
+            with CaptureQueriesContext(connection) as context:
+                response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            tag_queries = sum(1 for record in context.captured_queries if 'extras_tag' in record['sql'])
+            self.assertLessEqual(tag_queries, 2, msg=f'Expected batched tag prefetch, got {tag_queries} tag queries')
+            return {
+                device['name']: [tag['slug'] for tag in device['tags']]
+                for device in data['data']['device_list']
+                # The remaining devices have no tags, and exist only to detect a tag query per device
+                if device['name'] in ('Pagination Device 0', 'Pagination Device 1')
+            }
+
+        # Explicit pagination
+        self.assertEqual(get_device_tags('tags(pagination: {offset: 1, limit: 2})'), {
+            'Pagination Device 0': ['pagination-tag-1', 'pagination-tag-2'],
+            'Pagination Device 1': ['pagination-tag-4', 'pagination-tag-5'],
+        })
+
+        # No pagination: all tags are returned
+        self.assertEqual(get_device_tags('tags'), {
+            'Pagination Device 0': [tag.slug for tag in tags[:5]],
+            'Pagination Device 1': [tag.slug for tag in tags[3:]],
+        })
+
+        # MAX_PAGE_SIZE is enforced when no pagination is specified
+        with override_settings(MAX_PAGE_SIZE=3):
+            self.assertEqual(get_device_tags('tags'), {
+                'Pagination Device 0': [tag.slug for tag in tags[:3]],
+                'Pagination Device 1': [tag.slug for tag in tags[3:6]],
+            })
+
+        # A negative offset is rejected
+        query = """
+        {
+            device_list(filters: {role: {slug: {exact: "pagination-role"}}}) {
+                tags(pagination: {offset: -2}) {
+                    slug
+                }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('Negative indexing is not supported', data['errors'][0]['message'])
+
     def test_graphql_ip_address_list_assigned_object(self):
         """
         Requesting assigned_object should batch prefetch related objects.

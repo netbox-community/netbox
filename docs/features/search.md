@@ -8,6 +8,14 @@ When entering a search query, the user can choose a specific lookup type: exact 
 
 Custom fields defined by NetBox administrators are also included in search results if configured with a search weight. Additionally, NetBox plugins can register their own custom models for inclusion alongside core models.
 
+### Deferred indexing
+
+To avoid enqueuing a separate background job for every change, search index updates are coalesced: changes committed over a short interval are buffered and applied together by a single background job. This settles quickly (on the order of a couple of seconds) when workers are running. A recurring safety-net job also recovers any pending updates whose drain was lost (for example, if a worker was stopped mid-run), so indexing is eventually consistent even after a worker restart. Because a background drain can run longer than its Redis lease, overlapping applies are prevented by a database-level lock, so an object's index entries are never duplicated.
+
+The pending buffer is stored in the tasks Redis database. If that Redis data is lost, some recent index updates may be discarded; run `manage.py reindex` to rebuild the search index from the database.
+
+If a buffered batch repeatedly fails to apply (for example, due to a persistent database error), it is retried by the safety-net job a limited number of times and then discarded, with the failure recorded at error level in the system log. The objects in a discarded batch will not be re-indexed until they are saved again; run `manage.py reindex` to rebuild the search index from the database.
+
 !!! note
     NetBox does not index any static choice field's (including custom fields of type "Selection" or "Multiple selection").
 

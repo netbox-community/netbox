@@ -172,8 +172,7 @@ Below are the class definitions for NetBox's multi-object views. These views han
 
 ::: netbox.views.generic.BulkDeleteView
     options:
-      members:
-        - get_form
+      members: false
 
 ## Feature Views
 
@@ -184,13 +183,11 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ::: netbox.views.generic.ObjectChangeLogView
     options:
-      members:
-        - get_form
+      members: false
 
 ::: netbox.views.generic.ObjectJournalView
     options:
-      members:
-        - get_form
+      members: false
 
 ## Extending Core Views
 

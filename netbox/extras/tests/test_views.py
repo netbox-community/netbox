@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import logging
 import uuid
@@ -1733,3 +1734,102 @@ class ScriptResultViewTestCase(TestCase):
         response = self.client.get(url, {'export': 'output'})
         self.assertHttpStatus(response, 404)
         self.assertNotIn(self.SECRET_OUTPUT.encode(), response.content)
+
+
+class ScriptJobsRestrictionTestCase(TestCase):
+    """
+    Script views must display only the Jobs which the user is permitted to view.
+    """
+    # ScriptModule is a proxy model, so viewing it is governed by its concrete model's permission
+    user_permissions = ('extras.view_script', 'core.view_managedfile')
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Restriction test'
+
+        def run(self, data, commit):
+            return 'Complete'
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='restriction_script.py',
+            )
+        cls.script = Script.objects.create(module=module, name='Restriction test', is_executable=True)
+        cls.other_user = User.objects.create_user(username='otheruser')
+
+        # The other user's Job is the most recent, so that the script list must skip it (rather than
+        # hide it) to find the most recent Job the user is permitted to view
+        cls.system_job = cls._create_job('system-job', user=None, minutes_ago=30)
+        cls.other_job = cls._create_job('other-job', user=cls.other_user, minutes_ago=10)
+
+    @classmethod
+    def _create_job(cls, name, user, minutes_ago):
+        started = now() - datetime.timedelta(minutes=minutes_ago)
+        return Job.objects.create(
+            name=name,
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=cls.script.pk,
+            status=JobStatusChoices.STATUS_COMPLETED,
+            job_id=uuid.uuid4(),
+            user=user,
+            started=started,
+            completed=started,
+        )
+
+    def setUp(self):
+        super().setUp()
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
+        self.own_job = self._create_job('own-job', user=self.user, minutes_ago=20)
+
+    def _grant_view_job(self, constraints=None):
+        obj_perm = ObjectPermission(name='View jobs', constraints=constraints, actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+    def _assert_script_views_show(self, expected_jobs):
+        """
+        Assert that the script's Jobs table and job count reflect only the expected Jobs.
+        """
+        response = self.client.get(reverse('extras:script_jobs', kwargs={'pk': self.script.pk}))
+        self.assertHttpStatus(response, 200)
+        self.assertEqual({row.record for row in response.context['table'].rows}, expected_jobs)
+        self.assertEqual(response.context['job_count'], len(expected_jobs))
+
+        for view_name in ('extras:script', 'extras:script_source'):
+            response = self.client.get(reverse(view_name, kwargs={'pk': self.script.pk}))
+            self.assertHttpStatus(response, 200)
+            self.assertEqual(response.context['job_count'], len(expected_jobs))
+
+    def _assert_script_list_shows(self, expected_job):
+        """
+        Assert that the script list displays the expected Job (or none) as the script's most recent result.
+        """
+        response = self.client.get(reverse('extras:script_list'))
+        self.assertHttpStatus(response, 200)
+        content = response.content.decode()
+        for job in (self.own_job, self.other_job, self.system_job):
+            result_url = reverse('extras:script_result', kwargs={'job_pk': job.pk})
+            if job == expected_job:
+                self.assertIn(result_url, content)
+            else:
+                self.assertNotIn(result_url, content)
+
+    def test_unconstrained_permission(self):
+        self._grant_view_job()
+        self._assert_script_views_show({self.own_job, self.other_job, self.system_job})
+        self._assert_script_list_shows(self.other_job)
+
+    def test_user_constrained_permission(self):
+        self._grant_view_job(constraints={'user': '$user'})
+        self._assert_script_views_show({self.own_job})
+        self._assert_script_list_shows(self.own_job)
+
+    def test_without_view_job_permission(self):
+        self._assert_script_views_show(set())
+        self._assert_script_list_shows(None)

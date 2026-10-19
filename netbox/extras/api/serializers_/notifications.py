@@ -17,7 +17,8 @@ class NotificationSerializer(ValidatedModelSerializer):
     object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('notifications'),
     )
-    object = GFKSerializerField(read_only=True)
+    # A plugin model can support notifications without a REST API serializer
+    object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     user = UserSerializer(nested=True)
 
     class Meta:
@@ -56,7 +57,8 @@ class SubscriptionSerializer(ValidatedModelSerializer):
     object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('notifications'),
     )
-    object = GFKSerializerField(read_only=True)
+    # A plugin model can support notifications without a REST API serializer
+    object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     user = UserSerializer(nested=True)
 
     class Meta:

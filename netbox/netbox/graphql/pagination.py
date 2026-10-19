@@ -136,4 +136,36 @@ def apply_pagination(
             limit=pagination.limit,
         )
 
+    if pagination is not None and related_field_id is None and queryset._result_cache is not None:
+        return _apply_evaluated_pagination(pagination, queryset)
+
     return apply(pagination, queryset, related_field_id=related_field_id)
+
+
+def _apply_evaluated_pagination(pagination: OffsetPaginationInput, queryset: _QS) -> _QS:
+    """
+    Paginate a queryset which has already been evaluated (e.g. by a `prefetch_related` hint on the field).
+
+    strawberry-django's `apply()` slices the queryset directly, which for an evaluated queryset returns a list
+    rather than a QuerySet, and strawberry-django's list hook cannot handle a list. Instead, paginate an
+    unevaluated clone of the queryset, and populate its result cache by applying the same slice to the cached
+    results.
+    """
+    # TODO: Remove this once strawberry-django's `apply()` returns a QuerySet for an evaluated queryset.
+    results = queryset._result_cache
+    offset = pagination.offset
+    limit = _resolve_limit(pagination.limit)
+    stop = offset + limit if limit is not None and limit >= 0 else None
+
+    # Avoid cloning the queryset if the pagination would not exclude any results (the common case, where
+    # only the implicit MAX_PAGE_SIZE limit has been applied).
+    if offset == 0 and (stop is None or stop >= len(results)):
+        return queryset
+
+    # Slicing the unevaluated clone validates the pagination (e.g. rejecting a negative offset) and applies the
+    # limits to its query, so that the results remain consistent should the queryset be cloned again later.
+    paginated = queryset.all()[offset:stop]
+    paginated._result_cache = results[offset:stop]
+    paginated._prefetch_done = True
+
+    return paginated

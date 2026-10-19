@@ -37,8 +37,8 @@ class SitePanel(panels.ObjectAttributesPanel):
     facility = attrs.TextAttr('facility')
     description = attrs.TextAttr('description')
     timezone = attrs.TimezoneAttr('time_zone')
-    physical_address = attrs.AddressAttr('physical_address', map_url=True)
-    shipping_address = attrs.AddressAttr('shipping_address', map_url=True)
+    physical_address = attrs.AddressAttr('physical_address', map_url=True, copy_button=True)
+    shipping_address = attrs.AddressAttr('shipping_address', map_url=True, copy_button=True)
     gps_coordinates = attrs.GPSCoordinatesAttr()
 
 

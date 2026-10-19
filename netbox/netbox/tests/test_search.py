@@ -1,5 +1,10 @@
+import os
+import subprocess
+import sys
+import time
 from unittest import mock
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, ProgrammingError, connection, transaction
 from django.db.models.signals import post_delete, post_save
@@ -12,6 +17,7 @@ from extras.models import CachedValue
 from netbox.search import deferred
 from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
+from utilities.testing.mixins import RQQueueTestMixin
 
 
 def scheduled_search_flushes():
@@ -187,7 +193,7 @@ class SearchBackendTestCase(TestCase):
         self.assertEqual(len(results), 0)
 
 
-class DeferredCachingTestCase(TestCase):
+class DeferredCachingTestCase(RQQueueTestMixin, TestCase):
     """
     Tests for the deferred (post-commit) search caching machinery in
     netbox.search.deferred.
@@ -196,6 +202,11 @@ class DeferredCachingTestCase(TestCase):
     commit, so these tests assert on real CachedValue state and on the real
     per-transaction buffer (connection.run_on_commit) rather than mocking the
     queue.
+
+    Some tests patch the worker probe True and write to the real tasks Redis
+    (DB 0). RQQueueTestMixin flushes that database around each test and
+    serializes this class against the other Redis-backed suites, so a parallel
+    worker's flush can't wipe the coalescing keys mid-test.
     """
 
     def _scheduled_flush_aliases(self):
@@ -372,9 +383,11 @@ class DeferredCachingTestCase(TestCase):
 
     def test_flush_enqueues_job_when_worker_available(self):
         """
-        When an RQ worker is available, the flush enqueues a SearchCacheJob
-        carrying the dirty objects (and the originating database alias) rather
-        than indexing inline.
+        When an RQ worker is available, a committed batch is merged into the
+        shared Redis buffer and a single drain is scheduled, rather than indexing
+        inline. The originating database alias is carried on the scheduled job so
+        the deferred write targets the originating schema (e.g. a branch schema
+        under netbox-branching).
         """
         site_ct = ContentType.objects.get_for_model(Site)
 
@@ -386,15 +399,10 @@ class DeferredCachingTestCase(TestCase):
                     site = Site.objects.create(name='Enqueued', slug='enqueued')
 
         enqueue.assert_called_once()
-        kwargs = enqueue.call_args.kwargs
-        self.assertEqual(kwargs['cache_groups'], {site_ct.pk: [site.pk]})
-        self.assertEqual(kwargs['remove_groups'], {})
-        # The database alias captured from the post_save signal is forwarded to
-        # the job verbatim. This is what lets a deferred write target the
-        # originating schema (e.g. a branch schema under netbox-branching) even
-        # though the worker has no active routing context; cross-schema routing
-        # itself is covered by the netbox-branching test suite.
-        self.assertEqual(kwargs['using'], DEFAULT_DB_ALIAS)
+        self.assertEqual(enqueue.call_args.kwargs['using'], DEFAULT_DB_ALIAS)
+        # The object was buffered for a later drain rather than enqueued inline.
+        buffered = deferred._connection().hgetall(deferred._pending_key(DEFAULT_DB_ALIAS))
+        self.assertIn(f'{site_ct.pk}:{site.pk}', {k.decode() for k in buffered})
 
     def test_flush_falls_back_inline_when_broker_unreachable(self):
         """
@@ -451,6 +459,10 @@ class DeferredCachingTestCase(TestCase):
         self.assertEqual(
             CachedValue.objects.filter(object_type=content_type, object_id=site.pk).count(),
             len(SiteIndex.fields)
+        )
+        # The scheduling lock is released so recovery can proceed promptly.
+        self.assertFalse(
+            deferred._connection().exists(deferred._lock_key(DEFAULT_DB_ALIAS))
         )
 
     def test_cache_update_skips_deleted_object(self):
@@ -567,6 +579,317 @@ class DeferredCachingTestCase(TestCase):
                 remove_groups={},
             )
         self.assertIn(column, str(ctx.exception))
+
+
+class SearchCacheCoalescingTestCase(RQQueueTestMixin, TestCase):
+    """
+    Tests for the cross-transaction coalescing buffer in netbox.search.deferred.
+
+    These use the real tasks Redis connection (DB 0), so the RENAME/lock/lease
+    primitives are exercised for real rather than mocked. RQQueueTestMixin
+    flushes that database around each test and serializes this class against the
+    other Redis-backed suites; otherwise a parallel worker's flush would wipe the
+    coalescing keys mid-test.
+    """
+
+    @staticmethod
+    def _create_site(slug='coalesce'):
+        # Create the object, then discard any inline-indexed rows so tests start
+        # from a known-empty cache for it. Populate every indexed field so the
+        # expected CachedValue count is len(SiteIndex.fields).
+        site = Site.objects.create(
+            name=slug, slug=slug, facility='Alpha', description='desc',
+            physical_address='1 Test Way', shipping_address='1 Test Way',
+            comments='Lorem ipsum',
+        )
+        ct = ContentType.objects.get_for_model(Site)
+        CachedValue.objects.filter(object_type=ct, object_id=site.pk).delete()
+        return ct, site.pk
+
+    def _buffer(self, batch):
+        with mock.patch('netbox.search.deferred.any_workers_for_queue', return_value=True):
+            with mock.patch.object(SearchCacheJob, 'enqueue'):
+                deferred._flush(batch, DEFAULT_DB_ALIAS)
+
+    def test_many_committed_transactions_coalesce_into_one_job(self):
+        """
+        Regression guard for #23259: many separate committed transactions must
+        coalesce into a single scheduled job, not one job per transaction.
+        """
+        ct, pk = self._create_site()
+
+        with mock.patch('netbox.search.deferred.any_workers_for_queue', return_value=True):
+            with mock.patch.object(SearchCacheJob, 'enqueue') as enqueue:
+                for i in range(25):
+                    deferred._flush({(ct.pk, pk + i): deferred.OP_CACHE}, DEFAULT_DB_ALIAS)
+
+        enqueue.assert_called_once()
+        buffered = deferred._connection().hgetall(deferred._pending_key(DEFAULT_DB_ALIAS))
+        self.assertEqual(len(buffered), 25)
+
+    def test_later_op_wins_in_buffer(self):
+        ct, pk = self._create_site()
+        self._buffer({(ct.pk, pk): deferred.OP_CACHE})
+        self._buffer({(ct.pk, pk): deferred.OP_REMOVE})
+        buffered = deferred._connection().hgetall(deferred._pending_key(DEFAULT_DB_ALIAS))
+        self.assertEqual(buffered[f'{ct.pk}:{pk}'.encode()], b'remove')
+
+    def test_drain_applies_and_clears_buffer(self):
+        ct, pk = self._create_site()
+        self._buffer({(ct.pk, pk): deferred.OP_CACHE})
+        deferred.drain_and_apply(DEFAULT_DB_ALIAS)
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=ct, object_id=pk).count(),
+            len(SiteIndex.fields),
+        )
+        conn = deferred._connection()
+        self.assertFalse(conn.exists(deferred._pending_key(DEFAULT_DB_ALIAS)))
+        self.assertEqual(list(conn.scan_iter(match=f'{deferred.STAGING_PREFIX}*')), [])
+
+    def test_drain_removes_and_clears(self):
+        ct, pk = self._create_site()
+        search_backend.cache(Site.objects.get(pk=pk))
+        self.assertTrue(CachedValue.objects.filter(object_type=ct, object_id=pk).exists())
+        self._buffer({(ct.pk, pk): deferred.OP_REMOVE})
+        deferred.drain_and_apply(DEFAULT_DB_ALIAS)
+        self.assertFalse(CachedValue.objects.filter(object_type=ct, object_id=pk).exists())
+
+    def test_second_claim_returns_none(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        conn.hset(deferred._pending_key(DEFAULT_DB_ALIAS), mapping={f'{ct.pk}:{pk}': 'cache'})
+        self.assertIsNotNone(deferred._claim(DEFAULT_DB_ALIAS))
+        self.assertIsNone(deferred._claim(DEFAULT_DB_ALIAS))
+
+    def test_update_arriving_during_drain_is_rescheduled(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        conn.hset(deferred._pending_key(DEFAULT_DB_ALIAS), mapping={f'{ct.pk}:{pk}': 'cache'})
+
+        def apply_and_arrive(*args, **kwargs):
+            # Simulate a commit landing while the claimed batch is being applied.
+            conn.hset(deferred._pending_key(DEFAULT_DB_ALIAS), mapping={f'{ct.pk}:{pk}': 'remove'})
+
+        with mock.patch.object(search_backend, '_apply_deferred_updates', side_effect=apply_and_arrive):
+            with mock.patch.object(SearchCacheJob, 'enqueue') as enqueue:
+                deferred.drain_and_apply(DEFAULT_DB_ALIAS)
+
+        enqueue.assert_called_once()
+        self.assertTrue(conn.exists(deferred._pending_key(DEFAULT_DB_ALIAS)))
+
+    def test_stranded_staging_is_recovered(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:deadbeef'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+
+        deferred.drain_stranded()
+
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=ct, object_id=pk).count(),
+            len(SiteIndex.fields),
+        )
+        self.assertFalse(conn.exists(staging))
+
+    def test_failed_apply_retains_staging_and_retry_converges(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:cafe'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+
+        with mock.patch.object(
+            search_backend, '_apply_deferred_updates', side_effect=ProgrammingError('boom')
+        ):
+            deferred.drain_stranded()
+
+        # The only copy is retained on failure, never discarded.
+        self.assertTrue(conn.exists(staging))
+
+        # Simulate lease expiry, then retry for real: the retry converges.
+        for raw_key in conn.scan_iter(match=f'{deferred.LEASE_PREFIX}*'):
+            conn.delete(raw_key)
+        deferred.drain_stranded()
+
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=ct, object_id=pk).count(),
+            len(SiteIndex.fields),
+        )
+        self.assertFalse(conn.exists(staging))
+
+    def test_advisory_lock_contention_skips_apply(self):
+        """
+        If another applier holds the advisory lock (its Redis lease may have
+        expired while it is still running), a second applier must not apply the
+        same batch concurrently -- that is the #23259 duplicate-row path.
+        """
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:1ease'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+
+        with mock.patch('netbox.search.deferred.advisory_lock') as advisory:
+            advisory.return_value.__enter__.return_value = False
+            with mock.patch.object(search_backend, '_apply_deferred_updates') as apply:
+                deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+                apply.assert_not_called()
+
+        # The batch is retained for the current lock holder (or the safety net),
+        # and contention is not counted as an apply failure.
+        self.assertTrue(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+
+    def test_repeated_apply_failure_is_capped_and_batch_dropped(self):
+        """
+        A batch that keeps failing is retained below the cap, then dropped at the
+        cap with an error-level log instead of blocking indexing of unrelated
+        objects forever.
+        """
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:cafe2'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+
+        with mock.patch.object(
+            search_backend, '_apply_deferred_updates', side_effect=ProgrammingError('boom')
+        ):
+            with self.assertLogs('netbox.search.deferred', level='ERROR') as logs:
+                for _ in range(deferred.MAX_APPLY_ATTEMPTS - 1):
+                    # Simulate the lease expiring between safety-net passes.
+                    conn.delete(deferred._lease_key(batch_id))
+                    with self.assertRaises(ProgrammingError):
+                        deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+                    self.assertTrue(conn.exists(staging))
+
+                conn.delete(deferred._lease_key(batch_id))
+                deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        self.assertFalse(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+        self.assertTrue(any('dropping deferred batch' in m for m in logs.output))
+
+    def test_successful_apply_clears_failure_counter(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:f00d'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        batch_id = staging.rsplit(':', 1)[1]
+        conn.set(deferred._attempts_key(batch_id), 3)
+
+        deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        self.assertFalse(conn.exists(staging))
+        self.assertFalse(conn.exists(deferred._attempts_key(batch_id)))
+
+    def test_lease_prevents_concurrent_apply(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:feed'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        conn.set(deferred._lease_key('feed'), '1', nx=True, ex=60)
+
+        with mock.patch.object(search_backend, '_apply_deferred_updates') as apply:
+            deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+            apply.assert_not_called()
+
+        self.assertTrue(conn.exists(staging))
+
+    def test_expired_lease_allows_takeover(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:beef'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        # A lease is set then expires before the batch is applied.
+        conn.set(deferred._lease_key('beef'), '1', nx=True, ex=60)
+        conn.delete(deferred._lease_key('beef'))
+
+        deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=ct, object_id=pk).count(),
+            len(SiteIndex.fields),
+        )
+        self.assertFalse(conn.exists(staging))
+
+    def test_draining_one_batch_does_not_delete_newer_pending(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        staging = f'{deferred.STAGING_PREFIX}{DEFAULT_DB_ALIAS}:{int(time.time())}:abcd'
+        conn.hset(staging, mapping={f'{ct.pk}:{pk}': 'cache'})
+        # A newer commit arrives after the batch was claimed.
+        conn.hset(deferred._pending_key(DEFAULT_DB_ALIAS), mapping={f'{ct.pk}:{pk + 1}': 'remove'})
+
+        with mock.patch.object(SearchCacheJob, 'enqueue'):
+            deferred._apply_staging(DEFAULT_DB_ALIAS, staging, deferred.logger)
+
+        buffered = conn.hgetall(deferred._pending_key(DEFAULT_DB_ALIAS))
+        self.assertIn(f'{ct.pk}:{pk + 1}'.encode(), buffered)
+        self.assertFalse(conn.exists(staging))
+
+    def test_safety_net_skips_alias_with_scheduled_drain(self):
+        ct, pk = self._create_site()
+        conn = deferred._connection()
+        conn.hset(deferred._pending_key(DEFAULT_DB_ALIAS), mapping={f'{ct.pk}:{pk}': 'cache'})
+        conn.set(deferred._lock_key(DEFAULT_DB_ALIAS), '1', nx=True, ex=60)
+
+        with mock.patch.object(search_backend, '_apply_deferred_updates') as apply:
+            deferred.drain_stranded()
+            apply.assert_not_called()
+
+        self.assertTrue(conn.exists(deferred._pending_key(DEFAULT_DB_ALIAS)))
+
+    def test_safety_net_noop_when_empty(self):
+        with mock.patch.object(search_backend, '_apply_deferred_updates') as apply:
+            deferred.drain_stranded()
+            apply.assert_not_called()
+
+    def test_legacy_job_arguments_still_apply(self):
+        """
+        A SearchCacheJob enqueued by a pre-coalescing version carries cache_groups
+        / remove_groups directly; it must still be applied (rolling upgrade).
+        """
+        ct, pk = self._create_site()
+        SearchCacheJob.run(
+            mock.Mock(),
+            using=DEFAULT_DB_ALIAS,
+            cache_groups={ct.pk: [pk]},
+            remove_groups={},
+        )
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=ct, object_id=pk).count(),
+            len(SiteIndex.fields),
+        )
+
+    def test_safety_net_job_registered_by_app_ready(self):
+        """
+        The safety-net job must be registered by CoreConfig.ready() importing
+        netbox.search.jobs -- not merely by this test module's own import of that
+        module, which would make an in-process assertion vacuous. Boot Django in
+        a clean interpreter that never imports netbox.search.jobs explicitly and
+        inspect the registry there.
+        """
+        script = (
+            "import django; django.setup();"
+            "from netbox.registry import registry;"
+            "jobs = [c for c in registry['system_jobs']"
+            " if getattr(c, 'name', None) == 'Search cache flush safety net'];"
+            "assert len(jobs) == 1, jobs;"
+            "assert registry['system_jobs'][jobs[0]]['interval'] == 5, jobs;"
+            "print('REGISTERED')"
+        )
+        env = os.environ.copy()
+        env.setdefault('DJANGO_SETTINGS_MODULE', 'netbox.settings')
+        env.setdefault('NETBOX_CONFIGURATION', 'netbox.configuration_testing')
+        result = subprocess.run(
+            [sys.executable, '-c', script],
+            cwd=str(settings.BASE_DIR),
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('REGISTERED', result.stdout)
 
 
 class AutocommitCachingTestCase(TransactionTestCase):
