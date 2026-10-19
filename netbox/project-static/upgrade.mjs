@@ -21,8 +21,14 @@ const HELD = {
 // Resolve package.json relative to this directory, regardless of where the script is invoked from.
 process.chdir(dirname(fileURLToPath(import.meta.url)));
 
+// Run npm via the same CLI script that launched `npm run upgrade` (npm_execpath), falling back to
+// `npm` on the PATH. On Windows, `npm` is a .cmd shim, which execFileSync() can't run directly.
+const npmCli = process.env.npm_execpath;
 const npm = (...args) =>
-  execFileSync('npm', args, { encoding: 'utf8', stdio: ['inherit', 'pipe', 'inherit'] });
+  execFileSync(npmCli ? process.execPath : 'npm', npmCli ? [npmCli, ...args] : args, {
+    encoding: 'utf8',
+    stdio: ['inherit', 'pipe', 'inherit'],
+  });
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
 const specs = deps => Object.keys(deps).map(name => `${name}@${HELD[name]?.range ?? 'latest'}`);
 

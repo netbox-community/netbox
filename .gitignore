@@ -6,9 +6,10 @@ __pycache__/
 # Python virtual environment created by the installation/upgrade workflow
 /venv/
 
-# Frontend dependencies installed during asset development, and the staging directory used by builds
+# Frontend dependencies installed during asset development, and temporary directories used by builds
 /netbox/project-static/node_modules/
 /netbox/project-static/.dist-build/
+/netbox/project-static/.dist-backup/
 
 # AI tooling
 .claude/settings.local.json

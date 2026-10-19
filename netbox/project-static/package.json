@@ -4,7 +4,8 @@
   "license": "Apache-2.0",
   "private": true,
   "engines": {
-    "node": ">=24.15"
+    "node": ">=24.15",
+    "npm": ">=11.10"
   },
   "scripts": {
     "build": "node build.mjs",
@@ -12,9 +13,9 @@
     "build:scripts": "node build.mjs --scripts",
     "check": "npm run check:types && npm run check:lint && npm run check:format",
     "check:types": "tsc --noEmit",
-    "check:lint": "eslint src",
-    "check:format": "prettier --check \"src/**/*.ts\" \"styles/**/*.scss\"",
-    "format": "prettier --write \"src/**/*.ts\" \"styles/**/*.scss\"",
+    "check:lint": "eslint src \"*.mjs\" eslint.config.js",
+    "check:format": "prettier --check \"src/**/*.ts\" \"styles/**/*.scss\" \"*.mjs\" eslint.config.js",
+    "format": "prettier --write \"src/**/*.ts\" \"styles/**/*.scss\" \"*.mjs\" eslint.config.js",
     "upgrade": "node upgrade.mjs"
   },
   "dependencies": {

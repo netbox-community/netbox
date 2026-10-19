@@ -6,6 +6,8 @@ import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
 
 // Resolve all paths relative to this directory, regardless of where the script is invoked from.
+// Both are needed: chdir() covers the file operations below, but esbuild resolves entry points
+// against `absWorkingDir`, which does not follow process.chdir().
 const ROOT = dirname(fileURLToPath(import.meta.url));
 process.chdir(ROOT);
 
@@ -20,6 +22,7 @@ if (args.length > 1 || args.some(arg => arg !== '--styles' && arg !== '--scripts
 // succeeded. This removes any stale hashed assets without leaving dist/ empty after a failure.
 const fullBuild = args.length === 0;
 const STAGING_DIR = '.dist-build';
+const BACKUP_DIR = '.dist-backup';
 const outdir = fullBuild ? STAGING_DIR : 'dist';
 const common = { absWorkingDir: ROOT, outdir, bundle: true, minify: true, logLevel: 'warning' };
 
@@ -71,6 +74,26 @@ async function buildStyles() {
   });
 }
 
+/**
+ * Swap the staging directory into place as dist/. The previous dist/ is set aside first and
+ * restored if the swap fails, so that dist/ is never left missing.
+ */
+async function replaceDist() {
+  await rm(BACKUP_DIR, { recursive: true, force: true });
+  await rename('dist', BACKUP_DIR).catch(error => {
+    if (error.code !== 'ENOENT') throw error;
+  });
+  try {
+    await rename(STAGING_DIR, 'dist');
+  } catch (error) {
+    await rename(BACKUP_DIR, 'dist');
+    throw error;
+  }
+  await rm(BACKUP_DIR, { recursive: true, force: true }).catch(error => {
+    console.warn(`Could not remove ${BACKUP_DIR}/: ${error.message}`);
+  });
+}
+
 try {
   if (fullBuild) {
     await rm(STAGING_DIR, { recursive: true, force: true });
@@ -78,8 +101,7 @@ try {
   if (!args.includes('--scripts')) await buildStyles();
   if (!args.includes('--styles')) await buildScripts();
   if (fullBuild) {
-    await rm('dist', { recursive: true, force: true });
-    await rename(STAGING_DIR, 'dist');
+    await replaceDist();
   }
 } catch (error) {
   // esbuild prints its own errors before throwing; report anything else (e.g. a failed copy)
