@@ -41,11 +41,13 @@ blackphantom39
 bluikko
 carlosalbertorg
 chbndrhnns
+Chinmay-Jadhav
 ciroiriarte
 clovehitch
 cmdrrobin
 cocofabio
 corubba
+cory-kantar
 DanSheps
 dfex
 dianbofa
