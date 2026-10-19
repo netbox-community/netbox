@@ -8,11 +8,8 @@ export type RackViewState = { view: RackViewSelection };
 /**
  * Show or hide images and labels to build the desired rack view.
  */
-function setRackView(
-  view: RackViewSelection,
-  elevation: HTMLObjectElement,
-): void {
-  switch(view) {
+function setRackView(view: RackViewSelection, elevation: HTMLObjectElement): void {
+  switch (view) {
     case 'images-and-labels': {
       showRackElements('image.device-image', elevation);
       showRackElements('text.device-image-label', elevation);
@@ -31,20 +28,14 @@ function setRackView(
   }
 }
 
-function showRackElements(
-  selector: string,
-  elevation: HTMLObjectElement,
-): void {
+function showRackElements(selector: string, elevation: HTMLObjectElement): void {
   const elements = elevation.querySelectorAll(selector) ?? [];
   for (const element of elements) {
     element.classList.remove('hidden');
   }
 }
 
-function hideRackElements(
-  selector: string,
-  elevation: HTMLObjectElement,
-): void {
+function hideRackElements(selector: string, elevation: HTMLObjectElement): void {
   const elements = elevation.querySelectorAll(selector) ?? [];
   for (const element of elements) {
     element.classList.add('hidden');

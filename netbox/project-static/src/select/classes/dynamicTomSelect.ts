@@ -90,7 +90,6 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   }
 
   load(value: string, preserveValue?: string | string[]) {
-
     // Record which request this is. Incremented unconditionally, before any early return
     // below, so that an already-in-flight request from a previous call is always correctly
     // invalidated by any newer call to load() -- even one that itself aborts early (e.g. no
@@ -391,8 +390,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       // value. For example, if the dependency is the `rack` field, and the `rack` field's value
       // is `1`, this element's URL would change from `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
       const hasReplacement =
-        apiUrl.includes(`{{`) &&
-        Boolean(apiUrl.match(new RegExp(`({{(${id})}})`, 'g')));
+        apiUrl.includes(`{{`) && Boolean(apiUrl.match(new RegExp(`({{(${id})}})`, 'g')));
 
       if (hasReplacement) {
         if (element.value) {

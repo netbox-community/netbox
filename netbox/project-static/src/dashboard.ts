@@ -22,8 +22,8 @@ async function saveDashboardLayout(
   gridData: GridStackWidget[] | GridStackOptions,
 ): Promise<APIResponse<APIUserConfig>> {
   const data = {
-    layout: gridData
-  }
+    layout: gridData,
+  };
   return await apiPatch<APIUserConfig>(url, data);
 }
 
@@ -42,8 +42,8 @@ export function initDashboard(): void {
     draggable: {
       handle: '.grid-stack-item-content .card-header',
       appendTo: 'body',
-      scroll: true
-    }
+      scroll: true,
+    },
   });
   if (grid === null) {
     return;

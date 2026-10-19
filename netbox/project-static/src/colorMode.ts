@@ -36,11 +36,11 @@ function updateElements(targetMode: ColorMode): void {
  *
  * @param event htmx listener event details. See: https://htmx.org/events/#htmx:afterSwap
  */
-function updateElevations(evt: CustomEvent, ): void {
-  const swappedElement = evt.detail.elt
+function updateElevations(evt: CustomEvent): void {
+  const swappedElement = evt.detail.elt;
   if (swappedElement.nodeName == 'svg') {
     const currentMode = localStorage.getItem(COLOR_MODE_KEY);
-    swappedElement.setAttribute('data-bs-theme', currentMode)
+    swappedElement.setAttribute('data-bs-theme', currentMode);
   }
 }
 
