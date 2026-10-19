@@ -51,7 +51,7 @@ To contribute to the NetBox UI, you'll need to review the main [Getting Started 
 
 ### Tools
 
-Once you have a working NetBox development environment, you'll need to install [Node.js](https://nodejs.org/en/download/) to work with the NetBox UI. Use Node.js 24.15 or later (CI uses the latest release of the major version recorded in `netbox/project-static/.nvmrc`). Node.js includes npm, which manages the NetBox UI dependencies; no other package manager is needed.
+Once you have a working NetBox development environment, you'll need to install [Node.js](https://nodejs.org/en/download/) to work with the NetBox UI. Use Node.js 24 or later (CI uses the latest release of the major version recorded in `netbox/project-static/.nvmrc`). Node.js includes npm, which manages the NetBox UI dependencies; no other package manager is needed.
 
 Install the NetBox UI dependencies:
 
@@ -106,13 +106,7 @@ UI dependencies are upgraded to their latest releases as part of each NetBox rel
 $ npm run upgrade
 ```
 
-This upgrades every direct dependency to its latest release, except for those held back in `upgrade.mjs`, and then refreshes all transitive dependencies within their declared version ranges. Finally, it lists each held dependency which has a newer release available, along with the reason it is held.
-
-`.npmrc` sets `min-release-age=7`, so npm only installs (and only reports as available) versions which have been published for at least seven days. Anything newer is picked up by the next release. To install a newer version immediately (for example, an urgent security fix), override this setting explicitly:
-
-```console
-$ npm install some-package@1.2.3 --min-release-age=0
-```
+This upgrades every direct dependency to its latest release, except for those held back in `upgrade.mjs`, and then refreshes all transitive dependencies within their declared version ranges. Finally, it lists any dependency which remains behind its latest release (normally only the held dependencies), along with the reason.
 
 To add a new dependency, run `npm install <package>`, or `npm install --save-dev <package>` for build tooling.
 
