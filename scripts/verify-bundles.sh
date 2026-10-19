@@ -16,9 +16,11 @@ if ! npm run --silent build; then
     exit 1
 fi
 
-# See if any files have been changed, added, or deleted.
-if [[ -n "$(git status --porcelain -- dist)" ]]; then
-    git status --short -- dist
+# See if any files have been changed, deleted, or added. Compare against the index rather than HEAD,
+# so that changes already staged for commit pass when this runs as a pre-commit hook.
+changes="$(git diff --name-status -- dist; git ls-files --others --exclude-standard -- dist | sed 's/^/?\t/')"
+if [[ -n "$changes" ]]; then
+    echo "$changes"
     echo "Commit '$(git rev-parse HEAD)' produced different static assets than were committed"
     echo "Run 'npm run build' in netbox/project-static/ and commit the contents of dist/"
     exit 1
