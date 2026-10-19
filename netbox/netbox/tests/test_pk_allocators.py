@@ -84,6 +84,11 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(allocate_pks(Site, 3), [100, 101, 102])
         self.assertEqual(calls, ['first', 'second'])
 
+    def test_allocate_pks_iterable(self):
+        register_pk_allocator(lambda model, count: (100 + i for i in range(count)))
+
+        self.assertEqual(allocate_pks(Site, 2), [100, 101])
+
     def test_allocate_pks_wrong_count(self):
         register_pk_allocator(lambda model, count: [1])
 
@@ -130,6 +135,37 @@ class PKAllocatorTestCase(TestCase):
         self.assertEqual(len(inserts), 1)
         self.assertEqual(len(updates), 0)
         self.assertTrue(Manufacturer.objects.filter(pk=1_000_000, name='Manufacturer 1').exists())
+
+    def test_save_cloned_instance_with_allocator(self):
+        # A fetched instance whose primary key has been cleared (e.g. to clone it) is also inserted directly
+        source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+        clone = Manufacturer.objects.get(pk=source.pk)
+        clone.pk = None
+        clone.name, clone.slug = 'Manufacturer 2', 'manufacturer-2'
+
+        with CaptureQueriesContext(connection) as ctx:
+            clone.save()
+
+        self.assertEqual(clone.pk, 1_000_000)
+        inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
+        self.assertEqual(len(inserts), 1)
+        self.assertEqual(len(updates), 0)
+        self.assertEqual(Manufacturer.objects.count(), 2)
+
+    def test_save_with_colliding_allocator(self):
+        # An allocated primary key which is already in use fails on INSERT, rather than overwriting the existing row
+        source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        register_pk_allocator(lambda model, count: [source.pk] if model is Manufacturer else None)
+        clone = Manufacturer.objects.get(pk=source.pk)
+        clone.pk = None
+        clone.name, clone.slug = 'Manufacturer 2', 'manufacturer-2'
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            clone.save()
+        source.refresh_from_db()
+        self.assertEqual(source.name, 'Manufacturer 1')
 
     def test_save_with_declining_allocator(self):
         # The allocator supplies primary keys only for Site, so the database assigns one for the Manufacturer

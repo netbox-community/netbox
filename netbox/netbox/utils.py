@@ -94,6 +94,7 @@ def allocate_pks(model, count=1):
     """
     for allocator in registry['pk_allocators']:
         if (pks := allocator(model, count)) is not None:
+            pks = list(pks)
             if len(pks) != count:
                 name = getattr(allocator, '__qualname__', allocator)
                 raise ValueError(

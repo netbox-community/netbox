@@ -234,6 +234,8 @@ NetBox consults allocators whenever an object without a primary key is created v
 * It is called once for each object, including within `bulk_create()`. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
 * It is not told which database the object is being written to; it must decide whether to supply primary keys from its own context.
 * Under multi-table inheritance, it receives the parent model, which owns the primary key column.
+* It must never return a primary key which is already in use. Some operations, such as adding many-to-many relationships or tags, silently skip rows which conflict with existing ones, so a duplicate primary key won't always raise an error.
+* Primary keys it supplies don't advance the table's sequence. If it supplies values which the sequence could later reach, it is responsible for advancing the sequence past them (for example, using PostgreSQL's `setval()`). Otherwise, once the allocator stops supplying primary keys, the database may assign primary keys which are already in use.
 
 !!! tip
     Consider registering allocators inside your PluginConfig's `ready()` method.
@@ -257,6 +259,11 @@ class MyModel(NetBoxModel):
 ```
 
 `NetBoxAutoField` presents itself to migrations as a `BigAutoField`, so switching an existing primary key to it generates no migrations.
+
+The database assigns primary keys as usual (without consulting allocators) to rows created by:
+
+* Models of third-party Django apps which set their own `default_auto_field`, such as Django's `ContentType` and `Permission` models.
+* Data migrations (`RunPython` operations). These use historical models, which are built from migration state, where primary keys appear as a plain `BigAutoField`.
 
 !!! note
     Because `NetBoxAutoField` reports a default, saving a new (unsaved) instance whose primary key is set to that of an existing row (e.g. `MyModel(pk=5).save()`) attempts an `INSERT` and fails on the duplicate key, rather than updating the existing row. To update an existing row, fetch the object first, or call `save(force_update=True)`. Raw saves, such as when loading fixtures or deserialized objects, are not affected.

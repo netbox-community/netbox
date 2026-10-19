@@ -32,6 +32,9 @@ class NetBoxAutoField(models.BigAutoField):
         # Called by both Model.save() and QuerySet.bulk_create() for objects without a primary key. self.model is the
         # model which owns the primary key column (the concrete parent, for a proxy or multi-table inheritance child).
         if pks := allocate_pks(self.model):
+            # Mark the instance as being added (it may be a fetched object whose primary key was cleared to clone it),
+            # so that Django inserts it directly rather than first attempting an UPDATE using the allocated primary key
+            instance._state.adding = True
             return pks[0]
         return None
 
