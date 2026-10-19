@@ -79,6 +79,11 @@ class TaggedItem(GenericTaggedItemBase):
         related_name="%(app_label)s_%(class)s_items",
         on_delete=models.CASCADE
     )
+    # Overrides django-taggit's 32-bit IntegerField to accommodate 64-bit object IDs
+    object_id = models.PositiveBigIntegerField(
+        verbose_name=_('object ID'),
+        db_index=True
+    )
 
     _netbox_private = True
     objects = RestrictedQuerySet.as_manager()
