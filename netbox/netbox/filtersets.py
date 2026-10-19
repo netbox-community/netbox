@@ -64,7 +64,6 @@ class BaseFilterSet(django_filters.FilterSet):
         models.AutoField: {
             'filter_class': filters.MultiValueNumberFilter
         },
-        # Also matches BigAutoField (primary keys) and PositiveBigIntegerField (generic object IDs)
         models.BigIntegerField: {
             'filter_class': filters.MultiValueBigNumberFilter
         },

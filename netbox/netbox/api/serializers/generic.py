@@ -20,7 +20,6 @@ class GenericObjectSerializer(serializers.Serializer):
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    # Bounded to the range of a primary key, which also documents the field as int64
     object_id = serializers.IntegerField(max_value=models.BigIntegerField.MAX_BIGINT)
     object = serializers.SerializerMethodField(read_only=True)
 

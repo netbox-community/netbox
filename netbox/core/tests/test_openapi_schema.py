@@ -360,6 +360,7 @@ class OpenAPISchemaTestCase(TestCase):
             ('path parameter from a URL pattern', get_parameter('/api/ipam/prefixes/{id}/available-ips/', 'id')),
             ('ID filter', get_parameter('/api/dcim/sites/', 'id')['items']),
             ('related object filter', get_parameter('/api/dcim/devices/', 'site_id')['items']),
+            ('tree node filter', get_parameter('/api/dcim/sites/', 'region_id')['items']),
             ('number filter on an object ID', get_parameter('/api/ipam/ip-addresses/', 'device_id')['items']),
             ('generic object ID filter', get_parameter('/api/core/jobs/', 'object_id')['items']),
             ('scope filter', get_parameter('/api/ipam/vlan-groups/', 'site')['items']),
@@ -384,6 +385,8 @@ class OpenAPISchemaTestCase(TestCase):
             ('number filter lookup', get_parameter('/api/dcim/interfaces/', 'mtu__gte')['items'], 'integer', 'int32'),
             ('content type filter', get_parameter('/api/extras/tags/', 'content_type_id')['items'], 'integer', 'int32'),
             ('VRF RD filter', get_parameter('/api/ipam/prefixes/', 'present_in_vrf'), 'string', None),
+            # Refs: #13459
+            ('tree node slug filter', get_parameter('/api/tenancy/tenants/', 'group')['items'], 'string', None),
         ):
             with self.subTest(label):
                 self.assertEqual(schema['type'], expected_type)

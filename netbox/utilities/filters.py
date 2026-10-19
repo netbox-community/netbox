@@ -162,7 +162,6 @@ class MultiValueWWNFilter(InvalidValueFilterMixin, MultiValueCharFilter):
     pass
 
 
-@extend_schema_field(OpenApiTypes.STR)
 class TreeNodeMultipleChoiceFilter(django_filters.ModelMultipleChoiceFilter):
     """
     Filters for a set of Models, including all descendant models within a Tree.  Example: [<Region: R1>,<Region: R2>]

@@ -18,7 +18,6 @@ __all__ = (
 
 
 class BulkOperationSerializer(ChangeLogMessageSerializer):
-    # Bounded to the range of a primary key, which also documents the field as int64
     id = serializers.IntegerField(max_value=models.BigIntegerField.MAX_BIGINT)
 
 
