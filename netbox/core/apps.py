@@ -45,7 +45,7 @@ class CoreConfig(AppConfig):
         # imported lazily, so this import is load-bearing, not cosmetic.
         from netbox.search import jobs as search_jobs  # noqa: F401
         from netbox.search import signals as search_signals  # noqa: F401
-        from utilities.fields import NetBoxAutoField
+        from utilities.fields import NetBoxAutoField, save_table_with_pk_allocation
 
         from . import data_backends, events, search  # noqa: F401
 
@@ -56,6 +56,10 @@ class CoreConfig(AppConfig):
         # primary key field) to the same types as BigAutoField
         for type_map in (field_type_map, relay_field_type_map):
             type_map[NetBoxAutoField] = type_map[models.BigAutoField]
+
+        # Consult any registered primary key allocators when saving new objects. (This is installed here rather than at
+        # import time, because utilities.fields cannot be imported until the app registry is ready.)
+        models.Model._save_table = save_table_with_pk_allocation
 
         # Register core events
         EventType(OBJECT_CREATED, _('Object created')).register()

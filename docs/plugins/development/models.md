@@ -228,7 +228,9 @@ def my_allocator(model, count):
 
 Allocators are consulted in the order in which they were registered. If no allocator supplies primary keys, the database assigns them as usual.
 
-NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`. A few things to keep in mind when writing an allocator:
+NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`. An object which already has a primary key is saved as usual, without consulting allocators. When an allocator supplies a primary key, the object is always inserted as a new row: if that primary key is already in use, the save fails rather than overwriting the existing row.
+
+A few things to keep in mind when writing an allocator:
 
 * It is called for every model which supports allocation, including core models, other plugins' models, and the auto-created through models of many-to-many relationships. It should return `None` promptly for any model it doesn't handle.
 * It is called once for each object, including within `bulk_create()`. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
@@ -264,9 +266,6 @@ The database assigns primary keys as usual (without consulting allocators) to ro
 
 * Models of third-party Django apps which set their own `default_auto_field`, such as Django's `ContentType` and `Permission` models.
 * Data migrations (`RunPython` operations). These use historical models, which are built from migration state, where primary keys appear as a plain `BigAutoField`.
-
-!!! note
-    Because `NetBoxAutoField` reports a default, saving a new (unsaved) instance whose primary key is set to that of an existing row (e.g. `MyModel(pk=5).save()`) attempts an `INSERT` and fails on the duplicate key, rather than updating the existing row. To update an existing row, fetch the object first, or call `save(force_update=True)`. Raw saves, such as when loading fixtures or deserialized objects, are not affected.
 
 ### Inserting Rows Outside the ORM
 

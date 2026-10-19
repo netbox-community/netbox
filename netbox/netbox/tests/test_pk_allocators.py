@@ -130,7 +130,7 @@ class PKAllocatorTestCase(TestCase):
 
         # The allocated primary key is used on a single INSERT, without first attempting an UPDATE
         self.assertEqual(manufacturer.pk, 1_000_000)
-        self.assertIn((Manufacturer, 1), calls)
+        self.assertEqual(calls.count((Manufacturer, 1)), 1)
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
         self.assertEqual(len(inserts), 1)
         self.assertEqual(len(updates), 0)
@@ -174,7 +174,8 @@ class PKAllocatorTestCase(TestCase):
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
         manufacturer.save()
 
-        self.assertIn((Manufacturer, 1), calls)
+        # The allocator is consulted only once
+        self.assertEqual(calls.count((Manufacturer, 1)), 1)
         self.assertIsNotNone(manufacturer.pk)
         self.assertLess(manufacturer.pk, 1_000_000)
 
@@ -209,17 +210,26 @@ class PKAllocatorTestCase(TestCase):
 
     def test_save_new_instance_with_existing_pk(self):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
 
-        # A raw save (e.g. when loading deserialized data) updates the existing row
-        Manufacturer(pk=manufacturer.pk, name='Manufacturer 2', slug='manufacturer-2').save_base(raw=True)
+        # Allocators aren't consulted for an instance with a preset primary key, which updates the existing row
+        with CaptureQueriesContext(connection) as ctx:
+            Manufacturer(pk=manufacturer.pk, name='Manufacturer 2', slug='manufacturer-2').save()
+
+        self.assertNotIn((Manufacturer, 1), calls)
+        inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
+        self.assertEqual(len(inserts), 0)
+        self.assertEqual(len(updates), 1)
         manufacturer.refresh_from_db()
         self.assertEqual(manufacturer.name, 'Manufacturer 2')
 
-        # A forced update updates the existing row
-        Manufacturer(pk=manufacturer.pk, name='Manufacturer 3', slug='manufacturer-3').save(force_update=True)
-        manufacturer.refresh_from_db()
-        self.assertEqual(manufacturer.name, 'Manufacturer 3')
+    def test_forced_update_without_pk(self):
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
 
-        # Otherwise, saving a new instance always attempts an INSERT
-        with self.assertRaises(IntegrityError), transaction.atomic():
-            Manufacturer(pk=manufacturer.pk, name='Manufacturer 4', slug='manufacturer-4').save()
+        # Allocators aren't consulted for a forced update, which requires a primary key
+        for kwargs in ({'force_update': True}, {'update_fields': ['name']}):
+            with self.subTest(**kwargs), self.assertRaises(ValueError), transaction.atomic():
+                Manufacturer(name='Manufacturer 1', slug='manufacturer-1').save(**kwargs)
+        self.assertNotIn((Manufacturer, 1), calls)

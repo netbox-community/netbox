@@ -1,4 +1,5 @@
 from collections import defaultdict
+from contextvars import ContextVar
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericForeignKeyDescriptor
 from django.contrib.contenttypes.models import ContentType
@@ -20,7 +21,14 @@ __all__ = (
     'NetBoxAutoField',
     'NonNegativeGeneratedField',
     'RestrictedGenericForeignKey',
+    'save_table_with_pk_allocation',
 )
+
+_save_table = models.Model._save_table
+
+# The instance being saved by save_table_with_pk_allocation(), for which get_pk_value_on_save() must not consult the
+# allocators
+_saving_instance = ContextVar('saving_instance', default=None)
 
 
 class NetBoxAutoField(models.BigAutoField):
@@ -29,27 +37,44 @@ class NetBoxAutoField(models.BigAutoField):
     When no allocator supplies a value, the database assigns one from the table's sequence as usual.
     """
     def get_pk_value_on_save(self, instance):
-        # Called by both Model.save() and QuerySet.bulk_create() for objects without a primary key. self.model is the
-        # model which owns the primary key column (the concrete parent, for a proxy or multi-table inheritance child).
+        # Called by QuerySet.bulk_create() for objects without a primary key. (For Model.save(), allocators are
+        # consulted by save_table_with_pk_allocation() instead.) self.model is the model which owns the primary key
+        # column (the concrete parent, for a proxy or multi-table inheritance child).
+        if _saving_instance.get() is instance:
+            return None
         if pks := allocate_pks(self.model):
-            # Mark the instance as being added (it may be a fetched object whose primary key was cleared to clone it),
-            # so that Django inserts it directly rather than first attempting an UPDATE using the allocated primary key
-            instance._state.adding = True
             return pks[0]
-        return None
-
-    def has_default(self):
-        # Insert new objects directly, rather than attempting an UPDATE first when a primary key has been allocated
-        return True
-
-    def get_default(self):
-        # New instances still start without a primary key
         return None
 
     def deconstruct(self):
         # Present as a plain BigAutoField so that no migrations are generated
         name, path, args, kwargs = super().deconstruct()
         return name, 'django.db.models.BigAutoField', args, kwargs
+
+
+def save_table_with_pk_allocation(
+    instance, raw=False, cls=None, force_insert=False, force_update=False, using=None, update_fields=None
+):
+    """
+    Imitate the behavior of the stock Model._save_table() method, but first consult any registered primary key
+    allocators for a new object without a primary key. If an allocator supplies one, insert the object directly:
+    Django would otherwise attempt an UPDATE using the allocated primary key first, overwriting any existing row which
+    shares it. Objects saved with a primary key already set are unaffected.
+    """
+    pk = cls._meta.pk
+    if isinstance(pk, NetBoxAutoField) and not instance._is_pk_set(cls._meta):
+        if not (force_update or update_fields) and (pks := allocate_pks(pk.model)):
+            setattr(instance, pk.attname, pks[0])
+            force_insert = True
+        else:
+            # Either the allocators have declined, or this is a forced update (which requires a primary key). Either
+            # way, prevent get_pk_value_on_save() from consulting them.
+            token = _saving_instance.set(instance)
+            try:
+                return _save_table(instance, raw, cls, force_insert, force_update, using, update_fields)
+            finally:
+                _saving_instance.reset(token)
+    return _save_table(instance, raw, cls, force_insert, force_update, using, update_fields)
 
 
 class ColorField(models.CharField):
