@@ -17,12 +17,12 @@ function handleSelection(link: HTMLAnchorElement): void {
   const label = link.getAttribute('data-label');
   const value = link.getAttribute('data-value');
 
-  //@ts-ignore
+  // @ts-expect-error: Tom Select attaches its instance to the element at runtime
   target.tomselect.addOption({
     id: value,
     display: label,
   });
-  //@ts-ignore
+  // @ts-expect-error: Tom Select attaches its instance to the element at runtime
   target.tomselect.addItem(value);
 
 }

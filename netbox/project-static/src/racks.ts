@@ -76,7 +76,10 @@ export function initRackElevation(): void {
     control.addEventListener(
       'change',
       event => {
-        handleRackViewSelect((event.currentTarget as any).value as RackViewSelection, rackImagesState);
+        handleRackViewSelect(
+          (event.currentTarget as HTMLSelectElement).value as RackViewSelection,
+          rackImagesState,
+        );
       },
       false,
     );

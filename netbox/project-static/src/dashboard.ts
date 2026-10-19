@@ -1,18 +1,19 @@
 import { GridStack, GridStackOptions, GridStackWidget } from 'gridstack';
+import type { GridHTMLElement } from 'gridstack';
 import { createToast } from './bs';
 import { apiPatch, hasError } from './util';
 
 function lockDashboard(): void {
-  const dashboard = document.getElementById('dashboard') as any;
+  const dashboard = document.getElementById('dashboard') as Nullable<GridHTMLElement>;
   if (dashboard) {
-    dashboard.gridstack.disable();
+    dashboard.gridstack?.disable();
   }
 }
 
 function unlockDashboard(): void {
-  const dashboard = document.getElementById('dashboard') as any;
+  const dashboard = document.getElementById('dashboard') as Nullable<GridHTMLElement>;
   if (dashboard) {
-    dashboard.gridstack.enable();
+    dashboard.gridstack?.enable();
   }
 }
 
@@ -20,7 +21,7 @@ async function saveDashboardLayout(
   url: string,
   gridData: GridStackWidget[] | GridStackOptions,
 ): Promise<APIResponse<APIUserConfig>> {
-  let data = {
+  const data = {
     layout: gridData
   }
   return await apiPatch<APIUserConfig>(url, data);
@@ -34,7 +35,7 @@ export function initDashboard(): void {
   }
 
   // Initialize the grid
-  let grid = GridStack.init({
+  const grid = GridStack.init({
     cellHeight: 100,
     disableDrag: true,
     disableResize: true,
@@ -74,7 +75,7 @@ export function initDashboard(): void {
     if (url == null) {
       return;
     }
-    let gridData = grid.save(false);
+    const gridData = grid.save(false);
     saveDashboardLayout(url, gridData).then(res => {
       if (hasError(res)) {
         const toast = createToast('danger', 'Error Saving Dashboard Config', res.error);
