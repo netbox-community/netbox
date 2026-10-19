@@ -25,7 +25,8 @@ npm('install', ...specs(pkg.dependencies));
 npm('install', '--save-dev', ...specs(pkg.devDependencies));
 npm('update');
 
-// Report anything still behind its latest release. `npm outdated` exits 1 when it lists packages.
+// Report anything still behind its latest release (which, like the installs above, honors
+// min-release-age). `npm outdated` exits 1 when it lists packages.
 let outdated = {};
 try {
   npm('outdated', '--json');
@@ -33,6 +34,6 @@ try {
   outdated = JSON.parse(error.stdout || '{}');
 }
 for (const [name, { current, latest }] of Object.entries(outdated)) {
-  const why = HELD[name]?.reason ?? 'newest release is inside the min-release-age window';
+  const why = HELD[name]?.reason ?? 'not held, but was not upgraded; investigate';
   console.log(`${name.padEnd(28)} ${current.padEnd(9)} latest ${latest.padEnd(9)} ${why}`);
 }

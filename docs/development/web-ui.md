@@ -106,9 +106,9 @@ UI dependencies are upgraded to their latest releases as part of each NetBox rel
 $ npm run upgrade
 ```
 
-This upgrades every direct dependency to its latest release, except for those held back in `upgrade.mjs`, and then refreshes all transitive dependencies within their declared version ranges. Finally, it lists any dependency which remains behind its latest release, along with the reason.
+This upgrades every direct dependency to its latest release, except for those held back in `upgrade.mjs`, and then refreshes all transitive dependencies within their declared version ranges. Finally, it lists each held dependency which has a newer release available, along with the reason it is held.
 
-`.npmrc` sets `min-release-age=7`, so npm only installs versions which have been published for at least seven days. Anything newer is picked up by the next release. To install a newer version immediately (for example, an urgent security fix), override this setting explicitly:
+`.npmrc` sets `min-release-age=7`, so npm only installs (and only reports as available) versions which have been published for at least seven days. Anything newer is picked up by the next release. To install a newer version immediately (for example, an urgent security fix), override this setting explicitly:
 
 ```console
 $ npm install some-package@1.2.3 --min-release-age=0

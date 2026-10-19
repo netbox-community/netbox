@@ -125,7 +125,7 @@ npm run check
 npm run build
 ```
 
-`npm run upgrade` lists any dependency which remains behind its latest release, along with the reason (see [Held Dependencies](./web-ui.md#held-dependencies)). Commit the changes to `package.json`, `package-lock.json`, and `dist/`.
+`npm run upgrade` lists each held dependency which has a newer release available, along with the reason it is held (see [Held Dependencies](./web-ui.md#held-dependencies)). Commit the changes to `package.json`, `package-lock.json`, and `dist/`.
 
 ### Update & Compile Translations
 
