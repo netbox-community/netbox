@@ -12,7 +12,7 @@
     "build:styles": "node build.mjs --styles",
     "build:scripts": "node build.mjs --scripts",
     "check": "npm run check:types && npm run check:lint && npm run check:format",
-    "check:types": "tsc --noEmit",
+    "check:types": "tsc",
     "check:lint": "eslint src \"*.mjs\" eslint.config.js",
     "check:format": "prettier --check \"src/**/*.ts\" \"styles/**/*.scss\" \"*.mjs\" eslint.config.js",
     "format": "prettier --write \"src/**/*.ts\" \"styles/**/*.scss\" \"*.mjs\" eslint.config.js",

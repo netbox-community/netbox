@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 // Dependencies that must stay below their latest release. Remove an entry once its blocker is gone.
 const HELD = {
   '@tabler/core': { range: '1.4.x', reason: 'Upgrade tracked in #23184' },
+  bootstrap: { range: '5.x', reason: 'Tabler 1.4 is built on Bootstrap 5; removed with #23184' },
   '@graphiql/plugin-explorer': { range: '4.x', reason: 'v5 drops the UMD build we copy' },
   graphiql: { range: '4.x', reason: 'v5 drops the UMD build we copy' },
   graphql: { range: '16.x', reason: 'Peer range of the GraphiQL 4 explorer plugin' },
@@ -15,7 +16,7 @@ const HELD = {
   react: { range: '18.x', reason: 'React 19 ships no UMD build' },
   'react-dom': { range: '18.x', reason: 'React 19 ships no UMD build' },
   sass: { range: '<3', reason: 'Dart Sass 3 removes @import, which our SCSS still uses' },
-  typescript: { range: '<7', reason: 'typescript-eslint does not support TypeScript 7' },
+  typescript: { range: '6.0.x', reason: 'typescript-eslint supports TypeScript < 6.1' },
 };
 
 // Resolve package.json relative to this directory, regardless of where the script is invoked from.
@@ -42,7 +43,9 @@ let outdated = {};
 try {
   npm('outdated', '--json');
 } catch (error) {
-  outdated = JSON.parse(error.stdout || '{}');
+  // Any exit status other than 1 means npm outdated itself failed
+  if (error.status !== 1) throw error;
+  outdated = JSON.parse(error.stdout);
 }
 if (outdated.error) {
   console.error(`npm outdated failed: ${outdated.error.summary ?? outdated.error.code}`);

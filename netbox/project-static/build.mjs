@@ -80,13 +80,26 @@ async function buildStyles() {
  */
 async function replaceDist() {
   await rm(BACKUP_DIR, { recursive: true, force: true });
-  await rename('dist', BACKUP_DIR).catch(error => {
+  let hasBackup = false;
+  try {
+    await rename('dist', BACKUP_DIR);
+    hasBackup = true;
+  } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-  });
+  }
   try {
     await rename(STAGING_DIR, 'dist');
   } catch (error) {
-    await rename(BACKUP_DIR, 'dist');
+    if (hasBackup) {
+      try {
+        await rename(BACKUP_DIR, 'dist');
+      } catch (restoreError) {
+        throw new Error(
+          `${error.message}; the previous dist/ could not be restored and remains in ${BACKUP_DIR}/`,
+          { cause: restoreError },
+        );
+      }
+    }
     throw error;
   }
   await rm(BACKUP_DIR, { recursive: true, force: true }).catch(error => {

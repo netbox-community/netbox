@@ -75,7 +75,7 @@ In order for the TypeScript and Sass (SCSS) source files to be usable by a brows
 | `npm run build:styles`  | Build Sass (SCSS) source files only.           |
 | `npm run build:scripts` | Build TypeScript source files only.            |
 
-All output files will be written to `netbox/project-static/dist`, where Django will pick them up when `manage.py collectstatic` is run. Commit the contents of `dist/` together with the source changes that produced them: CI rebuilds the assets and fails if they differ from what was committed.
+All output files will be written to `netbox/project-static/dist`, where Django will pick them up when `manage.py collectstatic` is run. A full build (`npm run build`) replaces the entire contents of `dist/`, so don't place any other files there. Commit the contents of `dist/` together with the source changes that produced them: CI rebuilds the assets and fails if they differ from what was committed.
 
 !!! info "Remember to re-run `manage.py collectstatic`"
     If you're running the development web server — `manage.py runserver` — you'll need to run `manage.py collectstatic` to see your changes.
