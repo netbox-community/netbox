@@ -98,7 +98,7 @@ NetBox uses [`pre-commit`](https://pre-commit.com/) to automatically validate co
 * Run Django's internal system check
 * Check for missing database migrations
 * Validate any changes to the documentation with `zensical`
-* Validate Typescript & Sass styling with `yarn`
+* Check TypeScript & Sass (SCSS) code with `npm run check`
 * Ensure that any modified static front end assets have been recompiled
 
 Enable `pre-commit` with the following commands _prior_ to commiting any changes:
@@ -108,7 +108,7 @@ python -m pip install ruff pre-commit
 pre-commit install
 ```
 
-You may also need to set up the yarn packages as shown in the [Web UI Development Guide](web-ui.md).
+You may also need to install the UI dependencies as shown in the [Web UI Development Guide](web-ui.md).
 
 ### 6. Configure NetBox
 

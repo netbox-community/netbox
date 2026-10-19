@@ -28,11 +28,11 @@ repos:
       entry: zensical build
       language: system
       pass_filenames: false
-    - id: yarn-validate
-      name: "Yarn validate"
+    - id: ui-check
+      name: "UI checks"
       description: "Check UI ESLint, TypeScript, and Prettier compliance"
       files: 'netbox/project-static/'
-      entry: yarn --cwd netbox/project-static validate
+      entry: npm --prefix netbox/project-static run check
       language: system
       pass_filenames: false
     - id: verify-bundles

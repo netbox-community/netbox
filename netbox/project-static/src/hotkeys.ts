@@ -11,7 +11,10 @@ function focusGlobalSearch(): void {
 
 function handleKeydown(event: KeyboardEvent): void {
   // Ignore hotkeys when focused on form elements or when modal is open
-  if ((event.target as Element).matches('input, textarea, select') || document.body.classList.contains('modal-open')) {
+  if (
+    (event.target as Element).matches('input, textarea, select') ||
+    document.body.classList.contains('modal-open')
+  ) {
     return;
   }
 

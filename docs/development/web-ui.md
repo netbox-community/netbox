@@ -51,96 +51,69 @@ To contribute to the NetBox UI, you'll need to review the main [Getting Started 
 
 ### Tools
 
-Once you have a working NetBox development environment, you'll need to install a few more tools to work with the NetBox UI:
+Once you have a working NetBox development environment, you'll need to install [Node.js](https://nodejs.org/en/download/) to work with the NetBox UI. Use Node.js 24 or later (CI uses the latest release of the major version recorded in `netbox/project-static/.nvmrc`). Node.js includes npm, which manages the NetBox UI dependencies; no other package manager is needed.
 
-- [NodeJS](https://nodejs.org/en/download/) (the LTS release should suffice)
-- [Yarn](https://yarnpkg.com/getting-started/install) (version 1)
-
-After Node and Yarn are installed on your system, you'll need to install all the NetBox UI dependencies:
+Install the NetBox UI dependencies:
 
 ```console
 $ cd netbox/project-static
-$ yarn
+$ npm ci
 ```
 
 !!! warning "Check Your Working Directory"
-    You need to be in the `netbox/project-static` directory to run the below `yarn` commands.
+    You need to be in the `netbox/project-static` directory to run the `npm` commands below.
 
-### Updating Dependencies
+`npm ci` installs exactly the versions recorded in `package-lock.json`. The project's `.npmrc` file disables dependency lifecycle scripts (none are needed) and records exact versions whenever a dependency is added or upgraded.
 
-Run `yarn outdated` to identify outdated dependencies.
+### Building
 
-```
-$ yarn outdated
-yarn outdated v1.22.19
-info Color legend :
- "<red>"    : Major Update backward-incompatible updates
- "<yellow>" : Minor Update backward-compatible features
- "<green>"  : Patch Update backward-compatible bug fixes
-Package                          Current Wanted  Latest Workspace Package Type    URL
-bootstrap                        5.3.1   5.3.1   5.3.3  netbox    dependencies    https://getbootstrap.com/
-```
+In order for the TypeScript and Sass (SCSS) source files to be usable by a browser, they must first be transpiled (TypeScript → JavaScript, Sass → CSS), bundled, and minified. After making changes to TypeScript or Sass source files, run `npm run build`.
 
-Run `yarn upgrade --latest` to automatically upgrade these packages to their most recent versions.
+| Command                 | Action                                         |
+| :---------------------- | :--------------------------------------------- |
+| `npm run build`         | Build TypeScript and Sass (SCSS) source files. |
+| `npm run build:styles`  | Build Sass (SCSS) source files only.           |
+| `npm run build:scripts` | Build TypeScript source files only.            |
 
-```
-$ yarn upgrade bootstrap --latest
-yarn upgrade v1.22.19
-[1/4] Resolving packages...
-[2/4] Fetching packages...
-[3/4] Linking dependencies...
-[4/4] Rebuilding all packages...
-success Saved lockfile.
-success Saved 1 new dependency.
-info Direct dependencies
-└─ bootstrap@5.3.3
-info All dependencies
-└─ bootstrap@5.3.3
-Done in 0.95s.
-```
-
-`package.json` will be updated to reflect the new package versions automatically.
-
-### Bundling
-
-In order for the TypeScript and Sass (SCSS) source files to be usable by a browser, they must first be transpiled (TypeScript → JavaScript, Sass → CSS), bundled, and minified. After making changes to TypeScript or Sass source files, run `yarn bundle`.
-
-`yarn bundle` is a wrapper around the following subcommands, any of which can be run individually:
-
-| Command               | Action                                          |
-| :-------------------- | :---------------------------------------------- |
-| `yarn bundle`         | Bundle TypeScript and Sass (SCSS) source files. |
-| `yarn bundle:styles`  | Bundle Sass (SCSS) source files only.           |
-| `yarn bundle:scripts` | Bundle TypeScript source files only.            |
-
-All output files will be written to `netbox/project-static/dist`, where Django will pick them up when `manage.py collectstatic` is run.
+All output files will be written to `netbox/project-static/dist`, where Django will pick them up when `manage.py collectstatic` is run. A full build (`npm run build`) replaces the entire contents of `dist/`, so don't place any other files there. Commit the contents of `dist/` together with the source changes that produced them: CI rebuilds the assets and fails if they differ from what was committed.
 
 !!! info "Remember to re-run `manage.py collectstatic`"
     If you're running the development web server — `manage.py runserver` — you'll need to run `manage.py collectstatic` to see your changes.
 
 ### Linting, Formatting & Type Checking
 
-Before committing any changes to TypeScript files, and periodically throughout the development process, you should run `yarn validate` to catch formatting, code quality, or type errors.
+Before committing any changes to TypeScript or Sass files, and periodically throughout the development process, you should run `npm run check` to catch formatting, code quality, or type errors.
 
 !!! tip "IDE Integrations"
     If you're using an IDE, it is strongly recommended to install [ESLint](https://eslint.org/docs/user-guide/integrations), [TypeScript](https://github.com/Microsoft/TypeScript/wiki/TypeScript-Editor-Support), and [Prettier](https://prettier.io/docs/en/editors.html) integrations, if available. Most of them will automatically check and/or correct issues in the code as you develop, which can significantly increase your productivity as a contributor.
 
-`yarn validate` is a wrapper around the following subcommands, any of which can be run individually:
+`npm run check` is a wrapper around the following subcommands, any of which can be run individually:
 
-| Command                            | Action                                                           |
-| :--------------------------------- | :--------------------------------------------------------------- |
-| `yarn validate`                    | Run all validation.                                              |
-| `yarn validate:lint`               | Validate TypeScript code via [ESLint](https://eslint.org/) only. |
-| `yarn validate:types`              | Validate TypeScript code compilation only.                       |
-| `yarn validate:formatting`         | Validate code formatting of JavaScript & Sass/SCSS files.        |
-| `yarn validate:formatting:styles`  | Validate code formatting Sass/SCSS only.                         |
-| `yarn validate:formatting:scripts` | Validate code formatting TypeScript only.                        |
+| Command                | Action                                                                     |
+| :--------------------- | :------------------------------------------------------------------------- |
+| `npm run check`        | Run all checks.                                                            |
+| `npm run check:types`  | Check TypeScript types.                                                    |
+| `npm run check:lint`   | Check TypeScript code with [ESLint](https://eslint.org/).                  |
+| `npm run check:format` | Check the formatting of TypeScript and Sass (SCSS) files with [Prettier](https://prettier.io/). |
 
-You can also run the following commands to automatically fix formatting issues:
+Run `npm run format` to automatically fix any formatting issues.
 
-| Command               | Action                                          |
-| :-------------------- | :---------------------------------------------- |
-| `yarn format`         | Format TypeScript and Sass (SCSS) source files. |
-| `yarn format:styles`  | Format Sass (SCSS) source files only.           |
-| `yarn format:scripts` | Format TypeScript source files only.            |
+### Updating Dependencies
 
+UI dependencies are upgraded to their latest releases as part of each NetBox release (see the [release checklist](release-checklist.md#update-ui-dependencies)):
+
+```console
+$ npm run upgrade
+```
+
+This upgrades every direct dependency to its latest release, except for those held back in `upgrade.mjs`, and then refreshes all transitive dependencies within their declared version ranges. Finally, it lists any dependency which remains behind its latest release (normally only the held dependencies), along with the reason.
+
+To add a new dependency, run `npm install <package>`, or `npm install --save-dev <package>` for build tooling.
+
+#### Held Dependencies
+
+Some dependencies are intentionally held below their latest releases, typically because a new major version requires migration work. Each held dependency is listed, along with the version range it is held to and the reason, in the `HELD` map at the top of `netbox/project-static/upgrade.mjs`. `npm run upgrade` reports each held dependency for which a newer release is available.
+
+A few dependencies, such as Tabler and Bootstrap, are held with a range of `patch`. This applies only patch releases of the version currently in `package.json`. Their minor and major upgrades are reviewed and applied separately, after which `npm run upgrade` continues with patch releases of the new version.
+
+When a blocker has been resolved, remove the dependency's entry from `HELD` so that it is upgraded along with everything else.

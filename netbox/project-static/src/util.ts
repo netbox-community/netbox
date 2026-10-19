@@ -3,7 +3,9 @@ type ReqData = URLSearchParams | Dict | undefined | unknown;
 type SelectedOption = { name: string; options: string[] };
 
 declare global {
-    interface Window { CSRF_TOKEN: any; }
+  interface Window {
+    CSRF_TOKEN: string;
+  }
 }
 
 /**
@@ -33,7 +35,7 @@ export function hasMore(data: APIAnswer<APIObjectBase>): data is APIAnswerWithNe
 /**
  * Type guard to determine if a value is not null, undefined, or empty.
  */
-export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
+export function isTruthy<V>(value: V): value is NonNullable<V> {
   const badStrings = ['', 'null', 'undefined'];
   if (Array.isArray(value)) {
     return value.length > 0;
@@ -61,7 +63,7 @@ export function isTruthy<V extends unknown>(value: V): value is NonNullable<V> {
  * }
  * ```
  */
-export function all<T extends unknown>(values: T[]): values is NonNullable<T>[] {
+export function all<T>(values: T[]): values is NonNullable<T>[] {
   return values.every(value => typeof value !== 'undefined' && value !== null);
 }
 
@@ -92,7 +94,7 @@ export function resetSelect<S extends HTMLSelectElement>(select: S): void {
  * Type guard to determine if a value is an `Element`.
  */
 export function isElement(obj: Element | null | undefined): obj is Element {
-  return typeof obj !== null && typeof obj !== 'undefined';
+  return obj !== null && obj !== undefined;
 }
 
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(
@@ -388,7 +390,7 @@ export function createElement<
  * @param prop Object property to use as a unique key.
  * @returns Deduplicated array.
  */
-export function uniqueByProperty<T extends unknown, P extends keyof T>(arr: T[], prop: P): T[] {
+export function uniqueByProperty<T, P extends keyof T>(arr: T[], prop: P): T[] {
   const baseMap = new Map<T[P], T>();
   for (const item of arr) {
     const value = item[prop];

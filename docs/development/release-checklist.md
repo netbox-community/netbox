@@ -117,20 +117,15 @@ The published wheel's `Requires-Dist` is generated from `requirements.txt` at bu
 
 ### Update UI Dependencies
 
-Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution:
+From within the `netbox/project-static/` directory, [upgrade the UI dependencies](./web-ui.md#updating-dependencies) (JavaScript packages, fonts, etc.) to their latest releases, check the code, and rebuild the files for distribution:
 
+```no-highlight
+npm run upgrade
+npm run check
+npm run build
 ```
-$ yarn bundle
-yarn run v1.22.19
-$ node bundle.js
-✅ Bundled source file 'styles/external.scss' to 'netbox-external.css'
-✅ Bundled source file 'styles/netbox.scss' to 'netbox.css'
-✅ Bundled source file 'styles/svg/rack_elevation.scss' to 'rack_elevation.css'
-✅ Bundled source file 'styles/svg/cable_trace.scss' to 'cable_trace.css'
-✅ Bundled source file 'index.ts' to 'netbox.js'
-✅ Copied graphiql files
-Done in 1.00s.
-```
+
+`npm run upgrade` lists any dependency which remains behind its latest release (normally only the held dependencies), along with the reason (see [Held Dependencies](./web-ui.md#held-dependencies)). Commit the changes to `package.json`, `package-lock.json`, and `dist/`.
 
 ### Update & Compile Translations
 

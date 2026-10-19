@@ -1,5 +1,5 @@
 import { getElements } from '../util';
-import { StateManager } from 'src/state';
+import { StateManager } from '../state';
 import { previousPkCheckState } from '../stores';
 
 type PreviousPkCheckState = { element: Nullable<HTMLInputElement> };
@@ -50,7 +50,6 @@ function toggleCheckboxRange(
     //The previously clicked checkbox was above the shift clicked checkbox
     if (element === previousStateElement) {
       if (changePkCheckboxState === true) {
-        changePkCheckboxState = false;
         return;
       }
       changePkCheckboxState = true;
@@ -61,7 +60,6 @@ function toggleCheckboxRange(
     //The previously clicked checkbox was below the shift clicked checkbox
     if (element === eventTargetElement) {
       if (changePkCheckboxState === true) {
-        changePkCheckboxState = false;
         return;
       }
       changePkCheckboxState = true;

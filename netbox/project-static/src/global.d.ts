@@ -2,7 +2,7 @@ type Primitives = string | number | boolean | undefined | null;
 
 type JSONAble = Primitives | Primitives[] | { [k: string]: JSONAble } | JSONAble[];
 
-type Dict<T extends unknown = unknown> = Record<string, T>;
+type Dict<T = unknown> = Record<string, T>;
 
 type Nullable<T> = T | null;
 

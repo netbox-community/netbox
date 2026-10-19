@@ -1,20 +1,13 @@
 {
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    // Needed for tom-select/src/vanilla.ts
-    "allowImportingTsExtensions": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "noUnusedLocals": true,
-    "declaration": false,
+    "target": "es2022",
     "module": "esnext",
-    "target": "esnext",
-    "jsx": "react",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "noEmit": true,
     "strict": true,
-    "baseUrl": "."
+    "noUnusedLocals": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "./src/global.d.ts"],
-  "exclude": ["node_modules", "esm", "src/**/*.test.ts"]
+  "include": ["src"]
 }

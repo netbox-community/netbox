@@ -1,5 +1,5 @@
-import { TomOption } from 'tom-select/src/types';
-import { escape_html } from 'tom-select/src/utils';
+import type { TomOption } from 'tom-select/dist/esm/types/index.js';
+import { escape_html } from 'tom-select/utils';
 import { NetBoxTomSelect } from './classes/netboxTomSelect';
 import { getPlugins } from './config';
 import { getElements } from '../util';

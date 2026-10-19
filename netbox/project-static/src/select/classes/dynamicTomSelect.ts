@@ -1,5 +1,10 @@
-import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
-import { addClasses, removeClasses } from 'tom-select/src/vanilla.ts';
+import type {
+  RecursivePartial,
+  TomOption,
+  TomSettings,
+  TomInput,
+} from 'tom-select/dist/esm/types/index.js';
+import { addClasses, removeClasses } from 'tom-select/dist/esm/vanilla.js';
 import queryString from 'query-string';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
@@ -85,16 +90,14 @@ export class DynamicTomSelect extends NetBoxTomSelect {
   }
 
   load(value: string, preserveValue?: string | string[]) {
-    const self = this;
-
     // Record which request this is. Incremented unconditionally, before any early return
     // below, so that an already-in-flight request from a previous call is always correctly
     // invalidated by any newer call to load() -- even one that itself aborts early (e.g. no
     // valid URL). If another load() call starts before this one's response comes back,
-    // `self.loadSequence` will have moved on and this response is stale -- it must be
+    // `this.loadSequence` will have moved on and this response is stale -- it must be
     // discarded rather than applied.
-    self.loadSequence += 1;
-    const sequence = self.loadSequence;
+    this.loadSequence += 1;
+    const sequence = this.loadSequence;
 
     // Remember any value that still needs to be restored, without erasing a value captured
     // by an earlier, still-in-flight call. If this particular call has nothing new to
@@ -106,37 +109,37 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       ? preserveValue.length > 0
       : preserveValue !== undefined;
     if (hasValue) {
-      self.pendingRestoreValue = preserveValue;
+      this.pendingRestoreValue = preserveValue;
     }
 
     // No API endpoint is configured yet (e.g. a generic object selector before a content type
     // is chosen). No options can be shown under this state, so any pending value carried from
     // an earlier call is no longer relevant to restore here.
-    if (!self.api_url) {
-      self.pendingRestoreValue = undefined;
+    if (!this.api_url) {
+      this.pendingRestoreValue = undefined;
       return;
     }
 
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
-    self.clearOptions();
+    this.clearOptions();
 
     // Populate the null option (if any) if not searching
-    if (self.nullOption && !value) {
-      self.addOption(self.nullOption);
+    if (this.nullOption && !value) {
+      this.addOption(this.nullOption);
     }
 
     // Get the API request URL. If none is provided, abort as no request can be made. No
     // options can be shown for this field under its current (invalid) filter, so any
     // pending value carried from an earlier call is no longer relevant to restore here.
-    const url = self.getRequestUrl(value);
+    const url = this.getRequestUrl(value);
     if (!url) {
-      self.pendingRestoreValue = undefined;
+      this.pendingRestoreValue = undefined;
       return;
     }
 
-    addClasses(self.wrapper, self.settings.loadingClass);
-    self.loading++;
+    addClasses(this.wrapper, this.settings.loadingClass);
+    this.loading++;
 
     // Make the API request
     fetch(url)
@@ -145,7 +148,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
         const results: Dict[] = apiData.results;
         const options: Dict[] = [];
         for (const result of results) {
-          const option = self.getOptionFromData(result);
+          const option = this.getOptionFromData(result);
           options.push(option);
         }
         return options;
@@ -155,30 +158,30 @@ export class DynamicTomSelect extends NetBoxTomSelect {
         // A newer load() has since been issued (e.g. two dependencies changed in quick
         // succession). This response is stale; applying it now would risk clobbering
         // state already set by the newer, still-in-flight or already-resolved request.
-        if (sequence !== self.loadSequence) {
-          self.finalizeStaleLoad();
+        if (sequence !== this.loadSequence) {
+          this.finalizeStaleLoad();
           return;
         }
-        self.loadCallback(options, []);
+        this.loadCallback(options, []);
         // Restore the previous selection if it is still valid under the new filter.
-        if (self.pendingRestoreValue !== undefined) {
-          const values = Array.isArray(self.pendingRestoreValue)
-            ? self.pendingRestoreValue
-            : [self.pendingRestoreValue];
-          const validValues = values.filter(v => v !== '' && v in self.options);
+        if (this.pendingRestoreValue !== undefined) {
+          const values = Array.isArray(this.pendingRestoreValue)
+            ? this.pendingRestoreValue
+            : [this.pendingRestoreValue];
+          const validValues = values.filter(v => v !== '' && v in this.options);
           if (validValues.length > 0) {
-            self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
+            this.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
           }
-          self.pendingRestoreValue = undefined;
+          this.pendingRestoreValue = undefined;
         }
       })
       .catch(() => {
-        if (sequence !== self.loadSequence) {
-          self.finalizeStaleLoad();
+        if (sequence !== this.loadSequence) {
+          this.finalizeStaleLoad();
           return;
         }
-        self.pendingRestoreValue = undefined;
-        self.loadCallback([], []);
+        this.pendingRestoreValue = undefined;
+        this.loadCallback([], []);
       });
   }
 
@@ -387,8 +390,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
       // value. For example, if the dependency is the `rack` field, and the `rack` field's value
       // is `1`, this element's URL would change from `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
       const hasReplacement =
-        apiUrl.includes(`{{`) &&
-        Boolean(apiUrl.match(new RegExp(`({{(${id})}})`, 'g')));
+        apiUrl.includes(`{{`) && Boolean(apiUrl.match(new RegExp(`({{(${id})}})`, 'g')));
 
       if (hasReplacement) {
         if (element.value) {
