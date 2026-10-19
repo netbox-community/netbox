@@ -18,9 +18,10 @@ from rest_framework import status
 
 from core.choices import ObjectChangeActionChoices
 from core.models import Job, ObjectChange, ObjectType
+from dcim.choices import InterfaceTypeChoices
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
-from dcim.models import Manufacturer, Rack, Site
+from dcim.models import Cable, Device, Interface, Manufacturer, Rack, Site
 from dcim.tables import SiteTable
 from extras.api.customfields import CustomFieldListSerializer
 from extras.choices import *
@@ -32,16 +33,17 @@ from extras.jobs import (
     provision_custom_field,
     purge_custom_field,
 )
-from extras.models import CustomField, CustomFieldChoiceSet
+from extras.models import CustomField, CustomFieldChoiceSet, Tag
 from ipam.api.serializers import VLANSerializer
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.context import query_cache
 from netbox.context_managers import event_tracking
 from netbox.tables.columns import CustomFieldColumn
+from netbox.tests.dummy_plugin.models import DummyNetBoxModel
 from utilities.exceptions import AbortRequest
 from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter
-from utilities.testing import APITestCase, TestCase
+from utilities.testing import APITestCase, TestCase, create_test_device
 from virtualization.models import VirtualMachine
 
 
@@ -1550,6 +1552,123 @@ class CustomFieldAPITestCase(APITestCase):
             [vlans['VLAN 3'].pk, vlans['VLAN 4'].pk],
             [vlans['VLAN 4'].pk, vlans['VLAN 5'].pk],
         ])
+
+    def test_list_objects_prefetch_object_field_target_relations(self):
+        """Interface targets, their devices and their cables load in one query each."""
+        site_type = ObjectType.objects.get_for_model(Site)
+        interface_type = ObjectType.objects.get_for_model(Interface)
+        for cf_type, name in (
+            (CustomFieldTypeChoices.TYPE_OBJECT, 'interface_field'),
+            (CustomFieldTypeChoices.TYPE_MULTIOBJECT, 'interfaces_field'),
+        ):
+            cf = CustomField.objects.create(type=cf_type, name=name, related_object_type=interface_type)
+            cf.object_types.set([site_type])
+        devices = [create_test_device(f'Device {i}') for i in range(1, 5)]
+        interfaces = [
+            Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+            for device in devices
+        ]
+        peer_device = create_test_device('Peer Device')
+        cables = []
+        for i, interface in enumerate(interfaces[:2]):
+            peer = Interface.objects.create(
+                device=peer_device, name=f'eth{i}', type=InterfaceTypeChoices.TYPE_1GE_FIXED
+            )
+            cable = Cable(a_terminations=[interface], b_terminations=[peer])
+            cable.save()
+            cables.append(cable)
+        sites = (
+            Site.objects.create(name='Site 3', slug='site-3', custom_field_data={
+                'interface_field': interfaces[0].pk,
+                'interfaces_field': [interfaces[1].pk, interfaces[2].pk],
+            }),
+            Site.objects.create(name='Site 4', slug='site-4', custom_field_data={
+                'interface_field': interfaces[3].pk,
+                'interfaces_field': [interfaces[2].pk, interfaces[0].pk],
+            }),
+        )
+        self.add_permissions('dcim.view_site')
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get(
+                reverse('dcim-api:site-list'), {'id': [site.pk for site in sites], 'fields': 'name,custom_fields'},
+                **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        for model in (Interface, Device, Cable):
+            queries = get_primary_table_queries(ctx.captured_queries, model)
+            self.assertEqual(len(queries), 1, f'{model.__name__} rows must be fetched once, got {queries}')
+        # Relations outside the brief representation stay unloaded
+        self.assertEqual(get_primary_table_queries(ctx.captured_queries, Tag), [])
+
+        def summary(value):
+            return value['device']['id'], value['cable'] and value['cable']['id']
+
+        self.assertEqual(
+            {
+                site['name']: (
+                    summary(site['custom_fields']['interface_field']),
+                    [summary(value) for value in site['custom_fields']['interfaces_field']],
+                )
+                for site in response.data['results']
+            },
+            {
+                'Site 3': ((devices[0].pk, cables[0].pk), [(devices[1].pk, cables[1].pk), (devices[2].pk, None)]),
+                'Site 4': ((devices[3].pk, None), [(devices[2].pk, None), (devices[0].pk, cables[0].pk)]),
+            },
+        )
+
+    def test_list_objects_fetch_object_field_targets_once_per_model(self):
+        """Object and multi-object fields referencing one model share one target query."""
+        vlans = {vlan.name: vlan for vlan in VLAN.objects.all()}
+        missing_pk = max(vlan.pk for vlan in vlans.values()) + 1
+        site2 = Site.objects.get(name='Site 2')
+        site3 = Site.objects.create(name='Site 3', slug='site-3', custom_field_data={
+            'object_field': missing_pk,
+            'multiobject_field': [vlans['VLAN 5'].pk, missing_pk, vlans['VLAN 2'].pk, vlans['VLAN 5'].pk],
+        })
+        self.add_permissions('dcim.view_site')
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get(
+                reverse('dcim-api:site-list'), {'id': [site2.pk, site3.pk], 'fields': 'name,custom_fields'},
+                **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        vlan_queries = get_primary_table_queries(ctx.captured_queries, VLAN)
+        self.assertEqual(len(vlan_queries), 1, f'VLAN targets must be fetched once, got {vlan_queries}')
+
+        custom_fields = {site['name']: site['custom_fields'] for site in response.data['results']}
+        self.assertEqual(custom_fields['Site 2']['object_field']['id'], vlans['VLAN 2'].pk)
+        self.assertEqual(
+            [vlan['id'] for vlan in custom_fields['Site 2']['multiobject_field']],
+            [vlans['VLAN 3'].pk, vlans['VLAN 4'].pk],
+        )
+        # A missing target renders as null and drops out of a list, which keeps its order and duplicates
+        self.assertIsNone(custom_fields['Site 3']['object_field'])
+        self.assertEqual(
+            [vlan['id'] for vlan in custom_fields['Site 3']['multiobject_field']],
+            [vlans['VLAN 5'].pk, vlans['VLAN 2'].pk, vlans['VLAN 5'].pk],
+        )
+
+    def test_list_objects_without_object_field_target_serializer(self):
+        """Empty and dangling references to a model without a REST serializer render as null."""
+        cf = CustomField.objects.create(
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            name='dummy_field',
+            related_object_type=ObjectType.objects.get_for_model(DummyNetBoxModel),
+        )
+        cf.object_types.set([ObjectType.objects.get_for_model(Site)])
+        missing_pk = max(DummyNetBoxModel.objects.values_list('pk', flat=True), default=0) + 1
+        Site.objects.create(name='Site 3', slug='site-3', custom_field_data={'dummy_field': missing_pk})
+        self.add_permissions('dcim.view_site')
+
+        response = self.client.get(reverse('dcim-api:site-list'), {'fields': 'name,custom_fields'}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(
+            {site['name']: site['custom_fields']['dummy_field'] for site in response.data['results']},
+            {'Site 1': None, 'Site 2': None, 'Site 3': None},
+        )
 
     def test_get_object_selection_field_representation(self):
         """

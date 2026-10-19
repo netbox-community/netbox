@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 05:02+0000\n"
+"POT-Creation-Date: 2026-10-17 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -9741,12 +9741,12 @@ msgstr ""
 msgid "Set {mac} as primary MAC address for {interface}."
 msgstr ""
 
-#: netbox/extras/api/customfields.py:111
+#: netbox/extras/api/customfields.py:112
 #, python-brace-format
 msgid "Custom field '{name}' does not exist for this object type."
 msgstr ""
 
-#: netbox/extras/api/customfields.py:127
+#: netbox/extras/api/customfields.py:128
 #, python-brace-format
 msgid "Unknown related object(s): {name}"
 msgstr ""
@@ -9815,17 +9815,17 @@ msgid ""
 "backend is configured to allow overwrites."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:197
+#: netbox/extras/api/serializers_/scripts.py:210
 msgid ""
 "Invalid data payload; expected an object mapping variable names to values."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:207
-#: netbox/extras/api/serializers_/scripts.py:217
+#: netbox/extras/api/serializers_/scripts.py:220
+#: netbox/extras/api/serializers_/scripts.py:230
 msgid "Scheduling is not enabled for this script."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:209
+#: netbox/extras/api/serializers_/scripts.py:222
 #: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:62
 msgid "Scheduled time must be in the future."
 msgstr ""
@@ -15677,7 +15677,7 @@ msgid ""
 "Invalid max_items value: {max_items}! Must be a positive integer or None."
 msgstr ""
 
-#: netbox/netbox/ui/attrs.py:518
+#: netbox/netbox/ui/attrs.py:521
 msgid "GPS coordinates"
 msgstr ""
 
@@ -16692,6 +16692,7 @@ msgstr ""
 
 #: netbox/templates/dcim/device/attrs/ipaddress.html:10
 #: netbox/templates/ui/actions/copy_content.html:2
+#: netbox/templates/ui/attrs/address.html:12
 #: netbox/templates/ui/attrs/numeric.html:9
 #: netbox/templates/ui/attrs/text.html:4
 #: netbox/templates/users/inc/new_token_banner.html:17
@@ -17938,7 +17939,7 @@ msgstr ""
 msgid "Add Tenant"
 msgstr ""
 
-#: netbox/templates/ui/attrs/address.html:6
+#: netbox/templates/ui/attrs/address.html:8
 #: netbox/templates/ui/attrs/gps_coordinates.html:6
 msgid "Map"
 msgstr ""

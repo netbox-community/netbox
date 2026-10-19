@@ -77,7 +77,7 @@ The corresponding model-specific subclasses of `NetBoxModelImportForm` are docum
 from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
 from netbox.forms import NetBoxModelImportForm
-from utilities.forms import CSVModelChoiceField
+from utilities.forms.fields import CSVModelChoiceField
 from .models import MyModel
 
 
@@ -120,7 +120,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
 from netbox.forms import NetBoxModelBulkEditForm
-from utilities.forms import CommentField, DynamicModelChoiceField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
 from .models import MyModel, MyModelStatusChoices
 
@@ -170,7 +170,7 @@ The corresponding model-specific subclasses of `NetBoxModelFilterSetForm` are do
 ```python
 from dcim.models import Site
 from netbox.forms import NetBoxModelFilterSetForm
-from utilities.forms import DynamicModelMultipleChoiceField, MultipleChoiceField
+from utilities.forms.fields import DynamicModelMultipleChoiceField, MultipleChoiceField
 from .models import MyModel, MyModelStatusChoices
 
 class MyModelFilterForm(NetBoxModelFilterSetForm):

@@ -30,8 +30,7 @@ class MyWidget2(DashboardWidget):
 
 ```python
 from django import forms
-from extras.dashboard.utils import register_widget
-from extras.dashboard.widgets import DashboardWidget, WidgetConfigForm
+from extras.dashboard.widgets import DashboardWidget, WidgetConfigForm, register_widget
 
 
 @register_widget

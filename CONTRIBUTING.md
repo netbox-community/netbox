@@ -38,7 +38,7 @@ NetBox users are welcome to participate in either role, on stage or in the crowd
 > We do not currently accept issues submitted via GitHub's API: All issues must be submitted using one of the [provided templates](https://github.com/netbox-community/netbox/issues/new/choose). In addition to ensuring high-quality submissions, these templates automatically assign issue types and labels for categorization to help expedite triage. This does not happen when issues are submitted via the API.
 
 > [!IMPORTANT]
-> Every issue submitted to this repository is afforded consideration by a human reviewer. To mitigate abuse, we ask that users refrain from submitting AI-generated issues. Please note that issues which appear to be completely authored by an AI may be rejected without further discussion.
+> Every issue submitted to this repository is afforded consideration by a human reviewer. Please review our [AI policy](AI_POLICY.md) before contributing: While AI tools may be used to help write code, all issues, pull request descriptions, and comments must be written in your own words. Issues which appear to be completely authored by an AI may be rejected without further discussion.
 
 ## :bug: Reporting Bugs
 
@@ -104,6 +104,7 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * All code submissions must meet the following criteria (CI will enforce these checks where feasible):
   * Consist entirely of original work
+  * Comply with our [AI policy](AI_POLICY.md)
   * Python syntax is valid
   * All tests pass when run with `NETBOX_CONFIGURATION=netbox.configuration_testing ./manage.py test`
   * `ruff check` successfully validates style compliance
