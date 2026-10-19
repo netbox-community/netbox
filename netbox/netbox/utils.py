@@ -2,9 +2,11 @@ from netbox.registry import registry
 from utilities.choices import Choice
 
 __all__ = (
+    'allocate_pks',
     'get_data_backend_choices',
     'register_data_backend',
     'register_model_feature',
+    'register_pk_allocator',
     'register_request_processor',
 )
 
@@ -65,3 +67,38 @@ def register_request_processor(func):
     registry['request_processors'].append(func)
 
     return func
+
+
+def register_pk_allocator(func):
+    """
+    Decorator for registering a primary key allocator: a callable which may supply primary keys for new objects.
+
+    The callable must accept a model class and a count, and return either a list of exactly `count` primary keys for
+    that model, or None to defer to the next allocator (and ultimately to the database). Allocators are consulted in
+    the order in which they were registered.
+
+        @register_pk_allocator
+        def my_allocator(model, count):
+            ...
+    """
+    registry['pk_allocators'].append(func)
+
+    return func
+
+
+def allocate_pks(model, count=1):
+    """
+    Return a list of `count` primary keys for new instances of `model` from the first registered allocator which
+    supplies them, or None if the database should assign them. Code which inserts rows outside the ORM (e.g. using raw
+    SQL or COPY) can call this to obtain primary keys in the same manner as Model.save() and QuerySet.bulk_create().
+    """
+    for allocator in registry['pk_allocators']:
+        if (pks := allocator(model, count)) is not None:
+            if len(pks) != count:
+                name = getattr(allocator, '__qualname__', allocator)
+                raise ValueError(
+                    f"Primary key allocator {name} returned {len(pks)} primary keys for {model._meta.label} "
+                    f"(expected {count})."
+                )
+            return pks
+    return None

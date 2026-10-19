@@ -8,6 +8,8 @@ from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from netbox.utils import allocate_pks
+
 from .validators import ColorValidator
 
 __all__ = (
@@ -15,9 +17,36 @@ __all__ = (
     'CounterCacheField',
     'GenericArrayForeignKey',
     'NaturalOrderingField',
+    'NetBoxAutoField',
     'NonNegativeGeneratedField',
     'RestrictedGenericForeignKey',
 )
+
+
+class NetBoxAutoField(models.BigAutoField):
+    """
+    A BigAutoField whose value may be supplied by a registered primary key allocator (see register_pk_allocator()).
+    When no allocator supplies a value, the database assigns one from the table's sequence as usual.
+    """
+    def get_pk_value_on_save(self, instance):
+        # Called by both Model.save() and QuerySet.bulk_create() for objects without a primary key. self.model is the
+        # model which owns the primary key column (the concrete parent, for a proxy or multi-table inheritance child).
+        if pks := allocate_pks(self.model):
+            return pks[0]
+        return None
+
+    def has_default(self):
+        # Insert new objects directly, rather than attempting an UPDATE first when a primary key has been allocated
+        return True
+
+    def get_default(self):
+        # New instances still start without a primary key
+        return None
+
+    def deconstruct(self):
+        # Present as a plain BigAutoField so that no migrations are generated
+        name, path, args, kwargs = super().deconstruct()
+        return name, 'django.db.models.BigAutoField', args, kwargs
 
 
 class ColorField(models.CharField):

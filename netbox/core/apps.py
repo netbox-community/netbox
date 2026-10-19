@@ -28,6 +28,8 @@ class CoreConfig(AppConfig):
     name = "core"
 
     def ready(self):
+        from strawberry_django.fields.types import field_type_map, relay_field_type_map
+
         from core.api import schema  # noqa: F401
         from core.checks import (  # noqa: F401
             check_duplicate_indexes,
@@ -43,11 +45,17 @@ class CoreConfig(AppConfig):
         # imported lazily, so this import is load-bearing, not cosmetic.
         from netbox.search import jobs as search_jobs  # noqa: F401
         from netbox.search import signals as search_signals  # noqa: F401
+        from utilities.fields import NetBoxAutoField
 
         from . import data_backends, events, search  # noqa: F401
 
         # Register models
         register_models(*self.get_models())
+
+        # strawberry-django resolves model fields to GraphQL types by exact class, so map NetBoxAutoField (the default
+        # primary key field) to the same types as BigAutoField
+        for type_map in (field_type_map, relay_field_type_map):
+            type_map[NetBoxAutoField] = type_map[models.BigAutoField]
 
         # Register core events
         EventType(OBJECT_CREATED, _('Object created')).register()

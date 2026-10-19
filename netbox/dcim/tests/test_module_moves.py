@@ -335,10 +335,15 @@ class ModuleSaveRoutingTestCase(TestCase):
 
     def test_preset_pk_save_with_unchanged_placement_does_not_replicate_components(self):
         interface_count_before = Interface.objects.filter(module=self.module).count()
-        Module(
+        preset = Module(
             pk=self.module.pk, device=self.module.device, module_bay=self.module.module_bay,
             module_type=self.module.module_type,
-        ).save()
+        )
+        # A never-saved instance always attempts an INSERT, so a plain save fails on the existing pk
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            preset.save()
+        # A forced update saves in place
+        preset.save(force_update=True)
         self.assertEqual(Interface.objects.filter(module=self.module).count(), interface_count_before)
 
     def test_preset_unused_pk_save_creates_module(self):

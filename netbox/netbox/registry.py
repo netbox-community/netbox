@@ -30,6 +30,7 @@ registry = Registry({
     'filtersets': dict(),
     'model_actions': collections.defaultdict(set),
     'model_features': dict(),
+    'pk_allocators': list(),
     'plugins': dict(),
     'request_processors': list(),
     'search': dict(),
