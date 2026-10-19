@@ -216,6 +216,10 @@ class BaseFilterSetTestMixin:
                     # Tree filters match descendants by queryset rather than by to_field_name value
                     if isinstance(filter, TreeNodeMultipleChoiceFilter) or type(target_field) is GenericRelation:
                         continue
+                    # Only multiple-choice filters with an explicit to_field_name pass that attribute's value to the
+                    # lookup; single-choice filters and those without to_field_name pass the model instance itself
+                    if not isinstance(filter, django_filters.ModelMultipleChoiceFilter) or to_field_name is None:
+                        continue
                     # A field_name ending in a relation is matched against the relation's target field
                     expected_field = target_field.target_field
                     msg = f"to_field_name for {filter_name} must match the target field of '{filter.field_name}'!"
