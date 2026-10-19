@@ -20,7 +20,7 @@ jobs:
     if: github.repository == 'netbox-community/netbox' && contains(github.event.comment.body, '!')
     runs-on: ubuntu-latest
     steps:
-      # An app token is required to merge the VOUCHED update into the protected default branch.
+      # An app token is required to push the VOUCHED update to the protected default branch.
       # Discussions write is needed for the action to react to the command comment on success.
       - name: Create app token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -29,7 +29,6 @@ jobs:
           app-id: 1076524
           private-key: ${{ secrets.HOUSEKEEPING_SECRET_KEY }}
           permission-contents: write
-          permission-pull-requests: write
           permission-discussions: write
 
       - name: Check out repo
@@ -46,7 +45,5 @@ jobs:
           denounce-keyword: "!denounce"
           unvouch-keyword: "!unvouch"
           roles: "admin,maintain,write"
-          pull-request: "true"
-          merge-immediately: "true"
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
