@@ -2,30 +2,30 @@ from unittest.mock import patch
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError, connection, models, transaction
+from django.db import DEFAULT_DB_ALIAS, IntegrityError, connection, router, transaction
+from django.db.migrations.state import ProjectState
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 
 from dcim.models import Manufacturer, Site
 from extras.models import Tag
-from netbox.constants import CORE_APPS
 from netbox.registry import registry
 from netbox.utils import allocate_pks, register_pk_allocator
-from utilities.fields import NetBoxAutoField
 
 
 def get_sequential_allocator(model, start=1_000_000):
     """
     Return an allocator which supplies sequential primary keys for `model` only, along with a list recording the
-    arguments of each call it receives.
+    arguments of each call it receives. Models are matched by table rather than by class, so that the historical
+    models used by data migrations match too.
     """
     calls = []
     next_pk = start
 
-    def allocator(model_, count):
+    def allocator(model_, count, using):
         nonlocal next_pk
-        calls.append((model_, count))
-        if model_ is not model:
+        calls.append((model_, count, using))
+        if model_._meta.db_table != model._meta.db_table:
             return None
         pks = list(range(next_pk, next_pk + count))
         next_pk += count
@@ -53,10 +53,14 @@ class PKAllocatorTestCase(TestCase):
         return inserts, updates
 
     def test_register_pk_allocator(self):
-        def allocator(model, count):
+        def allocator(model, count, using):
             return None
 
         self.assertIs(register_pk_allocator(allocator), allocator)
+        self.assertEqual(registry['pk_allocators'], [allocator])
+
+        # Registering the same allocator again has no effect
+        register_pk_allocator(allocator)
         self.assertEqual(registry['pk_allocators'], [allocator])
 
     def test_allocate_pks_without_allocators(self):
@@ -67,45 +71,43 @@ class PKAllocatorTestCase(TestCase):
         calls = []
 
         @register_pk_allocator
-        def first(model, count):
+        def first(model, count, using):
             # Returns None to defer to the next allocator
             calls.append('first')
 
         @register_pk_allocator
-        def second(model, count):
+        def second(model, count, using):
             calls.append('second')
             return [100 + i for i in range(count)]
 
         @register_pk_allocator
-        def third(model, count):
+        def third(model, count, using):
             calls.append('third')
             return [200 + i for i in range(count)]
 
         self.assertEqual(allocate_pks(Site, 3), [100, 101, 102])
         self.assertEqual(calls, ['first', 'second'])
 
+    def test_allocate_pks_using(self):
+        allocator, calls = get_sequential_allocator(Site)
+        register_pk_allocator(allocator)
+
+        # Without an explicit database, the router's choice for writing the model is assumed
+        with patch.object(router, 'db_for_write', return_value='elsewhere'):
+            allocate_pks(Site)
+            allocate_pks(Site, using='other')
+        self.assertEqual(calls, [(Site, 1, 'elsewhere'), (Site, 1, 'other')])
+
     def test_allocate_pks_iterable(self):
-        register_pk_allocator(lambda model, count: (100 + i for i in range(count)))
+        register_pk_allocator(lambda model, count, using: (100 + i for i in range(count)))
 
         self.assertEqual(allocate_pks(Site, 2), [100, 101])
 
     def test_allocate_pks_wrong_count(self):
-        register_pk_allocator(lambda model, count: [1])
+        register_pk_allocator(lambda model, count, using: [1])
 
         with self.assertRaises(ValueError):
             allocate_pks(Site, 2)
-
-    def test_deconstruct(self):
-        # NetBoxAutoField must present as BigAutoField to avoid generating migrations
-        for field in (Site._meta.pk, Tag._meta.pk):
-            name, path, args, kwargs = field.deconstruct()
-            self.assertEqual(path, 'django.db.models.BigAutoField')
-
-    def test_core_models_use_netbox_autofield(self):
-        for model in apps.get_models(include_auto_created=True):
-            if model._meta.app_label in CORE_APPS and isinstance(model._meta.pk, models.AutoField):
-                with self.subTest(model=model._meta.label):
-                    self.assertIsInstance(model._meta.pk, NetBoxAutoField)
 
     def test_save_without_allocator(self):
         manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
@@ -130,7 +132,7 @@ class PKAllocatorTestCase(TestCase):
 
         # The allocated primary key is used on a single INSERT, without first attempting an UPDATE
         self.assertEqual(manufacturer.pk, 1_000_000)
-        self.assertEqual(calls.count((Manufacturer, 1)), 1)
+        self.assertEqual(calls.count((Manufacturer, 1, DEFAULT_DB_ALIAS)), 1)
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
         self.assertEqual(len(inserts), 1)
         self.assertEqual(len(updates), 0)
@@ -157,7 +159,7 @@ class PKAllocatorTestCase(TestCase):
     def test_save_with_colliding_allocator(self):
         # An allocated primary key which is already in use fails on INSERT, rather than overwriting the existing row
         source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        register_pk_allocator(lambda model, count: [source.pk] if model is Manufacturer else None)
+        register_pk_allocator(lambda model, count, using: [source.pk] if model is Manufacturer else None)
         clone = Manufacturer.objects.get(pk=source.pk)
         clone.pk = None
         clone.name, clone.slug = 'Manufacturer 2', 'manufacturer-2'
@@ -175,7 +177,7 @@ class PKAllocatorTestCase(TestCase):
         manufacturer.save()
 
         # The allocator is consulted only once
-        self.assertEqual(calls.count((Manufacturer, 1)), 1)
+        self.assertEqual(calls.count((Manufacturer, 1, DEFAULT_DB_ALIAS)), 1)
         self.assertIsNotNone(manufacturer.pk)
         self.assertLess(manufacturer.pk, 1_000_000)
 
@@ -189,24 +191,92 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             Manufacturer.objects.bulk_create(manufacturers)
 
-        # Each object is assigned an allocated primary key, and all are inserted in one statement
+        # All three primary keys are requested in a single call, and all objects are inserted in one statement
         pks = [1_000_000, 1_000_001, 1_000_002]
         self.assertEqual([m.pk for m in manufacturers], pks)
-        self.assertEqual(calls, [(Manufacturer, 1)] * 3)
+        self.assertEqual(calls, [(Manufacturer, 3, DEFAULT_DB_ALIAS)])
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
         self.assertEqual(len(inserts), 1)
         self.assertEqual(sorted(Manufacturer.objects.values_list('pk', flat=True)), pks)
 
+    def test_bulk_create_with_some_preset_pks(self):
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+        manufacturers = [
+            Manufacturer(pk=500, name='Manufacturer 1', slug='manufacturer-1'),
+            Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+            Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+        ]
+
+        with CaptureQueriesContext(connection) as ctx:
+            Manufacturer.objects.bulk_create(manufacturers)
+
+        # Primary keys are requested only for the objects without one, and every object is inserted together
+        self.assertEqual(calls, [(Manufacturer, 2, DEFAULT_DB_ALIAS)])
+        self.assertEqual([m.pk for m in manufacturers], [500, 1_000_000, 1_000_001])
+        inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
+        self.assertEqual(len(inserts), 1)
+
+    def test_bulk_create_with_declining_allocator(self):
+        allocator, calls = get_sequential_allocator(Site)
+        register_pk_allocator(allocator)
+        manufacturers = [
+            Manufacturer(name=f'Manufacturer {i}', slug=f'manufacturer-{i}') for i in range(1, 4)
+        ]
+
+        Manufacturer.objects.bulk_create(manufacturers)
+
+        # The allocator is consulted once for all three objects, and the database assigns their primary keys
+        self.assertEqual(calls, [(Manufacturer, 3, DEFAULT_DB_ALIAS)])
+        self.assertTrue(all(m.pk is not None and m.pk < 1_000_000 for m in manufacturers))
+
+    def test_bulk_create_using(self):
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+        manufacturers = [
+            Manufacturer(name=f'Manufacturer {i}', slug=f'manufacturer-{i}') for i in range(1, 3)
+        ]
+
+        # The allocator is told the database the queryset writes to, not the router's choice
+        with patch.object(router, 'db_for_write', return_value='elsewhere'):
+            Manufacturer.objects.using(DEFAULT_DB_ALIAS).bulk_create(manufacturers)
+
+        self.assertEqual(calls, [(Manufacturer, 2, DEFAULT_DB_ALIAS)])
+
     def test_many_to_many_with_allocator(self):
-        # Auto-created many-to-many through models also use NetBoxAutoField
+        # Auto-created many-to-many through models are also supported
         through_model = Tag.object_types.through
         allocator, calls = get_sequential_allocator(through_model)
         register_pk_allocator(allocator)
         tag = Tag.objects.create(name='Tag 1', slug='tag-1')
         tag.object_types.add(ContentType.objects.get_for_model(Site))
 
-        self.assertIn((through_model, 1), calls)
+        self.assertIn((through_model, 1, DEFAULT_DB_ALIAS), calls)
         self.assertEqual(list(through_model.objects.filter(tag=tag).values_list('pk', flat=True)), [1_000_000])
+
+    def test_third_party_model_with_allocator(self):
+        # Models of other Django apps, which use their own default_auto_field, are also supported
+        allocator, calls = get_sequential_allocator(ContentType)
+        register_pk_allocator(allocator)
+        content_type = ContentType.objects.create(app_label='test', model='test')
+
+        self.assertEqual(content_type.pk, 1_000_000)
+
+    def test_historical_model_with_allocator(self):
+        # The historical models used by data migrations are also supported, via both save() and bulk_create()
+        HistoricalManufacturer = ProjectState.from_apps(apps).apps.get_model('dcim', 'Manufacturer')
+        self.assertIsNot(HistoricalManufacturer, Manufacturer)
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+
+        manufacturer = HistoricalManufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        manufacturers = HistoricalManufacturer.objects.bulk_create([
+            HistoricalManufacturer(name='Manufacturer 2', slug='manufacturer-2'),
+        ])
+
+        self.assertEqual(manufacturer.pk, 1_000_000)
+        self.assertEqual(manufacturers[0].pk, 1_000_001)
+        self.assertEqual(sorted(Manufacturer.objects.values_list('pk', flat=True)), [1_000_000, 1_000_001])
 
     def test_save_new_instance_with_existing_pk(self):
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
@@ -217,7 +287,7 @@ class PKAllocatorTestCase(TestCase):
         with CaptureQueriesContext(connection) as ctx:
             Manufacturer(pk=manufacturer.pk, name='Manufacturer 2', slug='manufacturer-2').save()
 
-        self.assertNotIn((Manufacturer, 1), calls)
+        self.assertNotIn((Manufacturer, 1, DEFAULT_DB_ALIAS), calls)
         inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
         self.assertEqual(len(inserts), 0)
         self.assertEqual(len(updates), 1)
@@ -232,4 +302,4 @@ class PKAllocatorTestCase(TestCase):
         for kwargs in ({'force_update': True}, {'update_fields': ['name']}):
             with self.subTest(**kwargs), self.assertRaises(ValueError), transaction.atomic():
                 Manufacturer(name='Manufacturer 1', slug='manufacturer-1').save(**kwargs)
-        self.assertNotIn((Manufacturer, 1), calls)
+        self.assertNotIn((Manufacturer, 1, DEFAULT_DB_ALIAS), calls)

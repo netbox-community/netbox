@@ -1,3 +1,5 @@
+from django.db import router
+
 from netbox.registry import registry
 from utilities.choices import Choice
 
@@ -73,27 +75,33 @@ def register_pk_allocator(func):
     """
     Decorator for registering a primary key allocator: a callable which may supply primary keys for new objects.
 
-    The callable must accept a model class and a count, and return either a list of exactly `count` primary keys for
-    that model, or None to defer to the next allocator (and ultimately to the database). Allocators are consulted in
-    the order in which they were registered.
+    The callable must accept a model class, a count, and the alias of the database to which the new objects will be
+    written (`using`), and return either a list of exactly `count` primary keys for that model, or None to defer to the
+    next allocator (and ultimately to the database). Allocators are consulted in the order in which they were
+    registered. Registering an allocator which is already registered has no effect.
 
         @register_pk_allocator
-        def my_allocator(model, count):
+        def my_allocator(model, count, using):
             ...
     """
-    registry['pk_allocators'].append(func)
+    if func not in registry['pk_allocators']:
+        registry['pk_allocators'].append(func)
 
     return func
 
 
-def allocate_pks(model, count=1):
+def allocate_pks(model, count=1, using=None):
     """
     Return a list of `count` primary keys for new instances of `model` from the first registered allocator which
-    supplies them, or None if the database should assign them. Code which inserts rows outside the ORM (e.g. using raw
-    SQL or COPY) can call this to obtain primary keys in the same manner as Model.save() and QuerySet.bulk_create().
+    supplies them, or None if the database should assign them. `using` is the alias of the database to which the new
+    instances will be written; if omitted, the database router's choice for writing `model` is assumed. Code which
+    inserts rows outside the ORM (e.g. using raw SQL or COPY) can call this to obtain primary keys in the same manner
+    as Model.save() and QuerySet.bulk_create().
     """
+    if using is None:
+        using = router.db_for_write(model)
     for allocator in registry['pk_allocators']:
-        if (pks := allocator(model, count)) is not None:
+        if (pks := allocator(model, count, using)) is not None:
             pks = list(pks)
             if len(pks) != count:
                 name = getattr(allocator, '__qualname__', allocator)

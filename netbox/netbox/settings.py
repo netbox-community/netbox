@@ -646,7 +646,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-DEFAULT_AUTO_FIELD = 'utilities.fields.NetBoxAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SERIALIZATION_MODULES = {
     'json': 'utilities.serializers.json',

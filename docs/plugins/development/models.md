@@ -214,67 +214,42 @@ The caller is responsible for calling the method only once every related object 
 
 !!! info "This feature was introduced in NetBox v4.8."
 
-By default, the database assigns each new object's primary key from its table's sequence. A plugin can instead supply primary keys by registering a primary key allocator with the `register_pk_allocator()` decorator from `netbox.utils`. An allocator is a callable which accepts a model class and a count. It returns either a list of exactly that many primary keys for the model, or `None` to defer to the next allocator.
+By default, the database assigns each new object's primary key from its table's sequence. A plugin can instead supply primary keys by registering a primary key allocator with the `register_pk_allocator()` decorator from `netbox.utils`. An allocator is a callable which accepts a model class, a count, and the alias of the database to which the new objects will be written. It returns either a list of exactly that many primary keys for the model, or `None` to defer to the next allocator.
 
 ```python
 from netbox.utils import register_pk_allocator
 
 @register_pk_allocator
-def my_allocator(model, count):
-    if not handles_model(model):
+def my_allocator(model, count, using):
+    if not handles_database(using) or not handles_model(model):
         return None
     return reserve_pks(model, count)
 ```
 
-Allocators are consulted in the order in which they were registered. If no allocator supplies primary keys, the database assigns them as usual.
+Allocators are consulted in the order in which they were registered. If no allocator supplies primary keys, the database assigns them as usual. Registering an allocator which is already registered has no effect.
 
-NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`. An object which already has a primary key is saved as usual, without consulting allocators. When an allocator supplies a primary key, the object is always inserted as a new row: if that primary key is already in use, the save fails rather than overwriting the existing row.
+NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`, for any model with an automatically assigned (auto field) primary key. This includes NetBox's own models, plugin models, the auto-created through models of many-to-many relationships, models belonging to other Django apps (such as `ContentType`), and the historical models used by data migrations (`RunPython` operations). An object which already has a primary key is saved as usual, without consulting allocators. When an allocator supplies a primary key, the object is always inserted as a new row: if that primary key is already in use, the save fails rather than overwriting the existing row.
 
 A few things to keep in mind when writing an allocator:
 
-* It is called for every model which supports allocation, including core models, other plugins' models, and the auto-created through models of many-to-many relationships. It should return `None` promptly for any model it doesn't handle.
-* It is called once for each object, including within `bulk_create()`. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
-* It is not told which database the object is being written to; it must decide whether to supply primary keys from its own context.
+* It is called for every model with an auto field primary key, and for every database. It should return `None` promptly for any model or database it doesn't handle.
+* The model it receives may be a historical model, built from migration state while a data migration runs. Identify models by their attributes (such as `model._meta.label` or `model._meta.db_table`) rather than by comparing classes.
 * Under multi-table inheritance, it receives the parent model, which owns the primary key column.
+* `save()` requests one primary key at a time, whereas `bulk_create()` requests all of the primary keys it needs in a single call. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
 * It must never return a primary key which is already in use. Some operations, such as adding many-to-many relationships or tags, silently skip rows which conflict with existing ones, so a duplicate primary key won't always raise an error.
 * Primary keys it supplies don't advance the table's sequence. If it supplies values which the sequence could later reach, it is responsible for advancing the sequence past them (for example, using PostgreSQL's `setval()`). Otherwise, once the allocator stops supplying primary keys, the database may assign primary keys which are already in use.
 
 !!! tip
     Consider registering allocators inside your PluginConfig's `ready()` method.
 
-### Model Support
-
-Allocators apply to models whose primary key is a `NetBoxAutoField`. This is a subclass of Django's `BigAutoField`, and is NetBox's [`DEFAULT_AUTO_FIELD`](https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field), so plugin models which don't declare a primary key use it automatically. A plugin which sets `default_auto_field` on its PluginConfig, or which declares a primary key explicitly, should use `NetBoxAutoField` to support allocators:
-
-```python
-# __init__.py
-class MyPluginConfig(PluginConfig):
-    default_auto_field = 'utilities.fields.NetBoxAutoField'
-```
-
-```python
-# models.py
-from utilities.fields import NetBoxAutoField
-
-class MyModel(NetBoxModel):
-    id = NetBoxAutoField(primary_key=True)
-```
-
-`NetBoxAutoField` presents itself to migrations as a `BigAutoField`, so switching an existing primary key to it generates no migrations.
-
-The database assigns primary keys as usual (without consulting allocators) to rows created by:
-
-* Models of third-party Django apps which set their own `default_auto_field`, such as Django's `ContentType` and `Permission` models.
-* Data migrations (`RunPython` operations). These use historical models, which are built from migration state, where primary keys appear as a plain `BigAutoField`.
-
 ### Inserting Rows Outside the ORM
 
-Code which inserts rows directly, for example using raw SQL or PostgreSQL's `COPY`, bypasses the ORM and with it any registered allocators. Such code should call `allocate_pks()` from `netbox.utils` to obtain primary keys for the new rows, and insert them explicitly. This function returns a list of primary keys from the first allocator which supplies them, or `None` if the database should assign them.
+Code which inserts rows directly, for example using raw SQL (including `RunSQL` migration operations) or PostgreSQL's `COPY`, bypasses the ORM and with it any registered allocators. Such code should call `allocate_pks()` from `netbox.utils` to obtain primary keys for the new rows, and insert them explicitly. This function returns a list of primary keys from the first allocator which supplies them, or `None` if the database should assign them. Pass the alias of the database being written to as `using`; if it's omitted, the database router's choice for writing the model is assumed.
 
 ```python
 from netbox.utils import allocate_pks
 
-pks = allocate_pks(MyModel, count=len(rows))
+pks = allocate_pks(MyModel, count=len(rows), using=connection.alias)
 if pks is None:
     # Omit the primary key column and let the database assign values
     ...
