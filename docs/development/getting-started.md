@@ -198,6 +198,14 @@ UPDATE_QUERY_COUNTS=1 python manage.py test --keepdb
 
 `UPDATE_QUERY_COUNTS` mode requires serial execution; do not combine it with `--parallel`. You can target a single test, app, or the full suite — only the keys exercised by the run are updated. Review the resulting diff in the JSON files as part of the PR; a reviewer should be able to see and reason about every query-count change.
 
+To run the tests without enforcing the baselines, set `SKIP_QUERY_COUNTS=1`. The tests still make their requests and run their functional assertions, but the baselines are not read and the query counts are not checked against them. This helps when the same tests run against several NetBox versions, such as in a plugin's CI matrix, because query counts can differ between releases even when the tested code is unchanged. Enforce the baselines against one reference version and skip them on the others.
+
+```no-highlight
+SKIP_QUERY_COUNTS=1 python manage.py test --keepdb
+```
+
+Only the value `1` enables this mode. Unlike `UPDATE_QUERY_COUNTS` mode, it works with `--parallel`. Combining it with `UPDATE_QUERY_COUNTS` raises an error.
+
 ## Submitting Pull Requests
 
 !!! note "Vouched contributors"
