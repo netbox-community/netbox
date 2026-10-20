@@ -24,6 +24,9 @@
       {% render_field form.device_type %}
       {% render_field form.serial %}
       {% render_field form.asset_tag %}
+      {% if form.replicate_components %}
+        {% render_field form.replicate_components %}
+      {% endif %}
     </div>
 
     <div class="field-group my-5">

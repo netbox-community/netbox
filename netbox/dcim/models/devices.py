@@ -829,6 +829,12 @@ class Device(
             ('render_config', 'Render configuration'),
         ]
 
+    def __init__(self, *args, replicate_components=True, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Controls whether components are instantiated from the DeviceType when a new Device is saved
+        self._disable_replication = not replicate_components
+
     def __str__(self):
         if self.label and self.asset_tag:
             return f'{self.label} ({self.asset_tag})'
@@ -1113,8 +1119,8 @@ class Device(
 
         super().save(*args, **kwargs)
 
-        # If this is a new Device, instantiate all the related components per the DeviceType definition
-        if is_new:
+        # Instantiate components from the device type
+        if is_new and not self._disable_replication:
             self._instantiate_components(self.device_type.consoleporttemplates.all())
             self._instantiate_components(self.device_type.consoleserverporttemplates.all())
             self._instantiate_components(self.device_type.powerporttemplates.all())
