@@ -35,8 +35,7 @@ function getCopyText(trigger: HTMLElement): Nullable<string> {
 
 /**
  * Copy text using a temporary <textarea> and the legacy `execCommand()` API, for contexts in which
- * the Clipboard API is unavailable. The <textarea> is placed beside the trigger rather than at the
- * end of the document, so that a modal's focus trap does not prevent it from being selected.
+ * the Clipboard API is unavailable (outside HTTPS or localhost) or the browser refuses the request.
  */
 function copyTextLegacy(text: string, trigger: HTMLElement): void {
   const textarea = document.createElement('textarea');
@@ -50,7 +49,7 @@ function copyTextLegacy(text: string, trigger: HTMLElement): void {
   textarea.style.opacity = '0';
 
   const previousFocus = document.activeElement;
-  (trigger.parentElement ?? document.body).append(textarea);
+  (trigger.closest('.modal') ?? document.body).append(textarea);
   textarea.focus({ preventScroll: true });
   textarea.select();
   // iOS ignores select() on a read-only field
@@ -65,8 +64,7 @@ function copyTextLegacy(text: string, trigger: HTMLElement): void {
 }
 
 /**
- * Copy text to the clipboard. The Clipboard API is available only in secure contexts (HTTPS or
- * localhost), so fall back to the legacy method elsewhere, or if the browser refuses the request.
+ * Copy text to the clipboard, falling back to the legacy method if the Clipboard API fails.
  */
 function copyText(text: string, trigger: HTMLElement): void {
   if (navigator.clipboard) {
