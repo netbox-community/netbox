@@ -2878,6 +2878,15 @@ class CustomFieldModelFilterTestCase(TestCase):
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf3': False}, self.queryset).qs.count(), 1)
+        # False is a value, so only the object carrying no value for the field is empty
+        self.assertEqual(self.filterset({'cf_cf3__empty': True}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf3__empty': False}, self.queryset).qs.count(), 3)
+
+    def test_filter_boolean_empty_null(self):
+        # An explicit null is empty, just as a missing key is
+        Site.objects.create(name='Site 5', slug='site-5', custom_field_data={'cf3': None})
+        self.assertEqual(self.filterset({'cf_cf3__empty': True}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf3__empty': False}, self.queryset).qs.count(), 3)
 
     def test_filter_text_strict(self):
         self.assertEqual(self.filterset({'cf_cf4': ['foo']}, self.queryset).qs.count(), 1)
