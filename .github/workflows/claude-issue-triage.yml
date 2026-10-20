@@ -206,5 +206,5 @@ jobs:
         run: |
           set -euo pipefail
           printf '%s' "$VERDICT_JSON" \
-            | python -c 'import json,sys,pathlib; pathlib.Path("body.md").write_text(json.load(sys.stdin).get("body",""))'
+            | python -c 'import json,sys,pathlib; pathlib.Path("body.md").write_text(json.load(sys.stdin).get("body",""), encoding="utf-8")'
           gh issue comment "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file body.md

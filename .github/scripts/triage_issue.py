@@ -109,10 +109,15 @@ def main() -> None:
 
     try:
         verdict = json.loads(text)
-        should = bool(verdict.get("should_comment"))
-        body = verdict.get("body", "") if should else ""
+        should = verdict.get("should_comment") is True
+        body = verdict.get("body") if should else ""
     except (json.JSONDecodeError, AttributeError):
         _fail_closed("model did not return parseable JSON")
+        return
+
+    # A verdict to comment is only usable with a non-empty string body.
+    if should and not (isinstance(body, str) and body.strip()):
+        _fail_closed("model set should_comment without a usable body")
         return
 
     print(json.dumps({"should_comment": should, "body": body}))
