@@ -11,6 +11,7 @@ from dcim.models import Manufacturer, Site
 from extras.models import Tag
 from netbox.registry import registry
 from netbox.utils import allocate_pks, register_pk_allocator
+from tenancy.models import Tenant
 
 
 def get_sequential_allocator(model, start=1_000_000):
@@ -169,6 +170,28 @@ class PKAllocatorTestCase(TestCase):
         source.refresh_from_db()
         self.assertEqual(source.name, 'Manufacturer 1')
 
+    def test_save_retry_after_colliding_allocator(self):
+        # A failed INSERT withdraws the allocated primary key, so that saving the object again consults the allocators
+        # again, rather than updating the existing row which has the allocated primary key
+        source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        pks = iter([source.pk, 1_000_000])
+        register_pk_allocator(lambda model, count, using: [next(pks)] if model is Manufacturer else None)
+        manufacturer = Manufacturer(name='Manufacturer 2', slug='manufacturer-2')
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            manufacturer.save()
+        self.assertIsNone(manufacturer.pk)
+
+        with CaptureQueriesContext(connection) as ctx:
+            manufacturer.save()
+
+        self.assertEqual(manufacturer.pk, 1_000_000)
+        inserts, updates = self.get_table_writes(ctx.captured_queries, Manufacturer)
+        self.assertEqual(len(inserts), 1)
+        self.assertEqual(len(updates), 0)
+        source.refresh_from_db()
+        self.assertEqual(source.name, 'Manufacturer 1')
+
     def test_save_with_declining_allocator(self):
         # The allocator supplies primary keys only for Site, so the database assigns one for the Manufacturer
         allocator, calls = get_sequential_allocator(Site)
@@ -242,6 +265,51 @@ class PKAllocatorTestCase(TestCase):
             Manufacturer.objects.using(DEFAULT_DB_ALIAS).bulk_create(manufacturers)
 
         self.assertEqual(calls, [(Manufacturer, 2, DEFAULT_DB_ALIAS)])
+
+    def test_bulk_create_with_colliding_allocator(self):
+        # A failed INSERT withdraws the allocated primary keys from every object
+        source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        register_pk_allocator(lambda model, count, using: [source.pk, 1_000_000] if model is Manufacturer else None)
+        manufacturers = [
+            Manufacturer(name=f'Manufacturer {i}', slug=f'manufacturer-{i}') for i in range(2, 4)
+        ]
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Manufacturer.objects.bulk_create(manufacturers)
+
+        self.assertEqual([m.pk for m in manufacturers], [None, None])
+        self.assertTrue(all(m._state.adding for m in manufacturers))
+
+    def test_bulk_create_ignoring_conflicts(self):
+        # When conflicting rows are ignored, bulk_create() can't tell which objects were inserted, so allocated primary
+        # keys are withdrawn from every object. Otherwise, a skipped object would refer to a row it doesn't represent.
+        source = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        register_pk_allocator(lambda model, count, using: [source.pk, 1_000_000] if model is Manufacturer else None)
+        manufacturers = [
+            Manufacturer(name=f'Manufacturer {i}', slug=f'manufacturer-{i}') for i in range(2, 4)
+        ]
+
+        Manufacturer.objects.bulk_create(manufacturers, ignore_conflicts=True)
+
+        # The first object conflicts with the existing row and is skipped, while the second is inserted
+        self.assertEqual([m.pk for m in manufacturers], [None, None])
+        self.assertTrue(all(m._state.adding for m in manufacturers))
+        self.assertEqual(
+            sorted(Manufacturer.objects.values_list('pk', 'name')),
+            [(source.pk, 'Manufacturer 1'), (1_000_000, 'Manufacturer 3')]
+        )
+
+    def test_bulk_create_with_unsaved_related_object(self):
+        # Allocators aren't consulted until the objects have been validated, so a failed validation consumes no keys
+        allocator, calls = get_sequential_allocator(Site)
+        register_pk_allocator(allocator)
+        site = Site(name='Site 1', slug='site-1', tenant=Tenant(name='Tenant 1', slug='tenant-1'))
+
+        with self.assertRaisesRegex(ValueError, 'unsaved related object'):
+            Site.objects.bulk_create([site])
+
+        self.assertEqual(calls, [])
+        self.assertIsNone(site.pk)
 
     def test_many_to_many_with_allocator(self):
         # Auto-created many-to-many through models are also supported
