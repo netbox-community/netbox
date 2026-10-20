@@ -210,7 +210,12 @@ class ConfigContextDataExpression(Expression):
         self.only_invalidated = only_invalidated
 
     def resolve_expression(self, query=None, *args, **kwargs):
-        expression = query.model.objects.get_config_context_data_expression(self.only_invalidated)
+        manager = query.model._default_manager
+        if not hasattr(manager, 'get_config_context_data_expression'):
+            raise TypeError(
+                f'{query.model.__name__} must use ConfigContextModelQuerySet to annotate config context data'
+            )
+        expression = manager.get_config_context_data_expression(self.only_invalidated)
         return expression.resolve_expression(query, *args, **kwargs)
 
 
