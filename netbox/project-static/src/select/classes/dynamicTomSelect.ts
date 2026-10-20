@@ -5,13 +5,11 @@ import type {
   TomInput,
 } from 'tom-select/dist/esm/types/index.js';
 import { addClasses, removeClasses } from 'tom-select/dist/esm/vanilla.js';
-import queryString from 'query-string';
-import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
 import { NetBoxTomSelect } from './netboxTomSelect';
 
 // Transitional
-import { QueryFilter, PathFilter } from '../types';
+import { QueryFilter, QueryValue, PathFilter } from '../types';
 import { getElement, replaceAll } from '../../util';
 
 // Extends NetBoxTomSelect to provide enhanced fetching of options via the REST API
@@ -210,7 +208,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
 
     // Create new URL query parameters based on the current state of `queryParams` and create an
     // updated API query URL.
-    const query = {} as Dict<Stringifiable[]>;
+    const query = {} as Dict<QueryValue[]>;
     for (const [key, value] of this.queryParams.entries()) {
       query[key] = value;
     }
@@ -219,7 +217,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     for (const [key, value] of this.pathValues.entries()) {
       for (const result of apiUrl.matchAll(new RegExp(`({{${key}}})`, 'g'))) {
         if (value) {
-          url = replaceAll(url, result[1], value.toString());
+          url = replaceAll(url, result[1], value);
         } else {
           // No value is available to replace the token; abort.
           return '';
@@ -236,7 +234,18 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     query['brief'] = [true];
     query['limit'] = [this.settings.maxOptions];
 
-    return queryString.stringifyUrl({ url, query });
+    // Merge the parameters into any query string already present on the URL, replacing any of the
+    // same name. Each value in an array is sent as a repeated parameter (`?site_id=1&site_id=2`).
+    const requestUrl = new URL(url, document.baseURI);
+    for (const [key, values] of Object.entries(query)) {
+      requestUrl.searchParams.delete(key);
+      for (const value of values) {
+        if (value !== undefined) {
+          requestUrl.searchParams.append(key, value === null ? '' : String(value));
+        }
+      }
+    }
+    return requestUrl.href;
   }
 
   // Compile TomOption data from an API result
@@ -324,7 +333,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
     const element = document.querySelector<HTMLSelectElement>(`[name="${fieldName}"]`);
     if (element !== null) {
       // Initialize the element value as an array, in case there are multiple values.
-      let elementValue = [] as Stringifiable[];
+      let elementValue = [] as QueryValue[];
 
       if (element.multiple) {
         // If this is a multi-select (form filters, tags, etc.), use all selected options as the value.
@@ -347,7 +356,7 @@ export class DynamicTomSelect extends NetBoxTomSelect {
 
         if (typeof current !== 'undefined') {
           const { queryParam, queryValue } = current;
-          let value = [] as Stringifiable[];
+          let value = [] as QueryValue[];
 
           if (this.staticParams.has(queryParam)) {
             // If the field is defined in `staticParams`, we should merge the dynamic value with

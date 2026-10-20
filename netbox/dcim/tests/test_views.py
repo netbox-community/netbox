@@ -3039,6 +3039,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'A new device',
             'tags': [t.pk for t in tags],
             'local_context_data': None,
+            'replicate_components': True,
         }
 
         cls.csv_data = (
@@ -3393,6 +3394,39 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f'Duplicate objects found: Device with ID(s) {device.pk} appears multiple times',
             response.content.decode('utf-8')
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_create_device_retry_after_failed_replication(self):
+        """
+        The replicate_components field should still be rendered after component replication fails, so that
+        resubmitting the form does not silently disable replication.
+        """
+        self.add_permissions('dcim.add_device')
+        device_type = DeviceType.objects.get(pk=self.form_data['device_type'])
+
+        # Create two interface templates whose names conflict once {vc_position} has been resolved
+        InterfaceTemplate.objects.create(device_type=device_type, name='eth{vc_position}', type='1000base-t')
+        conflicting_template = InterfaceTemplate.objects.create(
+            device_type=device_type, name='eth0', type='1000base-t'
+        )
+
+        # Component replication raises AbortRequest, rolling back creation of the device
+        response = self.client.post(self._get_url('add'), post_data(self.form_data))
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Component name conflict')
+        self.assertFalse(Device.objects.filter(name=self.form_data['name']).exists())
+        self.assertInHTML(
+            '<input type="checkbox" name="replicate_components" class="form-check-input" '
+            'id="id_replicate_components" aria-describedby="id_replicate_components_helptext" checked>',
+            response.content.decode('utf-8')
+        )
+
+        # Resolve the conflict and resubmit the form
+        conflicting_template.delete()
+        response = self.client.post(self._get_url('add'), post_data(self.form_data))
+        self.assertHttpStatus(response, 302)
+        device = Device.objects.get(name=self.form_data['name'])
+        self.assertTrue(device.interfaces.filter(name='eth0').exists())
 
 
 class ModuleTestCase(

@@ -6,7 +6,7 @@ When assigning a multi-U device to a rack, it is considered to be mounted in the
 
 A device is said to be full-depth if its installation on one rack face prevents the installation of any other device on the opposite face within the same rack unit(s). This could be either because the device is physically too deep to allow a device behind it, or because the installation of an opposing device would impede airflow.
 
-Each device must be instantiated from a pre-created device type, and its default components (console ports, power ports, interfaces, etc.) will be created automatically. (The device type associated with a device may be changed after its creation, however its components will not be updated retroactively.)
+Each device must be instantiated from a pre-created device type, and by default its components (console ports, power ports, interfaces, etc.) will be created automatically. (The device type associated with a device may be changed after its creation, however its components will not be updated retroactively.)
 
 Device names must be unique within a site, unless the device has been assigned to a tenant. Devices may also be unnamed.
 
@@ -24,7 +24,7 @@ The functional [device role](./devicerole.md) assigned to this device.
 
 ### Device Type
 
-The hardware [device type](./devicetype.md) which defines the device's make & model. Upon creating, all templated components assigned to the device type will be replicated on the new device.
+The hardware [device type](./devicetype.md) which defines the device's make & model. Upon creating, all templated components assigned to the device type will be replicated on the new device (unless component replication has been disabled; see below).
 
 ### Airflow
 
@@ -41,6 +41,10 @@ The unique physical serial number assigned to this device by its manufacturer.
 ### Asset Tag
 
 A unique, locally-administered label used to identify hardware resources.
+
+### Replicate Components
+
+Controls whether templated components assigned to the device type are automatically created on the new device (enabled by default). This applies only when creating a new device. Via the REST API, set the write-only `replicate_components` field to `false` to skip component creation.
 
 ### Site
 

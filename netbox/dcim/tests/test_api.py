@@ -2976,6 +2976,52 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_device_replicates_components(self):
+        """
+        Creating a device without specifying replicate_components should instantiate its device type's components.
+        """
+        self.add_permissions('dcim.add_device')
+        device_type = DeviceType.objects.get(slug='device-type-1')
+        InterfaceTemplate.objects.create(device_type=device_type, name='eth0', type='1000base-t')
+        data = {
+            'device_type': device_type.pk,
+            'role': DeviceRole.objects.first().pk,
+            'site': Site.objects.first().pk,
+            'name': 'Replication Test Device',
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertNotIn('replicate_components', response.data)
+        device = Device.objects.get(pk=response.data['id'])
+        self.assertTrue(device.interfaces.filter(name='eth0').exists())
+
+    def test_create_device_without_replicating_components(self):
+        """
+        Creating a device with replicate_components=False should skip instantiation of its device type's components.
+        """
+        self.add_permissions('dcim.add_device', 'extras.view_tag')
+        device_type = DeviceType.objects.get(slug='device-type-1')
+        InterfaceTemplate.objects.create(device_type=device_type, name='eth0', type='1000base-t')
+        tag = Tag.objects.create(name='Tag 1', slug='tag-1')
+        data = [
+            {
+                'device_type': device_type.pk,
+                'role': DeviceRole.objects.first().pk,
+                'site': Site.objects.first().pk,
+                'name': f'No Replication Test Device {i}',
+                'tags': [{'name': tag.name}],
+                'replicate_components': False,
+            }
+            for i in range(1, 3)
+        ]
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        for device in Device.objects.filter(pk__in=[d['id'] for d in response.data]):
+            self.assertFalse(device.interfaces.exists())
+            self.assertEqual(list(device.tags.all()), [tag])
+
     def test_list_objects_reuse_parent_device_serializers(self):
         """Installed child devices share one nested parent serializer pair per request."""
         self.add_permissions('dcim.view_device')

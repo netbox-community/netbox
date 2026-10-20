@@ -1,6 +1,5 @@
 import { initForms } from './forms';
 import { initButtons } from './buttons';
-import { initClipboard } from './clipboard';
 import { initSelects } from './select';
 import { initObjectSelector } from './objectSelector';
 import { initBootstrap } from './bs';
@@ -19,7 +18,6 @@ type HtmxSettleDetail = {
 
 function initDepedencies(): void {
   initButtons();
-  initClipboard();
   initForms();
   initSelects();
   initObjectSelector();
