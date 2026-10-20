@@ -2807,6 +2807,56 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         self.assertNotIn('errors', data)
         self.assertEqual({row['name']: row['config_context'] for row in data['data']['device_list']}, expected)
 
+    @tag('regression')  # Issue #23448
+    def test_config_context_graphql_selection(self):
+        """
+        GraphQL annotates config context for devices with no cache however config_context is selected, including
+        through fragments and nested relations, without a query per device.
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_interface')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        for device in Device.objects.all():
+            Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        Device.objects.update(_config_context_data=None)
+        expected = {device.name: device.render_config_context() for device in Device.objects.all()}
+
+        fragment = 'fragment F on DeviceType { name config_context }'
+        queries = {
+            'field': '{ device_list { name config_context } }',
+            'inline fragment': '{ device_list { ... on DeviceType { name config_context } } }',
+            'named fragment': f'{fragment} query {{ device_list {{ ...F }} }}',
+            'nested field': '{ interface_list { device { name config_context } } }',
+            'nested inline fragment': '{ interface_list { device { ... on DeviceType { name config_context } } } }',
+            'nested named fragment': f'{fragment} query {{ interface_list {{ device {{ ...F }} }} }}',
+        }
+        for shape, query in queries.items():
+            with self.subTest(shape=shape):
+                with CaptureQueriesContext(connection) as captured:
+                    response = self.client.post(
+                        reverse('graphql'), data={'query': query}, format='json', **self.header
+                    )
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = response.json()
+                self.assertNotIn('errors', data)
+                if shape.startswith('nested'):
+                    rows = [row['device'] for row in data['data']['interface_list']]
+                else:
+                    rows = data['data']['device_list']
+                self.assertEqual({row['name']: row['config_context'] for row in rows}, expected)
+                # Rendered by the annotation in a single query, not one fallback query per device
+                sql = [captured_query['sql'] for captured_query in captured.captured_queries]
+                self.assertEqual(len([s for s in sql if '"extras_configcontext"' in s]), 1)
+
+        # Not annotated when config_context is not selected
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.post(
+                reverse('graphql'), data={'query': '{ device_list { name } }'}, format='json', **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertNotIn('errors', response.json())
+        for captured_query in captured.captured_queries:
+            self.assertNotIn('"config_context_data"', captured_query['sql'])
+
     def test_config_context_included_by_default_in_list_view(self):
         """
         Check that config context data is included by default in the devices list.

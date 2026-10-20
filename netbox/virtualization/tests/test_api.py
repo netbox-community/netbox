@@ -486,6 +486,39 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
             {row['name']: row['config_context'] for row in data['data']['virtual_machine_list']}, expected
         )
 
+    @tag('regression')  # Issue #23448
+    def test_config_context_graphql_selection(self):
+        """
+        GraphQL annotates config context for virtual machines with no cache however config_context is selected,
+        including through fragments, without a query per virtual machine.
+        """
+        self.add_permissions('virtualization.view_virtualmachine')
+        ConfigContext.objects.create(name='Config Context 1', weight=100, data={'foo': 123})
+        VirtualMachine.objects.update(_config_context_data=None)
+        expected = {vm.name: vm.render_config_context() for vm in VirtualMachine.objects.all()}
+
+        queries = {
+            'field': '{ virtual_machine_list { name config_context } }',
+            'inline fragment': '{ virtual_machine_list { ... on VirtualMachineType { name config_context } } }',
+            'named fragment': (
+                'fragment F on VirtualMachineType { name config_context } query { virtual_machine_list { ...F } }'
+            ),
+        }
+        for shape, query in queries.items():
+            with self.subTest(shape=shape):
+                with CaptureQueriesContext(connection) as captured:
+                    response = self.client.post(
+                        reverse('graphql'), data={'query': query}, format='json', **self.header
+                    )
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = response.json()
+                self.assertNotIn('errors', data)
+                rows = data['data']['virtual_machine_list']
+                self.assertEqual({row['name']: row['config_context'] for row in rows}, expected)
+                # Rendered by the annotation in a single query, not one fallback query per virtual machine
+                sql = [captured_query['sql'] for captured_query in captured.captured_queries]
+                self.assertEqual(len([s for s in sql if '"extras_configcontext"' in s]), 1)
+
     def test_config_context_included_by_default_in_list_view(self):
         """
         Check that config context data is included by default in the virtual machines list.
