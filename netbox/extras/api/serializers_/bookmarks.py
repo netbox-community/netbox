@@ -14,7 +14,8 @@ class BookmarkSerializer(ValidatedModelSerializer):
     object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('bookmarks'),
     )
-    object = GFKSerializerField(read_only=True)
+    # A plugin model can support bookmarks without a REST API serializer
+    object = GFKSerializerField(read_only=True, allow_missing_serializer=True)
     user = UserSerializer(nested=True)
 
     class Meta:

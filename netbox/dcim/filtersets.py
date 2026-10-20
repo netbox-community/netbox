@@ -31,7 +31,6 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueMACAddressFilter,
-    MultiValueNumberFilter,
     MultiValueTimeZoneFilter,
     MultiValueWWNFilter,
     NumericArrayFilter,
@@ -1256,7 +1255,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         label=_('Role (slug)'),
     )
     component_type = MultiValueContentTypeFilter()
-    component_id = MultiValueNumberFilter()
+    component_id = MultiValueBigNumberFilter()
 
     class Meta:
         model = InventoryItemTemplate
@@ -1365,7 +1364,7 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
         model = Platform
         fields = ('id', 'name', 'slug', 'description')
 
-    @extend_schema_field(OpenApiTypes.STR)
+    @extend_schema_field(OpenApiTypes.INT64)
     def get_for_device_type(self, queryset, name, value):
         """
         Return all Platforms available for a specific manufacturer based on device type and Platforms not assigned any
@@ -2241,7 +2240,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         field_name='name',
         label=_('Device (name)'),
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_device',
         field_name='pk',
         label=_('Device (ID)'),
@@ -2251,7 +2250,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         field_name='name',
         label=_('Virtual machine (name)'),
     )
-    virtual_machine_id = MultiValueNumberFilter(
+    virtual_machine_id = MultiValueBigNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
         label=_('Virtual machine (ID)'),
@@ -2398,6 +2397,7 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         label=_('VLAN Translation Policy'),
     )
 
+    @extend_schema_field(OpenApiTypes.INT64)
     def filter_vlan_id(self, queryset, name, value):
         return self._filter_assigned_vlan(queryset, 'id', value)
 
@@ -2430,7 +2430,7 @@ class InterfaceFilterSet(
         field_name='name',
         label=_('Virtual Chassis Interfaces for Device when device is master')
     )
-    virtual_chassis_member_or_master_id = MultiValueNumberFilter(
+    virtual_chassis_member_or_master_id = MultiValueBigNumberFilter(
         method='filter_virtual_chassis_member_or_master',
         field_name='pk',
         label=_('Virtual Chassis Interfaces for Device when device is master (ID)')
@@ -2440,7 +2440,7 @@ class InterfaceFilterSet(
         field_name='name',
         label=_('Virtual Chassis Interfaces for Device')
     )
-    virtual_chassis_member_id = MultiValueNumberFilter(
+    virtual_chassis_member_id = MultiValueBigNumberFilter(
         method='filter_virtual_chassis_member',
         field_name='pk',
         label=_('Virtual Chassis Interfaces for Device (ID)')
@@ -2719,7 +2719,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
         label=_('Role (slug)'),
     )
     component_type = MultiValueContentTypeFilter()
-    component_id = MultiValueNumberFilter()
+    component_id = MultiValueBigNumberFilter()
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
@@ -2859,14 +2859,14 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     termination_a_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
-    termination_a_id = MultiValueNumberFilter(
+    termination_a_id = MultiValueBigNumberFilter(
         method='filter_by_cable_end_a',
         field_name='terminations__termination_id'
     )
     termination_b_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
-    termination_b_id = MultiValueNumberFilter(
+    termination_b_id = MultiValueBigNumberFilter(
         method='filter_by_cable_end_b',
         field_name='terminations__termination_id'
     )
@@ -2900,14 +2900,14 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         choices=ColorChoices,
         distinct=False,
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_by_termination'
     )
     device = MultiValueCharFilter(
         method='filter_by_termination',
         field_name='device__name'
     )
-    rack_id = MultiValueNumberFilter(
+    rack_id = MultiValueBigNumberFilter(
         method='filter_by_termination',
         field_name='rack_id'
     )
@@ -2915,7 +2915,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         method='filter_by_termination',
         field_name='rack__name'
     )
-    location_id = MultiValueNumberFilter(
+    location_id = MultiValueBigNumberFilter(
         method='filter_by_termination',
         field_name='location_id'
     )
@@ -2923,7 +2923,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         method='filter_by_termination',
         field_name='location__name'
     )
-    site_id = MultiValueNumberFilter(
+    site_id = MultiValueBigNumberFilter(
         method='filter_by_termination',
         field_name='site_id'
     )
@@ -2933,31 +2933,31 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     )
 
     # Termination object filters
-    consoleport_id = MultiValueNumberFilter(
+    consoleport_id = MultiValueBigNumberFilter(
         method='filter_by_consoleport'
     )
-    consoleserverport_id = MultiValueNumberFilter(
+    consoleserverport_id = MultiValueBigNumberFilter(
         method='filter_by_consoleserverport'
     )
-    powerport_id = MultiValueNumberFilter(
+    powerport_id = MultiValueBigNumberFilter(
         method='filter_by_powerport'
     )
-    poweroutlet_id = MultiValueNumberFilter(
+    poweroutlet_id = MultiValueBigNumberFilter(
         method='filter_by_poweroutlet'
     )
-    interface_id = MultiValueNumberFilter(
+    interface_id = MultiValueBigNumberFilter(
         method='filter_by_interface'
     )
-    frontport_id = MultiValueNumberFilter(
+    frontport_id = MultiValueBigNumberFilter(
         method='filter_by_frontport'
     )
-    rearport_id = MultiValueNumberFilter(
+    rearport_id = MultiValueBigNumberFilter(
         method='filter_by_rearport'
     )
-    powerfeed_id = MultiValueNumberFilter(
+    powerfeed_id = MultiValueBigNumberFilter(
         method='filter_by_powerfeed'
     )
-    circuittermination_id = MultiValueNumberFilter(
+    circuittermination_id = MultiValueBigNumberFilter(
         method='filter_by_circuittermination'
     )
 
@@ -3050,31 +3050,31 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
     termination_type = MultiValueContentTypeFilter()
 
     # Termination object filters
-    consoleport_id = MultiValueNumberFilter(
+    consoleport_id = MultiValueBigNumberFilter(
         method='filter_by_consoleport'
     )
-    consoleserverport_id = MultiValueNumberFilter(
+    consoleserverport_id = MultiValueBigNumberFilter(
         method='filter_by_consoleserverport'
     )
-    powerport_id = MultiValueNumberFilter(
+    powerport_id = MultiValueBigNumberFilter(
         method='filter_by_powerport'
     )
-    poweroutlet_id = MultiValueNumberFilter(
+    poweroutlet_id = MultiValueBigNumberFilter(
         method='filter_by_poweroutlet'
     )
-    interface_id = MultiValueNumberFilter(
+    interface_id = MultiValueBigNumberFilter(
         method='filter_by_interface'
     )
-    frontport_id = MultiValueNumberFilter(
+    frontport_id = MultiValueBigNumberFilter(
         method='filter_by_frontport'
     )
-    rearport_id = MultiValueNumberFilter(
+    rearport_id = MultiValueBigNumberFilter(
         method='filter_by_rearport'
     )
-    powerfeed_id = MultiValueNumberFilter(
+    powerfeed_id = MultiValueBigNumberFilter(
         method='filter_by_powerfeed'
     )
-    circuittermination_id = MultiValueNumberFilter(
+    circuittermination_id = MultiValueBigNumberFilter(
         method='filter_by_circuittermination'
     )
 
@@ -3441,7 +3441,7 @@ class ConnectionFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    site_id = MultiValueNumberFilter(
+    site_id = MultiValueBigNumberFilter(
         method='filter_connections',
         field_name='device__site_id'
     )
@@ -3449,7 +3449,7 @@ class ConnectionFilterSet(BaseFilterSet):
         method='filter_connections',
         field_name='device__site__slug'
     )
-    device_id = MultiValueNumberFilter(
+    device_id = MultiValueBigNumberFilter(
         method='filter_connections',
         field_name='device_id'
     )

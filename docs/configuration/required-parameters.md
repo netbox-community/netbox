@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['*']
 ```python
 API_TOKEN_PEPPERS = {
     # DO NOT USE THIS EXAMPLE PEPPER IN PRODUCTION
-    1: 'kp7ht*76fiQAhUi5dHfASLlYUE_S^gI^(7J^K5M!LfoH@vl&b_',
+    1: r'kp7ht*76fiQAh\i5dHfASLlYUE_S^gI^(7J^K5M!LfoH@vl&b_',
 }
 ```
 

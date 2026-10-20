@@ -92,7 +92,7 @@ export function resetSelect<S extends HTMLSelectElement>(select: S): void {
  * Type guard to determine if a value is an `Element`.
  */
 export function isElement(obj: Element | null | undefined): obj is Element {
-  return typeof obj !== null && typeof obj !== 'undefined';
+  return obj !== null && obj !== undefined;
 }
 
 export async function apiRequest<R extends Dict, D extends ReqData = undefined>(

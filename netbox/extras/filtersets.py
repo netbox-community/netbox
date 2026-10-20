@@ -10,7 +10,12 @@ from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxM
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
-from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
+from utilities.filters import (
+    MultiValueBigNumberFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueNumberFilter,
+)
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -121,7 +126,7 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         label=_('Action available'),
     )
     action_object_type = MultiValueContentTypeFilter()
-    action_object_id = MultiValueNumberFilter()
+    action_object_id = MultiValueBigNumberFilter()
 
     class Meta:
         model = EventRule

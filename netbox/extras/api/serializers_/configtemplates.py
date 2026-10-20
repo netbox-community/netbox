@@ -1,3 +1,4 @@
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.extensions import OpenApiSerializerExtension
 from rest_framework import serializers
@@ -49,6 +50,7 @@ class RenderConfigInputSerializer(serializers.Serializer):
     """
     config_template_id = serializers.IntegerField(
         required=False,
+        max_value=models.BigIntegerField.MAX_BIGINT,
         help_text=_(
             "Optional ID of the ConfigTemplate to render. If omitted, the object's assigned "
             "config template is used."

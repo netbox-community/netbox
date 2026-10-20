@@ -504,6 +504,18 @@ class TagTestCase(TestCase):
         with self.assertRaises(AbortRequest):
             sitegroup.tags.add(tag)
 
+    def test_tag_object_with_64bit_id(self):
+        """
+        Objects whose IDs exceed the 32-bit range can be tagged. Regression test for #23425.
+        """
+        site = Site.objects.create(id=3_000_000_000, name='Site 1', slug='site-1')
+        tag = Tag.objects.create(name='Tag 1', slug='tag-1')
+
+        site.tags.add(tag)
+
+        self.assertEqual(list(Site.objects.get(pk=site.pk).tags.all()), [tag])
+        self.assertEqual(list(Site.objects.filter(tags=tag)), [site])
+
 
 class ConfigContextTestCase(TestCase):
     """

@@ -200,6 +200,9 @@ UPDATE_QUERY_COUNTS=1 python manage.py test --keepdb
 
 ## Submitting Pull Requests
 
+!!! note "Vouched contributors"
+    Pull requests are accepted only from contributors who have been vouched for by a maintainer. If you aren't yet listed in [`.github/VOUCHED.td`](https://github.com/netbox-community/netbox/blob/main/.github/VOUCHED.td) (for example, if you're contributing for the first time), introduce yourself by [starting a discussion](https://github.com/netbox-community/netbox/discussions/new?category=vouch-request) in the **Vouch Request** category before submitting your first pull request. Pull requests from contributors who have not been vouched for are closed automatically. See the [contributing guide](https://github.com/netbox-community/netbox/blob/main/CONTRIBUTING.md) for details.
+
 Once you're happy with your work and have verified that all tests pass, commit your changes and push it upstream to your fork. Always provide descriptive (but not excessively verbose) commit messages. Be sure to prefix your commit message with the word "Fixes" or "Closes" and the relevant issue number (with a hash mark). This tells GitHub to automatically close the referenced issue once the commit has been merged.
 
 ```no-highlight

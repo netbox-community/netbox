@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import io
 import json
+import uuid
 from contextlib import contextmanager
 from unittest.mock import MagicMock, PropertyMock, patch
 
@@ -31,13 +32,14 @@ from dcim.models import (
     RearPort,
     Site,
 )
-from extras.api.serializers import EventRuleSerializer
+from extras.api.serializers import EventRuleSerializer, ScriptSerializer
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, MultiObjectVar, ObjectVar, StringVar
 from extras.scripts import Script as PythonClass
 from netbox.event_rules import EventRuleAction, register_event_rule_action
 from netbox.registry import registry
+from netbox.tests.dummy_plugin.models import DummyNetBoxModel
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
@@ -302,6 +304,40 @@ class EventRuleActionAPITestCase(APITestCase):
             "auth.user must not support event_rules for this test to be meaningful; pick another type.",
         )
         self.assertIn(user_ct, field.queryset)
+
+    @tag('regression')  # Ref: #23372
+    def test_action_object_without_serializer(self):
+        """A rule whose action targets an object without a REST API serializer has a null action object."""
+        class PluginObjectAction(EventRuleAction):
+            slug = 'test.api_plugin_object_action'
+            label = 'API Plugin Object Action'
+            object_model = DummyNetBoxModel
+
+        register_event_rule_action(PluginObjectAction)
+        self.addCleanup(registry['event_rule_actions'].pop, PluginObjectAction.slug, None)
+
+        self.add_permissions('extras.view_eventrule')
+        webhook = Webhook.objects.create(name='Webhook 1', payload_url='http://example.com/')
+        EventRule.objects.create(name='Webhook Rule', event_types=[OBJECT_CREATED], action_object=webhook)
+        dummy = DummyNetBoxModel.objects.create()
+        event_rule = EventRule(
+            name='Plugin Rule', event_types=[OBJECT_CREATED], action_type=PluginObjectAction.slug, action_object=dummy
+        )
+        event_rule.full_clean()
+        event_rule.save()
+
+        response = self.client.get(reverse('extras-api:eventrule-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(event_rule.pk)['action_object'])
+        for item in results.values():
+            self.assertEqual(item['action_object']['id'], item['action_object_id'])
+
+        response = self.client.get(reverse('extras-api:eventrule-detail', kwargs={'pk': event_rule.pk}), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['action_object'])
+        self.assertEqual(response.data['action_object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['action_object_id'], dummy.pk)
 
 
 class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
@@ -952,6 +988,28 @@ class BookmarkTestCase(
             },
         ]
 
+    @tag('regression')  # Ref: #23372
+    def test_object_without_serializer(self):
+        """A bookmark of an object without a REST API serializer has a null object."""
+        self.add_permissions('extras.view_bookmark')
+        dummy = DummyNetBoxModel.objects.create()
+        bookmark = Bookmark(object=dummy, user=self.user)
+        bookmark.full_clean()
+        bookmark.save()
+
+        response = self.client.get(reverse('extras-api:bookmark-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(bookmark.pk)['object'])
+        for item in results.values():
+            self.assertEqual(item['object']['id'], item['object_id'])
+
+        response = self.client.get(reverse('extras-api:bookmark-detail', kwargs={'pk': bookmark.pk}), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['object'])
+        self.assertEqual(response.data['object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['object_id'], dummy.pk)
+
 
 class ExportTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
@@ -1427,6 +1485,37 @@ class ImageAttachmentTestCase(
         )
         ImageAttachment.objects.bulk_create(image_attachments)
 
+    @tag('regression')  # Ref: #23372
+    def test_parent_without_serializer(self):
+        """An image attachment whose parent has no REST API serializer has a null parent."""
+        self.add_permissions('extras.view_imageattachment')
+        dummy = DummyNetBoxModel.objects.create()
+        image_attachment = ImageAttachment(
+            parent=dummy,
+            name='Image Attachment 4',
+            image='http://example.com/image4.png',
+            image_height=100,
+            image_width=100,
+        )
+        # The placeholder image is not a stored file
+        image_attachment.full_clean(exclude=['image'])
+        image_attachment.save()
+
+        response = self.client.get(reverse('extras-api:imageattachment-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(image_attachment.pk)['parent'])
+        for item in results.values():
+            self.assertEqual(item['parent']['id'], item['object_id'])
+
+        response = self.client.get(
+            reverse('extras-api:imageattachment-detail', kwargs={'pk': image_attachment.pk}), **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['parent'])
+        self.assertEqual(response.data['object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['object_id'], dummy.pk)
+
 
 class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
     model = JournalEntry
@@ -1504,6 +1593,39 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
         entry.refresh_from_db()
         created_by_after = entry.created_by_id
         self.assertEqual(created_by_before, created_by_after)
+
+    @tag('regression')  # Ref: #23372
+    def test_assigned_object_without_serializer(self):
+        """A journal entry on an object without a REST API serializer has a null assigned object."""
+        self.add_permissions('extras.add_journalentry', 'extras.view_journalentry', 'extras.delete_journalentry')
+        dummy = DummyNetBoxModel.objects.create()
+        data = {
+            'assigned_object_type': 'dummy_plugin.dummynetboxmodel',
+            'assigned_object_id': dummy.pk,
+            'comments': 'Seventh entry',
+        }
+
+        response = self.client.post(reverse('extras-api:journalentry-list'), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertIsNone(response.data['assigned_object'])
+        journal_entry_id = response.data['id']
+        detail_url = reverse('extras-api:journalentry-detail', kwargs={'pk': journal_entry_id})
+
+        response = self.client.get(reverse('extras-api:journalentry-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(journal_entry_id)['assigned_object'])
+        for item in results.values():
+            self.assertEqual(item['assigned_object']['id'], item['assigned_object_id'])
+
+        response = self.client.get(detail_url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['assigned_object'])
+        self.assertEqual(response.data['assigned_object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['assigned_object_id'], dummy.pk)
+
+        response = self.client.delete(detail_url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
 
 
 class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
@@ -2502,16 +2624,25 @@ class ScriptRunExecutionTestCase(APITestCase):
                 file_root=ManagedFileRootPathChoices.SCRIPTS,
                 file_path='run_script.py',
             )
-        script = Script.objects.create(
+        cls.script = Script.objects.create(
             module=module,
             name='Test run script',
             is_executable=True,
         )
-        cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+        cls.url = reverse('extras-api:script-detail', kwargs={'pk': cls.script.pk})
 
     def setUp(self):
         super().setUp()
         self.add_permissions('extras.run_script')
+
+        # A saved Job for the mocked ScriptJob.enqueue() to return, as run() serializes the enqueued job
+        self.job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=self.script.pk,
+            name='Test run script',
+            job_id=uuid.uuid4(),
+            user=self.user,
+        )
 
         # Monkey-patch the Script model to return our TestScriptClass above, restoring
         # the real property afterwards so later tests aren't left with our stub.
@@ -2527,6 +2658,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_commit_value(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         for commit_value in (True, False):
             with self.subTest(commit=commit_value):
                 mock_enqueue.reset_mock()
@@ -2540,6 +2672,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_notifications_value(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: ScriptForm.clean() overwrites an empty '_notifications' with the
         # field's own initial, so a client-supplied value never reached ScriptJob.enqueue.
         payload = {
@@ -2558,6 +2691,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_forwards_schedule_at_and_interval(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: schedule_at/interval were likewise read from the form (always
         # absent there) instead of the validated request
         schedule_at = now() + datetime.timedelta(hours=1)
@@ -2577,6 +2711,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_converts_objectvar_and_multiobjectvar_ids(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         payload = {
             'data': {
                 'site': self.sites[0].pk,
@@ -2597,6 +2732,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_backfills_default_for_omitted_required_var(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Regression: required vars declaring `default=` were not back-filled before
         # binding the form on the API path (unlike the UI path), so they 400'd even
         # though the client legitimately omitted them.
@@ -2629,6 +2765,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_ignores_undeclared_keys(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # Binding 'data' to the script's form means keys which don't correspond to a declared
         # variable are dropped rather than forwarded to run(). This is the contract documented
         # under "Running Custom Scripts > Via the API"; pin it so it can't regress silently.
@@ -2659,6 +2796,7 @@ class ScriptRunExecutionTestCase(APITestCase):
 
     @patch('extras.jobs.ScriptJob.enqueue')
     def test_run_resolves_booleanvar_default_and_explicit_values(self, mock_enqueue):
+        mock_enqueue.return_value = self.job
         # BooleanVar renders as a checkbox, and CheckboxInput reads a missing key as False.
         # An omitted BooleanVar must therefore pick up its declared default, while an
         # explicitly supplied False must not be overwritten by that default.
@@ -2675,6 +2813,134 @@ class ScriptRunExecutionTestCase(APITestCase):
 
                 self.assertHttpStatus(response, status.HTTP_200_OK)
                 self.assertIs(mock_enqueue.call_args.kwargs['data']['flag'], expected)
+
+
+@tag('regression')  # Ref: #23364
+class ScriptJobRestrictionTestCase(APITestCase):
+    """
+    A script's result reports the latest job the requesting user is permitted to view (see #23364).
+    """
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Restricted script'
+
+        def run(self, data, commit=True):
+            return 'ok'
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='restricted_script.py',
+            )
+        cls.script = Script.objects.create(
+            module=module,
+            name='Restricted script',
+            is_executable=True,
+        )
+        cls.list_url = reverse('extras-api:script-list')
+        cls.detail_url = reverse('extras-api:script-detail', kwargs={'pk': cls.script.pk})
+
+        cls.other_job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=cls.script.pk,
+            name='Other user job',
+            job_id=uuid.uuid4(),
+            user=User.objects.create_user(username='script-job-other-user'),
+        )
+
+    def setUp(self):
+        super().setUp()
+        self.add_permissions('extras.view_script')
+
+        # The requesting user's own job predates the other user's, so a restricted lookup must fall
+        # through to it rather than report the newest job or none at all
+        self.own_job = self._create_job('Own job', self.other_job.created - datetime.timedelta(hours=1))
+
+        python_class_patch = patch.object(Script, 'python_class', new=self.TestScriptClass)
+        python_class_patch.start()
+        self.addCleanup(python_class_patch.stop)
+
+    def _create_job(self, name, created):
+        job = Job.objects.create(
+            object_type=ObjectType.objects.get_for_model(Script),
+            object_id=self.script.pk,
+            name=name,
+            job_id=uuid.uuid4(),
+            user=self.user,
+        )
+        Job.objects.filter(pk=job.pk).update(created=created)
+        return job
+
+    def _grant_view_job(self, constraints=None):
+        obj_perm = ObjectPermission(name='View jobs', actions=['view'], constraints=constraints)
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+    @staticmethod
+    def _job_path(job):
+        # The list representation of a job is brief, identifying it only by URL
+        return reverse('core-api:job-detail', kwargs={'pk': job.pk})
+
+    def _get_results(self):
+        list_response = self.client.get(self.list_url, **self.header)
+        self.assertHttpStatus(list_response, status.HTTP_200_OK)
+        detail_response = self.client.get(self.detail_url, **self.header)
+        self.assertHttpStatus(detail_response, status.HTTP_200_OK)
+        return list_response.data['results'][0]['result'], detail_response.data['result']
+
+    def test_unconstrained_view_job(self):
+        self._grant_view_job()
+
+        list_result, detail_result = self._get_results()
+
+        self.assertTrue(list_result['url'].endswith(self._job_path(self.other_job)))
+        self.assertEqual(detail_result['id'], self.other_job.pk)
+
+    def test_constrained_view_job(self):
+        self._grant_view_job(constraints={'user': '$user'})
+
+        list_result, detail_result = self._get_results()
+
+        self.assertTrue(list_result['url'].endswith(self._job_path(self.own_job)))
+        self.assertEqual(detail_result['id'], self.own_job.pk)
+
+    def test_without_view_job(self):
+        list_result, detail_result = self._get_results()
+
+        self.assertIsNone(list_result)
+        self.assertIsNone(detail_result)
+
+    def test_serialize_without_request(self):
+        # e.g. serialize_for_event(), which has no user to check permissions against
+        data = ScriptSerializer(self.script, context={'request': None}).data
+
+        self.assertIsNone(data['result'])
+
+    @patch('extras.api.views.any_workers_for_queue', return_value=True)
+    @patch('extras.jobs.ScriptJob.enqueue')
+    def test_run_returns_enqueued_job(self, mock_enqueue, mock_workers):
+        """
+        Running a script returns the job just enqueued, even without view_job permission and when another
+        user's job is newer. Polling the script thereafter reports no result without view_job permission.
+        """
+        self.add_permissions('extras.run_script')
+        mock_enqueue.return_value = self._create_job(
+            'Enqueued job', self.other_job.created - datetime.timedelta(minutes=1)
+        )
+
+        response = self.client.post(self.detail_url, {'data': {}, 'commit': True}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['result']['id'], mock_enqueue.return_value.pk)
+
+        response = self.client.get(self.detail_url, **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['result'])
 
 
 class CreatedUpdatedFilterTestCase(APITestCase):
@@ -2814,6 +3080,30 @@ class SubscriptionTestCase(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_invalid_data = {
             'object_type': 'dcim.notamodel',
         }
+
+    @tag('regression')  # Ref: #23372
+    def test_object_without_serializer(self):
+        """A subscription to an object without a REST API serializer has a null object."""
+        self.add_permissions('extras.view_subscription')
+        dummy = DummyNetBoxModel.objects.create()
+        subscription = Subscription(object=dummy, user=self.user)
+        subscription.full_clean()
+        subscription.save()
+
+        response = self.client.get(reverse('extras-api:subscription-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(subscription.pk)['object'])
+        for item in results.values():
+            self.assertEqual(item['object']['id'], item['object_id'])
+
+        response = self.client.get(
+            reverse('extras-api:subscription-detail', kwargs={'pk': subscription.pk}), **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['object'])
+        self.assertEqual(response.data['object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['object_id'], dummy.pk)
 
 
 class NotificationGroupTestCase(APIViewTestCases.APIViewTestCase):
@@ -2964,6 +3254,30 @@ class NotificationTestCase(APIViewTestCases.APIViewTestCase):
                 'event_type': OBJECT_DELETED,
             },
         ]
+
+    @tag('regression')  # Ref: #23372
+    def test_object_without_serializer(self):
+        """A notification about an object without a REST API serializer has a null object."""
+        self.add_permissions('extras.view_notification')
+        dummy = DummyNetBoxModel.objects.create()
+        notification = Notification(object=dummy, object_repr=str(dummy), event_type=OBJECT_CREATED, user=self.user)
+        notification.full_clean()
+        notification.save()
+
+        response = self.client.get(reverse('extras-api:notification-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(notification.pk)['object'])
+        for item in results.values():
+            self.assertEqual(item['object']['id'], item['object_id'])
+
+        response = self.client.get(
+            reverse('extras-api:notification-detail', kwargs={'pk': notification.pk}), **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['object'])
+        self.assertEqual(response.data['object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['object_id'], dummy.pk)
 
 
 class _InMemoryScriptStorage:

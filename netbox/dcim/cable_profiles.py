@@ -332,6 +332,20 @@ class Trunk4C8PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
+class Trunk8C1PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 1,
+        2: 1,
+        3: 1,
+        4: 1,
+        5: 1,
+        6: 1,
+        7: 1,
+        8: 1,
+    }
+    b_connectors = a_connectors
+
+
 class Trunk8C4PCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,
@@ -343,6 +357,16 @@ class Trunk8C4PCableProfile(BaseCableProfile):
         7: 4,
         8: 4,
     }
+    b_connectors = a_connectors
+
+
+class Trunk12C1PCableProfile(BaseCableProfile):
+    a_connectors = dict.fromkeys(range(1, 13), 1)
+    b_connectors = a_connectors
+
+
+class Trunk24C1PCableProfile(BaseCableProfile):
+    a_connectors = dict.fromkeys(range(1, 25), 1)
     b_connectors = a_connectors
 
 

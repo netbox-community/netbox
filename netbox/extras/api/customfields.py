@@ -1,6 +1,7 @@
 from functools import cached_property
 
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db.models import prefetch_related_objects
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -10,7 +11,7 @@ from rest_framework.serializers import ListSerializer, ValidationError
 from extras.choices import CustomFieldTypeChoices
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.models import CustomField
-from utilities.api import get_serializer_for_model
+from utilities.api import get_prefetches_for_serializer, get_serializer_for_model
 from utilities.forms.fields import LaxURLField
 
 #
@@ -154,10 +155,9 @@ class CustomFieldListSerializer(ListSerializer):
                 cf for cf in cf_field._get_custom_fields()
                 if cf.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT)
             ]
-            cache = {}
+            pks_by_model = {}
             for cf in object_type_cfs:
-                model = cf.related_object_type.model_class()
-                pks = set()
+                pks = pks_by_model.setdefault(cf.related_object_type.model_class(), set())
                 for item in data:
                     raw = item.custom_field_data.get(cf.name)
                     if raw is not None:
@@ -165,7 +165,16 @@ class CustomFieldListSerializer(ListSerializer):
                             pks.update(raw)
                         else:
                             pks.add(raw)
-                for obj in model.objects.filter(pk__in=pks):
+            cache = {}
+            for model, pks in pks_by_model.items():
+                objects = list(model.objects.filter(pk__in=pks))
+                # A target model may lack a REST serializer, so plan only for found targets
+                if objects:
+                    serializer_class = get_serializer_for_model(model)
+                    # Targets render with their nested (brief) representation
+                    fields = getattr(serializer_class.Meta, 'brief_fields', None)
+                    prefetch_related_objects(objects, *get_prefetches_for_serializer(serializer_class, fields=fields))
+                for obj in objects:
                     cache[(model, obj.pk)] = obj
             self.child.context['cf_object_cache'] = cache
         return super().to_representation(data)

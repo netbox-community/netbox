@@ -4,6 +4,7 @@ import typing
 from collections import OrderedDict
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
@@ -18,7 +19,7 @@ from drf_spectacular.plumbing import (
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import Direction, OpenApiParameter, OpenApiResponse
-from rest_framework.fields import ReadOnlyField
+from rest_framework.fields import IntegerField, ReadOnlyField
 from rest_framework.utils import model_meta
 
 from netbox.api.fields import ChoiceField
@@ -93,6 +94,16 @@ def viewset_handles_bulk_create(view):
     return isinstance(view, NetBoxModelViewSet)
 
 
+def int64_for_bigint(schema, model_field):
+    """
+    Document an integer schema as int64 if the model field behind it is a 64-bit integer. drf-spectacular infers
+    int64 only from a field's validator bounds, which primary keys and many other 64-bit fields lack.
+    """
+    if isinstance(model_field, models.BigIntegerField) and isinstance(schema, dict) and schema.get('type') == 'integer':
+        return {**schema, 'format': 'int64'}
+    return schema
+
+
 class NetBoxAutoSchema(AutoSchema):
     """
     Overrides to drf_spectacular.openapi.AutoSchema to fix following issues:
@@ -101,6 +112,7 @@ class NetBoxAutoSchema(AutoSchema):
         3. bulk operations don't have filter params
         4. bulk operations don't have pagination
         5. bulk delete should specify input
+        6. 64-bit integer fields (including primary keys) should be documented as int64
     """
 
     writable_serializers = {}
@@ -454,6 +466,21 @@ class NetBoxAutoSchema(AutoSchema):
             ]
         return params
 
+    def _map_model_field(self, model_field, direction):
+        # Covers path parameters, related object filters, and references to related objects
+        schema = super()._map_model_field(model_field, direction)
+        return int64_for_bigint(schema, model_field)
+
+    def _map_serializer_field(self, field, direction, bypass_extensions=False):
+        schema = super()._map_serializer_field(field, direction, bypass_extensions)
+        # Covers integer serializer fields backed by a model field, such as `id`
+        if isinstance(field, IntegerField):
+            model = getattr(getattr(getattr(field, 'parent', None), 'Meta', None), 'model', None)
+            if model is not None:
+                model_field = follow_field_source(model, field.source_attrs, emit_warnings=False)
+                schema = int64_for_bigint(schema, model_field)
+        return schema
+
     def get_filter_backends(self):
         # bulk operations don't have filter params
         if self.is_bulk_action:
@@ -544,7 +571,7 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
             serializer = self.target.serializer(nested=self.target.nested)
             component = auto_schema.resolve_serializer(serializer, direction)
             return component.ref if component else None
-        return build_basic_type(OpenApiTypes.INT)
+        return build_basic_type(OpenApiTypes.INT64)
 
 
 class FixIntegerRangeSerializerSchema(OpenApiSerializerExtension):
@@ -577,7 +604,7 @@ class FixWritableNestedSerializerAllowPK(OpenApiSerializerFieldExtension):
         if direction == 'request' and self.target.nested:
             return {
                 'oneOf': [
-                    build_basic_type(OpenApiTypes.INT),
+                    build_basic_type(OpenApiTypes.INT64),
                     schema,
                 ]
             }

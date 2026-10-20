@@ -39,7 +39,7 @@
           <tbody>
             {% for script in scripts %}
               {% if script in available_scripts %}
-                {% with last_job=script.get_latest_jobs|first %}
+                {% with last_job=latest_jobs|get_key:script.pk %}
                   <tr>
                     <td>
                       {% if script.is_executable %}

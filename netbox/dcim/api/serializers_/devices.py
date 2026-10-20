@@ -137,7 +137,7 @@ class DeviceSerializer(PrimaryModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj):
-        return obj.get_config_context()
+        return obj.get_config_context(copy_data=False)
 
 
 class VirtualDeviceContextSerializer(PrimaryModelSerializer):

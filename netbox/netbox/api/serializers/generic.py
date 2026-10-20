@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -19,7 +20,7 @@ class GenericObjectSerializer(serializers.Serializer):
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    object_id = serializers.IntegerField()
+    object_id = serializers.IntegerField(max_value=models.BigIntegerField.MAX_BIGINT)
     object = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, **kwargs):

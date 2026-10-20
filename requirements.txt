@@ -38,8 +38,8 @@ rq==2.12.0
 social-auth-app-django==6.1.0
 social-auth-core==5.2.0
 sorl-thumbnail==13.1.0
-strawberry-graphql==0.332.1
-strawberry-graphql-django==0.92.2
+strawberry-graphql==0.334.2
+strawberry-graphql-django==0.93.0
 svgwrite==1.4.3
 tablib==3.10.0
 tzdata==2026.5

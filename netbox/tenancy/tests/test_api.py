@@ -6,6 +6,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.models import Site
+from netbox.tests.dummy_plugin.models import DummyNetBoxModel
 from tenancy.choices import *
 from tenancy.models import *
 from utilities.testing import APITestCase, APIViewTestCases, disable_logging
@@ -368,3 +369,29 @@ class ContactAssignmentTestCase(APIViewTestCases.APIViewTestCase):
                 'priority': ContactPriorityChoices.PRIORITY_TERTIARY,
             },
         ]
+
+    @tag('regression')  # Ref: #23372
+    def test_object_without_serializer(self):
+        """A contact assignment for an object without a REST API serializer has a null object."""
+        self.add_permissions('tenancy.view_contactassignment')
+        dummy = DummyNetBoxModel.objects.create()
+        contact_assignment = ContactAssignment(
+            object=dummy, contact=Contact.objects.first(), role=ContactRole.objects.first()
+        )
+        contact_assignment.full_clean()
+        contact_assignment.save()
+
+        response = self.client.get(reverse('tenancy-api:contactassignment-list'), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        results = {item['id']: item for item in response.data['results']}
+        self.assertIsNone(results.pop(contact_assignment.pk)['object'])
+        for item in results.values():
+            self.assertEqual(item['object']['id'], item['object_id'])
+
+        response = self.client.get(
+            reverse('tenancy-api:contactassignment-detail', kwargs={'pk': contact_assignment.pk}), **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['object'])
+        self.assertEqual(response.data['object_type'], 'dummy_plugin.dummynetboxmodel')
+        self.assertEqual(response.data['object_id'], dummy.pk)

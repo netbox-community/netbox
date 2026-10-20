@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema_field
 from netaddr import IPNetwork
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import get_attribute
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
 from utilities.data import get_inclusive_integer_range_bounds
@@ -162,11 +163,23 @@ class RelatedObjectCountField(serializers.ReadOnlyField):
     Represents a read-only integer count of related objects (e.g. the number of racks assigned to a site). This field
     is detected by get_annotations_for_serializer() when determining the annotations to be added to a queryset
     depending on the serializer fields selected for inclusion in the response.
+
+    :param relation: A reverse relation or a GenericRelation
+    :param fallback_source: Attribute read when unannotated, as on exports and writes, which need field_prefetches
     """
-    def __init__(self, relation, **kwargs):
+    def __init__(self, relation, *, fallback_source=None, **kwargs):
         self.relation = relation
+        self.fallback_source = fallback_source
 
         super().__init__(**kwargs)
+
+    def get_attribute(self, instance):
+        if not self.fallback_source:
+            return super().get_attribute(instance)
+        try:
+            return get_attribute(instance, self.source_attrs)
+        except (AttributeError, KeyError):
+            return get_attribute(instance, self.fallback_source.split('.'))
 
 
 class IntegerRangeSerializer(serializers.Serializer):

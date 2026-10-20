@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import tempfile
@@ -41,10 +42,11 @@ from utilities.testing import (
     create_test_device,
     create_test_image,
     create_test_nat_ip_pair,
+    create_test_virtualmachine,
     disable_logging,
     disable_warnings,
 )
-from virtualization.models import Cluster, ClusterType
+from virtualization.models import Cluster, ClusterType, VMInterface
 from vpn.choices import L2VPNTypeChoices
 from vpn.models import L2VPN, L2VPNTermination
 from wireless.choices import WirelessChannelChoices
@@ -2782,6 +2784,29 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
             filters.append(f'site_id={site.pk}')
         return [filters[0], '&'.join(filters)]
 
+    def test_config_context_read_without_copy(self):
+        """
+        REST and GraphQL read cached config context without copying it.
+        """
+        self.add_permissions('dcim.view_device')
+        Device.objects.filter(name='Device 1').update(_config_context_data={'A': 'cached'})
+        Device.objects.filter(name='Device 2').update(_config_context_data={})
+        # Device 3 has no cache and renders its local context data
+        expected = {'Device 1': {'A': 'cached'}, 'Device 2': {}, 'Device 3': {'C': 3}}
+        query = '{ device_list { name config_context } }'
+
+        with patch('extras.models.configs.copy', wraps=copy) as copy_module:
+            rest = self.client.get(self._get_list_url(), **self.header)
+            graphql = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        copy_module.deepcopy.assert_not_called()
+
+        self.assertHttpStatus(rest, status.HTTP_200_OK)
+        self.assertEqual({row['name']: row['config_context'] for row in rest.data['results']}, expected)
+        self.assertHttpStatus(graphql, status.HTTP_200_OK)
+        data = graphql.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual({row['name']: row['config_context'] for row in data['data']['device_list']}, expected)
+
     def test_config_context_included_by_default_in_list_view(self):
         """
         Check that config context data is included by default in the devices list.
@@ -3015,6 +3040,31 @@ class DeviceTestCase(Mixins.FieldPrefetchMixin, APIViewTestCases.APIViewTestCase
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_leaves_config_context_cache_unchanged(self):
+        """
+        A config template which mutates nested context data leaves the cached config context unchanged.
+        """
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code="{{ servers.append('192.0.2.2') or '' }}{{ servers|join(',') }}"
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+        Device.objects.filter(pk=device.pk).update(_config_context_data={'servers': ['192.0.2.1']})
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        with patch.object(
+            Device, 'get_config_context', autospec=True, side_effect=Device.get_config_context
+        ) as get_config_context:
+            response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], '192.0.2.1,192.0.2.2')
+        # A leak would only show on the view's in-memory instance
+        instance = get_config_context.call_args.args[0]
+        self.assertEqual(instance._config_context_data, {'servers': ['192.0.2.1']})
 
     def test_render_config_without_permission(self):
         configtemplate = ConfigTemplate.objects.create(
@@ -4039,8 +4089,6 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         GenericPrefetch('_path__path_objects', [Interface.objects.select_related('device', 'cable')]),
         'virtual_circuit_termination',
         'l2vpn_terminations',
-        'ip_addresses',
-        'fhrp_group_assignments',
     )
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -4683,37 +4731,44 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
     def test_field_prefetches_follow_requested_fields(self):
-        """List and detail responses carry the declared prefetches of exactly the fields they include."""
+        """List and detail responses prefetch the declarations of included fields, counts annotated instead."""
         self.add_permissions('dcim.view_interface')
         declared = InterfaceViewSet.field_prefetches
+        declared_before = dict(declared)
         peers = list(declared[('link_peers', 'link_peers_type')])
         endpoints = list(declared[('connected_endpoints', 'connected_endpoints_type')])
         path = list(declared[('connected_endpoints_reachable',)])
         l2vpn = list(declared[('l2vpn_termination',)])
-        ips, fhrp = list(declared[('count_ipaddresses',)]), list(declared[('count_fhrp_groups',)])
+        counts = {'_count_ipaddresses', '_count_fhrp_groups'}
         # fields takes precedence over omit, and both over brief
         cases = {
-            '': peers + endpoints + path + l2vpn + ips + fhrp,
-            'brief=1': [],
-            'fields=id,link_peers_type': peers,
-            'fields=id,connected_endpoints_type': endpoints,
-            'fields=id,connected_endpoints_reachable': path,
-            'fields=id,l2vpn_termination': l2vpn,
-            'fields=id,count_ipaddresses': ips,
-            'fields=id,count_fhrp_groups': fhrp,
-            'omit=link_peers,link_peers_type': endpoints + path + l2vpn + ips + fhrp,
-            'fields=id,link_peers&omit=link_peers': peers,
-            'brief=1&omit=l2vpn_termination': peers + endpoints + path + ips + fhrp,
-            'brief=1&fields=id': [],
+            '': (peers + endpoints + path + l2vpn, counts),
+            'brief=1': ([], set()),
+            'fields=id,link_peers_type': (peers, set()),
+            'fields=id,connected_endpoints_type': (endpoints, set()),
+            'fields=id,connected_endpoints_reachable': (path, set()),
+            'fields=id,l2vpn_termination': (l2vpn, set()),
+            'fields=id,count_ipaddresses': ([], {'_count_ipaddresses'}),
+            'fields=id,count_fhrp_groups': ([], {'_count_fhrp_groups'}),
+            'fields=count_ipaddresses': ([], {'_count_ipaddresses'}),
+            'omit=link_peers,link_peers_type': (endpoints + path + l2vpn, counts),
+            'omit=count_ipaddresses': (peers + endpoints + path + l2vpn, {'_count_fhrp_groups'}),
+            'fields=id,link_peers&omit=link_peers': (peers, set()),
+            'brief=1&omit=l2vpn_termination': (peers + endpoints + path, counts),
+            'brief=1&fields=id': ([], set()),
         }
         for url in (self._get_list_url(), self._get_detail_url(Interface.objects.get(name='Interface 1'))):
-            for params, expected in cases.items():
+            for params, (expected, annotations) in cases.items():
                 with self.subTest(url=url, params=params):
                     with self.capture_querysets(InterfaceViewSet) as querysets:
                         response = self.client.get(f'{url}?{params}', **self.header)
                     self.assertHttpStatus(response, status.HTTP_200_OK)
                     self.assert_lookups(querysets, expected)
+                    for queryset in querysets:
+                        self.assertEqual(set(queryset.query.annotations), annotations)
         self.assertEqual(InterfaceViewSet.queryset._prefetch_related_lookups, ())
+        # Reads narrow their own field set, never the class declarations
+        self.assertEqual(InterfaceViewSet.field_prefetches, declared_before)
 
     def test_field_prefetches_keep_class_lookups(self):
         """Lookups on the class queryset stay ahead of the declared ones, and a subclass inherits the declarations."""
@@ -4730,6 +4785,18 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assert_lookups(querysets, [*queryset._prefetch_related_lookups, *peers])
 
+        # A class lookup on a counted relation stays when its count is annotated
+        queryset = InterfaceViewSet.queryset.prefetch_related('ip_addresses')
+        with (
+            patch.object(InterfaceViewSet, 'queryset', queryset),
+            self.capture_querysets(InterfaceViewSet) as querysets,
+        ):
+            response = self.client.get(f'{url}?fields=id,count_ipaddresses', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assert_lookups(querysets, list(queryset._prefetch_related_lookups))
+        for captured in querysets:
+            self.assertEqual(set(captured.query.annotations), {'_count_ipaddresses'})
+
         class PluginInterfaceViewSet(InterfaceViewSet):
             pass
 
@@ -4740,8 +4807,25 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assert_lookups(querysets, peers)
 
+    def test_field_prefetches_keep_shared_declarations(self):
+        """A declaration a count shares with another requested field stays when the count is annotated."""
+        self.add_permissions('dcim.view_interface')
+        shared = ('ip_addresses',)
+        field_prefetches = {**InterfaceViewSet.field_prefetches, ('count_ipaddresses', 'description'): shared}
+        with (
+            patch.object(InterfaceViewSet, 'field_prefetches', field_prefetches),
+            self.capture_querysets(InterfaceViewSet) as querysets,
+        ):
+            response = self.client.get(
+                f'{self._get_list_url()}?fields=id,description,count_ipaddresses', **self.header
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assert_lookups(querysets, list(shared))
+        for queryset in querysets:
+            self.assertEqual(set(queryset.query.annotations), {'_count_ipaddresses'})
+
     def test_field_prefetches_for_other_reads(self):
-        """Exports and writes carry every declaration, the trace action its path nodes."""
+        """Exports and writes carry every declaration and annotate no count, the trace action its path nodes."""
         self.add_permissions('dcim.view_interface', 'dcim.change_interface', 'extras.view_exporttemplate')
         declared = [lookup for lookups in InterfaceViewSet.field_prefetches.values() for lookup in lookups]
         interface = Interface.objects.get(name='Interface 1')
@@ -4752,13 +4836,16 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
 
         # Exports and writes load every declaration, whatever fields the response selects
         with self.capture_querysets(InterfaceViewSet) as querysets:
-            response = self.client.get(f'{self._get_list_url()}?fields=id&export=Interfaces', **self.header)
-            self.assertHttpStatus(response, status.HTTP_200_OK)
-            response = self.client.patch(
-                f'{self._get_detail_url(interface)}?fields=id', {'description': 'New'}, format='json', **self.header
-            )
-            self.assertHttpStatus(response, status.HTTP_200_OK)
+            for params in ('fields=id&export=Interfaces', 'export=Interfaces'):
+                response = self.client.get(f'{self._get_list_url()}?{params}', **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+            for params in ('fields=id', 'fields=id,count_ipaddresses'):
+                response = self.client.patch(
+                    f'{self._get_detail_url(interface)}?{params}', {'description': 'New'}, format='json', **self.header
+                )
+                self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assert_lookups(querysets, declared)
+        self.assertFalse([queryset.query.annotations for queryset in querysets if queryset.query.annotations])
 
         # The trace action loads the path nodes as the connected endpoint fields do, whatever fields are selected
         peer = Interface.objects.create(device=interface.device, name='Peer', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
@@ -4786,6 +4873,126 @@ class InterfaceTestCase(Mixins.FieldPrefetchMixin, Mixins.ComponentTraceMixin, A
                 self.assertEqual(data, expected)
                 self.assertLessEqual(count, eager_count)
                 self.assertLess(count, unprefetched_count)
+
+    def test_count_ipaddresses_and_fhrp_groups(self):
+        """Counts come from annotations of the interface's object type, never from loaded related objects."""
+        self.add_permissions('dcim.view_interface')
+        interface = Interface.objects.get(name='Interface 1')
+        group = FHRPGroup.objects.create(
+            pk=interface.pk, protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1
+        )
+        other_group = FHRPGroup.objects.create(
+            pk=interface.pk + 1, protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=2
+        )
+        vm_interface = VMInterface.objects.create(
+            pk=interface.pk, virtual_machine=create_test_virtualmachine('Virtual Machine 1'), name='eth0'
+        )
+        IPAddress.objects.bulk_create((
+            IPAddress(address='192.0.2.1/24', assigned_object=interface),
+            IPAddress(address='2001:db8::1/64', assigned_object=interface),
+            IPAddress(address='192.0.2.2/24', assigned_object=vm_interface),
+            IPAddress(address='192.0.2.254/24', assigned_object=group),
+        ))
+        FHRPGroupAssignment.objects.bulk_create((
+            FHRPGroupAssignment(group=group, interface=interface, priority=100),
+            # Two on the VM interface, so a count of the wrong object type cannot match
+            FHRPGroupAssignment(group=group, interface=vm_interface, priority=100),
+            FHRPGroupAssignment(group=other_group, interface=vm_interface, priority=100),
+        ))
+
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        counts = {
+            row['name']: (row['count_ipaddresses'], row['count_fhrp_groups']) for row in response.data['results']
+        }
+        self.assertEqual(counts, {'Interface 1': (2, 1), 'Interface 2': (0, 0), 'Interface 3': (0, 0)})
+        # Only the interface statement reads the related tables, through its two count subqueries
+        statements = [
+            query['sql'] for query in queries.captured_queries
+            if '"ipam_ipaddress"' in query['sql'] or '"ipam_fhrpgroupassignment"' in query['sql']
+        ]
+        self.assertEqual(len(statements), 1)
+        self.assertTrue(statements[0].startswith('SELECT "dcim_interface"'))
+        # Unannotated instances count through the relations
+        self.assertEqual((interface.count_ipaddresses, interface.count_fhrp_groups), (2, 1))
+
+    def test_count_event_payloads_use_write_prefetches(self):
+        """Write and delete event payloads take both counts from the write prefetches, whatever fields are selected."""
+        self.add_permissions('dcim.view_interface', 'dcim.change_interface', 'dcim.delete_interface')
+        interfaces = Interface.objects.filter(name__in=('Interface 1', 'Interface 2')).order_by('name')
+        interface1, interface2 = interfaces
+        group = FHRPGroup.objects.create(protocol=FHRPGroupProtocolChoices.PROTOCOL_VRRP2, group_id=1)
+        IPAddress.objects.bulk_create((
+            IPAddress(address='192.0.2.1/24', assigned_object=interface1),
+            IPAddress(address='192.0.2.2/24', assigned_object=interface1),
+            IPAddress(address='192.0.2.3/24', assigned_object=interface2),
+        ))
+        FHRPGroupAssignment.objects.create(group=group, interface=interface1, priority=100)
+
+        def payload_counts(events):
+            return {
+                event['data']['name']: (event['data']['count_ipaddresses'], event['data']['count_fhrp_groups'])
+                for event in events if isinstance(event['object'], Interface)
+            }
+
+        def fallback_counts(queries):
+            # The count properties' per-interface fallback
+            return [
+                query['sql'] for query in queries.captured_queries
+                if query['sql'].startswith('SELECT COUNT(*)') and (
+                    '"ipam_ipaddress"."assigned_object_id"' in query['sql']
+                    or '"ipam_fhrpgroupassignment"."interface_id"' in query['sql']
+                )
+            ]
+
+        writes = (
+            ('single', self._get_detail_url(interface1), {'description': 'New'}, {'Interface 1': (2, 1)}),
+            (
+                'bulk', self._get_list_url(),
+                [{'id': interface.pk, 'description': 'Bulk'} for interface in interfaces],
+                {'Interface 1': (2, 1), 'Interface 2': (1, 0)},
+            ),
+        )
+        for label, url, data, expected in writes:
+            with self.subTest(write=label):
+                with (
+                    patch('netbox.context_managers.flush_events') as flush_events,
+                    CaptureQueriesContext(connection) as queries,
+                ):
+                    response = self.client.patch(f'{url}?fields=id,description', data, format='json', **self.header)
+                    self.assertHttpStatus(response, status.HTTP_200_OK)
+                    (events,) = flush_events.call_args.args
+                    # Update payloads serialize on first access
+                    counts = payload_counts(events)
+                self.assertEqual(counts, expected)
+                self.assertEqual(fallback_counts(queries), [])
+
+        # Delete payloads serialize before the rows go, within the request
+        with (
+            patch('netbox.context_managers.flush_events') as flush_events,
+            CaptureQueriesContext(connection) as queries,
+        ):
+            response = self.client.delete(f'{self._get_detail_url(interface1)}?fields=id', **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        (events,) = flush_events.call_args.args
+        self.assertEqual(payload_counts(events), {'Interface 1': (2, 1)})
+        self.assertEqual(fallback_counts(queries), [])
+
+    def test_pagination_count_excludes_count_subqueries(self):
+        """The pagination count of a DISTINCT-filtered list leaves out the count subqueries."""
+        self.add_permissions('dcim.view_interface')
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(self._get_list_url(), {'name': 'Interface 1'}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 1)
+        (count_sql,) = [
+            query['sql'] for query in queries.captured_queries if query['sql'].startswith('SELECT COUNT(*)')
+        ]
+        # The name filter must make the list DISTINCT for this test to mean anything
+        self.assertIn('DISTINCT', count_sql)
+        self.assertNotIn('"ipam_ipaddress"', count_sql)
+        self.assertNotIn('"ipam_fhrpgroupassignment"', count_sql)
 
 
 class FrontPortTestCase(APIViewTestCases.APIViewTestCase):

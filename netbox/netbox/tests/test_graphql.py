@@ -1,5 +1,6 @@
 import json
 import re
+from types import SimpleNamespace
 from unittest import mock, skipIf
 
 import strawberry
@@ -11,11 +12,13 @@ from django.db import connection
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
 from strawberry.schema.config import StrawberryConfig
+from strawberry_django.optimizer import DjangoOptimizerExtension
 
-from core.models import ObjectType
+from core.models import DataFile, DataSource, ObjectType
 from dcim.choices import LocationStatusChoices
 from dcim.models import (
     Device,
@@ -23,24 +26,29 @@ from dcim.models import (
     DeviceType,
     Interface,
     Location,
+    MACAddress,
     Manufacturer,
+    Platform,
     Rack,
     RackReservation,
     Site,
     VirtualChassis,
 )
 from extras.choices import CustomFieldTypeChoices
-from extras.models import CustomField, TableConfig, Tag
-from ipam.models import RIR, Aggregate, IPAddress, Prefix
+from extras.models import CustomField, ExportTemplate, JournalEntry, TableConfig, Tag
+from ipam.models import ASN, RIR, VLAN, Aggregate, IPAddress, Prefix
 from netbox.graphql.pagination import apply_distinct_window_pagination
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
+from netbox.graphql.types import PrimaryObjectType
 from netbox.graphql.utils import register_model_graphql_type, splice_extension_bases, validate_extension_final_names
 from netbox.registry import registry
 from netbox.tests.dummy_plugin.models import DummySiteAttachment
 from users.models import ObjectPermission, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases, TestCase, disable_warnings
+from vpn.choices import L2VPNTypeChoices
+from vpn.models import L2VPN, L2VPNTermination
 
 
 def count_primary_table_queries(queries, table):
@@ -449,6 +457,99 @@ class GraphQLAPITestCase(APITestCase):
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['device_list']), 3)
 
+    def test_graphql_64bit_object_ids(self):
+        """
+        Object IDs beyond the 32-bit range must be accepted by GraphQL output fields and filters. Regression test
+        for #23423.
+        """
+        self.add_permissions(
+            'extras.view_journalentry',
+            'extras.view_exporttemplate',
+            'vpn.view_l2vpntermination',
+        )
+        url = reverse('graphql')
+        object_id = 3_000_000_000
+
+        site = Site.objects.create(id=object_id, name='Site 64-bit', slug='site-64-bit')
+        JournalEntry.objects.create(assigned_object=site, comments='Test')
+        vlan = VLAN.objects.create(id=object_id, vid=100, name='VLAN 100')
+        l2vpn = L2VPN.objects.create(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN)
+        L2VPNTermination.objects.create(l2vpn=l2vpn, assigned_object=vlan)
+        data_source = DataSource.objects.create(id=object_id, name='Data Source 1', type='local', source_url='/tmp')
+        export_template = ExportTemplate.objects.create(
+            name='Export Template 1',
+            template_code='{{ queryset }}',
+            data_source=data_source,
+        )
+        export_template.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        # Output field (PositiveBigIntegerField)
+        query = '{ journal_entry_list { assigned_object_id } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['journal_entry_list'], [{'assigned_object_id': object_id}])
+
+        # Filter on a generic object ID
+        query = f'{{ l2vpn_termination_list(filters: {{assigned_object_id: "{object_id}"}}) {{ id }} }}'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['l2vpn_termination_list']), 1)
+
+        # Filter on a related object ID
+        query = f'{{ export_template_list(filters: {{data_source_id: "{object_id}"}}) {{ id }} }}'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['export_template_list'], [{'id': str(export_template.pk)}])
+
+    def test_graphql_bigint_filter_validation(self):
+        """
+        BigInt filter values must be validated as 64-bit integers before the query is executed.
+        """
+        self.add_permissions('ipam.view_asn')
+        url = reverse('graphql')
+        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
+        asn = ASN.objects.create(asn=4_200_000_000, rir=rir)
+
+        # Integers and numeric strings beyond the 32-bit range are accepted
+        for value in ('4200000000', '"4200000000"'):
+            query = f'{{ asn_list(filters: {{asn: {{filter_lookup: {{exact: {value}}}}}}}) {{ id }} }}'
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertEqual(data['data']['asn_list'], [{'id': str(asn.pk)}])
+
+        # Non-integer and out-of-range values are rejected
+        for value in ('1.5', '"abc"', 'true', str(2**63)):
+            query = f'{{ asn_list(filters: {{asn: {{filter_lookup: {{exact: {value}}}}}}}) {{ id }} }}'
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            data = json.loads(response.content)
+            self.assertIn('errors', data, msg=f'{value} was not rejected')
+            self.assertIn('BigInt cannot represent', data['errors'][0]['message'])
+
+        # Values passed as variables are validated the same way
+        query = 'query ($asn: BigInt) { asn_list(filters: {asn: {filter_lookup: {exact: $asn}}}) { id } }'
+        for value in (4_200_000_000, '4200000000'):
+            response = self.client.post(
+                url, data={'query': query, 'variables': {'asn': value}}, format='json', **self.header
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertEqual(data['data']['asn_list'], [{'id': str(asn.pk)}])
+        response = self.client.post(
+            url, data={'query': query, 'variables': {'asn': 'abc'}}, format='json', **self.header
+        )
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('BigInt cannot represent', data['errors'][0]['message'])
+
     def test_graphql_array_length_lookup(self):
         """
         The public GraphQL ``length`` array lookup must map to Django's ``len`` transform.
@@ -613,6 +714,92 @@ class GraphQLAPITestCase(APITestCase):
             msg=f'Expected batched tag prefetch, got {tag_queries} tag queries for 10 devices',
         )
 
+    def test_graphql_device_list_tags_pagination(self):
+        """
+        Pagination is applied independently to a prefetched list field (tags) for each object, without
+        resorting to a query per object.
+        """
+        self.add_permissions('dcim.view_device', 'extras.view_tag')
+
+        manufacturer = Manufacturer.objects.create(name='Pagination Manufacturer', slug='pagination-manufacturer')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Pagination Model',
+            slug='pagination-model',
+        )
+        device_role = DeviceRole.objects.create(name='Pagination Role', slug='pagination-role')
+        site = Site.objects.first()
+        devices = Device.objects.bulk_create([
+            Device(name=f'Pagination Device {index}', device_type=device_type, role=device_role, site=site)
+            for index in range(5)
+        ])
+        tags = [
+            Tag.objects.create(name=f'Pagination Tag {index}', slug=f'pagination-tag-{index}')
+            for index in range(8)
+        ]
+        devices[0].tags.set(tags[:5])
+        devices[1].tags.set(tags[3:])
+        url = reverse('graphql')
+
+        def get_device_tags(tags_field):
+            query = """
+            {
+                device_list(filters: {role: {slug: {exact: "pagination-role"}}}) {
+                    name
+                    TAGS_FIELD {
+                        slug
+                    }
+                }
+            }
+            """.replace('TAGS_FIELD', tags_field)
+            with CaptureQueriesContext(connection) as context:
+                response = self.client.post(url, data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            tag_queries = sum(1 for record in context.captured_queries if 'extras_tag' in record['sql'])
+            self.assertLessEqual(tag_queries, 2, msg=f'Expected batched tag prefetch, got {tag_queries} tag queries')
+            return {
+                device['name']: [tag['slug'] for tag in device['tags']]
+                for device in data['data']['device_list']
+                # The remaining devices have no tags, and exist only to detect a tag query per device
+                if device['name'] in ('Pagination Device 0', 'Pagination Device 1')
+            }
+
+        # Explicit pagination
+        self.assertEqual(get_device_tags('tags(pagination: {offset: 1, limit: 2})'), {
+            'Pagination Device 0': ['pagination-tag-1', 'pagination-tag-2'],
+            'Pagination Device 1': ['pagination-tag-4', 'pagination-tag-5'],
+        })
+
+        # No pagination: all tags are returned
+        self.assertEqual(get_device_tags('tags'), {
+            'Pagination Device 0': [tag.slug for tag in tags[:5]],
+            'Pagination Device 1': [tag.slug for tag in tags[3:]],
+        })
+
+        # MAX_PAGE_SIZE is enforced when no pagination is specified
+        with override_settings(MAX_PAGE_SIZE=3):
+            self.assertEqual(get_device_tags('tags'), {
+                'Pagination Device 0': [tag.slug for tag in tags[:3]],
+                'Pagination Device 1': [tag.slug for tag in tags[3:6]],
+            })
+
+        # A negative offset is rejected
+        query = """
+        {
+            device_list(filters: {role: {slug: {exact: "pagination-role"}}}) {
+                tags(pagination: {offset: -2}) {
+                    slug
+                }
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('Negative indexing is not supported', data['errors'][0]['message'])
+
     def test_graphql_ip_address_list_assigned_object(self):
         """
         Requesting assigned_object should batch prefetch related objects.
@@ -754,6 +941,102 @@ class GraphQLAPITestCase(APITestCase):
             site_queries,
             2,
             msg=f'Expected optimized site join, got {site_queries} site queries for 5 IP addresses',
+        )
+
+    def test_graphql_plugin_display_does_not_inherit_other_model_columns(self):
+        """Types decorated directly by plugins must not inherit another model's display hints."""
+        platform = Platform.objects.create(name='Display Platform', slug='display-platform')
+
+        @strawberry_django.type(Platform, fields=['name'])
+        class PluginPlatformType(PrimaryObjectType):
+            pass
+
+        @strawberry.type
+        class PluginQuery:
+            platforms: list[PluginPlatformType] = strawberry_django.field()
+
+        plugin_schema = strawberry.Schema(query=PluginQuery, extensions=[DjangoOptimizerExtension])
+        self.user.is_superuser = True
+        result = plugin_schema.execute_sync(
+            '{ platforms { name display } }',
+            context_value=SimpleNamespace(request=SimpleNamespace(user=self.user)),
+        )
+        self.assertIsNone(result.errors)
+        self.assertEqual(result.data['platforms'], [{'name': platform.name, 'display': str(platform)}])
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_datafile_display_does_not_load_binary_data(self):
+        """Rendering a file path must not select the file's binary contents."""
+        self.add_permissions('core.view_datafile')
+        source = DataSource.objects.create(name='Display Source', type='local', source_url='file:///tmp/display/')
+        datafile = DataFile.objects.create(
+            source=source, path='display.txt', last_updated=timezone.now(),
+            size=7, hash='0' * 64, data=b'content',
+        )
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.post(
+                reverse('graphql'), data={'query': '{ data_file_list { display } }'}, format='json', **self.header,
+            )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = response.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual(data['data']['data_file_list'], [{'display': datafile.path}])
+        file_queries = [q['sql'] for q in context.captured_queries if 'FROM "core_datafile"' in q['sql']]
+        self.assertTrue(file_queries)
+        for sql in file_queries:
+            self.assertNotIn('"core_datafile"."data"', sql)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_nested_display_is_batched(self):
+        """
+        Selecting `display` on a nested object must not reload each row to read deferred columns (no N+1).
+        """
+        self.add_permissions('dcim.view_device', 'dcim.view_interface', 'dcim.view_macaddress')
+
+        site = Site.objects.first()
+        manufacturer = Manufacturer.objects.create(name='Display Manufacturer', slug='display-manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Display Model', slug='display-model')
+        device_role = DeviceRole.objects.create(name='Display Role', slug='display-role')
+        devices = Device.objects.bulk_create([
+            Device(name=f'Display Device {index}', device_type=device_type, role=device_role, site=site)
+            for index in range(5)
+        ])
+        for index, device in enumerate(devices):
+            interface = Interface.objects.create(name='eth0', device=device, type='1000baset')
+            mac = MACAddress.objects.create(mac_address=f'00:00:00:00:00:{index:02x}', assigned_object=interface)
+            interface.primary_mac_address = mac
+            interface.save()
+
+        query = """
+        {
+            device_list(filters: {role: {slug: {exact: "display-role"}}}) {
+                name
+                interfaces {
+                    name
+                    primary_mac_address {
+                        display
+                    }
+                }
+            }
+        }
+        """
+        url = reverse('graphql')
+
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['device_list']), len(devices))
+        for device_data in data['data']['device_list']:
+            self.assertTrue(device_data['interfaces'][0]['primary_mac_address']['display'])
+
+        mac_queries = count_primary_table_queries(context.captured_queries, 'dcim_macaddress')
+        self.assertLessEqual(
+            mac_queries,
+            2,
+            msg=f'Expected batched MAC address lookup, got {mac_queries} MAC address queries for 5 devices',
         )
 
     def test_offset_pagination(self):

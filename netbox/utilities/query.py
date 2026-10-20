@@ -8,13 +8,13 @@ __all__ = (
 )
 
 
-def count_related(model, field):
+def count_related(model, field, **filters):
     """
     Return a Subquery suitable for annotating a child object count.
     """
     subquery = Subquery(
         model.objects.filter(
-            **{field: OuterRef('pk')}
+            **{field: OuterRef('pk')}, **filters
         ).order_by().values(
             field
         ).annotate(
