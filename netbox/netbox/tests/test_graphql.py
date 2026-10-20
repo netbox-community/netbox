@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
+from django.templatetags.static import static
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -42,6 +43,7 @@ from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
 from netbox.graphql.types import PrimaryObjectType
 from netbox.graphql.utils import register_model_graphql_type, splice_extension_bases, validate_extension_final_names
+from netbox.graphql.views import GraphiQLWorkerView
 from netbox.registry import registry
 from netbox.tests.dummy_plugin.models import DummySiteAttachment
 from users.models import ObjectPermission, User
@@ -121,12 +123,37 @@ class GraphQLTestCase(TestCase):
         # Authenticated request
         response = self.client.get(url, **header)
         self.assertHttpStatus(response, 200)
+        self.assertContains(response, static('graphiql/graphiql.css'))
+        self.assertContains(response, static('graphiql/graphiql.js'))
+        for name in GraphiQLWorkerView.workers:
+            self.assertContains(response, reverse('graphiql_worker', kwargs={'name': name}))
 
         # Non-authenticated request
         self.client.logout()
         response = self.client.get(url, **header)
         with disable_warnings('django.request'):
             self.assertHttpStatus(response, 302)  # Redirect to login page
+
+    def test_graphiql_workers(self):
+        """
+        Each of GraphiQL's web workers is started by an uncached script that imports it
+        """
+        for name in GraphiQLWorkerView.workers:
+            response = self.client.get(reverse('graphiql_worker', kwargs={'name': name}))
+            self.assertHttpStatus(response, 200)
+            self.assertEqual(response['Content-Type'], 'text/javascript')
+            self.assertIn('no-store', response['Cache-Control'])
+            self.assertRegex(
+                response.content.decode(),
+                rf'^importScripts\("{re.escape(static(f"graphiql/{name}.worker.js"))}\?v=[^"]+"\);$',
+            )
+
+        with disable_warnings('django.request'):
+            response = self.client.get(reverse('graphiql_worker', kwargs={'name': 'unknown'}))
+            self.assertHttpStatus(response, 404)
+            with override_settings(GRAPHQL_ENABLED=False):
+                response = self.client.get(reverse('graphiql_worker', kwargs={'name': 'editor'}))
+                self.assertHttpStatus(response, 404)
 
     def test_json_lookup_schema_is_string_backed(self):
         """JSONLookup date/time lookups keep the legacy string-backed input types and fields."""

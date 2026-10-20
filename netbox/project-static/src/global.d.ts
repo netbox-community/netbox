@@ -6,6 +6,11 @@ type Dict<T = unknown> = Record<string, T>;
 
 type Nullable<T> = T | null;
 
+/**
+ * Stylesheets imported for their side effects, which esbuild bundles into a sibling CSS file.
+ */
+declare module '*.css';
+
 interface Window {
   /**
    * Bootstrap Collapse Instance.

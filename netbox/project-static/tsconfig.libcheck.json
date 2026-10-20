@@ -1,0 +1,10 @@
+{
+  // tsconfig.json enables skipLibCheck, because some of GraphiQL's dependencies ship declarations
+  // that fail to type-check. That also skips NetBox's own declaration files (src/global.d.ts), so
+  // this config checks all declaration files used by everything except the GraphiQL entry point.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": false
+  },
+  "exclude": ["src/graphiql.ts"]
+}

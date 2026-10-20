@@ -1,5 +1,6 @@
 // Compile NetBox's TypeScript and SCSS sources into dist/. Exits non-zero on any failure.
-import { copyFile, mkdir, rename, rm } from 'node:fs/promises';
+import { rename, rm } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
@@ -26,29 +27,51 @@ const BACKUP_DIR = '.dist-backup';
 const outdir = fullBuild ? STAGING_DIR : 'dist';
 const common = { absWorkingDir: ROOT, outdir, bundle: true, minify: true, logLevel: 'warning' };
 
+// GraphiQL's editor (Monaco) runs its language services in web workers, which are built as separate
+// entry points. Resolve them through @graphiql/react, so that they always match the version of
+// Monaco it pins.
+const requireFrom = (require, name) => createRequire(require.resolve(`${name}/package.json`));
+const graphiqlReact = requireFrom(
+  requireFrom(createRequire(import.meta.url), 'graphiql'),
+  '@graphiql/react',
+);
+const graphiqlEntryPoints = {
+  graphiql: 'src/graphiql.ts',
+  'editor.worker': graphiqlReact.resolve('monaco-editor/esm/vs/editor/editor.worker.js'),
+  'json.worker': graphiqlReact.resolve('monaco-editor/esm/vs/language/json/json.worker.js'),
+  'graphql.worker': graphiqlReact.resolve('monaco-graphql/esm/graphql.worker.js'),
+};
+
+// graphiql/style.css already includes Monaco's styles, with its icon font inlined. Skip the copies
+// that Monaco's own modules import, which reference the font by a relative URL.
+const skipMonacoCss = {
+  name: 'skip-monaco-css',
+  setup(build) {
+    build.onLoad({ filter: /[\\/]monaco-editor[\\/]esm[\\/].+\.css$/ }, () => ({
+      contents: '',
+      loader: 'empty',
+    }));
+  },
+};
+
 async function buildScripts() {
-  await esbuild.build({
-    ...common,
-    entryPoints: { netbox: 'src/index.ts' },
-    sourcemap: 'linked',
-    target: 'es2016',
-  });
-  // GraphiQL ships prebuilt UMD bundles; copy them as-is.
-  const graphiql = {
-    'react/umd/react.production.min.js': 'react.production.min.js',
-    'react-dom/umd/react-dom.production.min.js': 'react-dom.production.min.js',
-    'js-cookie/dist/js.cookie.min.js': 'js.cookie.min.js',
-    'graphiql/graphiql.min.js': 'graphiql.min.js',
-    'graphiql/graphiql.min.css': 'graphiql.min.css',
-    '@graphiql/plugin-explorer/dist/index.umd.js': 'index.umd.js',
-    '@graphiql/plugin-explorer/dist/style.css': 'plugin-explorer-style.css',
-  };
-  await mkdir(`${outdir}/graphiql`, { recursive: true });
-  await Promise.all(
-    Object.entries(graphiql).map(([src, dest]) =>
-      copyFile(`node_modules/${src}`, `${outdir}/graphiql/${dest}`),
-    ),
-  );
+  await Promise.all([
+    esbuild.build({
+      ...common,
+      entryPoints: { netbox: 'src/index.ts' },
+      sourcemap: 'linked',
+      target: 'es2016',
+    }),
+    // Static files may be served with signed URLs (e.g. from S3), which a relative URL can't
+    // reproduce. So no GraphiQL file may load another by a relative URL: graphiql.js is a classic
+    // script, the page tells it where to find the workers, and its CSS references no other files.
+    esbuild.build({
+      ...common,
+      outdir: `${outdir}/graphiql`,
+      entryPoints: graphiqlEntryPoints,
+      plugins: [skipMonacoCss],
+    }),
+  ]);
 }
 
 async function buildStyles() {
