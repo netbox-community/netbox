@@ -11,12 +11,7 @@ const REVIEW_SEPARATELY = 'Minor and major upgrades are reviewed separately';
 const HELD = {
   '@tabler/core': { range: 'patch', reason: REVIEW_SEPARATELY },
   bootstrap: { range: 'patch', reason: REVIEW_SEPARATELY },
-  '@graphiql/plugin-explorer': { range: '4.x', reason: 'v5 drops the UMD build we copy' },
-  graphiql: { range: '4.x', reason: 'v5 drops the UMD build we copy' },
-  graphql: { range: '16.x', reason: 'Peer range of the GraphiQL 4 explorer plugin' },
   'htmx.org': { range: '2.x', reason: 'htmx 4 renames events that plugins listen for' },
-  react: { range: '18.x', reason: 'React 19 ships no UMD build' },
-  'react-dom': { range: '18.x', reason: 'React 19 ships no UMD build' },
   sass: { range: '<3', reason: 'Dart Sass 3 removes @import, which our SCSS still uses' },
   typescript: { range: '6.0.x', reason: 'typescript-eslint supports TypeScript < 6.1' },
 };

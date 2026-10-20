@@ -7,6 +7,9 @@
     "noEmit": true,
     "strict": true,
     "noUnusedLocals": true,
+    // Some of GraphiQL's dependencies ship declarations that fail to type-check, e.g. by importing
+    // optional packages that aren't installed (graphql-ws, graphql-config)
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src"]

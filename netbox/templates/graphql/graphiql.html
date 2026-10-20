@@ -46,102 +46,11 @@
       }
     </style>
 
-    <script src="{% static 'graphiql/react.production.min.js' %}"></script>
-    <script src="{% static 'graphiql/react-dom.production.min.js' %}"></script>
-    <script src="{% static 'graphiql/js.cookie.min.js' %}"></script>
-
-    <link rel="stylesheet" href="{% static 'graphiql/graphiql.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'graphiql/plugin-explorer-style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'graphiql/graphiql.css' %}"/>
   </head>
 
   <body>
     <div id="graphiql" class="graphiql-container">Loading...</div>
-    <script src="{% static 'graphiql/graphiql.min.js' %}"></script>
-    <script src="{% static 'graphiql/index.umd.js' %}"></script>
-
-    <script>
-      const EXAMPLE_QUERY = `# Welcome to GraphiQL 🍓
-#
-# GraphiQL is an in-browser tool for writing, validating, and
-# testing GraphQL queries.
-#
-# Type queries into this side of the screen, and you will see intelligent
-# typeaheads aware of the current GraphQL type schema and live syntax and
-# validation errors highlighted within the text.
-#
-# GraphQL queries typically start with a "{" character. Lines that starts
-# with a # are ignored.
-#
-# An example GraphQL query might look like:
-#
-#     {
-#       field(arg: "value") {
-#         subField
-#       }
-#     }
-#
-# Keyboard shortcuts:
-#
-#       Run Query:  Ctrl-Enter (or press the play button above)
-#
-#   Auto Complete:  Ctrl-Space (or just start typing)
-#
-`;
-
-      let sharedQuery;
-      const hashArgs = new URLSearchParams(window.location.hash.substring(1));
-      if (hashArgs.has('query')) {
-        sharedQuery = hashArgs.get('query');
-        // reset url to not motivate copying of stale URL
-        hashArgs.delete('query');
-        let remainingHash = "";
-        if (hashArgs.size !== 0) {
-          remainingHash = `#${hashArgs.toString()}`;
-        }
-        history.pushState("", document.title,
-          window.location.pathname + window.location.search + remainingHash
-        );
-      }
-
-      const fetchURL = window.location.href;
-
-      function httpUrlToWebSockeUrl(url) {
-        const parsedURL = new URL(url);
-        const protocol = parsedURL.protocol === "http:" ? "ws:" : "wss:";
-        parsedURL.protocol = protocol;
-        parsedURL.hash = "";
-        return parsedURL.toString();
-      }
-
-      const headers = {};
-      const csrfToken = Cookies.get("csrftoken");
-
-      if (csrfToken) {
-        headers["x-csrftoken"] = csrfToken;
-      }
-
-      const subscriptionUrl = httpUrlToWebSockeUrl(fetchURL);
-
-      const fetcher = GraphiQL.createFetcher({
-        url: fetchURL,
-        headers: headers,
-        subscriptionUrl,
-      });
-
-      const explorerPlugin = GraphiQLPluginExplorer.explorerPlugin();
-
-      const root = ReactDOM.createRoot(document.getElementById("graphiql"));
-
-      root.render(
-        React.createElement(GraphiQL, {
-          fetcher: fetcher,
-          defaultEditorToolsVisibility: true,
-          plugins: [explorerPlugin],
-          inputValueDeprecation: true,
-          defaultQuery: EXAMPLE_QUERY,
-          query: sharedQuery,
-        }),
-      );
-    </script>
+    <script type="module" src="{% static 'graphiql/graphiql.js' %}"></script>
   </body>
 </html>

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
+from django.templatetags.static import static
 from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -121,6 +122,8 @@ class GraphQLTestCase(TestCase):
         # Authenticated request
         response = self.client.get(url, **header)
         self.assertHttpStatus(response, 200)
+        self.assertContains(response, static('graphiql/graphiql.css'))
+        self.assertContains(response, static('graphiql/graphiql.js'))
 
         # Non-authenticated request
         self.client.logout()
