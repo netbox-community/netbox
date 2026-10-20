@@ -1,4 +1,3 @@
-{% load static %}
 {% comment %}
   This template derives from the strawberry-graphql project:
   https://github.com/strawberry-graphql/strawberry/blob/main/strawberry/static/graphiql.html
@@ -46,11 +45,17 @@
       }
     </style>
 
-    <link rel="stylesheet" href="{% static 'graphiql/graphiql.css' %}"/>
+    <link rel="stylesheet" href="{% static_with_params 'graphiql/graphiql.css' v=settings.RELEASE.version %}"/>
   </head>
 
   <body>
-    <div id="graphiql" class="graphiql-container">Loading...</div>
-    <script type="module" src="{% static 'graphiql/graphiql.js' %}"></script>
+    <div
+      id="graphiql"
+      class="graphiql-container"
+      data-editor-worker="{% url 'graphiql_worker' name='editor' %}"
+      data-graphql-worker="{% url 'graphiql_worker' name='graphql' %}"
+      data-json-worker="{% url 'graphiql_worker' name='json' %}"
+    >Loading...</div>
+    <script src="{% static_with_params 'graphiql/graphiql.js' v=settings.RELEASE.version %}"></script>
   </body>
 </html>

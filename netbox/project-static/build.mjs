@@ -27,18 +27,31 @@ const BACKUP_DIR = '.dist-backup';
 const outdir = fullBuild ? STAGING_DIR : 'dist';
 const common = { absWorkingDir: ROOT, outdir, bundle: true, minify: true, logLevel: 'warning' };
 
-// GraphiQL's editor (Monaco) runs its language services in web workers, which src/graphiql.ts
-// loads from beside its own bundle. Resolve them through @graphiql/react, so that they always match
-// the version of Monaco it pins.
+// GraphiQL's editor (Monaco) runs its language services in web workers, which are built as separate
+// entry points. Resolve them through @graphiql/react, so that they always match the version of
+// Monaco it pins.
 const requireFrom = (require, name) => createRequire(require.resolve(`${name}/package.json`));
 const graphiqlReact = requireFrom(
   requireFrom(createRequire(import.meta.url), 'graphiql'),
   '@graphiql/react',
 );
-const monacoWorkers = {
+const graphiqlEntryPoints = {
+  graphiql: 'src/graphiql.ts',
   'editor.worker': graphiqlReact.resolve('monaco-editor/esm/vs/editor/editor.worker.js'),
   'json.worker': graphiqlReact.resolve('monaco-editor/esm/vs/language/json/json.worker.js'),
   'graphql.worker': graphiqlReact.resolve('monaco-graphql/esm/graphql.worker.js'),
+};
+
+// graphiql/style.css already includes Monaco's styles, with its icon font inlined. Skip the copies
+// that Monaco's own modules import, which reference the font by a relative URL.
+const skipMonacoCss = {
+  name: 'skip-monaco-css',
+  setup(build) {
+    build.onLoad({ filter: /[\\/]monaco-editor[\\/]esm[\\/].+\.css$/ }, () => ({
+      contents: '',
+      loader: 'empty',
+    }));
+  },
 };
 
 async function buildScripts() {
@@ -49,21 +62,14 @@ async function buildScripts() {
       sourcemap: 'linked',
       target: 'es2016',
     }),
-    // An ES module, so that it can locate the workers via import.meta.url. The CSS it imports
-    // (including Monaco's, which references the codicon font) is written to graphiql.css.
+    // Static files may be served with signed URLs (e.g. from S3), which a relative URL can't
+    // reproduce. So no GraphiQL file may load another by a relative URL: graphiql.js is a classic
+    // script, the page tells it where to find the workers, and its CSS references no other files.
     esbuild.build({
       ...common,
       outdir: `${outdir}/graphiql`,
-      entryPoints: { graphiql: 'src/graphiql.ts' },
-      format: 'esm',
-      loader: { '.ttf': 'file' },
-    }),
-    // Classic (non-module) workers
-    esbuild.build({
-      ...common,
-      outdir: `${outdir}/graphiql`,
-      entryPoints: monacoWorkers,
-      format: 'iife',
+      entryPoints: graphiqlEntryPoints,
+      plugins: [skipMonacoCss],
     }),
   ]);
 }

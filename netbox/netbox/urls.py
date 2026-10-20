@@ -7,7 +7,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from account.views import LoginView, LogoutView, SocialAuthBeginView
 from netbox.api.views import APIRootView, AuthenticationCheckView, StatusView
 from netbox.graphql.schema import schema
-from netbox.graphql.views import NetBoxGraphQLView
+from netbox.graphql.views import GraphiQLWorkerView, NetBoxGraphQLView
 from netbox.plugins.urls import plugin_api_patterns, plugin_patterns
 from netbox.views import HomeView, MediaView, SearchView, StaticMediaFailureView, htmx
 
@@ -69,6 +69,7 @@ _patterns = [
 
     # GraphQL
     path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
+    path('graphql/workers/<str:name>.js', GraphiQLWorkerView.as_view(), name='graphiql_worker'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', MediaView.as_view(), name='media'),

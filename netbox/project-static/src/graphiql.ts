@@ -5,8 +5,7 @@ import { createGraphiQLFetcher } from '@graphiql/toolkit';
 import { GraphiQL, HISTORY_PLUGIN } from 'graphiql';
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-// GraphiQL's stylesheet includes Monaco's. Import it after the scripts, so that it follows the
-// copy of Monaco's styles that Monaco's own modules import.
+// Includes Monaco's styles (see build.mjs)
 import 'graphiql/style.css';
 import '@graphiql/plugin-explorer/style.css';
 
@@ -58,19 +57,22 @@ function takeSharedQuery(): string | undefined {
   return query;
 }
 
-// Monaco (GraphiQL's editor) runs its language services in web workers. build.mjs writes them
-// beside this bundle, so they are served from the page's own origin, as browsers require.
+const container = document.getElementById('graphiql')!;
+
+// Monaco (GraphiQL's editor) runs its language services in web workers. Browsers won't start a
+// worker from another origin, which static files may be served from, so the page provides a URL
+// for each worker on NetBox's own origin (see GraphiQLWorkerView).
 self.MonacoEnvironment = {
   getWorker(_workerId, label) {
     const name = label === 'json' || label === 'graphql' ? label : 'editor';
-    return new Worker(new URL(`${name}.worker.js`, import.meta.url));
+    return new Worker(container.dataset[`${name}Worker`]!);
   },
 };
 
 const sharedQuery = takeSharedQuery();
 const fetcher = createGraphiQLFetcher({ url: window.location.href });
 
-createRoot(document.getElementById('graphiql')!).render(
+createRoot(container).render(
   createElement(GraphiQL, {
     fetcher,
     // Passing any plugins replaces the default History plugin, so include it explicitly
