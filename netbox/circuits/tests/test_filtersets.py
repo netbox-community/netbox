@@ -1015,6 +1015,9 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 1',
                 type=virtual_circuit_types[0],
                 status=CircuitStatusChoices.STATUS_PLANNED,
+                install_date='2020-01-01',
+                termination_date='2021-01-01',
+                commit_rate=1000,
                 description='virtualcircuit1',
             ),
             VirtualCircuit(
@@ -1024,6 +1027,9 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 2',
                 type=virtual_circuit_types[1],
                 status=CircuitStatusChoices.STATUS_ACTIVE,
+                install_date='2020-01-02',
+                termination_date='2021-01-02',
+                commit_rate=2000,
                 description='virtualcircuit2',
             ),
             VirtualCircuit(
@@ -1033,6 +1039,9 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
                 cid='Virtual Circuit 3',
                 type=virtual_circuit_types[2],
                 status=CircuitStatusChoices.STATUS_DEPROVISIONING,
+                install_date='2020-01-03',
+                termination_date='2021-01-03',
+                commit_rate=3000,
                 description='virtualcircuit3',
             ),
         )
@@ -1044,6 +1053,18 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTestMixin):
 
     def test_cid(self):
         params = {'cid': ['Virtual Circuit 1', 'Virtual Circuit 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_install_date(self):
+        params = {'install_date': ['2020-01-01', '2020-01-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_termination_date(self):
+        params = {'termination_date': ['2021-01-01', '2021-01-02']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_commit_rate(self):
+        params = {'commit_rate': ['1000', '2000']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_provider(self):

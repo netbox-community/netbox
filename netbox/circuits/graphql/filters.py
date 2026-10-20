@@ -200,6 +200,11 @@ class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilter):
     status: BaseFilterLookup[Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    install_date: DateFilterLookup | None = strawberry_django.filter_field()
+    termination_date: DateFilterLookup | None = strawberry_django.filter_field()
+    commit_rate: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
     group_assignments: Annotated['CircuitGroupAssignmentFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

@@ -5,6 +5,8 @@ from circuits.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
+from .columns import CommitRateColumn
+
 __all__ = (
     'VirtualCircuitTable',
     'VirtualCircuitTerminationTable',
@@ -63,6 +65,9 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         url_params={'virtual_circuit_id': 'pk'},
         verbose_name=_('Terminations')
     )
+    commit_rate = CommitRateColumn(
+        verbose_name=_('Commit Rate')
+    )
     tags = columns.TagColumn(
         url_name='circuits:virtualcircuit_list'
     )
@@ -76,7 +81,8 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         model = VirtualCircuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
-            'tenant_group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated', 'assignments',
+            'tenant_group', 'install_date', 'termination_date', 'commit_rate', 'description', 'comments', 'contacts',
+            'tags', 'created', 'last_updated', 'assignments',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',

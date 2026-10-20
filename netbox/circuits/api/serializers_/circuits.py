@@ -188,7 +188,8 @@ class VirtualCircuitSerializer(PrimaryModelSerializer):
         model = VirtualCircuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'type', 'status',
-            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'tenant', 'install_date', 'termination_date', 'commit_rate', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'provider_network', 'cid', 'description')
 

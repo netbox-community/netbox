@@ -674,6 +674,9 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'provider_account': provider_accounts[1].pk,
             'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_PLANNED,
+            'install_date': datetime.date(2020, 1, 1),
+            'termination_date': datetime.date(2021, 1, 1),
+            'commit_rate': 1000,
             'description': 'A new virtual circuit',
             'comments': 'Some comments',
             'tags': [t.pk for t in tags],
@@ -716,6 +719,7 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'provider_account': provider_accounts[1].pk,
             'type': virtual_circuit_types[1].pk,
             'status': CircuitStatusChoices.STATUS_DECOMMISSIONED,
+            'commit_rate': 2000,
             'description': 'New description',
             'comments': 'New comments',
         }

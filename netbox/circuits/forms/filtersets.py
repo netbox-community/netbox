@@ -338,7 +338,7 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, Primar
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
-        FieldSet('type_id', 'status', name=_('Attributes')),
+        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -373,6 +373,24 @@ class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, Primar
         label=_('Status'),
         choices=CircuitStatusChoices,
         required=False
+    )
+    install_date = forms.DateField(
+        label=_('Install date'),
+        required=False,
+        widget=DatePicker
+    )
+    termination_date = forms.DateField(
+        label=_('Termination date'),
+        required=False,
+        widget=DatePicker
+    )
+    commit_rate = forms.IntegerField(
+        required=False,
+        min_value=0,
+        label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
     )
     tag = TagFilterField(model)
 

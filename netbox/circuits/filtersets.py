@@ -567,7 +567,7 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VirtualCircuit
-        fields = ('id', 'cid', 'description')
+        fields = ('id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate')
 
     def search(self, queryset, name, value):
         if not value.strip():

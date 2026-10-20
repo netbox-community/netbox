@@ -238,8 +238,8 @@ class VirtualCircuitImportForm(PrimaryModelImportForm):
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'type', 'status', 'tenant', 'description', 'owner',
-            'comments', 'tags',
+            'cid', 'provider_network', 'provider_account', 'type', 'status', 'tenant', 'install_date',
+            'termination_date', 'commit_rate', 'description', 'owner', 'comments', 'tags',
         ]
 
 

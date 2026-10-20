@@ -286,14 +286,32 @@ class VirtualCircuitBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    install_date = forms.DateField(
+        label=_('Install date'),
+        required=False,
+        widget=DatePicker()
+    )
+    termination_date = forms.DateField(
+        label=_('Termination date'),
+        required=False,
+        widget=DatePicker()
+    )
+    commit_rate = forms.IntegerField(
+        required=False,
+        label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
+    )
 
     model = VirtualCircuit
     fieldsets = (
         FieldSet('provider_network', 'provider_account', 'status', 'description', name=_('Virtual circuit')),
+        FieldSet('install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
         FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
-        'provider_account', 'tenant', 'description', 'comments',
+        'provider_account', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description', 'comments',
     )
 
 

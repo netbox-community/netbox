@@ -69,6 +69,22 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
         blank=True,
         null=True
     )
+    install_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name=_('installed')
+    )
+    termination_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name=_('terminates')
+    )
+    commit_rate = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name=_('commit rate (Kbps)'),
+        help_text=_("Committed rate")
+    )
 
     group_assignments = GenericRelation(
         to='circuits.CircuitGroupAssignment',
@@ -78,7 +94,8 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
     )
 
     clone_fields = (
-        'provider_network', 'provider_account', 'status', 'tenant', 'description',
+        'provider_network', 'provider_account', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
+        'description',
     )
     prerequisite_models = (
         'circuits.ProviderNetwork',
