@@ -10,6 +10,8 @@ __all__ = (
     'save_table_with_pk_allocation',
 )
 
+# The stock methods replaced by the functions below. Callers may pass arguments to these positionally, so each
+# function's signature must match that of the method it replaces; a test verifies this.
 _bulk_create = models.QuerySet.bulk_create
 _prepare_for_bulk_create = models.QuerySet._prepare_for_bulk_create
 _save_table = models.Model._save_table
@@ -32,7 +34,8 @@ def save_table_with_pk_allocation(
     """
     pk = cls._meta.pk
     if (
-        isinstance(pk, AutoFieldMixin)
+        registry['pk_allocators']
+        and isinstance(pk, AutoFieldMixin)
         and not (force_update or update_fields)
         and not instance._is_pk_set(cls._meta)
         and (pks := allocate_pks(pk.model, using=using))
@@ -40,11 +43,17 @@ def save_table_with_pk_allocation(
         unallocated_pk = getattr(instance, pk.attname)
         setattr(instance, pk.attname, pks[0])
         try:
-            return _save_table(instance, raw, cls, True, force_update, using, update_fields)
+            return _save_table(
+                instance, raw=raw, cls=cls, force_insert=True, force_update=force_update, using=using,
+                update_fields=update_fields
+            )
         except Exception:
             setattr(instance, pk.attname, unallocated_pk)
             raise
-    return _save_table(instance, raw, cls, force_insert, force_update, using, update_fields)
+    return _save_table(
+        instance, raw=raw, cls=cls, force_insert=force_insert, force_update=force_update, using=using,
+        update_fields=update_fields
+    )
 
 
 def prepare_for_bulk_create_with_pk_allocation(queryset, objs):
@@ -59,6 +68,7 @@ def prepare_for_bulk_create_with_pk_allocation(queryset, objs):
     # QuerySet.db resolves to the database being written to, since bulk_create() has already set _for_write
     if (
         objs_without_pk
+        and registry['pk_allocators']
         and isinstance(pk, AutoFieldMixin)
         and (pks := allocate_pks(pk.model, len(objs_without_pk), using=queryset.db))
     ):

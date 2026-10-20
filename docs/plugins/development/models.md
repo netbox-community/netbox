@@ -228,13 +228,18 @@ def my_allocator(model, count, using):
 
 Allocators are consulted in the order in which they were registered. If no allocator supplies primary keys, the database assigns them as usual. Registering an allocator which is already registered has no effect.
 
-NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`, for any model with an automatically assigned (auto field) primary key. This includes NetBox's own models, plugin models, the auto-created through models of many-to-many relationships, models belonging to other Django apps (such as `ContentType`), and the historical models used by data migrations (`RunPython` operations). An object which already has a primary key is saved as usual, without consulting allocators. When an allocator supplies a primary key, the object is always inserted as a new row: if that primary key is already in use, the save fails rather than overwriting the existing row.
+NetBox consults allocators whenever an object without a primary key is created via the ORM, from both `save()` and `bulk_create()`, for any model with an automatically assigned (auto field) primary key. This includes NetBox's own models, plugin models, the auto-created through models of many-to-many relationships, models belonging to other Django apps (such as `ContentType`), and the historical models used by data migrations (`RunPython` operations). An object which already has a primary key is saved as usual, without consulting allocators.
+
+When an allocator supplies a primary key, the object is inserted as a new row: if that primary key is already in use, `save()` or `bulk_create()` fails rather than overwriting the existing row. If the insert fails for any reason, the allocated primary key is withdrawn from the object, so that saving it again obtains a new primary key from the allocators. Two options of `bulk_create()` change this behavior:
+
+* With `ignore_conflicts=True`, a row whose primary key is already in use is skipped silently, like any other conflicting row. Since there's no telling which rows were inserted, the allocated primary keys are then withdrawn from every object, as `bulk_create()` doesn't set primary keys in this mode.
+* With `update_conflicts=True` and the primary key among `unique_fields`, the existing row with that primary key is updated instead.
 
 A few things to keep in mind when writing an allocator:
 
 * It is called for every model with an auto field primary key, and for every database. It should return `None` promptly for any model or database it doesn't handle.
 * The model it receives may be a historical model, built from migration state while a data migration runs. Identify models by their attributes (such as `model._meta.label` or `model._meta.db_table`) rather than by comparing classes.
-* Under multi-table inheritance, it receives the parent model, which owns the primary key column.
+* Under multi-table inheritance, it receives the parent model, which owns the primary key column. For a proxy model, it receives the concrete model.
 * `save()` requests one primary key at a time, whereas `bulk_create()` requests all of the primary keys it needs in a single call. An allocator which obtains primary keys from a remote source may wish to fetch them in blocks and hand them out from a local cache.
 * It must never return a primary key which is already in use. Some operations, such as adding many-to-many relationships or tags, silently skip rows which conflict with existing ones, so a duplicate primary key won't always raise an error.
 * Primary keys it supplies don't advance the table's sequence. If it supplies values which the sequence could later reach, it is responsible for advancing the sequence past them (for example, using PostgreSQL's `setval()`). Otherwise, once the allocator stops supplying primary keys, the database may assign primary keys which are already in use.

@@ -1,3 +1,4 @@
+import inspect
 from unittest.mock import patch
 
 from django.apps import apps
@@ -7,11 +8,15 @@ from django.db.migrations.state import ProjectState
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 
+from account.models import UserToken
+from core.models import ObjectType
 from dcim.models import Manufacturer, Site
 from extras.models import Tag
 from netbox.registry import registry
 from netbox.utils import allocate_pks, register_pk_allocator
 from tenancy.models import Tenant
+from users.models import Token, User
+from utilities import pk_allocation
 
 
 def get_sequential_allocator(model, start=1_000_000):
@@ -330,6 +335,35 @@ class PKAllocatorTestCase(TestCase):
 
         self.assertEqual(content_type.pk, 1_000_000)
 
+    def test_multi_table_inheritance_with_allocator(self):
+        # The allocator receives the parent model, which owns the primary key column, and the primary key it supplies
+        # is shared by the parent and child rows
+        allocator, calls = get_sequential_allocator(ContentType)
+        register_pk_allocator(allocator)
+        object_type = ObjectType(app_label='test', model='test')
+        object_type.save()
+
+        self.assertEqual(
+            [call for call in calls if call[0] in (ContentType, ObjectType)],
+            [(ContentType, 1, DEFAULT_DB_ALIAS)]
+        )
+        self.assertEqual(object_type.pk, 1_000_000)
+        self.assertTrue(ContentType.objects.filter(pk=1_000_000, app_label='test', model='test').exists())
+        self.assertTrue(ObjectType.objects.filter(pk=1_000_000).exists())
+
+    def test_proxy_model_with_allocator(self):
+        # The allocator receives the concrete model of a proxy model
+        user = User.objects.create_user(username='user1')
+        allocator, calls = get_sequential_allocator(Token)
+        register_pk_allocator(allocator)
+        token = UserToken.objects.create(user=user)
+
+        self.assertEqual(
+            [call for call in calls if call[0] in (Token, UserToken)],
+            [(Token, 1, DEFAULT_DB_ALIAS)]
+        )
+        self.assertEqual(token.pk, 1_000_000)
+
     def test_historical_model_with_allocator(self):
         # The historical models used by data migrations are also supported, via both save() and bulk_create()
         HistoricalManufacturer = ProjectState.from_apps(apps).apps.get_model('dcim', 'Manufacturer')
@@ -371,3 +405,19 @@ class PKAllocatorTestCase(TestCase):
             with self.subTest(**kwargs), self.assertRaises(ValueError), transaction.atomic():
                 Manufacturer(name='Manufacturer 1', slug='manufacturer-1').save(**kwargs)
         self.assertNotIn((Manufacturer, 1, DEFAULT_DB_ALIAS), calls)
+
+    def test_replaced_method_signatures(self):
+        # Each replacement must accept the same arguments as the stock Django method it replaces. If this fails after
+        # upgrading Django, update the replacement in utilities.pk_allocation to match the method's new signature.
+        def get_params(func):
+            # Omit the first parameter, which the replacements name differently (e.g. "instance" rather than "self")
+            return [(p.name, p.kind, p.default) for p in list(inspect.signature(func).parameters.values())[1:]]
+
+        replacements = (
+            (pk_allocation._save_table, pk_allocation.save_table_with_pk_allocation),
+            (pk_allocation._prepare_for_bulk_create, pk_allocation.prepare_for_bulk_create_with_pk_allocation),
+            (pk_allocation._bulk_create, pk_allocation.bulk_create_with_pk_allocation),
+        )
+        for method, replacement in replacements:
+            with self.subTest(method=method.__qualname__):
+                self.assertEqual(get_params(replacement), get_params(method))
