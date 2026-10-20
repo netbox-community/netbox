@@ -16,11 +16,11 @@ export function initFilterModifiers(): void {
     const modifierSelects = form.querySelectorAll<HTMLSelectElement>('.modifier-select');
     if (modifierSelects.length === 0) continue;
 
-    // HTMX-driven forms (e.g. the object selector) submit via XHR, so the page URL doesn't
-    // reflect their state and navigating away would discard the page the form lives in.
-    const isHtmxForm = form.hasAttribute('hx-get');
+    // HTMX-driven forms submit via XHR; navigating away would discard the page the form lives in
+    const isHtmxForm = form.hasAttribute('hx-get') || form.hasAttribute('data-hx-get');
 
-    if (!isHtmxForm) {
+    // The object selector lives in a modal, so the page URL doesn't reflect its state
+    if (!form.hasAttribute('data-object-selector')) {
       initializeFromURL(form);
     }
 

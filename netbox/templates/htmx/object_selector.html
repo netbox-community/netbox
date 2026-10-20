@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="col-9">
-    <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results" hx-trigger="load, submit, change, keyup from:#id_q delay:500ms">
+    <form data-object-selector hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results" hx-trigger="load, submit, change, keyup from:#id_q delay:500ms">
       <input type="hidden" name="_search" value="true" />
       <div class="tab-content p-1">
         {% for field in form.visible_fields %}

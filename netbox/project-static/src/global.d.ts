@@ -82,3 +82,14 @@ type ColorModePreference = ColorMode | 'none';
 type ColorModeData = {
   netboxColorMode: ColorMode;
 };
+
+/**
+ * interface for htmx configRequest event
+ */
+interface HTMLElementEventMap {
+  'htmx:configRequest': CustomEvent<{
+    parameters: Record<string, string>;
+    formData: FormData;
+    headers: Record<string, string>;
+  }>;
+}
