@@ -1192,7 +1192,7 @@ It looks like you are trying to use the hook outside the GraphiQL provider tree.
 #
 #   Auto Complete:  Ctrl-Space (or just start typing)
 #
-`;function URi(){let i=new URLSearchParams(window.location.hash.substring(1)),e=i.get("query");if(e===null)return;i.delete("query");let t=i.size?`#${i.toString()}`:"";return history.pushState("",document.title,window.location.pathname+window.location.search+t),e}var Bzt=document.getElementById("graphiql");self.MonacoEnvironment={getWorker(i,e){let t=e==="json"||e==="graphql"?e:"editor";return new Worker(Bzt.dataset[`${t}Worker`])}};var WRi=URi(),jRi=c7e({url:window.location.href});(0,Pzt.createRoot)(Bzt).render((0,Ozt.createElement)(vI,{fetcher:jRi,plugins:[$8,B4t()],defaultEditorToolsVisibility:!0,inputValueDeprecation:!0,defaultQuery:VRi,initialQuery:WRi}));})();
+`;function URi(){let i=new URLSearchParams(window.location.hash.substring(1)),e=i.get("query");if(e===null)return;i.delete("query");let t=i.size?`#${i.toString()}`:"";return history.replaceState("",document.title,window.location.pathname+window.location.search+t),e}var Bzt=document.getElementById("graphiql");self.MonacoEnvironment={getWorker(i,e){let t=e==="json"||e==="graphql"?e:"editor";return new Worker(Bzt.dataset[`${t}Worker`])}};var WRi=URi(),jRi=c7e({url:window.location.href});(0,Pzt.createRoot)(Bzt).render((0,Ozt.createElement)(vI,{fetcher:jRi,plugins:[$8,B4t()],defaultEditorToolsVisibility:!0,inputValueDeprecation:!0,defaultQuery:VRi,initialQuery:WRi}));})();
 /*! Bundled license information:
 
 react/cjs/react-jsx-runtime.production.js:

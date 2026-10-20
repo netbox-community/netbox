@@ -49,7 +49,7 @@ function takeSharedQuery(): string | undefined {
   }
   hashArgs.delete('query');
   const remainingHash = hashArgs.size ? `#${hashArgs.toString()}` : '';
-  history.pushState(
+  history.replaceState(
     '',
     document.title,
     window.location.pathname + window.location.search + remainingHash,
