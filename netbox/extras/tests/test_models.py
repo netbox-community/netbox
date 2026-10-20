@@ -1629,11 +1629,11 @@ class ExportTemplateStoredOnlyFinalizeTestCase(TestCase):
             self.assertEqual(t.render(), '6')
 
     @tag('regression')
-    def test_finalize_ignored_when_template_code_changed_in_memory(self):
+    def test_render_fails_when_template_code_differs_from_stored(self):
         t = self._create_stored()
         t.template_code = '{{ "changed" }}'
-        with self.assertLogs('extras.models.mixins', 'WARNING'):
-            self.assertEqual(t.render(), 'changed')
+        with self.assertRaises(TemplateError):
+            t.render()
 
     def test_no_query_without_finalize(self):
         t = ExportTemplate.objects.create(

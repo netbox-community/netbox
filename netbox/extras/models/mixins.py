@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.utils.http import content_disposition_header
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from jinja2 import TemplateError
 
 from core.models import ObjectType
 from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_ALLOWED, SCRIPT_MODULE_NAME_PREFIX
@@ -227,8 +228,9 @@ class RenderTemplateMixin(models.Model):
     def _restrict_finalize_to_stored(self, params):
         """
         Return a copy of params with 'finalize' replaced by the value stored on this template's
-        database record, or removed if no stored value applies. Runs one query when params
-        contain 'finalize', and none otherwise.
+        database record, or removed if the template has no stored value. Raises TemplateError if
+        a stored value exists but this instance's template code differs from the stored row. Runs
+        one query when params contain 'finalize', and none otherwise.
         """
         if 'finalize' not in params:
             return params
@@ -239,13 +241,16 @@ class RenderTemplateMixin(models.Model):
             ).first()
             if stored is not None:
                 stored_params, stored_code = stored
-                # A stored value applies only to the template code it was stored with (#23375).
-                if stored_code == self.template_code:
-                    stored_finalize = (stored_params or {}).get('finalize')
+                stored_finalize = (stored_params or {}).get('finalize')
+                # Fail instead of rendering without the stored value, which gives different output (#23375).
+                if stored_finalize is not None and stored_code != self.template_code:
+                    raise TemplateError(
+                        _('The template code differs from the saved template. Reload the template and try again.')
+                    )
         if stored_finalize is None:
             logger.warning(
                 'Ignoring the deprecated "finalize" environment parameter on %s (pk=%s): '
-                'it does not match the stored template.',
+                'it is not stored on the template.',
                 type(self).__name__, self.pk,
             )
             return {key: value for key, value in params.items() if key != 'finalize'}
