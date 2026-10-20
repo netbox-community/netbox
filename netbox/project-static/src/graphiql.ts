@@ -9,32 +9,32 @@ import { createRoot } from 'react-dom/client';
 import 'graphiql/style.css';
 import '@graphiql/plugin-explorer/style.css';
 
-const DEFAULT_QUERY = `# Welcome to GraphiQL 🍓
+const DEFAULT_QUERY = `# Welcome to GraphiQL, a web-based client for NetBox's
+# GraphQL API.
 #
-# GraphiQL is an in-browser tool for writing, validating, and
-# testing GraphQL queries.
+# Write a query in this editor, which suggests fields
+# and highlights errors as you type, and run it to see
+# the result. The sidebar on the left offers:
 #
-# Type queries into this side of the screen, and you will see intelligent
-# typeaheads aware of the current GraphQL type schema and live syntax and
-# validation errors highlighted within the text.
+#   Docs      Browse the types and fields in the schema
+#   History   Revisit queries you've run before
+#   Explorer  Build a query by selecting fields
 #
-# GraphQL queries typically start with a "{" character. Lines that starts
-# with a # are ignored.
+# Run query:     Ctrl-Enter (Cmd-Enter on macOS)
+# Autocomplete:  Ctrl-Space, or just start typing
 #
-# An example GraphQL query might look like:
-#
-#     {
-#       field(arg: "value") {
-#         subField
-#       }
-#     }
-#
-# Keyboard shortcuts:
-#
-#       Run Query:  Ctrl-Enter (or press the play button above)
-#
-#   Auto Complete:  Ctrl-Space (or just start typing)
-#
+# For example, this query returns the name, status and
+# tenant of the first five sites:
+
+{
+  site_list(pagination: {limit: 5}) {
+    name
+    status
+    tenant {
+      name
+    }
+  }
+}
 `;
 
 /**
