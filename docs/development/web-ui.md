@@ -24,12 +24,10 @@ All UI styling is written in [Sass](https://sass-lang.com/), which is an extensi
 The following software is employed by the NetBox user interface.
 
 * [Bootstrap 5](https://getbootstrap.com/) - A popular CSS & JS framework
-* [clipboard.js](https://clipboardjs.com/) - A lightweight package for enabling copy-to-clipboard functionality
 * [flatpickr](https://flatpickr.js.org/) - A lightweight date & time selection widget
 * [gridstack.js](https://gridstackjs.com/) - Enables interactive grid layouts (for the dashboard)
 * [HTMX](https://htmx.org/) - Enables dynamic web interfaces through the use of HTML element attributes
 * [Material Design Icons](https://pictogrammers.com/library/mdi/) - An extensive open source collection of graphical icons, delivered as a web font
-* [query-string](https://www.npmjs.com/package/query-string) - Assists with parsing URL query strings
 * [Tabler](https://tabler.io/) - A web application UI toolkit & theme based on Bootstrap 5
 * [Tom Select](https://tom-select.js.org/) - Provides dynamic selection form fields
 

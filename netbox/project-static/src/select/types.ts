@@ -1,13 +1,16 @@
-import type { Stringifiable } from 'query-string';
+/**
+ * A primitive value which can be sent as a URL query parameter value. `null` is sent as an empty
+ * value (`?key=`), and `undefined` is omitted.
+ */
+export type QueryValue = string | number | boolean | null | undefined;
 
 /**
- * Map of string keys to primitive array values accepted by `query-string`. Keys are used as
- * URL query parameter keys. Values correspond to query param values, enforced as an array
- * for easier handling. For example, a mapping of `{ site_id: [1, 2] }` is serialized by
- * `query-string` as `?site_id=1&site_id=2`. Likewise, `{ site_id: [1] }` is serialized as
- * `?site_id=1`.
+ * Map of string keys to primitive array values. Keys are used as URL query parameter keys. Values
+ * correspond to query param values, enforced as an array for easier handling. For example, a
+ * mapping of `{ site_id: [1, 2] }` is serialized as `?site_id=1&site_id=2`. Likewise,
+ * `{ site_id: [1] }` is serialized as `?site_id=1`.
  */
-export type QueryFilter = Map<string, Stringifiable[]>;
+export type QueryFilter = Map<string, QueryValue[]>;
 
 /**
  * JSON data structure from `data-dynamic-params` attribute.
@@ -32,16 +35,16 @@ export type DataDynamicParam = {
  */
 export type QueryParam = {
   queryParam: string;
-  queryValue: Stringifiable[];
+  queryValue: QueryValue[];
 };
 
 /**
- * Map of string keys to primitive values. Used to track variables within URLs from the server. For
+ * Map of string keys to string values. Used to track variables within URLs from the server. For
  * example, `/api/$key/thing`. `PathFilter` tracks `$key` as `{ key: '' }` in the map, and when the
  * value is later known, the value is set — `{ key: 'value' }`, and the URL is transformed to
  * `/api/value/thing`.
  */
-export type PathFilter = Map<string, Stringifiable>;
+export type PathFilter = Map<string, string>;
 
 /**
  * Strict Type Guard to determine if a deserialized value from the `data-dynamic-params` attribute

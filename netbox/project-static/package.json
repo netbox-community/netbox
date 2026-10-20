@@ -24,7 +24,6 @@
     "@popperjs/core": "2.11.8",
     "@tabler/core": "1.4.0",
     "bootstrap": "5.3.8",
-    "clipboard": "2.0.11",
     "flatpickr": "4.6.13",
     "graphiql": "4.1.2",
     "graphql": "16.12.0",
@@ -32,7 +31,6 @@
     "htmx.org": "2.0.10",
     "inter-ui": "4.1.1",
     "js-cookie": "3.0.8",
-    "query-string": "9.5.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tom-select": "2.6.2"
