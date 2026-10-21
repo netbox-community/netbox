@@ -4259,20 +4259,24 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 200)
         self.assertEqual([row.record for row in response.context['table'].rows], [visible_device])
         self.assertNotContains(response, hidden_device.name)
+        self.assertNotIn(hidden_device, response.context['form'].fields['pk'].queryset)
 
         # Selecting all filtered devices matches only permitted devices
         response = self.client.post(f'{url}?site_id={site.pk}', data=post_data({'_all': True}))
         self.assertHttpStatus(response, 302)
 
-        # Creation is rejected if any selected device is hidden
+        # Creation skips the hidden device
         response = self.client.post(url, data=post_data({
             'pk': [visible_device.pk, hidden_device.pk],
             'name': 'Bulk Interface',
             'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
             '_create': True,
         }))
-        self.assertHttpStatus(response, 200)
-        self.assertFalse(Interface.objects.filter(name='Bulk Interface').exists())
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            list(Interface.objects.filter(name='Bulk Interface').values_list('device', flat=True)),
+            [visible_device.pk]
+        )
 
     def test_rename_select_all_spans_pages(self):
         """

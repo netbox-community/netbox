@@ -1353,7 +1353,10 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
         table = self.table(selected_objects, orderable=False)
 
         if '_create' in request.POST:
-            form = self.form(request.POST)
+            # Drop any selected parent objects which the user is not permitted to view
+            post_data = request.POST.copy()
+            post_data.setlist('pk', [obj.pk for obj in selected_objects])
+            form = self.form(post_data)
             restrict_form_fields(form, request.user)
 
             if form.is_valid():
@@ -1448,6 +1451,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         else:
             form = self.form(initial={'pk': pk_list})
+            restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {
             'form': form,
