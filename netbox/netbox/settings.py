@@ -136,7 +136,7 @@ DEFAULT_PERMISSIONS = param('DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 }, types=dict)
 DEVELOPER = param('DEVELOPER', False, types=bool)
-DOCS_ROOT = param('DOCS_ROOT', _PATHS.docs_root, types=str)
+DOCS_ROOT = param('DOCS_ROOT', _PATHS.docs_root, types=(str, os.PathLike), allow_none=True)
 EMAIL = param('EMAIL', {}, types=dict)
 STREAMING_EXPORTS = param('STREAMING_EXPORTS', False, types=bool)
 EVENTS_PIPELINE = param('EVENTS_PIPELINE', [
@@ -146,7 +146,7 @@ EXEMPT_VIEW_PERMISSIONS = param('EXEMPT_VIEW_PERMISSIONS', [], types=(list, tupl
 FIELD_CHOICES = param('FIELD_CHOICES', {}, types=dict)
 FILE_UPLOAD_MAX_MEMORY_SIZE = param('FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440, types=int)
 GRAPHQL_DEFAULT_VERSION = param('GRAPHQL_DEFAULT_VERSION', 1, types=int)
-GRAPHQL_MAX_ALIASES = param('GRAPHQL_MAX_ALIASES', 10, types=int, min_value=1)
+GRAPHQL_MAX_ALIASES = param('GRAPHQL_MAX_ALIASES', 10, types=int, min_value=0)
 GRAPHQL_MAX_QUERY_DEPTH = param('GRAPHQL_MAX_QUERY_DEPTH', None, types=int, min_value=0, allow_none=True)
 HOSTNAME = param('HOSTNAME', platform.node(), types=str)
 HTTP_CLIENT_IP_HEADERS = param('HTTP_CLIENT_IP_HEADERS', (
@@ -217,7 +217,7 @@ SENTRY_TAGS = param('SENTRY_TAGS', {}, types=dict)
 SESSION_COOKIE_NAME = param('SESSION_COOKIE_NAME', 'sessionid', types=str)
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
 SESSION_COOKIE_SECURE = param('SESSION_COOKIE_SECURE', False, types=bool)
-SESSION_FILE_PATH = param('SESSION_FILE_PATH', None, types=str, allow_none=True)
+SESSION_FILE_PATH = param('SESSION_FILE_PATH', None, types=(str, os.PathLike), allow_none=True)
 STORAGE_BACKEND = param('STORAGE_BACKEND', None, types=str, allow_none=True)
 STORAGE_CONFIG = param('STORAGE_CONFIG', None, types=dict, allow_none=True)
 STORAGES = param('STORAGES', {}, types=dict)
