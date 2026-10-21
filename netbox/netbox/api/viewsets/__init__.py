@@ -240,10 +240,6 @@ class NetBoxModelViewSet(
         """
         Lock the row of the requested object for the duration of the block (see lock_objects()). Enter this
         immediately within a transaction, before retrieving the object.
-
-        The object is found by its URL lookup alone. If it cannot be found this way (e.g. because get_object() has
-        been overridden to support another form of lookup), no lock is taken, and the request proceeds as it would
-        otherwise.
         """
         manager = self.queryset.model._default_manager
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field

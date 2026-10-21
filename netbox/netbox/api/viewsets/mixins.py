@@ -199,7 +199,7 @@ def get_duplicate_objects_response(object_ids):
 def get_missing_objects_errors(object_ids, found_pks):
     """
     Return a list of per-object errors naming each of the given object IDs which is not among the
-    PKs found. See get_missing_objects_response().
+    PKs found.
     """
     return [
         {
@@ -208,12 +208,7 @@ def get_missing_objects_errors(object_ids, found_pks):
                 'id': [_("Object with ID {id} does not exist").format(id=object_id)],
             },
         }
-        # NetBox's bulk actions reject a repeated ID before reaching this point (see
-        # get_duplicate_objects_response), but de-duplicate anyway so that any other caller reports
-        # such an ID once rather than once per occurrence. dict.fromkeys() preserves the order of
-        # first appearance.
-        for object_id in dict.fromkeys(object_ids)
-        if object_id not in found_pks
+        for object_id in dict.fromkeys(object_ids) if object_id not in found_pks
     ]
 
 
@@ -221,16 +216,6 @@ def get_missing_objects_response(object_ids, queryset):
     """
     Return a structured error Response naming each of the given object IDs which the queryset does
     not match, or None if it matches them all.
-
-    An ID goes unmatched either because no such object exists or because the requesting user's
-    object-level permissions exclude it. The two are deliberately not distinguished, consistent with
-    the single-object endpoints, which return a 404 in both cases.
-
-    Bulk operations call this before performing any work: an unresolvable ID means the request names
-    an object the client cannot act on, so there is nothing to be gained by attempting the batch (it
-    would only be rolled back). Note that the status is 400 rather than the 409 a bulk delete
-    returns for a dependency conflict, as this is a problem with the request itself rather than with
-    the current state of the database.
     """
     errors = get_missing_objects_errors(object_ids, set(queryset.values_list('pk', flat=True)))
     if not errors:
@@ -293,10 +278,6 @@ def lock_objects(viewset, queryset):
     viewset as `locked_pks` for the duration of the block. Enter this immediately within the
     transaction to which the locks belong (they are held until it ends), before retrieving the
     objects to be modified.
-
-    Each object retrieved then reflects any write committed by a concurrent request which locked it
-    first. Otherwise, each request would save its own copy of an object, reverting any fields which
-    another request had changed since that copy was retrieved.
     """
     viewset.locked_pks = set(
         queryset
