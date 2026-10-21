@@ -1450,7 +1450,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 logger.debug("Form validation failed")
 
         else:
-            form = self.form(initial={'pk': pk_list})
+            form = self.form(initial={'pk': [obj.pk for obj in selected_objects]})
             restrict_form_fields(form, request.user)
 
         return render(request, self.template_name, {

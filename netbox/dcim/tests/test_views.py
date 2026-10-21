@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.db import connection
 from django.http import QueryDict, StreamingHttpResponse
 from django.test import override_settings, tag
@@ -4260,10 +4261,15 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertEqual([row.record for row in response.context['table'].rows], [visible_device])
         self.assertNotContains(response, hidden_device.name)
         self.assertNotIn(hidden_device, response.context['form'].fields['pk'].queryset)
+        self.assertEqual(response.context['form']['pk'].value(), [visible_device.pk])
 
         # Selecting all filtered devices matches only permitted devices
         response = self.client.post(f'{url}?site_id={site.pk}', data=post_data({'_all': True}))
         self.assertHttpStatus(response, 302)
+        self.assertEqual(
+            [str(message) for message in get_messages(response.wsgi_request)],
+            ['No devices were selected.']
+        )
 
         # Creation skips the hidden device
         response = self.client.post(url, data=post_data({
