@@ -9,7 +9,7 @@ Before touching any files, determine which type of parameter you are removing:
 
 | Type | Where defined | How to tell |
 |---|---|---|
-| **Static** | `settings.py` via `getattr(configuration, ...)` | Appears in `settings.py`; not in `config/parameters.py` `PARAMS` |
+| **Static** | `settings.py` via `param(...)` | Appears in `settings.py`; not in `config/parameters.py` `PARAMS` |
 | **Dynamic** | `config/parameters.py` `PARAMS` tuple | Appears in `PARAMS`; editable via Admin > System > Configuration History |
 
 Run a broad grep before starting to find all usages:
@@ -90,15 +90,8 @@ grep -r 'MY_PARAM' netbox/templates/
 
 **File:** `netbox/netbox/settings.py`
 
-1. Delete the `MY_PARAM = getattr(configuration, 'MY_PARAM', ...)` line.
-2. If the parameter was required (listed in the required-parameter check near the top), remove it from that tuple:
-   ```python
-   # Before:
-   for parameter in ('ALLOWED_HOSTS', 'MY_PARAM', 'SECRET_KEY', 'REDIS'):
-   # After:
-   for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
-   ```
-3. Remove any validation block that immediately followed the `getattr` line (e.g. `if MY_PARAM not in (...): raise ImproperlyConfigured(...)`).
+1. Delete the `MY_PARAM = param('MY_PARAM', ...)` line.
+2. Remove any additional validation of the parameter elsewhere in `settings.py` (e.g. a dedicated check following the static parameters block).
 
 ### Step 3 — Remove from the example config
 
@@ -119,7 +112,7 @@ Delete the `## MY_PARAM` section and its content, including the trailing `---` s
 If the parameter is used by existing deployments, consider a two-phase removal:
 
 **Phase 1 (current release) — Deprecate:**
-1. Keep the `getattr` / `ConfigParam` definition in place so existing configs don't break.
+1. Keep the `param()` / `ConfigParam` definition in place so existing configs don't break.
 2. Add a deprecation warning comment in `settings.py` (see how `SENTRY_DSN` is handled with `# TODO: Remove in NetBox vX.Y`).
 3. Log a `warnings.warn(...)` or add a startup notice if the parameter is still set.
 4. Mark the doc section as deprecated.
@@ -153,7 +146,7 @@ Follow the full removal steps above.
 | # | File(s) | Action |
 |---|---|---|
 | 1 | All `.py` and template files | Remove all `settings.MY_PARAM` / `MY_PARAM` usages |
-| 2 | `netbox/netbox/settings.py` | Remove `getattr` line; remove from required-params tuple; remove validation block |
+| 2 | `netbox/netbox/settings.py` | Remove `param()` line and any additional validation |
 | 3 | `netbox/netbox/configuration_example.py` | Remove commented entry |
 | 4 | `docs/configuration/<category>.md` | Remove `## MY_PARAM` section |
 

@@ -210,6 +210,76 @@ class ConfigurationDirTest(SimpleTestCase):
         self.assertIsNone(settings_utils.get_configuration_dir(ModuleType('cfg')))
 
 
+class GetParamTest(SimpleTestCase):
+    """get_param() retrieves and validates a parameter from the configuration module."""
+
+    @staticmethod
+    def get_param(name, *args, **kwargs):
+        configuration = ModuleType('cfg')
+        configuration.FOO = 5
+        configuration.EMPTY = None
+        return settings_utils.get_param(configuration, name, *args, **kwargs)
+
+    def test_returns_configured_value(self):
+        self.assertEqual(self.get_param('FOO', 10), 5)
+
+    def test_missing_parameter_returns_default_without_validation(self):
+        self.assertEqual(self.get_param('BAR', 10), 10)
+        self.assertEqual(self.get_param('BAR', 'abc', types=int, min_value=1), 'abc')
+
+    def test_missing_required_parameter_raises(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, 'Required parameter BAR is missing from configuration.'):
+            self.get_param('BAR')
+
+    def test_none(self):
+        with self.assertRaisesMessage(ImproperlyConfigured, 'EMPTY must not be None.'):
+            self.get_param('EMPTY', 10, types=int)
+        self.assertIsNone(self.get_param('EMPTY', 10, types=int, min_value=1, allow_none=True))
+
+    def test_types(self):
+        self.assertEqual(self.get_param('FOO', types=int), 5)
+        self.assertEqual(self.get_param('FOO', types=(str, int)), 5)
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must be of type list or tuple (found int)'):
+            self.get_param('FOO', types=(list, tuple))
+
+    def test_bool_is_not_accepted_as_int(self):
+        configuration = ModuleType('cfg')
+        configuration.FOO = True
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must be of type int (found bool)'):
+            settings_utils.get_param(configuration, 'FOO', types=int)
+        self.assertIs(settings_utils.get_param(configuration, 'FOO', types=(int, bool)), True)
+
+    def test_choices(self):
+        self.assertEqual(self.get_param('FOO', choices=(5, 10)), 5)
+        with self.assertRaisesMessage(ImproperlyConfigured, "FOO must be one of 1, 'a' (found 5)"):
+            self.get_param('FOO', choices=(1, 'a'))
+
+    def test_min_and_max_value(self):
+        self.assertEqual(self.get_param('FOO', min_value=5, max_value=5), 5)
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must be at least 6 (found 5)'):
+            self.get_param('FOO', min_value=6)
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must not exceed 4 (found 5)'):
+            self.get_param('FOO', max_value=4)
+
+    def test_min_length(self):
+        configuration = ModuleType('cfg')
+        configuration.FOO = 'abc'
+        self.assertEqual(settings_utils.get_param(configuration, 'FOO', min_length=3), 'abc')
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must be at least 4 characters in length'):
+            settings_utils.get_param(configuration, 'FOO', min_length=4)
+
+    def test_validators(self):
+        def validate_even(name, value):
+            if value % 2:
+                raise ImproperlyConfigured(f"{name} must be even")
+
+        calls = []
+        self.assertEqual(self.get_param('FOO', validators=(lambda *args: calls.append(args),)), 5)
+        self.assertEqual(calls, [('FOO', 5)])
+        with self.assertRaisesMessage(ImproperlyConfigured, 'FOO must be even'):
+            self.get_param('FOO', validators=(validate_even,))
+
+
 class ResolveInstallPathsTest(SimpleTestCase):
     """resolve_install_paths() centralizes wheel-vs-checkout filesystem layout decisions."""
 

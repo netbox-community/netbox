@@ -16,6 +16,7 @@ from rq.utils import parse_timeout
 __all__ = (
     'InstallPaths',
     'get_configuration_dir',
+    'get_param',
     'load_configuration',
     'load_ldap_config',
     'parse_job_timeout',
@@ -228,6 +229,47 @@ def load_configuration(*, install_mode, install_root, environ):
         )
 
     return _import_module('netbox.configuration')
+
+
+_MISSING = object()
+
+
+def get_param(configuration, name, default=_MISSING, *, types=None, choices=None, min_value=None,
+              max_value=None, min_length=None, allow_none=False, validators=()):
+    """
+    Retrieve and validate a parameter from the configuration module. Raises ImproperlyConfigured if
+    the parameter is required (no default given) and missing, or if its value fails validation.
+    Default values are returned as-is (not validated).
+    """
+    if not hasattr(configuration, name):
+        if default is _MISSING:
+            raise ImproperlyConfigured(f"Required parameter {name} is missing from configuration.")
+        return default
+    value = getattr(configuration, name)
+
+    if value is None:
+        if allow_none:
+            return value
+        raise ImproperlyConfigured(f"{name} must not be None.")
+
+    if types is not None:
+        types = types if isinstance(types, tuple) else (types,)
+        # bool is a subclass of int; reject True/False unless bool is explicitly permitted
+        if not isinstance(value, types) or (isinstance(value, bool) and bool not in types):
+            expected = ' or '.join(t.__name__ for t in types)
+            raise ImproperlyConfigured(f"{name} must be of type {expected} (found {type(value).__name__})")
+    if choices is not None and value not in choices:
+        raise ImproperlyConfigured(f"{name} must be one of {', '.join(map(repr, choices))} (found {value!r})")
+    if min_value is not None and value < min_value:
+        raise ImproperlyConfigured(f"{name} must be at least {min_value} (found {value!r})")
+    if max_value is not None and value > max_value:
+        raise ImproperlyConfigured(f"{name} must not exceed {max_value} (found {value!r})")
+    if min_length is not None and len(value) < min_length:
+        raise ImproperlyConfigured(f"{name} must be at least {min_length} characters in length")
+    for validator in validators:
+        validator(name, value)  # Expected to raise ImproperlyConfigured
+
+    return value
 
 
 def load_ldap_config(config_dir, *, allow_legacy_fallback=False):
