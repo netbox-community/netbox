@@ -5,6 +5,7 @@ import os
 import platform
 import sys
 import warnings
+from functools import partial
 
 import storages.utils  # type: ignore
 from django.contrib.messages import constants as messages
@@ -20,6 +21,7 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from netbox.settings_utils import (
     get_configuration_dir,
+    get_param,
     load_configuration,
     parse_job_timeout,
     resolve_install_paths,
@@ -71,20 +73,18 @@ configuration = load_configuration(
 # The directory holding the active configuration.py; ldap_config.py lives beside it.
 CONFIGURATION_DIR = get_configuration_dir(configuration)
 
-# Check for missing/conflicting required configuration parameters
-for parameter in ('ALLOWED_HOSTS', 'SECRET_KEY', 'REDIS'):
-    if not hasattr(configuration, parameter):
-        raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
+# Check for missing/conflicting database configuration parameters
 if not hasattr(configuration, 'DATABASE') and not hasattr(configuration, 'DATABASES'):
     raise ImproperlyConfigured("The database configuration must be defined using DATABASE or DATABASES.")
 elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
     raise ImproperlyConfigured("DATABASE and DATABASES may not be set together. The use of DATABASES is encouraged.")
 
 # Set static config parameters
-ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
-API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
-AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
+param = partial(get_param, configuration)
+ADMINS = param('ADMINS', [], types=(list, tuple))
+ALLOWED_HOSTS = param('ALLOWED_HOSTS', types=(list, tuple))  # Required
+API_TOKEN_PEPPERS = param('API_TOKEN_PEPPERS', {}, types=dict)
+AUTH_PASSWORD_VALIDATORS = param('AUTH_PASSWORD_VALIDATORS', [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         "OPTIONS": {
@@ -94,30 +94,26 @@ AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
         "NAME": "utilities.password_validation.AlphanumericPasswordValidator",
     },
-])
-BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
-BULK_UPDATE_CHUNK_SIZE = getattr(configuration, 'BULK_UPDATE_CHUNK_SIZE', 5000)
-if BULK_UPDATE_CHUNK_SIZE is not None and (type(BULK_UPDATE_CHUNK_SIZE) is not int or BULK_UPDATE_CHUNK_SIZE < 1):
-    raise ImproperlyConfigured(
-        f"BULK_UPDATE_CHUNK_SIZE must be a positive integer or None (found {BULK_UPDATE_CHUNK_SIZE!r})"
-    )
-CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
-CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
-CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
-CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
-CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
-CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
+], types=(list, tuple))
+BASE_PATH = trailing_slash(param('BASE_PATH', '', types=str, allow_none=True))
+BULK_UPDATE_CHUNK_SIZE = param('BULK_UPDATE_CHUNK_SIZE', 5000, types=int, min_value=1, allow_none=True)
+CHANGELOG_SKIP_EMPTY_CHANGES = param('CHANGELOG_SKIP_EMPTY_CHANGES', True, types=bool)
+CENSUS_REPORTING_ENABLED = param('CENSUS_REPORTING_ENABLED', True, types=bool)
+CORS_ORIGIN_ALLOW_ALL = param('CORS_ORIGIN_ALLOW_ALL', False, types=bool)
+CORS_ORIGIN_REGEX_WHITELIST = param('CORS_ORIGIN_REGEX_WHITELIST', [], types=(list, tuple))
+CORS_ORIGIN_WHITELIST = param('CORS_ORIGIN_WHITELIST', [], types=(list, tuple))
+CSRF_COOKIE_NAME = param('CSRF_COOKIE_NAME', 'csrftoken', types=str)
 CSRF_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
-CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
-DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-DATABASE = getattr(configuration, 'DATABASE', None)  # Legacy DB definition
-DATABASE_ROUTERS = getattr(configuration, 'DATABASE_ROUTERS', [])
-DATABASES = getattr(configuration, 'DATABASES', {'default': DATABASE})
-DEBUG = getattr(configuration, 'DEBUG', False)
-DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
-DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
+CSRF_COOKIE_SECURE = param('CSRF_COOKIE_SECURE', False, types=bool)
+CSRF_TRUSTED_ORIGINS = param('CSRF_TRUSTED_ORIGINS', [], types=(list, tuple))
+DATA_UPLOAD_MAX_MEMORY_SIZE = param('DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440, types=int, allow_none=True)
+DATABASE = param('DATABASE', None, types=dict, allow_none=True)  # Legacy DB definition
+DATABASE_ROUTERS = param('DATABASE_ROUTERS', [], types=(list, tuple))
+DATABASES = param('DATABASES', {'default': DATABASE}, types=dict)
+DEBUG = param('DEBUG', False, types=bool)
+DEFAULT_DASHBOARD = param('DEFAULT_DASHBOARD', None, types=(list, tuple), allow_none=True)
+DEFAULT_PERMISSIONS = param('DEFAULT_PERMISSIONS', {
     # Permit users to manage their own bookmarks
     'extras.view_bookmark': ({'user': '$user'},),
     'extras.add_bookmark': ({'user': '$user'},),
@@ -138,66 +134,66 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.add_token': ({'user': '$user'},),
     'users.change_token': ({'user': '$user'},),
     'users.delete_token': ({'user': '$user'},),
-})
-DEVELOPER = getattr(configuration, 'DEVELOPER', False)
-DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', _PATHS.docs_root)
-EMAIL = getattr(configuration, 'EMAIL', {})
-STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
-EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
+}, types=dict)
+DEVELOPER = param('DEVELOPER', False, types=bool)
+DOCS_ROOT = param('DOCS_ROOT', _PATHS.docs_root, types=str)
+EMAIL = param('EMAIL', {}, types=dict)
+STREAMING_EXPORTS = param('STREAMING_EXPORTS', False, types=bool)
+EVENTS_PIPELINE = param('EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
-])
-EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
-FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
-FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
-GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
-GRAPHQL_MAX_QUERY_DEPTH = getattr(configuration, 'GRAPHQL_MAX_QUERY_DEPTH', None)
-HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
-HTTP_CLIENT_IP_HEADERS = getattr(configuration, 'HTTP_CLIENT_IP_HEADERS', (
+], types=(list, tuple))
+EXEMPT_VIEW_PERMISSIONS = param('EXEMPT_VIEW_PERMISSIONS', [], types=(list, tuple))
+FIELD_CHOICES = param('FIELD_CHOICES', {}, types=dict)
+FILE_UPLOAD_MAX_MEMORY_SIZE = param('FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440, types=int)
+GRAPHQL_DEFAULT_VERSION = param('GRAPHQL_DEFAULT_VERSION', 1, types=int)
+GRAPHQL_MAX_ALIASES = param('GRAPHQL_MAX_ALIASES', 10, types=int, min_value=1)
+GRAPHQL_MAX_QUERY_DEPTH = param('GRAPHQL_MAX_QUERY_DEPTH', None, types=int, min_value=0, allow_none=True)
+HOSTNAME = param('HOSTNAME', platform.node(), types=str)
+HTTP_CLIENT_IP_HEADERS = param('HTTP_CLIENT_IP_HEADERS', (
     'HTTP_X_REAL_IP',
     'HTTP_X_FORWARDED_FOR',
     'REMOTE_ADDR',
-))
-HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
-INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
-ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
-JINJA_ENVIRONMENT_PARAMS = getattr(configuration, 'JINJA_ENVIRONMENT_PARAMS', [])
-JINJA_FILTERS = getattr(configuration, 'JINJA_FILTERS', getattr(configuration, 'JINJA2_FILTERS', {}))
-LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
+), types=(list, tuple))
+HTTP_PROXIES = param('HTTP_PROXIES', {}, types=dict, allow_none=True)
+INTERNAL_IPS = param('INTERNAL_IPS', ('127.0.0.1', '::1'), types=(list, tuple))
+ISOLATED_DEPLOYMENT = param('ISOLATED_DEPLOYMENT', False, types=bool)
+JINJA_ENVIRONMENT_PARAMS = param('JINJA_ENVIRONMENT_PARAMS', [], types=(list, tuple))
+JINJA_FILTERS = param('JINJA_FILTERS', param('JINJA2_FILTERS', {}, types=dict), types=dict)
+LANGUAGE_CODE = param('DEFAULT_LANGUAGE', 'en-us', types=str)
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
-LOGGING = getattr(configuration, 'LOGGING', {})
-LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
-LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
-LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
-LOGIN_FORM_HIDDEN = getattr(configuration, 'LOGIN_FORM_HIDDEN', False)
-LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
-MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media')).rstrip('/')
-METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
-PLUGINS = getattr(configuration, 'PLUGINS', [])
-PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
-PLUGINS_CATALOG_CONFIG = getattr(configuration, 'PLUGINS_CATALOG_CONFIG', {})
-PROXY_ROUTERS = getattr(configuration, 'PROXY_ROUTERS', ['utilities.proxy.DefaultProxyRouter'])
-QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
-REDIS = getattr(configuration, 'REDIS')  # Required
-RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
-REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_GROUPS', False)
-REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
-REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
-REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
-REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
-REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
-REMOTE_AUTH_GROUP_HEADER = getattr(configuration, 'REMOTE_AUTH_GROUP_HEADER', 'HTTP_REMOTE_USER_GROUP')
-REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
-REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(configuration, 'REMOTE_AUTH_GROUP_SYNC_ENABLED', False)
-REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
-REMOTE_AUTH_SUPERUSER_GROUPS = getattr(configuration, 'REMOTE_AUTH_SUPERUSER_GROUPS', [])
-REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
-REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
-REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
-REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
+LOGGING = param('LOGGING', {}, types=dict)
+LOGIN_PERSISTENCE = param('LOGIN_PERSISTENCE', False, types=bool)
+LOGIN_REQUIRED = param('LOGIN_REQUIRED', True, types=bool)
+LOGIN_TIMEOUT = param('LOGIN_TIMEOUT', None, types=int, min_value=1, allow_none=True)
+LOGIN_FORM_HIDDEN = param('LOGIN_FORM_HIDDEN', False, types=bool)
+LOGOUT_REDIRECT_URL = param('LOGOUT_REDIRECT_URL', 'home', types=str)
+MEDIA_ROOT = param('MEDIA_ROOT', os.path.join(NETBOX_ROOT, 'media'), types=str).rstrip('/')
+METRICS_ENABLED = param('METRICS_ENABLED', False, types=bool)
+PLUGINS = param('PLUGINS', [], types=(list, tuple))
+PLUGINS_CONFIG = param('PLUGINS_CONFIG', {}, types=dict)
+PLUGINS_CATALOG_CONFIG = param('PLUGINS_CATALOG_CONFIG', {}, types=dict)
+PROXY_ROUTERS = param('PROXY_ROUTERS', ['utilities.proxy.DefaultProxyRouter'], types=(list, tuple))
+QUEUE_MAPPINGS = param('QUEUE_MAPPINGS', {}, types=dict)
+REDIS = param('REDIS', types=dict)  # Required
+RELEASE_CHECK_URL = param('RELEASE_CHECK_URL', None, types=str, allow_none=True)
+REMOTE_AUTH_AUTO_CREATE_GROUPS = param('REMOTE_AUTH_AUTO_CREATE_GROUPS', False, types=bool)
+REMOTE_AUTH_AUTO_CREATE_USER = param('REMOTE_AUTH_AUTO_CREATE_USER', False, types=bool)
+REMOTE_AUTH_BACKEND = param('REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend', types=(str, list, tuple))
+REMOTE_AUTH_DEFAULT_GROUPS = param('REMOTE_AUTH_DEFAULT_GROUPS', [], types=(list, tuple))
+REMOTE_AUTH_DEFAULT_PERMISSIONS = param('REMOTE_AUTH_DEFAULT_PERMISSIONS', {}, types=dict)
+REMOTE_AUTH_ENABLED = param('REMOTE_AUTH_ENABLED', False, types=bool)
+REMOTE_AUTH_GROUP_HEADER = param('REMOTE_AUTH_GROUP_HEADER', 'HTTP_REMOTE_USER_GROUP', types=str)
+REMOTE_AUTH_GROUP_SEPARATOR = param('REMOTE_AUTH_GROUP_SEPARATOR', '|', types=str)
+REMOTE_AUTH_GROUP_SYNC_ENABLED = param('REMOTE_AUTH_GROUP_SYNC_ENABLED', False, types=bool)
+REMOTE_AUTH_HEADER = param('REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER', types=str)
+REMOTE_AUTH_SUPERUSER_GROUPS = param('REMOTE_AUTH_SUPERUSER_GROUPS', [], types=(list, tuple))
+REMOTE_AUTH_SUPERUSERS = param('REMOTE_AUTH_SUPERUSERS', [], types=(list, tuple))
+REMOTE_AUTH_USER_EMAIL = param('REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL', types=str)
+REMOTE_AUTH_USER_FIRST_NAME = param('REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME', types=str)
+REMOTE_AUTH_USER_LAST_NAME = param('REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME', types=str)
 # Required by extras/migrations/0109_script_models.py
-REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(NETBOX_ROOT, 'reports')).rstrip('/')
-RQ = getattr(configuration, 'RQ', {})
+REPORTS_ROOT = param('REPORTS_ROOT', os.path.join(NETBOX_ROOT, 'reports'), types=str).rstrip('/')
+RQ = param('RQ', {}, types=dict)
 if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWorker':
     warnings.warn(
         f"RQ['WORKER_CLASS'] is set to {RQ['WORKER_CLASS']!r}; NetBoxRQWorker's self-healing heartbeat "
@@ -205,45 +201,39 @@ if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWo
     )
 else:
     RQ.setdefault('WORKER_CLASS', 'utilities.rqworker.NetBoxRQWorker')
-RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
-RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
-RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
-SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts')).rstrip('/')
-SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
-SECRET_KEY = getattr(configuration, 'SECRET_KEY')  # Required
-SECURE_HSTS_INCLUDE_SUBDOMAINS = getattr(configuration, 'SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
-SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
-SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
-SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
-SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
-SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
-SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
-SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
+RQ_DEFAULT_TIMEOUT = param('RQ_DEFAULT_TIMEOUT', 300, allow_none=True)  # Validated by parse_job_timeout()
+RQ_RETRY_INTERVAL = param('RQ_RETRY_INTERVAL', 60, types=(int, list, tuple))
+RQ_RETRY_MAX = param('RQ_RETRY_MAX', 0, types=int, min_value=0)
+SCRIPTS_ROOT = param('SCRIPTS_ROOT', os.path.join(NETBOX_ROOT, 'scripts'), types=str).rstrip('/')
+SEARCH_BACKEND = param('SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend', types=str)
+SECRET_KEY = param('SECRET_KEY', types=str)  # Required
+SECURE_HSTS_INCLUDE_SUBDOMAINS = param('SECURE_HSTS_INCLUDE_SUBDOMAINS', False, types=bool)
+SECURE_HSTS_PRELOAD = param('SECURE_HSTS_PRELOAD', False, types=bool)
+SECURE_HSTS_SECONDS = param('SECURE_HSTS_SECONDS', 0, types=int, min_value=0)
+SECURE_SSL_REDIRECT = param('SECURE_SSL_REDIRECT', False, types=bool)
+SENTRY_CONFIG = param('SENTRY_CONFIG', {}, types=dict)
+SENTRY_ENABLED = param('SENTRY_ENABLED', False, types=bool)
+SENTRY_TAGS = param('SENTRY_TAGS', {}, types=dict)
+SESSION_COOKIE_NAME = param('SESSION_COOKIE_NAME', 'sessionid', types=str)
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
-SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
-SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
-STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
-STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', None)
-STORAGES = getattr(configuration, 'STORAGES', {})
-TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
-WEBHOOK_DEFAULT_TIMEOUT = getattr(configuration, 'WEBHOOK_DEFAULT_TIMEOUT', 60)
+SESSION_COOKIE_SECURE = param('SESSION_COOKIE_SECURE', False, types=bool)
+SESSION_FILE_PATH = param('SESSION_FILE_PATH', None, types=str, allow_none=True)
+STORAGE_BACKEND = param('STORAGE_BACKEND', None, types=str, allow_none=True)
+STORAGE_CONFIG = param('STORAGE_CONFIG', None, types=dict, allow_none=True)
+STORAGES = param('STORAGES', {}, types=dict)
+TIME_ZONE = param('TIME_ZONE', 'UTC', types=str)
+TRANSLATION_ENABLED = param('TRANSLATION_ENABLED', True, types=bool)
+WEBHOOK_DEFAULT_TIMEOUT = param('WEBHOOK_DEFAULT_TIMEOUT', 60)
 validate_webhook_default_timeout(WEBHOOK_DEFAULT_TIMEOUT, parse_job_timeout(RQ_DEFAULT_TIMEOUT))
-DISK_BASE_UNIT = getattr(configuration, 'DISK_BASE_UNIT', 1000)
-if DISK_BASE_UNIT not in [1000, 1024]:
-    raise ImproperlyConfigured(f"DISK_BASE_UNIT must be 1000 or 1024 (found {DISK_BASE_UNIT})")
-RAM_BASE_UNIT = getattr(configuration, 'RAM_BASE_UNIT', 1000)
-if RAM_BASE_UNIT not in [1000, 1024]:
-    raise ImproperlyConfigured(f"RAM_BASE_UNIT must be 1000 or 1024 (found {RAM_BASE_UNIT})")
+DISK_BASE_UNIT = param('DISK_BASE_UNIT', 1000, choices=(1000, 1024))
+RAM_BASE_UNIT = param('RAM_BASE_UNIT', 1000, choices=(1000, 1024))
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
-for param in CONFIG_PARAMS:
-    if hasattr(configuration, param.name):
-        globals()[param.name] = getattr(configuration, param.name)
+for config_param in CONFIG_PARAMS:
+    if hasattr(configuration, config_param.name):
+        globals()[config_param.name] = getattr(configuration, config_param.name)
 
 # Enforce minimum length for SECRET_KEY
-if type(SECRET_KEY) is not str:
-    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
 if len(SECRET_KEY) < 50:
     raise ImproperlyConfigured(
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
@@ -372,9 +362,9 @@ if STORAGE_BACKEND == 'swift.storage.SwiftStorage':
         raise e
 
     # Load all SWIFT_* settings from the user configuration
-    for param, value in STORAGE_CONFIG.items():
-        if param.startswith('SWIFT_'):
-            globals()[param] = value
+    for name, value in STORAGE_CONFIG.items():
+        if name.startswith('SWIFT_'):
+            globals()[name] = value
 # TODO: End of deprecated code
 
 #
@@ -756,9 +746,9 @@ SOCIAL_AUTH_LOGIN_ERROR_URL = LOGIN_URL
 SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
 
 # Load all SOCIAL_AUTH_* settings from the user configuration
-for param in dir(configuration):
-    if param.startswith('SOCIAL_AUTH_'):
-        globals()[param] = getattr(configuration, param)
+for name in dir(configuration):
+    if name.startswith('SOCIAL_AUTH_'):
+        globals()[name] = getattr(configuration, name)
 
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True

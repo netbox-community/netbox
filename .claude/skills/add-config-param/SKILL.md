@@ -9,7 +9,7 @@ NetBox has two distinct kinds of configuration parameters. Choose the right one 
 
 | Type | Where defined | Changed by | Takes effect |
 |---|---|---|---|
-| **Static** | `settings.py` via `getattr(configuration, ...)` | Editing `configuration.py` + restart | On WSGI restart |
+| **Static** | `settings.py` via `param(...)` | Editing `configuration.py` + restart | On WSGI restart |
 | **Dynamic** | `config/parameters.py` `PARAMS` tuple | Admin UI or `configuration.py` | Immediately (cached in Redis) |
 
 **Use dynamic** when:
@@ -143,31 +143,37 @@ Static parameters live in `settings.py` and are read at startup from `configurat
 
 **File:** `netbox/netbox/settings.py`
 
-Add a line in the "Set static config parameters" block, alphabetically within its logical group:
+Add a line in the "Set static config parameters" block, alphabetically within its logical group. `param()` wraps `get_param()` (in `netbox/netbox/settings_utils.py`), which reads the value from `configuration.py` and validates it:
 
 ```python
-MY_PARAM = getattr(configuration, 'MY_PARAM', <default_value>)
+MY_PARAM = param('MY_PARAM', <default_value>, types=<type>)
 ```
 
-For required parameters (no default), use `getattr(configuration, 'MY_PARAM')` with no fallback and add the parameter name to the required check near the top:
+For required parameters, omit the default; `get_param()` raises `ImproperlyConfigured` if the parameter is missing:
 
 ```python
-for parameter in ('ALLOWED_HOSTS', 'MY_PARAM', 'SECRET_KEY', 'REDIS'):
-    if not hasattr(configuration, parameter):
-        raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
+MY_PARAM = param('MY_PARAM', types=str)  # Required
 ```
 
-### Step 2 — Add validation (if needed)
+### Step 2 — Add validation
 
-If the parameter has constrained values, add an `ImproperlyConfigured` check immediately after the `getattr` line:
+Declare the parameter's constraints as keyword arguments to `param()` rather than writing an `ImproperlyConfigured` check by hand. Default values are not validated.
+
+| Argument | Validation |
+|---|---|
+| `types` | A type or tuple of types (e.g. `types=(list, tuple)`). `bool` is rejected for `int` unless explicitly listed. |
+| `choices` | The value must be one of the given values |
+| `min_value` / `max_value` | Inclusive numeric bounds |
+| `min_length` | Minimum length (e.g. of a string) |
+| `allow_none` | Permit an explicit `None` (rejected by default). Set this when `None` is a documented value. |
+| `validators` | Callables invoked as `validator(name, value)`; each should raise `ImproperlyConfigured` on failure |
 
 ```python
-MY_PARAM = getattr(configuration, 'MY_PARAM', 'option_a')
-if MY_PARAM not in ('option_a', 'option_b'):
-    raise ImproperlyConfigured(f"MY_PARAM must be 'option_a' or 'option_b' (found {MY_PARAM})")
+MY_PARAM = param('MY_PARAM', 'option_a', choices=('option_a', 'option_b'))
+MY_LIMIT = param('MY_LIMIT', 100, types=int, min_value=1, allow_none=True)
 ```
 
-For complex validation (importable paths, valid URLs, etc.) follow the patterns of `PROXY_ROUTERS` or `RELEASE_CHECK_URL` in `settings.py`.
+For complex validation (importable paths, valid URLs, comparisons with other parameters, etc.) follow the patterns of `PROXY_ROUTERS` or `RELEASE_CHECK_URL` in `settings.py`.
 
 ### Step 3 — Add to the example config
 
@@ -200,7 +206,7 @@ Static parameters do **not** get the `!!! tip "Dynamic Configuration Parameter"`
 ## Common Gotchas
 
 - **Dynamic params don't need a migration** — the value is stored in the `ConfigRevision.data` JSONField which already exists.
-- **Hard-coding a dynamic param in `configuration.py` overrides the UI** — the loop at the bottom of `settings.py` (`for param in CONFIG_PARAMS: ...`) sets the Django setting, which `Config.__getattr__` checks first. Document this behaviour in the parameter's doc page.
+- **Hard-coding a dynamic param in `configuration.py` overrides the UI** — the loop after the static parameters in `settings.py` (`for config_param in CONFIG_PARAMS: ...`) sets the Django setting, which `Config.__getattr__` checks first. Document this behaviour in the parameter's doc page.
 - **`forms.BooleanField` with `required=False`**: the `ConfigFormMetaclass` always adds `required=False`, so a `BooleanField` correctly represents a three-state (True / False / unset-use-default) UI. No extra `field_kwargs` needed for booleans.
 - **`SimpleArrayField` needs `base_field`**: always pass `field_kwargs={'base_field': forms.CharField()}`.
 - **No `ruff format`** on existing files — use `ruff check` only.
@@ -211,7 +217,7 @@ Static parameters do **not** get the `!!! tip "Dynamic Configuration Parameter"`
 - Config loading / `Config` class: `netbox/netbox/config/__init__.py`
 - `ConfigRevision` model: `netbox/core/models/config.py`
 - `ConfigRevisionForm` (metaclass): `netbox/core/forms/model_forms.py`
-- Static config loading: `netbox/netbox/settings.py` lines 67–213
+- Static config loading: the "Set static config parameters" block in `netbox/netbox/settings.py`; `get_param()` in `netbox/netbox/settings_utils.py`
 - Example config: `netbox/netbox/configuration_example.py`
 - Config tests: `netbox/netbox/tests/test_config.py`
 - Documentation: `docs/configuration/`
