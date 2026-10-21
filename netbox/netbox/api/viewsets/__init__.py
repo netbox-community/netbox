@@ -8,6 +8,7 @@ from django.db.models import ProtectedError, RestrictedError
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -231,6 +232,21 @@ class NetBoxModelViewSet(
             obj.snapshot()
         return obj
 
+    def lock_object(self):
+        """
+        Lock the row of the requested object until the end of the current transaction. Call this before retrieving
+        the object, so that the object retrieved reflects any write committed by a concurrent request which held the
+        lock first.
+        """
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        queryset = (
+            self.queryset.model.objects
+            .order_by()  # Clear default ordering to avoid JOINs
+            .select_for_update(no_key=True)  # no_key: Avoid blocking foreign key inserts that reference this object
+            .values('pk')
+        )
+        get_object_or_404(queryset, **{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+
     def get_queryset(self):
         qs = super().get_queryset()
         return reapply_model_ordering(qs)
@@ -346,14 +362,21 @@ class NetBoxModelViewSet(
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-        instance = self.get_object_with_snapshot()
 
-        # Enforce If-Match precondition (RFC 9110 §13.1.1)
-        self._validate_etag(self.request, instance)
+        # Lock the object before retrieving it, so that concurrent updates to the same object are applied one after
+        # the other. Otherwise, each would save its own copy of the object, reverting any fields which another
+        # update had changed since that copy was retrieved.
+        using = router.db_for_write(self.queryset.model)
+        with transaction.atomic(using=using):
+            self.lock_object()
+            instance = self.get_object_with_snapshot()
 
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+            # Enforce If-Match precondition (RFC 9110 §13.1.1)
+            self._validate_etag(self.request, instance)
+
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
 
         # After updating the instance, re-initialize the serializer with a queryset
         # to ensure related objects are prefetched.
