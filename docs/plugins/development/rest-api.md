@@ -27,7 +27,7 @@ Serializers are responsible for converting Python objects to JSON data suitable 
 
 The default nested representation of an object is defined by the `brief_fields` attributes under the serializer's `Meta` class. (Older versions of NetBox required the definition of a separate nested serializer.)
 
-When a serializer is used with `nested=True`, it resolves its input to an existing object and skips its validators and `validate()` method. A custom `validate()` method therefore always receives a dictionary of attributes.
+When a serializer is used with `nested=True`, it resolves its input to an existing object and does not run its validators or `validate()` method.
 
 In addition to the base NetBoxModelSerializer class, the following serializer classes are also available for subclasses of standard base models.
 

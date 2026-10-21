@@ -2190,6 +2190,28 @@ class CustomFieldAPITestCase(APITestCase):
                 self.assertEqual(site.custom_field_data[f'{name}_object'], obj.pk)
                 self.assertEqual(site.custom_field_data[f'{name}_objects'], [obj.pk])
 
+    def test_update_single_object_rejects_unknown_object_values(self):
+        """Object and multi-object custom fields reject references which match no object."""
+        site2 = Site.objects.get(name='Site 2')
+        original_cf_data = {**site2.custom_field_data}
+        missing_pk = VLAN.objects.order_by('-pk').values_list('pk', flat=True).first() + 1
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site', 'ipam.view_vlan')
+
+        for field_name, value in (
+            ('object_field', missing_pk),
+            ('object_field', {'name': 'VLAN 99'}),
+            ('multiobject_field', [missing_pk]),
+            ('multiobject_field', [{'name': 'VLAN 99'}]),
+        ):
+            with self.subTest(field=field_name, value=value):
+                response = self.client.patch(url, {'custom_fields': {field_name: value}}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                self.assertTrue(response.data['custom_fields'][0].startswith('Related object not found'))
+
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data, original_cf_data)
+
     @tag('regression')
     def test_update_single_object_rejects_unknown_custom_fields(self):
         site2 = Site.objects.get(name='Site 2')

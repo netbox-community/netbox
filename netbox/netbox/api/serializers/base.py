@@ -34,6 +34,10 @@ class BaseModelSerializer(serializers.ModelSerializer):
         self._include_fields = fields or []
         self._omit_fields = omit or []
 
+        # Disable validators for nested objects (which already exist)
+        if self.nested:
+            self.validators = []
+
         # If this serializer is nested but no fields have been specified,
         # default to using Meta.brief_fields (if set)
         if self.nested and not fields and not omit:
