@@ -370,76 +370,72 @@ class InterfaceSerializer(
     def validate(self, data):
         # Pop mac_address before model validation — it's a cached_property, not a model field,
         # and passing it to Interface(**attrs) in ValidatedModelSerializer.validate() would raise TypeError.
-        # data may be an Interface instance (not a dict) in some custom field code paths (#18887).
-        mac_address = _UNSET
-        if isinstance(data, dict):
-            mac_address = data.pop('mac_address', _UNSET)
+        mac_address = data.pop('mac_address', _UNSET)
         self._validate_no_mac_conflict(data, mac_address)
 
-        if not self.nested and isinstance(data, dict):
-            if mac_address not in (_UNSET, None):
-                try:
-                    EUI(mac_address, version=48)
-                except (AddrFormatError, ValueError, TypeError):
-                    raise serializers.ValidationError({
-                        'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
-                    })
-
-            # Validate 802.1q mode and vlan(s)
-            mode = None
-            tagged_vlans = []
-
-            # Gather Information
-            if self.instance:
-                mode = data.get('mode') if 'mode' in data.keys() else self.instance.mode
-                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else \
-                    self.instance.untagged_vlan
-                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else \
-                    self.instance.qinq_svlan
-                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else \
-                    self.instance.tagged_vlans.all()
-            else:
-                mode = data.get('mode', None)
-                untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else None
-                qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else None
-                tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else None
-
-            errors = {}
-
-            # Non Q-in-Q mode with service vlan set
-            if mode != InterfaceModeChoices.MODE_Q_IN_Q and qinq_svlan:
-                errors.update({
-                    'qinq_svlan': _("Interface mode does not support q-in-q service vlan")
+        if mac_address not in (_UNSET, None):
+            try:
+                EUI(mac_address, version=48)
+            except (AddrFormatError, ValueError, TypeError):
+                raise serializers.ValidationError({
+                    'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
                 })
-            # Routed mode
-            if not mode:
-                # Untagged vlan
-                if untagged_vlan:
-                    errors.update({
-                        'untagged_vlan': _("Interface mode does not support untagged vlan")
-                    })
-                # Tagged vlan
-                if tagged_vlans:
-                    errors.update({
-                        'tagged_vlans': _("Interface mode does not support tagged vlans")
-                    })
-            # Non-tagged mode
-            elif mode in (InterfaceModeChoices.MODE_TAGGED_ALL, InterfaceModeChoices.MODE_ACCESS) and tagged_vlans:
+
+        # Validate 802.1q mode and vlan(s)
+        mode = None
+        tagged_vlans = []
+
+        # Gather Information
+        if self.instance:
+            mode = data.get('mode') if 'mode' in data.keys() else self.instance.mode
+            untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else \
+                self.instance.untagged_vlan
+            qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else \
+                self.instance.qinq_svlan
+            tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else \
+                self.instance.tagged_vlans.all()
+        else:
+            mode = data.get('mode', None)
+            untagged_vlan = data.get('untagged_vlan') if 'untagged_vlan' in data.keys() else None
+            qinq_svlan = data.get('qinq_svlan') if 'qinq_svlan' in data.keys() else None
+            tagged_vlans = data.get('tagged_vlans') if 'tagged_vlans' in data.keys() else None
+
+        errors = {}
+
+        # Non Q-in-Q mode with service vlan set
+        if mode != InterfaceModeChoices.MODE_Q_IN_Q and qinq_svlan:
+            errors.update({
+                'qinq_svlan': _("Interface mode does not support q-in-q service vlan")
+            })
+        # Routed mode
+        if not mode:
+            # Untagged vlan
+            if untagged_vlan:
+                errors.update({
+                    'untagged_vlan': _("Interface mode does not support untagged vlan")
+                })
+            # Tagged vlan
+            if tagged_vlans:
                 errors.update({
                     'tagged_vlans': _("Interface mode does not support tagged vlans")
                 })
+        # Non-tagged mode
+        elif mode in (InterfaceModeChoices.MODE_TAGGED_ALL, InterfaceModeChoices.MODE_ACCESS) and tagged_vlans:
+            errors.update({
+                'tagged_vlans': _("Interface mode does not support tagged vlans")
+            })
 
-            if errors:
-                raise serializers.ValidationError(errors)
+        if errors:
+            raise serializers.ValidationError(errors)
 
-            # Validate many-to-many VLAN assignments
-            device = self.instance.device if self.instance else data.get('device')
-            for vlan in data.get('tagged_vlans', []):
-                if vlan.site not in [device.site, None]:
-                    raise serializers.ValidationError({
-                        'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent device, "
-                                        f"or it must be global."
-                    })
+        # Validate many-to-many VLAN assignments
+        device = self.instance.device if self.instance else data.get('device')
+        for vlan in data.get('tagged_vlans', []):
+            if vlan.site not in [device.site, None]:
+                raise serializers.ValidationError({
+                    'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent device, "
+                                    f"or it must be global."
+                })
 
         data = super().validate(data)
 

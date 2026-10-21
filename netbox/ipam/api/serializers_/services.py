@@ -75,10 +75,6 @@ class PortMappingsSerializerMixin(serializers.Serializer):
     )
 
     def validate(self, data):
-        # When nested (e.g. an object custom field value), data is already a resolved instance.
-        if self.nested:
-            return super().validate(data)
-
         # Consume the legacy fields and translate them into port_mappings *before* calling super(),
         # which instantiates the model (via full_clean()) and would choke on these now-nonexistent kwargs.
         legacy_protocol = data.pop('protocol', None)

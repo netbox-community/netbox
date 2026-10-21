@@ -3,6 +3,7 @@ from functools import cached_property
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import empty
 
 from netbox.api.fields import RelatedObjectCountField
 from utilities.api import get_related_object_by_attrs
@@ -33,16 +34,22 @@ class BaseModelSerializer(serializers.ModelSerializer):
         self._include_fields = fields or []
         self._omit_fields = omit or []
 
-        # Disable validators for nested objects (which already exist)
-        if self.nested:
-            self.validators = []
-
         # If this serializer is nested but no fields have been specified,
         # default to using Meta.brief_fields (if set)
         if self.nested and not fields and not omit:
             self._include_fields = getattr(self.Meta, 'brief_fields', None)
 
         super().__init__(*args, **kwargs)
+
+    def run_validation(self, data=empty):
+        # A nested serializer resolves its input to an existing object, so skip validators and validate()
+        if self.nested:
+            is_empty_value, data = self.validate_empty_values(data)
+            if is_empty_value:
+                return data
+            return self.to_internal_value(data)
+
+        return super().run_validation(data)
 
     def to_internal_value(self, data):
 
@@ -104,11 +111,6 @@ class ValidatedModelSerializer(BaseModelSerializer):
         return []
 
     def validate(self, data):
-
-        # Skip validation if we're being used to represent a nested object
-        if self.nested:
-            return data
-
         attrs = data.copy()
 
         # Skip ManyToManyFields

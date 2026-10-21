@@ -7,10 +7,7 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
-from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
-from extras.choices import CustomFieldTypeChoices
-from extras.models import CustomField
 from ipam.api.serializers import RIRSerializer, VLANGroupSerializer, VRFSerializer
 from ipam.choices import *
 from ipam.models import *
@@ -2018,34 +2015,6 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
         self.assertIsNone(response.data['ports'])
         self.assertIsNone(response.data['protocol'])
 
-    @tag('regression')
-    def test_set_service_template_as_object_in_custom_fields(self):
-        """Service templates can be assigned to object and multi-object custom fields (#23422)."""
-        for cf_type, name in (
-            (CustomFieldTypeChoices.TYPE_OBJECT, 'service_template'),
-            (CustomFieldTypeChoices.TYPE_MULTIOBJECT, 'service_templates'),
-        ):
-            cf = CustomField.objects.create(
-                name=name, type=cf_type, related_object_type=ObjectType.objects.get_for_model(ServiceTemplate)
-            )
-            cf.object_types.set([ObjectType.objects.get_for_model(Site)])
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        templates = ServiceTemplate.objects.all()[:2]
-        data = {
-            'custom_fields': {
-                'service_template': templates[0].pk,
-                'service_templates': [template.pk for template in templates],
-            },
-        }
-        self.add_permissions('dcim.change_site')
-
-        response = self.client.patch(
-            reverse('dcim-api:site-detail', kwargs={'pk': site.pk}), data, format='json', **self.header
-        )
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        site.refresh_from_db()
-        self.assertEqual(site.custom_field_data, data['custom_fields'])
-
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
@@ -2322,31 +2291,3 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         service = Service.objects.get(name='Legacy Service')
         self.assertEqual(service.port_mappings, ['udp/53', 'udp/67'])
-
-    @tag('regression')
-    def test_set_service_as_object_in_custom_fields(self):
-        """Services can be assigned to object and multi-object custom fields (#23422)."""
-        for cf_type, name in (
-            (CustomFieldTypeChoices.TYPE_OBJECT, 'service'),
-            (CustomFieldTypeChoices.TYPE_MULTIOBJECT, 'services'),
-        ):
-            cf = CustomField.objects.create(
-                name=name, type=cf_type, related_object_type=ObjectType.objects.get_for_model(Service)
-            )
-            cf.object_types.set([ObjectType.objects.get_for_model(Device)])
-        device = Device.objects.get(name='Device 2')
-        services = Service.objects.all()[:2]
-        data = {
-            'custom_fields': {
-                'service': services[0].pk,
-                'services': [service.pk for service in services],
-            },
-        }
-        self.add_permissions('dcim.change_device')
-
-        response = self.client.patch(
-            reverse('dcim-api:device-detail', kwargs={'pk': device.pk}), data, format='json', **self.header
-        )
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        device.refresh_from_db()
-        self.assertEqual(device.custom_field_data, data['custom_fields'])

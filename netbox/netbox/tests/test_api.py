@@ -437,7 +437,7 @@ class ValidatedModelSerializerTestCase(TestCase):
         self.assertEqual(opted_in.validated_data['template_code'], '{{ synced }}')
 
     def test_nested_serializer_skips_model_validation(self):
-        """A serializer representing a nested object returns its input untouched."""
+        """A serializer representing a nested object resolves its input without calling validate()."""
 
         class OptedInSerializer(ValidatedModelSerializer):
             class Meta:
@@ -446,10 +446,12 @@ class ValidatedModelSerializerTestCase(TestCase):
                 brief_fields = ('name',)
                 model_clean_fields = ('template_code',)
 
+        export_template = ExportTemplate.objects.create(name='Export Template 1', template_code='{# untouched #}')
         serializer = OptedInSerializer(nested=True)
-        data = {'template_code': '{# untouched #}'}
 
-        self.assertEqual(serializer.validate(data), data)
+        with patch.object(OptedInSerializer, 'validate') as validate:
+            self.assertEqual(serializer.run_validation(export_template.pk), export_template)
+        validate.assert_not_called()
 
 
 ROUTED_ALIAS = 'routed'

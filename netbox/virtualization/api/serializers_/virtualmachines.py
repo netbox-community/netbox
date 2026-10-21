@@ -150,13 +150,10 @@ class VMInterfaceSerializer(MACAddressShortcutMixin, OwnerMixin, NetBoxModelSeri
 
     def validate(self, data):
         # Pop mac_address before model validation — it's a cached_property, not a model field.
-        # data may be a VMInterface instance (not a dict) in some custom field code paths (#18887).
-        mac_address = _UNSET
-        if isinstance(data, dict):
-            mac_address = data.pop('mac_address', _UNSET)
+        mac_address = data.pop('mac_address', _UNSET)
         self._validate_no_mac_conflict(data, mac_address)
 
-        if not self.nested and isinstance(data, dict) and mac_address not in (_UNSET, None):
+        if mac_address not in (_UNSET, None):
             try:
                 EUI(mac_address, version=48)
             except (AddrFormatError, ValueError, TypeError):
@@ -165,26 +162,9 @@ class VMInterfaceSerializer(MACAddressShortcutMixin, OwnerMixin, NetBoxModelSeri
                 })
 
         # Validate many-to-many VLAN assignments
-        virtual_machine = None
-        tagged_vlans = []
-
-        # #18887
-        # There seem to be multiple code paths coming through here. Previously, we might either get
-        # the VirtualMachine instance from self.instance or from incoming data. However, #18887
-        # illustrated that this is also being called when a custom field pointing to an object_type
-        # of VMInterface is on the right side of a custom-field assignment coming in from an API
-        # request. As such, we need to check a third way to access the VirtualMachine
-        # instance--where `data` is the VMInterface instance itself and we can get the associated
-        # VirtualMachine via attribute access.
-        if isinstance(data, dict):
-            virtual_machine = self.instance.virtual_machine if self.instance else data.get('virtual_machine')
-            tagged_vlans = data.get('tagged_vlans', [])
-        elif isinstance(data, VMInterface):
-            virtual_machine = data.virtual_machine
-            tagged_vlans = data.tagged_vlans.all()
-
+        virtual_machine = self.instance.virtual_machine if self.instance else data.get('virtual_machine')
         if virtual_machine:
-            for vlan in tagged_vlans:
+            for vlan in data.get('tagged_vlans', []):
                 if vlan.site not in [virtual_machine.site, None]:
                     raise serializers.ValidationError({
                         'tagged_vlans': f"VLAN {vlan} must belong to the same site as the interface's parent virtual "
