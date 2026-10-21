@@ -209,6 +209,7 @@ class NetBoxModelViewSet(
     mixins.BulkCreateModelMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
+    mixins.ObjectLockingMixin,
     mixins.ObjectValidationMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
@@ -222,9 +223,6 @@ class NetBoxModelViewSet(
     """
     Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
-    # The primary keys of objects whose rows are locked by the current transaction (see lock_objects())
-    locked_pks = frozenset()
-
     def get_object_with_snapshot(self):
         """
         Save a pre-change snapshot of the object immediately after retrieving it. This snapshot will be used to
@@ -248,7 +246,7 @@ class NetBoxModelViewSet(
         except (KeyError, FieldError, TypeError, ValueError, ValidationError):
             # The URL has no lookup value, or the lookup is not valid for the model
             queryset = manager.none()
-        with mixins.lock_objects(self, queryset):
+        with self.lock_objects(queryset):
             yield
 
     def get_queryset(self):
