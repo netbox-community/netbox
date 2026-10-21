@@ -17,6 +17,13 @@ _prepare_for_bulk_create = models.QuerySet._prepare_for_bulk_create
 _save_table = models.Model._save_table
 
 
+def _can_allocate_pks(model):
+    """
+    Return True if primary keys for new instances of the model may be obtained from the registered allocators.
+    """
+    return bool(registry['pk_allocators']) and isinstance(model._meta.pk, AutoFieldMixin)
+
+
 def save_table_with_pk_allocation(
     instance, raw=False, cls=None, force_insert=False, force_update=False, using=None, update_fields=None
 ):
@@ -38,8 +45,7 @@ def save_table_with_pk_allocation(
     # The values to restore if the save fails, carried over from the insertion of any multi-table inheritance parents
     unallocated = vars(instance).pop('_unallocated_pks', {})
     if (
-        registry['pk_allocators']
-        and isinstance(pk, AutoFieldMixin)
+        _can_allocate_pks(cls)
         and not (force_update or update_fields)
         and not instance._is_pk_set(cls._meta)
         and (pks := allocate_pks(pk.model, using=using))
@@ -75,16 +81,20 @@ def prepare_for_bulk_create_with_pk_allocation(queryset, objs):
     primary key allocators for the objects without a primary key, requesting all of their primary keys in a single
     call. Objects which receive one are inserted along with any whose primary key was already set. Allocators are
     consulted only once the objects have been validated, so that a failed validation doesn't consume primary keys.
+    The prior state of each object which receives one is recorded on the queryset, for bulk_create_with_pk_allocation()
+    to restore.
     """
     objs_with_pk, objs_without_pk = _prepare_for_bulk_create(queryset, objs)
     pk = queryset.model._meta.pk
     # QuerySet.db resolves to the database being written to, since bulk_create() has already set _for_write
     if (
         objs_without_pk
-        and registry['pk_allocators']
-        and isinstance(pk, AutoFieldMixin)
+        and _can_allocate_pks(queryset.model)
         and (pks := allocate_pks(pk.model, len(objs_without_pk), using=queryset.db))
     ):
+        queryset._unallocated_pks = [
+            (obj, getattr(obj, pk.attname), obj._state.adding, obj._state.db) for obj in objs_without_pk
+        ]
         for obj, pk_value in zip(objs_without_pk, pks):
             setattr(obj, pk.attname, pk_value)
         # Every object now has a primary key, so insert them all together, in their original order
@@ -105,36 +115,27 @@ def bulk_create_with_pk_allocation(
       * If conflicting rows are ignored, since there's no telling which objects were inserted. (bulk_create() never
         sets primary keys in this case.)
     """
-    kwargs = {
-        'batch_size': batch_size,
-        'ignore_conflicts': ignore_conflicts,
-        'update_conflicts': update_conflicts,
-        'update_fields': update_fields,
-        'unique_fields': unique_fields,
-    }
     pk = queryset.model._meta.pk
-    if not registry['pk_allocators'] or not isinstance(pk, AutoFieldMixin):
-        return _bulk_create(queryset, objs, **kwargs)
-
-    # Record the state of each object without a primary key, any of which may receive an allocated one
-    objs = list(objs)
-    unallocated = [
-        (obj, getattr(obj, pk.attname), obj._state.adding, obj._state.db) for obj in objs if not obj._is_pk_set()
-    ]
 
     def withdraw_allocated_pks():
-        for obj, pk_value, adding, db in unallocated:
+        # Restore any objects to which prepare_for_bulk_create_with_pk_allocation() allocated primary keys
+        for obj, pk_value, adding, db in vars(queryset).pop('_unallocated_pks', ()):
             setattr(obj, pk.attname, pk_value)
             obj._state.adding = adding
             obj._state.db = db
 
     try:
-        objs = _bulk_create(queryset, objs, **kwargs)
+        objs = _bulk_create(
+            queryset, objs, batch_size=batch_size, ignore_conflicts=ignore_conflicts,
+            update_conflicts=update_conflicts, update_fields=update_fields, unique_fields=unique_fields
+        )
     except Exception:
         withdraw_allocated_pks()
         raise
     if ignore_conflicts:
         withdraw_allocated_pks()
+    else:
+        vars(queryset).pop('_unallocated_pks', None)
     return objs
 
 

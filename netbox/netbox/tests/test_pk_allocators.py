@@ -304,6 +304,24 @@ class PKAllocatorTestCase(TestCase):
             [(source.pk, 'Manufacturer 1'), (1_000_000, 'Manufacturer 3')]
         )
 
+    def test_bulk_create_reusing_queryset(self):
+        # A failed bulk_create() doesn't withdraw the primary keys allocated by an earlier one on the same queryset
+        allocator, calls = get_sequential_allocator(Manufacturer)
+        register_pk_allocator(allocator)
+        queryset = Manufacturer.objects.all()
+        manufacturer = Manufacturer(name='Manufacturer 1', slug='manufacturer-1')
+        queryset.bulk_create([manufacturer])
+
+        # These options are mutually exclusive, so the second call fails before allocating any primary keys
+        with self.assertRaises(ValueError):
+            queryset.bulk_create(
+                [Manufacturer(name='Manufacturer 2', slug='manufacturer-2')], ignore_conflicts=True,
+                update_conflicts=True
+            )
+
+        self.assertEqual(manufacturer.pk, 1_000_000)
+        self.assertFalse(manufacturer._state.adding)
+
     def test_bulk_create_with_unsaved_related_object(self):
         # Allocators aren't consulted until the objects have been validated, so a failed validation consumes no keys
         allocator, calls = get_sequential_allocator(Site)
