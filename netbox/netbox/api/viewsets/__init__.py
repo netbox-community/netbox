@@ -1,8 +1,9 @@
 import logging
 import warnings
+from contextlib import contextmanager
 from functools import cached_property
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
+from django.core.exceptions import FieldError, ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from rest_framework import mixins as drf_mixins
@@ -221,7 +222,7 @@ class NetBoxModelViewSet(
     """
     Extend DRF's ModelViewSet to support bulk update and delete functions.
     """
-    # The primary keys of objects whose rows have been locked by the current request (see lock_objects())
+    # The primary keys of objects whose rows are locked by the current transaction (see lock_objects())
     locked_pks = frozenset()
 
     def get_object_with_snapshot(self):
@@ -234,25 +235,25 @@ class NetBoxModelViewSet(
             obj.snapshot()
         return obj
 
+    @contextmanager
     def lock_object(self):
         """
-        Lock the row of the requested object until the end of the current transaction (see lock_objects()). Call
-        this before retrieving the object.
+        Lock the row of the requested object for the duration of the block (see lock_objects()). Enter this
+        immediately within a transaction, before retrieving the object.
 
         The object is found by its URL lookup alone. If it cannot be found this way (e.g. because get_object() has
         been overridden to support another form of lookup), no lock is taken, and the request proceeds as it would
         otherwise.
         """
+        manager = self.queryset.model._default_manager
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        if lookup_url_kwarg not in self.kwargs:
-            return
         try:
-            self.locked_pks = mixins.lock_objects(
-                self.queryset.model._default_manager.filter(**{self.lookup_field: self.kwargs[lookup_url_kwarg]})
-            )
-        except (TypeError, ValueError, ValidationError):
-            # The lookup value is not valid for the lookup field
-            pass
+            queryset = manager.filter(**{self.lookup_field: self.kwargs[lookup_url_kwarg]})
+        except (KeyError, FieldError, TypeError, ValueError, ValidationError):
+            # The URL has no lookup value, or the lookup is not valid for the model
+            queryset = manager.none()
+        with mixins.lock_objects(self, queryset):
+            yield
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -374,8 +375,7 @@ class NetBoxModelViewSet(
         # the other. Otherwise, each would save its own copy of the object, reverting any fields which another
         # update had changed since that copy was retrieved.
         using = router.db_for_write(self.queryset.model)
-        with transaction.atomic(using=using):
-            self.lock_object()
+        with transaction.atomic(using=using), self.lock_object():
             instance = self.get_object_with_snapshot()
 
             # Enforce If-Match precondition (RFC 9110 §13.1.1)

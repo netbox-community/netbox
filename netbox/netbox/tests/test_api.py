@@ -26,6 +26,7 @@ from netbox.api.exceptions import QuerySetNotOrdered, SerializerNotFound
 from netbox.api.fields import ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
 from netbox.api.pagination import NetBoxPagination
 from netbox.api.serializers import ValidatedModelSerializer
+from netbox.api.viewsets.mixins import BulkUpdateModelMixin
 from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.api import get_serializer_for_model
@@ -642,14 +643,42 @@ class ObjectUpdateLockingTestCase(APITestCase):
         self.assertHttpStatus(response, 412)
         self.assertFalse(Site.objects.filter(description='Description').exists())
 
+    @tag('regression')  # Ref: #23445
+    def test_bulk_update_with_object_deleted_concurrently(self):
+        """
+        Reject a bulk update if any object can no longer be found once the objects have been locked (e.g. because it
+        was deleted after the view checked that each object exists), rather than silently omitting it.
+        """
+        data = [{'id': site.pk, 'description': 'Description'} for site in self.sites]
+        perform_bulk_update = BulkUpdateModelMixin.perform_bulk_update
+
+        def delete_then_perform_bulk_update(viewset, *args, **kwargs):
+            # Delete a Site between the view's check for missing objects and the bulk update
+            Site.objects.filter(pk=self.sites[1].pk).delete()
+            return perform_bulk_update(viewset, *args, **kwargs)
+
+        with patch.object(BulkUpdateModelMixin, 'perform_bulk_update', delete_then_perform_bulk_update):
+            response = self.client.patch(reverse('dcim-api:site-list'), data, format='json', **self.header)
+        self.assertHttpStatus(response, 400)
+        self.assertEqual([e['id'] for e in response.data['errors']], [self.sites[1].pk])
+        self.assertFalse(Site.objects.filter(description='Description').exists())
+
     def test_lock_object(self):
-        """Lock the requested object if it can be found by its URL lookup, and otherwise take no lock."""
-        for kwargs, locked_pks in (
-            ({'pk': self.sites[0].pk}, {self.sites[0].pk}),
-            ({'pk': 'site-1'}, set()),  # Not a valid PK (e.g. for a viewset whose get_object() accepts a slug)
-            ({}, set()),  # No lookup value
+        """
+        Lock the requested object for the duration of the block if it can be found by its URL lookup, and otherwise
+        take no lock.
+        """
+        for attrs, locked_pks in (
+            ({'kwargs': {'pk': self.sites[0].pk}}, {self.sites[0].pk}),
+            # Not a valid PK (e.g. for a viewset whose get_object() accepts a slug)
+            ({'kwargs': {'pk': 'site-1'}}, set()),
+            # No lookup value
+            ({'kwargs': {}}, set()),
+            # Not a model field (e.g. for a viewset whose get_object() filters on an annotation)
+            ({'kwargs': {'circuit_count': 0}, 'lookup_field': 'circuit_count'}, set()),
         ):
-            with self.subTest(kwargs=kwargs):
-                viewset = SiteViewSet(kwargs=kwargs)
-                viewset.lock_object()
-                self.assertEqual(viewset.locked_pks, locked_pks)
+            with self.subTest(**attrs):
+                viewset = SiteViewSet(**attrs)
+                with viewset.lock_object():
+                    self.assertEqual(viewset.locked_pks, locked_pks)
+                self.assertEqual(viewset.locked_pks, set())

@@ -34,6 +34,7 @@ __all__ = (
     'discard_events_on_rollback',
     'get_duplicate_objects_response',
     'get_invalid_entries_response',
+    'get_missing_objects_errors',
     'get_missing_objects_response',
     'get_non_list_response',
     'lock_objects',
@@ -195,6 +196,27 @@ def get_duplicate_objects_response(object_ids):
     )
 
 
+def get_missing_objects_errors(object_ids, found_pks):
+    """
+    Return a list of per-object errors naming each of the given object IDs which is not among the
+    PKs found. See get_missing_objects_response().
+    """
+    return [
+        {
+            'id': object_id,
+            'errors': {
+                'id': [_("Object with ID {id} does not exist").format(id=object_id)],
+            },
+        }
+        # NetBox's bulk actions reject a repeated ID before reaching this point (see
+        # get_duplicate_objects_response), but de-duplicate anyway so that any other caller reports
+        # such an ID once rather than once per occurrence. dict.fromkeys() preserves the order of
+        # first appearance.
+        for object_id in dict.fromkeys(object_ids)
+        if object_id not in found_pks
+    ]
+
+
 def get_missing_objects_response(object_ids, queryset):
     """
     Return a structured error Response naming each of the given object IDs which the queryset does
@@ -210,22 +232,7 @@ def get_missing_objects_response(object_ids, queryset):
     returns for a dependency conflict, as this is a problem with the request itself rather than with
     the current state of the database.
     """
-    found_pks = set(queryset.values_list('pk', flat=True))
-
-    errors = [
-        {
-            'id': object_id,
-            'errors': {
-                'id': [_("Object with ID {id} does not exist").format(id=object_id)],
-            },
-        }
-        # NetBox's bulk actions reject a repeated ID before reaching this point (see
-        # get_duplicate_objects_response), but de-duplicate anyway so that any other caller reports
-        # such an ID once rather than once per occurrence. dict.fromkeys() preserves the order of
-        # first appearance.
-        for object_id in dict.fromkeys(object_ids)
-        if object_id not in found_pks
-    ]
+    errors = get_missing_objects_errors(object_ids, set(queryset.values_list('pk', flat=True)))
     if not errors:
         return None
 
@@ -279,17 +286,19 @@ def discard_events_on_rollback(sender, using=None):
         clear_events.send(sender=sender)
 
 
-def lock_objects(queryset):
+@contextmanager
+def lock_objects(viewset, queryset):
     """
-    Lock the rows of the objects matched by the given QuerySet until the end of the current
-    transaction, and return their primary keys.
+    Lock the rows of the objects matched by the given QuerySet, and record their primary keys on the
+    viewset as `locked_pks` for the duration of the block. Enter this immediately within the
+    transaction to which the locks belong (they are held until it ends), before retrieving the
+    objects to be modified.
 
-    Call this before retrieving objects to be modified, so that each object retrieved reflects any
-    write committed by a concurrent request which locked it first. Otherwise, each request would
-    save its own copy of an object, reverting any fields which another request had changed since
-    that copy was retrieved.
+    Each object retrieved then reflects any write committed by a concurrent request which locked it
+    first. Otherwise, each request would save its own copy of an object, reverting any fields which
+    another request had changed since that copy was retrieved.
     """
-    return set(
+    viewset.locked_pks = set(
         queryset
         # Lock rows in a consistent order, so that concurrent requests locking overlapping sets of
         # objects cannot deadlock. This also clears any default ordering, which may require JOINs.
@@ -298,6 +307,11 @@ def lock_objects(queryset):
         .select_for_update(no_key=True)
         .values_list('pk', flat=True)
     )
+    try:
+        yield
+    finally:
+        # The locks are released when the transaction ends
+        viewset.locked_pks = frozenset()
 
 
 class BackgroundOperationMixin:
@@ -633,12 +647,20 @@ class BulkUpdateModelMixin:
         errors = []
         error_statuses = set()
         using = router.db_for_write(self.queryset.model)
-        with transaction.atomic(using=using), discard_events_on_rollback(self, using=using):
-            # Lock the objects before retrieving them (when iterating over the QuerySet below), so that
-            # concurrent updates to the same objects are applied one after the other
-            self.locked_pks = lock_objects(
-                self.queryset.model._default_manager.filter(pk__in=update_data.keys())
-            )
+        with (
+            transaction.atomic(using=using),
+            discard_events_on_rollback(self, using=using),
+            # Lock the objects before retrieving them, so that concurrent updates to the same objects
+            # are applied one after the other
+            lock_objects(self, self.queryset.model._default_manager.filter(pk__in=update_data.keys())),
+        ):
+            objects = list(objects)
+
+            # Report any object which can no longer be found (e.g. because it was deleted after
+            # get_missing_objects_response() checked for it), rather than silently omitting it
+            if missing := get_missing_objects_errors(update_data.keys(), {obj.pk for obj in objects}):
+                errors.extend(missing)
+                error_statuses.add(status.HTTP_400_BAD_REQUEST)
 
             # Validate and save each object in turn so subsequent validations see the DB
             # state left by prior saves (e.g. two items renamed to the same name: the second
