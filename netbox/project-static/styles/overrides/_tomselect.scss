@@ -18,3 +18,50 @@ select.tomselected.is-invalid + div.ts-wrapper {
 select.tomselected[aria-invalid='true']:not(.is-invalid) + div.ts-wrapper {
   border: 1px solid $red;
 }
+
+// Tom Select's compiled preset reads Bootstrap tokens that Tabler only defines with its own prefix.
+.ts-wrapper,
+.ts-dropdown {
+  --bs-body-bg: var(--tblr-bg-forms);
+  --bs-body-color: var(--tblr-body-color);
+  --bs-border-color: var(--tblr-border-color);
+  --bs-border-color-translucent: var(--tblr-border-color-translucent);
+  --bs-border-radius: var(--tblr-border-radius);
+  --bs-border-radius-lg: var(--tblr-border-radius-lg);
+  --bs-border-radius-sm: var(--tblr-border-radius-sm);
+  --bs-border-width: var(--tblr-border-width);
+}
+
+// The compiled preset sizes the wrapper and colors the active item with Bootstrap's defaults.
+.ts-wrapper {
+  min-height: $input-height;
+}
+.input-group-sm > .ts-wrapper,
+.ts-wrapper.form-select-sm,
+.ts-wrapper.form-control-sm {
+  min-height: $input-height-sm;
+}
+.input-group-lg > .ts-wrapper,
+.ts-wrapper.form-select-lg,
+.ts-wrapper.form-control-lg {
+  min-height: $input-height-lg;
+}
+.ts-wrapper.multi .ts-control > div.active {
+  background: $primary;
+}
+
+// Tabler sets the transparent start of its focus ring fade only on the focused control
+.ts-control {
+  outline-color: transparent;
+}
+
+// Tom Select's fixed spinner gray is too faint on light surfaces
+.ts-dropdown .spinner::after {
+  border-color: light-dark(var(--tblr-gray-500), var(--tblr-gray-300)) transparent;
+}
+
+// API selects wrap Tom Select in a .d-flex, out of reach of the input group's corner rules
+.input-group > .d-flex:not(:first-child) > .ts-wrapper {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

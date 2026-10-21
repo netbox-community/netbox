@@ -7,8 +7,10 @@
  */
 
 svg {
+  // Transparent in both modes, so the elevation shows the page or card behind it
+  --nbx-rack-bg: transparent;
+
   // Light mode values
-  --nbx-rack-bg: var(--tblr-bg-surface-secondary);
   --nbx-rack-border: #{$black};
   --nbx-rack-slot-bg: #{$gray-200};
   --nbx-rack-slot-border: #{$gray-500};
@@ -18,7 +20,6 @@ svg {
 
   &[data-bs-theme='dark'] {
     // Dark mode values
-    --nbx-rack-bg: rgb(27, 41, 58);
     --nbx-rack-border: #{$gray-600};
     --nbx-rack-slot-bg: #{$gray-800};
     --nbx-rack-slot-border: #{$gray-700};

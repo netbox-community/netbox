@@ -5,25 +5,24 @@
   font-variant-ligatures: none;
 }
 
-// TODO: Remove when Tabler releases fix for https://github.com/tabler/tabler/issues/2271
-// and NetBox upgrades to that version. Fix merged to Tabler dev branch in PR #2548.
+// Keep the layout from shifting when a page gains a scrollbar
 :root,
 :host {
   @include media-breakpoint-up(lg) {
-    margin-left: 0;
     scrollbar-gutter: stable;
   }
-}
-
-// Restore default foreground & background colors for <pre> blocks
-pre {
-  background-color: transparent;
-  color: inherit;
 }
 
 // Slightly increase alert contrast between bg and text
 .alert {
   background: var(--#{$prefix}bg-surface);
+  // Keep the gap Tabler 1.4 put between an alert's flex children
+  gap: 1rem;
+
+  // Tabler 1.6 colors alert text with the variant, 1.4 kept the body color
+  &:not(.alert-important) {
+    color: inherit;
+  }
 }
 
 // Permit copying of badge text
@@ -41,10 +40,6 @@ pre {
     border: 1px solid var(--tblr-primary-fg);
     outline: 2px solid var(--tblr-primary) !important;
   }
-}
-.btn-sm {
-  // $border-radius-sm (2px) is too small
-  border-radius: $border-radius;
 }
 
 // Dropdown items
@@ -66,16 +61,15 @@ pre {
   }
 }
 
+// Opaque page background, also painted by the active page tab and the sticky form actions
+:root {
+  --tblr-page-bg: color-mix(in srgb, var(--tblr-body-color) 2.5%, var(--tblr-bg-surface-secondary));
+}
+
 // Altering background colors
 .page,
 .page-tabs .nav-tabs .nav-link.active {
-  background-color: var(--#{$prefix}bg-surface-tertiary) !important;
-}
-
-// Navigation bar
-.navbar {
-  // Lighten highlight color of active item
-  --tblr-navbar-active-bg: rgba(0, 0, 0, 0.06);
+  background-color: var(--#{$prefix}page-bg) !important;
 }
 
 // Dark mode colors
@@ -83,6 +77,8 @@ pre {
   @include color-mode(dark, true) {
     --#{$prefix}alert-color: darken(var(--#{$prefix}warning), 10%);
     --#{$prefix}link-color: #{$bright-teal};
+    // Tabler 1.6 lightens the hovered link, 1.4 darkened it
+    --#{$prefix}link-hover-color: color-mix(in srgb, #{$bright-teal}, black 20%);
     --#{$prefix}link-color-rgb: 0, 242, 212;
     --#{$prefix}link-hover-color-rgb: 0, 242, 212;
     --#{$prefix}secondary: #{$gray-400};
@@ -90,6 +86,9 @@ pre {
     --#{$prefix}primary-fg: #{$rich-black};
     --#{$prefix}primary-rgb: 0, 242, 212;
     --#{$prefix}btn-active-color: #{$rich-black};
+    // Tabler 1.7's translucent tertiary surface hides card headers on the dark cards
+    --#{$prefix}bg-surface-tertiary: var(--#{$prefix}gray-800);
+    --#{$prefix}page-bg: #{$rich-black-light};
   }
 }
 
@@ -102,6 +101,16 @@ html[data-bs-theme='dark'] {
 
   .btn-primary {
     color: $rich-black !important;
+  }
+
+  // 4.x kept these gray-500 in dark mode, 1.7 paints them from the gray-400 secondary
+  .text-bg-secondary,
+  .text-bg-gray {
+    background-color: color-mix(
+      in oklab,
+      var(--tblr-gray-500) calc(var(--tblr-bg-opacity, 1) * 100%),
+      transparent
+    ) !important;
   }
 
   // Change content color when primary teal changes with theme
@@ -126,10 +135,6 @@ html[data-bs-theme='dark'] {
   .navbar,
   .page-header {
     background-color: $rich-black;
-  }
-  .page,
-  .page-tabs .nav-tabs .nav-link.active {
-    background-color: $rich-black-light !important;
   }
 
   .page-link.active,
@@ -161,19 +166,10 @@ html[data-bs-theme='dark'] {
     --tblr-table-hover-color: inherit;
   }
 
-  // Tabler bakes a white glyph into the checked data URI, which reads at 1.4:1 against
-  // the teal dark-mode primary. A data URI is an isolated document, so the color cannot
-  // come from a custom property and has to be baked in at build time.
+  // Tabler's white checkbox glyph reads at 1.4:1 against the teal dark-mode primary
   .form-check-input:checked[type='checkbox'] {
-    --tblr-form-check-bg-image: #{escape-svg(
-        url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='none' stroke='#{$rich-black}' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8.5l2.5 2.5l5.5 -5.5'/></svg>")
-      )};
+    --tblr-form-check-icon-color: #{$rich-black};
   }
-}
-
-// Do not apply padding to <code> elements inside a <pre>
-pre code {
-  padding: unset;
 }
 
 // Use an icon instead of Tabler's native "caret" for dropdowns (avoids a Safari bug)

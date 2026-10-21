@@ -1,10 +1,12 @@
 // Compile NetBox's TypeScript and SCSS sources into dist/. Exits non-zero on any failure.
 import { rename, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname } from 'node:path';
+import { basename, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 import { sassPlugin } from 'esbuild-sass-plugin';
+import postcss from 'postcss';
+import prefixCustomProperties from 'postcss-prefix-custom-properties';
 
 // Resolve all paths relative to this directory, regardless of where the script is invoked from.
 // Both are needed: chdir() covers the file operations below, but esbuild resolves entry points
@@ -74,6 +76,22 @@ async function buildScripts() {
   ]);
 }
 
+// Tabler's build-time --tblr- prefix, with the ignore list of Tabler's own build
+const tablerPrefix = prefixCustomProperties({
+  prefix: 'tblr-',
+  ignore: [
+    /^--tblr-/,
+    /^--apx-/,
+    /^--bs-/,
+    /^--fc-/,
+    /^--gl-/,
+    /^--litepicker-/,
+    /^--plyr-/,
+    /^--ts-/,
+    '--section-bg',
+  ],
+});
+
 async function buildStyles() {
   await esbuild.build({
     ...common,
@@ -91,6 +109,12 @@ async function buildStyles() {
         quietDeps: true,
         // NetBox's own SCSS still relies on @import, which Dart Sass 3 will remove
         silenceDeprecations: ['import'],
+        // Only the main stylesheet compiles Tabler
+        async transform(css, resolveDir, filePath) {
+          if (basename(filePath) !== 'netbox.scss') return css;
+          const result = await postcss([tablerPrefix]).process(css, { from: filePath, map: false });
+          return result.css;
+        },
       }),
     ],
     loader: { '.woff2': 'file', '.svg': 'file' },

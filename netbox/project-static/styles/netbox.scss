@@ -1,9 +1,10 @@
-@import 'variables';
+@use 'tabler-config' as *;
 
 // Tabler & Tom-Select
-@import '@tabler/core/scss/core';
-@import 'tom-select/src/scss/tom-select.bootstrap5.scss';
-@import '@tabler/core/scss/vendor/tom-select';
+@use '@tabler/core/scss/tabler';
+// Tom Select's Sass source cannot take oklch colors. Tabler's adapter targets the compiled CSS.
+@use 'tom-select/dist/css/tom-select.bootstrap5' as tom-select-css;
+@use '@tabler/core/scss/vendor/tom-select';
 
 // Overrides of external libraries
 @import 'overrides/bootstrap';

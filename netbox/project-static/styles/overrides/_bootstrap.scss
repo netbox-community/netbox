@@ -1,14 +1,3 @@
-// Disable smooth scrolling for intra-page links
-html {
-  scroll-behavior: auto !important;
-}
-
-// Remove horizontal padding from highlighted text
-mark {
-  padding-left: 0;
-  padding-right: 0;
-}
-
 // Prevent dropdown menus from being clipped inside responsive tables
 .table-responsive {
   .dropdown,
@@ -21,17 +10,6 @@ mark {
 // Enforce a minimum width for progress bars
 .progress {
   min-width: 80px;
-}
-
-// Reduce vertical margin around dropdown menu divider
-hr.dropdown-divider {
-  margin-bottom: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-// Bootstrap forces the font weight for dropdown items to $font-weight-normal
-.dropdown-item {
-  font-weight: $font-weight-base;
 }
 
 // Restore support for old Bootstrap v3 colors

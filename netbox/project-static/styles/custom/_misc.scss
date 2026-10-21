@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use '../tabler-config' as *;
 
 // Color labels
 span.color-label {
@@ -135,7 +136,7 @@ html[data-bs-theme='dark'] {
   margin-top: map.get($spacers, 4);
   padding: map.get($spacers, 3);
   padding-bottom: calc(#{map.get($spacers, 3)} + env(safe-area-inset-bottom, 0));
-  background: var(--#{$prefix}bg-surface-secondary);
+  background: var(--#{$prefix}page-bg);
   border-top: 1px solid var(--#{$prefix}border-color);
 
   &[data-sticky-when='always'],

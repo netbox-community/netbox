@@ -1,4 +1,5 @@
 @use 'sass:map';
+@use '../tabler-config' as *;
 
 // Serialized data from change records
 pre.change-data {
