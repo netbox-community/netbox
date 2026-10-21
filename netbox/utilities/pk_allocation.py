@@ -26,13 +26,17 @@ def save_table_with_pk_allocation(
     Django would otherwise attempt an UPDATE using the allocated primary key first, overwriting any existing row which
     shares it. Objects saved with a primary key already set, and forced updates (which require one), are unaffected.
 
-    If the INSERT fails, the allocated primary key is withdrawn from the object, so that saving it again consults the
-    allocators again, rather than attempting an UPDATE of whichever row has the allocated primary key.
+    If the INSERT fails, or that of a multi-table inheritance child following it, the allocated primary key is withdrawn
+    from the object, so that saving it again consults the allocators again, rather than attempting an UPDATE of
+    whichever row has the allocated primary key.
 
     Allocators receive the model which owns the primary key column (the concrete parent, for a proxy or multi-table
     inheritance child), and the alias of the database being written to.
     """
     pk = cls._meta.pk
+    concrete_model = instance._meta.concrete_model
+    # The values to restore if the save fails, carried over from the insertion of any multi-table inheritance parents
+    unallocated = vars(instance).pop('_unallocated_pks', {})
     if (
         registry['pk_allocators']
         and isinstance(pk, AutoFieldMixin)
@@ -40,20 +44,29 @@ def save_table_with_pk_allocation(
         and not instance._is_pk_set(cls._meta)
         and (pks := allocate_pks(pk.model, using=using))
     ):
-        unallocated_pk = getattr(instance, pk.attname)
+        # Parent links are set from the allocated primary key once the parent has been inserted
+        parent_links = [
+            field.attname
+            for model in (concrete_model, *concrete_model._meta.get_parent_list())
+            for field in model._meta.parents.values() if field
+        ]
+        for attname in (pk.attname, *parent_links):
+            unallocated.setdefault(attname, getattr(instance, attname))
         setattr(instance, pk.attname, pks[0])
-        try:
-            return _save_table(
-                instance, raw=raw, cls=cls, force_insert=True, force_update=force_update, using=using,
-                update_fields=update_fields
-            )
-        except Exception:
-            setattr(instance, pk.attname, unallocated_pk)
-            raise
-    return _save_table(
-        instance, raw=raw, cls=cls, force_insert=force_insert, force_update=force_update, using=using,
-        update_fields=update_fields
-    )
+        force_insert = True
+    try:
+        updated = _save_table(
+            instance, raw=raw, cls=cls, force_insert=force_insert, force_update=force_update, using=using,
+            update_fields=update_fields
+        )
+    except Exception:
+        for attname, value in unallocated.items():
+            setattr(instance, attname, value)
+        raise
+    if unallocated and cls is not concrete_model:
+        # This is a multi-table inheritance parent, whose child has yet to be inserted
+        instance._unallocated_pks = unallocated
+    return updated
 
 
 def prepare_for_bulk_create_with_pk_allocation(queryset, objs):

@@ -351,6 +351,36 @@ class PKAllocatorTestCase(TestCase):
         self.assertTrue(ContentType.objects.filter(pk=1_000_000, app_label='test', model='test').exists())
         self.assertTrue(ObjectType.objects.filter(pk=1_000_000).exists())
 
+    def test_multi_table_inheritance_retry_after_failed_child_insert(self):
+        # If the child's INSERT fails, the parent's row is rolled back, so its allocated primary key is withdrawn along
+        # with the child's parent link
+        allocator, calls = get_sequential_allocator(ContentType)
+        register_pk_allocator(allocator)
+        # A null value for the child's non-nullable field fails only the child's INSERT
+        object_type = ObjectType(app_label='test', model='test', public=None)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            object_type.save()
+        self.assertIsNone(object_type.id)
+        self.assertIsNone(object_type.contenttype_ptr_id)
+
+        object_type.public = False
+        with CaptureQueriesContext(connection) as ctx:
+            object_type.save()
+
+        self.assertEqual(object_type.pk, 1_000_001)
+        for model in (ContentType, ObjectType):
+            inserts, updates = self.get_table_writes(ctx.captured_queries, model)
+            self.assertEqual(len(inserts), 1)
+            self.assertEqual(len(updates), 0)
+        self.assertFalse(ContentType.objects.filter(pk=1_000_000).exists())
+
+        # A failed update of the saved object leaves its primary key intact
+        object_type.public = None
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            object_type.save()
+        self.assertEqual(object_type.pk, 1_000_001)
+
     def test_proxy_model_with_allocator(self):
         # The allocator receives the concrete model of a proxy model
         user = User.objects.create_user(username='user1')
