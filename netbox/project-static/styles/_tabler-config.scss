@@ -1,0 +1,77 @@
+// Tabler's Sass members configured for NetBox. Emits no CSS, so partials may @use it.
+@use 'variables' as netbox;
+
+@forward 'variables' show $rich-black, $rich-black-light, $rich-black-lighter, $rich-black-lightest,
+  $bright-teal, $dark-teal;
+@forward '@tabler/core/scss/config' with (
+  $font-family-sans-serif: netbox.$font-family-sans-serif,
+  $font-family-monospace: netbox.$font-family-monospace,
+  $sidebar-width: netbox.$sidebar-width,
+  $btn-padding-x: netbox.$btn-padding-x,
+  $btn-padding-y: netbox.$btn-padding-y,
+  $table-cell-padding-x: netbox.$table-cell-padding-x,
+  $table-cell-padding-y: netbox.$table-cell-padding-y,
+  $nav-pills-link-active-bg: netbox.$nav-pills-link-active-bg,
+  $form-check-input-border: netbox.$form-check-input-border,
+  $primary: netbox.$primary,
+  $navbar-active-border-color: netbox.$navbar-active-border-color,
+  // Tabler 1.4 values of defaults that Tabler 1.5 and 1.6 changed
+  $gray-50: #f9fafb,
+  $gray-100: #f3f4f6,
+  $gray-200: #e5e7eb,
+  $gray-300: #d1d5db,
+  $gray-400: #9ca3af,
+  $gray-500: #6b7280,
+  $gray-600: #4b5563,
+  $gray-700: #374151,
+  $gray-800: #1f2937,
+  $gray-900: #111827,
+  $gray-950: #030712,
+  $font-weight-bold: 600,
+  $form-text-color: light-dark(
+      color-mix(in oklab, var(--gray-800) 75%, transparent),
+      var(--secondary-color)
+    ),
+  $headings-color: inherit,
+  $navbar-dark-active-bg: rgba(255, 255, 255, 0.06),
+  $sidebar-inset: 0,
+  $sidebar-nav-padding-y: 0.5rem,
+  $sidebar-nav-padding-x: var(--page-padding),
+  $sidebar-nav-icon-width: 1.25rem,
+  $sidebar-brand-padding-x: 0,
+  // Tabler 1.6 values of defaults that Tabler 1.7 changed
+  $badge-bg-color: var(--bg-surface-secondary),
+  $btn-gradient: none,
+  $btn-highlight-color: transparent,
+  $btn-padding-x-sm: 0.5rem,
+  $btn-shade-color: transparent,
+  $btn-variant-border-color: transparent,
+  $code-bg: light-dark(var(--gray-100), var(--gray-900)),
+  $hover-bg: light-dark(
+      color-mix(in oklab, var(--body-color) 6%, transparent),
+      color-mix(in oklab, var(--body-color) 8%, transparent)
+    ),
+  $input-btn-padding-y-sm: 0.3125rem,
+  $input-group-addon-bg: var(--bg-surface-secondary),
+  $list-group-header-bg: var(--bg-surface-tertiary),
+  $progress-bg: var(--border-color),
+  // NetBox's own styling choices
+  $btn-border-radius-sm: var(--border-radius),
+  $dropdown-divider-margin-y: 0.25rem,
+  $enable-smooth-scroll: false,
+  $mark-padding: 0.1875em 0,
+  $navbar-light-active-bg: rgba(0, 0, 0, 0.06),
+  $pre-bg: transparent,
+  $pre-color: inherit,
+  $progress-height: 20px,
+  // Dark-mode subtle backgrounds at their Tabler 1.4 brightness, which 1.7's OKLab mix darkens
+  $success-bg-subtle-dark: color-mix(in oklab, var(--black) 65%, var(--success)),
+  $warning-bg-subtle-dark: color-mix(in oklab, var(--black) 65%, var(--warning)),
+  $danger-bg-subtle-dark: color-mix(in oklab, var(--black) 65%, var(--danger)),
+  $info-bg-subtle-dark: color-mix(in oklab, var(--black) 65%, var(--info)),
+  $secondary-bg-subtle-dark: color-mix(in oklab, var(--black) 70%, var(--secondary)),
+  $primary-bg-subtle-dark: color-mix(in oklab, var(--black) 75%, var(--primary))
+);
+
+// Tabler 1.5 dropped its Sass $prefix. NetBox partials still interpolate it.
+$prefix: 'tblr-';

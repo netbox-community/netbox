@@ -41,7 +41,7 @@ NetBox generally follows the following guidelines for front-end code:
 - All TypeScript functions must have, at a minimum, a basic [JSDoc](https://jsdoc.app/) description of what the function is for and where it is used. If possible, document all function arguments via [`@param` JSDoc block tags](https://jsdoc.app/tags-param.html).
 - Expanding on NetBox's [dependency policy](style-guide.md#introducing-new-dependencies), new front-end dependencies should be avoided unless absolutely necessary. Every new front-end dependency adds to the CSS/JavaScript file size that must be loaded by the client and this should be minimized as much as possible. If adding a new dependency is unavoidable, use a tool like [Bundlephobia](https://bundlephobia.com/) to ensure the smallest possible library is used.
 - All UI elements must be usable on all common screen sizes, including mobile devices. Be sure to test newly implemented solutions (JavaScript included) on as many screen sizes and device types as possible.
-- NetBox aligns with Bootstrap's [supported Browsers and Devices](https://getbootstrap.com/docs/5.1/getting-started/browsers-devices/) list.
+- NetBox aligns with Tabler's [supported browsers](https://docs.tabler.io/ui/getting-started/browser-support) list.
 
 ## UI Development
 

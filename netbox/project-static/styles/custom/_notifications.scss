@@ -1,9 +1,10 @@
 @use 'sass:map';
+@use '../tabler-config' as *;
 
 // Mute read notifications
 tr[data-read='True'] {
   td {
     background-color: var(--#{$prefix}bg-surface-secondary);
-    color: $text-muted;
+    color: $text-secondary;
   }
 }
